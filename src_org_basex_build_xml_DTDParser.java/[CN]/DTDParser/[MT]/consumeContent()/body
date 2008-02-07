@@ -1,21 +1,27 @@
 {
   while (next() != 0) {
-    if (consume(ELEM) && consumeWS()) {
+    check=true;
+    if (consume(ELEM)) {
+      if (!consumeWS())       error();
       element=consumeName();
       tags.add(element);
       BaseX.debug("----------------------");
       BaseX.debug("- Element: %",element);
       contentSpec();
     }
- else     if (consume(ATTL) && consumeWS()) {
+ else     if (consume(ATTL)) {
+      if (!consumeWS())       error();
       attl=consumeName();
       atts.add(attl);
       BaseX.debug("----------------------");
       BaseX.debug("- ATTLIST: %",attl);
-      attType();
-      dDecl();
+      if (!consume(GREAT)) {
+        attType();
+        dDecl();
+      }
     }
- else     if (consume(ENT) && consumeWS()) {
+ else     if (consume(ENT)) {
+      if (!consumeWS())       error();
       if (percentage(next())) {
         if (!consumeWS())         error();
         enti=consumeName();
@@ -23,7 +29,7 @@
         BaseX.debug("----------------------");
         BaseX.debug("- Entity: %",enti);
         if (!consumeWS())         error();
-        peDef();
+        entDef();
       }
  else {
         prev();
@@ -31,10 +37,20 @@
         ents.add(enti);
         BaseX.debug("----------------------");
         BaseX.debug("- Entity: %",enti);
-        entityDef();
+        entDef();
       }
     }
+ else     if (consume(NOT)) {
+      if (!consumeWS())       error();
+      BaseX.debug("----------------------");
+      BaseX.debug(NOT);
+    }
+ else     if (consume(WELEM1) || consume(WELEM2) || consume(WELEM3)|| consume(WATTL1)|| consume(WATTL2)|| consume(XML)) {
+      error();
+    }
   }
+  consumeWS();
+  if (!consume(SBRACKETC))   error();
   BaseX.debug("----------------------");
   BaseX.debug("THE END");
 }

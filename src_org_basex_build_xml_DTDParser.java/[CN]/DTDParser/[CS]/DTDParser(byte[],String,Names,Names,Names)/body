@@ -6,9 +6,17 @@
   content=dtd;
   if (!consume(DOCTYPE) || !consumeWS())   error();
   root=consumeName();
+  if (string(root).equals(string(SYSTEM)))   error();
   if (!consumeWS())   error();
   if (consume(SYSTEM) && consumeWS()) {
     byte[] extid=consumeQuoted();
+    consumeWS();
+    if (consume(SBRACKETO)) {
+      content=dtd;
+      BaseX.debug("- Root Element Type: %",root);
+      BaseX.debug("- Content:\n %",content);
+      consumeContent();
+    }
     String file=new File(xmlfile).getParent() + "\\" + string(extid);
     content=IOConstants.read(file);
     pos=0;
@@ -17,10 +25,13 @@
     BaseX.debug("----------------");
     consumeContent();
   }
-  if (consume(SBRACKETO)) {
+ else   if (consume(SBRACKETO)) {
     content=dtd;
     BaseX.debug("- Root Element Type: %",root);
     BaseX.debug("- Content:\n %",content);
     consumeContent();
+  }
+ else {
+    error();
   }
 }

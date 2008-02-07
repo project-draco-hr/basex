@@ -1,58 +1,25 @@
 {
-  if (!consumeWS())   error();
+  consumeWS();
   BaseX.debug(consumeName());
-  if (!consumeWS())   error();
+  consumeWS();
   if (consume(CD)) {
     BaseX.debug(CD);
   }
- else   if (checkTokenize()) {
-    BaseX.debug(checkT);
+ else   if (consume(BRACKETO)) {
+    consumeBracketed2();
   }
  else   if (consume(NOT)) {
     if (!consumeWS() && !consume(BRACKETO))     error();
     consumeWS();
-    BaseX.debug(consumeName());
     if (consume(BRACKETO)) {
-      while (!consume(BRACKETC)) {
-        consumeWS();
-        if (consume(DASH)) {
-          consumeWS();
-          BaseX.debug(consumeName());
-          consumeWS();
-        }
- else         if (consume(BRACKETO)) {
-          while (!consume(BRACKETC)) {
-            consumeWS();
-            if (consume(DASH)) {
-              consumeWS();
-              BaseX.debug(consumeName());
-              consumeWS();
-            }
-          }
-        }
-      }
+      consumeBracketed2();
+    }
+ else {
+      BaseX.debug(consumeName());
     }
   }
- else   if (consume(BRACKETO)) {
-    consumeWS();
-    if (consume(BRACKETO)) {
-      while (!consume(BRACKETC)) {
-        consumeWS();
-        if (consume(DASH)) {
-          consumeWS();
-          consumeWS();
-        }
- else         if (consume(BRACKETO)) {
-          while (!consume(BRACKETC)) {
-            consumeWS();
-            if (consume(DASH)) {
-              consumeWS();
-              consumeWS();
-            }
-          }
-        }
-      }
-    }
+ else   if (checkTokenize()) {
+    BaseX.debug(checkT);
   }
  else   error();
 }

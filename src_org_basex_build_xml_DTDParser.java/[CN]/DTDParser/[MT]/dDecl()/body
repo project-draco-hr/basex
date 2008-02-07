@@ -2,13 +2,25 @@
   if (!consumeWS())   error();
   if (consume(REQ)) {
     BaseX.debug(REQ);
+    if (consumeWS()) {
+      if (consume(REQ) || consume(IMP) || consume(FIX))       error();
+    }
   }
  else   if (consume(IMP)) {
     BaseX.debug(IMP);
+    if (consumeWS()) {
+      if (consume(REQ) || consume(IMP) || consume(FIX))       error();
+    }
   }
  else   if (consume(FIX)) {
     BaseX.debug(FIX);
-    consumeWS();
+    if (!consumeWS())     error();
     BaseX.debug(consumeQuoted());
+  }
+ else {
+    BaseX.debug(consumeQuoted());
+    if (consumeWS()) {
+      if (consume(REQ) || consume(IMP) || consume(FIX))       error();
+    }
   }
 }
