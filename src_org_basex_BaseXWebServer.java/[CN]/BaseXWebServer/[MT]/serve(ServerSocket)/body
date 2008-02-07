@@ -1,0 +1,54 @@
+{
+  try {
+    final Socket s=server.accept();
+    final Performance p=new Performance();
+    final InputStream is=s.getInputStream();
+    final Request req=getRequest(is);
+    if (req.code == 0) {
+      s.getOutputStream().write(1);
+      running=false;
+      return;
+    }
+    new Thread(){
+      @Override public void run(){
+        try {
+          final File file=req.file;
+          final String path=absPath(file);
+          if (req.code == 404) {
+            BaseX.debug("File not found: %",path);
+            send("404 File Not Found","","Not found: " + path,s);
+          }
+ else           if (req.code == 302) {
+            send("302 Found","Location: " + path,"Redirecting to <a href='" + path + "'>"+ path+ "</a>.",s);
+          }
+ else           if (file.isDirectory()) {
+            sendDir(file,s);
+          }
+ else           if (req.suf.equals(XQSUFFIX)) {
+            evalXQuery(req,s);
+          }
+ else           if (req.suf.equals(PHPSUFFIX)) {
+            evalPHP(req,s);
+          }
+ else {
+            send(file,s);
+          }
+          is.close();
+          if (verbose) {
+            final InetAddress addr=s.getInetAddress();
+            BaseX.outln("%:% => % [%]",addr.getHostAddress(),s.getPort(),req.file.getName(),p.getTimer());
+          }
+        }
+ catch (        final Exception ex) {
+          if (ex instanceof IOException)           BaseX.errln(SERVERERR);
+ else           ex.printStackTrace();
+        }
+      }
+    }
+.start();
+  }
+ catch (  final Exception ex) {
+    if (ex instanceof IOException)     BaseX.errln(SERVERERR);
+ else     ex.printStackTrace();
+  }
+}

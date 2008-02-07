@@ -1,0 +1,47 @@
+{
+  final int p=qp;
+  if (consume('&')) {
+    if (consume('#')) {
+      final int b=consume('x') ? 16 : 10;
+      int n=0;
+      do {
+        final byte c=curr();
+        final boolean m=digit(c);
+        final boolean h=b == 16 && (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F');
+        if (!m && !h)         Err.or(ENTINVALID,invalidEnt(p));
+        n=n * b + (consume() & 15);
+        if (n < 0)         Err.or(ENTINVALID,invalidEnt(p));
+        if (!m)         n+=9;
+      }
+ while (!consume(';'));
+      if (!XMLScanner.valid(n))       Err.or(ENTINVALID,invalidEnt(p));
+      tb.addUTF(n);
+    }
+ else {
+      if (consumeWS())       Err.or(ENTINVALID,invalidEnt(p));
+      if (consume(OPBRK)) {
+        tb.add('<');
+      }
+ else       if (consume(CLBRK)) {
+        tb.add('>');
+      }
+ else       if (consume(AMP)) {
+        tb.add('&');
+      }
+ else       if (consume(QUOT)) {
+        tb.add('"');
+      }
+ else       if (consume(APOS)) {
+        tb.add('\'');
+      }
+ else {
+        Err.or(ENTUNKNOWN,invalidEnt(p));
+      }
+    }
+    tb.ent=true;
+  }
+ else {
+    final byte c=consume();
+    if (c != 0x0d)     tb.add(c);
+  }
+}

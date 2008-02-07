@@ -1,0 +1,20 @@
+{
+  final Commands comm=cmd.name;
+  if (comm.data() && context.data() == null)   return error(PROCNODB);
+  if (comm.updating() && Prop.mainmem)   return error(PROCMM);
+  try {
+    if (comm.args(cmd.nrArgs()))     return exec();
+    throw new IllegalArgumentException();
+  }
+ catch (  final IllegalArgumentException ex) {
+    return error(PROCSYNTAX,comm.help(true,true));
+  }
+catch (  final Exception ex) {
+    ex.printStackTrace();
+    return error(PROCERR,cmd,ex);
+  }
+catch (  final Error ex) {
+    ex.printStackTrace();
+    return error(PROCERR,cmd,ex);
+  }
+}

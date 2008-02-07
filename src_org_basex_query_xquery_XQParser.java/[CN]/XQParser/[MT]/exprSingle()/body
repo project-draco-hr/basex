@@ -1,0 +1,22 @@
+{
+  if (!consume(TRY))   return exprSingle2();
+  final Expr tr=enclosedExpr(NOENCLEXPR);
+  check(CATCH);
+  check(PAR1);
+  final int s=ctx.vars.size();
+  Var var1=null;
+  Var var2=null;
+  if (curr() == '$') {
+    var1=new Var(varName());
+    ctx.vars.add(var1);
+    if (consume(COMMA)) {
+      var2=new Var(varName());
+      if (var1.name.eq(var2.name))       Err.or(VARDEFINED,var2);
+      ctx.vars.add(var2);
+    }
+  }
+  check(PAR2);
+  final Expr ct=enclosedExpr(NOENCLEXPR);
+  ctx.vars.reset(s);
+  return new Try(tr,ct,var1,var2);
+}

@@ -1,0 +1,26 @@
+{
+  final byte[] val=(byte[])obj[0];
+  if (cat != null)   return cat[val[0]];
+  if (type == 0)   return val;
+  if (type == 1) {
+    byte[] tok={};
+    for (int i=0; i < 4; i++) {
+      if (val[i] > 0x30 && val[i] < 0x3A) {
+        if (tok.length != 0)         tok=append(tok,(byte)'.');
+        tok=append(tok,val[i]);
+      }
+    }
+    return tok;
+  }
+  if (type == 2) {
+    if (eq(val,YCBCRCOMP))     return YCBCR;
+    if (eq(val,RGBCOMP))     return RGB;
+    byte[] tok={};
+    for (int i=0; i < 4; i++) {
+      if (val[i] != 0)       tok=concat(tok,COMPCONF[val[i]]);
+    }
+    return tok;
+  }
+  BaseX.debug(EXIFUNDEFINED);
+  return EMPTY;
+}

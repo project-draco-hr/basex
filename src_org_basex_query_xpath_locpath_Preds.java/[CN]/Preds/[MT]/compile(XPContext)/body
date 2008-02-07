@@ -1,0 +1,19 @@
+{
+  tmp=new NodeSet(ctx);
+  for (int j=0; j < size; j++) {
+    final Pred pred=preds[j].compile(ctx);
+    if (pred.alwaysFalse()) {
+      ctx.compInfo(OPTEMPTY);
+      size=0;
+      return false;
+    }
+    if (pred.alwaysTrue()) {
+      ctx.compInfo(OPTPRED);
+      remove(j);
+    }
+ else {
+      preds[j]=pred;
+    }
+  }
+  return true;
+}

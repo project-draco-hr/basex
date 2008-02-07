@@ -1,0 +1,23 @@
+{
+  if (sortCol == -1)   return;
+  final int c=cols.get(sortCol);
+  final boolean e=elms.list[sortCol];
+  final Data data=GUI.context.data();
+  final boolean fsxml=data.deepfs;
+  final byte[][] tokens=new byte[rows.size][];
+  for (int r=0; r < rows.size; r++) {
+    int p=rows.get(r);
+    final int s=p + data.size(p,data.kind(p));
+    while (p != s) {
+      final int k=data.kind(p);
+      if (e && k == Data.ELEM && data.tagID(p) == c || !e && k == Data.ATTR && data.attNameID(p) == c) {
+        tokens[r]=data.atom(p);
+        break;
+      }
+      p+=fsxml ? 1 : data.attSize(p,k);
+    }
+    if (tokens[r] == null || tokens[r].length == 0)     tokens[r]=LAST;
+ else     if (tokens[r][0] < 0)     tokens[r][0]=126;
+  }
+  rows.sort(tokens,!e && data.deepfs && (c == data.sizeID || c == data.timeID),asc);
+}

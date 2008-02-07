@@ -1,0 +1,152 @@
+{
+  final byte[] valueSearchNode=searchNode;
+  byte[] afterWildcard=null;
+  byte[] beforeWildcard=null;
+  final int currentLength=0;
+  int resultNode;
+  int[][] d=null;
+  if (posWildcard > 0) {
+    beforeWildcard=new byte[posWildcard];
+    System.arraycopy(valueSearchNode,0,beforeWildcard,0,posWildcard);
+    resultNode=getNodeFromTrieRecursiveWildcard(currentCompressedTrieNode,beforeWildcard);
+    if (resultNode == -1) {
+      return null;
+    }
+  }
+ else {
+    resultNode=0;
+  }
+  byte wildcard;
+  if (posWildcard + 1 >= valueSearchNode.length) {
+    wildcard='.';
+  }
+ else {
+    wildcard=valueSearchNode[posWildcard + 1];
+  }
+  if (wildcard == '?') {
+    byte[] searchChar=new byte[valueSearchNode.length - 2 - currentLength];
+    if (beforeWildcard != null) {
+      System.arraycopy(beforeWildcard,0,searchChar,0,beforeWildcard.length);
+    }
+    if (beforeWildcard == null) {
+      System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,0,searchChar.length);
+    }
+ else {
+      System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,beforeWildcard.length,searchChar.length - beforeWildcard.length);
+    }
+    d=getNodeFromTrieRecursive(0,searchChar);
+    searchChar=new byte[valueSearchNode.length - 1];
+    if (beforeWildcard != null) {
+      System.arraycopy(beforeWildcard,0,searchChar,0,beforeWildcard.length);
+      searchChar[beforeWildcard.length]='.';
+      System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,beforeWildcard.length + 1,searchChar.length - beforeWildcard.length - 1);
+    }
+ else {
+      searchChar[0]='.';
+      System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,1,searchChar.length - 1);
+    }
+    d=ftOR(d,getNodeFromTrieWithWildCard(0,searchChar,posWildcard,false));
+    return d;
+  }
+ else   if (wildcard == '*') {
+    if (!(posWildcard == 0 && valueSearchNode.length == 2)) {
+      final byte[] searchChar=new byte[valueSearchNode.length - 2 - currentLength];
+      if (beforeWildcard != null) {
+        System.arraycopy(beforeWildcard,0,searchChar,0,beforeWildcard.length);
+      }
+      if (beforeWildcard == null) {
+        afterWildcard=new byte[searchChar.length];
+        System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,0,searchChar.length);
+        System.arraycopy(valueSearchNode,posWildcard + 2,afterWildcard,0,searchChar.length);
+      }
+ else {
+        afterWildcard=new byte[searchChar.length - beforeWildcard.length];
+        System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,beforeWildcard.length,searchChar.length - beforeWildcard.length);
+        System.arraycopy(valueSearchNode,posWildcard + 2,afterWildcard,0,searchChar.length - beforeWildcard.length);
+      }
+      d=getNodeFromTrieRecursive(0,searchChar);
+      if (beforeWildcard != null && counter[1] != beforeWildcard.length) {
+        return d;
+      }
+    }
+    astericsWildCardData=null;
+    astericsWildCardTraversing(resultNode,afterWildcard,false,counter[0],0);
+    return ftOR(d,astericsWildCardData);
+  }
+ else   if (wildcard == '+') {
+    final byte[] searchChar=new byte[valueSearchNode.length - 1 - currentLength];
+    if (beforeWildcard != null) {
+      System.arraycopy(beforeWildcard,0,searchChar,0,beforeWildcard.length);
+    }
+    searchChar[posWildcard]='.';
+    if (beforeWildcard == null) {
+      if (!(posWildcard == 0 && valueSearchNode.length == 2)) {
+        afterWildcard=new byte[searchChar.length];
+        System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,1,searchChar.length);
+        System.arraycopy(valueSearchNode,posWildcard + 2,afterWildcard,1,searchChar.length);
+      }
+    }
+ else {
+      afterWildcard=new byte[searchChar.length - beforeWildcard.length - 1];
+      System.arraycopy(valueSearchNode,posWildcard + 2,searchChar,beforeWildcard.length + 1,searchChar.length - beforeWildcard.length - 1);
+      System.arraycopy(valueSearchNode,posWildcard + 2,afterWildcard,0,searchChar.length - beforeWildcard.length - 1);
+    }
+    d=getNodeFromTrieWithWildCard(0,searchChar,posWildcard,true);
+    byte[] newValue;
+    if (afterWildcard != null) {
+      int length=0;
+      if (beforeWildcard == null)       length=3;
+ else       length=beforeWildcard.length + 3;
+      newValue=new byte[length + afterWildcard.length];
+      System.arraycopy(afterWildcard,0,newValue,length,afterWildcard.length);
+    }
+ else {
+      newValue=new byte[beforeWildcard.length + 3];
+    }
+    newValue[beforeWildcard.length + 1]='.';
+    newValue[beforeWildcard.length + 2]='*';
+    System.arraycopy(beforeWildcard,0,newValue,0,beforeWildcard.length);
+    for (    final byte v : valuesFound) {
+      if (v != 0) {
+        newValue[beforeWildcard.length]=v;
+        d=ftOR(d,getNodeFromTrieWithWildCard(newValue,beforeWildcard.length + 1));
+      }
+    }
+    return d;
+  }
+ else {
+    if (nodes[resultNode][0] > counter[0]) {
+      valueSearchNode[posWildcard]=nodes[resultNode][counter[0] + 1];
+      final int[][] resultData=getNodeFromTrieRecursive(0,valueSearchNode);
+      if (resultData != null && recCall) {
+        valuesFound=new byte[]{nodes[resultNode][counter[0] + 1]};
+      }
+      return resultData;
+    }
+ else     if (nodes[resultNode][0] == counter[0]) {
+      if (nodes[resultNode][nodes[resultNode][0] + 1] > 0) {
+        return null;
+      }
+      int[][] tmpNode=null;
+      afterWildcard=new byte[valueSearchNode.length - posWildcard];
+      System.arraycopy(valueSearchNode,posWildcard + 1,afterWildcard,1,afterWildcard.length - 1);
+      final int[] nextNodes=getNextNodes(resultNode);
+      if (!recCall) {
+        for (        final int n : nextNodes) {
+          afterWildcard[0]=nodes[n][1];
+          tmpNode=ftOR(tmpNode,getNodeFromTrieRecursive(n,afterWildcard));
+        }
+        return tmpNode;
+      }
+ else {
+        valuesFound=new byte[nextNodes.length];
+        for (int i=0; i < nextNodes.length; i++) {
+          afterWildcard[0]=nodes[nextNodes[i]][1];
+          valuesFound[i]=nodes[nextNodes[i]][1];
+          tmpNode=ftOR(tmpNode,getNodeFromTrieRecursive(nextNodes[i],afterWildcard));
+        }
+      }
+    }
+  }
+  return null;
+}

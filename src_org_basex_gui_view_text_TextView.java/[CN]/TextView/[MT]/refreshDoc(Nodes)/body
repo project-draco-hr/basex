@@ -1,0 +1,19 @@
+{
+  find=Token.EMPTY;
+  rend.find(find);
+  if (!GUIProp.showtext || !rend.header.equals(GUIConstants.TEXTVIEW))   return;
+  if (!GUI.context.db() || nodes.size == 0) {
+    setText(Token.EMPTY);
+    return;
+  }
+  try {
+    final CachedOutput out=GUI.get().textcache;
+    out.reset();
+    final boolean chop=GUI.context.data().meta.chop;
+    nodes.serialize(new PrintSerializer(out,false,chop));
+    setText(out.finish(),false);
+  }
+ catch (  final Exception ex) {
+    BaseX.debug(ex);
+  }
+}

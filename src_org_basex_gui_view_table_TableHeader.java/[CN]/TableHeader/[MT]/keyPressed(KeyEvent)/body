@@ -1,0 +1,27 @@
+{
+  GUI.get().browse(e);
+  shift=e.isShiftDown();
+  ctrl=e.isControlDown();
+  alt=e.isAltDown();
+  if (box == null && alt)   return;
+  final int c=e.getKeyCode();
+  if (c == KeyEvent.VK_ENTER) {
+    box.stop();
+    inputCol=-1;
+    final Nodes marked=GUI.context.marked();
+    if (marked.size != 0)     View.notifyContext(marked,false);
+  }
+ else   if (c == KeyEvent.VK_TAB) {
+    if (box != null) {
+      tdata.filter[inputCol]=box.text;
+      box.stop();
+    }
+    inputCol=(inputCol + (shift ? -1 : 1)) % tdata.filter.length;
+    if (inputCol == -1)     inputCol=tdata.filter.length - 1;
+    box=new TableInput(TableHeader.this,tdata.filter[inputCol]);
+  }
+ else {
+    box.code(c);
+  }
+  repaint();
+}

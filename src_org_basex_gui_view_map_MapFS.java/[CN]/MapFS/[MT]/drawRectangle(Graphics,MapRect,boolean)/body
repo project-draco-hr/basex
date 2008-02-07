@@ -1,0 +1,149 @@
+{
+  final Context context=GUI.context;
+  final Data data=context.data();
+  final int o=GUIProp.fontsize;
+  final int pre=rect.p;
+  final int kind=data.kind(pre);
+  final boolean tag=kind == Data.ELEM || kind == Data.DOC;
+  final boolean file=FSUtils.isFile(data,pre);
+  final boolean dir=!file && FSUtils.isDir(data,pre);
+  final Nodes current=context.current();
+  final byte[] name=current.size == 1 && pre != 0 && !file && pre == current.pre[0] ? ViewData.path(data,pre) : ViewData.tag(data,pre);
+  final boolean isImage=GUIFS.mime(name) == GUIFS.Type.IMAGE;
+  if (isImage) {
+    final Image image=images.get(pre);
+    if (image != null) {
+      final int ww=rect.w - (PICOFFSET << 1);
+      final int hh=rect.h - (PICOFFSET << 1);
+      float iw=image.getWidth(view);
+      float ih=image.getHeight(view);
+      final float min=Math.min(ww / iw,hh / ih);
+      if (min < 1) {
+        iw*=min;
+        ih*=min;
+      }
+      rect.x+=PICOFFSET;
+      rect.y+=PICOFFSET;
+      g.drawImage(image,rect.x + ((ww - (int)iw) >> 1),rect.y + ((hh - (int)ih) >> 1),(int)iw,(int)ih,view);
+      return false;
+    }
+  }
+  final boolean leaf=ViewData.isLeaf(data,pre);
+  final boolean full=!isImage && rect.w >= GUIProp.fontsize * 12 && rect.h >= GUIProp.fontsize * 8 || rect.w == view.getWidth() && rect.h == view.getHeight();
+  final int fullsize=full && (leaf || file) ? 1 : 0;
+  final int off=(16 << fullsize) + fullsize * 8;
+  final byte[] text=tag ? name : data.text(pre);
+  g.setFont(tag ? fullsize == 1 ? GUIConstants.lfont : GUIConstants.font : GUIConstants.mfont);
+  final Image img=file ? GUIFS.images(name,fullsize) : dir && leaf ? GUIFS.folder2[fullsize] : null;
+  final int fh=g.getFontMetrics().getHeight();
+  if (fullsize == 0) {
+    if (img == null && !leaf) {
+      g.setColor(Color.black);
+      BaseXLayout.chopString(g,text,rect.x + 2,rect.y,rect.w);
+    }
+ else {
+      final int x=rect.x;
+      int w=rect.w;
+      if (img != null) {
+        rect.x+=off;
+        rect.w-=off;
+      }
+      final int h=BaseXLayout.drawText(g,rect,text,1,false);
+      if (img != null) {
+        if (!mark) {
+          g.setColor(GUIConstants.COLORS[rect.l + 1]);
+          g.fillRect(x + 1,rect.y + 1,w - 2,h + 2);
+        }
+        g.drawImage(img,x,rect.y + 2,view);
+      }
+      g.setColor(Color.black);
+      BaseXLayout.drawText(g,rect,text,tag ? 1 : Integer.MAX_VALUE,true);
+      if (h == GUIProp.fontsize && img != null) {
+        final long size=FSUtils.getSize(data,pre);
+        final byte[] info=Token.token(Performance.formatSize(size,false));
+        w=BaseXLayout.width(g,info);
+        if (BaseXLayout.width(g,text) < rect.w - w - 10) {
+          final int ox=rect.x;
+          rect.x+=rect.w - w - 2;
+          BaseXLayout.chopString(g,info,rect.x,rect.y,rect.w);
+          rect.x=ox;
+        }
+      }
+      rect.y+=h;
+      rect.h-=h;
+      rect.x-=o;
+      rect.w+=o;
+    }
+    rect.x+=3;
+    rect.w-=3;
+  }
+ else {
+    if (tag) {
+      if (GUIFS.mime(name) == GUIFS.Type.IMAGE)       return false;
+      g.setColor(GUIConstants.COLORS[rect.l + 2]);
+      g.fillRect(rect.x + 2,rect.y + 2,rect.w - 5,fh + 12);
+      g.drawImage(img,rect.x + 6,rect.y + 6,view);
+      rect.y+=18;
+      rect.h-=18;
+      g.setColor(Color.black);
+      final int w=BaseXLayout.chopString(g,text,rect.x + off + 3,rect.y,rect.w - off - 3);
+      final long size=FSUtils.getSize(data,pre);
+      final String info=GUIFS.desc(text,dir) + ", " + Performance.formatSize(size,true);
+      rect.w-=10;
+      final int sw=BaseXLayout.width(g,info);
+      if (w + sw + 40 < rect.w) {
+        g.setColor(GUIConstants.COLORS[rect.l + 10]);
+        BaseXLayout.chopString(g,Token.token(info),rect.x + rect.w - sw,rect.y,rect.w);
+      }
+      rect.x+=10;
+      rect.y+=30;
+      rect.h-=38;
+    }
+ else {
+      rect.x+=12;
+      rect.y+=12;
+      rect.w-=24;
+      rect.h-=24;
+      g.setColor(GUIConstants.COLORS[16]);
+      BaseXLayout.drawText(g,rect,data.text(pre),Integer.MAX_VALUE,true);
+    }
+  }
+  if (!file || rect.w < (o << 1) || rect.h < (o << 1))   return false;
+  g.setColor(GUIConstants.COLORS[16]);
+  rect.y+=o >> 1;
+  rect.h-=o >> 1;
+  long b=0;
+  final byte[] path=ViewData.path(data,pre);
+  try {
+    boolean binary=GUIFS.mime(name) == GUIFS.Type.IMAGE;
+    if (!binary) {
+      b=rect.h * rect.w / o * 4 / GUIConstants.mfwidth['A'];
+      while (b >= fileBuf.length)       fileBuf=Array.extend(fileBuf);
+      final BufferInput bi=new BufferInput(Token.string(path),fileBuf);
+      bi.read();
+      bi.close();
+      b=Math.min(bi.length(),b);
+      if (b > fileBuf.length)       b=fileBuf.length;
+      int n=0;
+      for (int i=0; i < b; i++) {
+        final byte bb=fileBuf[i];
+        if (bb > 31 || bb == 0x0D || bb == 0x0A)         n++;
+      }
+      binary=(n << 3) + n < (b << 3);
+    }
+    if (binary) {
+      if (!file && leaf || file && !leaf)       return true;
+      fileBuf=MAPBINARY;
+      b=fileBuf.length;
+    }
+  }
+ catch (  final IOException ex) {
+    if (!error)     BaseX.debug("Could not parse \"%\".",path);
+    BaseX.debug(ex);
+    error=true;
+    return true;
+  }
+  g.setFont(GUIConstants.mfont);
+  BaseXLayout.drawText(g,rect,fileBuf,(int)b,Integer.MAX_VALUE,true);
+  return false;
+}

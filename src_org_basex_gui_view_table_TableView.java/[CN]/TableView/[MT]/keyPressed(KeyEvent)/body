@@ -1,0 +1,31 @@
+{
+  super.keyPressed(e);
+  if (tdata.invalid || e.isAltDown())   return;
+  final int key=e.getKeyCode();
+  final int lines=(getHeight() - header.getHeight()) / tdata.rowH;
+  final int oldPre=tdata.getRoot(GUI.context.data(),ViewData.focusedPre);
+  int pre=oldPre;
+  final IntList rows=tdata.rows;
+  if (key == KeyEvent.VK_HOME) {
+    pre=rows.get(0);
+  }
+ else   if (key == KeyEvent.VK_END) {
+    pre=rows.get(rows.size - 1);
+  }
+ else   if (key == KeyEvent.VK_UP) {
+    pre=rows.get(Math.max(0,getOff(pre) - 1));
+  }
+ else   if (key == KeyEvent.VK_DOWN) {
+    pre=rows.get(Math.min(rows.size - 1,getOff(pre) + 1));
+  }
+ else   if (key == KeyEvent.VK_PAGE_UP) {
+    pre=rows.get(Math.max(0,getOff(pre) - lines));
+  }
+ else   if (key == KeyEvent.VK_PAGE_DOWN) {
+    pre=rows.get(Math.min(rows.size - 1,getOff(pre) + lines));
+  }
+  if (pre != oldPre) {
+    setPos(pre);
+    notifyFocus(pre,null);
+  }
+}

@@ -1,0 +1,57 @@
+{
+  entity.reset();
+  entity.add('&');
+  byte ch=nextChar();
+  entity.add(ch);
+  if (ch == '#') {
+    int b=10;
+    entity.add(ch=nextChar());
+    if (ch == 'x') {
+      b=16;
+      entity.add(ch=nextChar());
+    }
+    int n=0;
+    do {
+      final boolean m=ch >= '0' && ch <= '9';
+      final boolean h=b == 16 && (ch >= 'a' && ch <= 'f' || ch >= 'A' && ch <= 'F');
+      if (!m && !h) {
+        completeEntity();
+        if (Prop.entity)         error(INVALIDENTITY,entity);
+        return 0;
+      }
+      n*=b;
+      n+=ch & 15;
+      if (!m)       n+=9;
+      entity.add(ch=nextChar());
+    }
+ while (ch != ';');
+    if (!valid(n)) {
+      if (Prop.entity)       error(XMLENT,entity);
+      return 0;
+    }
+    return n;
+  }
+  int p=1;
+  int e=0;
+  while (true) {
+    final byte ent=ENTITIES[e][p];
+    if (ent > ch) {
+      completeEntity();
+      if (Prop.entity)       error(INVALIDENTITY,entity);
+      return 0;
+    }
+    if (ent == ch) {
+      entity.add(ch=nextChar());
+      if (++p < ENTITIES[e].length)       continue;
+      if (ch == ';')       return ENTITIES[e][0];
+    }
+    do {
+      if (++e == ENTITIES.length) {
+        completeEntity();
+        if (Prop.entity)         error(INVALIDENTITY,entity);
+        return 0;
+      }
+    }
+ while (ENTITIES[e].length <= p);
+  }
+}

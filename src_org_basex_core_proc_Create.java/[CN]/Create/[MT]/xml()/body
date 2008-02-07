@@ -1,0 +1,15 @@
+{
+  if (cmd.nrArgs() != 2)   throw new IllegalArgumentException();
+  final String file=cmd.arg(1);
+  if (file.startsWith("<")) {
+    return build(new XMLParser(new CachedInput(Token.token(file))),"temp");
+  }
+  String path=file;
+  try {
+    path=filePath(path,true);
+    return build(new XMLParser(path),path);
+  }
+ catch (  final IOException e) {
+    return error(e.getMessage(),path);
+  }
+}

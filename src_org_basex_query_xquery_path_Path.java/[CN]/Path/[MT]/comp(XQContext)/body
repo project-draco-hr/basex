@@ -1,0 +1,29 @@
+{
+  root=root.comp(ctx);
+  if (root instanceof CDoc || (root instanceof Fun && ((Fun)root).func == FunDef.DOC)) {
+    if (expr[0] instanceof Step) {
+      if (((Step)expr[0]).axis == Axis.ATTR)       Err.or(DOCATTR);
+    }
+  }
+  if (root instanceof CAttr) {
+    if (expr[0] instanceof Step) {
+      if (((Step)expr[0]).axis == Axis.CHILD)       Err.or(ATTRCHILD);
+    }
+  }
+  for (int e=0; e != expr.length; e++) {
+    expr[e]=expr[e].comp(ctx);
+    steps&=expr[e] instanceof Step;
+  }
+  if (steps) {
+    mergeDesc(ctx);
+    checkEmpty();
+    cache=true;
+    for (    Expr e : expr) {
+      if (((Step)e).expr.length != 0 && (e.uses(Using.VAR))) {
+        cache=false;
+        break;
+      }
+    }
+  }
+  return this;
+}

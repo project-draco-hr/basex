@@ -1,0 +1,39 @@
+{
+  final Nodes p=qu("/site/people/person");
+  final Nodes c=qu("/site/closed_auctions/closed_auction");
+  final Nodes i=qu("/site/regions/europe/item");
+  final XPathProcessor stepName=parse("name/text()");
+  final XPathProcessor stepItemRef=parse("itemref/@item");
+  final XPathProcessor stepID=parse("@id");
+  final int ps=p.size;
+  for (int pi=0; pi < ps; pi++) {
+    writeSep(pi);
+    out.out.print("<person name=\"");
+    out.out.printToken(token(p,pi,stepName),data.meta.entity);
+    final byte[] token=token(p,pi,stepID);
+    final Nodes a=eval(parse(".[buyer/@person = '" + Token.string(token) + "']"),c);
+    if (a.size == 0) {
+      out.out.print("\"/>");
+    }
+ else {
+      out.out.print("\">");
+      final int as=a.size;
+      for (int ai=0; ai < as; ai++) {
+        final Nodes n=eval(parse(".[@id = '" + Token.string(token(a,ai,stepItemRef)) + "']"),i);
+        if (n.size == 0) {
+          out.out.print("<item/>");
+        }
+ else {
+          out.out.print("<item>");
+          final int ns=n.size;
+          for (int ni=0; ni < ns; ni++) {
+            out.out.printToken(token(n,ni,stepName),data.meta.entity);
+          }
+          out.out.print("</item>");
+        }
+      }
+      out.out.print("</person>");
+    }
+  }
+  return p.size;
+}

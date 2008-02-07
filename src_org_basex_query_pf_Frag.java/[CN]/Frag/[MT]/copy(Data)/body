@@ -1,0 +1,24 @@
+{
+  if (data == null)   return;
+  final int s=data.size;
+  if (data instanceof Frag) {
+    final Frag d=(Frag)data;
+    for (int p=0; p < s; p++)     append(d,p);
+  }
+ else {
+    final Data d=data;
+    for (int p=0; p < s; p++) {
+      final int k=d.kind(p);
+      final int r=p - d.parent(p,k);
+      if (k == Data.ATTR) {
+        addAtt(tags.index(d.attName(p)),d.attValue(p),r);
+      }
+ else       if (k == Data.ELEM || k == Data.DOC) {
+        addElem(tags.index(d.tag(p)),r,d.attSize(p,k),d.size(p,k),k);
+      }
+ else {
+        addText(d.text(p),r,k);
+      }
+    }
+  }
+}

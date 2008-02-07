@@ -1,0 +1,38 @@
+{
+  String type="";
+  final Matcher m=KEYPAT.matcher(mCurrLine);
+  if (m.matches()) {
+    type=m.group(1).toLowerCase();
+    mCurrLine=m.group(2).trim();
+  }
+  boolean readNext=true;
+  if (type.equals("from")) {
+    getSender(listener);
+  }
+ else   if (type.equals("date")) {
+    getDate(listener);
+  }
+ else   if (type.equals("subject")) {
+    getSubject(listener);
+    readNext=false;
+  }
+ else   if (type.equals("to")) {
+    getReceivers(listener);
+    readNext=false;
+  }
+ else   if (type.equals("content-type") || mCurrLine.contains("boundary=")) {
+    getEmailContentType(listener);
+  }
+ else   if (type.equals("content-transfer-encoding")) {
+    getEncoding();
+  }
+ else {
+    for (int i=0; i < EMLATTR.length; i++) {
+      if (type.equals(EMLATTR[i])) {
+        listener.nodeAndText(ATTRIBUTETOKENS[i],token(mCurrLine));
+        return;
+      }
+    }
+  }
+  if (readNext)   readLine();
+}

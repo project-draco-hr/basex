@@ -1,0 +1,33 @@
+{
+  for (int e=0; e != exprs.length; e++) {
+    exprs[e]=exprs[e].compile(ctx);
+    if (exprs[e] instanceof LocPath) {
+      ((LocPath)exprs[e]).addPosPred(ctx);
+    }
+ else     if (exprs[e] instanceof Item) {
+      if (!((Item)exprs[e]).bool()) {
+        ctx.compInfo(OPTAND1);
+        return Bool.FALSE;
+      }
+      ctx.compInfo(OPTAND2);
+      final Expr[] tmp=new Expr[exprs.length - 1];
+      System.arraycopy(exprs,0,tmp,0,e);
+      System.arraycopy(exprs,e + 1,tmp,e,exprs.length - e-- - 1);
+      exprs=tmp;
+    }
+  }
+  if (exprs.length == 0)   return Bool.TRUE;
+  if (exprs.length == 1)   return exprs[0];
+  if (exprs.length == 2 && exprs[0] instanceof Comparison && exprs[1] instanceof Comparison) {
+    final Comparison r1=(Comparison)exprs[0];
+    final Comparison r2=(Comparison)exprs[1];
+    if (!r1.simple() || !r2.simple())     return this;
+    final LocPath p1=(LocPath)r1.expr1;
+    final LocPath p2=(LocPath)r2.expr1;
+    if ((r1.type == Comp.GT || r1.type == Comp.GE) && (r2.type == Comp.LT || r2.type == Comp.LE) && p1.sameAs(p2)) {
+      ctx.compInfo(OPTRANGE);
+      return new Range(exprs,(Item)r1.expr2,r1.type == Comp.GE,(Item)r2.expr2,r2.type == Comp.LE);
+    }
+  }
+  return allOf(ctx);
+}

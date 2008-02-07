@@ -1,0 +1,19 @@
+{
+  tags.finish(meta.dbname);
+  atts.finish(meta.dbname);
+  close();
+  final TableAccess ta=new TableDiskAccess(meta.dbname,DATATBL);
+  final DataInput in=new DataInput(meta.dbname,DATATMP);
+  for (int pre=0; pre < ssize; pre++) {
+    final int pp=in.readInt();
+    final int sz=in.readInt() - pp;
+    ta.write4(pp,4,sz);
+  }
+  in.close();
+  ta.close();
+  IOConstants.dbfile(meta.dbname,DATATMP).delete();
+  meta.write(size);
+  stats.finish();
+  stats.write();
+  return new DiskData(meta.dbname,false);
+}

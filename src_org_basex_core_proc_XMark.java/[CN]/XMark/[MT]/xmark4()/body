@@ -1,0 +1,19 @@
+{
+  final Nodes b=qu("/site/open_auctions/open_auction");
+  final XPathProcessor stepRef1=parse("bidder/personref[@person = 'person18829']");
+  final XPathProcessor stepRef2=parse("bidder/personref[@person = 'person10487']");
+  final XPathProcessor stepReserve=parse("initial/text()");
+  int hits=0;
+  final int bs=b.size;
+  for (int bi=0; bi < bs; bi++) {
+    final Nodes c1=eval(stepRef1,b,bi);
+    if (c1.size == 0)     continue;
+    final Nodes c2=eval(stepRef2,b,bi);
+    if (c2.size == 0)     continue;
+    if (c1.pre[0] < c2.pre[0]) {
+      writeSep(hits++);
+      writeTag("history",b,bi,stepReserve);
+    }
+  }
+  return hits;
+}

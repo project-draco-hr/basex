@@ -1,0 +1,39 @@
+{
+  this.ctx=context;
+  int[][] res=null;
+  NodeSet n;
+  Item i=exprs[0].eval(context);
+  if (i instanceof NodeSet) {
+    n=(NodeSet)i;
+    if (ftpos.ftPosFilt != null) {
+      if (ftpos.ftPosFilt.equals(FTPositionFilter.POSFILTER.ORDERED)) {
+        res=calculateFTOrdered(n.ftidpos,n.ftpointer);
+      }
+ else       if (ftpos.ftPosFilt.equals(FTPositionFilter.POSFILTER.WINDOW)) {
+        res=calculateFTWindow(n.ftidpos,n.ftpointer);
+      }
+ else       if (ftpos.ftPosFilt.equals(FTPositionFilter.POSFILTER.DISTANCE)) {
+        res=calculateFTDistance(n.ftidpos,n.ftpointer);
+      }
+ else       if (ftpos.ftPosFilt.equals(FTPositionFilter.POSFILTER.SCOPE)) {
+        res=calculateFTScope(n.ftidpos,n.ftpointer);
+      }
+ else       if (ftpos.ftPosFilt.equals(FTPositionFilter.POSFILTER.CONTENT)) {
+        return n;
+      }
+ else {
+        return new NodeSet(ctx);
+      }
+      if (res == null)       return new NodeSet(ctx);
+      return new NodeSet(Array.extractIDsFromData(res),context,res);
+    }
+ else     if (ftpos.ftTimes != null && ftpos.ftTimes.equals(FTPositionFilter.CARDSEL.FTTIMES)) {
+      res=calculateFTTimes(n.ftidpos);
+      return new NodeSet(Array.extractIDsFromData(res),context,res);
+    }
+ else {
+      return null;
+    }
+  }
+  throw new QueryException("No NodeSet found.");
+}

@@ -1,0 +1,54 @@
+{
+  final int oldpos=scroll.pos();
+  byte[] fnd=find;
+  int pos=oldpos;
+  final int c=e.getKeyCode();
+  final char ch=e.getKeyChar();
+  if (e.isAltDown()) {
+    super.keyPressed(e);
+    return;
+  }
+  if (e.isControlDown()) {
+    if (c == 'A') {
+      rend.startW=0;
+      rend.endW=Integer.MAX_VALUE;
+      repaint();
+    }
+ else     if (c == 'C') {
+      if (rend.startW != rend.endW)       copy(new Point(10,getHeight() - 10));
+    }
+  }
+ else   if (c == KeyEvent.VK_ENTER) {
+    fnd=Token.EMPTY;
+  }
+ else   if (c == KeyEvent.VK_ESCAPE) {
+    super.keyPressed(e);
+    fnd=Token.EMPTY;
+  }
+ else   if (Token.letterOrDigit(ch)) {
+    fnd=Token.append(fnd,(byte)ch);
+  }
+ else   if (c == KeyEvent.VK_BACK_SPACE && fnd.length != 0) {
+    fnd=Token.substring(find,0,find.length - 1);
+  }
+ else {
+    super.keyPressed(e);
+  }
+  if (c == KeyEvent.VK_DOWN)   pos+=GUIProp.fontsize;
+ else   if (c == KeyEvent.VK_UP)   pos-=GUIProp.fontsize;
+ else   if (c == KeyEvent.VK_PAGE_DOWN)   pos+=getHeight();
+ else   if (c == KeyEvent.VK_PAGE_UP)   pos-=getHeight();
+ else   if (c == KeyEvent.VK_HOME)   pos=0;
+ else   if (c == KeyEvent.VK_END)   pos=scroll.height();
+  if (fnd != find) {
+    find=fnd;
+    final int p=rend.find(find);
+    final int sp=scroll.pos();
+    if (p != -1 && p < sp || p > sp + getHeight())     scroll.pos(p - 40);
+    repaint();
+  }
+  if (oldpos != pos) {
+    scroll.pos(pos);
+    repaint();
+  }
+}

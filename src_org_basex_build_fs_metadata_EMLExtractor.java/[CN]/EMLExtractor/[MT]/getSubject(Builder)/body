@@ -1,0 +1,28 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(mCurrLine);
+  while (readLine() && mCurrLine.length() != 0 && !mCurrLine.contains(": ")) {
+    tb.add(mCurrLine);
+  }
+  byte[] text=tb.finish();
+  final byte[] sig={0x3d,0x3f};
+  if (Token.startsWith(text,sig)) {
+    final TokenBuilder tmp=new TokenBuilder();
+    final byte[][] atoms=Token.split(text,0x3f);
+    if (atoms[2][0] == 0x51) {
+      for (int i=3; i < atoms.length - 1; i+=4) {
+        tmp.add(decodeQP(atoms[i]));
+      }
+    }
+    if (atoms[2][0] == 0x42) {
+      for (int i=3; i < atoms.length - 1; i+=4) {
+        tmp.add(atoms[i]);
+      }
+    }
+    text=tmp.finish();
+    for (int i=0; i < text.length; i++) {
+      if (text[i] == 0x5f)       text[i]=0x20;
+    }
+  }
+  listener.nodeAndText(EMLSUBJECT,text);
+}

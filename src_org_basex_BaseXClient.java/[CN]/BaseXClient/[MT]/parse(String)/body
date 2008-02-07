@@ -1,0 +1,17 @@
+{
+  try {
+    final CommandParser cp=new CommandParser(input);
+    while (cp.more()) {
+      final Command cmd=cp.next();
+      if (cmd.name.local()) {
+        if (cmd.name == Commands.EXIT || cmd.name == Commands.QUIT)         return false;
+        throw new IllegalArgumentException(BaseX.info("Unknown local command '%'.",input));
+      }
+      if (!process(cmd,info))       break;
+    }
+  }
+ catch (  final IllegalArgumentException ex) {
+    error(ex,ex.getMessage());
+  }
+  return true;
+}

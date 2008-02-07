@@ -1,0 +1,37 @@
+{
+  int c=0;
+  for (int i=0; i < MENUBAR.length; i++)   for (int j=0; j < MENUITEMS[i].length; j++)   c++;
+  menuItems=new JComponent[c];
+  c=0;
+  for (int i=0; i < MENUBAR.length; i++) {
+    final JMenu menu=new JMenu(MENUBAR[i]);
+    menu.setMnemonic((int)MENUBAR[i].charAt(0));
+    for (int j=0; j < MENUITEMS[i].length; j++) {
+      final Object subEntry=MENUITEMS[i][j];
+      if (subEntry == null) {
+        menu.addSeparator();
+      }
+ else {
+        JComponent comp=null;
+        if (subEntry instanceof String) {
+          comp=new BaseXLabel((String)subEntry);
+          comp.setFont(getFont());
+          comp.setBorder(new EmptyBorder(2,5,2,0));
+        }
+ else {
+          final GUICommands cmd=(GUICommands)subEntry;
+          final JMenuItem item=cmd.checked() ? new JCheckBoxMenuItem(cmd.entry) : new JMenuItem(cmd.entry);
+          item.addActionListener(this);
+          item.setMnemonic(cmd.entry.charAt(0));
+          item.setActionCommand(cmd.toString());
+          item.setToolTipText(cmd.help);
+          if (cmd.key != null)           item.setAccelerator(KeyStroke.getKeyStroke(cmd.key));
+          comp=item;
+        }
+        menuItems[c++]=comp;
+        menu.add(comp);
+      }
+    }
+    add(menu);
+  }
+}

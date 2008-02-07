@@ -1,0 +1,55 @@
+{
+  super.paintComponent(g);
+  g.setFont(GUIConstants.font);
+  if (tdata.cols == null || tdata.colW == null || tdata.cols.size == 0) {
+    g.setColor(Color.black);
+    g.drawString(NOTABLE,8,GUIProp.fontsize + 4);
+    return;
+  }
+  final int bs=BaseXBar.SIZE;
+  int w=getWidth();
+  final int h=getHeight();
+  final int hh=h >> 1;
+  g.setColor(Color.white);
+  g.drawLine(0,h - 1,w,h - 1);
+  w-=bs;
+  final int nc=tdata.cols.size;
+  double x=0;
+  for (int n=0; n < nc; n++) {
+    final double cw=w * tdata.colW[n];
+    final double ce=x + cw;
+    BaseXLayout.drawCell(g,(int)x,(int)ce,0,hh,false);
+    g.setColor(Color.white);
+    g.fillRect((int)x + 1,hh,(int)ce - (int)x - 2,hh - 2);
+    g.drawLine((int)ce - 1,hh - 1,(int)ce - 1,h - 2);
+    g.setColor(GUIConstants.color5);
+    g.drawLine((int)ce,hh - 1,(int)ce,h - 2);
+    g.setColor(GUIConstants.color6);
+    g.setFont(GUIConstants.bfont);
+    final int off=n == clickCol ? 1 : 0;
+    BaseXLayout.chopString(g,tdata.colNames.list[n],(int)x + 4 + off,2 + off,(int)cw);
+    if (n == tdata.sortCol) {
+      if (tdata.asc)       g.drawPolygon(new int[]{(int)ce - 12 + off,(int)ce - 6 + off,(int)ce - 9 + off},new int[]{4 + off,4 + off,8 + off},3);
+ else       g.drawPolygon(new int[]{(int)ce - 12 + off,(int)ce - 6 + off,(int)ce - 9 + off},new int[]{8 + off,8 + off,4 + off},3);
+    }
+    if (box != null && inputCol == n) {
+      box.paint(g,(int)x,hh,(int)ce - (int)x,hh);
+    }
+ else {
+      g.setColor(Color.black);
+      g.setFont(GUIConstants.font);
+      g.drawString(tdata.filter[n],(int)x + 5,h - 7);
+    }
+    x=ce;
+  }
+  final byte[] reset={'x'};
+  int p=(bs - BaseXLayout.width(g,reset)) / 2;
+  BaseXLayout.drawCell(g,(int)x,w + bs,0,hh,false);
+  BaseXLayout.drawCell(g,(int)x,w + bs,hh - 1,h,false);
+  g.setColor(GUIConstants.color6);
+  p+=nc == clickCol ? 1 : 0;
+  final int y=nc == clickCol ? 3 : 2;
+  g.setFont(GUIConstants.bfont);
+  BaseXLayout.chopString(g,reset,(int)x + p,y,w);
+  BaseXLayout.chopString(g,reset,(int)x + p,hh + y - 1,w);
+}

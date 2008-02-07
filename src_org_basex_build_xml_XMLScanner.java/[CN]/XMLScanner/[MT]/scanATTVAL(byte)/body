@@ -1,0 +1,22 @@
+{
+  int c=ch;
+  if (c == quote) {
+    type=Type.QUOTE;
+    state=State.ATT;
+  }
+ else {
+    boolean wrong=false;
+    type=Type.ATTVALUE;
+    do {
+      if (c == 0)       error(ATTCLOSE,(char)c);
+      wrong|=c == '\'' || c == '"';
+      if (c == 0x0D)       continue;
+      if (c == '<')       error(wrong ? ATTCLOSE : ATTCHAR,(char)c);
+      if (c == 0x0A)       c=' ';
+      if (c == '&')       c=getEntity();
+      if (c != 0)       token.addUTF(c);
+    }
+ while ((c=nextValid()) != quote);
+    prevChar(1);
+  }
+}

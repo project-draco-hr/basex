@@ -1,0 +1,42 @@
+{
+  String k=key;
+  int num=0;
+  for (int s=0; s < k.length(); s++) {
+    if (Character.isDigit(k.charAt(s))) {
+      num=Integer.parseInt(k.substring(s));
+      k=k.substring(0,s);
+      break;
+    }
+  }
+  for (  final Field f : fields) {
+    final String name=f.getName();
+    if (name.equals(k.toLowerCase())) {
+      final String t=f.getType().getSimpleName();
+      if (t.equals("boolean")) {
+        f.setBoolean(null,Boolean.parseBoolean(value));
+      }
+ else       if (t.equals("String")) {
+        f.set(null,value);
+      }
+ else       if (t.equals("int")) {
+        f.setInt(null,Integer.parseInt(value));
+      }
+ else       if (t.equals("String[]")) {
+        if (num == 0) {
+          f.set(null,new String[Integer.parseInt(value)]);
+        }
+ else {
+          ((String[])f.get(null))[num - 1]=value;
+        }
+      }
+ else       if (t.equals("int[]")) {
+        ((int[])f.get(null))[num]=Integer.parseInt(value);
+      }
+ else {
+        BaseX.debug("Can't write property \"%\".",f);
+      }
+      return true;
+    }
+  }
+  return false;
+}

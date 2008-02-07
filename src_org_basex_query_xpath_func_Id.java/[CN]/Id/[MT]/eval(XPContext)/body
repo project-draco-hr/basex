@@ -1,0 +1,42 @@
+{
+  final NodeSet local=ctx.local;
+  final Data data=local.data;
+  final int id=data.attNameID(Token.token("id"));
+  if (id == 0)   return new NodeSet(ctx);
+  final Item arg=evalArgs(ctx)[0];
+  byte[][] values=null;
+  if (arg instanceof NodeSet) {
+    final int[] nodes=((NodeSet)arg).nodes;
+    values=new byte[nodes.length][];
+    int c=0;
+    for (    final int node : nodes) {
+      final byte[][] val=Token.split(data.atom(node),' ');
+      while (c + val.length > values.length)       values=Array.extend(values);
+      Array.copy(val,values,c);
+      c+=val.length;
+    }
+    values=Array.finish(values,c);
+  }
+ else {
+    values=Token.split(arg.str(),' ');
+  }
+  final NodeBuilder tmp=new NodeBuilder();
+  for (  final byte[] v : values) {
+    if (data.meta.atvindex) {
+      for (      final int i : data.ids(Index.TYPE.ATV,v)) {
+        if (data.attNameID(i) == id)         tmp.add(data.parent(i,data.kind(i)));
+      }
+    }
+ else {
+      final int size=data.size;
+      int pre=0;
+      while (pre != size) {
+        final byte[] att=data.attValue(id,pre);
+        if (att != null && Token.eq(att,v))         tmp.add(pre);
+        pre+=data.attSize(pre,data.kind(pre));
+      }
+    }
+  }
+  ctx.local=new NodeSet(tmp.finish(),ctx);
+  return ctx.local;
+}

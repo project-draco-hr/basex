@@ -1,0 +1,22 @@
+{
+  mBodyType=null;
+  do {
+    String type="";
+    final Matcher m=KEYPAT.matcher(mCurrLine);
+    if (m.matches()) {
+      type=m.group(1).toLowerCase();
+      mCurrLine=m.group(2).trim();
+    }
+    if (type.equals("content-transfer-encoding")) {
+      getEncoding();
+    }
+ else     if (type.equals("content-type")) {
+      mBodyType=mCurrLine.split(";")[0].toLowerCase();
+    }
+    if (mCurrLine.contains("charset=")) {
+      mBodyCharset=mCurrLine.split("charset=")[1];
+      mBodyCharset=mBodyCharset.replace("\"","").trim();
+    }
+  }
+ while (readLine() && mCurrLine.length() != 0);
+}

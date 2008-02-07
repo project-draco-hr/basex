@@ -1,0 +1,15 @@
+{
+  type=cmd.nrArgs() != 0 ? cmd.arg(0).toLowerCase() : null;
+  if (type == null)   return true;
+  final int args=cmd.nrArgs();
+  if (type.equals(TBL)) {
+    if (context.data() == null)     return error(DBEMPTY);
+    if (args < 2 || Token.toInt(cmd.arg(1)) != Integer.MIN_VALUE)     return true;
+    cmd.arg(cmd.args().substring(TBL.length() + 1));
+    return super.exec();
+  }
+  if (type.equals(IDX) || type.equals(DB)) {
+    return context.data() == null ? error(DBEMPTY) : true;
+  }
+  throw new IllegalArgumentException();
+}

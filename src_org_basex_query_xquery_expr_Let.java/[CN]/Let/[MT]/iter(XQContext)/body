@@ -1,0 +1,42 @@
+{
+  final Var v=var.clone();
+  return new Iter(){
+    /** 
+ * Iterator flag. 
+ */
+    private boolean more;
+    /** 
+ * Variable stack size. 
+ */
+    private int vs;
+    @Override public Bln next() throws XQException {
+      if (!more) {
+        vs=ctx.vars.size();
+        final Iter iter=ctx.iter(expr);
+        Item it;
+        if (score) {
+          double s=0;
+          int c=0;
+          while ((it=iter.next()) != null) {
+            s+=it.score();
+            c++;
+          }
+          it=Dbl.get(Scoring.finish(s / c));
+        }
+ else {
+          it=iter.finish();
+        }
+        ctx.vars.add(v.item(it));
+      }
+ else {
+        ctx.vars.reset(vs);
+      }
+      more^=true;
+      return Bln.get(more);
+    }
+    @Override public void reset(){
+      more=false;
+    }
+  }
+;
+}

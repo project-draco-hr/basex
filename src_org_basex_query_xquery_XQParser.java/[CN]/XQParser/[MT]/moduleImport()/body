@@ -1,0 +1,38 @@
+{
+  QNm name=null;
+  if (consumeWS(NAMESPACE)) {
+    name=new QNm(ncName(null));
+    check(IS);
+  }
+ else {
+    name=new QNm(EMPTY);
+  }
+  final byte[] uri=stringLiteral();
+  if (uri.length == 0)   Err.or(NSMODURI);
+  name.uri=Uri.uri(uri);
+  ctx.ns.index(name);
+  final TokenList fl=new TokenList();
+  if (consumeWS(AT))   do   fl.add(stringLiteral());
+ while (consumeWS(COMMA));
+  if (modLoaded.contains(uri))   Err.or(DUPLMODULE,name.uri);
+  try {
+    if (fl.size == 0) {
+      boolean found=false;
+      for (int n=0; n < ctx.modules.size; n+=2) {
+        if (ctx.modules.list[n].equals(string(uri))) {
+          module(ctx.modules.list[n + 1],name.uri);
+          modLoaded.add(uri);
+          found=true;
+        }
+      }
+      if (!found)       Err.or(NOMODULE,uri);
+    }
+    for (int n=0; n < fl.size; n++) {
+      module(string(fl.list[n]),name.uri);
+      modLoaded.add(uri);
+    }
+  }
+ catch (  final StackOverflowError ex) {
+    Err.or(CIRCMODULE);
+  }
+}

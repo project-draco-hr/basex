@@ -1,0 +1,30 @@
+{
+  final String text=ok ? "" : inf.replaceAll("Stopped.*","");
+  info.setText(text);
+  info.setToolTipText(ok ? null : text);
+  BaseXLayout.enable(info,!ok);
+  if (ok)   return;
+  final Matcher m=ERRPATTERN.matcher(inf);
+  int el=0;
+  int ec=0;
+  if (m.matches()) {
+    el=Integer.parseInt(m.group(1));
+    ec=Integer.parseInt(m.group(2));
+  }
+  int l=1;
+  int c=1;
+  final int ll=last.length();
+  for (int i=0; i < ll; c++, i++) {
+    if (l == el && c == ec) {
+      if (i > 0 && i + 1 < ll && last.charAt(i) < ' ')       i--;
+      final int p=i;
+      while (i < ll && last.charAt(i) >= ' ')       i++;
+      area.mark(p,i + 1);
+      return;
+    }
+    if (last.charAt(i) < ' ') {
+      l++;
+      c=0;
+    }
+  }
+}

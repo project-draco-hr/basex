@@ -1,0 +1,131 @@
+{
+  if (currentCompressedTrieNode == 0) {
+    if (next[0] != null) {
+      final int positionToInsert=getInsertingPosition(currentCompressedTrieNode,valueToInsert[0]);
+      if (!found) {
+        if (!(countNodes < nodes.length - 1)) {
+          reSize();
+        }
+        nodes[countNodes]=valueToInsert;
+        if (d != null) {
+          addDataToNode(countNodes,d,d[0].length);
+        }
+        insertNodeInNextArray(currentCompressedTrieNode,countNodes,positionToInsert);
+        countNodes++;
+        return countNodes - 1;
+      }
+ else {
+        return insertNodeIntoTrie(next[currentCompressedTrieNode][positionToInsert],valueToInsert,d);
+      }
+    }
+  }
+  final byte[] intersection=calculateIntersection(nodes[currentCompressedTrieNode],valueToInsert);
+  byte[] remain1=nodes[currentCompressedTrieNode];
+  byte[] remain2=valueToInsert;
+  if (intersection != null) {
+    remain1=getBytes(nodes[currentCompressedTrieNode],intersection.length,nodes[currentCompressedTrieNode].length);
+    remain2=getBytes(valueToInsert,intersection.length,valueToInsert.length);
+  }
+  if (intersection != null) {
+    if (remain1 == null) {
+      if (remain2 == null) {
+        if (d != null) {
+          addDataToNode(currentCompressedTrieNode,d,d[0].length);
+        }
+        return currentCompressedTrieNode;
+      }
+ else {
+        final int positionToInsert=getInsertingPosition(currentCompressedTrieNode,remain2[0]);
+        if (!found) {
+          if (!(countNodes < nodes.length - 1)) {
+            reSize();
+          }
+          nodes[countNodes]=remain2;
+          if (d != null) {
+            addDataToNode(countNodes,d,d[0].length);
+          }
+          insertNodeInNextArray(currentCompressedTrieNode,countNodes,positionToInsert);
+          countNodes++;
+          return countNodes - 1;
+        }
+ else {
+          return insertNodeIntoTrie(next[currentCompressedTrieNode][positionToInsert],remain2,d);
+        }
+      }
+    }
+ else {
+      if (remain2 == null) {
+        nodes[currentCompressedTrieNode]=intersection;
+        final int[][] dataCurrentNode=(int[][])this.data[currentCompressedTrieNode];
+        final int dataCurrentNodeSize=dataSize[currentCompressedTrieNode];
+        this.data[currentCompressedTrieNode]=null;
+        dataSize[currentCompressedTrieNode]=0;
+        if (d != null) {
+          addDataToNode(currentCompressedTrieNode,d,d[0].length);
+        }
+        if (!found) {
+          if (!(countNodes < nodes.length - 1)) {
+            reSize();
+          }
+          addDataToNode(countNodes,dataCurrentNode,dataCurrentNodeSize);
+          next[countNodes]=next[currentCompressedTrieNode];
+          next[currentCompressedTrieNode]=new int[]{countNodes};
+          totDataSize++;
+          countNodes++;
+          return countNodes - 1;
+        }
+ else {
+          if (!(countNodes < nodes.length - 1)) {
+            reSize();
+          }
+          nodes[countNodes]=remain1;
+          this.data[countNodes]=dataCurrentNode;
+          this.dataSize[countNodes]=dataCurrentNodeSize;
+          next[countNodes]=next[currentCompressedTrieNode];
+          next[currentCompressedTrieNode]=new int[]{countNodes};
+          totDataSize++;
+          this.data[currentCompressedTrieNode]=null;
+          dataSize[currentCompressedTrieNode]=0;
+          if (d != null) {
+            addDataToNode(currentCompressedTrieNode,d,d[0].length);
+          }
+          countNodes++;
+          return countNodes - 1;
+        }
+      }
+ else {
+        final int[][] dataCurrentNode=(int[][])this.data[currentCompressedTrieNode];
+        final int dataCurrentNodeSize=dataSize[currentCompressedTrieNode];
+        this.data[currentCompressedTrieNode]=null;
+        dataSize[currentCompressedTrieNode]=0;
+        nodes[currentCompressedTrieNode]=intersection;
+        if (!(countNodes < nodes.length - 2)) {
+          reSize();
+        }
+        nodes[countNodes]=remain2;
+        if (d != null) {
+          addDataToNode(countNodes,d,d[0].length);
+        }
+        nodes[countNodes + 1]=remain1;
+        addDataToNode(countNodes + 1,dataCurrentNode,dataCurrentNodeSize);
+        next[countNodes + 1]=next[currentCompressedTrieNode];
+        next[currentCompressedTrieNode]=new int[]{countNodes + 1};
+        totDataSize++;
+        final int insertingPos=getInsertingPosition(currentCompressedTrieNode,nodes[countNodes][0]);
+        insertNodeInNextArray(currentCompressedTrieNode,countNodes,insertingPos);
+        countNodes+=2;
+        return countNodes - 1;
+      }
+    }
+  }
+ else {
+    nodes[countNodes]=valueToInsert;
+    if (d != null) {
+      addDataToNode(countNodes,d,d[0].length);
+    }
+    final int insertingPos=getInsertingPosition(currentCompressedTrieNode,valueToInsert[0]);
+    insertNodeInNextArray(currentCompressedTrieNode,countNodes,insertingPos);
+    countNodes++;
+    return countNodes - 1;
+  }
+}

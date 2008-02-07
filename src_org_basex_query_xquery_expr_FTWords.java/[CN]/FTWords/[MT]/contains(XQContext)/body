@@ -1,0 +1,53 @@
+{
+  final Iter iter=ctx.iter(expr);
+  final long mn=checkItr(ctx.iter(occ[0]));
+  final long mx=checkItr(ctx.iter(occ[1]));
+  int len=0;
+  Item i;
+switch (mode) {
+case ALL:
+    while ((i=iter.next()) != null) {
+      final byte[] txt=norm(i.str());
+      final int oc=cont(ctx,txt,mn,mx);
+      if (oc == -1)       return 0;
+      len+=txt.length * oc;
+    }
+  return len;
+case ALLWORDS:
+while ((i=iter.next()) != null) {
+  for (  final byte[] txt : split(norm(i.str()),' ')) {
+    final int oc=cont(ctx,txt,mn,mx);
+    if (oc == -1)     return 0;
+    len+=txt.length * oc;
+  }
+}
+return len;
+case ANY:
+while ((i=iter.next()) != null) {
+final byte[] txt=norm(i.str());
+final int oc=cont(ctx,txt,mn,mx);
+if (oc != -1) len+=txt.length * oc;
+}
+return len;
+case ANYWORD:
+while ((i=iter.next()) != null) {
+for (final byte[] txt : split(norm(i.str()),' ')) {
+final int oc=cont(ctx,txt,mn,mx);
+if (oc != -1) len+=txt.length * oc;
+}
+}
+return len;
+case PHRASE:
+final TokenBuilder tb=new TokenBuilder();
+boolean more=false;
+while ((i=iter.next()) != null) {
+if (more) tb.add(' ');
+tb.add(norm(i.str()));
+more=true;
+}
+final byte[] txt=tb.finish();
+final int oc=cont(ctx,txt,mn,mx);
+return oc != -1 ? txt.length * oc : 0;
+}
+throw new RuntimeException();
+}

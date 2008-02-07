@@ -1,0 +1,27 @@
+{
+  working=!quick;
+  zoomIn=more;
+  if (more) {
+    rectHist[hist]=focusedRect.clone();
+    mainRect=rectHist[hist];
+  }
+ else {
+    mainRect=rectHist[hist + 1];
+  }
+  if (mainRect == null)   mainRect=new MapRect(0,0,getWidth(),getHeight());
+  final BufferedImage tmpMap=zoomMap;
+  zoomMap=mainMap;
+  mainMap=tmpMap;
+  focusedRect=null;
+  calc();
+  zoomSpeed=(int)(Math.log(128 * getWidth() / mainRect.w) + Math.log(128 * getHeight() / mainRect.h));
+  if (quick) {
+    working=false;
+    focus();
+    repaint();
+  }
+ else {
+    zoomStep=ZOOMSIZE;
+    new Thread(this).start();
+  }
+}

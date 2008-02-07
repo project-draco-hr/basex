@@ -1,0 +1,14 @@
+{
+  QNm name=null;
+  if (it.type == Type.QNM) {
+    name=(QNm)it;
+  }
+ else {
+    final byte[] nm=it.str();
+    if (Token.contains(nm,' '))     Err.or(INVAL,nm);
+    if (!Type.isQName(nm))     Err.or(NAMEWRONG,nm);
+    name=new QNm(nm);
+  }
+  if (name.ns() && name.uri == Uri.EMPTY)   name.uri=ctx.ns.uri(name.pre());
+  return name;
+}

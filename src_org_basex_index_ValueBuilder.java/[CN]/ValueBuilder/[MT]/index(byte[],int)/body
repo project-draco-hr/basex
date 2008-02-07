@@ -1,0 +1,16 @@
+{
+  if (tok.length > Token.MAXLEN || Token.ws(tok))   return;
+  if (size == next.length)   rehash(size << 1);
+  final int p=Token.hash(tok) & bucket.length - 1;
+  for (int tid=bucket[p]; tid != 0; tid=next[tid]) {
+    final byte[] txt=texts[tid];
+    if (Token.eq(tok,txt)) {
+      ids[tid]=Num.add(ids[tid],pre);
+      return;
+    }
+  }
+  next[size]=bucket[p];
+  bucket[p]=size;
+  texts[size]=tok;
+  ids[size++]=Num.newNum(pre);
+}

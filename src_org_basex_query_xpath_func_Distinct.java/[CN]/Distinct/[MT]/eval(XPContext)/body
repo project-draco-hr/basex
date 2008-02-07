@@ -1,0 +1,15 @@
+{
+  final NodeSet local=ctx.local;
+  final int[] n=((NodeSet)evalArgs(ctx)[0]).nodes;
+  final byte[][] v=new byte[n.length][];
+  for (int i=0; i != v.length; i++)   v[i]=local.data.atom(n[i]);
+  final NodeBuilder tmp=new NodeBuilder();
+  for (int i=0; i != v.length; i++) {
+    if (v[i] == null)     continue;
+    tmp.add(n[i]);
+    for (int j=i + 1; j < v.length; j++) {
+      if (v[j] != null && Token.eq(v[i],v[j]))       v[j]=null;
+    }
+  }
+  return new NodeSet(tmp.finish(),ctx);
+}

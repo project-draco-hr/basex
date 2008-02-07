@@ -1,0 +1,27 @@
+{
+synchronized (parent.getTreeLock()) {
+    final Insets insets=parent.getInsets();
+    final int nrComponents=parent.getComponentCount();
+    int maxW=0;
+    int maxH=0;
+    for (int i=0; i < cols; i++) {
+      posX[i]=maxW;
+      final int w=maxW;
+      int h=0;
+      for (int j=0; j < rows; j++) {
+        final int n=j * cols + i;
+        if (n >= nrComponents)         break;
+        final Component comp=parent.getComponent(n);
+        final Dimension dim=comp.getPreferredSize();
+        if (maxW < w + dim.width)         maxW=w + dim.width;
+        if (posY[j] < h)         posY[j]=h;
+ else         h=posY[j];
+        h+=dim.height;
+      }
+      if (maxH < h)       maxH=h;
+    }
+    width=insets.left + maxW + (cols - 1) * insetX + insets.right;
+    height=insets.top + maxH + (rows - 1) * insetY + insets.bottom;
+    return new Dimension(width,height);
+  }
+}

@@ -1,0 +1,24 @@
+{
+  final Data data=GUI.context.data();
+  final byte[] tag=data.tag(pre);
+  final int s=pre + data.size(pre,data.kind(pre));
+  if (data.size != s && !Token.eq(tag,data.tag(s)))   return;
+  int p=pre;
+  for (int i=0; i < MAXROWS && p < data.size; i++) {
+    final int size=p + data.size(p,data.kind(p));
+    p+=data.attSize(p,Data.ELEM);
+    while (p < size) {
+      final int k=data.kind(p);
+      final int np=p + data.attSize(p,k);
+      if (k == Data.ELEM && np != size && data.kind(np) == Data.TEXT) {
+        final int nt=data.tagID(p);
+        if (!cols.contains(nt)) {
+          cols.add(nt);
+          elms.add(true);
+          colNames.add(data.tag(p));
+        }
+      }
+      p+=data.size(p,k);
+    }
+  }
+}

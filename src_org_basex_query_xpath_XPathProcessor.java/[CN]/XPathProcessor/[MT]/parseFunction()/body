@@ -1,0 +1,17 @@
+{
+  final byte[] func=name();
+  if (!consume('('))   error(UNEXPECTEDEND);
+  final ExprList exprs=new ExprList();
+  boolean more=false;
+  while (!curr(0)) {
+    consumeWS();
+    if (consume(')')) {
+      return XPathContext.get().getFunction(func,exprs.get());
+    }
+    if (more && !consume(','))     error(UNFINISHEDFUNC);
+    exprs.add(parseOr());
+    more=true;
+  }
+  error(UNFINISHEDFUNC);
+  return null;
+}

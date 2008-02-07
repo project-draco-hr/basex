@@ -1,0 +1,26 @@
+{
+  System.out.println("First example:");
+  ConsoleOutput out=new ConsoleOutput(System.out);
+  Prop.read();
+  Context context=new Context();
+  Proc proc=Proc.get(context,Commands.XQUERY,QUERY);
+  if (proc.execute()) {
+    proc.output(out);
+  }
+ else {
+    proc.info(out);
+  }
+  out.flush();
+  System.out.println();
+  System.out.println("Second example:");
+  try {
+    QueryProcessor xquery=new XQueryProcessor(QUERY);
+    Result result=xquery.query(null);
+    result.serialize(new PrintSerializer(out));
+    out.println();
+  }
+ catch (  QueryException e) {
+    e.printStackTrace();
+  }
+  out.close();
+}

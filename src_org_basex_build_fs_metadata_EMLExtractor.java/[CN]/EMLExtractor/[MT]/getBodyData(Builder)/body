@@ -1,0 +1,20 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  final boolean bound=mBoundary.length() != 0;
+  if (bound)   getSectionContentType();
+  while (readLine()) {
+    if (bound) {
+      if (mCurrLine.contains(mBoundary))       break;
+    }
+ else     if (mIsMultiMail) {
+      if (mCurrLine.startsWith("From ") && mCurrLine.contains("@"))       break;
+    }
+    tb.add(mCurrLine);
+    tb.add('\n');
+  }
+  listener.startNode(EMLBODY,mBodyType == null ? null : new byte[][]{TYPE,token(mBodyType)});
+  listener.text(quotePrint ? decodeQP(tb.finish()) : tb.finish(),true);
+  listener.endNode(EMLBODY);
+  quotePrint=false;
+  return mCurrLine != null && bound && !mCurrLine.endsWith("--");
+}

@@ -1,0 +1,73 @@
+{
+  if (consumeWS(LOWERCASE)) {
+    if (opt.lowercase || opt.uppercase || opt.sensitive)     Err.or(FTCASE);
+    opt.lowercase=true;
+    opt.sensitive=true;
+  }
+ else   if (consumeWS(UPPERCASE)) {
+    if (opt.lowercase || opt.uppercase || opt.sensitive)     Err.or(FTCASE);
+    opt.uppercase=true;
+    opt.sensitive=true;
+  }
+ else   if (consumeWS(CASE)) {
+    if (opt.lowercase || opt.uppercase || opt.sensitive)     Err.or(FTCASE);
+    opt.sensitive=consumeWS(SENSITIVE);
+    if (!opt.sensitive)     check(INSENSITIVE);
+  }
+ else   if (consumeWS(DIACRITICS)) {
+    if (opt.diacritics)     Err.or(FTDIA);
+    opt.diacritics=consumeWS(SENSITIVE);
+    if (!opt.diacritics)     check(INSENSITIVE);
+  }
+ else   if (consumeWS(LANGUAGE)) {
+    opt.language=stringLiteral();
+    Err.or(FTLAN);
+  }
+ else {
+    final boolean with=consumeWS(WITH);
+    if (!with && !consumeWS(WITHOUT))     return false;
+    if (consume(STEMMING)) {
+      opt.stemming=with;
+      if (with)       Err.or(FTSTEMMING);
+    }
+ else     if (consume(THESAURUS)) {
+      opt.thesaurus=with;
+      if (with)       Err.or(FTTHES);
+    }
+ else     if (consume(STOP)) {
+      check(WORDS);
+      if (with) {
+        if (with && consume(PAR1)) {
+          opt.stopwords=new TokenList();
+          do           opt.stopwords.add(stringLiteral());
+ while (consume(COMMA));
+          check(PAR2);
+        }
+ else         if (consume(AT)) {
+          final File fl=new File(string(stringLiteral()));
+          try {
+            opt.stopwords=new TokenList();
+            opt.stopwords.add(split(norm(IOConstants.read(fl)),' '));
+          }
+ catch (          final IOException ex) {
+            Err.or(NOSTOPFILE,fl.getAbsolutePath());
+          }
+        }
+      }
+    }
+ else     if (consume(DEFAULT)) {
+      check(STOP);
+      check(WORDS);
+    }
+ else     if (consume(WILDCARDS)) {
+      opt.wildcards=with;
+    }
+ else     if (!with && consume(CONTENT)) {
+      Err.or(FTIGNORE);
+    }
+ else {
+      Err.or(FTMATCH,with ? WITH : WITHOUT);
+    }
+  }
+  return true;
+}

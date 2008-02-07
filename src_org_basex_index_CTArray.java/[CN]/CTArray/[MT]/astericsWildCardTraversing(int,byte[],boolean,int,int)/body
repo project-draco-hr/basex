@@ -1,0 +1,80 @@
+{
+  int j=pointerEnding;
+  int i=pointerNode;
+  boolean last=lastFound;
+  if (ending == null || ending.length == 0) {
+    astericsWildCardData=ftOROld(astericsWildCardData,(int[][])data[node]);
+    if (next[node] != null) {
+      for (int k=0; k < next[node].length; k++) {
+        astericsWildCardTraversing(next[node][k],ending,last,0,0);
+      }
+    }
+    return;
+  }
+  if (nodes[node] != null) {
+    while (!last && i < nodes[node].length && nodes[node][i] != ending[j]) {
+      i++;
+    }
+    while (i + ending.length < nodes[node].length && nodes[node][i + 1] == ending[0]) {
+      i++;
+    }
+    countSkippedChars=countSkippedChars + i - pointerNode;
+    while (i < nodes[node].length && j < ending.length && nodes[node][i] == ending[j]) {
+      i++;
+      j++;
+      if (!last) {
+        last=true;
+      }
+    }
+  }
+ else {
+    countSkippedChars=0;
+    return;
+  }
+  if (node == 0 || j == ending.length && i < nodes[node].length) {
+    if (next[node] == null) {
+      countSkippedChars=0;
+      return;
+    }
+    for (int k=0; k < next[node].length; k++) {
+      astericsWildCardTraversing(next[node][k],ending,false,0,0);
+    }
+    countSkippedChars=0;
+    return;
+  }
+ else   if (j == ending.length && i == nodes[node].length) {
+    if (data[node] != null) {
+      astericsWildCardData=ftOROld(astericsWildCardData,(int[][])data[node]);
+    }
+    countSkippedChars=0;
+    if (next[node] != null) {
+      for (int k=0; k < next[node].length; k++) {
+        if (j == 1) {
+          astericsWildCardTraversing(next[node][k],ending,false,0,0);
+        }
+        astericsWildCardTraversing(next[node][k],ending,last,0,j);
+      }
+    }
+    return;
+  }
+ else   if (j < ending.length && i < nodes[node].length) {
+    if (next[node] == null) {
+      countSkippedChars=0;
+      return;
+    }
+    astericsWildCardTraversing(node,ending,false,i,0);
+    return;
+  }
+ else   if (j < ending.length && i == nodes[node].length) {
+    if (next[node] == null) {
+      countSkippedChars=0;
+      return;
+    }
+    for (int k=0; k < next[node].length; k++) {
+      if (j == 1) {
+        astericsWildCardTraversing(next[node][k],ending,last,0,0);
+      }
+      astericsWildCardTraversing(next[node][k],ending,last,0,j);
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  if (ctx.local == null)   throw new QueryException(NODATA);
+  if (ctx.leaf && steps.size() == 1 && steps.get(0).simple(Axis.SELF)) {
+    steps.set(0,Axis.get(Axis.CHILD,TestNode.TEXT));
+    ctx.compInfo(OPTTEXT);
+  }
+  if (!steps.compile(ctx) || steps.emptyPath(ctx))   return new NodeSet(ctx);
+  steps.mergeSelf(ctx);
+  steps.mergeDescendant(ctx);
+  Expr result=this;
+  for (int i=0; i < steps.size(); i++) {
+    final Step step=steps.get(i);
+    final Preds preds=step.preds;
+    if (preds.size() == 0 || step.posPred() > 0)     continue;
+    if (invertAxis(step.axis) == null)     continue;
+    int min=Integer.MAX_VALUE;
+    int minP=-1;
+    for (int p=0; p < preds.size(); p++) {
+      final Pred pred=preds.get(p);
+      final int nrIDs=pred.indexSizes(ctx,step,min);
+      if (min > nrIDs) {
+        if (nrIDs == 0) {
+          ctx.compInfo(OPTLOC);
+          return new NodeSet(ctx);
+        }
+        min=nrIDs;
+        minP=p;
+      }
+    }
+    if (min == Integer.MAX_VALUE)     continue;
+    if (this instanceof LocPathRel && min > 100)     continue;
+    final IntList oldPreds=new IntList();
+    Expr indexArg=null;
+    for (int p=0; p < preds.size(); p++) {
+      final Pred pred=preds.get(p);
+      if (p == minP && indexArg == null) {
+        oldPreds.add(p);
+        indexArg=pred.indexEquivalent(ctx,step);
+      }
+    }
+    final LocPath oldPath=new LocPathRel();
+    for (final int j=i + 1; j < steps.size(); ) {
+      final Step oldStep=steps.get(j);
+      steps.remove(j);
+      oldPath.steps.add(oldStep);
+    }
+    final LocPath invPath=new LocPathRel();
+    boolean indexMatch=true;
+    for (int j=i; j >= 0; j--) {
+      final Step curr=steps.get(j);
+      final Axis axis=invertAxis(curr.axis);
+      if (axis == null)       break;
+      if (j == 0) {
+        if (this instanceof LocPathRel || axis == Axis.PARENT) {
+          invPath.steps.add(Axis.get(axis,TestNode.NODE));
+        }
+ else {
+          indexMatch=false;
+        }
+      }
+ else {
+        final Step prev=steps.get(j - 1);
+        if (prev.preds.size() != 0)         break;
+        invPath.steps.add(Axis.get(axis,prev.test));
+      }
+      steps.remove(j);
+    }
+    int predlength=preds.size() - oldPreds.size;
+    if (indexMatch || invPath.steps.size() != 0)     predlength+=1;
+    final Preds newPreds=new Preds();
+    if (!indexMatch && invPath.steps.size() != 0)     newPreds.add(invPath);
+    for (int p=0; p != step.preds.size(); p++) {
+      if (!oldPreds.contains(p))       newPreds.add(step.preds.get(p));
+    }
+    result=new InterSect(new Expr[]{indexArg}).compile(ctx);
+    if (newPreds.size() != 0)     result=new Filter(result,newPreds).compile(ctx);
+    if (indexMatch)     result=new IndexMatch(this,result,invPath);
+    if (oldPath.steps.size() != 0)     result=new Path(result,oldPath);
+  }
+  return result;
+}

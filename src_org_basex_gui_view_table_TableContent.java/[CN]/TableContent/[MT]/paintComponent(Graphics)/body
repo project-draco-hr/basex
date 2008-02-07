@@ -1,0 +1,100 @@
+{
+  super.paintComponent(g);
+  final Context context=GUI.context;
+  final Data data=context.data();
+  if (data == null || tdata.cols == null || tdata.cols.size == 0 || tdata.colW == null)   return;
+  g.setFont(GUIConstants.font);
+  BaseXLayout.antiAlias(g);
+  View.painting=true;
+  final int w=getWidth() - scroll.getWidth();
+  final int h=getHeight();
+  final int rfocus=tdata.getRoot(data,ViewData.focusedPre);
+  final int focus=ViewData.focusedPre;
+  final boolean fs=data.deepfs;
+  int mpos=0;
+  final int nCols=tdata.cols.size;
+  final int nRows=tdata.rows.size;
+  final int rowH=tdata.rowH;
+  final TableIterator ti=new TableIterator(data,tdata);
+  final TokenBuilder[] tb=new TokenBuilder[nCols];
+  for (int i=0; i < nCols; i++)   tb[i]=new TokenBuilder();
+  focusedString=null;
+  final Nodes marked=context.marked();
+  int l=scroll.pos() / rowH - 1;
+  int posY=-scroll.pos() + l * rowH;
+  while (++l < nRows) {
+    if (posY > h)     break;
+    posY+=rowH;
+    final int pre=tdata.rows.get(l);
+    while (mpos < marked.size && marked.pre[mpos] < pre)     mpos++;
+    g.setColor(GUIConstants.color3);
+    g.drawLine(0,posY + rowH - 1,w,posY + rowH - 1);
+    g.setColor(Color.white);
+    g.drawLine(0,posY + rowH,w,posY + rowH);
+    final boolean rm=mpos < marked.size && marked.pre[mpos] == pre;
+    final boolean rf=pre == rfocus;
+    final int col=rm ? rf ? 5 : 4 : 3;
+    if (rm || rf) {
+      g.setColor(GUIConstants.COLORS[col]);
+      g.fillRect(0,posY - 1,w,rowH);
+      g.setColor(GUIConstants.COLORS[col + 4]);
+      g.drawLine(0,posY - 1,w,posY - 1);
+    }
+    g.setColor(Color.black);
+    if (rowH < GUIProp.fontsize)     continue;
+    ti.init(pre);
+    int fcol=-1;
+    while (ti.more()) {
+      final int c=ti.col;
+      if (ti.pre == focus || data.parent(ti.pre,data.kind(ti.pre)) == focus)       fcol=c;
+      if (tb[c].size > 100) {
+        tb[c].add("...");
+        break;
+      }
+ else {
+        if (tb[c].size != 0)         tb[c].add("; ");
+        byte[] txt=ti.elem ? data.text(ti.pre) : data.attValue(ti.pre);
+        if (tdata.cols.get(c) == data.timeID) {
+          txt=Token.token(new SimpleDateFormat("dd.MM.yyyy").format(new Date(Token.toLong(txt) * 60000)));
+        }
+        tb[c].add(txt);
+      }
+    }
+    byte[] focusStr=null;
+    int fx=-1;
+    double x=0;
+    for (int c=0; c < nCols; c++) {
+      double cw=w * tdata.colW[c];
+      final double ce=x + cw;
+      final byte[] str=tb[c].size != 0 ? tb[c].finish() : null;
+      if (str != null) {
+        if (fs && c == 0) {
+          g.drawImage(GUIFS.images(str,false),(int)x + 1,posY + 3,this);
+          x+=20;
+          cw-=20;
+        }
+        if (tdata.mouseX > x && tdata.mouseX < ce || fcol == c) {
+          fx=(int)x;
+          focusStr=str;
+        }
+        BaseXLayout.chopString(g,str,(int)x + 2,posY + 2,(int)cw - 4);
+        tb[c].reset();
+      }
+      x=ce;
+    }
+    if (rf || fcol != -1) {
+      if (focusStr != null) {
+        final int sw=BaseXLayout.width(g,focusStr) + 8;
+        if (fx > w - sw - 2)         fx=w - sw - 2;
+        g.setColor(GUIConstants.COLORS[col + 2]);
+        g.fillRect(fx - 2,posY,sw,rowH - 1);
+        g.setColor(Color.black);
+        BaseXLayout.chopString(g,focusStr,fx + 2,posY + 2,sw);
+        focusedString=Token.string(focusStr);
+        final int i=focusedString.indexOf("; ");
+        if (i != -1)         focusedString=focusedString.substring(0,i);
+      }
+    }
+  }
+  View.painting=false;
+}

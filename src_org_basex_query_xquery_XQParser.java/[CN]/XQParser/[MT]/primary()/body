@@ -1,0 +1,26 @@
+{
+  consumeWS();
+  final byte c=curr();
+  if (digit(c))   return numericLiteral();
+  if (c == '.' && next() != '.') {
+    consume('.');
+    return !digit(curr()) ? new Context() : decimalLiteral(new TokenBuilder('.'));
+  }
+  if (c == '\'' || c == '"')   return Str.get(stringLiteral());
+  if (c == '$') {
+    final Var var=new Var(varName());
+    final Var v=ctx.vars.get(var);
+    if (v == null)     Err.or(VARNOTDEFINED,var);
+    return new VarCall(var);
+  }
+  if (c == '(' && next() != '#')   return parenthesized();
+  if (c == '<')   return constructor();
+  if (letter(c)) {
+    Expr expr=functionCall();
+    if (expr != null)     return expr;
+    expr=computedConstructor();
+    if (expr != null)     return expr;
+    if (consumeWS(ORDERED) || consumeWS(UNORDERED))     return enclosedExpr(NOENCLEXPR);
+  }
+  return null;
+}

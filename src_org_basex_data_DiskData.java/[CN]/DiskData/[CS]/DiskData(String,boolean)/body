@@ -1,0 +1,18 @@
+{
+  meta=new MetaData(db);
+  size=meta.read();
+  stats=new Stats(db);
+  stats.read();
+  tags=new Names(db,true);
+  atts=new Names(db,false);
+  table=Prop.mainmem ? new TableMemAccess(db,DATATBL,size) : new TableDiskAccess(db,DATATBL);
+  texts=new DataAccess(db,DATATXT);
+  values=new DataAccess(db,DATAATV);
+  if (index) {
+    if (meta.txtindex)     openIndex(Index.TYPE.TXT,new Values(this,db,true));
+    if (meta.atvindex)     openIndex(Index.TYPE.ATV,new Values(this,db,false));
+    if (meta.wrdindex)     openIndex(Index.TYPE.WRD,new Words(db));
+    if (meta.ftxindex)     openIndex(Index.TYPE.FTX,new WordsCTA(db,this));
+  }
+  initNames();
+}

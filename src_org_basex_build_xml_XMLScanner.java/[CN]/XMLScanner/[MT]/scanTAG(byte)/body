@@ -1,0 +1,39 @@
+{
+  byte c=ch;
+  if (c == '>') {
+    type=Type.R_BR;
+    state=State.CONTENT;
+  }
+ else   if (c == '=') {
+    type=Type.EQ;
+  }
+ else   if (c == '\'' || c == '"') {
+    type=Type.QUOTE;
+    state=State.QUOTE;
+    quote=c;
+  }
+ else   if (c == '/') {
+    type=Type.CLOSE_R_BR;
+    if ((c=nextChar()) == '>') {
+      state=State.CONTENT;
+    }
+ else {
+      token.add(c);
+      error(CLOSING);
+    }
+  }
+ else   if (scanWS(c)) {
+    type=Type.WS;
+    return;
+  }
+ else   if (isFirstLetter(c)) {
+    type=state == State.ATT ? Type.ATTNAME : Type.TAGNAME;
+    do     token.add(c);
+ while (isLetter(c=nextChar()));
+    prevChar(1);
+    state=State.ATT;
+  }
+ else {
+    error(CHARACTER,(char)c);
+  }
+}

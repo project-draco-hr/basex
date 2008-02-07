@@ -1,0 +1,38 @@
+{
+  super(choice);
+  setMaximumRowCount(edit ? 5 : 12);
+  setOpaque(false);
+  BaseXLayout.addDefaultKeys(this,list);
+  help=hlp;
+  final Component comp=edit ? getEditor().getEditorComponent() : this;
+  comp.addMouseListener(new MouseAdapter(){
+    @Override public void mouseEntered(    final MouseEvent e){
+      GUI.get().focus(e.getComponent(),help);
+    }
+  }
+);
+  if (!edit)   return;
+  setEditable(true);
+  setText("");
+  addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (e.getKeyChar() != 0xFFFF && isPopupVisible())       setPopupVisible(false);
+      final int key=e.getKeyCode();
+      final boolean ctrl=e.isControlDown();
+      if (ctrl && (key == KeyEvent.VK_Z || key == KeyEvent.VK_Y)) {
+        final String t=getText();
+        setText(last);
+        last=t;
+      }
+      if (key != KeyEvent.VK_ENTER)       return;
+      final String txt=getText();
+      removeItem(txt);
+      if (txt.length() == 0)       return;
+      final int s=getItemCount();
+      if (s >= MAX)       removeItemAt(s - 1);
+      insertItemAt(txt,0);
+      setSelectedIndex(0);
+    }
+  }
+);
+}

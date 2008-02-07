@@ -1,0 +1,37 @@
+{
+  super.mousePressed(e);
+  final Data data=GUI.context.data();
+  if (tdata.invalid || data.deepfs && tdata.mouseX < 20)   return;
+  if (e.getY() < header.getHeight())   return;
+  final int pre=ViewData.focusedPre;
+  if (SwingUtilities.isLeftMouseButton(e)) {
+    if (e.getClickCount() == 1) {
+      final String str=content.focusedString;
+      if (str == null || str.length() > Token.MAXLEN)       return;
+      if (!e.isShiftDown())       tdata.resetFilter();
+      tdata.filter[tdata.column(getWidth() - BaseXBar.SIZE,e.getX())]=str;
+      tdata.find();
+    }
+ else {
+      Nodes nodes=GUI.context.marked();
+      if (getCursor() == GUIConstants.CURSORARROW) {
+        nodes=new Nodes(tdata.getRoot(nodes.data,pre),nodes.data);
+      }
+      View.notifyContext(nodes,false);
+    }
+  }
+ else {
+    if (pre != -1) {
+      final Context context=GUI.context;
+      TableIterator it=new TableIterator(context.data(),tdata);
+      final int c=tdata.column(getWidth() - BaseXBar.SIZE,e.getX());
+      it.init(pre);
+      while (it.more()) {
+        if (it.col == c) {
+          notifyMark(new Nodes(it.pre,context.data()));
+          return;
+        }
+      }
+    }
+  }
+}

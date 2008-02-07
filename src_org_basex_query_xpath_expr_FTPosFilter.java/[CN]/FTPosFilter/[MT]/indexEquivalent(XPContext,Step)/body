@@ -1,0 +1,47 @@
+{
+  for (int i=0; i < exprs.length; i++) {
+    exprs[i]=exprs[i].indexEquivalent(context,curr);
+  }
+  if (exprs[0] instanceof FTIntersection) {
+    FTIntersection e=(FTIntersection)exprs[0];
+    e.pres=true;
+  }
+ else   if (exprs[0] instanceof FTUnion) {
+    FTUnion e=(FTUnion)exprs[0];
+    e.po=true;
+  }
+ else   if (exprs[0] instanceof FTUnaryNotExprs || exprs[0] instanceof FTMildNotExprs) {
+    ArrayExpr not=(ArrayExpr)exprs[0];
+    Expr e=not.exprs[0];
+    FTIntersection fti1=new FTIntersection(not.exprs,true,context);
+    FTPositionFilter ftposfil=new FTPositionFilter();
+    ftposfil.ftPosFilt=ftpos.ftPosFilt;
+    if (ftposfil.ftPosFilt.equals(FTPositionFilter.POSFILTER.WINDOW)) {
+      ftposfil.ftUnit=ftpos.ftUnit;
+      ftposfil.from=ftpos.from;
+    }
+ else     if (ftposfil.ftPosFilt.equals(FTPositionFilter.POSFILTER.DISTANCE)) {
+      ftposfil.ftRange=ftpos.ftRange;
+      ftposfil.ftUnit=ftpos.ftUnit;
+      ftposfil.from=ftpos.from;
+      ftposfil.to=ftpos.to;
+    }
+ else     if (ftposfil.ftPosFilt.equals(FTPositionFilter.POSFILTER.SCOPE)) {
+      ftposfil.ftScope=ftpos.ftScope;
+      ftposfil.ftUnit=ftpos.ftUnit;
+    }
+    FTPosFilter ftps=new FTPosFilter(new Expr[]{fti1},ftposfil);
+    not.exprs=new Expr[2];
+    not.exprs[1]=ftps;
+    not.exprs[0]=e;
+    return not;
+  }
+ else   if (exprs[0] instanceof FTIndex && ftpos.ftContent != null) {
+    ((FTIndex)exprs[0]).setFTPosFilter(ftpos);
+    ((FTIndex)exprs[0]).setSingle(false);
+  }
+ else   if (!(ftpos.ftTimes != null && ftpos.ftTimes.equals(FTPositionFilter.CARDSEL.FTTIMES))) {
+    throw new QueryException("FTPosFilter only supported for FTOr and " + "FTAnd or FTContent with a single searchstring.");
+  }
+  return this;
+}

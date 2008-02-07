@@ -1,0 +1,43 @@
+{
+  if (it == null)   return false;
+  if (it.node() && it.type != Type.TXT) {
+    final Node node=(Node)it;
+    if (it.type == Type.ATT) {
+      if (text.size != 0 || nodes.size != 0)       Err.or(NOATTALL);
+      final QNm name=node.qname();
+      final byte[] ln=name.ln();
+      final byte[] pre=name.pre();
+      if (Token.eq(pre,XML) && Token.eq(ln,BASE))       base=it.str();
+      final QNm qname=node.qname();
+      for (int a=0; a < ats.size; a++) {
+        if (qname.eq(ats.list[a].qname())) {
+          final byte[] nm=qname.str();
+          if (!Token.contains(nm,':'))           Err.or(ATTDUPL,nm);
+ else           Err.or(ATTNSDUPL,qname,ats.list[a].qname());
+        }
+      }
+      ats.add(node.copy());
+    }
+ else {
+      if (it.type == Type.DOC) {
+        final NodeIter iter=node.child();
+        Node ch;
+        while ((ch=iter.next()) != null)         add(ctx,ch);
+      }
+ else {
+        if (text.size != 0) {
+          nodes.add(new FTxt(text.finish(),null));
+          text.reset();
+        }
+        nodes.add(node.copy());
+      }
+    }
+    more=false;
+  }
+ else {
+    if (more && it.type != Type.TXT)     text.add(' ');
+    text.add(it.str());
+    more=it.type != Type.TXT;
+  }
+  return true;
+}

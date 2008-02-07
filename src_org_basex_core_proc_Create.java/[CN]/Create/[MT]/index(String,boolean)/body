@@ -1,0 +1,33 @@
+{
+  if (context.data() == null)   return error(PROCNODB);
+  try {
+    final Data data=context.data();
+    Index.TYPE index=null;
+    if (type.equals(TXT)) {
+      data.meta.txtindex=true;
+      index=Index.TYPE.TXT;
+    }
+ else     if (type.equals(ATV)) {
+      data.meta.atvindex=true;
+      index=Index.TYPE.ATV;
+    }
+ else     if (type.equals(WRD)) {
+      data.meta.wrdindex=true;
+      index=Index.TYPE.WRD;
+    }
+ else     if (type.equals(FTX)) {
+      data.meta.ftxindex=true;
+      index=Index.TYPE.FTX;
+    }
+ else {
+      throw new IllegalArgumentException();
+    }
+    data.meta.write(data.size);
+    buildIndex(index,data);
+    return inf ? timer(DBINDEXED) : true;
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    return error(ex.getMessage());
+  }
+}

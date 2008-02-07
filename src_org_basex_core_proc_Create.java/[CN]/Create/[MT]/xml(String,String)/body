@@ -1,0 +1,18 @@
+{
+  try {
+    final String f=Create.filePath(fn,true);
+    final XMLParser p=new XMLParser(f);
+    if (Prop.onthefly)     return new MemBuilder().build(p,db);
+    Drop.drop(db);
+    final Data data=new DiskBuilder().build(p,db);
+    if (data.meta.txtindex)     data.openIndex(Index.TYPE.TXT,new ValueBuilder(true).build(data));
+    if (data.meta.atvindex)     data.openIndex(Index.TYPE.ATV,new ValueBuilder(false).build(data));
+    if (data.meta.wrdindex)     data.openIndex(Index.TYPE.WRD,new WordBuilder().build(data));
+    if (data.meta.ftxindex)     data.openIndex(Index.TYPE.FTX,new FTBuilder().build(data));
+    return data;
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    return null;
+  }
+}

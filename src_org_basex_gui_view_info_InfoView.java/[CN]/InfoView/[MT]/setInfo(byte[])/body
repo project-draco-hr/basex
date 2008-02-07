@@ -1,0 +1,40 @@
+{
+  final IntList il=new IntList();
+  final StringList sl=new StringList();
+  final StringList cmp=new StringList();
+  final StringList eval=new StringList();
+  final StringList pln=new StringList();
+  final String[] split=Token.string(inf).split(Prop.NL);
+  for (int i=0; i < split.length; i++) {
+    final String line=split[i];
+    final int s=line.indexOf(':');
+    if (line.startsWith(QUERYPARSE) || line.startsWith(QUERYCOMPILE) || line.startsWith(QUERYEVALUATE)|| line.startsWith(QUERYPRINT)|| line.startsWith(QUERYTOTAL)) {
+      final int t=line.indexOf(MS);
+      sl.add(line.substring(0,s).trim());
+      il.add((int)(Double.parseDouble(line.substring(s + 1,t)) * 100));
+    }
+ else     if (line.startsWith(QUERYSTRING)) {
+      query=line.substring(s + 1).trim();
+    }
+ else     if (line.startsWith(QUERYPLAN)) {
+      while (++i < split.length && split[i].length() != 0)       pln.add(split[i]);
+      --i;
+    }
+ else     if (line.startsWith(QUERYCOMP)) {
+      while (!split[++i].contains(QUERYRESULT))       cmp.add(split[i]);
+      result=split[i].substring(split[i].indexOf(':') + 1).trim();
+    }
+ else     if (line.startsWith(QUERYEVAL)) {
+      while (split[++i].startsWith(QUERYSEP))       eval.add(split[i]);
+    }
+  }
+  if (sl.size != 0) {
+    stat=il;
+    strings=sl;
+    compile=cmp;
+    evaluate=eval;
+    plan=pln;
+    sy=0;
+    repaint();
+  }
+}

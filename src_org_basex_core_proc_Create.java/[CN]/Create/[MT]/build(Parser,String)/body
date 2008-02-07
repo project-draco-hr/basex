@@ -1,0 +1,45 @@
+{
+  String err="";
+  final String db=chopPath(file);
+  Builder builder=null;
+  try {
+    if (Prop.onthefly) {
+      context.data(new MemBuilder().build(p,db));
+      return true;
+    }
+    context.close();
+    final Performance pp=new Performance();
+    builder=new DiskBuilder();
+    progress(builder);
+    final Data data=builder.build(p,db);
+    if (Prop.allInfo)     info(CREATETABLE + NL,pp.getTimer());
+    builder=null;
+    if (data.meta.txtindex)     buildIndex(Index.TYPE.TXT,data);
+    if (data.meta.atvindex)     buildIndex(Index.TYPE.ATV,data);
+    if (data.meta.wrdindex)     buildIndex(Index.TYPE.WRD,data);
+    if (data.meta.ftxindex)     buildIndex(Index.TYPE.FTX,data);
+    context.data(data);
+    return Prop.info ? timer(DBCREATED) : true;
+  }
+ catch (  final FileNotFoundException ex) {
+    BaseX.debug(ex);
+    err=BaseX.info(FILEWHICH,file);
+  }
+catch (  final IOException ex) {
+    BaseX.debug(ex);
+    err=ex.getMessage();
+  }
+catch (  final Exception ex) {
+    final String msg=ex.getMessage();
+    BaseX.debug(ex);
+    err=BaseX.info(CREATEERR,cmd.args(),msg.length() != 0 ? msg : "");
+  }
+  try {
+    if (builder != null)     builder.close();
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+  }
+  Drop.drop(db);
+  return error(err);
+}

@@ -1,0 +1,32 @@
+{
+  final Iter iter=arg.length == 0 ? check(ctx) : arg[0];
+switch (func) {
+case POS:
+    return Itr.iter(ctx.pos);
+case LAST:
+  return Itr.iter(ctx.size);
+case STRING:
+Item it=iter.atomic(this,true);
+return it == null ? Str.ZERO.iter() : it.s() && !it.u() ? it.iter() : Str.iter(it.str());
+case NUMBER:
+it=iter.next();
+if (it == null || iter.next() != null || it.type == Type.URI || !it.s() && !it.n() && !it.u()) return Dbl.iter(Double.NaN);
+if (it.type == Type.DBL) return it.iter();
+try {
+return Dbl.iter(it.dbl());
+}
+ catch (final XQException e) {
+return Dbl.iter(Double.NaN);
+}
+case URIQNAME:
+it=iter.atomic(this,true);
+if (it == null) return Iter.EMPTY;
+return ((QNm)check(it,Type.QNM)).uri.iter();
+case STRLEN:
+return Itr.iter(len(checkStr(iter)));
+case NORM:
+return Str.iter(norm(checkStr(iter)));
+default :
+throw new RuntimeException("Not defined: " + func);
+}
+}

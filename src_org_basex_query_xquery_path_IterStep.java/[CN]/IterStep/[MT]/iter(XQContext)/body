@@ -1,0 +1,46 @@
+{
+  final Item item=ctx.item;
+  if (item == null)   Err.or(XPNODES,this);
+  final Iter iter=item.iter();
+  return new NodeIter(){
+    /** 
+ * Temporary iterator. 
+ */
+    NodeIter ir;
+    @Override public Node next() throws XQException {
+      while (true) {
+        if (ir == null) {
+          final Item it=iter.next();
+          if (it == null)           return null;
+          if (!it.node())           Err.or(NODESPATH,this,it);
+          ir=axis.init((Node)it);
+        }
+        final Node nod=ir.next();
+        if (nod != null) {
+          if (test.e(nod,ctx)) {
+            boolean add=true;
+            for (            final Expr e : expr) {
+              ctx.item=nod;
+              final Item i=ctx.iter(e).ebv();
+              if (i.bool()) {
+                nod.score(i.score());
+              }
+ else {
+                add=false;
+                break;
+              }
+            }
+            if (add)             return nod.finish();
+          }
+        }
+ else {
+          ir=null;
+        }
+      }
+    }
+    @Override public String toString(){
+      return IterStep.this.toString();
+    }
+  }
+;
+}

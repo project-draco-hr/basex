@@ -1,0 +1,43 @@
+{
+  final List<byte[]> frames=new ArrayList<byte[]>();
+  int s=size;
+  while (s > MINIMAL_FRAME_SIZE) {
+    int b;
+    if ((b=read()) == 0x00)     break;
+    final byte[] tag={(byte)b,(byte)read(),(byte)read(),(byte)read()};
+    final int fsize=read() << 24 | read() << 16 | read() << 8 | read();
+    read();
+    read();
+    final int enc=read();
+    boolean valid=true;
+    for (int i=0; i < fsize - 1; i++) {
+      b=read();
+      if (i == content.length)       content=Array.extend(content);
+      content[i]=(byte)b;
+      valid&=b != 0;
+    }
+    byte[][] tt=null;
+    for (    final byte[][] t : TAGS) {
+      if (Token.eq(tag,t[0])) {
+        tt=t;
+        break;
+      }
+    }
+    if (tt == null) {
+      BaseX.debug(ID3UNKNOWN,tag,file.getName());
+    }
+ else     if (enc == 0) {
+      final byte[] cont=chop(fsize - 1,tt.length == 3);
+      if (cont == null) {
+        BaseX.debug(ID3NULL,tag,file.getName());
+      }
+ else       if (cont.length != 0) {
+        frames.add(tt[1]);
+        frames.add(cont);
+      }
+    }
+    s-=FRAME_HEADER_LENGTH + fsize;
+  }
+  skip(in,s - 1);
+  return frames;
+}

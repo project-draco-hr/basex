@@ -1,0 +1,38 @@
+{
+  final Expr expr=ftOr();
+  final FTSelect sel=new FTSelect(expr);
+  while (true) {
+    if (consumeWS(ORDERED)) {
+      sel.ordered=true;
+    }
+ else     if (consumeWS(WINDOW)) {
+      sel.window=additiveExpr();
+      sel.wunit=ftUnit();
+    }
+ else     if (consumeWS(DISTANCE)) {
+      sel.dist=ftRange();
+      sel.dunit=ftUnit();
+    }
+ else     if (consumeWS(AT)) {
+      sel.start=consumeWS(START);
+      if (!sel.start)       sel.end=consumeWS(END);
+      if (!sel.start && !sel.end)       Err.or(INCOMPLETE);
+    }
+ else     if (consumeWS(ENTIRE)) {
+      check(CONTENT);
+      sel.content=true;
+    }
+ else {
+      final boolean same=consumeWS(SAME);
+      final boolean diff=!same && consumeWS(DIFFERENT);
+      if (!same && !diff)       break;
+      sel.same=same;
+      sel.different=diff;
+      if (consumeWS(SENTENCE))       sel.sdunit=FTSelect.SENTENCES;
+ else       if (consumeWS(PARAGRAPH))       sel.sdunit=FTSelect.PARAGRAPHS;
+ else       Err.or(INCOMPLETE);
+    }
+  }
+  sel.weight=consumeWS(WEIGHT) ? rangeExpr() : Dbl.ONE;
+  return sel;
+}

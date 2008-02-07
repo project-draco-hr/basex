@@ -1,0 +1,37 @@
+{
+  final int[] cw=fontWidths(g.getFont());
+  int i=0;
+  int j=m;
+  int xx=r.x;
+  int yy=r.y;
+  int ww=r.w;
+  int p=wrap;
+  final int hh=r.h;
+  final int ys=yy;
+  do {
+    int sw=0;
+    int l=i;
+    for (int k=i; k < j; k+=cl(s[k])) {
+      sw+=width(g,cw,cp(s,k));
+      if (sw >= ww) {
+        j=Math.max(1,l);
+        break;
+      }
+      if (s[k] == '\n') {
+        j=k + 1;
+        break;
+      }
+      l=k;
+    }
+    yy+=GUIProp.fontsize;
+    if (draw)     g.drawString(string(s,i,j - i),xx,yy);
+    i=j;
+    j=m;
+    if (--p == 0) {
+      xx-=16;
+      ww+=16;
+    }
+  }
+ while (yy + GUIProp.fontsize < ys + hh && i < j);
+  return yy - ys;
+}

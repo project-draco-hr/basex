@@ -1,0 +1,73 @@
+{
+  final Iter iter=arg[0];
+switch (func) {
+case CODESTR:
+    return cp2str(iter);
+case STCODE:
+  return str2cp(iter);
+case COMPARE:
+if (arg.length == 3) checkColl(arg[2]);
+Item it1=iter.atomic(this,true);
+Item it2=arg[1].atomic(this,true);
+if (it1 == null || it2 == null) return Iter.EMPTY;
+final int d=diff(checkStr(it1),checkStr(it2));
+return Itr.iter(Math.max(-1,Math.min(1,d)));
+case CODEPNT:
+it1=iter.atomic(this,true);
+it2=arg[1].atomic(this,true);
+if (it1 == null || it2 == null) return Iter.EMPTY;
+return Bln.get(eq(checkStr(it1),checkStr(it2))).iter();
+case STRJOIN:
+return strjoin(arg);
+case SUBSTR:
+return substr(arg);
+case NORMUNI:
+return normuni(arg);
+case UPPER:
+return Str.iter(uc(checkStr(iter)));
+case LOWER:
+return Str.iter(lc(checkStr(iter)));
+case TRANS:
+return trans(arg);
+case ENCURI:
+return Str.iter(uri(checkStr(iter),false));
+case IRIURI:
+return Str.iter(uri(checkStr(iter),true));
+case ESCURI:
+return Str.iter(esc(checkStr(iter)));
+case CONTAINS:
+if (arg.length == 3) checkColl(arg[2]);
+Item it=arg[1].atomic(this,true);
+return it == null ? Bln.TRUE.iter() : Bln.get(contains(checkStr(iter),checkStr(it))).iter();
+case CONCAT:
+final TokenBuilder tb=new TokenBuilder();
+for (final Iter a : arg) {
+it=a.atomic(this,true);
+if (it != null) tb.add(it.str());
+}
+return Str.iter(tb.finish());
+case STARTS:
+if (arg.length == 3) checkColl(arg[2]);
+it=arg[1].atomic(this,true);
+if (it == null) return Bln.TRUE.iter();
+return Bln.get(startsWith(checkStr(iter),checkStr(it))).iter();
+case ENDS:
+if (arg.length == 3) checkColl(arg[2]);
+it=arg[1].atomic(this,true);
+if (it == null) return Bln.TRUE.iter();
+return Bln.get(endsWith(checkStr(iter),checkStr(it))).iter();
+case SUBAFTER:
+if (arg.length == 3) checkColl(arg[2]);
+final byte[] str=checkStr(iter);
+final byte[] sa=checkStr(arg[1]);
+int pa=indexOf(str,sa);
+return pa != -1 ? Str.iter(substring(str,pa + sa.length)) : Str.ZERO.iter();
+case SUBBEFORE:
+if (arg.length == 3) checkColl(arg[2]);
+final byte[] sb=checkStr(iter);
+final int pb=indexOf(sb,checkStr(arg[1]));
+return pb > 0 ? Str.iter(substring(sb,0,pb)) : Str.ZERO.iter();
+default :
+throw new RuntimeException("Not defined: " + func);
+}
+}

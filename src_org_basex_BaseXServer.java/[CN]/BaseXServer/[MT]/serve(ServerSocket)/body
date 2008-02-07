@@ -1,0 +1,67 @@
+{
+  try {
+    final Socket s=server.accept();
+    final Performance perf=new Performance();
+    final DataInputStream dis=new DataInputStream(s.getInputStream());
+    final Command cmd=new Command(dis.readUTF().trim());
+    if (cmd.name == Commands.STOP) {
+      s.getOutputStream().write(1);
+      for (int p=0; p < MAX; p++)       if (core[p] != null)       core[p].stop();
+      running=false;
+      return;
+    }
+    new Thread(){
+      @Override public void run(){
+        try {
+          final InetAddress addr=s.getInetAddress();
+          final String ip=addr.toString();
+          if (!cmd.name.server()) {
+            final Proc proc=cmd.proc(context);
+            final Proc p=newCore(proc,ip);
+            boolean ok=p != null;
+            if (ok) {
+              ok=p.execute();
+              if (!ok && verbose) {
+                final PrintOutput o=new ConsoleOutput(System.err);
+                p.info(o);
+                o.close();
+              }
+            }
+            final OutputStream out=s.getOutputStream();
+            out.write(ok ? 1 : 0);
+            out.close();
+          }
+ else {
+            final OutputStream os=s.getOutputStream();
+            final PrintOutput out=new PrintOutput(new BufferedOutput(os));
+            final Proc c=getSession(ip);
+            if (c == null) {
+              out.print(SERVERFULL);
+            }
+ else             if (cmd.name == Commands.GETRESULT) {
+              c.output(out);
+              out.close();
+            }
+ else             if (cmd.name == Commands.GETINFO) {
+              c.info(out);
+            }
+            out.close();
+          }
+          dis.close();
+          if (verbose) {
+            BaseX.outln("%:% => % [%]",addr.getHostAddress(),s.getPort(),cmd,perf.getTimer());
+          }
+        }
+ catch (        final Exception ex) {
+          if (ex instanceof IOException)           BaseX.errln(SERVERERR);
+ else           ex.printStackTrace();
+        }
+      }
+    }
+.start();
+  }
+ catch (  final Exception ex) {
+    if (ex instanceof IOException)     BaseX.errln(SERVERERR);
+ else     ex.printStackTrace();
+  }
+}

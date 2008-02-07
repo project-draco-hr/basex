@@ -1,0 +1,36 @@
+{
+  boolean ok=true;
+  Prop.serialize=false;
+  System.out.println(queries.length + " " + " XQuery Tests...");
+  out("\nRunning Tests...\n");
+  for (  final Object[] qu : queries) {
+    final String desc=qu[0].toString();
+    final String query=qu[1].toString();
+    out("- " + desc + " (\""+ query+ "\"): ");
+    final Proc proc=Proc.get(context,Commands.XQUERY,query);
+    if (proc.execute()) {
+      final Result value=proc.result();
+      final SeqBuilder iter=new SeqBuilder();
+      iter.a((Item)qu[2]);
+      if (qu.length == 2 || !value.same(new XQResult(null,iter))) {
+        err((qu.length == 2 ? "Error" : qu[2]) + " expected, " + value+ " returned.\n",desc);
+        ok=false;
+        continue;
+      }
+      out("ok\n");
+    }
+ else {
+      final String info=proc.info();
+      if (qu.length == 3) {
+        err("Error: '" + info + "'\n",desc);
+        ok=false;
+      }
+ else {
+        out("ok\n");
+      }
+    }
+  }
+  out("\n");
+  Proc.execute(context,Commands.DROP,"temp");
+  return ok;
+}

@@ -1,0 +1,40 @@
+{
+  byte[] vvalueSearchNode=searchNode;
+  if (currentCompressedTrieNode != 0) {
+    int i=0;
+    while (i < vvalueSearchNode.length && i < nodes[currentCompressedTrieNode].length && nodes[currentCompressedTrieNode][i] == vvalueSearchNode[i]) {
+      i++;
+    }
+    if (nodes[currentCompressedTrieNode].length == i) {
+      if (vvalueSearchNode.length == i) {
+        return (int[][])data[currentCompressedTrieNode];
+      }
+ else {
+        final byte[] tmp=new byte[vvalueSearchNode.length - i];
+        for (int j=0; j < tmp.length; j++) {
+          tmp[j]=vvalueSearchNode[i + j];
+        }
+        vvalueSearchNode=tmp;
+        final int position=getInsertingPositionLinear(currentCompressedTrieNode,vvalueSearchNode[0]);
+        if (!found) {
+          return null;
+        }
+ else {
+          return getNodeFromTrieRecursive(next[currentCompressedTrieNode][position],vvalueSearchNode);
+        }
+      }
+    }
+ else {
+      return null;
+    }
+  }
+ else {
+    final int position=getInsertingPositionLinear(currentCompressedTrieNode,vvalueSearchNode[0]);
+    if (!found) {
+      return null;
+    }
+ else {
+      return getNodeFromTrieRecursive(next[currentCompressedTrieNode][position],vvalueSearchNode);
+    }
+  }
+}

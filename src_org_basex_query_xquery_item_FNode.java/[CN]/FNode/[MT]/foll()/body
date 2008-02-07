@@ -1,0 +1,32 @@
+{
+  return new NodeIter(){
+    /** 
+ * Iterator. 
+ */
+    private NodeNext it;
+    /** 
+ * First call. 
+ */
+    private boolean more;
+    @Override public Node next() throws XQException {
+      if (!more) {
+        final NodIter ch=new NodIter();
+        Node nod=FNode.this;
+        while (nod.par != null) {
+          final NodeIter i=nod.par.child();
+          Node n;
+          while ((n=i.next()) != null && !n.is(nod))           ;
+          while ((n=i.next()) != null) {
+            ch.add(n.finish());
+            addDesc(n.child(),ch);
+          }
+          nod=nod.par;
+        }
+        it=new NodeNext(ch);
+        more=true;
+      }
+      return it.next();
+    }
+  }
+;
+}

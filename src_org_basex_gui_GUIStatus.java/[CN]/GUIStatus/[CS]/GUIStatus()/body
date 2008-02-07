@@ -1,0 +1,29 @@
+{
+  super(Token.token("Status Bar"));
+  BaseXLayout.setHeight(this,getFont().getSize() + 6);
+  final MouseInputAdapter mouse=new MouseInputAdapter(){
+    @Override public void mousePressed(    final MouseEvent e){
+      if (memfocus) {
+        final Runtime rt=Runtime.getRuntime();
+        final long mx=rt.maxMemory();
+        final long oc=rt.totalMemory();
+        final long fr=rt.freeMemory();
+        Performance.gc(4);
+        final String inf=MEMTOTAL + Performance.formatSize(mx,true) + Prop.NL+ MEMRESERVED+ Performance.formatSize(oc,true)+ Prop.NL+ MEMUSED+ Performance.formatSize(oc - fr,true)+ Prop.NL+ Prop.NL+ MEMHELP;
+        JOptionPane.showMessageDialog(GUI.get(),inf,MEMTITLE,JOptionPane.INFORMATION_MESSAGE);
+      }
+    }
+    @Override public void mouseMoved(    final MouseEvent e){
+      memfocus=e.getX() > getWidth() - MEMW;
+      if (memfocus)       GUI.get().focus(GUIStatus.this,HELPMEM);
+      GUI.get().setCursor(memfocus ? GUIConstants.CURSORHAND : GUIConstants.CURSORARROW);
+    }
+    @Override public void mouseExited(    final MouseEvent e){
+      memfocus=false;
+      GUI.get().setCursor(GUIConstants.CURSORARROW);
+    }
+  }
+;
+  addMouseListener(mouse);
+  addMouseMotionListener(mouse);
+}

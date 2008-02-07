@@ -1,0 +1,44 @@
+{
+  super(help);
+  setLayout(new BorderLayout(0,4));
+  setBorder(38,8,8,8);
+  box=new Box(BoxLayout.X_AXIS);
+  box.setBorder(new EmptyBorder(0,0,8,0));
+  for (int i=0; i < SEARCHMODE.length; i++) {
+    input[i]=new BaseXButton(SEARCHMODE[i],HELPSEARCH[i]);
+    input[i].setActionCommand(Integer.toString(i));
+    input[i].addActionListener(new ActionListener(){
+      public void actionPerformed(      final ActionEvent e){
+        mode=Integer.parseInt(e.getActionCommand());
+        refreshLayout();
+      }
+    }
+);
+    box.add(input[i]);
+    box.add(new BaseXLabel("  "));
+switch (i) {
+case QueryPanel.XQUERY:
+      panels[i]=new QueryArea(this,i);
+    break;
+case QueryPanel.XPATH:
+  panels[i]=new QueryArea(this,i);
+break;
+case QueryPanel.SIMPLE:
+panels[i]=new QuerySimple(this);
+break;
+}
+}
+box.add(new BaseXLabel("   "));
+final Box box2=new Box(BoxLayout.Y_AXIS);
+filterbox=new BaseXCheckBox(CMDFILTERRT,HELPFILTERRT,GUIProp.filterrt);
+filterbox.addActionListener(new ActionListener(){
+public void actionPerformed(final ActionEvent e){
+GUICommands.RTFILTER.execute();
+}
+}
+);
+filterbox.setToolTipText(Token.string(HELPFILTERRT));
+box2.add(filterbox);
+box.add(box2);
+refresh();
+}

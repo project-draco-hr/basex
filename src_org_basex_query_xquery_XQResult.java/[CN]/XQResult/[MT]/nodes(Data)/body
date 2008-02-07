@@ -1,0 +1,20 @@
+{
+  final NodeBuilder nb=new NodeBuilder();
+  for (int i=0; i < seq.size; i++) {
+    final Item it=seq.item[i];
+    if (!it.node())     return null;
+    if (it instanceof DNode) {
+      if (((DNode)it).data != data)       return null;
+      nb.add(((DNode)it).pre);
+    }
+ else {
+      final FNode node=(FNode)it;
+      final NodeIter ch=node.child();
+      Item c;
+      while ((c=ch.next()) != null) {
+        if (c instanceof DNode && ((DNode)c).data == data)         nb.add(((DNode)c).pre);
+      }
+    }
+  }
+  return nb.size != 0 ? new Nodes(nb.finish(),data) : null;
+}

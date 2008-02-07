@@ -1,0 +1,130 @@
+{
+  setTitle(Text.TITLE);
+  setIconImage(image(IMGICON));
+  final Dimension s=Toolkit.getDefaultToolkit().getScreenSize();
+  final int w=GUIProp.guisize[0];
+  final int h=GUIProp.guisize[1];
+  int x=Math.max(0,GUIProp.guiloc[0]);
+  int y=Math.max(0,GUIProp.guiloc[1]);
+  if (x > s.width - w)   x=Math.max(0,s.width - w);
+  if (y > s.height - h)   y=Math.max(0,s.height - h);
+  setBounds(x,y,w,h);
+  if (GUIProp.maxstate)   setExtendedState(MAXIMIZED_BOTH);
+  top=new BaseXBack();
+  top.setLayout(new BorderLayout());
+  control=new BaseXBack();
+  control.setLayout(new BorderLayout());
+  control.setBorder(0,0,0,1);
+  menu=new GUIMenu();
+  if (GUIProp.showmenu)   setJMenuBar(menu);
+  final Font fnt=new Font(GUIProp.font,1,15);
+  buttons=new BaseXBack();
+  buttons.setLayout(new BorderLayout());
+  toolbar=new GUIToolBar();
+  buttons.add(toolbar,BorderLayout.WEST);
+  final BaseXBack p=new BaseXBack();
+  hits=new BaseXLabel(" ");
+  hits.setFont(fnt);
+  BaseXLayout.setWidth(hits,150);
+  hits.setHorizontalAlignment(SwingConstants.RIGHT);
+  p.add(hits);
+  p.add(new BaseXLabel(" "));
+  filter=new BaseXButton(BUTTONFILTER,HELPFILTER,null);
+  filter.setToolTipText(Token.string(HELPFILTER));
+  filter.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      GUICommands.FILTER.execute();
+    }
+  }
+);
+  filter.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      browse(e);
+    }
+  }
+);
+  p.add(filter);
+  buttons.add(p,BorderLayout.EAST);
+  if (GUIProp.showbuttons)   control.add(buttons,BorderLayout.CENTER);
+  nav=new Box(BoxLayout.X_AXIS);
+  nav.setBorder(new EmptyBorder(4,2,0,2));
+  mode=new BaseXButton("",HELPMODE);
+  mode.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      if (context.db())       GUICommands.INPUTMODE.execute();
+    }
+  }
+);
+  mode.setFocusable(false);
+  mode.setRolloverEnabled(false);
+  mode.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      browse(e);
+    }
+  }
+);
+  nav.add(mode);
+  nav.add(new BaseXLabel("  "));
+  input=new BaseXCombo(GUIProp.commands,null,true);
+  final Font f=input.getFont();
+  input.setFont(f.deriveFont((float)f.getSize() + 2));
+  input.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      browse(e);
+      if (e.getKeyCode() != KeyEvent.VK_ENTER)       return;
+      final boolean cmd=!GUIProp.searchmode || !context.db();
+      final String in=input.getText();
+      if (cmd || in.startsWith("!")) {
+        final int i=cmd ? 0 : 1;
+        if (in.length() > i)         execute(in.substring(i));
+      }
+ else       if (e.isControlDown()) {
+        View.notifyContext(context.marked(),false);
+      }
+    }
+    @Override public void keyReleased(    final KeyEvent e){
+      if (e.getKeyChar() == 0xFFFF || e.isControlDown())       return;
+      final String in=input.getText();
+      if (!GUIProp.searchmode || !context.db() || in.startsWith("!"))       return;
+      execute(Commands.XPATH,Find.find(in,context,GUIProp.filterrt));
+    }
+  }
+);
+  nav.add(input);
+  if (GUIProp.showinput)   control.add(nav,BorderLayout.SOUTH);
+  top.add(control,BorderLayout.NORTH);
+  query=new QueryView(null);
+  text=new TextView(FILL.DOWN,TEXTVIEW,HELPTEXT);
+  help=new TextView(FILL.DOWN,HELPVIEW,null);
+  info=new InfoView(HELPINFO);
+  final ViewPanel textpanel=new ViewPanel(text,TEXTVIEW);
+  final ViewPanel helppanel=new ViewPanel(help,HELPVIEW);
+  final ViewPanel[][] panels={{textpanel,helppanel},{new ViewPanel(new TreeView(HELPTREE),TREEVIEW),new ViewPanel(new TableView(HELPTABLE),TABLEVIEW),new ViewPanel(new MapView(HELPMAP),MAPVIEW),new ViewPanel(query,QUERYVIEW),new ViewPanel(info,INFOVIEW),helppanel,textpanel}};
+  views=new ViewContainer(panels);
+  views.setViews(false);
+  top.add(views,BorderLayout.CENTER);
+  setContentBorder();
+  status=new GUIStatus();
+  if (GUIProp.showstatus)   top.add(status,BorderLayout.SOUTH);
+  setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+  addWindowListener(new WindowAdapter(){
+    @Override public void windowClosing(    final WindowEvent e){
+      quit();
+    }
+  }
+);
+  add(top);
+  setVisible(true);
+  views.updateViews();
+  refreshControls();
+  Prop.xqerrcode=false;
+  Prop.allInfo=GUIProp.showinfo;
+  Prop.info=GUIProp.showinfo;
+  Prop.chop=true;
+  new Thread(){
+    @Override public void run(){
+      views.run();
+    }
+  }
+.start();
+}

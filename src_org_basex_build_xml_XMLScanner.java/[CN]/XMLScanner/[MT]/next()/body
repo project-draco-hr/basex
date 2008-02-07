@@ -1,0 +1,32 @@
+{
+  token.reset();
+  byte ch=nextValid();
+  if (prolog && ch == -0x11) {
+    if (nextValid() != -0x45 || nextValid() != -0x41)     error(INVALID);
+    ch=nextValid();
+  }
+  if (ch == 0) {
+    more=false;
+    return;
+  }
+switch (state) {
+case CONTENT:
+    scanCONTENT(ch);
+  break;
+case TAG:
+case ATT:
+scanTAG(ch);
+break;
+case QUOTE:
+scanATTVAL(ch);
+}
+if (VERBOSE) {
+String typ=type.toString();
+String sta=state.toString();
+while (sta.length() < 12) sta+=" ";
+while (typ.length() < 13) typ+=" ";
+String out=sta + typ;
+if (token != null) out+="'" + token + "'";
+BaseX.outln(out);
+}
+}

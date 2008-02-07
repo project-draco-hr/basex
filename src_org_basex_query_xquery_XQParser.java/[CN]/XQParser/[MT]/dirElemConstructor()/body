@@ -1,0 +1,105 @@
+{
+  if (consumeWS())   Err.or(NOTAGNAME);
+  final QNm open=new QNm(qName(NOTAGNAME));
+  foundWSS();
+  Expr[] cont={};
+  Uri taguri=null;
+  FAttr[] ns={};
+  while (letter(curr())) {
+    final QNm atn=new QNm(qName(null));
+    Expr[] attv={};
+    foundWSS();
+    check('=');
+    foundWSS();
+    final byte delim=consume();
+    if (delim != '\'' && delim != '"')     Err.or(WRONGCHAR,QUOTE,found());
+    final TokenBuilder tb=new TokenBuilder();
+    boolean simple=true;
+    do {
+      while (!consume(delim)) {
+        final byte c=curr();
+        if (c == '{') {
+          if (next() == '{') {
+            tb.add(consume());
+            simple=false;
+            consume();
+          }
+ else {
+            final byte[] text=tb.finish();
+            if (text.length != 0) {
+              attv=add(attv,Str.get(text));
+            }
+ else {
+              attv=add(attv,enclosedExpr(NOENCLEXPR));
+              simple=false;
+            }
+            tb.reset();
+          }
+        }
+ else         if (c == '}') {
+          qp++;
+          check('}');
+          tb.add('}');
+        }
+ else         if (c == '<') {
+          Err.or(WRONGCHAR,(char)delim,found());
+        }
+ else         if (c == 0) {
+          Err.or(QUOTECLOSE,(char)delim);
+        }
+ else         if (c == 0x0A || c == 0x09) {
+          qp++;
+          tb.add(' ');
+        }
+ else {
+          ent(tb);
+        }
+      }
+      if (!consume(delim))       break;
+      tb.add(delim);
+    }
+ while (true);
+    final byte[] text=tb.finish();
+    if (text.length != 0)     attv=add(attv,Str.get(text));
+    final Expr[] atts=attv;
+    final byte[] pre=atn.pre();
+    if (eq(atn.str(),XMLNS)) {
+      if (!simple)       Err.or(NSCONS);
+      if (taguri != null)       Err.or(DUPLNSDEF,atn);
+      final byte[] v=atts.length == 0 ? EMPTY : atts[0].str();
+      taguri=Uri.uri(v);
+    }
+ else     if (eq(pre,XMLNS)) {
+      if (!simple)       Err.or(NSCONS);
+      final byte[] v=atts.length == 0 ? EMPTY : atts[0].str();
+      if (v.length == 0)       Err.or(NSEMPTYURI);
+      atn.uri=Uri.uri(v);
+      ctx.ns.index(atn);
+      ns=checkNS(ns,atn,v);
+    }
+ else {
+      cont=add(cont,new CAttr(atn,atts,false));
+    }
+    if (!foundWSS())     break;
+  }
+  if (taguri == null)   ctx.ns.uri(open);
+ else   open.uri=taguri;
+  if (consume('/')) {
+    check('>');
+  }
+ else {
+    check('>');
+    while (curr() != '<' || next() != '/') {
+      final Expr expr=dirElemContent(open);
+      if (expr == null)       continue;
+      cont=add(cont,expr);
+    }
+    qp+=2;
+    if (consumeWS())     Err.or(NOTAGNAME);
+    final byte[] close=qName(NOTAGNAME);
+    foundWSS();
+    check('>');
+    if (!eq(open.str(),close))     Err.or(TAGWRONG,open.str(),close);
+  }
+  return new CElem(open,cont,ns);
+}

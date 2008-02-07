@@ -1,0 +1,24 @@
+{
+  final Data data=context.data();
+  Nodes nodes;
+  final boolean gui=cmd.nrArgs() == 0;
+  if (gui) {
+    nodes=context.marked();
+    context.marked(new Nodes(data));
+  }
+ else {
+    nodes=query(cmd.arg(0),null);
+  }
+  if (nodes == null)   return false;
+  data.meta.noIndex();
+  final int size=nodes.size;
+  for (int i=size - 1; i >= 0; i--) {
+    if (nodes.pre[i] == 0)     return error(DELETEROOT);
+    data.delete(nodes.pre[i]);
+  }
+  if (gui && context.current().size > 1 || context.current().pre[0] == nodes.pre[0]) {
+    context.current(new Nodes(0,data));
+  }
+  data.flush();
+  return Prop.info ? timer(BaseX.info(DELETEINFO,nodes.size)) : true;
+}

@@ -1,0 +1,27 @@
+{
+  boolean ok=true;
+  Prop.serialize=false;
+  System.out.println(queries.length + " " + " Pathfinder Tests...");
+  out("\nRunning Tests...\n");
+  for (  final String[] qu : queries) {
+    out("- " + qu[0] + ": ");
+    final Proc proc=Proc.get(context,Commands.PF,qu[0]);
+    if (proc.execute()) {
+      final String val=proc.result().toString().replaceAll("^.*\\[|\\].*$","");
+      if (!val.equals(qu[1])) {
+        err("\"" + qu[1] + "\": "+ val+ " found, "+ qu[1]+ " expected.\n",qu[0]);
+        ok=false;
+      }
+ else {
+        out("ok\n");
+      }
+    }
+ else {
+      err(proc.info() + "\n",qu[0]);
+      ok=false;
+    }
+  }
+  out("\n");
+  Proc.execute(context,Commands.DROP,"temp");
+  return ok;
+}

@@ -1,0 +1,41 @@
+{
+  try {
+    int nv=0;
+    layout=null;
+    int lvl=-1;
+    final ViewAlignment[] l=new ViewAlignment[16];
+    final StringTokenizer st=new StringTokenizer(cnstr);
+    while (st.hasMoreTokens()) {
+      final String t=st.nextToken();
+      if (t.equals("H") || t.equals("V")) {
+        l[lvl + 1]=new ViewAlignment(t.equals("H"));
+        if (layout == null) {
+          layout=l[0];
+        }
+ else {
+          l[lvl].add(l[lvl + 1]);
+        }
+        lvl++;
+      }
+ else       if (t.equals("-")) {
+        lvl--;
+      }
+ else {
+        final ViewPanel view=getView(t);
+        if (view == null)         return false;
+        l[lvl].add(view);
+        nv++;
+      }
+    }
+    if (nv < views.length) {
+      BaseX.debug("ViewContainer.buildLayout: Views are missing in " + "layout (\"" + cnstr + "\").");
+      return false;
+    }
+  }
+ catch (  final Exception e) {
+    BaseX.debug("ViewContainer.buildLayout: could not build layout " + '(' + cnstr+ ')');
+    e.printStackTrace();
+    return false;
+  }
+  return true;
+}

@@ -1,0 +1,37 @@
+{
+  final NodIter nodes=new NodIter();
+  final Iter iter=ctx.iter(expr);
+  final byte[] base=Token.EMPTY;
+  final TokenBuilder text=new TokenBuilder();
+  boolean more=false;
+  Item it;
+  while ((it=iter.next()) != null) {
+    if (it.node() && it.type != Type.TXT) {
+      if (it.type == Type.ATT)       Err.or(XPATT);
+      if (text.size != 0) {
+        nodes.add(new FTxt(text.finish(),null));
+        text.reset();
+      }
+      if (it.type == Type.DOC) {
+        final NodeIter ni=((Node)it).child();
+        if (ni.next() != null)         nodes.add(((Node)it).copy());
+      }
+ else {
+        nodes.add(((Node)it).copy());
+      }
+      more=false;
+    }
+ else {
+      if (more && text.size != 0 && it.type != Type.TXT)       text.add(' ');
+      text.add(it.str());
+      more=it.type != Type.TXT;
+    }
+  }
+  if (text.size != 0) {
+    nodes.add(new FTxt(text.finish(),null));
+    text.reset();
+  }
+  final FDoc doc=new FDoc(nodes,base);
+  for (int n=0; n < nodes.size; n++)   nodes.list[n].parent(doc);
+  return doc.iter();
+}

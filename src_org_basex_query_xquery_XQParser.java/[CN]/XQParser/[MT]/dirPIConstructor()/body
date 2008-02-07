@@ -1,0 +1,18 @@
+{
+  if (foundWSS())   Err.or(PIXML,EMPTY);
+  final byte[] str=qName(PIWRONG);
+  final Expr pi=Str.get(str);
+  if (str.length == 0 || Token.eq(Token.lc(str),XML))   Err.or(PIXML,pi);
+  final boolean space=consumeWS();
+  final TokenBuilder tb=new TokenBuilder();
+  do {
+    while (not('?')) {
+      if (!space)       Err.or(PIWRONG);
+      tb.add(consume());
+    }
+    consume();
+    if (consume('>'))     return new CPI(pi,Str.get(tb.finish()));
+    tb.add('?');
+  }
+ while (true);
+}

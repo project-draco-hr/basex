@@ -1,0 +1,41 @@
+{
+  return new Iter(){
+    private Iter[] iter;
+    private Iter ir;
+    private int p=0;
+    @Override public Item next() throws XQException {
+      if (iter == null) {
+        iter=new Iter[fl.length];
+        for (int f=0; f < fl.length; f++)         iter[f]=fl[f].iter(ctx);
+      }
+      while (true) {
+        if (ir != null) {
+          Item i=ir.next();
+          if (i != null)           return i;
+          ir=null;
+        }
+ else {
+          while (iter[p].next().bool()) {
+            if (p + 1 != fl.length) {
+              p++;
+            }
+ else {
+              if (where == null || ctx.iter(where).ebv().bool()) {
+                ir=ctx.iter(expr);
+                break;
+              }
+            }
+          }
+          if (ir == null) {
+            if (p == 0)             return null;
+            --p;
+          }
+        }
+      }
+    }
+    @Override public String toString(){
+      return FLWR.this.toString();
+    }
+  }
+;
+}

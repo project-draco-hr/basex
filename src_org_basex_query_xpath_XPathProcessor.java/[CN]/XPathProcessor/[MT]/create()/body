@@ -1,0 +1,22 @@
+{
+  qu=query.length == 0 ? new byte[]{'.'} : query;
+  ql=qu.length;
+  qp=0;
+  try {
+    final Expr expr=parseOr();
+    if (!finished())     error(QUERYEND,query(20,0));
+    return new XPContext(expr);
+  }
+ catch (  final QueryException ex) {
+    BaseX.debug(ex);
+    int l=1;
+    int c=1;
+    for (int i=0; i + 1 < qp; c++, i++) {
+      if (qu[i] == 0x0A || qu[i] == 0x0D) {
+        l++;
+        c=0;
+      }
+    }
+    throw new QueryException(POSINFO + ex.getMessage(),l,c);
+  }
+}

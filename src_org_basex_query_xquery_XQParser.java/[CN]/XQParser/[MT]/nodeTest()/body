@@ -1,0 +1,36 @@
+{
+  final int p=qp;
+  if (letter(curr())) {
+    final byte[] name=qName(null);
+    consumeWS();
+    if (consume('(')) {
+      tok.reset();
+      while (!consume(')')) {
+        if (curr() == 0)         Err.or(TESTINCOMPLETE);
+        tok.add(consume());
+      }
+      final Type type=node(new QNm(name));
+      if (type == Type.NOD)       return Test.NODE;
+      if (type != null)       return new Test(type,tok.finish(),ctx);
+    }
+ else {
+      if (contains(name,':')) {
+        consumeWS();
+        return new Test(name,false,ctx);
+      }
+      if (!consume(':')) {
+        consumeWS();
+        return new Test(name,false,ctx);
+      }
+      if (consume('*')) {
+        return new Test(name,false,ctx);
+      }
+    }
+  }
+ else   if (consume(MULT)) {
+    if (!consume(':'))     return new Test();
+    return new Test(qName(null),true,ctx);
+  }
+  qp=p;
+  return null;
+}

@@ -1,0 +1,61 @@
+{
+  nodes=new byte[cta.countNodes][];
+  sizeNodes=new int[cta.countNodes];
+  data=new int[cta.countNodes][];
+  sizeData=new int[cta.countNodes];
+  int count=0;
+  boolean sub;
+  nodes[0]=new byte[3];
+  nodes[0][0]=0;
+  nodes[0][1]=(byte)-cta.next[0].length;
+  nodes[0][2]=(byte)count;
+  sizeNodes[0]=nodes[0].length;
+  data[0]=new int[cta.next[0].length];
+  System.arraycopy(cta.next[0],0,data[0],0,cta.next[0].length);
+  sizeData[0]=data[0].length;
+  count++;
+  for (int i=1; i < nodes.length; i++) {
+    sub=false;
+    if (cta.next[i] != null) {
+      final byte[] id=intToByte(count);
+      nodes[i]=new byte[2 + cta.nodes[i].length + id.length];
+      sizeNodes[i]=nodes[i].length;
+      nodes[i][cta.nodes[i].length + 1]=(byte)-cta.next[i].length;
+      System.arraycopy(id,0,nodes[i],cta.nodes[i].length + 2,id.length);
+      if (cta.data[i] != null) {
+        data[count]=new int[cta.next[i].length + ((int[][])cta.data[i])[0].length * 2];
+        sizeData[count]=data[count].length;
+      }
+ else {
+        data[count]=new int[cta.next[i].length];
+        sizeData[count]=data[count].length;
+      }
+      System.arraycopy(cta.next[i],0,data[count],0,cta.next[i].length);
+      count++;
+      sub=true;
+      System.arraycopy(cta.nodes[i],0,nodes[i],1,cta.nodes[i].length);
+      nodes[i][0]=(byte)cta.nodes[i].length;
+    }
+    if (cta.data[i] != null) {
+      if (sub) {
+        System.arraycopy(((int[][])cta.data[i])[0],0,data[count - 1],cta.next[i].length,((int[][])cta.data[i])[0].length);
+        System.arraycopy(((int[][])cta.data[i])[1],0,data[count - 1],cta.next[i].length + ((int[][])cta.data[i])[0].length,((int[][])cta.data[i])[0].length);
+      }
+ else {
+        final byte[] id=intToByte(count);
+        nodes[i]=new byte[cta.nodes[i].length + id.length + 2];
+        sizeNodes[i]=nodes[i].length;
+        System.arraycopy(cta.nodes[i],0,nodes[i],1,cta.nodes[i].length);
+        nodes[i][0]=(byte)cta.nodes[i].length;
+        nodes[i][cta.nodes[i].length + 1]=0;
+        System.arraycopy(id,0,nodes[i],cta.nodes[i].length + 2,id.length);
+        data[count]=new int[((int[][])cta.data[i])[0].length * 2];
+        sizeData[count]=data[count].length;
+        System.arraycopy(((int[][])cta.data[i])[0],0,data[count],0,((int[][])cta.data[i])[0].length);
+        System.arraycopy(((int[][])cta.data[i])[1],0,data[count],((int[][])cta.data[i])[0].length,((int[][])cta.data[i])[0].length);
+        count++;
+      }
+    }
+  }
+  cta=null;
+}

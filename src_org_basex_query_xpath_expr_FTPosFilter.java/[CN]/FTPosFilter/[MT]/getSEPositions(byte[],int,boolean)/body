@@ -1,0 +1,69 @@
+{
+  int[] sep=new int[2];
+  int cp=cpo;
+  int intValue;
+  if (ftpos.ftUnit != null && ftpos.ftUnit.equals(FTPositionFilter.UNIT.SENTENCES) || ftpos.ftBigUnit != null && ftpos.ftBigUnit.equals(FTPositionFilter.BIGUNIT.SENTENCE)) {
+    if (s) {
+      intValue=(data[cp] & 0x7F) + (data[cp] < 0 ? 128 : 0);
+      while (cp > 0 && intValue != '!' && intValue != '.' && intValue != '?') {
+        cp--;
+        intValue=(data[cp] & 0x7F) + (data[cp] < 0 ? 128 : 0);
+      }
+      if (cp > 0) {
+        cp++;
+      }
+      sep[0]=cp;
+    }
+    cp=cpo;
+    intValue=(data[cp] & 0x7F) + (data[cp] < 0 ? 128 : 0);
+    while (cp < data.length - 1 && intValue != 33 && intValue != 46 && intValue != 63) {
+      cp++;
+      intValue=(data[cp] & 0x7F) + (data[cp] < 0 ? 128 : 0);
+    }
+    if (cp == data.length) {
+      cp=cp - 1;
+    }
+    sep[1]=cp;
+    return sep;
+  }
+ else   if (ftpos.ftUnit != null && ftpos.ftUnit.equals(FTPositionFilter.UNIT.PARAGRAPHS) || ftpos.ftBigUnit != null && ftpos.ftBigUnit.equals(FTPositionFilter.BIGUNIT.PARAGRAPH)) {
+    if (s) {
+      intValue=data[cp];
+      while (cp > 0) {
+        cp--;
+        if (intValue == '\n') {
+          break;
+        }
+ else {
+          intValue=data[cp];
+        }
+      }
+      if (cp > 0) {
+        cp=cp + 2;
+      }
+      sep[0]=cp;
+    }
+    cp=cpo;
+    intValue=(data[cp] & 0x7F) + (data[cp] < 0 ? 128 : 0);
+    while (cp < data.length - 1) {
+      cp++;
+      if (intValue == 13) {
+        intValue=(data[cp] & 0x7F) + (data[cp] < 0 ? 128 : 0);
+        if (intValue == 10) {
+          break;
+        }
+      }
+ else {
+        intValue=(data[cp] & 0x7F) + (data[cp] < 0 ? 128 : 0);
+      }
+    }
+    if (cp == data.length) {
+      cp=cp - 1;
+    }
+    sep[1]=cp;
+    return sep;
+  }
+ else {
+    return null;
+  }
+}

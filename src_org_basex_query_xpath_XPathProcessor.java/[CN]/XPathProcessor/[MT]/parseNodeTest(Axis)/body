@@ -1,0 +1,38 @@
+{
+  final byte[] test=name();
+  if (test.length == 0) {
+    if (consume('*'))     return new TestName(true);
+    error(NOTEST);
+  }
+  if (consume('(')) {
+    TestNode result=null;
+    if (eq(test,PI)) {
+      if (curr(0))       error(PIBRACKETS);
+      final byte delim=curr();
+      if (delim != ')') {
+        if (delim != '"' && delim != '\'')         error(PIQUOTE);
+        consume(delim);
+        final byte[] pi=name();
+        if (!consume(delim))         error(PIQUOTE);
+        if (!consume(')'))         error(PIBRACKETS);
+        return new TestPI(pi);
+      }
+      result=TestNode.PI;
+    }
+ else     if (eq(test,NODE)) {
+      result=TestNode.NODE;
+    }
+ else     if (eq(test,COMMENT)) {
+      result=TestNode.COMM;
+    }
+ else     if (eq(test,TEXT)) {
+      result=TestNode.TEXT;
+    }
+ else {
+      error(UNKNOWNKIND,test);
+    }
+    if (consume(')'))     return result;
+    error(KINDCLOSE);
+  }
+  return new TestName(test,axis != Axis.ATTR);
+}

@@ -1,0 +1,39 @@
+{
+  Item pat=pattern.atomic(this,false);
+  byte[] pt=checkStr(pat);
+  int m=Pattern.UNIX_LINES;
+  if (mod != null) {
+    Item md=mod.atomic(this,false);
+    for (    final byte b : checkStr(md)) {
+      if (b == 'i')       m|=Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
+ else       if (b == 'm')       m|=Pattern.MULTILINE;
+ else       if (b == 's')       m|=Pattern.DOTALL;
+ else       if (b == 'x') {
+        boolean cc=false;
+        final TokenBuilder tb=new TokenBuilder();
+        for (        final byte p : pt) {
+          if (cc || p < 0 || p > ' ')           tb.add(p);
+          cc|=p == '[';
+          cc&=p != ']';
+        }
+        pt=tb.finish();
+      }
+ else {
+        Err.or(REGMOD,(char)b);
+      }
+    }
+  }
+  try {
+    final TokenBuilder tb=new TokenBuilder();
+    for (int i=0; i < pt.length; i++) {
+      final byte b=pt[i];
+      tb.add(b);
+      if (b == '\\' && (i + 1 != pt.length && pt[i + 1] == ' '))       tb.add('\\');
+    }
+    return Pattern.compile(Token.string(tb.finish()),m);
+  }
+ catch (  final Exception e) {
+    Err.or(REGINV,pt);
+    return null;
+  }
+}

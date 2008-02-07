@@ -1,0 +1,23 @@
+{
+  expr=expr.compile(ctx);
+  if (expr instanceof LocPath) {
+    ((LocPath)expr).addPosPred(ctx);
+    return this;
+  }
+  if (expr instanceof Num) {
+    ctx.compInfo(OPTPOS);
+    final int pos=(int)((Num)expr).num();
+    return new PredPos(pos,pos);
+  }
+  final int pos=getPos(expr);
+  if (pos >= 0) {
+    ctx.compInfo(OPTPOS);
+    final Comparison cmp=(Comparison)expr;
+    if (cmp.type == Comp.EQ)     return new PredPos(pos,pos);
+    if (cmp.type == Comp.GT)     return new PredPos(pos + 1,Integer.MAX_VALUE);
+    if (cmp.type == Comp.GE)     return new PredPos(pos,Integer.MAX_VALUE);
+    if (cmp.type == Comp.LT)     return new PredPos(1,pos - 1);
+    if (cmp.type == Comp.LE)     return new PredPos(1,pos);
+  }
+  return this;
+}

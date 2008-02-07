@@ -1,0 +1,27 @@
+{
+  final Iter iter=ctx.iter(expr);
+  final Item it=iter.next();
+  if (it == null) {
+    if (seq.type == Type.EMP || seq.occ % 2 != 0)     return Iter.EMPTY;
+    Err.empty(this);
+  }
+  if (seq.occ < 2) {
+    if (iter.next() != null)     Err.or(NOTREAT,info(),seq,Type.SEQ);
+    if (!it.type.instance(seq.type))     Err.or(NOTREAT,info(),seq,it.type);
+    return it.iter();
+  }
+  return new Iter(){
+    Item i=it;
+    @Override public Item next() throws XQException {
+      if (i == null)       return null;
+      if (!i.type.instance(seq.type))       Err.or(NOTREAT,info(),seq,i.type);
+      Item ii=i;
+      i=iter.next();
+      return ii;
+    }
+    @Override public String toString(){
+      return Treat.this.toString();
+    }
+  }
+;
+}

@@ -1,0 +1,39 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  do {
+    byte c=curr();
+    if (c == '<') {
+      if (consume(CDATA)) {
+        tb.add(cDataSection());
+        tb.ent=true;
+      }
+ else {
+        final byte[] txt=text(tb);
+        if (txt != null)         return Str.get(txt);
+        return next() == '/' ? null : directConstructor();
+      }
+    }
+ else     if (c == '{') {
+      if (next() == '{') {
+        tb.add(consume());
+        consume();
+      }
+ else {
+        final byte[] txt=text(tb);
+        return txt != null ? Str.get(txt) : enclosedExpr(NOENCLEXPR);
+      }
+    }
+ else     if (c == '}') {
+      consume();
+      check('}');
+      tb.add('}');
+    }
+ else     if (c == 0) {
+      Err.or(NOCLOSING,tag);
+    }
+ else {
+      ent(tb);
+    }
+  }
+ while (true);
+}

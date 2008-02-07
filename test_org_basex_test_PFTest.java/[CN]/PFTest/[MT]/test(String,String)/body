@@ -1,0 +1,86 @@
+{
+  final File in=new File(path + name + ".xq");
+  final boolean f=in.exists();
+  if (f)   found++;
+ else   unknown++;
+  if (!f)   return;
+  byte[] qu=delete(read(in),token("<TSTSRCDIR>/"));
+  int i=indexOf(qu,INDOC);
+  if (i != -1) {
+    qu=token(string(qu).replaceAll("doc\\(\\\"","doc(\"" + path));
+  }
+  byte[] out=read(new File(path + name + ".stable.out"));
+  i=indexOf(out,RESOPEN);
+  if (i != -1) {
+    out=substring(out,i + RESOPEN.length + 1);
+    i=indexOf(out,RESCLOSE);
+    out=substring(out,0,i);
+  }
+ else {
+    out=null;
+  }
+  byte[] err=read(new File(path + name + ".stable.err"));
+  i=indexOf(err,RESERR);
+  if (i != -1) {
+    err=substring(err,i + RESERR.length);
+    i=indexOf(err,RESNL);
+    err=substring(err,0,i);
+    if (err.length == 0)     err=null;
+  }
+ else {
+    err=null;
+  }
+  byte[] result=null;
+  final CachedOutput o=new CachedOutput();
+  try {
+    final XQueryProcessor query=new XQueryProcessor(string(qu));
+    query.query(null).serialize(new PrintSerializer(o));
+    result=o.finish();
+    result=replace(replace(result,0x0D,0x20),0x0A,0x20);
+  }
+ catch (  final Exception ex) {
+    if (out == null) {
+      if (err != null) {
+        System.out.println("Crrct: " + name);
+        correct++;
+      }
+ else {
+        System.out.println("*** Wrong? " + name);
+        wrong++;
+      }
+    }
+ else {
+      System.out.println("*** Wrong. " + name);
+      wrong++;
+    }
+    final byte[] msg=delete(delete(token(ex.getMessage()),0x0A),0x0D);
+    System.out.println("BaseX: " + string(msg));
+  }
+  if (result != null) {
+    if (out != null) {
+      if (!eq(result,out)) {
+        System.out.println("*** Wrong: " + name);
+        wrong++;
+      }
+ else {
+        System.out.println("Crrct: " + name);
+        correct++;
+      }
+    }
+ else {
+      if (err != null) {
+        System.out.println("Crrct: " + name);
+        correct++;
+      }
+ else {
+        System.out.println("??? Wrong? " + name);
+        wrong++;
+      }
+    }
+  }
+  System.out.println("Query: " + string(qu));
+  if (out != null)   System.out.println("PathF: " + string(out));
+  if (err != null)   System.out.println("PathF: " + string(err));
+  if (result != null)   System.out.println("BaseX: " + string(result));
+  System.out.println();
+}

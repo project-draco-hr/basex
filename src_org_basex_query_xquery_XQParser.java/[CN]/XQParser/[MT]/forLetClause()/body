@@ -1,0 +1,37 @@
+{
+  ForLet[] fl=null;
+  boolean comma=false;
+  do {
+    final boolean fr=consumeWS(FOR,DOLLAR,NOFOR);
+    boolean score=!fr && consumeWS(LET,SCORE,NOLET);
+    if (score)     check(SCORE);
+ else     if (!fr && !consumeWS(LET,DOLLAR,NOLET))     return fl;
+    do {
+      if (comma && !fr)       score=consumeWS(SCORE);
+      final QNm name=varName();
+      final SeqType type=!score && consumeWS(AS) ? sequenceType() : null;
+      final Var var=new Var(name,type);
+      final Var at=fr && consumeWS(AT) ? new Var(varName()) : null;
+      final Var sc=fr && consumeWS(SCORE) ? new Var(varName()) : null;
+      check(fr ? IN : ASSIGN);
+      final Expr e=check(exprSingle(),VARMISSING);
+      ctx.vars.add(var);
+      if (fl == null)       fl=new ForLet[1];
+ else       fl=Array.resize(fl,fl.length,fl.length + 1);
+      if (sc != null) {
+        if (sc.name.eq(name) || at != null && sc.name.eq(at.name))         Err.or(VARDEFINED,sc);
+        ctx.vars.add(sc);
+      }
+      if (at != null) {
+        if (name.eq(at.name))         Err.or(VARDEFINED,at);
+        ctx.vars.add(at);
+      }
+      fl[fl.length - 1]=fr ? new For(e,var,at,sc) : new Let(e,var,score);
+      score=false;
+      comma=true;
+    }
+ while (consume(COMMA));
+    comma=false;
+  }
+ while (true);
+}

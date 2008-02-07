@@ -1,0 +1,66 @@
+{
+  if (!GUI.context.db())   return;
+  if (mainRects == null) {
+    refreshInit();
+    return;
+  }
+  painting=true;
+  final boolean in=zoomStep > 0 && zoomIn;
+  final Image img1=in ? zoomMap : mainMap;
+  final Image img2=in ? mainMap : zoomMap;
+  if (zoomStep > 0) {
+    drawImage(g,img1,-zoomStep);
+    drawImage(g,img2,zoomStep);
+  }
+ else {
+    drawImage(g,mainMap,zoomStep);
+  }
+  if (focusedRect == null || mainRects.size == 1 && focusedRect == mainRects.get(0)) {
+    painting=false;
+    return;
+  }
+  if (GUIProp.maplayout == 0) {
+    g.setColor(GUIConstants.COLORS[32]);
+    int pre=mainRects.size;
+    int par=ViewData.parent(focusedRect.p);
+    while (--pre >= 0) {
+      final MapRect rect=mainRects.get(pre);
+      if (rect.p == par) {
+        final int x=rect.x;
+        final int y=rect.y;
+        final int w=rect.w;
+        final int h=rect.h;
+        g.drawRect(x,y,w,h);
+        g.drawRect(x - 1,y - 1,w + 2,h + 2);
+        par=ViewData.parent(par);
+      }
+    }
+  }
+  if (dragRect != null) {
+    g.setColor(GUIConstants.colormark3);
+    g.drawRect(dragRect.x,dragRect.y,dragRect.w,dragRect.h);
+    g.drawRect(dragRect.x - 1,dragRect.y - 1,dragRect.w + 2,dragRect.h + 2);
+  }
+ else {
+    final int x=focusedRect.x;
+    final int y=focusedRect.y;
+    final int w=focusedRect.w;
+    final int h=focusedRect.h;
+    g.setColor(GUIConstants.color6);
+    g.drawRect(x,y,w,h);
+    g.drawRect(x - 1,y - 1,w + 2,h + 2);
+    final Data data=GUI.context.data();
+    if (data.kind(focusedRect.p) == Data.ELEM) {
+      g.setFont(GUIConstants.font);
+      final byte[] tag=ViewData.tag(data,focusedRect.p);
+      final int tw=BaseXLayout.width(g,tag);
+      final int th=g.getFontMetrics().getHeight();
+      final int xx=Math.min(getWidth() - tw - 8,x);
+      g.setColor(GUIConstants.COLORS[focusedRect.l + 5]);
+      g.fillRect(xx - 1,y - th,tw + 4,th);
+      g.setColor(GUIConstants.color1);
+      g.drawString(Token.string(tag),xx,y - 4);
+    }
+  }
+  painting=false;
+}

@@ -1,0 +1,44 @@
+{
+  final int m=a.mon;
+  final long s=a.sec;
+  final boolean min=p ? a.minus : !a.minus;
+  if (minus) {
+    mon=-mon + m;
+    sec+=s;
+    mil+=a.mil;
+  }
+ else   if (min) {
+    mon-=m;
+    sec-=s;
+    mil-=a.mil;
+  }
+ else {
+    mon+=m;
+    sec+=s;
+    mil+=a.mil;
+  }
+  if (mil < 0) {
+    mil++;
+    sec--;
+  }
+ else   if (mil >= 1) {
+    mil--;
+    sec++;
+  }
+  while (mon >= 0 && sec / DAYSECONDS > Date.dpm(mon / 12,mon % 12)) {
+    if (min || m % 12 == 0 && s == 0) {
+      sec-=DAYSECONDS;
+    }
+ else {
+      sec-=DAYSECONDS * (Date.dpm(mon / 12,mon % 12) + 1);
+      mon++;
+    }
+  }
+  while (sec < 0) {
+    sec+=DAYSECONDS;
+    if (--mon < 0)     mon=12 - mon;
+    if (sec < DAYSECONDS)     sec+=Date.dpm(mon / 12,mon % 12) * DAYSECONDS;
+  }
+  minus=mon < 0;
+  mon=Math.abs(mon);
+}

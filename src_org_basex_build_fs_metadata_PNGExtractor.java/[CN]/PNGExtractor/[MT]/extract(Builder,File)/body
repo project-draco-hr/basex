@@ -1,0 +1,12 @@
+{
+  final FileInputStream in=new FileInputStream(f);
+  in.read(data);
+  in.close();
+  if (!Token.startsWith(data,HEADERPNG))   return;
+  listener.startNode(IMAGE,new byte[][]{TYPE,TYPEPNG});
+  final int w=((data[16] & 0xFF) << 24) + ((data[17] & 0xFF) << 16) + ((data[18] & 0xFF) << 8)+ (data[19] & 0xFF);
+  final int h=((data[20] & 0xFF) << 24) + ((data[21] & 0xFF) << 16) + ((data[22] & 0xFF) << 8)+ (data[23] & 0xFF);
+  listener.nodeAndText(WIDTH,Token.token(w));
+  listener.nodeAndText(HEIGHT,Token.token(h));
+  listener.endNode(IMAGE);
+}

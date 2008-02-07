@@ -1,0 +1,52 @@
+{
+  if (running || loaderC == 0)   return;
+  running=true;
+  new Thread(){
+    @Override public void run(){
+      while (--loaderC >= 0) {
+        final int id=idCache[loaderC];
+        int ww=wCache[loaderC];
+        int hh=hCache[loaderC];
+        int ic=-1;
+        while (++ic < MAXNR && imgid[ic] != id)         ;
+        if (ic != MAXNR && (imgmax[ic] || imgs[ic].getWidth(map) + 1 >= ww || imgs[ic].getHeight(map) + 1 >= hh))         continue;
+        try {
+          final Data data=GUI.context.data();
+          if (data == null) {
+            running=false;
+            loaderC=0;
+            return;
+          }
+          Image image=map.getToolkit().getImage(Token.string(FSUtils.getPath(data,id)));
+          final MediaTracker mt=new MediaTracker(map);
+          mt.addImage(image,0);
+          mt.waitForAll();
+          final double iw=image.getWidth(map);
+          final double ih=image.getHeight(map);
+          final double min=Math.min(ww / iw,hh / ih);
+          if (min < 1) {
+            ww=Math.max(1,(int)(iw * min));
+            hh=Math.max(1,(int)(ih * min));
+            final BufferedImage bi=new BufferedImage(ww,hh,BufferedImage.TYPE_3BYTE_BGR);
+            bi.createGraphics().drawImage(image,0,0,ww,hh,null);
+            image=bi;
+          }
+          if (ic == MAXNR) {
+            ic=imgc;
+            imgid[ic]=id;
+            imgc=(ic + 1) % MAXNR;
+          }
+          imgs[ic]=image;
+          imgmax[ic]=min >= 1;
+          if ((loaderC & 3) == 0 && !View.painting)           paint();
+        }
+ catch (        final InterruptedException ex) {
+          BaseX.debug(ex);
+        }
+      }
+      paint();
+      running=false;
+    }
+  }
+.start();
+}

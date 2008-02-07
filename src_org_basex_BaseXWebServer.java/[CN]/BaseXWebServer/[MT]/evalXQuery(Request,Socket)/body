@@ -1,0 +1,43 @@
+{
+  final OutputStream os=s.getOutputStream();
+  final PrintOutput out=new PrintOutput(new BufferedOutput(os));
+  out.println("HTTP/1.1 200 OK");
+  out.println("Server: BaseXWebServer");
+  out.println("Content-Type: text/html; charset=utf-8\n");
+  out.println(DOCTYPE);
+  try {
+    final String key=req.file + "/" + req.file.lastModified();
+    XQueryProcessor xq=null;
+    if (cache) {
+      xq=map.get(key);
+      if (xq == null) {
+        final String query=new String(IOConstants.read(req.file),"UTF-8");
+        xq=new XQueryProcessor(query,req.file);
+        map.put(key,xq);
+      }
+    }
+ else {
+      final String query=new String(IOConstants.read(req.file),"UTF-8");
+      xq=new XQueryProcessor(query,req.file);
+    }
+    for (    final String[] arg : req.args) {
+      final Var v=new Var(new QNm(Token.token(arg[0])));
+      final String val=arg.length == 2 ? arg[1] : "";
+      xq.ctx.vars.addGlobal(v.item(Str.get(Token.token(val))));
+    }
+    xq.query(null).serialize(new PrintSerializer(out));
+  }
+ catch (  final Exception ex) {
+    if (ex instanceof IOException) {
+      out.println(SERVERERR);
+    }
+ else     if (ex instanceof XQException) {
+      out.println(HEADER + "<pre><font color='red'>" + ex.getMessage()+ "</font></pre>"+ FOOTER);
+    }
+ else {
+      out.println(ex.toString());
+    }
+    BaseX.debug(ex);
+  }
+  out.close();
+}

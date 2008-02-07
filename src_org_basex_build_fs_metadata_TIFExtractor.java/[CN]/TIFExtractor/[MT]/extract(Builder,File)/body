@@ -1,0 +1,28 @@
+{
+  final BufferedInputStream in=new BufferedInputStream(new FileInputStream(f));
+  if (!checkEndian(in)) {
+    in.close();
+    return;
+  }
+  if (getShort(in) != 0x2a) {
+    in.close();
+    return;
+  }
+  skip(in,getInt(in) - 8);
+  int c=getShort(in);
+  skip(in,4);
+  int w=-1;
+  int h=-1;
+  while (c-- >= 0 && w == -1 || h == -1) {
+    final int b=getShort(in);
+    skip(in,6);
+    if (b == 0x100)     w=getInt(in);
+    if (b == 0x101)     h=getInt(in);
+  }
+  in.close();
+  if (w == -1 || h == -1)   return;
+  listener.startNode(IMAGE,new byte[][]{TYPE,TYPEJPG});
+  listener.nodeAndText(WIDTH,Token.token(w));
+  listener.nodeAndText(HEIGHT,Token.token(h));
+  listener.endNode(IMAGE);
+}

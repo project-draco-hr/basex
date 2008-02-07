@@ -1,0 +1,44 @@
+{
+  super(gui,PREFSTITLE);
+  foc=GUIProp.mousefocus;
+  nam=GUIProp.shownames;
+  fd=GUIProp.simplefd;
+  final BaseXBack pp=new BaseXBack();
+  pp.setLayout(new TableLayout(8,1,0,0));
+  pp.add(new BaseXLabel(DATABASEPATH,true));
+  BaseXBack p=new BaseXBack();
+  p.setLayout(new TableLayout(1,2,6,0));
+  path=new BaseXTextField(Prop.dbpath,HELPDBPATH,this);
+  p.add(path);
+  button=new BaseXButton(BUTTONBROWSE,HELPBROWSE,this);
+  button.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      chooseDir(gui);
+    }
+  }
+);
+  p.add(button);
+  pp.add(p);
+  BaseXLabel label=new BaseXLabel(PREFINTER,true);
+  label.setBorder(10,0,10,0);
+  pp.add(label);
+  focus=new BaseXCheckBox(PREFFOCUS,HELPFOCUS,foc,this);
+  pp.add(focus);
+  simpfd=new BaseXCheckBox(SIMPLEFD,HELPSIMPLEFD,fd,this);
+  pp.add(simpfd);
+  names=new BaseXCheckBox(PREFNAMES,HELPNAMES,nam,this);
+  final Data data=GUI.context.data();
+  names.setEnabled(data != null && !data.deepfs && data.nameID != 0);
+  pp.add(names);
+  pp.add(new BaseXLabel(PREFLANG,true));
+  final Box box=new Box(BoxLayout.X_AXIS);
+  lang=new BaseXCombo(Prop.LANGUAGES,HELPLANG,false,this);
+  lang.setSelectedItem(Prop.language);
+  box.add(lang);
+  box.add(new BaseXLabel("   " + PREFLANGNEW));
+  pp.add(box);
+  set(pp,BorderLayout.CENTER);
+  buttons=BaseXLayout.okCancel(this);
+  set(buttons,BorderLayout.SOUTH);
+  finish(gui);
+}

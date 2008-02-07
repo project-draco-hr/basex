@@ -1,0 +1,54 @@
+{
+  byte[] valueSearchNode=searchNode;
+  byte[] nodeEntry=getNodeEntry(cn);
+  if (cn != 0) {
+    int i=0;
+    while (i < valueSearchNode.length && i < nodeEntry[0] && nodeEntry[i + 1] == valueSearchNode[i]) {
+      i++;
+      cl++;
+    }
+    if (nodeEntry[0] == i) {
+      if (valueSearchNode.length == i) {
+        if (nodeEntry[nodeEntry[0] + 1] < 0) {
+          idNN[0][c]=cn;
+          idNN[1][c]=0;
+        }
+        return cn;
+      }
+ else {
+        byte[] tmp=new byte[valueSearchNode.length - i];
+        for (int j=0; j < tmp.length; j++) {
+          tmp[j]=valueSearchNode[i + j];
+        }
+        valueSearchNode=tmp;
+        int position=getInsertingPositionLinear(valueSearchNode[0],nodeEntry);
+        if (!found) {
+          return -1;
+        }
+ else {
+          int id=getIdOnDataArray(nodeEntry);
+          id=getDataEntry(id,position);
+          idNN[0][c]=cn;
+          idNN[1][c]=position + 1;
+          return getNodeIdsForRQ(id,valueSearchNode,c + 1,idNN);
+        }
+      }
+    }
+ else {
+      return -1;
+    }
+  }
+ else {
+    int position=getInsertingPositionLinear(valueSearchNode[0],nodeEntry);
+    if (!found) {
+      return -1;
+    }
+ else {
+      int id=getIdOnDataArray(nodeEntry);
+      id=getDataEntry(id,position);
+      idNN[0][c]=cn;
+      idNN[1][c]=position + 1;
+      return getNodeIdsForRQ(id,valueSearchNode,c + 1,idNN);
+    }
+  }
+}

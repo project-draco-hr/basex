@@ -1,0 +1,29 @@
+{
+  final Data data=context.data();
+  if (result != null) {
+    if (result instanceof Nodes) {
+      final Nodes nodes=(Nodes)result;
+      tableHeader(out,data);
+      for (int i=0; i < nodes.size; i++)       table(out,data,nodes.pre[i]);
+    }
+ else {
+      super.out(out);
+    }
+  }
+ else {
+    int ps=0;
+    int pe=data.size;
+    if (cmd.nrArgs() != 1) {
+      if (cmd.nrArgs() != 2) {
+        ps=Math.max(0,Token.toInt(cmd.arg(1)));
+        pe=Math.min(data.size,Token.toInt(cmd.arg(2)) + 1);
+      }
+ else {
+        ps=Math.min(data.size - 1,Math.max(0,Token.toInt(cmd.arg(1))));
+        pe=ps + 1;
+      }
+    }
+    tableHeader(out,data);
+    for (int p=ps; p < pe; p++)     table(out,data,p);
+  }
+}

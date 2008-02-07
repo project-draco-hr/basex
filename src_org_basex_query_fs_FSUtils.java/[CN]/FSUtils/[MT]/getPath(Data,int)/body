@@ -1,0 +1,19 @@
+{
+  int p=pre;
+  final IntList il=new IntList();
+  while (p != 0) {
+    il.add(p);
+    final int kind=data.kind(p);
+    p=data.parent(p,kind);
+  }
+  final TokenBuilder tb=new TokenBuilder();
+  final int s=il.size;
+  for (int i=s - 2; i >= 0; i--) {
+    final byte[] node=replace(getName(data,il.get(i)),'\\','/');
+    tb.add(node);
+    if (!endsWith(node,'/'))     tb.add('/');
+  }
+  byte[] node=tb.finish();
+  while (endsWith(node,'/'))   node=substring(node,0,node.length - 1);
+  return node;
+}

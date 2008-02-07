@@ -1,0 +1,14 @@
+{
+  final Data data=ctx.local.data;
+  final int lang=data.attNameID(Token.token("xml:lang"));
+  if (lang == 0)   return Bool.FALSE;
+  final byte[] lng=evalArgs(ctx)[0].str();
+  int r=ctx.local.nodes[0];
+  while (r != 0) {
+    final int pre=r;
+    final byte[] att=data.attValue(lang,pre);
+    if (att != null)     return Bool.get(found(att,lng));
+    r=data.parent(r,data.kind(r));
+  }
+  return Bool.FALSE;
+}

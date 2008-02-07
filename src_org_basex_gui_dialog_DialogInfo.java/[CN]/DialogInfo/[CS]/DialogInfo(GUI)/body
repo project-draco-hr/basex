@@ -1,0 +1,37 @@
+{
+  super(gui,INFOTITLE);
+  final String[] db=DialogOpen.getDatabases();
+  if (db.length == 0)   return;
+  final BaseXBack info=new BaseXBack();
+  info.setLayout(new TableLayout(10,2));
+  info.setBorder(new CompoundBorder(new EtchedBorder(),new EmptyBorder(10,10,10,10)));
+  final Data data=GUI.context.data();
+  final MetaData meta=data.meta;
+  final File dir=IOConstants.dbpath(meta.dbname);
+  long len=0;
+  for (  final File f : dir.listFiles())   len+=f.length();
+  add(info,INFODBNAME,meta.dbname);
+  add(info,INFODOC,meta.filename);
+  add(info,INFOTIME,new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(new Date(meta.time)));
+  add(info,INFODOCSIZE,meta.filesize != 0 ? Performance.formatSize(meta.filesize) : "-");
+  add(info,INFODBSIZE,Performance.formatSize(len));
+  add(info,INFOENCODING,meta.encoding);
+  add(info,INFONODES,Integer.toString(data.size));
+  add(info,INFOHEIGHT,Integer.toString(meta.height));
+  final BaseXBack pp=new BaseXBack();
+  pp.setLayout(new BorderLayout());
+  pp.add(info,BorderLayout.NORTH);
+  final BaseXBack check=new BaseXBack();
+  check.setLayout(new TableLayout(3,2,0,5));
+  check.setBorder(10,10,10,10);
+  check.add(new BaseXLabel(INFOINDEX,true));
+  check.add(new BaseXLabel(""));
+  indexes[0]=add(check,INFOTXTINDEX,meta.txtindex);
+  indexes[2]=add(check,INFOWORDINDEX,meta.wrdindex);
+  indexes[1]=add(check,INFOATVINDEX,meta.atvindex);
+  indexes[3]=add(check,INFOFTINDEX,meta.ftxindex);
+  pp.add(check,BorderLayout.CENTER);
+  set(pp,BorderLayout.CENTER);
+  set(BaseXLayout.newButtons(this,true,new String[]{BUTTONOK,BUTTONCANCEL},new byte[][]{HELPOK,HELPCANCEL}),BorderLayout.SOUTH);
+  finish(gui);
+}

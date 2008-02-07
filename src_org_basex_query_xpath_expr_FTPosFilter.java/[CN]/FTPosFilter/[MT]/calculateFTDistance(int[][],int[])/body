@@ -1,0 +1,73 @@
+{
+  if (res == null || res[0].length == 0 || ftpos.from == null || ftpos.to == null) {
+    return new int[][]{};
+  }
+  byte[] dataFromDB=null;
+  int level=0;
+  int nextId=0;
+  int[][] maxResult=new int[2][res[0].length * 2];
+  int counter=0;
+  int j=0;
+  int lastId=res[0][0];
+  int distance;
+  for (int i=0; i < res[0].length; i++) {
+    if (lastId == res[0][i]) {
+      if (i + 1 == p.length) {
+        break;
+      }
+      if (p[i + 1] == 0) {
+        dataFromDB=ctx.local.data.text(res[0][i]);
+        if (!ftpos.ftRange.equals(FTPositionFilter.RANGE.EXACTLY) && ftpos.to == null) {
+          ftpos.to=new Num(dataFromDB.length - 1);
+        }
+        if (nextId > i) {
+          i=nextId;
+        }
+        j=i;
+        while (j + 1 < p.length && p[j + 1] == 0) {
+          j++;
+        }
+        while (j < res[0].length && lastId == res[0][j]) {
+          distance=calculateDistance(dataFromDB,res[1][i],res[1][j]);
+          if (ftpos.from.num() <= distance && distance <= ftpos.to.num()) {
+            if (level + 1 == p[j + 1]) {
+              if (p[j + 1] == p[0]) {
+                maxResult[0][counter]=res[0][i];
+                maxResult[1][counter]=res[1][i];
+                counter++;
+                maxResult[0][counter]=res[0][j];
+                maxResult[1][counter]=res[1][j];
+                counter++;
+                level=0;
+              }
+ else {
+                level++;
+              }
+            }
+            j++;
+          }
+ else {
+            if (ftpos.ftRange.equals(FTPositionFilter.RANGE.EXACTLY)) {
+              nextId=j;
+              level=0;
+              break;
+            }
+ else {
+              j++;
+            }
+          }
+        }
+      }
+    }
+ else {
+      level=0;
+      lastId=res[0][i];
+      i--;
+    }
+  }
+  if (counter == 0)   return null;
+  int[][] result=new int[2][counter];
+  System.arraycopy(maxResult[0],0,result[0],0,counter);
+  System.arraycopy(maxResult[1],0,result[1],0,counter);
+  return result;
+}

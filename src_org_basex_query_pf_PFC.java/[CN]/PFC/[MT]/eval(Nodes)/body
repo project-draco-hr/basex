@@ -1,0 +1,51 @@
+{
+  Opr[] ops=null;
+  Opr.pf=this;
+  int i=0;
+  try {
+    final int[] ni=q(XPNODES,0);
+    final int il=ni.length;
+    final int[] nd=new int[il];
+    for (i=0; i < il; i++)     nd[Token.toInt(v(ID,ni[i])) - 1]=ni[i];
+    ops=new Opr[il];
+    for (i=0; i < il; i++)     ops[i]=OprB.e(v(KIND,nd[i]));
+    for (i=0; i < il; i++) {
+      final int[] ai=q(XPEDGE,nd[i]);
+      final Opr[] args=new Opr[ai.length];
+      for (int a=0; a < ai.length; a++) {
+        args[a]=ops[toInt(pftable.attValue(ai[a])) - 1];
+      }
+      ops[i].init(nd[i],args,i);
+    }
+    e(ops[0]);
+    Frag.finish();
+    Opr.pf=null;
+    final Opr op=ops[0];
+    final Col c=op.tbl.c(op.tbl.p(i(ITEM)));
+    final PFR seq=new PFR();
+    for (int r=0; r < c.sz; r++) {
+      final V v=c.r(r);
+      if (v instanceof N) {
+        seq.add(new PFN(frag,v.i()));
+      }
+ else {
+        seq.add(v);
+      }
+    }
+    return seq;
+  }
+ catch (  final Exception ex) {
+    BaseX.debug(ex);
+    if (Prop.allInfo) {
+      if (ops != null) {
+        BaseX.errln("Not evaluated:");
+        for (i=ops.length - 1; i >= 0; i--)         ops[i].dbg();
+      }
+    }
+    Frag.finish();
+    Opr.pf=null;
+    final QueryException ee=new QueryException(ex.toString());
+    ee.initCause(ex);
+    throw ee;
+  }
+}

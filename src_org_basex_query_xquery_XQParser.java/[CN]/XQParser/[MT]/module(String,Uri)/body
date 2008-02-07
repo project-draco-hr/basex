@@ -1,0 +1,17 @@
+{
+  if (ctx.modLoaded.contains(f))   return;
+  File fl=new File(f);
+  if (!fl.exists() && file != null)   fl=new File(file.getParent() + "/" + f);
+  byte[] query=null;
+  try {
+    query=IOConstants.read(fl);
+  }
+ catch (  final IOException ex) {
+    Err.or(NOMODULEFILE,fl.getAbsolutePath());
+  }
+  final Namespaces ns=ctx.ns;
+  ctx.ns=new Namespaces();
+  new XQParser(ctx).parse(query,fl,u);
+  ctx.ns=ns;
+  ctx.modLoaded.add(f);
+}

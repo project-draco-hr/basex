@@ -1,0 +1,33 @@
+{
+  final byte[] nm=name.str();
+  ser.startElement(nm);
+  for (  final FAttr ns : names)   ser.attribute(ns.nname(),ns.str());
+  if (level == 0) {
+    byte[] pre=name.pre();
+    final Uri uri=name.uri;
+    if (uri != Uri.EMPTY) {
+      final byte[] p=ctx.ns.prefix(uri);
+      if (!Token.eq(p,XML)) {
+        pre=p.length == 0 ? XMLNS : Token.concat(XMLNSCOL,pre);
+        ser.attribute(pre,uri.str());
+      }
+    }
+ else     if (ctx.nsElem != Uri.EMPTY) {
+      ser.attribute(XMLNS,ctx.nsElem.str());
+    }
+  }
+  for (int n=0; n < atts.size; n++) {
+    ser.attribute(atts.list[n].nname(),atts.list[n].str());
+  }
+  if (children.size == 0) {
+    ser.emptyElement();
+  }
+ else {
+    ser.finishElement();
+    for (int n=0; n < children.size; n++) {
+      final Item child=children.list[n];
+      child.serialize(ser,ctx,level + 1);
+    }
+    ser.closeElement(nm);
+  }
+}

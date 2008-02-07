@@ -1,0 +1,17 @@
+{
+  final Nodes p=qu("/site/people/person[profile/@income > 50000]");
+  final Nodes i=qu("/site/open_auctions/open_auction/initial");
+  final XPathProcessor stepIncome=parse("profile/@income");
+  final int hits=0;
+  final int ps=p.size;
+  for (int pi=0; pi < ps; pi++) {
+    writeSep(pi);
+    out.out.print("<items person=\"");
+    final Nodes tmp=eval(stepIncome,p,pi);
+    out.out.printToken(data.atom(tmp.pre[0]),data.meta.entity);
+    out.out.print("\">");
+    parse("count(.[" + data.atomNum(tmp.pre[0]) + " > 5000 * text()])").eval(i).serialize(out);
+    out.out.print("</items>");
+  }
+  return hits;
+}

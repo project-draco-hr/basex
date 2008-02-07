@@ -1,0 +1,43 @@
+{
+  byte[] valueSearchNode=searchNode;
+  byte[] nodeEntry=getNodeEntry(currentCompressedTrieNode);
+  if (currentCompressedTrieNode != 0) {
+    int i=0;
+    while (i < valueSearchNode.length && i < nodeEntry[0] && nodeEntry[i + 1] == valueSearchNode[i]) {
+      i++;
+    }
+    if (nodeEntry[0] == i) {
+      if (valueSearchNode.length == i) {
+        return currentCompressedTrieNode;
+      }
+ else {
+        byte[] tmp=new byte[valueSearchNode.length - i];
+        for (int j=0; j < tmp.length; j++) {
+          tmp[j]=valueSearchNode[i + j];
+        }
+        valueSearchNode=tmp;
+        int position=getInsertingPositionLinear(valueSearchNode[0],nodeEntry);
+        if (!found) {
+          return -1;
+        }
+ else {
+          int id=getIdOnDataArray(nodeEntry);
+          return getNodeIdFromTrieRecursive(getDataEntry(id,position),valueSearchNode);
+        }
+      }
+    }
+ else {
+      return -1;
+    }
+  }
+ else {
+    int position=getInsertingPositionLinear(valueSearchNode[0],nodeEntry);
+    if (!found) {
+      return -1;
+    }
+ else {
+      int id=getIdOnDataArray(nodeEntry);
+      return getNodeIdFromTrieRecursive(getDataEntry(id,position),valueSearchNode);
+    }
+  }
+}

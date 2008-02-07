@@ -1,0 +1,19 @@
+{
+  final Data data=context.data();
+  int n=pre;
+  long diskusage=FSUtils.getSize(data,n);
+  int size=data.size(n,data.kind(n)) + n;
+  n+=data.attSize(n,data.kind(n));
+  while (n < size) {
+    if (FSUtils.isDir(data,n)) {
+      diskusage+=du(path + "/" + Token.string(FSUtils.getName(data,n)),out,n);
+      n+=data.size(n,data.kind(n));
+    }
+ else {
+      diskusage+=FSUtils.getSize(data,n);
+      n+=data.attSize(n,data.kind(n));
+    }
+  }
+  out.println(diskusage + "\t" + path);
+  return diskusage;
+}

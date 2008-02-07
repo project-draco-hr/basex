@@ -1,0 +1,15 @@
+{
+  super.comp(ctx);
+  if (expr[0].e() || expr[1].e()) {
+    ctx.compInfo(OPTPREEVAL,this);
+    return Seq.EMPTY;
+  }
+  if (expr[0].i() && expr[1].i()) {
+    final Item i1=iter(expr[0]).atomic(this,true);
+    final Item i2=iter(expr[1]).atomic(this,true);
+    if (!valCheck(i1,i2))     Err.cmp(i1,i2);
+    ctx.compInfo(OPTPREEVAL,this);
+    return Bln.get(cmp.e(i1,i2));
+  }
+  return this;
+}

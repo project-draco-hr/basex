@@ -1,0 +1,100 @@
+{
+  if (View.working)   return;
+  final int thread=++threadID;
+  new Thread(){
+    @Override public void run(){
+      if (threadID != thread)       return;
+      while (proc != null) {
+        proc.stop();
+        Performance.sleep(50);
+        if (threadID != thread)         return;
+      }
+      cursor(CURSORWAIT);
+      status.setText(STATUSWAIT);
+      textcache.reset();
+      try {
+        final CommandParser cp=new CommandParser(command);
+        while (cp.more()) {
+          if (obsolete(thread))           return;
+          final Command cmd=cp.next();
+          final Commands cc=cmd.name;
+          if (cc == Commands.EXIT || cc == Commands.QUIT) {
+            quit();
+            return;
+          }
+          proc=cmd.proc(context);
+          if (cc.updating())           View.working=true;
+          final Performance perf=new Performance();
+          final Nodes current=context.current();
+          final Data data=context.data();
+          final Proc p=proc;
+          final boolean ok=p.execute();
+          if (cc.updating())           View.working=false;
+          if (obsolete(thread))           return;
+          Result result=p.result();
+          if (cc.printing() && ok) {
+            if (!GUIProp.showstarttext && data == null || !GUIProp.showtext && data != null && !(result instanceof Nodes)) {
+              GUICommands.SHOWTEXT.execute();
+            }
+            p.output(text.isValid() ? textcache : nullcache);
+          }
+          final String time=perf.getTimer();
+          final String inf=p.info();
+          if (obsolete(thread))           return;
+          if (cc.printing() && data != null && GUIProp.showquery)           query.info(inf,ok);
+          final Data ndata=context.data();
+          if (ndata != data) {
+            View.notifyInit();
+          }
+ else           if (cc.updating()) {
+            View.notifyUpdate();
+          }
+ else           if (result != null) {
+            if (context.current() != current || GUIProp.filterrt) {
+              if (result instanceof Nodes) {
+                View.notifyContext((Nodes)result,GUIProp.filterrt);
+              }
+            }
+ else             if (context.marked() != null) {
+              Nodes nodes=context.marked();
+              if (result instanceof Nodes) {
+                nodes=(Nodes)result;
+              }
+ else               if (nodes.size != 0) {
+                nodes=new Nodes(data);
+              }
+              if (!context.marked().same(nodes))               View.notifyMark(nodes);
+            }
+          }
+          if (obsolete(thread))           return;
+          final byte[] out=textcache.finish();
+          if (ok && cc.printing() && !(result instanceof Nodes)) {
+            text.setText(out,false);
+          }
+          setHits(result == null ? 0 : result.size());
+          if (GUIProp.showinfo)           info.setInfo(result != null ? Token.token(inf) : Token.EMPTY);
+          if (ok) {
+            status.setText(BaseX.info(PROCTIME,time));
+          }
+ else {
+            status.setText(STATUSOK);
+            break;
+          }
+        }
+      }
+ catch (      final IllegalArgumentException ex) {
+        JOptionPane.showMessageDialog(GUI.this,ex.getMessage(),DIALOGINFO,JOptionPane.INFORMATION_MESSAGE);
+        status.setText(STATUSOK);
+      }
+catch (      final Exception ex) {
+        ex.printStackTrace();
+        String msg=ex.toString();
+        if (msg.length() == 0)         msg=ex.getMessage();
+        JOptionPane.showMessageDialog(GUI.this,BaseX.info(PROCERR,command,msg),DIALOGINFO,JOptionPane.ERROR_MESSAGE);
+      }
+      cursor(CURSORARROW,true);
+      proc=null;
+    }
+  }
+.start();
+}

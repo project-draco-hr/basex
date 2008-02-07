@@ -1,0 +1,62 @@
+{
+  final Data data=GUI.context.data();
+  final Nodes marked=GUI.context.marked();
+  final int kind=data.kind(pre);
+  final boolean elem=kind == Data.ELEM || kind == Data.DOC;
+  while (mpos < marked.size && marked.pre[mpos] < pre)   mpos++;
+  Color col=Color.black;
+  Font fnt=GUIConstants.font;
+  if (mpos < marked.size && marked.pre[mpos] == pre) {
+    col=GUIConstants.colormark3;
+    fnt=GUIConstants.bfont;
+  }
+  if (y < -lineH)   return;
+  g.setColor(GUIConstants.color2);
+  g.drawLine(2,y + boxMargin - 1,totalW - 5,y + boxMargin - 1);
+  final byte[] name=ViewData.content(data,pre,false);
+  final boolean file=data.deepfs && FSUtils.isFile(data,pre);
+  final boolean dir=data.deepfs && FSUtils.isDir(data,pre);
+  int p=ViewData.focusedPre;
+  while (p > pre)   p=ViewData.parent(p);
+  if (pre == p) {
+    g.setColor(GUIConstants.color3);
+    g.fillRect(0,y - boxW - boxMargin,totalW,lineH + 1);
+  }
+  int xx=x;
+  final int yy=y;
+  if (elem) {
+    if (data.deepfs) {
+      Image img=null;
+      if (file) {
+        img=GUIFS.images(name,0);
+      }
+ else       if (dir) {
+        img=opened[pre] ? GUIFS.folder2[0] : GUIFS.folder1[0];
+      }
+ else {
+        img=opened[pre] ? openedBox : closedBox;
+      }
+      g.drawImage(img,xx - lineH,yy - boxW - 1,this);
+      if (file || dir)       xx+=5;
+    }
+ else {
+      final Image box=opened[pre] ? openedBox : closedBox;
+      g.drawImage(box,xx - lineH,yy - boxW - 1,this);
+    }
+  }
+  g.setFont(fnt);
+  g.setColor(col);
+  int tw=totalW + 6;
+  if (file && tw - xx > 140) {
+    final long size=FSUtils.getSize(data,pre);
+    final String text=Performance.formatSize(size,false);
+    tw-=BaseXLayout.width(g,text) + 10;
+    g.drawString(text,tw,yy);
+  }
+  BaseXLayout.chopString(g,name,xx,yy - GUIProp.fontsize,tw - xx - 10);
+  if (ViewData.focusedPre == pre) {
+    g.setColor(GUIConstants.color6);
+    g.drawRect(1,yy - boxW - boxMargin,totalW - 3,lineH + 1);
+    g.drawRect(2,yy - boxW - boxMargin + 1,totalW - 5,lineH - 1);
+  }
+}

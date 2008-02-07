@@ -1,0 +1,31 @@
+{
+  Expr[] indexExprs=new Expr[exprs.length];
+  int j=0;
+  int i=0;
+  for (; i != exprs.length && j < exprs.length; i++) {
+    indexExprs[j]=exprs[i].indexEquivalent(ctx,curr);
+    if (indexExprs[j] == null)     return null;
+    if (i > 0 && indexExprs[j - 1] instanceof FTIndex && indexExprs[j] instanceof FTUnaryNotExprs) {
+      FTUnaryNotExprs e=(FTUnaryNotExprs)indexExprs[j];
+      Expr[] ex=new Expr[e.exprs.length + 1];
+      ex[0]=indexExprs[j - 1];
+      System.arraycopy(e.exprs,0,ex,1,e.exprs.length);
+      e.exprs=ex;
+      if (exprs.length == 2) {
+        return e;
+      }
+ else {
+        indexExprs[j - 1]=e;
+        j--;
+      }
+    }
+    j++;
+  }
+  if (j != i) {
+    Expr[] ie=new Expr[j];
+    System.arraycopy(indexExprs,0,ie,0,j);
+    indexExprs=ie;
+  }
+  ctx.compInfo(OPTAND4);
+  return new FTIntersection(indexExprs,pres,ctx);
+}

@@ -1,0 +1,21 @@
+{
+  final String db=Create.chopPath(cmd.arg(0));
+  if (!IOConstants.dbpath(db).exists())   return error(DBNOTFOUND,db);
+  context.close();
+  Data data=null;
+  try {
+    data=new DiskData(db);
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    final String msg=ex.getMessage();
+    return error(msg.length() != 0 ? msg : DBOPENERR);
+  }
+  context.data(data);
+  try {
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  return Prop.info ? timer(DBOPENED) : true;
+}

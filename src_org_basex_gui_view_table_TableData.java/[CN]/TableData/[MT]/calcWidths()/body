@@ -1,0 +1,21 @@
+{
+  final Data data=GUI.context.data();
+  colW=new double[cols.size];
+  final int nRows=rows.size;
+  final TableIterator ti=new TableIterator(data,this);
+  for (int l=0; l < MAXROWS && l < nRows; l++) {
+    final int pre=rows.get(l);
+    ti.init(pre);
+    while (ti.more()) {
+      colW[ti.col]+=ti.elem ? data.textLen(ti.pre) : data.attValue(ti.pre).length;
+    }
+  }
+  double sum=0;
+  for (int c=0; c < cols.size; c++)   sum+=colW[c];
+  for (int c=0; c < cols.size; c++) {
+    colW[c]=Math.max(1.0 / cols.size,colW[c] / sum);
+  }
+  sum=0;
+  for (int c=0; c < cols.size; c++)   sum+=colW[c];
+  for (int c=0; c < cols.size; c++)   colW[c]/=sum;
+}

@@ -1,0 +1,17 @@
+{
+  final Expr e=parsePath();
+  consumeWS();
+  if (!consume('|'))   return e;
+  final ExprList exprs=new ExprList();
+  checkNodesReturned(e);
+  exprs.add(e);
+  Expr tmp=parsePath();
+  checkNodesReturned(tmp);
+  exprs.add(tmp);
+  while (consume('|')) {
+    tmp=parsePath();
+    checkNodesReturned(tmp);
+    exprs.add(tmp);
+  }
+  return new Union(exprs.get());
+}

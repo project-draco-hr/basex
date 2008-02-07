@@ -1,0 +1,16 @@
+{
+  if (!(exprs[0] instanceof Comparison))   return this;
+  final Comparison e1=(Comparison)exprs[0];
+  if (!e1.simple())   return this;
+  for (int e=1; e != exprs.length; e++) {
+    if (!(exprs[e] instanceof Comparison))     return this;
+    final Comparison e2=(Comparison)exprs[e];
+    if (!e2.simple() || e1.type != e2.type || !e1.expr1.sameAs(e2.expr1))     return this;
+  }
+  final Item[] ex=new Item[exprs.length];
+  for (int e=0; e != exprs.length; e++) {
+    ex[e]=(Item)((Comparison)exprs[e]).expr2;
+  }
+  ctx.compInfo(OPTAND5);
+  return new AllOf((LocPath)e1.expr1,ex,e1.type);
+}

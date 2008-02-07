@@ -1,0 +1,49 @@
+{
+  int c=ch;
+  chars=false;
+  if (c != '<' || isCDATA()) {
+    if (c == '<') {
+      scanCDATA();
+      c=nextValid();
+    }
+    type=Type.TEXT;
+    while (c != '<' || isCDATA()) {
+      if (c == 0)       return;
+      if (c == '<') {
+        scanCDATA();
+      }
+ else {
+        if (c == ']') {
+          if ((nextValid()) == ']') {
+            if ((nextValid()) == '>')             error(CONTCDATA);
+            prevChar(1);
+          }
+          prevChar(1);
+        }
+        chars|=!whitespace(c);
+        if (c == '&')         c=getEntity();
+        if (c != 0 && c != 0x0d)         token.addUTF(c);
+      }
+      c=nextValid();
+    }
+    prevChar(1);
+    return;
+  }
+  c=nextChar();
+  if (c == '!') {
+    scanCOMMENT();
+    return;
+  }
+  if (c == '?') {
+    scanPI();
+    return;
+  }
+  prolog=false;
+  state=State.TAG;
+  if (c == '/') {
+    type=Type.L_BR_CLOSE;
+    return;
+  }
+  type=Type.L_BR;
+  prevChar(1);
+}

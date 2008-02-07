@@ -1,0 +1,30 @@
+{
+  args=a == null ? "" : a;
+  final StringList list=new StringList();
+  final StringBuilder token=new StringBuilder();
+  final int cl=args.length();
+  int c=-1;
+  char qu=0;
+  boolean q=false;
+  while (++c < cl) {
+    char ch=args.charAt(c);
+    if (qu != 0 && ch == '\\') {
+      if (++c < cl)       ch=args.charAt(c);
+    }
+ else {
+      if (ch == ' ' && qu == 0) {
+        add(token,list,q);
+        q=false;
+        continue;
+      }
+      if (ch == '\'' || ch == '"') {
+        if (qu == 0)         qu=ch;
+ else         if (qu == ch)         qu=0;
+        q=true;
+      }
+    }
+    token.append(ch);
+  }
+  add(token,list,q);
+  arg=list.finish();
+}

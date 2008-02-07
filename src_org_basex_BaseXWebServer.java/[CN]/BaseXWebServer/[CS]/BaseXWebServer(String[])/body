@@ -1,0 +1,24 @@
+{
+  try {
+    Prop.read();
+    if (!parseArguments(args))     return;
+    final ServerSocket server=new ServerSocket(Prop.webport);
+    BaseX.outln(WSERVERSTART);
+    while (running)     serve(server);
+    BaseX.outln(WSERVERSTOPPED);
+    Prop.write();
+    context.close();
+  }
+ catch (  final Exception ex) {
+    BaseX.debug(ex);
+    if (ex instanceof BindException) {
+      BaseX.errln(SERVERBIND);
+    }
+ else     if (ex instanceof IOException) {
+      BaseX.errln(SERVERERR);
+    }
+ else {
+      BaseX.errln(ex.getMessage());
+    }
+  }
+}

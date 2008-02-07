@@ -1,0 +1,72 @@
+{
+  int[][] val1=v1;
+  int[][] val2=v2;
+  int[] p=po;
+  if (val1 == null || val1[0].length == 0) {
+    return val2;
+  }
+ else   if (val2 == null || val2[0].length == 0) {
+    return val1;
+  }
+  int[][] mr=new int[2][val1[0].length + val2[0].length];
+  int max=Math.max(val1[0].length,val2[0].length);
+  if (max == val1.length) {
+    int[][] tmp=val1;
+    val1=val2;
+    val2=tmp;
+  }
+  int i=0;
+  int k=0;
+  int c=0;
+  int[] pn=new int[mr[0].length + 1];
+  if (p == null) {
+    p=new int[pn.length];
+  }
+  pn[0]=p[0] + 1;
+  int cmpResult;
+  while (val1[0].length > i) {
+    if (k >= val2[0].length) {
+      break;
+    }
+    cmpResult=Array.compareIntArrayEntry(val1[0][i],val1[1][i],val2[0][k],val2[1][k]);
+    if (cmpResult == 1 || cmpResult == 2) {
+      mr[0][c]=val2[0][k];
+      mr[1][c]=val2[1][k];
+      pn[c + 1]=pn[0];
+      c++;
+      k++;
+    }
+ else     if (cmpResult == -1 || cmpResult == -2) {
+      mr[0][c]=val1[0][i];
+      mr[1][c]=val1[1][i];
+      pn[c + 1]=p[i + 1];
+      c++;
+      i++;
+    }
+ else {
+      mr[0][c]=val1[0][i];
+      mr[1][c]=val1[1][i];
+      pn[c + 1]=p[k + 1];
+      c++;
+      i++;
+      k++;
+    }
+  }
+  if (c == 0)   return null;
+  int[][] returnArray;
+  if (k == val2[0].length && i < val1[0].length) {
+    returnArray=new int[2][c + val1[0].length - i];
+    System.arraycopy(val1[0],i,returnArray[0],c,val1[0].length - i);
+    System.arraycopy(val1[1],i,returnArray[1],c,val1[0].length - i);
+    for (int z=0; z < val1[0].length - i; z++)     pn[c + z + 1]=p[i + 1 + z];
+  }
+ else {
+    returnArray=new int[2][c + val2[0].length - k];
+    System.arraycopy(val2[0],k,returnArray[0],c,val2[0].length - k);
+    System.arraycopy(val2[1],k,returnArray[1],c,val2[0].length - k);
+    for (int z=0; z < val2[0].length - k; z++)     pn[c + z + 1]=pn[0];
+  }
+  System.arraycopy(mr[0],0,returnArray[0],0,c);
+  System.arraycopy(mr[1],0,returnArray[1],0,c);
+  return new Object[]{returnArray,pn};
+}

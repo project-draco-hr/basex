@@ -1,0 +1,83 @@
+{
+  final int entries=getShort(start);
+  final int s=start + 2;
+  final int end=s + (entries * 0x0C);
+  for (int e=s; e < end; e+=0x0C) {
+    final int tagnr=getShort(e);
+    int format=getShort(e + 2);
+    if (tagnr == 0x8769) {
+      scan(getInt(e + 8));
+      continue;
+    }
+    final EXIFInfo inf=index.get(tagnr);
+    if (inf == null) {
+      BaseX.debug(FSText.EXIFIGNORED,Integer.toHexString(tagnr),file);
+      continue;
+    }
+    if (tagnr == 0x9286)     format=EXIFIndex.STRING;
+    if (format != inf.format) {
+      if (inf.format == EXIFIndex.UNDEFINED) {
+        BaseX.debug(FSText.EXIFFORMAT1,Integer.toHexString(tagnr),inf.tag,inf.format,format,file);
+        continue;
+      }
+      BaseX.debug(FSText.EXIFFORMAT2,Integer.toHexString(tagnr),inf.tag,inf.format,format,file);
+    }
+    byte[] v;
+    if (format == EXIFIndex.STRING) {
+      if (tagnr == 0x9286) {
+        final int l=getInt(e + 4) - 8;
+        final int o=getInt(e + 8) + 8;
+        v=inf.val(buffer,o,l);
+      }
+ else {
+        final int l=getInt(e + 4) - 1;
+        final int o=getInt(e + 8);
+        if (o > buffer.length) {
+          v=new byte[l];
+          for (int i=0; i < l; i++)           v[i]=buffer[e + 7 + l - i];
+        }
+ else {
+          v=inf.val(buffer,o,l);
+        }
+      }
+    }
+ else     if (format == EXIFIndex.SHORT) {
+      v=inf.val(getShort(e + 8));
+    }
+ else     if (format == EXIFIndex.LONG) {
+      v=inf.val(getInt(e + 8));
+    }
+ else     if (format == EXIFIndex.RATIONAL || format == EXIFIndex.SIGNEDRATIONAL) {
+      final int n=getInt(e + 8);
+      v=inf.val(getInt(n + 4),getInt(n));
+    }
+ else     if (format == EXIFIndex.UNDEFINED) {
+      v=inf.val(Array.create(buffer,e + 8,4));
+    }
+ else {
+      throw new MetaDataException(BaseX.info(FSText.EXIFUNKNOWN,Integer.toHexString(tagnr),format));
+    }
+    if (v.length > 0) {
+      exif.add(inf.tag);
+      exif.add(v);
+    }
+    try {
+      if (tagnr == 0x829A) {
+        final String[] vv=Token.string(v).replaceAll(" seconds","").split("/");
+        if (vv.length == 1) {
+          v=Token.token(Double.parseDouble(vv[0]) * 1000);
+        }
+ else {
+          final int i=Integer.parseInt(vv[0]);
+          final double d=Double.parseDouble(vv[1]);
+          v=Token.token((int)((i / d) * 10000) / 10.0);
+        }
+        exif.add(EXPOS);
+        exif.add(v);
+      }
+    }
+ catch (    final Exception ex) {
+      throw new MetaDataException(BaseX.info("Could not parse '%'",v));
+    }
+  }
+}

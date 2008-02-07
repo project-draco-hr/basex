@@ -1,0 +1,11 @@
+{
+  final Expr[] indexExprs=new Expr[exprs.length];
+  for (int i=0; i != exprs.length; i++) {
+    indexExprs[i]=exprs[i].indexEquivalent(ctx,curr);
+    if (indexExprs[i] == null)     return null;
+  }
+  final Expr[] ex=XPOptimizer.getIndexExpr(indexExprs);
+  if (ex != null)   return new Path(new Union(ex),((Path)indexExprs[0]).expr2);
+  ctx.compInfo(OPTOR4);
+  return new Union(indexExprs);
+}

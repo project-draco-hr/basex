@@ -1,0 +1,25 @@
+{
+  int[] result=((NodeSet)exprs[0].eval(ctx)).nodes;
+  final NodeBuilder tmp=new NodeBuilder();
+  for (int i=1; i != exprs.length; i++) {
+    final int rl=result.length;
+    if (rl == 0)     break;
+    final int[] merge=((NodeSet)exprs[i].eval(ctx)).nodes;
+    final int ml=merge.length;
+    int m=0;
+    int r=0;
+    while (m != ml && r != rl) {
+      final int d=merge[m] - result[r];
+      if (d >= 0) {
+        if (d == 0)         tmp.add(merge[m++]);
+        r++;
+      }
+ else {
+        m++;
+      }
+    }
+    result=Array.finish(tmp.nodes,tmp.size);
+    tmp.reset();
+  }
+  return new NodeSet(result,ctx);
+}

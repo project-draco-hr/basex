@@ -1,0 +1,19 @@
+{
+  final Data data=context.data();
+  final byte[] n=Token.token(name);
+  if (!Insert.check(n))   return error(ATTINVALID,name);
+  final byte[] v=Token.token(val);
+  for (int i=nodes.size - 1; i >= 0; i--) {
+    final int pre=nodes.pre[i];
+    if (data.kind(pre) != Data.ATTR)     return error(UPDATEATTR);
+    int p=data.parent(pre,Data.ATTR);
+    final int last=p + data.attSize(p,Data.ELEM);
+    final int att=data.attNameID(n);
+    while (++p < last) {
+      if (p != pre && att == data.attNameID(p))       return error(ATTDUPL,n);
+    }
+  }
+  for (int i=nodes.size - 1; i >= 0; i--)   data.update(nodes.pre[i],n,v);
+  data.flush();
+  return Prop.info ? timer(BaseX.info(UPDATEINFO,nodes.size)) : true;
+}

@@ -1,0 +1,20 @@
+{
+  String path=string(replace(db,'\\','/'));
+  if (contains(db,'<') || contains(db,'>'))   Err.or(INVDOC,path);
+  for (  final DNode doc : docs) {
+    if (doc.data.meta.dbname.equals(path))     return doc;
+  }
+  final String p=new File(path).getAbsolutePath();
+  for (  final DNode doc : docs) {
+    if (doc.data.meta.filename.equals(p))     return doc;
+  }
+  Data data=Check.check(path);
+  if (data == null && file != null) {
+    path=file.getParent() + "/" + path;
+    data=Check.check(path);
+  }
+  if (data == null)   Err.or(NODOC,p);
+  final int dl=docs.length;
+  docs=Array.add(docs,new DNode(data,0,null,Type.DOC));
+  return addNS(docs[dl]);
+}

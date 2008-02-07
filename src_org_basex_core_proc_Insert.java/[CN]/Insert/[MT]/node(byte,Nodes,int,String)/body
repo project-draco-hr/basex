@@ -1,0 +1,23 @@
+{
+  final byte[] v=Token.token(val);
+  if (kind == Data.ELEM && !check(v))   return error(TAGINVALID,v);
+  final Data data=context.data();
+  for (int i=nodes.size - 1; i >= 0; i--) {
+    final int k=data.kind(nodes.pre[i]);
+    if (k == Data.TEXT)     return error(COPYTAGS);
+    if (k == Data.DOC && (kind == Data.TEXT || kind == Data.ELEM && data.size > 1))     return error(COPYROOT);
+  }
+  for (int i=nodes.size - 1; i >= 0; i--) {
+    final int par=nodes.pre[i];
+    final int pre=pre(par,pos,data);
+    final int up=checkText(data,pre,par,kind);
+    if (up != -1) {
+      data.update(up,Token.concat(data.text(up),v));
+    }
+ else {
+      data.insert(pre,par,v,kind);
+    }
+  }
+  data.flush();
+  return Prop.info ? timer(BaseX.info(INSERTINFO,nodes.size)) : true;
+}

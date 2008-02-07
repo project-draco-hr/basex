@@ -1,0 +1,36 @@
+{
+  Item zon=z != null ? z.next() : null;
+  if (z != null && zon == null) {
+    date.zone=false;
+    date.zshift=0;
+    return date;
+  }
+  final java.util.Date d=Calendar.getInstance().getTime();
+  final byte[] zone=Token.token(new SimpleDateFormat("Z").format(d));
+  final int cshift=Token.toInt(Token.substring(zone,0,3)) * 60 + Token.toInt(Token.substring(zone,3));
+  if (zon == null) {
+    if (date.zone)     date.sec-=(date.zshift - cshift) * 60;
+    date.zone=true;
+    date.zshift=cshift;
+  }
+ else {
+    check(zon,Type.DTD);
+    final DTd dtd=(DTd)zon;
+    if (dtd.sec % 60 != 0 || dtd.mil != 0 || dtd.sec > 50400)     Err.or(INVALZONE,zon);
+    final long nsec=dtd.minus ? -dtd.sec : dtd.sec;
+    if (date.zone)     date.sec-=date.zshift * 60 - nsec;
+    date.zshift=(int)(nsec / 60);
+    date.zone=true;
+  }
+  if (date.sec / 86400 > Date.dpm(date.mon / 12,date.mon % 12)) {
+    date.sec%=86400;
+    date.mon++;
+  }
+  if (date.sec < 0) {
+    date.sec+=86400;
+    if (--date.mon >= 0 && date.sec < 86400) {
+      date.sec+=Date.dpm(date.mon / 12,date.mon % 12) * 86400;
+    }
+  }
+  return date;
+}

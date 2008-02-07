@@ -1,0 +1,14 @@
+{
+  listener.startNode(EMAIL,null);
+  mBoundary="";
+  getHeaderData(listener);
+  if (mBoundary.length() != 0) {
+    mMultiPart=mContentType != null && mContentType.contains("multipart");
+    if (mMultiPart)     while (!mCurrLine.contains(mBoundary))     readLine();
+  }
+  while (getBodyData(listener))   ;
+  mMultiPart=false;
+  listener.endNode(EMAIL);
+  while (readLine() && mCurrLine.length() == 0)   ;
+  return mCurrLine != null;
+}

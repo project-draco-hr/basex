@@ -1,0 +1,23 @@
+{
+  final int size=data.size(pre,data.kind(pre));
+  final MemData tmp=new MemData(size,data.tags,data.atts);
+  for (int p=pre; p < pre + size; p++) {
+    final int k=data.kind(p);
+    final int par=p - data.parent(p,k);
+switch (k) {
+case Data.DOC:
+case Data.ELEM:
+      tmp.addElem(data.tagID(p),par,data.attSize(p,k),data.size(p,k),k);
+    break;
+case Data.ATTR:
+  tmp.addAtt(data.attNameID(p),data.attValue(p),par);
+break;
+case Data.TEXT:
+case Data.COMM:
+case Data.PI:
+tmp.addText(data.text(p),par,k);
+break;
+}
+}
+return tmp;
+}

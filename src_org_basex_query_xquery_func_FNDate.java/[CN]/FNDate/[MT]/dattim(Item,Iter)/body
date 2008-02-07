@@ -1,0 +1,16 @@
+{
+  final Item time=zon.atomic(this,true);
+  if (time == null)   return Iter.EMPTY;
+  final Item d=date.u() ? new Dat(date.str()) : date;
+  final Item t=time.u() ? new Tim(time.str()) : time;
+  final Dtm dtm=new Dtm((Dat)check(d,Type.DAT));
+  final Tim tim=(Tim)check(t,Type.TIM);
+  dtm.sec+=tim.sec;
+  dtm.mil=dtm.mil;
+  if (dtm.zone && tim.zone && dtm.zshift != tim.zshift)   Err.or(FUNZONE,dtm,tim);
+  if (!dtm.zone) {
+    dtm.zone=tim.zone;
+    dtm.zshift=tim.zshift;
+  }
+  return dtm.iter();
+}

@@ -1,0 +1,40 @@
+{
+  while (next() != 0) {
+    if (consume(ELEM) && consumeWS()) {
+      element=consumeName();
+      tags.add(element);
+      BaseX.debug("----------------------");
+      BaseX.debug("- Element: %",element);
+      contentSpec();
+    }
+ else     if (consume(ATTL) && consumeWS()) {
+      attl=consumeName();
+      atts.add(attl);
+      BaseX.debug("----------------------");
+      BaseX.debug("- ATTLIST: %",attl);
+      attType();
+      dDecl();
+    }
+ else     if (consume(ENT) && consumeWS()) {
+      if (percentage(next())) {
+        if (!consumeWS())         error();
+        enti=consumeName();
+        ents.add(enti);
+        BaseX.debug("----------------------");
+        BaseX.debug("- Entity: %",enti);
+        if (!consumeWS())         error();
+        peDef();
+      }
+ else {
+        prev();
+        enti=consumeName();
+        ents.add(enti);
+        BaseX.debug("----------------------");
+        BaseX.debug("- Entity: %",enti);
+        entityDef();
+      }
+    }
+  }
+  BaseX.debug("----------------------");
+  BaseX.debug("THE END");
+}

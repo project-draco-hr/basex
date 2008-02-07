@@ -1,0 +1,34 @@
+{
+  final Iter iter=arg.length != 0 ? arg[0] : null;
+switch (func) {
+case TRUE:
+    return Bln.TRUE.iter();
+case FALSE:
+  return Bln.FALSE.iter();
+case BOOL:
+return Bln.get(iter.ebv().bool()).iter();
+case NOT:
+return Bln.get(!iter.ebv().bool()).iter();
+case EMPTY:
+return Bln.get(iter.next() == null).iter();
+case EXISTS:
+return Bln.get(iter.next() != null).iter();
+case ZEROONE:
+Item it=iter.next();
+if (it == null) return Iter.EMPTY;
+if (iter.next() != null) Err.or(ZEROONE);
+return it.iter();
+case EXONE:
+it=iter.next();
+if (it == null || iter.next() != null) Err.or(EXONE);
+return it.iter();
+case ONEMORE:
+final SeqIter seq=new SeqIter(iter);
+if (seq.size < 1) Err.or(ONEMORE);
+return seq;
+case UNORDER:
+return iter;
+default :
+throw new RuntimeException("Not defined: " + func);
+}
+}

@@ -1,0 +1,119 @@
+{
+  final FTSelect tmp=ctx.ftselect;
+  ctx.ftselect=this;
+  size=0;
+  term.reset();
+  final Item it=ctx.iter(expr).next();
+  ctx.ftselect=tmp;
+  if (size == 0)   return Dbl.iter(it.dbl());
+  if (ordered) {
+    int c=-1;
+    int d=-1;
+    for (int i=0; i < size; i++) {
+      for (int j=0; j < pos[i].size; j++) {
+        d=pos[i].get(j);
+        if (c <= d)         break;
+      }
+      if (c > d)       return Dbl.iter(0);
+      c=d;
+    }
+  }
+  if (start || end || content) {
+    final int c=words(ctx.ftitem);
+    int l=0;
+    if (start || content) {
+      for (int i=0; i < size; i++) {
+        boolean o=false;
+        for (int j=0; j < pos[i].size; j++) {
+          if (pos[i].get(j) == l) {
+            l+=words(term.list[i]);
+            o=true;
+            break;
+          }
+        }
+        if (!o)         return Dbl.iter(0);
+      }
+    }
+    if (content && l != c)     return Dbl.iter(0);
+    if (end) {
+      for (int i=0; i < size; i++)       l+=words(term.list[i]);
+      for (int i=0; i < size; i++) {
+        boolean o=false;
+        for (int j=0; j < pos[i].size; j++) {
+          if (l + pos[i].get(j) == c) {
+            o=true;
+            break;
+          }
+        }
+        if (!o)         return Dbl.iter(0);
+      }
+    }
+  }
+  if (dunit != 0) {
+    System.out.println("!");
+    final long mn=checkItr(ctx.iter(dist[0]));
+    final long mx=checkItr(ctx.iter(dist[1]));
+    int l=-1;
+    for (int i=0; i < size; i++) {
+      boolean o=false;
+      for (int j=0; j < pos[i].size; j++) {
+        final int p=calc(ctx,pos[i].get(j),dunit);
+        if (i != 0 && (mn <= p - l && mx >= p - l)) {
+          o=true;
+          l=p;
+          break;
+        }
+      }
+      if (!o)       return Dbl.iter(0);
+    }
+  }
+  if (wunit != 0) {
+    final long c=checkItr(ctx.iter(window));
+    int l=-1;
+    for (int i=0; i < size; i++) {
+      boolean o=false;
+      for (int j=0; j < pos[i].size; j++) {
+        final int p=calc(ctx,pos[i].get(j),wunit);
+        if (i != 0 && (Math.abs(p - l) < c)) {
+          o=true;
+          l=p;
+          break;
+        }
+      }
+      if (!o)       return Dbl.iter(0);
+    }
+  }
+  if (same) {
+    final IntList il=pos[0];
+    int p=-1, q=0;
+    for (int i=0; i < il.size && p != q; i++) {
+      p=calc(ctx,il.get(i),sdunit);
+      q=p;
+      for (int j=1; j < size && p == q; j++) {
+        for (int k=0; k < pos[j].size; k++) {
+          q=calc(ctx,pos[j].get(k),sdunit);
+          if (p == q)           break;
+        }
+      }
+    }
+    if (p != q)     return Dbl.iter(0);
+  }
+  if (different) {
+    int l=-1;
+    for (int i=0; i < size; i++) {
+      boolean o=false;
+      for (int j=0; j < pos[i].size; j++) {
+        final int p=calc(ctx,pos[i].get(j),sdunit);
+        if (i != 0 && p != l) {
+          o=true;
+          break;
+        }
+        l=p;
+      }
+      if (i != 0 && !o)       return Dbl.iter(0);
+    }
+  }
+  final double d=checkDbl(ctx.iter(weight));
+  if (d < 0 || d > 1000)   Err.or(FTWEIGHT,d);
+  return d != 1 ? Dbl.iter(it.dbl() * d) : it.iter();
+}

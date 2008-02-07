@@ -1,0 +1,29 @@
+{
+  byte ch=nextChar();
+  if (ch != '-') {
+    if (!prolog)     error(TYPEAFTER);
+    type=Type.DTD;
+    int tag=1;
+    do {
+      if (ch == '<')       tag++;
+      if (ch == '>')       tag--;
+      if (tag == 0)       break;
+      token.add(ch);
+      ch=nextChar();
+    }
+ while (true);
+    return;
+  }
+  type=Type.COMMENT;
+  if (nextChar() != '-')   error(COMMDASH,token);
+  do {
+    while ((ch=nextChar()) != '-')     token.add(ch);
+    if ((nextChar()) == '-') {
+      if ((nextChar()) == '>')       return;
+      error(COMMENTDASH);
+    }
+    prevChar(1);
+    token.add(ch);
+  }
+ while (true);
+}

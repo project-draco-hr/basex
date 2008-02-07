@@ -1,0 +1,104 @@
+{
+  for (  final String arg : args) {
+    if (arg.equals("-r")) {
+      reporting=true;
+      currTime=true;
+    }
+ else     if (arg.equals("-t")) {
+      currTime=true;
+    }
+ else     if (arg.equals("-v")) {
+      verbose=true;
+    }
+ else     if (arg.startsWith("-s")) {
+      tests=ROOT + arg.substring(2) + "/";
+    }
+ else     if (!arg.startsWith("-")) {
+      single=arg;
+      maxout*=10;
+    }
+ else {
+      System.out.println("\nBaseX vs. XQuery Test Suite\n" + " [pat] perform only tests with the specified pattern\n" + " -s[tests] performs the specified tests\n"+ " -h show this help\n"+ " -r create report\n"+ " -v verbose output");
+      return;
+    }
+  }
+  queries=tests + "queries/XQuery/";
+  expected=tests + "ExpectedTestResults/";
+  results=tests + "ReportingResults/Results/";
+  report=tests + "ReportingResults/";
+  sources=tests + "TestSources/";
+  final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  final String dat=sdf.format(Calendar.getInstance().getTime());
+  Prop.read();
+  Prop.xqformat=false;
+  final Performance perf=new Performance();
+  data=Check.check(tests + "XQTSCatalog.xml");
+  final Nodes root=new Nodes(0,data);
+  System.out.println("\nBaseX vs. XQuery Test Suite " + text("/test-suite/@version",root));
+  System.out.println("\nCaching Sources...");
+  for (  final int s : nodes("//source",root).pre) {
+    final Nodes srcRoot=new Nodes(s,data);
+    final String source=(tests + text("@FileName",srcRoot)).replace('\\','/');
+    srcFiles.put(text("@ID",srcRoot),source);
+  }
+  System.out.println("Caching Modules...");
+  for (  final int s : nodes("//module",root).pre) {
+    final Nodes srcRoot=new Nodes(s,data);
+    final String module=(tests + text("@FileName",srcRoot)).replace('\\','/');
+    modules.put(text("@ID",srcRoot),module);
+  }
+  System.out.println("Caching Collections...");
+  for (  final int c : nodes("//collection",root).pre) {
+    final Nodes nodes=new Nodes(c,data);
+    final String cname=text("@ID",nodes);
+    final FDoc doc=coll(nodes("input-document",nodes),cname);
+    colls.put(cname,doc);
+  }
+  if (reporting) {
+    System.out.println("Delete old results...");
+    delete(new File[]{new File(results)});
+  }
+  System.out.print("Parsing Queries");
+  final Nodes nodes=nodes("//test-case | //ts:test-case",root);
+  for (int t=0; t < nodes.size; t++) {
+    if (!parse(new Nodes(nodes.pre[t],data)))     break;
+    if (t % 1000 == 0)     System.out.print(".");
+  }
+  System.out.println();
+  final String time=perf.getTimer();
+  final int total=ok + ok2 + err+ err2;
+  System.out.println("Writing log file...\n");
+  BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(PATHLOG),UTF8));
+  bw.write("TEST RESULTS ==================================================");
+  bw.write(Prop.NL + Prop.NL + "Total #Queries: "+ total+ Prop.NL);
+  bw.write("Correct / Empty Results: " + ok + " / "+ ok2+ Prop.NL);
+  bw.write("Conformance (w/Empty Results): ");
+  bw.write(pc(ok,total) + " / " + pc(ok + ok2,total)+ Prop.NL);
+  bw.write("Wrong Results / Errors: " + err + " / "+ err2+ Prop.NL);
+  bw.write("Total Time: " + time + Prop.NL+ Prop.NL);
+  bw.write("WRONG =========================================================");
+  bw.write(Prop.NL + Prop.NL + logErr+ Prop.NL);
+  bw.write("WRONG (ERRORS) ================================================");
+  bw.write(Prop.NL + Prop.NL + logErr2+ Prop.NL);
+  bw.write("CORRECT? (EMPTY) ==============================================");
+  bw.write(Prop.NL + Prop.NL + logOK2+ Prop.NL);
+  bw.write("CORRECT =======================================================");
+  bw.write(Prop.NL + Prop.NL + logOK+ Prop.NL);
+  bw.write("===============================================================");
+  bw.close();
+  bw=new BufferedWriter(new FileWriter(PATHHIST,true));
+  bw.write(dat + "\t" + ok+ "\t"+ ok2+ "\t"+ err+ "\t"+ err2+ Prop.NL);
+  bw.close();
+  if (reporting) {
+    bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(report + "BaseX.xml"),UTF8));
+    write(bw,report + "BaseXPre.xml");
+    bw.write(logFile.toString());
+    write(bw,report + "BaseXPos.xml");
+    bw.close();
+  }
+  System.out.println("Total #Queries: " + total);
+  System.out.println("Correct / Empty results: " + ok + " / "+ ok2);
+  System.out.print("Conformance (w/empty results): ");
+  System.out.println(pc(ok,total) + " / " + pc(ok + ok2,total));
+  System.out.println("Total Time: " + time);
+}

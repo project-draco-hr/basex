@@ -1,0 +1,183 @@
+{
+  final String path=text("@FilePath",root);
+  final String outname=text("@name",root);
+  String inname=text("query/@name",root);
+  if (inname == null)   inname=outname;
+  if (verbose)   System.out.println(inname);
+  if (single != null && !outname.startsWith(single))   return true;
+  final File file=new File(queries + path + inname+ ".xq");
+  final String input=read(file);
+  String output="";
+  String error=null;
+  Result res=null;
+  final TokenBuilder files=new TokenBuilder();
+  try {
+    final XQueryProcessor xq=new XQueryProcessor(input,file);
+    final Nodes cont=nodes("contextItem",root);
+    final Nodes nodes=cont.size == 0 ? null : new Nodes(0,Check.check(sources + string(data.atom(cont.pre[0]))));
+    final XQContext ctx=xq.ctx;
+    files.add(file(nodes("input-file",root),nodes("input-file/@variable",root),ctx));
+    files.add(file(nodes("input-URI",root),nodes("input-URI/@variable",root),ctx));
+    file(nodes("defaultCollection",root),null,ctx);
+    var(nodes("input-query/@name",root),nodes("input-query/@variable",root),path,ctx);
+    for (    final int p : nodes("module",root).pre) {
+      final String ns=text("@namespace",new Nodes(p,data));
+      final String f=modules.get(string(data.atom(p))) + ".xq";
+      xq.module(ns,f);
+    }
+    final CachedOutput out=new CachedOutput();
+    res=xq.query(nodes);
+    res.serialize(new PrintSerializer(out));
+    output=norm(out.finish());
+  }
+ catch (  final QueryException ex) {
+    error=ex.getMessage();
+    if (error.startsWith("Stopped at")) {
+      error=error.substring(error.indexOf('\n') + 1);
+    }
+    if (error.startsWith("[")) {
+      final int i=error.indexOf("]");
+      error=error.substring(1).substring(0,i - 1) + error.substring(i + 1);
+    }
+  }
+catch (  final Exception ex) {
+    final ByteArrayOutputStream bw=new ByteArrayOutputStream();
+    ex.printStackTrace(new PrintStream(bw));
+    error=bw.toString();
+  }
+catch (  final Error ex) {
+    final ByteArrayOutputStream bw=new ByteArrayOutputStream();
+    ex.printStackTrace(new PrintStream(bw));
+    error=bw.toString();
+  }
+  final Nodes outFiles=nodes("output-file/text()",root);
+  final Nodes cmpFiles=nodes("output-file/@compare",root);
+  final StringBuilder tb=new StringBuilder();
+  for (int o=0; o < outFiles.size; o++) {
+    if (o != 0)     tb.append(DELIM);
+    final String resFile=string(data.atom(outFiles.pre[o]));
+    tb.append(read(new File(expected + path + resFile)));
+  }
+  String result=tb.toString();
+  String expError=text("expected-error/text()",root);
+  final StringBuilder log=new StringBuilder(path + inname + ".xq");
+  if (files.size != 0) {
+    log.append(" [");
+    log.append(files);
+    log.append("]");
+  }
+  log.append(Prop.NL);
+  log.append(compact(input));
+  log.append(Prop.NL);
+  final String logStr=log.toString();
+  final boolean print=currTime || !logStr.contains("current-") && !logStr.contains("implicit-timezone");
+  if (reporting) {
+    logFile.append("    <test-case name=\"");
+    logFile.append(outname);
+    logFile.append("\" result='");
+  }
+  boolean rightCode=false;
+  if (error != null && (outFiles.size == 0 || expError.length() != 0)) {
+    expError=error(path + outname,expError);
+    final String code=error.substring(0,Math.min(8,error.length()));
+    for (    final String er : SLASH.split(expError)) {
+      if (code.equals(er)) {
+        rightCode=true;
+        break;
+      }
+    }
+  }
+  if (rightCode) {
+    if (print) {
+      logOK.append(logStr);
+      logOK.append("[Right] ");
+      logOK.append(error);
+      logOK.append(Prop.NL);
+      logOK.append(Prop.NL);
+      addLog(path,outname + ".log",error);
+    }
+    if (reporting)     logFile.append("pass");
+    ok++;
+  }
+ else   if (error == null) {
+    boolean inspect=false;
+    final String[] split=CHOP.split(result,0);
+    int s=-1;
+    while (++s < split.length) {
+      inspect|=s < cmpFiles.pre.length && eq(data.atom(cmpFiles.pre[s]),INSPECT);
+      if (split[s].equals(output))       break;
+    }
+    if (s == split.length && !inspect) {
+      if (print) {
+        if (outFiles.size == 0)         result=error(path + outname,expError);
+        logErr.append(logStr);
+        logErr.append("[XQTS ] ");
+        logErr.append(chop(result));
+        logErr.append(Prop.NL);
+        logErr.append("[Wrong] ");
+        logErr.append(chop(output));
+        logErr.append(Prop.NL);
+        logErr.append(Prop.NL);
+        final Item it=((XQResult)res).item();
+        final boolean nodes=it instanceof Node && it.type != Type.TXT;
+        addLog(path,outname + (nodes ? ".xml" : ".txt"),output);
+      }
+      if (reporting)       logFile.append("fail");
+      err++;
+    }
+ else {
+      if (print) {
+        logOK.append(logStr);
+        logOK.append("[Right] ");
+        logOK.append(chop(output));
+        logOK.append(Prop.NL);
+        logOK.append(Prop.NL);
+        final Item it=((XQResult)res).item();
+        final boolean nodes=it instanceof Node && it.type != Type.TXT;
+        addLog(path,outname + (nodes ? ".xml" : ".txt"),output);
+      }
+      if (reporting) {
+        logFile.append("pass");
+        if (inspect)         logFile.append("' todo='inspect");
+      }
+      ok++;
+    }
+  }
+ else {
+    if (outFiles.size == 0 || expError.length() != 0) {
+      if (print) {
+        logOK2.append(logStr);
+        logOK2.append("[XQTS ] ");
+        logOK2.append(expError);
+        logOK2.append(Prop.NL);
+        logOK2.append("[Rght?] ");
+        logOK2.append(error);
+        logOK2.append(Prop.NL);
+        logOK2.append(Prop.NL);
+        addLog(path,outname + ".log",error);
+      }
+      if (reporting)       logFile.append("pass");
+      ok2++;
+    }
+ else {
+      if (print) {
+        logErr2.append(logStr);
+        logErr2.append("[XQTS ] ");
+        logErr2.append(chop(result));
+        logErr2.append(Prop.NL);
+        logErr2.append("[Wrong] ");
+        logErr2.append(error);
+        logErr2.append(Prop.NL);
+        logErr2.append(Prop.NL);
+        addLog(path,outname + ".log",error);
+      }
+      if (reporting)       logFile.append("fail");
+      err2++;
+    }
+  }
+  if (reporting) {
+    logFile.append("'/>");
+    logFile.append(Prop.NL);
+  }
+  return single == null || !outname.equals(single);
+}

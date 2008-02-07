@@ -1,0 +1,42 @@
+{
+  if (ne - ns == 1) {
+    final MapRect t=new MapRect(r.x,r.y,r.w,r.h,l.get(ns),r.l);
+    mainRects.add(t);
+    final int x=t.x + layout.x;
+    final int y=t.y + layout.y;
+    final int w=t.w - layout.w;
+    final int h=t.h - layout.h;
+    final int o=GUIProp.fontsize + 4;
+    if ((w >= o || h >= o) && w > 0 && h > 0 && !ViewData.isLeaf(GUI.context.data(),t.p)) {
+      final IntList ch=children(t.p);
+      if (ch.size != 0)       calcMap(new MapRect(x,y,w,h,l.get(ns),r.l + 1),ch,0,ch.size - 1,false);
+    }
+  }
+ else {
+    int nn=ne - ns;
+    int ln=nn >> 1;
+    int ni=ns + ln;
+    if (!GUIProp.mapsimple && !first) {
+      nn=l.get(ne) - l.get(ns);
+      ni=ns + 1;
+      for (; ni < ne - 1; ni++)       if (l.get(ni) - l.get(ns) >= (nn >> 1))       break;
+      ln=l.get(ni) - l.get(ns);
+    }
+    final int p=GUIProp.mapprop;
+    final boolean v=p > 4 ? r.w > r.h * (p + 4) / 8 : r.w * (13 - p) / 8 > r.h;
+    int xx=r.x;
+    int yy=r.y;
+    int ww=!v ? r.w : (int)((long)r.w * ln / nn);
+    int hh=v ? r.h : (int)((long)r.h * ln / nn);
+    if (ww > 0 && hh > 0)     calcMap(new MapRect(xx,yy,ww,hh,0,r.l),l,ns,ni,first);
+    if (v) {
+      xx+=ww;
+      ww=r.w - ww;
+    }
+ else {
+      yy+=hh;
+      hh=r.h - hh;
+    }
+    if (ww > 0 && hh > 0)     calcMap(new MapRect(xx,yy,ww,hh,0,r.l),l,ni,ne,first);
+  }
+}

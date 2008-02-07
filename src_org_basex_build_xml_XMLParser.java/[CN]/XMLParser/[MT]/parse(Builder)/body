@@ -1,0 +1,30 @@
+{
+  builder=build;
+  scanner.next();
+  while (scanner.more()) {
+    if (scanner.type == Type.TEXT) {
+      builder.text(scanner.token.finish(),scanner.chars);
+      scanner.next();
+    }
+ else     if (scanner.type == Type.COMMENT) {
+      builder.comment(scanner.token.finish());
+      scanner.next();
+    }
+ else     if (scanner.type == Type.DTD) {
+      dtd=new DTDParser(scanner.token.finish(),file,builder.tags,builder.atts,builder.ents);
+      scanner.next();
+    }
+ else     if (scanner.type == Type.PI) {
+      builder.pi(scanner.token.finish());
+      scanner.next();
+    }
+ else     if (scanner.type == Type.DECL) {
+      builder.encoding(scanner.encoding);
+      scanner.next();
+    }
+ else {
+      parseTag();
+    }
+  }
+  scanner.finish();
+}

@@ -1,0 +1,50 @@
+{
+  int[][] val1=values1;
+  int[][] val2=values2;
+  if (val1 == null) {
+    return val2;
+  }
+ else   if (val2 == null) {
+    return val1;
+  }
+  final int[][] maxResult=new int[val1.length + val2.length][2];
+  final int max=Math.max(val1.length,val2.length);
+  if (max == val1.length) {
+    final int[][] tmp=val1;
+    val1=val2;
+    val2=tmp;
+  }
+  int i=0;
+  int k=0;
+  int counter=0;
+  int cmpResult;
+  while (i < val1.length && k < val2.length) {
+    cmpResult=Array.compareIntArrayEntry(val1[i][0],val1[i][1],val2[k][0],val2[k][1]);
+    if (cmpResult == 1 || cmpResult == 2) {
+      maxResult[counter]=val2[k];
+      k++;
+    }
+ else     if (cmpResult == -1 || cmpResult == -2) {
+      maxResult[counter]=val1[i];
+      i++;
+    }
+ else {
+      maxResult[counter]=val1[i];
+      i++;
+      k++;
+    }
+    counter++;
+  }
+  if (counter == 0)   return null;
+  int[][] returnArray;
+  if (k == val2.length && i < val1.length) {
+    returnArray=new int[counter + val1.length - i][2];
+    System.arraycopy(val1,i,returnArray,counter,val1.length - i);
+  }
+ else {
+    returnArray=new int[counter + val2.length - k][2];
+    System.arraycopy(val2,k,returnArray,counter,val2.length - k);
+  }
+  System.arraycopy(maxResult,0,returnArray,0,counter);
+  return returnArray;
+}

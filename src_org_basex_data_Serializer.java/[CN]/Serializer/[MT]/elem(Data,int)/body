@@ -1,0 +1,43 @@
+{
+  final int[] parent=new int[256];
+  final byte[][] token=new byte[256][];
+  int l=0;
+  int p=pos;
+  final int root=p;
+  final int s=data.size;
+  while (p < s) {
+    final int kind=data.kind(p);
+    final int par=data.parent(p,kind);
+    if (root != 1 && p > root && par < root)     break;
+    while (l > 0) {
+      if (parent[l - 1] < par)       break;
+      closeElement(token[--l]);
+    }
+    if (kind == Data.TEXT) {
+      text(data.text(p++));
+    }
+ else     if (kind == Data.COMM) {
+      comment(data.text(p++));
+    }
+ else     if (kind == Data.PI) {
+      pi(Token.EMPTY,data.text(p++));
+    }
+ else {
+      final byte[] tok=data.tag(p);
+      final int ps=p + data.size(p,kind);
+      final int as=p + data.attSize(p,kind);
+      startElement(tok);
+      while (++p != as)       attribute(data.attName(p),data.attValue(p));
+      if (p == ps) {
+        emptyElement();
+      }
+ else {
+        finishElement();
+        token[l]=tok;
+        parent[l++]=par;
+      }
+    }
+  }
+  while (l > 0)   closeElement(token[--l]);
+  return p;
+}

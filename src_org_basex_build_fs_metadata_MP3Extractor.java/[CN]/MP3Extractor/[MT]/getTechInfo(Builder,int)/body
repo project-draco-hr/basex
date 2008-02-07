@@ -1,0 +1,43 @@
+{
+  int byte0=0xFF;
+  int byte1=read();
+  int byte2=read();
+  int byte3=read();
+  while (byte0 != 0xFF || (byte1 & 0xE0) != 0xE0 || (byte1 & 0x18) == 0x08 || (byte1 & 0x06) == 0x00 || (byte2 & 0xF0) == 0xF0 || (byte2 & 0xF0) == 0x00 || (byte2 & 0x0C) == 0x0C) {
+    byte0=byte1;
+    byte1=byte2;
+    byte2=byte3;
+    byte3=read();
+  }
+  final int vers=byte1 >> 3 & 0x03;
+  final int layr=3 - (byte1 >> 1 & 0x03);
+  final int rate=byte2 >> 4 & 0x0F;
+  final int smpl=byte2 >> 2 & 0x03;
+  final int emph=byte3 & 0x03;
+  final int version=vers == 3 ? 0 : 1;
+  final int samples=SAMPLES[vers][smpl];
+  final int mode=byte3 >> 6 & 0x03;
+  int bitrate=BITRATES[version][layr][rate];
+  int seconds=(int)((file.length() - size) * 8 / bitrate) / 1000;
+  int encoding=0;
+  final int fsize=FSIZE[version][mode == 3 ? 1 : 0];
+  skip(in,fsize);
+  final byte[] vbrh=new byte[4];
+  in.read(vbrh);
+  if (Token.eq(MP3XING,vbrh)) {
+    skip(in,3);
+    if ((read() & 0x01) != 0) {
+      final int nf=(read() << 24) + (read() << 16) + (read() << 8)+ read();
+      seconds=nf * SPF[version][layr] / samples;
+      encoding++;
+      if (seconds != 0)       bitrate=(int)((file.length() - size) * 8 / seconds / 1000);
+    }
+  }
+  builder.nodeAndText(MP3CODEC,Token.concat(VERSIONS[vers],LAYERS[layr]));
+  builder.nodeAndText(MP3RATE,token(bitrate));
+  builder.nodeAndText(MP3SAMPLE,token(samples));
+  builder.nodeAndText(MP3MODE,MODES[mode]);
+  builder.nodeAndText(MP3EMPH,EMPH[emph]);
+  builder.nodeAndText(MP3ENCODE,ENCODE[encoding]);
+  builder.nodeAndText(MP3SEC,token(seconds));
+}

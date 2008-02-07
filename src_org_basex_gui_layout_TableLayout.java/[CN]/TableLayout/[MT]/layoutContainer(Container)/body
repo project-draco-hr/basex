@@ -1,0 +1,19 @@
+{
+  preferredLayoutSize(parent);
+synchronized (parent.getTreeLock()) {
+    final Insets insets=parent.getInsets();
+    final int nrComponents=parent.getComponentCount();
+    for (int j=0; j < rows; j++) {
+      for (int i=0; i < cols; i++) {
+        final int n=j * cols + i;
+        if (n >= nrComponents)         return;
+        final Dimension compSize=parent.getComponent(n).getPreferredSize();
+        final int x=insets.left + posX[i] + i * insetX;
+        final int y=insets.top + posY[j] + j * insetY;
+        final int w=compSize.width > 0 ? compSize.width : width - insets.left - insets.right;
+        final int h=compSize.height > 0 ? compSize.height : height - insets.top - insets.bottom;
+        parent.getComponent(n).setBounds(x,y,w,h);
+      }
+    }
+  }
+}

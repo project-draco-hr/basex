@@ -1,0 +1,39 @@
+{
+  super(parent,drop ? DROPTITLE : OPENTITLE);
+  final String[] db=DialogOpen.getDatabases();
+  if (db.length == 0)   return;
+  choice=new BaseXListChooser(this,db,HELPOPEN);
+  set(choice,BorderLayout.CENTER);
+  choice.setSize(130,348);
+  final BaseXBack info=new BaseXBack();
+  info.setLayout(new BorderLayout());
+  info.setBorder(new CompoundBorder(new EtchedBorder(),new EmptyBorder(10,10,10,10)));
+  doc=new BaseXLabel(DIALOGINFO);
+  doc.setFont(new Font(GUIProp.font,0,20));
+  doc.setBorder(0,0,5,0);
+  info.add(doc,BorderLayout.NORTH);
+  detail=new BaseXTextArea(HELPOPENINFO);
+  detail.setFont(GUIConstants.mfont.deriveFont(13f));
+  detail.setBorder(new EmptyBorder(5,5,5,5));
+  detail.setOpaque(false);
+  detail.setFocusable(false);
+  if (db.length == 0)   detail.setText(OPENNODBINFO);
+  BaseXLayout.setWidth(detail,480);
+  info.add(detail,BorderLayout.CENTER);
+  final BaseXBack pp=new BaseXBack();
+  pp.setBorder(new EmptyBorder(0,12,0,0));
+  pp.setLayout(new BorderLayout());
+  pp.add(info,BorderLayout.CENTER);
+  final BaseXBack p=new BaseXBack();
+  p.setLayout(new BorderLayout());
+  if (!drop) {
+    mainmem=new BaseXCheckBox(CREATEMAINMEM,HELPMMEM,Prop.mainmem,this);
+    p.add(mainmem,BorderLayout.WEST);
+  }
+  buttons=BaseXLayout.newButtons(this,true,new String[]{drop ? BUTTONDROP : BUTTONOPEN,BUTTONCANCEL},new byte[][]{drop ? HELPDROP : HELPOPENDB,HELPCANCEL});
+  p.add(buttons,BorderLayout.EAST);
+  pp.add(p,BorderLayout.SOUTH);
+  set(pp,BorderLayout.EAST);
+  setInfo();
+  finish(parent);
+}

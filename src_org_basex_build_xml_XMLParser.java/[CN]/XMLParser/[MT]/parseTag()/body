@@ -1,0 +1,45 @@
+{
+  if (scanner.type == Type.L_BR_CLOSE) {
+    scanner.next();
+    final byte[] tag=consumeToken(Type.TAGNAME);
+    skipSpace();
+    consume(Type.R_BR);
+    builder.endNode(tag);
+  }
+ else {
+    consume(Type.L_BR);
+    byte[][] atts=null;
+    final byte[] tag=consumeToken(Type.TAGNAME);
+    skipSpace();
+    int as=0;
+    while (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
+      final byte[] attName=consumeToken(Type.ATTNAME);
+      skipSpace();
+      consume(Type.EQ);
+      skipSpace();
+      consume(Type.QUOTE);
+      byte[] attValue=Token.EMPTY;
+      if (scanner.type == Type.ATTVALUE) {
+        attValue=scanner.token.finish();
+        scanner.next();
+      }
+      consume(Type.QUOTE);
+      final byte[][] tmp=new byte[as + 2][];
+      if (as > 0)       System.arraycopy(atts,0,tmp,0,as);
+      atts=tmp;
+      atts[as++]=attName;
+      atts[as++]=attValue;
+      if (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
+        consume(Type.WS);
+      }
+    }
+    if (scanner.type == Type.CLOSE_R_BR) {
+      scanner.next();
+      builder.emptyNode(tag,atts);
+    }
+ else {
+      consume(Type.R_BR);
+      builder.startNode(tag,atts);
+    }
+  }
+}

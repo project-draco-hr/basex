@@ -1,0 +1,45 @@
+{
+  main=m;
+  panel=new BaseXBack(GUIConstants.FILL.NONE);
+  panel.setLayout(new TableLayout(20,2,10,5));
+  all=new BaseXCombo(new String[]{},null,true);
+  all.addKeyListener(main);
+  all.addKeyListener(new KeyAdapter(){
+    @Override public void keyReleased(    final KeyEvent e){
+      query(false);
+    }
+  }
+);
+  cont=new BaseXBack(GUIConstants.FILL.NONE);
+  cont.setLayout(new BorderLayout(0,5));
+  cont.add(all,BorderLayout.NORTH);
+  cont.add(panel,BorderLayout.CENTER);
+  final BaseXBack p=new BaseXBack(GUIConstants.FILL.NONE);
+  p.setLayout(new BorderLayout());
+  final Box box=new Box(BoxLayout.X_AXIS);
+  copy=new BaseXButton(BUTTONTOXPATH,HELPTOXPATH);
+  copy.addKeyListener(main);
+  copy.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      main.panels[0].last=main.panels[2].last;
+      main.mode=0;
+      main.refreshLayout();
+    }
+  }
+);
+  BaseXLayout.enable(copy,false);
+  box.add(copy);
+  box.add(new BaseXLabel("   "));
+  filter=new BaseXButton(BUTTONFILTER,HELPFILTER);
+  filter.addKeyListener(main);
+  filter.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      View.notifyContext(GUI.context.marked(),false);
+    }
+  }
+);
+  BaseXLayout.enable(filter,!GUIProp.filterrt);
+  box.add(filter);
+  p.add(box,BorderLayout.EAST);
+  cont.add(p,BorderLayout.SOUTH);
+}

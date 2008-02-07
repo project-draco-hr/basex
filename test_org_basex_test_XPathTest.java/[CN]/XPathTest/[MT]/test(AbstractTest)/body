@@ -1,0 +1,41 @@
+{
+  boolean ok=true;
+  System.out.println(test.queries.length + " " + test.title+ " Tests...");
+  out("\nBuilding \"" + test.title + "\"...\n");
+  final String file=test.doc.replaceAll("\\\"","\\\\\"");
+  Proc proc=Proc.get(context,Commands.CREATEXML,"\"" + file + "\"");
+  if (!proc.execute()) {
+    err("\n",proc.info());
+    return false;
+  }
+  out("\nRunning Tests...\n");
+  for (  final Object[] qu : test.queries) {
+    out("- " + qu[0] + ": ");
+    proc=Proc.get(context,Commands.XPATH,qu[1].toString());
+    if (proc.execute()) {
+      final Result value=proc.result();
+      final Result cmp=(Result)qu[2];
+      if (value instanceof Nodes && cmp instanceof Nodes) {
+        ((Nodes)cmp).data=((Nodes)value).data;
+      }
+      if (qu.length == 2 || !value.same(cmp)) {
+        err("\"" + qu[1] + "\":  "+ value+ " found, "+ (qu.length == 2 ? "error" : qu[2])+ " expected.\n",qu[0].toString());
+        ok=false;
+        continue;
+      }
+      out("ok\n");
+    }
+ else {
+      final String info=proc.info();
+      if (qu.length == 3) {
+        err(info + "\n",qu[0].toString());
+        ok=false;
+      }
+ else {
+        out("ok (" + info + ")\n");
+      }
+    }
+  }
+  out("\n");
+  return ok;
+}

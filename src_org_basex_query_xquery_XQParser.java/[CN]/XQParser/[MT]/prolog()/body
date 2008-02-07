@@ -1,0 +1,60 @@
+{
+  while (true) {
+    final int p=qp;
+    if (consumeWS(DECLARE)) {
+      if (consumeWS(VARIABLE)) {
+        varDecl();
+      }
+ else       if (consumeWS(FUNCTION)) {
+        functionDecl();
+      }
+ else       if (consumeWS(CONSTRUCTION)) {
+        constructionDecl();
+      }
+ else       if (consumeWS(NAMESPACE)) {
+        namespaceDecl();
+      }
+ else       if (consumeWS(BOUNDARY)) {
+        boundarySpaceDecl();
+      }
+ else       if (consumeWS(OPTION)) {
+        optionDecl();
+      }
+ else       if (consumeWS(ORDERING)) {
+        orderingModeDecl();
+      }
+ else       if (consumeWS(COPYNS)) {
+        copyNamespacesDecl();
+      }
+ else       if (consumeWS(BASEURI)) {
+        baseURIDecl();
+      }
+ else       if (consumeWS(DEFAULT)) {
+        if (!defaultNamespaceDecl() && !defaultCollationDecl() && !emptyOrderDecl())         Err.or(DECLINCOMPLETE);
+      }
+ else       if (consumeWS(FTOPTION)) {
+        ftMatchOption(ctx.ftoptions);
+      }
+ else {
+        qp=p;
+        return;
+      }
+    }
+ else     if (consumeWS(IMPORT)) {
+      if (consumeWS(SCHEMA)) {
+        schemaImport();
+      }
+ else       if (consumeWS(MODULE)) {
+        moduleImport();
+      }
+ else {
+        qp=p;
+        return;
+      }
+    }
+ else {
+      break;
+    }
+    check(SEMI);
+  }
+}

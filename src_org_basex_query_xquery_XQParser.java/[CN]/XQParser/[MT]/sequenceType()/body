@@ -1,0 +1,18 @@
+{
+  final QNm type=new QNm(qName(TYPEINVALID));
+  tok.reset();
+  final boolean par=consume(PAR1);
+  if (par) {
+    while (!consume(PAR2)) {
+      if (curr() == 0)       Err.or(FUNCMISS,type.str());
+      consumeWS();
+      tok.add(consume());
+    }
+  }
+  final int mode=consume(QUEST) ? 1 : consume(PLUS) ? 2 : consume(MULT) ? 3 : 0;
+  if (type.ns())   type.uri=ctx.ns.uri(type.pre());
+  final SeqType seq=new SeqType(type,mode,tok.finish());
+  if (seq.type == Type.EMP && mode != 0)   Err.or(EMPTYSEQOCC,seq.type);
+  if (seq.type == null)   Err.or(par ? NOTYPE : TYPEUNKNOWN,type,par);
+  return seq;
+}

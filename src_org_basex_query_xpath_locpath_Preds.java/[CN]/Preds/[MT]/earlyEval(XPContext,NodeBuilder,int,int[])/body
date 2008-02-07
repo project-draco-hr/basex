@@ -1,0 +1,18 @@
+{
+  final NodeSet ns=ctx.local;
+  ctx.local=tmp;
+  tmp.set(pre);
+  tmp.currSize=-1;
+  boolean more=true;
+  for (int j=0; j != size; j++) {
+    final Pred pred=preds[j];
+    if (!pred.eval(ctx,tmp,++pos[j])) {
+      ctx.local=ns;
+      return pred.more;
+    }
+    more&=pred.more;
+  }
+  result.add(pre);
+  ctx.local=ns;
+  return more;
+}

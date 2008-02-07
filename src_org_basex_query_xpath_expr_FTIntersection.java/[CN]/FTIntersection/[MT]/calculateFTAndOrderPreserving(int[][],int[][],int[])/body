@@ -1,0 +1,106 @@
+{
+  if (val1 == null || val1[0].length == 0 || val2 == null || val2[0].length == 0) {
+    return new Object[]{null,null};
+  }
+  int[][] v1=val1;
+  int[][] v2=val2;
+  int[] p=po;
+  int min=Math.min(v1[0].length,v2[0].length);
+  boolean changedOrder=false;
+  if (min == v2[0].length && min != v1[0].length) {
+    int[][] tmp=v2;
+    v2=v1;
+    v1=tmp;
+    changedOrder=true;
+  }
+  int[][] maxResult=new int[2][v1[0].length + v2[0].length];
+  int[] pointersnew=new int[maxResult[0].length + 1];
+  if (p == null) {
+    p=new int[pointersnew.length];
+  }
+  pointersnew[0]=p[0] + 1;
+  int i=0;
+  int k=0;
+  int counter=0;
+  while (v1[0].length > i) {
+    if (k == v2[0].length) {
+      break;
+    }
+    if (v2[0][k] == v1[0][i]) {
+      if (!changedOrder) {
+        while (k < v2[0].length && v2[0][k] == v1[0][i]) {
+          maxResult[0][counter]=v2[0][k];
+          maxResult[1][counter]=v2[1][k];
+          pointersnew[counter + 1]=p[k + 1];
+          counter++;
+          k++;
+        }
+        while (i < v1[0].length && v2[0][k - 1] == v1[0][i]) {
+          maxResult[0][counter]=v1[0][i];
+          maxResult[1][counter]=v1[1][i];
+          pointersnew[counter + 1]=pointersnew[0];
+          counter++;
+          i++;
+        }
+      }
+ else {
+        while (i < v1[0].length && v2[0][k] == v1[0][i]) {
+          maxResult[0][counter]=v1[0][i];
+          maxResult[1][counter]=v1[1][i];
+          pointersnew[counter + 1]=p[i + 1];
+          counter++;
+          i++;
+        }
+        while (k < v2[0].length && v2[0][k] == v1[0][i - 1]) {
+          maxResult[0][counter]=v2[0][k];
+          maxResult[1][counter]=v2[1][k];
+          pointersnew[counter + 1]=pointersnew[0];
+          counter++;
+          k++;
+        }
+      }
+    }
+ else     if (v1[0][i] < v2[0][k]) {
+      i++;
+    }
+ else {
+      k++;
+    }
+  }
+  while (k > 0 && v1[0].length > i && v1[0][i] == v2[0][k - 1]) {
+    maxResult[0][counter]=v1[0][i];
+    maxResult[1][counter]=v1[1][i];
+    if (!changedOrder) {
+      pointersnew[counter + 1]=pointersnew[0];
+    }
+ else {
+      pointersnew[counter + 1]=p[k + 1];
+    }
+    counter++;
+    i++;
+  }
+  while (i > 0 && v2[0].length > k && v2[0][k] == v1[0][i - 1]) {
+    maxResult[0][counter]=v2[0][k];
+    maxResult[1][counter]=v2[1][k];
+    if (!changedOrder) {
+      pointersnew[counter + 1]=p[k + 1];
+    }
+ else {
+      pointersnew[counter + 1]=pointersnew[0];
+    }
+    counter++;
+    k++;
+  }
+  if (counter == 0) {
+    return new Object[]{null,null};
+  }
+  int[][] rnArray=new int[2][counter];
+  System.arraycopy(maxResult[0],0,rnArray[0],0,counter);
+  System.arraycopy(maxResult[1],0,rnArray[1],0,counter);
+  p=new int[counter + 1];
+  System.arraycopy(pointersnew,0,p,0,counter + 1);
+  Object[] o=new Object[2];
+  o[0]=rnArray;
+  o[1]=p;
+  return o;
+}

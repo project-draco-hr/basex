@@ -1,0 +1,21 @@
+{
+  Item repl=arg[2].atomic(this,false);
+  final byte[] rep=checkStr(repl);
+  for (int i=0; i < rep.length; i++) {
+    if (rep[i] == '\\') {
+      if (i + 1 == rep.length || rep[i + 1] != '\\' && rep[i + 1] != '$')       Err.or(FUNREGREP);
+      i++;
+    }
+  }
+  final Pattern p=pattern(arg[1],arg.length == 4 ? arg[3] : null);
+  try {
+    final String res=p.matcher(Token.string(val)).replaceAll(Token.string(rep));
+    return Str.iter(Token.token(res));
+  }
+ catch (  final Exception e) {
+    final String m=e.getMessage();
+    if (m.contains("No group"))     Err.or(REGROUP);
+    Err.or(REGERR,m);
+    return null;
+  }
+}

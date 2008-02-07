@@ -1,0 +1,23 @@
+{
+  final Process pr=new ProcessBuilder(exec).start();
+  final byte[][] out=new byte[2][];
+  final Thread t1=new Thread(){
+    @Override public void run(){
+      out[0]=getStream(pr.getInputStream());
+    }
+  }
+;
+  final Thread t2=new Thread(){
+    @Override public void run(){
+      out[1]=getStream(pr.getErrorStream());
+    }
+  }
+;
+  t1.start();
+  t2.start();
+  t1.join();
+  t2.join();
+  final OutputStream os=s.getOutputStream();
+  os.write(out[out[1].length == 0 ? 0 : 1]);
+  os.close();
+}

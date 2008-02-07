@@ -1,0 +1,35 @@
+{
+  Expr tmp;
+  ExprList ftun=new ExprList();
+  ExprList other=new ExprList();
+  for (int i=0; i != exprs.length; i++) {
+    if (exprs[i] instanceof FTUnaryNot) {
+      ftun.add(exprs[i]);
+    }
+ else {
+      tmp=exprs[i].indexEquivalent(ctx,curr);
+      if (tmp == null)       return null;
+      other.add(tmp);
+    }
+  }
+  if (ftun.get().length > 0 && other.get().length > 0) {
+    for (int i=0; i < curr.preds.size(); i++) {
+      if (curr.preds.get(i) instanceof PredSimple) {
+        PredSimple ps=(PredSimple)curr.preds.get(i);
+        if (ps.getExpr() instanceof FTContains) {
+          Expr[] e=new Expr[ftun.get().length + 1];
+          e[0]=new FTUnion(other.get());
+          System.arraycopy(ftun.get(),0,e,1,ftun.get().length);
+          Or o=new Or(e);
+          System.out.println(o);
+        }
+      }
+    }
+    Expr[] e=new Expr[ftun.get().length + 1];
+    e[0]=new FTUnion(other.get());
+    System.arraycopy(ftun.get(),0,e,1,ftun.get().length);
+    return new Or(e);
+  }
+  ctx.compInfo(OPTOR4);
+  return new FTUnion(other.get());
+}

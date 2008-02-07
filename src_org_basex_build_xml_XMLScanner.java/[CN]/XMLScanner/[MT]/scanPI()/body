@@ -1,0 +1,71 @@
+{
+  final boolean start=input.size() < 6;
+  byte ch=nextChar();
+  if (!isFirstLetter(ch))   error(PINAME);
+  do   token.add(ch);
+ while (isLetter(ch=nextChar()));
+  final byte[] tok=token.finish();
+  if (eq(lc(tok),XMLDECL)) {
+    if (!eq(tok,XMLDECL))     error(start ? PILC : PIRES);
+    if (!start)     error(PIXML);
+    type=Type.DECL;
+    scanWS(ch);
+    if (!nextToken(VERS))     error(DECLSTART);
+    scanWS();
+    if (nextChar() != '=')     error(DECLWRONG);
+    scanWS();
+    if (!nextToken(VERS1) && !nextToken(VERS2))     error(DECLVERSION);
+    ch=nextChar();
+    final TokenBuilder enc=new TokenBuilder();
+    if (scanWS(ch)) {
+      if (nextToken(ENCOD)) {
+        scanWS();
+        if (nextChar() != '=')         error(DECLWRONG);
+        scanWS();
+        final byte d=nextChar();
+        if (d == '\'' || d == '"') {
+          ch=nextChar();
+          if (letter(ch)) {
+            while (letterOrDigit(ch) || ch == '.' || ch == '-') {
+              enc.add(ch);
+              ch=nextChar();
+            }
+            if (ch != d)             enc.reset();
+          }
+        }
+        if ((ch=nextChar()) == '?')         prevChar(1);
+ else         if (!scanWS(ch))         enc.reset();
+        encoding=string(enc.finish());
+        if (encoding.length() == 0)         error(DECLENCODE);
+      }
+      if (nextToken(STANDALONE)) {
+        scanWS();
+        if (nextChar() != '=')         error(DECLWRONG);
+        scanWS();
+        final byte d=nextChar();
+        if (d == '\'' || d == '"') {
+          if (nextToken(STANDYES))           standalone=string(STANDYES);
+ else           if (nextToken(STANDNO))           standalone=string(STANDNO);
+          if (nextChar() != d)           standalone=null;
+        }
+        if (standalone == null)         error(DECLSTANDALONE);
+      }
+      ch=nextChar();
+      if (scanWS(ch))       ch=nextChar();
+    }
+    if (ch != '?' || nextChar() != '>')     error(DECLWRONG);
+  }
+ else {
+    type=Type.PI;
+    if (ch != '?' && !whitespace(ch))     error(PITEXT);
+    do {
+      while (ch != '?') {
+        token.add(ch);
+        ch=nextChar();
+      }
+      if ((ch=nextChar()) == '>')       return;
+      token.add('?');
+    }
+ while (true);
+  }
+}

@@ -1,0 +1,36 @@
+{
+  final String db=choice.getValue().trim();
+  if (db.length() == 0)   return;
+  doc.setText(db);
+  final File dir=IOConstants.dbpath(db);
+  long len=0;
+  for (  final File f : dir.listFiles())   len+=f.length();
+  final StringBuilder txt=new StringBuilder();
+  try {
+    ok=true;
+    final MetaData meta=new MetaData(db);
+    final int size=meta.read();
+    if (mainmem != null)     BaseXLayout.enable(mainmem,meta.filesize < (1 << 30));
+    txt.append(INFODOC + meta.filename + NL);
+    txt.append(INFOTIME + new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(new Date(meta.time)) + NL);
+    txt.append(INFODOCSIZE + (meta.filesize != 0 ? Performance.formatSize(meta.filesize) : "-") + NL);
+    txt.append(INFODBSIZE + Performance.formatSize(len) + NL);
+    txt.append(INFOENCODING + meta.encoding + NL);
+    txt.append(INFONODES + size + NL);
+    txt.append(INFOHEIGHT + meta.height + NL+ NL);
+    txt.append(INFOINDEXES + NL);
+    txt.append(" " + INFOTXTINDEX + meta.txtindex+ NL);
+    txt.append(" " + INFOATVINDEX + meta.atvindex+ NL);
+    txt.append(" " + INFOWORDINDEX + meta.wrdindex+ NL);
+    txt.append(" " + INFOFTINDEX + meta.ftxindex+ NL);
+    txt.append(NL + INFOCREATE + NL);
+    txt.append(" " + INFOCHOP + meta.chop+ NL);
+    txt.append(" " + INFOENTITIES + meta.entity+ NL+ NL);
+  }
+ catch (  final IOException e) {
+    txt.append(e.getMessage());
+    ok=false;
+  }
+  detail.setText(txt.toString());
+  BaseXLayout.enableOK(buttons,ok);
+}
