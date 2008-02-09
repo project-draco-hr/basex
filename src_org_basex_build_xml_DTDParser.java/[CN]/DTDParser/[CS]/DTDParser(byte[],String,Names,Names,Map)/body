@@ -8,28 +8,17 @@
   root=consumeName();
   if (string(root).equals(string(SYSTEM)))   error();
   if (!consumeWS())   error();
-  if ((consume(SYSTEM) || consume(PUBLIC)) && consumeWS()) {
-    byte[] extid=consumeQuoted();
-    consumeWS();
-    if (checkQuoted()) {
-      BaseX.debug("PubidLiteral");
-      extid=consumeQuoted();
-    }
-    if (consume(SBRACKETO)) {
-      content=dtd;
-      BaseX.debug("- Root Element Type: %",root);
-      BaseX.debug("- Content:\n %",content);
-      consumeContent();
-    }
-    String file=new File(xmlfile).getParent() + "\\" + string(extid);
-    content=IOConstants.read(file);
-    extern=true;
-    pos=0;
-    BaseX.debug("- Root Element Type: %",root);
-    BaseX.debug("- Content:\n %",content);
-    BaseX.debug("----------------");
-    consumeContent();
-    extern=false;
+  if (consume(SYSTEM)) {
+    if (!consumeWS())     error();
+    extid=consumeQuoted();
+    starter();
+  }
+ else   if (consume(PUBLIC)) {
+    if (!consumeWS())     error();
+    consumeQuoted();
+    if (!consumeWS())     error();
+    extid=consumeQuoted();
+    starter();
   }
  else   if (consume(SBRACKETO)) {
     content=dtd;
