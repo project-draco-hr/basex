@@ -1,10 +1,10 @@
 {
-  int c=ch;
+  byte c=ch;
   chars=false;
   if (c != '<' || isCDATA()) {
     if (c == '<') {
       scanCDATA();
-      c=nextValid();
+      c=consume();
     }
     type=Type.TEXT;
     while (c != '<' || isCDATA()) {
@@ -14,17 +14,17 @@
       }
  else {
         if (c == ']') {
-          if ((nextValid()) == ']') {
-            if ((nextValid()) == '>')             error(CONTCDATA);
+          if ((consume()) == ']') {
+            if ((consume()) == '>')             error(CONTCDATA);
             prevChar(1);
           }
           prevChar(1);
         }
-        chars|=!whitespace(c);
+        chars|=!ws(c);
         if (c == '&')         token.add(getEntity());
- else         if (c != 0x0d)         token.addUTF(c);
+ else         if (c != 0x0d)         token.add(c);
       }
-      c=nextValid();
+      c=consume();
     }
     prevChar(1);
     return;

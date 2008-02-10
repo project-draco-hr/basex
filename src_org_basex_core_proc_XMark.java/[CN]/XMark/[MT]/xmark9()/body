@@ -5,34 +5,35 @@
   final XPathProcessor stepName=parse("name/text()");
   final XPathProcessor stepItemRef=parse("itemref/@item");
   final XPathProcessor stepID=parse("@id");
+  final byte[] person=token("person");
+  final byte[] name=token("name");
+  final byte[] item=token("item");
   final int ps=p.size;
   for (int pi=0; pi < ps; pi++) {
     writeSep(pi);
-    out.out.print("<person name=\"");
-    out.out.printToken(token(p,pi,stepName),data.meta.entity);
-    final byte[] token=token(p,pi,stepID);
-    final Nodes a=eval(parse(".[buyer/@person = '" + Token.string(token) + "']"),c);
+    out.startElement(person);
+    out.attribute(name,atom(p,pi,stepName));
+    final byte[] token=atom(p,pi,stepID);
+    final Nodes a=eval(parse(".[buyer/@person = '" + string(token) + "']"),c);
     if (a.size == 0) {
-      out.out.print("\"/>");
+      out.emptyElement();
     }
  else {
-      out.out.print("\">");
+      out.finishElement();
       final int as=a.size;
       for (int ai=0; ai < as; ai++) {
-        final Nodes n=eval(parse(".[@id = '" + Token.string(token(a,ai,stepItemRef)) + "']"),i);
+        final Nodes n=eval(parse(".[@id = '" + string(atom(a,ai,stepItemRef)) + "']"),i);
         if (n.size == 0) {
-          out.out.print("<item/>");
+          out.emptyElement(item);
         }
  else {
-          out.out.print("<item>");
+          out.openElement(item);
           final int ns=n.size;
-          for (int ni=0; ni < ns; ni++) {
-            out.out.printToken(token(n,ni,stepName),data.meta.entity);
-          }
-          out.out.print("</item>");
+          for (int ni=0; ni < ns; ni++)           out.text(atom(n,ni,stepName));
+          out.closeElement(item);
         }
       }
-      out.out.print("</person>");
+      out.closeElement(person);
     }
   }
   return p.size;

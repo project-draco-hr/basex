@@ -1,8 +1,8 @@
 {
   final String db=choice.getValue().trim();
-  if (db.length() == 0)   return;
-  doc.setText(db);
+  if (db.length() == 0)   return false;
   final File dir=IOConstants.dbpath(db);
+  if (!dir.exists())   return false;
   long len=0;
   for (  final File f : dir.listFiles())   len+=f.length();
   final StringBuilder txt=new StringBuilder();
@@ -31,6 +31,8 @@
     txt.append(e.getMessage());
     ok=false;
   }
+  doc.setText(db);
   detail.setText(txt.toString());
   BaseXLayout.enableOK(buttons,ok);
+  return true;
 }

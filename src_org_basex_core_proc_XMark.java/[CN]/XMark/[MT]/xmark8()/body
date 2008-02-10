@@ -3,15 +3,14 @@
   final Nodes c=qu("/site/closed_auctions/closed_auction");
   final XPathProcessor stepName=parse("name/text()");
   final XPathProcessor stepID=parse("@id");
+  final byte[] item=token("item");
+  final byte[] person=token("person");
   final int ps=p.size;
   for (int pi=0; pi < ps; pi++) {
     writeSep(pi);
-    out.out.print("<item person=\"");
-    out.out.printToken(token(p,pi,stepName),data.meta.entity);
-    out.out.print("\">");
-    final byte[] token=token(p,pi,stepID);
-    parse("count(.[buyer/@person = '" + Token.string(token) + "'])").eval(c).serialize(out);
-    out.out.print("</item>");
+    out.openElement(item,person,atom(p,pi,stepName));
+    parse("count(.[buyer/@person = '" + atom(p,pi,stepID) + "'])").eval(c).serialize(out);
+    out.closeElement(item);
   }
   return p.size;
 }

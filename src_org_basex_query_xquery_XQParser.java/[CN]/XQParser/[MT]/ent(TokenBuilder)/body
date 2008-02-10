@@ -14,29 +14,30 @@
         if (!m)         n+=9;
       }
  while (!consume(';'));
-      if (!XMLScanner.valid(n))       Err.or(ENTINVALID,invalidEnt(p));
+      if (!XMLToken.valid(n))       Err.or(ENTINVALID,invalidEnt(p));
       tb.addUTF(n);
     }
  else {
       if (consumeWS())       Err.or(ENTINVALID,invalidEnt(p));
-      if (consume(OPBRK)) {
+      if (consume(E_LT)) {
         tb.add('<');
       }
- else       if (consume(CLBRK)) {
+ else       if (consume(E_GT)) {
         tb.add('>');
       }
- else       if (consume(AMP)) {
+ else       if (consume(E_AMP)) {
         tb.add('&');
       }
- else       if (consume(QUOT)) {
+ else       if (consume(E_QU)) {
         tb.add('"');
       }
- else       if (consume(APOS)) {
+ else       if (consume(E_APOS)) {
         tb.add('\'');
       }
  else {
         Err.or(ENTUNKNOWN,invalidEnt(p));
       }
+      check(';');
     }
     tb.ent=true;
   }
