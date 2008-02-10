@@ -28,9 +28,7 @@
     ctx.fun.check();
   }
  catch (  final XQException ex) {
-    BaseX.debug(ex);
-    final String msg=ex.getMessage();
-    if (msg.startsWith(STOPPED))     throw ex;
+    if (ex.pos() != null)     throw ex;
     int l=1;
     int c=1;
     for (int i=0; i + 1 < qp && i < ql; i++) {
@@ -42,6 +40,7 @@
         c++;
       }
     }
-    Err.or((file == null ? BaseX.info(POSINFO,l,c) : BaseX.info(POSFILEINFO,l,c,file)) + msg);
+    ex.pos(file == null ? BaseX.info(POSINFO,l,c) : BaseX.info(POSFILEINFO,l,c,file));
+    throw ex;
   }
 }

@@ -2,19 +2,16 @@
   super.paintComponent(g);
   final int ww=getWidth() - MEMW;
   final int hh=getHeight();
-  final Runtime rt=Runtime.getRuntime();
-  final long mx=rt.maxMemory();
-  final long oc=rt.totalMemory();
-  final boolean full=oc * 6 / 5 > mx;
+  final boolean full=used * 6 / 5 > max;
   g.setFont(getFont());
   g.setColor(GUIConstants.color1);
   g.fillRect(ww,0,MEMW - 1,hh - 2);
   g.setColor(full ? GUIConstants.colormark4 : GUIConstants.color4);
-  g.fillRect(ww + 2,2,(int)(oc * (MEMW - 7) / mx),hh - 5);
+  g.fillRect(ww + 2,2,(int)(used * (MEMW - 7) / max),hh - 5);
   BaseXLayout.rect(g,true,ww,0,ww + MEMW - 3,hh - 2);
   g.setColor(full ? GUIConstants.colormark3 : GUIConstants.color6);
   FontMetrics fm=g.getFontMetrics();
-  final String mem=Performance.formatSize(oc,true);
+  final String mem=Performance.formatSize(used,true);
   int fw=ww + (MEMW - 4 - fm.stringWidth(mem)) / 2;
   final int h=fm.getHeight() - 2;
   g.drawString(mem,fw,h);
@@ -31,6 +28,7 @@
     if (fw > w)     break;
     fw+=fm.charWidth(st.charAt(i));
   }
+  g.setColor(error ? GUIConstants.COLORERROR : Color.black);
   g.drawString(st.substring(0,i),4,h);
   if (fw > w)   g.drawString("...",fw - 16,h);
 }
