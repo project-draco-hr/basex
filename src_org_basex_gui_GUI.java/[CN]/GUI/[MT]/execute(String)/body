@@ -10,7 +10,6 @@
         if (threadID != thread)         return;
       }
       cursor(CURSORWAIT);
-      status.setText(STATUSWAIT);
       textcache.reset();
       try {
         final CommandParser cp=new CommandParser(command);
@@ -41,7 +40,7 @@
           final String time=perf.getTimer();
           final String inf=p.info();
           if (obsolete(thread))           return;
-          if (cc.printing() && data != null && GUIProp.showquery && cc == Commands.XQUERY)           query.info(inf,ok);
+          final boolean feedback=cc.printing() && data != null && GUIProp.showquery && cc == Commands.XQUERY && query.info(inf,ok);
           final Data ndata=context.data();
           if (ndata != data) {
             View.notifyInit();
@@ -77,7 +76,8 @@
             status.setText(BaseX.info(PROCTIME,time));
           }
  else {
-            status.setError(inf);
+            if (feedback)             status.setText(STATUSOK);
+ else             status.setError(inf);
             break;
           }
         }

@@ -11,30 +11,11 @@
     selectAll();
   }
   BaseXLayout.addHelp(this,hlp);
-  addMouseListener(new MouseAdapter(){
-    @Override public void mousePressed(    final MouseEvent e){
-      if (SwingUtilities.isRightMouseButton(e))       new BaseXTextPopup(BaseXTextArea.this,e.getPoint());
-    }
-  }
-);
   addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      removeMark();
+      if (!e.isControlDown())       return;
       final int key=e.getKeyCode();
-      if (key == KeyEvent.VK_CONTEXT_MENU) {
-        new BaseXTextPopup(BaseXTextArea.this,new Point(10,10));
-      }
-      if (!e.isControlDown() || hist == null)       return;
-      if (key == KeyEvent.VK_UP) {
-        restore(hist.prev());
-      }
- else       if (key == KeyEvent.VK_DOWN) {
-        restore(hist.next());
-      }
- else       if (key == KeyEvent.VK_ENTER) {
-        store();
-      }
- else       if (key == KeyEvent.VK_Z) {
+      if (key == KeyEvent.VK_Z) {
         setText(undo.prev());
         setCaretPosition(undo.cursor());
       }

@@ -1,0 +1,33 @@
+{
+  final int count=counter;
+  new Thread(){
+    @Override public void run(){
+      Performance.sleep(300);
+      doc.lock();
+      final String txt=getText();
+      final int tl=txt.length();
+      int t=0;
+      while (t < tl) {
+        if (count != counter)         break;
+        byte ch=(byte)txt.charAt(t);
+        final boolean qu=ch == '"' || ch == '\'';
+        if (!qu && !Token.letterOrDigit(ch) && !Token.ws(ch)) {
+          doc.setCharacterAttributes(t,1,code,true);
+          t++;
+          continue;
+        }
+        int i=t;
+        while (++t < tl) {
+          ch=(byte)txt.charAt(t);
+          if (ch == '"' || ch == '\'')           break;
+          if (!qu && !Token.letterOrDigit(ch) && !Token.ws(ch))           break;
+        }
+        if (qu)         ++t;
+        doc.setCharacterAttributes(i,t - i,qu ? quote : deflt,true);
+      }
+      if (count == counter && s != -1)       doc.setCharacterAttributes(s,e - s,error,false);
+      doc.unlock();
+    }
+  }
+.start();
+}
