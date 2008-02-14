@@ -1,0 +1,51 @@
+{
+  final int ch=text.curr();
+  Color color=syntax.getColor(text);
+  if (y > 0 && y < h) {
+    if (text.error()) {
+      g.setColor(GUIConstants.COLORMARK);
+      g.fillRect(x,y - fontH + 3,wordW,fontH);
+    }
+    int ps=text.pos();
+    int xx=x;
+    final boolean vis=ch < 0 || ch > ' ';
+    if (text.markStart()) {
+      while (text.more()) {
+        final boolean m=text.marked();
+        final int c=text.next();
+        final int cw=charW(g,c);
+        if (m) {
+          g.setColor(COLORSELBACK);
+          g.fillRect(xx,y - fontH + 3,cw,fontH);
+          g.setColor(COLORSELFORE);
+        }
+ else {
+          g.setColor(color);
+        }
+        if (c < 0 || c > ' ') {
+          g.drawChars(new char[]{(char)c},0,1,xx,y);
+        }
+        xx+=cw;
+      }
+      text.pos(ps);
+    }
+ else     if (vis) {
+      g.setColor(color);
+      g.drawString(text.nextWord(),x,y);
+    }
+    if (cursor && text.edited()) {
+      g.setColor(Color.black);
+      xx=x;
+      ps=text.pos();
+      while (text.more()) {
+        if (text.cursor() == text.pos()) {
+          g.drawLine(xx,y - fontH + 3,xx,y + 2);
+          break;
+        }
+        xx+=charW(g,text.next());
+      }
+      text.pos(ps);
+    }
+  }
+  next();
+}

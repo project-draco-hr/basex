@@ -5,34 +5,34 @@
   if (!dir.exists())   return false;
   long len=0;
   for (  final File f : dir.listFiles())   len+=f.length();
-  final StringBuilder txt=new StringBuilder();
+  final TokenBuilder txt=new TokenBuilder();
   try {
     ok=true;
     final MetaData meta=new MetaData(db);
     final int size=meta.read();
     if (mainmem != null)     BaseXLayout.enable(mainmem,meta.filesize < (1 << 30));
-    txt.append(INFODOC + meta.filename + NL);
-    txt.append(INFOTIME + new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(new Date(meta.time)) + NL);
-    txt.append(INFODOCSIZE + (meta.filesize != 0 ? Performance.formatSize(meta.filesize) : "-") + NL);
-    txt.append(INFODBSIZE + Performance.formatSize(len) + NL);
-    txt.append(INFOENCODING + meta.encoding + NL);
-    txt.append(INFONODES + size + NL);
-    txt.append(INFOHEIGHT + meta.height + NL+ NL);
-    txt.append(INFOINDEXES + NL);
-    txt.append(" " + INFOTXTINDEX + meta.txtindex+ NL);
-    txt.append(" " + INFOATVINDEX + meta.atvindex+ NL);
-    txt.append(" " + INFOWORDINDEX + meta.wrdindex+ NL);
-    txt.append(" " + INFOFTINDEX + meta.ftxindex+ NL);
-    txt.append(NL + INFOCREATE + NL);
-    txt.append(" " + INFOCHOP + meta.chop+ NL);
-    txt.append(" " + INFOENTITIES + meta.entity+ NL+ NL);
+    txt.add(INFODOC + meta.filename + NL);
+    txt.add(INFOTIME + new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(new Date(meta.time)) + NL);
+    txt.add(INFODOCSIZE + (meta.filesize != 0 ? Performance.formatSize(meta.filesize) : "-") + NL);
+    txt.add(INFODBSIZE + Performance.formatSize(len) + NL);
+    txt.add(INFOENCODING + meta.encoding + NL);
+    txt.add(INFONODES + size + NL);
+    txt.add(INFOHEIGHT + meta.height + NL+ NL);
+    txt.add(INFOINDEXES + NL);
+    txt.add(" " + INFOTXTINDEX + meta.txtindex+ NL);
+    txt.add(" " + INFOATVINDEX + meta.atvindex+ NL);
+    txt.add(" " + INFOWORDINDEX + meta.wrdindex+ NL);
+    txt.add(" " + INFOFTINDEX + meta.ftxindex+ NL);
+    txt.add(NL + INFOCREATE + NL);
+    txt.add(" " + INFOCHOP + meta.chop+ NL);
+    txt.add(" " + INFOENTITIES + meta.entity+ NL);
   }
  catch (  final IOException e) {
-    txt.append(e.getMessage());
+    txt.add(e.getMessage());
     ok=false;
   }
   doc.setText(db);
-  detail.setText(txt.toString());
+  detail.setText(txt.finish());
   BaseXLayout.enableOK(buttons,ok);
   return true;
 }

@@ -1,0 +1,112 @@
+{
+  final int c=e.getKeyCode();
+  if (e.isAltDown() || e.isMetaDown() || c == KeyEvent.VK_SHIFT || c == KeyEvent.VK_CONTROL || c == KeyEvent.VK_ESCAPE)   return;
+  final byte[] txt=text.text;
+  text.pos(text.cursor());
+  cursor();
+  final int fh=rend.fontH();
+  final int h=getHeight();
+  final boolean ctrl=e.isControlDown();
+  final boolean shf=e.isShiftDown();
+  boolean down=true;
+  boolean key=!ctrl && !e.isActionKey();
+  if (c != KeyEvent.VK_DOWN && c != KeyEvent.VK_UP && !key)   col=-1;
+  if (ctrl && c == 'A') {
+    selectAll();
+    e.consume();
+    return;
+  }
+  if (ctrl && c == 'C') {
+    copy();
+    return;
+  }
+  if (editable && c == KeyEvent.VK_BACK_SPACE) {
+    if (text.pos() == 0)     return;
+    if (text.start() == -1)     text.prev(shf);
+    text.delete();
+    down=false;
+  }
+ else   if (editable && c == KeyEvent.VK_DELETE) {
+    text.delete();
+  }
+ else   if (editable && key) {
+    if (text.start() != -1)     text.delete();
+    text.add(new char[]{e.getKeyChar()});
+  }
+ else   if (editable && ctrl && c == 'X') {
+    if (copy())     text.delete();
+  }
+ else   if (editable && ctrl && c == 'V') {
+    if (text.start() != -1)     text.delete();
+    text.add(paste().toCharArray());
+  }
+ else   if (editable && ctrl && c == KeyEvent.VK_Z) {
+    text=new BaseXTextTokens(undo.prev());
+    rend.setText(text);
+    text.pos(undo.cursor());
+  }
+ else   if (editable && ctrl && c == KeyEvent.VK_Y) {
+    text=new BaseXTextTokens(undo.next());
+    rend.setText(text);
+    text.pos(undo.cursor());
+  }
+ else {
+    if (shf && text.start() == -1)     text.startMark();
+    if (c == KeyEvent.VK_RIGHT) {
+      if (ctrl) {
+        final boolean ch=Character.isLetterOrDigit(text.next(shf));
+        while (text.pos() < text.size && ch == Character.isLetterOrDigit(text.curr()))         text.next(shf);
+      }
+ else {
+        text.next(shf);
+      }
+    }
+ else     if (c == KeyEvent.VK_LEFT) {
+      if (ctrl) {
+        final boolean ch=Character.isLetterOrDigit(text.prev(shf));
+        while (text.pos() > 0 && ch == Character.isLetterOrDigit(text.prev(shf)))         ;
+        if (text.pos() != 0)         text.next(shf);
+      }
+ else {
+        text.prev(shf);
+      }
+      down=false;
+    }
+ else     if (c == KeyEvent.VK_DOWN) {
+      if (ctrl) {
+        scroll.pos(scroll.pos() + fh);
+        return;
+      }
+      down(1,shf);
+    }
+ else     if (c == KeyEvent.VK_UP) {
+      if (ctrl) {
+        scroll.pos(scroll.pos() - fh);
+        return;
+      }
+      up(1,shf);
+      down=false;
+    }
+ else {
+      if (!shf)       text.noMark();
+      if (c == KeyEvent.VK_HOME) {
+        if (ctrl)         text.pos(0);
+ else         text.home(shf);
+        down=false;
+      }
+ else       if (c == KeyEvent.VK_END) {
+        if (ctrl)         text.pos(text.size);
+ else         text.end(Integer.MAX_VALUE,shf);
+      }
+ else       if (c == KeyEvent.VK_PAGE_DOWN) {
+        down(h / fh,shf);
+      }
+ else       if (c == KeyEvent.VK_PAGE_UP) {
+        up(h / fh,shf);
+        down=false;
+      }
+    }
+    if (shf)     text.endMark();
+  }
+  setText(txt != text.text,down);
+}

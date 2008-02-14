@@ -1,0 +1,36 @@
+{
+  super(help);
+  setFocusable(true);
+  BaseXLayout.addDefaultKeys(this,list);
+  addMouseMotionListener(this);
+  addMouseWheelListener(this);
+  addComponentListener(this);
+  addMouseListener(this);
+  addKeyListener(this);
+  editable=edit;
+  addFocusListener(new FocusAdapter(){
+    @Override public void focusGained(    final FocusEvent e){
+      cursor();
+    }
+    @Override public void focusLost(    final FocusEvent e){
+      cursor.stop();
+      rend.cursor(false);
+      repaint();
+    }
+  }
+);
+  setLayout(new BorderLayout(4,0));
+  scroll=new BaseXBar(this);
+  rend=new BaseXTextRenderer(text,scroll);
+  rend.setFont(GUIConstants.mfont);
+  add(rend,BorderLayout.CENTER);
+  add(scroll,BorderLayout.EAST);
+  if (edit) {
+    setBackground(UIManager.getColor("TextPane.background"));
+    setBorder(new EtchedBorder());
+    setMode(FILL.PLAIN);
+  }
+ else {
+    setMode(FILL.NONE);
+  }
+}
