@@ -10,7 +10,6 @@
         if (threadID != thread)         return;
       }
       cursor(CURSORWAIT);
-      textcache.reset();
       try {
         final CommandParser cp=new CommandParser(command);
         while (cp.more()) {
@@ -31,11 +30,15 @@
           if (cc.updating())           View.working=false;
           if (obsolete(thread))           return;
           Result result=p.result();
+          final CachedOutput out=new CachedOutput(TextView.MAX);
           if (cc.printing() && ok) {
             if (!GUIProp.showstarttext && data == null || !GUIProp.showtext && data != null && !(result instanceof Nodes)) {
               GUICommands.SHOWTEXT.execute();
             }
-            p.output(text.isValid() ? textcache : nullcache);
+            if (text.isValid()) {
+              p.output(out);
+              out.addInfo();
+            }
           }
           final String time=perf.getTimer();
           final String inf=p.info();
@@ -66,9 +69,8 @@
             }
           }
           if (obsolete(thread))           return;
-          final byte[] out=textcache.finish();
           if (ok && cc.printing() && !(result instanceof Nodes)) {
-            text.setText(out,false);
+            text.setText(out.buffer(),out.size(),false);
           }
           setHits(result == null ? 0 : result.size());
           if (GUIProp.showinfo)           info.setInfo(result != null ? Token.token(inf) : Token.EMPTY);
