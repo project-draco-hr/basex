@@ -1,5 +1,6 @@
 {
-  Color color=syntax.getColor(text);
+  final int ch=text.curr();
+  Color color=syntax.getColor(ch);
   if (y > 0 && y < h) {
     if (text.error()) {
       g.setColor(GUIConstants.COLORMARK);
@@ -7,9 +8,9 @@
     }
     int ps=text.pos();
     int xx=x;
-    final int ch=text.curr();
     final boolean vis=ch < 0 || ch > ' ';
     if (text.markStart()) {
+      char[] str={' '};
       while (text.more()) {
         final boolean m=text.marked();
         final int c=text.next();
@@ -23,7 +24,8 @@
           g.setColor(color);
         }
         if (c < 0 || c > ' ') {
-          g.drawChars(new char[]{(char)c},0,1,xx,y);
+          str[0]=(char)c;
+          g.drawChars(str,0,1,xx,y);
         }
         xx+=cw;
       }
