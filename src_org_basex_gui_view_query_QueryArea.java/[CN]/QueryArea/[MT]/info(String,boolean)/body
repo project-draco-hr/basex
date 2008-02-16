@@ -3,7 +3,7 @@
   info.setText(text);
   info.setToolTipText(ok ? null : text);
   BaseXLayout.enable(info,!ok);
-  int s=-1;
+  err=-1;
   if (!ok) {
     final Matcher m=ERRPATTERN.matcher(inf);
     int el=0;
@@ -17,9 +17,7 @@
     final int ll=last.length();
     for (int i=0; i < ll; c++, i++) {
       if (l == el && c == ec) {
-        while (i > 0 && Token.ws((byte)last.charAt(i)))         i--;
-        while (--i > 0 && Token.letterOrDigit((byte)last.charAt(i)))         ;
-        s=++i;
+        err=i;
         break;
       }
       if (last.charAt(i) < ' ') {
@@ -28,5 +26,7 @@
       }
     }
   }
-  area.error(s);
+  area.error(-1);
+  info.setName(Integer.toString(err));
+  error.sleep(500);
 }

@@ -28,13 +28,23 @@
       while (split[++i].startsWith(QUERYSEP))       eval.add(split[i]);
     }
   }
+  final TokenBuilder tb=new TokenBuilder();
+  String tm=INFONO;
+  stat=il;
+  strings=sl;
+  compile=cmp;
+  evaluate=eval;
+  plan=pln;
   if (sl.size != 0) {
-    stat=il;
-    strings=sl;
-    compile=cmp;
-    evaluate=eval;
-    plan=pln;
-    sy=0;
-    repaint();
+    add(tb,"Query:  ",query);
+    add(tb,QUERYCOMP,compile);
+    if (compile.size != 0)     add(tb,QUERYRESULT,result);
+    add(tb,QUERYEVAL,evaluate);
+    add(tb,QUERYTIME,strings);
+    add(tb,QUERYPLAN,plan);
+    tm=strings.list[il.size - 1] + ": " + Performance.getTimer(stat.get(il.size - 1) * 10000L * Prop.runs,Prop.runs);
   }
+  area.setText(tb.finish());
+  timer.setText(tm);
+  repaint();
 }

@@ -21,13 +21,24 @@
     return;
   }
   if (editable && c == KeyEvent.VK_BACK_SPACE) {
-    if (text.pos() == 0)     return;
-    if (text.start() == -1)     text.prev(shf);
+    if (text.start() == -1) {
+      if (text.pos() == 0)       return;
+      text.prev();
+    }
+    final boolean ch=Character.isLetterOrDigit(text.curr());
     text.delete();
+    if (ctrl) {
+      while (text.pos() > 0 && ch == Character.isLetterOrDigit(text.prev()))       text.delete();
+      if (text.pos() != 0)       text.next();
+    }
     down=false;
   }
  else   if (editable && c == KeyEvent.VK_DELETE) {
+    final boolean ch=Character.isLetterOrDigit(text.curr());
     text.delete();
+    if (ctrl) {
+      while (text.pos() < text.size && ch == Character.isLetterOrDigit(text.curr()))       text.delete();
+    }
   }
  else   if (editable && key) {
     if (text.start() != -1)     text.delete();
@@ -110,10 +121,5 @@
   }
   text.setCursor();
   if (txt != text.text)   rend.calc();
-  final int p=scroll.pos();
-  final int y=rend.cursorY();
-  final int m=y + rend.fontH() + 5 - getHeight();
-  if (y < p)   scroll.pos(down ? m : y);
- else   if (m > p)   scroll.pos(down ? m : y);
-  rend.repaint();
+  showCursor(down ? 2 : 0);
 }

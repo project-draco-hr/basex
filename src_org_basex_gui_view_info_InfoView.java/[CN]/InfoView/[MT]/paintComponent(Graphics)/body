@@ -1,38 +1,20 @@
 {
   super.paintComponent(g);
-  BaseXLayout.antiAlias(g);
-  my=lfont.getSize() + 5;
-  final int fh=GUIProp.fontsize;
-  g.setColor(COLORS[16]);
-  g.setFont(lfont);
-  g.drawString(GUIConstants.INFOVIEW,8,my);
-  g.setColor(Color.black);
   final int l=stat.size;
   if (l == 0)   return;
-  h=getHeight() - 8;
+  BaseXLayout.antiAlias(g);
+  h=north.getHeight();
   w=getWidth() - 8;
-  bw=fh * 2 + w / 10;
+  bw=GUIProp.fontsize * 2 + w / 10;
   bs=bw / l;
-  hy=sy + my + fh;
-  my+=4;
-  hy=draw(g,"Query:  ",query,hy,fh);
-  hy=draw(g,QUERYCOMP,compile,hy,fh);
-  if (compile.size != 0)   hy=draw(g,QUERYRESULT,result,hy,fh);
-  hy=draw(g,QUERYEVAL,evaluate,hy,fh);
-  hy=draw(g,QUERYTIME,strings,hy,fh);
-  hy=draw(g,QUERYPLAN,plan,hy,fh) - fh;
-  if (hy - sy > h) {
-    g.drawImage(hy > h ? ARROWDOWN : ARROWDOWNIN,w - bw - 30,h - 20,this);
-    g.drawImage(sy < 0 ? ARROWUP : ARROWUPIN,w - bw - 30,h - 40,this);
-  }
   int m=0;
-  for (int i=0; i < l; i++)   if (m < stat.get(i))   m=stat.get(i);
-  final int by=15 + 5 * fh / 2;
+  for (int i=0; i < l; i++)   m=Math.max(m,stat.get(i));
+  final int by=10;
   final int bh=h - by;
   for (int i=0; i < l; i++) {
     if (i != focus)     continue;
     final int bx=w - bw + bs * i;
-    g.setColor(color2);
+    g.setColor(color4);
     g.fillRect(bx,by,bs + 1,bh);
   }
   for (int i=0; i < l; i++) {
@@ -43,10 +25,4 @@
     g.setColor(COLORBUTTON);
     g.drawRect(bx,by + bh - p,bs,p - 1);
   }
-  final int f=focus == -1 ? l - 1 : focus;
-  g.setColor(Color.black);
-  g.setFont(bfont);
-  BaseXLayout.drawRight(g,strings.list[f],w - 2,fh + 5);
-  g.setFont(font);
-  BaseXLayout.drawRight(g,Performance.getTimer(stat.get(f) * 10000L * Prop.runs,Prop.runs),w - 2,fh * 2 + 7);
 }

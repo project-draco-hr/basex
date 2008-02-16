@@ -1,12 +1,22 @@
 {
-  final boolean more=text.moreWords();
+  if (!text.moreWords())   return false;
   wordW=0;
-  final int ps=text.pos();
-  while (text.more())   wordW+=charW(g,text.next());
-  text.pos(ps);
+  word=text.nextWord();
+  for (int c=0; c < word.length(); c++) {
+    char ch=word.charAt(c);
+    if (ch == 0x02) {
+      setFont(GUIConstants.bfont);
+    }
+ else     if (ch == 0x03) {
+      setFont(GUIConstants.font);
+    }
+ else {
+      wordW+=charW(g,ch);
+    }
+  }
   if (x + wordW > w) {
     x=off;
     y+=fontH;
   }
-  return more && y < h;
+  return y < h;
 }
