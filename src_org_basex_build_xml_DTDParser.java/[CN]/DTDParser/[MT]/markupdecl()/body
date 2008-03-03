@@ -1,32 +1,42 @@
 {
-  while (next() != 0) {
-    check=true;
-    if (consume(ELEM)) {
-      elementDecl();
+  consumeWS();
+  if (consume(ELEM)) {
+    elementDecl();
+    markupdecl();
+  }
+ else   if (consume(ATTL)) {
+    attlistDecl();
+    markupdecl();
+  }
+ else   if (consume(ENT)) {
+    entityDecl();
+    consumeWS();
+    if (!consume(GREAT))     error();
+    markupdecl();
+  }
+ else   if (consume(NOTA)) {
+    notationDecl();
+    markupdecl();
+  }
+ else   if (consume(GQ)) {
+    piDecl();
+    markupdecl();
+  }
+ else   if (consume(COMS)) {
+    commentDecl();
+    markupdecl();
+  }
+ else {
+    consumeWS();
+    byte next=next();
+    if (percentage(next)) {
+      BaseX.debug(consumeSpecName());
+      markupdecl();
     }
- else     if (consume(ATTL)) {
-      attlistDecl();
-    }
- else     if (consume(ENT)) {
-      entityDecl();
-    }
- else     if (consume(NOT)) {
-      notationDecl();
-    }
- else     if (consume(GQ)) {
-      piDecl();
-    }
- else     if (consume(COMS)) {
-      commentDecl();
-    }
- else     if (consume(WELEM1) || consume(WELEM2) || consume(WELEM3)|| consume(WATTL1)|| consume(WATTL2)|| consume(XML)) {
-      error();
+ else {
+      if (XMLToken.isLetter(next)) {
+        error();
+      }
     }
   }
-  consumeWS1();
-  if (!extern) {
-    if (!consume(SBRACKETC))     error();
-  }
-  BaseX.debug("----------------------");
-  BaseX.debug("THE END");
 }

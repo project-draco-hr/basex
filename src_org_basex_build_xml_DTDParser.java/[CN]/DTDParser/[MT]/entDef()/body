@@ -1,27 +1,34 @@
 {
-  consumeWS1();
-  if (consume(SYSTEM) || consume(PUBLIC)) {
-    consumeWS1();
+  if (!consumeWS())   error();
+  if (consume(SYSTEM)) {
+    if (!consumeWS())     error();
     byte[] val=consumeQuoted();
     BaseX.debug(val);
-    consumeWS1();
+    consumeWS();
     if (consume(ND)) {
       BaseX.debug(ND);
       if (!consumeWS())       error();
-      BaseX.debug(consumeName2());
+      BaseX.debug(consumeSpecName());
     }
- else     if (!consume(GREAT)) {
-      BaseX.debug(consumeQuoted());
+    return val;
+  }
+ else   if (consume(PUBLIC)) {
+    if (!consumeWS())     error();
+    consumeQuoted();
+    if (!consumeWS())     error();
+    byte[] val=consumeQuoted();
+    BaseX.debug(val);
+    if (consume(ND)) {
+      BaseX.debug(ND);
+      if (!consumeWS())       error();
+      BaseX.debug(consumeSpecName());
     }
     return val;
   }
  else {
-    consumeWS1();
+    consumeWS();
     byte[] val=consumeQuoted();
     BaseX.debug(val);
-    if (consumeWS()) {
-      if (consume(SYSTEM))       error();
-    }
     return val;
   }
 }

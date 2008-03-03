@@ -1,10 +1,10 @@
 {
-  consumeWS1();
+  consumeWS();
   if (consume(SBRACKETO)) {
-    BaseX.debug("BINDA");
-    check2=false;
-    tmpPos=pos;
-    tmpCont=content;
+    consumeWS();
+    isIntern=true;
+    consumeWS();
+    intSubset=substring(content,pos,content.length);
   }
   final String dtd=string(extid);
   try {
@@ -13,17 +13,21 @@
  catch (  final FileNotFoundException ex) {
     error(DTDNOTFOUND,dtd);
   }
-  extern=true;
   pos=0;
   BaseX.debug("- Root Element Type: %",root);
   BaseX.debug("- ExternContent of %:\n %",dtd,content);
   BaseX.debug("----------------");
   markupdecl();
-  if (!check2) {
-    content=tmpCont;
-    pos=tmpPos;
+  BaseX.debug("----------------------");
+  BaseX.debug("THE END");
+  if (isIntern) {
+    content=intSubset;
+    pos=0;
     BaseX.debug("- InternContent:\n %",content);
     markupdecl();
+    consumeWS();
+    if (!consume(SBRACKETC))     error();
+    BaseX.debug("----------------------");
+    BaseX.debug("THE END");
   }
-  extern=false;
 }

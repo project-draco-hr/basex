@@ -1,26 +1,34 @@
 {
-  consumeWS1();
+  if (!consumeWS())   error();
   if (consume(REQ)) {
     BaseX.debug(REQ);
-    if (consumeWS()) {
-      if (consume(REQ) || consume(IMP) || consume(FIX))       error();
-    }
+    consumeWS();
+    if (!consume(GREAT))     attDef();
   }
  else   if (consume(IMP)) {
     BaseX.debug(IMP);
-    if (consumeWS()) {
-      if (consume(REQ) || consume(IMP) || consume(FIX))       error();
-    }
+    consumeWS();
+    if (!consume(GREAT))     attDef();
   }
  else   if (consume(FIX)) {
     BaseX.debug(FIX);
-    if (!consumeWS())     error();
-    BaseX.debug(consumeQuoted());
+    consumeWS();
+    if (consume(GREAT)) {
+      markupdecl();
+    }
+ else {
+      BaseX.debug(consumeQuoted());
+      consumeWS();
+      if (!consume(GREAT)) {
+        attDef();
+      }
+    }
   }
  else {
     BaseX.debug(consumeQuoted());
-    if (consumeWS()) {
-      if (consume(REQ) || consume(IMP) || consume(FIX))       error();
+    consumeWS();
+    if (!consume(GREAT)) {
+      attDef();
     }
   }
 }

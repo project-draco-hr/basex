@@ -2,28 +2,34 @@
   if (!consumeWS())   error();
   if (consume(EMP)) {
     BaseX.debug(EMP);
+    consumeWS();
+    if (!consume(GREAT)) {
+      error();
+    }
   }
  else   if (consume(ANY)) {
     BaseX.debug(ANY);
+    consumeWS();
+    if (!consume(GREAT)) {
+      error();
+    }
   }
  else   if (consume(BRACKETO)) {
-    consumeWS1();
+    consumeWS();
     if (consume(PC)) {
       BaseX.debug(PC);
-      check=false;
-      consumeWS1();
-      nestedELement();
+      mixedElement();
     }
  else {
-      nestedELement();
+      childrenElement();
+      consumeWS();
+      if (!consume(GREAT))       error();
     }
   }
- else   if (consume(WEMP1) || consume(WEMP2) || consume(WANY1)|| consume(WANY2)) {
-    error();
-  }
  else {
-    consumeWS1();
-    BaseX.debug(consumeName2());
-    consumeWS1();
+    consumeWS();
+    BaseX.debug(consumeSpecName());
+    consumeWS();
+    if (!consume(GREAT))     error();
   }
 }
