@@ -1,0 +1,33 @@
+{
+  GetOpts g=new GetOpts(cmd,"ahR",out);
+  int ch=g.getopt();
+  while (ch != -1) {
+switch (ch) {
+case 'R':
+      fRecursive=true;
+    break;
+case 'a':
+  fListDot=true;
+break;
+case 'h':
+printHelp();
+return;
+case '?':
+fError=true;
+return;
+}
+if (!fError) {
+ch=g.getopt();
+}
+}
+if (g.getPath() != null) {
+curDirPre=FSUtils.goToDir(data,curDirPre,g.getPath());
+if (curDirPre == -1) throw new PathNotFoundException("ls",g.getPath());
+}
+if (fRecursive) {
+lsRecursive(curDirPre);
+}
+ else {
+print(FSUtils.getAllOfDir(data,curDirPre));
+}
+}
