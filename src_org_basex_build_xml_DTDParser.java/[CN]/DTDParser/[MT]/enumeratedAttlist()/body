@@ -1,32 +1,20 @@
 {
   consumeWS();
   if (consume(BRACKETC)) {
-    if (consume(PLUS) || consume(QUESTION) || consume(STAR)) {
-      consumeWS();
-      if (consume(DASH)) {
-        consumeWS();
-        BaseX.debug(consumeName());
-        enumeratedAttlist();
-      }
- else       if (consume(DASH)) {
-        consumeWS();
-        if (consume(BRACKETO)) {
-          enumeratedAttlist();
-        }
- else {
-          BaseX.debug(consumeName());
-          enumeratedAttlist();
-        }
-      }
+    if (bopen) {
+      enumeratedAttlist();
+      bopen=false;
     }
   }
  else   if (consume(DASH)) {
-    consumeWS();
-    BaseX.debug(consumeName());
+    enumeratedAttlist();
+  }
+ else   if (consume(BRACKETO)) {
+    bopen=true;
     enumeratedAttlist();
   }
  else {
-    BaseX.debug(consumeName());
+    BaseX.debug(consumeSpecName());
     enumeratedAttlist();
   }
 }
