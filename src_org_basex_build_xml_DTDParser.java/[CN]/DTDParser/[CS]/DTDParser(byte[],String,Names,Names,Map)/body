@@ -4,18 +4,18 @@
   atts=att;
   ents=ent;
   content=dtd;
-  if (!consume(DOCTYPE) || !consumeWS())   error();
+  if (!consume(DOCTYPE) || !consumeWS())   error("Error in DOCTYPE");
   root=consumeName();
   consumeWS();
   if (consume(SYSTEM)) {
-    if (!consumeWS())     error();
+    if (!consumeWS())     error(WSERROR);
     extid=consumeQuoted();
     externalID();
   }
  else   if (consume(PUBLIC)) {
-    if (!consumeWS())     error();
+    if (!consumeWS())     error(WSERROR);
     consumeQuoted();
-    if (!consumeWS())     error();
+    if (!consumeWS())     error(WSERROR);
     extid=consumeQuoted();
     externalID();
   }
@@ -25,7 +25,7 @@
     BaseX.debug("- InternContent:\n %",content);
     markupdecl();
     consumeWS();
-    if (!consume(SBRACKETC))     error();
+    if (!consume(SBRACKETC))     error(SIGNERROR);
     BaseX.debug("----------------------");
     BaseX.debug("THE END");
   }
