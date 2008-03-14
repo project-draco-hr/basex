@@ -13,6 +13,14 @@
   ta.close();
   IOConstants.dbfile(meta.dbname,DATATMP).delete();
   meta.write(size);
+  Data data=new DiskData(meta.dbname,false);
+  for (int i=0; i < data.size; i++) {
+    if (data.kind(i) == Data.TEXT) {
+      byte[] key=data.tag(data.parent(i,Data.TEXT));
+      byte[] val=data.text(i);
+      stats.index(key,val);
+    }
+  }
   stats.finish();
   stats.write();
   return new DiskData(meta.dbname,false);
