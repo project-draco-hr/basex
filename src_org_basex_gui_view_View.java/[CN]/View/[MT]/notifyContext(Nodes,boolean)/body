@@ -5,13 +5,6 @@
   final GUI gui=GUI.get();
   if (!quick) {
     final String input=gui.input.getText();
-    if (NODEHIST[hist] != context.current()) {
-      checkHist();
-      QUERYHIST[hist]="";
-      MARKHIST[hist]=new Nodes(context.data());
-      NODEHIST[++hist]=context.current();
-      maxhist=hist;
-    }
     checkHist();
     QUERYHIST[hist]=input;
     MARKHIST[hist]=context.marked();
@@ -19,6 +12,15 @@
     QUERYHIST[hist]=input;
     MARKHIST[hist]=n;
     maxhist=hist;
+  }
+ else {
+    if (!NODEHIST[hist].sameAs(context.current())) {
+      checkHist();
+      QUERYHIST[hist]="";
+      MARKHIST[hist]=new Nodes(context.data());
+      NODEHIST[++hist]=context.current();
+      maxhist=hist;
+    }
   }
   ViewData.init(nodes,n);
   for (  final View v : view)   v.refreshContext(true,quick);

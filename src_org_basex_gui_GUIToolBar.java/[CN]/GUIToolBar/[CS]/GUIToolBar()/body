@@ -1,17 +1,21 @@
 {
   super();
   setFloatable(false);
-  for (  final GUICommands cmd : TOOLBAR) {
+  for (  final GUICommand cmd : TOOLBAR) {
     if (cmd == null) {
       addSeparator();
     }
  else {
-      final ImageIcon icon=GUI.icon("cmd-" + cmd.name().toLowerCase());
-      final String info=cmd.help;
+      final ImageIcon icon=GUI.icon("cmd-" + cmd.toString().toLowerCase());
+      final String info=cmd.help();
       final BaseXButton button=new BaseXButton(icon,Token.token(info));
       button.setToolTipText(info);
-      button.setActionCommand(cmd.name());
-      button.addActionListener(this);
+      button.addActionListener(new ActionListener(){
+        public void actionPerformed(        final ActionEvent e){
+          cmd.execute();
+        }
+      }
+);
       add(button);
     }
   }

@@ -1,0 +1,34 @@
+{
+  popup=pop;
+  comp.addMouseListener(new MouseAdapter(){
+    @Override public void mouseReleased(    final MouseEvent e){
+      if (!View.working && SwingUtilities.isRightMouseButton(e))       show(e.getComponent(),e.getX() - 10,e.getY() - 15);
+    }
+  }
+);
+  comp.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      final int key=e.getKeyCode();
+      if (!View.working && key == KeyEvent.VK_CONTEXT_MENU) {
+        show(e.getComponent(),10,10);
+      }
+    }
+  }
+);
+  for (  final GUICommand c : pop) {
+    if (c == null) {
+      addSeparator();
+    }
+ else {
+      final JMenuItem item=add(c.desc());
+      item.addActionListener(new ActionListener(){
+        public void actionPerformed(        final ActionEvent e){
+          if (!View.working)           c.execute();
+        }
+      }
+);
+      item.setMnemonic(c.desc().charAt(0));
+      item.setToolTipText(c.help());
+    }
+  }
+}

@@ -25,6 +25,7 @@
   final BaseXBack p=new BaseXBack();
   hits=new BaseXLabel(" ");
   hits.setFont(fnt);
+  BaseXLayout.setWidth(hits,100);
   hits.setHorizontalAlignment(SwingConstants.RIGHT);
   p.add(hits);
   p.add(Box.createHorizontalStrut(4));
@@ -38,7 +39,7 @@
 );
   filter.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      browse(e);
+      addKeys(e);
     }
   }
 );
@@ -54,11 +55,9 @@
     }
   }
 );
-  mode.setFocusable(false);
-  mode.setRolloverEnabled(false);
   mode.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      browse(e);
+      addKeys(e);
     }
   }
 );
@@ -69,28 +68,31 @@
   input.setFont(f.deriveFont((float)f.getSize() + 2));
   input.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      browse(e);
-      if (e.getKeyCode() != KeyEvent.VK_ENTER)       return;
-      final boolean cmd=GUIProp.searchmode == 2 || !context.db();
-      final String in=input.getText();
-      if (cmd || in.startsWith("!")) {
-        final int i=cmd ? 0 : 1;
-        if (in.length() > i)         execute(in.substring(i));
-      }
- else       if (e.isControlDown()) {
-        View.notifyContext(context.marked(),false);
-      }
+      addKeys(e);
+      if (e.getKeyCode() == KeyEvent.VK_ENTER)       execute();
     }
     @Override public void keyReleased(    final KeyEvent e){
       if (e.getKeyChar() == 0xFFFF || e.isControlDown())       return;
-      final String in=input.getText();
-      if (GUIProp.searchmode == 2 || !context.db() || in.startsWith("!"))       return;
-      String qu=GUIProp.searchmode == 1 ? in : Find.find(in,context,GUIProp.filterrt);
-      execute(Commands.XPATH,qu);
+      if (GUIProp.execrt && GUIProp.searchmode != 2 && context.db() && !input.getText().startsWith("!"))       execute();
     }
   }
 );
   nav.add(input);
+  exec=new BaseXButton(BUTTONEXEC,null);
+  exec.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      execute();
+    }
+  }
+);
+  exec.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      addKeys(e);
+    }
+  }
+);
+  nav.add(Box.createHorizontalStrut(6));
+  nav.add(exec);
   if (GUIProp.showinput)   control.add(nav,BorderLayout.SOUTH);
   top.add(control,BorderLayout.NORTH);
   query=new QueryView(null);
