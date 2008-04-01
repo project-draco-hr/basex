@@ -1,0 +1,26 @@
+{
+  int p=pt;
+  byte[] to;
+  int[][] d;
+  int c;
+  while (p < pe) {
+    to=ftdata.readBytes(p,p + tok.length);
+    c=Token.cmp(to,tok);
+    if (c == 0) {
+      d=new int[2][ftdata.readInt(p + tok.length)];
+      System.out.println("d.length:" + d[0].length);
+      p+=tok.length + (int)4L;
+      System.arraycopy(ftdata.readInts(p,p + d[0].length * 4L),0,d[0],0,d[0].length);
+      p+=d[0].length * 4L;
+      System.arraycopy(ftdata.readInts(p,p + d[0].length * 4L),0,d[1],0,d[0].length);
+      return d;
+    }
+ else     if (c > 0) {
+      p=(int)(p + tok.length + ftdata.readInt(p + tok.length) * 2 * 4L + 4L);
+    }
+ else {
+      return null;
+    }
+  }
+  return null;
+}

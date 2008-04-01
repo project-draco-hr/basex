@@ -1,0 +1,23 @@
+{
+  Expr e=null;
+  if (curr('"') || curr('"')) {
+    e=parseFTWords();
+    if (e instanceof Literal)     ftss.add(((Literal)e).str());
+    consumeWS();
+    FTPositionFilter ftps=parseFTTimes();
+    if (ftps != null)     return new FTPrimary(new Expr[]{e},ftps);
+    return new FTPrimary(new Expr[]{e});
+  }
+ else   if (consume('(')) {
+    consumeWS();
+    e=parseFTSelection();
+    consumeWS();
+    if (!consume(')')) {
+      error(") expected");
+    }
+  }
+ else {
+    error("\', \" or ( expected");
+  }
+  return e;
+}

@@ -1,0 +1,16 @@
+{
+  Expr e=parseFTUnaryNot();
+  consumeWS();
+  if (!consume(NOTIN))   return e;
+  ExprList el=new ExprList();
+  el.add(e);
+  consumeWS();
+  if (consume(FTNOT))   error("An \"ftnot\" FTUnaryNot expression may only appear as " + "a direct right operand of an \"ftand\" (FTAnd) operation.");
+  el.add(parseFTUnaryNot());
+  consumeWS();
+  while (consume(NOTIN)) {
+    consumeWS();
+    el.add(parseFTUnaryNot());
+  }
+  return new FTMildNot(el.get());
+}

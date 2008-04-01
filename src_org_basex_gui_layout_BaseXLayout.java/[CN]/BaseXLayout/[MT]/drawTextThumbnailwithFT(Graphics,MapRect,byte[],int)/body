@@ -1,0 +1,56 @@
+{
+  Context cont=GUI.context;
+  int xx=r.x;
+  int yy=r.y + GUIProp.fontsize;
+  int ww=r.w;
+  int f=3;
+  int ws=cl(' ');
+  int wl=0;
+  int ll=0;
+  final int ys=yy;
+  int k=i0;
+  Color textc=g.getColor();
+  boolean c=false;
+  for (int i=0; i < s.length; i++) {
+    if (k > -1 && cont.getFTData() != null && k < cont.getFTData()[0].length && i == cont.getFTData()[1][k] && r.p == cont.getFTData()[0][k]) {
+      k++;
+      c=true;
+    }
+    if (Token.ws(s[i])) {
+      if (f * (ll + wl) > ww) {
+        yy+=0.8 * GUIProp.fontsize;
+        ll=0;
+      }
+      if (yy >= r.y + r.h || xx + f * (ll + wl) >= r.x + r.w)       return r.h;
+      if (c && k > -1) {
+        g.setColor((cont.getFTPointer() != null) ? GUIConstants.thumbnailcolor[cont.getFTPointer()[k]] : GUIConstants.COLORERROR);
+      }
+      g.fillRect(xx + f * ll,yy,f * wl,(int)(0.5 * GUIProp.fontsize));
+      if (c) {
+        c=false;
+        g.setColor(textc);
+      }
+      ll+=wl;
+      if (s[i] == '\n') {
+        yy+=1 * GUIProp.fontsize;
+        ll=0;
+      }
+ else {
+        if (ll + ws < ww) {
+          ll+=ws;
+        }
+ else {
+          yy+=1.2 * GUIProp.fontsize;
+          ll=ws;
+        }
+      }
+      wl=0;
+    }
+ else {
+      wl+=cl(s[i]);
+    }
+  }
+  if (yy > r.y + r.h || xx + f * (ll + wl) > r.x + r.w)   return r.h;
+  g.fillRect(xx + f * ll,yy,f * wl,(int)(0.5 * GUIProp.fontsize));
+  return yy - ys;
+}

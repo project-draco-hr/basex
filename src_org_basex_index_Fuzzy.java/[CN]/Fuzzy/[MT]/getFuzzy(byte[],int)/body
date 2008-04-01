@@ -1,0 +1,31 @@
+{
+  int[][] dat=null;
+  int[][] td;
+  byte[] to;
+  int p;
+  int pe;
+  int dif;
+  for (int i=0; i < index.length; i++) {
+    dif=(tok.length - index[i][0] < 0) ? index[i][0] - tok.length : tok.length - index[i][0];
+    if (dif <= e) {
+      p=index[i][1];
+      pe=index[i + 1][1];
+      while (p < pe) {
+        to=ftdata.readBytes(p,p + index[i][0]);
+        if (calcEQ(to,0,tok,e)) {
+          td=new int[2][ftdata.readInt(p + index[i][0])];
+          p+=index[i][0] + (int)4L;
+          System.arraycopy(ftdata.readInts(p,p + td[0].length * 4L),0,td[0],0,td[0].length);
+          p+=td[0].length * 4L;
+          System.arraycopy(ftdata.readInts(p,p + td[0].length * 4L),0,td[1],0,td[0].length);
+          p+=td[0].length * 4L;
+          dat=FTUnion.calculateFTOr(dat,td);
+        }
+ else {
+          p+=index[i][0] + (int)4L + (ftdata.readInt(p + index[i][0]) * 4L) * 2;
+        }
+      }
+    }
+  }
+  return dat;
+}

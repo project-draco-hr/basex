@@ -1,0 +1,38 @@
+{
+  Object[] o=new Object[128];
+  o[0]=0;
+  o=cta.doPreOrderTravWISS(0,new StringBuffer(),o);
+  final String db=data.meta.dbname;
+  final String f=DATATXT;
+  DataOutput out=new DataOutput(db,f + 'z');
+  DataOutput outs=new DataOutput(db,f + 'x');
+  outs.writeInt(((Integer)o[0]).intValue() + 1);
+  int ce=0;
+  int bw=0;
+  for (int in=1; in < o.length; in++) {
+    if (o[in] != null) {
+      int[][] td=(int[][])o[in];
+      outs.write((byte)in);
+      outs.writeInt(bw);
+      for (int k=0; k < td.length; k++) {
+        for (int j=0; j < in; j++) {
+          out.write((byte)td[k][j]);
+        }
+        out.writeInt(td[k][in]);
+        for (int j=in + 1; j < td[k].length; j++) {
+          out.writeInt(td[k][j]);
+        }
+      }
+      bw=out.size();
+      ce++;
+      if (ce == (Integer)o[0]) {
+        outs.write((byte)(o.length - 1));
+        outs.writeInt(bw);
+        break;
+      }
+    }
+  }
+  outs.close();
+  out.close();
+  return new Fuzzy(data,db);
+}

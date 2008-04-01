@@ -1,0 +1,16 @@
+{
+  Expr e=parseFTAnd();
+  consumeWS();
+  if (!consume(FTOR))   return e;
+  ExprList el=new ExprList();
+  el.add(e);
+  consumeWS();
+  if (consume(FTNOT))   error("An \"ftnot\" FTUnaryNot expression may only appear as " + "a direct right operand of an \"ftand\" (FTAnd) operation.");
+  el.add(parseFTAnd());
+  consumeWS();
+  while (consume(FTOR)) {
+    consumeWS();
+    el.add(parseFTAnd());
+  }
+  return new FTOr(el.get());
+}

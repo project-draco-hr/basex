@@ -1,0 +1,27 @@
+{
+  int[][] d=dat;
+  int[] ds;
+  byte[] sbb=new byte[]{};
+  byte[] tokt;
+  int ol=0;
+  byte[] cne=getNodeEntry(nid);
+  if (cne[0] > 0) {
+    sbb=new byte[cne[0]];
+    System.arraycopy(cne,1,sbb,0,sbb.length);
+    ol=sb.length();
+    sb.append(new String(sbb));
+  }
+  tokt=sb.toString().getBytes();
+  if (Fuzzy.calcEQ(tok,ol,tokt,e)) {
+    final int[] cde=getDataEntry(nid);
+    d=FTUnion.calculateFTOr(d,getDataFromDataArray(cne,cde));
+  }
+  ds=getNextNodes(cne);
+  if (ds != null && tok.length + e >= sb.length()) {
+    for (    int i : ds) {
+      d=FTUnion.calculateFTOr(d,getNodesFuzzyWLev(i,sb,tok,e,d));
+    }
+  }
+  sb.delete(sb.length() - sbb.length,sb.length());
+  return d;
+}
