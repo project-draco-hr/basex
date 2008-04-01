@@ -1,0 +1,30 @@
+{
+  GetOpts g=new GetOpts(cmd,"h");
+  int ch=g.getopt();
+  while (ch != -1) {
+switch (ch) {
+case 'h':
+      printHelp();
+    break;
+case ':':
+  fError=true;
+out.print("ls: missing argument");
+break;
+case '?':
+fError=true;
+out.print("ls: illegal option");
+break;
+}
+if (fError) {
+return;
+}
+ch=g.getopt();
+}
+if (g.getPath() != null) {
+curDirPre=FSUtils.goToDir(context.data(),curDirPre,g.getPath());
+if (curDirPre == -1) {
+throw new PathNotFoundException("cd",g.getPath());
+}
+}
+du(".",curDirPre);
+}
