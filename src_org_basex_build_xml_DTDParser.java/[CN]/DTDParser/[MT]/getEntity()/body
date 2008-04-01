@@ -1,0 +1,43 @@
+{
+  entity.reset();
+  byte ch=next();
+  if (ch == '#') {
+    int b=10;
+    entity.add(ch=next());
+    if (ch == 'x') {
+      b=16;
+      entity.add(ch=next());
+    }
+    int n=0;
+    do {
+      final boolean m=ch >= '0' && ch <= '9';
+      final boolean h=b == 16 && (ch >= 'a' && ch <= 'f' || ch >= 'A' && ch <= 'F');
+      if (!m && !h) {
+        if (Prop.entity)         error(INVALIDENTITY,entity);
+        return EMPTY;
+      }
+      n*=b;
+      n+=ch & 15;
+      if (!m)       n+=9;
+      entity.add(ch=next());
+    }
+ while (ch != ';');
+    if (!valid(n)) {
+      if (Prop.entity)       error(INVALIDENTITY,entity);
+      return EMPTY;
+    }
+    entity.reset();
+    entity.addUTF(n);
+    return entity.finish();
+  }
+  while (ch != ';' && ch != 0) {
+    entity.add(ch);
+    ch=next();
+  }
+  ;
+  final byte[] en=ents.get(entity.finish());
+  if (en != null)   return en;
+  if (Prop.entity)   error(INVALIDENTITY,entity);
+  entity.reset();
+  return entity.finish();
+}

@@ -1,10 +1,12 @@
 {
   byte quote=next();
   if (quote != '\'' && quote != '"')   error(QUOTEERROR);
-  int p=pos;
   byte c;
+  final TokenBuilder tb=new TokenBuilder();
   while ((c=next()) != quote) {
     if (c == 0)     error();
+    if (c == '&')     tb.add(getEntity());
+ else     if (c != 0x0d)     tb.add(c);
   }
-  return substring(content,p,pos - 1);
+  return tb.finish();
 }
