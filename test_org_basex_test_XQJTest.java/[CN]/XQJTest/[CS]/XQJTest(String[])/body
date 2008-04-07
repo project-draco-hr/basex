@@ -1,0 +1,20 @@
+{
+  String query="";
+  if (args.length != 0) {
+    for (    String a : args)     query+=a + " ";
+  }
+ else {
+    System.out.println("Query please:");
+    BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
+    query=new String(in.readLine());
+  }
+  Class cls=Class.forName("org.basex.api.xqj.BXQDataSource");
+  XQDataSource xqds=(XQDataSource)cls.newInstance();
+  XQConnection conn=xqds.getConnection();
+  XQStaticContext sc=conn.getStaticContext();
+  XQPreparedExpression expr=conn.prepareExpression(query,sc);
+  XQResultSequence result=expr.executeQuery();
+  while (result.next()) {
+    System.out.println(result.getAtomicValue());
+  }
+}

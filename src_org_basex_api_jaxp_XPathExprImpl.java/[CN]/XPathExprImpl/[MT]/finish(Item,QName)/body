@@ -1,0 +1,12 @@
+{
+  NodeSet nodes=item instanceof NodeSet ? (NodeSet)item : null;
+  if (res == XPathConstants.NODESET || res == XPathConstants.NODE) {
+    if (nodes == null)     throw new XPathExpressionException("Result can't be cast to a nodeset");
+    if (nodes.size == 0)     return null;
+    return res == XPathConstants.NODESET ? new NodeListImpl(nodes) : NodeImpl.get(nodes.data,nodes.nodes[0]);
+  }
+  if (nodes != null)   nodes.size=1;
+  if (res == XPathConstants.NUMBER)   return Double.valueOf(item.num());
+  if (res == XPathConstants.STRING)   return Token.string(item.str());
+  return Boolean.valueOf(item.bool());
+}
