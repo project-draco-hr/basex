@@ -1,5 +1,6 @@
 {
-  if (!GUI.context.db())   return;
+  final Data data=GUI.context.data();
+  if (data == null)   return;
   if (mainRects == null) {
     refreshInit();
     return;
@@ -22,7 +23,7 @@
   if (GUIProp.maplayout == 0) {
     g.setColor(GUIConstants.COLORS[32]);
     int pre=mainRects.size;
-    int par=ViewData.parent(focusedRect.p);
+    int par=ViewData.parent(data,focusedRect.p);
     while (--pre >= 0) {
       final MapRect rect=mainRects.get(pre);
       if (rect.p == par) {
@@ -32,7 +33,7 @@
         final int h=rect.h;
         g.drawRect(x,y,w,h);
         g.drawRect(x - 1,y - 1,w + 2,h + 2);
-        par=ViewData.parent(par);
+        par=ViewData.parent(data,par);
       }
     }
   }
@@ -49,7 +50,6 @@
     g.setColor(GUIConstants.color6);
     g.drawRect(x,y,w,h);
     g.drawRect(x - 1,y - 1,w + 2,h + 2);
-    final Data data=GUI.context.data();
     if (data.kind(focusedRect.p) == Data.ELEM) {
       g.setFont(GUIConstants.font);
       final byte[] tag=ViewData.tag(data,focusedRect.p);

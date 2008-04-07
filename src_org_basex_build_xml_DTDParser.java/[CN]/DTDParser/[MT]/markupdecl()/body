@@ -1,46 +1,43 @@
 {
-  consumeWS();
-  if (consume(ELEM)) {
-    elementDecl();
-    markupdecl();
-  }
- else   if (consume(ATTL)) {
-    attlistDecl();
+  while (true) {
     consumeWS();
-    if (!consume(GREAT)) {
-      error(SIGNERROR);
+    if (consume(ELEM)) {
+      elementDecl();
     }
-    markupdecl();
-  }
- else   if (consume(ENT)) {
-    entityDecl();
-    consumeWS();
-    if (!consume(GREAT))     error(SIGNERROR);
-    markupdecl();
-  }
- else   if (consume(NOTA)) {
-    notationDecl();
-    markupdecl();
-  }
- else   if (consume(GQ)) {
-    piDecl();
-    markupdecl();
-  }
- else   if (consume(COMS)) {
-    commentDecl();
-    markupdecl();
-  }
- else {
-    consumeWS();
-    byte next=next();
-    if (next == '%') {
-      BaseX.debug(consumeSpecName());
-      markupdecl();
-    }
- else {
-      if (XMLToken.isLetter(next)) {
+ else     if (consume(ATTL)) {
+      attlistDecl();
+      consumeWS();
+      if (!consume(GREAT)) {
         error(SIGNERROR);
       }
+    }
+ else     if (consume(ENT)) {
+      entityDecl();
+      consumeWS();
+      if (!consume(GREAT))       error(SIGNERROR);
+    }
+ else     if (consume(NOTA)) {
+      notationDecl();
+    }
+ else     if (consume(GQ)) {
+      piDecl();
+    }
+ else     if (consume(COMS)) {
+      commentDecl();
+    }
+ else {
+      consumeWS();
+      byte next=next();
+      if (next == '%') {
+        BaseX.debug(consumeSpecName());
+        markupdecl();
+      }
+ else {
+        if (XMLToken.isLetter(next)) {
+          error(SIGNERROR);
+        }
+      }
+      break;
     }
   }
 }
