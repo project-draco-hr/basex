@@ -1,48 +1,45 @@
 {
-  int xx=r.x;
-  int yy=r.y + GUIProp.fontsize;
-  int ww=r.w;
-  int f=3;
-  int ws=cl(' ');
+  final double xx=r.x;
+  final double ww=r.w;
+  final double f=0.25 * GUIProp.fontsize;
+  final int fh=(int)Math.max(1,0.5 * GUIProp.fontsize);
+  final int lh=(int)Math.max(1,0.8 * GUIProp.fontsize);
+  final double ys=r.y + 3;
+  final int ws=cl(' ');
+  double yy=ys;
   int wl=0;
   int ll=0;
-  final int ys=yy;
   int k=i0;
   Color textc=g.getColor();
   boolean c=false;
   int[][] ftData=View.ftData;
-  for (int i=0; i < s.length; i++) {
+  for (int i=0; i <= s.length; i++) {
     if (k > -1 && ftData != null && k < ftData[0].length && i == ftData[1][k] && r.p == ftData[0][k]) {
       k++;
       c=true;
     }
-    if (Token.ws(s[i])) {
-      if (f * (ll + wl) > ww) {
-        yy+=0.8 * GUIProp.fontsize;
+    if (i == s.length || Token.ws(s[i])) {
+      if (f * (ll + wl) > ww && ll != 0) {
+        yy+=lh;
         ll=0;
       }
-      if (yy >= r.y + r.h || xx + f * (ll + wl) >= r.x + r.w)       return r.h;
+      if (yy + lh >= r.y + r.h)       return r.h;
       if (c && k > -1) {
         g.setColor(View.ftPoi != null ? GUIConstants.thumbnailcolor[View.ftPoi[k]] : GUIConstants.COLORERROR);
       }
-      g.fillRect(xx + f * ll,yy,f * wl,(int)(0.5 * GUIProp.fontsize));
+      final int xw=(int)Math.min(ww - f * ll,f * wl);
+      g.fillRect((int)(xx + f * ll),(int)yy,xw,fh);
       if (c) {
         c=false;
         g.setColor(textc);
       }
       ll+=wl;
-      if (s[i] == '\n') {
-        yy+=1 * GUIProp.fontsize;
+      if (i < s.length && s[i] == '\n' || ll + ws >= ww) {
+        yy+=lh;
         ll=0;
       }
  else {
-        if (ll + ws < ww) {
-          ll+=ws;
-        }
- else {
-          yy+=1.2 * GUIProp.fontsize;
-          ll=ws;
-        }
+        ll+=ws;
       }
       wl=0;
     }
@@ -50,7 +47,5 @@
       wl+=cl(s[i]);
     }
   }
-  if (yy > r.y + r.h || xx + f * (ll + wl) > r.x + r.w)   return r.h;
-  g.fillRect(xx + f * ll,yy,f * wl,(int)(0.5 * GUIProp.fontsize));
-  return yy - ys;
+  return (int)(yy - ys);
 }
