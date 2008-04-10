@@ -30,9 +30,10 @@
           if (cc.updating())           View.working=false;
           if (obsolete(thread))           return;
           Result result=p.result();
+          Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
           final CachedOutput out=new CachedOutput(TextView.MAX);
           if (cc.printing() && ok) {
-            if (!GUIProp.showstarttext && data == null || !GUIProp.showtext && data != null && !(result instanceof Nodes)) {
+            if (!GUIProp.showstarttext && data == null || !GUIProp.showtext && data != null && nodes == null) {
               GUICommands.SHOWTEXT.execute();
             }
             if (text.isValid()) {
@@ -53,14 +54,18 @@
           }
  else           if (result != null) {
             if (context.current() != current || GUIProp.filterrt) {
-              if (result instanceof Nodes) {
+              if (nodes != null) {
+                if (GUIProp.filterrt) {
+                  View.ftPos=nodes.ftpos;
+                  View.ftPoi=nodes.ftpoin;
+                }
                 View.notifyContext((Nodes)result,GUIProp.filterrt);
               }
             }
  else             if (context.marked() != null) {
               Nodes marked=context.marked();
-              if (result instanceof Nodes) {
-                marked=(Nodes)result;
+              if (nodes != null) {
+                marked=nodes;
               }
  else               if (marked.size != 0) {
                 marked=new Nodes(data);
@@ -73,7 +78,7 @@
             }
           }
           if (obsolete(thread))           return;
-          if (ok && cc.printing() && !(result instanceof Nodes)) {
+          if (ok && cc.printing() && nodes == null) {
             text.setText(out.buffer(),out.size(),false);
           }
           setHits(result == null ? 0 : result.size());
