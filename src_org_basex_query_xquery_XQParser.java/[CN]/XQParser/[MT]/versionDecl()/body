@@ -1,6 +1,9 @@
 {
-  if (!consumeWS(XQUERY))   return;
-  check(VERSION);
+  final int p=qp;
+  if (!consumeWS(XQUERY) || !consume(VERSION)) {
+    qp=p;
+    return;
+  }
   final byte[] ver=stringLiteral();
   final byte[] enc=consume(ENCODING) ? lc(stringLiteral()) : null;
   if (enc != null) {
@@ -9,6 +12,7 @@
     if (!v)     Err.or(XQUERYENC2,enc);
   }
   ctx.encoding=enc;
-  check(SEMI);
+  consumeWS();
+  check(';');
   if (!eq(ver,ONEZERO))   Err.or(XQUERYVER,ver);
 }
