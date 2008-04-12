@@ -1,0 +1,58 @@
+{
+  GetOpts g=new GetOpts(cmd,"l:chV:");
+  char version=(char)-1;
+  int limit=-1;
+  int ch=g.getopt();
+  while (ch != -1) {
+switch (ch) {
+case 'l':
+      limit=Integer.parseInt(g.getOptarg());
+    lFlag=true;
+  break;
+case 'c':
+cFlag=true;
+break;
+case 'V':
+version=g.getOptarg().charAt(0);
+break;
+case 'h':
+printHelp();
+fAccomplished=true;
+break;
+case ':':
+fError=true;
+out.print("ls: missing argument");
+break;
+case '?':
+fError=true;
+out.print("ls: illegal option");
+break;
+}
+if (fError || fAccomplished) {
+return;
+}
+ch=g.getopt();
+}
+fileToFind=g.getPath();
+if (fileToFind == null) {
+out.print("usage: locate  [-l limit] [-c] [-h] -V 1 ...");
+out.print(NL);
+}
+switch (version) {
+case '1':
+locateTable(FSUtils.getROOTDIR(),limit);
+break;
+case '2':
+locateXQuery(limit);
+break;
+case '3':
+out.print("Not yet implemented");
+break;
+default :
+locateTable(FSUtils.getROOTDIR(),limit);
+break;
+}
+if (cFlag) {
+printCount();
+}
+}
