@@ -13,12 +13,13 @@
   Prop.attrindex=false;
   Prop.onthefly=true;
   Prop.mainmem=true;
-  data=Check.check(FILE);
-  if (data == null) {
-    BaseX.outln("File not found: " + FILE);
+  final Context ctx=new Context();
+  final Proc pr=Proc.get(ctx,Commands.CHECK,FILE);
+  if (!pr.execute()) {
+    BaseX.outln(pr.info());
     return;
   }
-  final Context ctx=new Context();
+  data=ctx.data();
   int ok=0;
   int wrong=0;
   final Nodes root=new Nodes(0,data);
@@ -28,15 +29,26 @@
     final Nodes srcRoot=new Nodes(t,data);
     final String uri=text("@URI",srcRoot);
     final boolean valid=text("@TYPE",srcRoot).equals("valid");
-    final Proc proc=Proc.get(ctx,Commands.CREATEXML,PATH + uri);
+    Prop.intparse=true;
+    Proc proc=Proc.get(ctx,Commands.CREATEXML,PATH + uri);
     final boolean success=proc.execute();
     final boolean correct=valid == success;
-    BaseX.out(uri + " = " + (valid ? "correct" : "wrong")+ " -> ");
-    BaseX.out(success ? "correct" : "wrong");
-    BaseX.outln(correct ? " (OK)" : " (WRONG)");
-    if (verbose)     BaseX.outln(proc.info() + "\n");
+    if (verbose || !correct) {
+      BaseX.outln(uri + " = " + (valid ? "correct" : "wrong")+ " -> "+ (success ? "correct" : "wrong")+ (correct ? " (OK)" : " (WRONG)"));
+      if (verbose) {
+        String inf=proc.info();
+        if (inf.length() != 0)         BaseX.outln("[BASEX ] " + inf);
+        Prop.intparse=false;
+        Proc.execute(ctx,Commands.CLOSE);
+        proc=Proc.get(ctx,Commands.CREATEXML,PATH + uri);
+        proc.execute();
+        inf=proc.info();
+        if (inf.length() != 0)         BaseX.outln("[XERCES] " + inf);
+      }
+    }
     if (correct)     ok++;
  else     wrong++;
+    Proc.execute(ctx,Commands.CLOSE);
   }
   BaseX.outln("\nResult of Test \"" + new File(FILE).getName() + "\":");
   BaseX.outln("Successful: " + ok);

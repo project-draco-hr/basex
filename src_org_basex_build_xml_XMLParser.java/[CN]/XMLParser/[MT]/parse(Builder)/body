@@ -1,29 +1,25 @@
 {
   builder=build;
-  scanner.next();
-  while (scanner.more()) {
+  builder.encoding(scanner.encoding);
+  scanner.more();
+  while (true) {
     if (scanner.type == Type.TEXT) {
-      builder.text(scanner.token.finish(),scanner.chars);
-      scanner.next();
+      builder.text(scanner.token.finish(),scanner.ws);
+      if (!scanner.more())       break;
     }
  else     if (scanner.type == Type.COMMENT) {
       builder.comment(scanner.token.finish());
-      scanner.next();
+      if (!scanner.more())       break;
     }
  else     if (scanner.type == Type.DTD) {
-      new DTDParser(scanner,file,builder.tags,builder.atts,scanner.ents);
-      scanner.next();
+      if (!scanner.more())       break;
     }
  else     if (scanner.type == Type.PI) {
       builder.pi(scanner.token.finish());
-      scanner.next();
-    }
- else     if (scanner.type == Type.DECL) {
-      builder.encoding(scanner.encoding);
-      scanner.next();
+      if (!scanner.more())       break;
     }
  else {
-      parseTag();
+      if (!parseTag())       break;
     }
   }
   scanner.finish();

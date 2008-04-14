@@ -1,10 +1,10 @@
 {
   if (scanner.type == Type.L_BR_CLOSE) {
-    scanner.next();
+    scanner.more();
     final byte[] tag=consumeToken(Type.TAGNAME);
     skipSpace();
-    consume(Type.R_BR);
     builder.endNode(tag);
+    return consume(Type.R_BR);
   }
  else {
     consume(Type.L_BR);
@@ -21,7 +21,7 @@
       byte[] attValue=Token.EMPTY;
       if (scanner.type == Type.ATTVALUE) {
         attValue=scanner.token.finish();
-        scanner.next();
+        scanner.more();
       }
       consume(Type.QUOTE);
       final byte[][] tmp=new byte[as + 2][];
@@ -34,12 +34,12 @@
       }
     }
     if (scanner.type == Type.CLOSE_R_BR) {
-      scanner.next();
       builder.emptyNode(tag,atts);
+      return scanner.more();
     }
  else {
-      consume(Type.R_BR);
       builder.startNode(tag,atts);
+      return consume(Type.R_BR);
     }
   }
 }

@@ -1,20 +1,16 @@
 {
-  byte ch;
-  if (pp != 0) {
-    ch=last[(lp + pp++) & 0x0F];
-  }
- else {
-    ch=input.readByte();
-    last[lp++]=ch;
-    lp&=0x0F;
-    if (ch == '\n') {
-      col=1;
-      line++;
+  while (true) {
+    byte ch=input.next();
+    if (ch < ' ' && ch > 0 && !ws(ch))     error(XMLCHAR,(char)ch,ch);
+    if (ch == '%' && pe) {
+      byte[] key=name(true);
+      byte[] val=pents.get(key);
+      if (val == null)       error(UNKNOWNPE,key);
+      check(';');
+      input.add(val,true);
     }
- else {
-      col++;
+ else     if (ch != 0x0D) {
+      return ch;
     }
   }
-  if (ch < ' ' && ch > 0 && !ws(ch))   error(XMLCHAR,(char)ch,ch);
-  return ch;
 }

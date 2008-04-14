@@ -2,15 +2,28 @@
   builder=build;
   try {
     final SAXParserFactory f=SAXParserFactory.newInstance();
-    f.setValidating(true);
+    f.setNamespaceAware(true);
+    f.setValidating(false);
+    final SAXParser p=new SAXParser();
     final XMLReader r=f.newSAXParser().getXMLReader();
-    r.setContentHandler(this);
-    r.setProperty("http://xml.org/sax/properties/lexical-handler",this);
-    r.setErrorHandler(this);
+    r.setDTDHandler(p);
+    r.setContentHandler(p);
+    r.setProperty("http://xml.org/sax/properties/lexical-handler",p);
+    r.setErrorHandler(p);
     r.parse(file);
   }
- catch (  final Exception ex) {
-    BaseX.debug(ex);
-    throw new IOException(ex.getMessage());
+ catch (  final SAXParseException ex) {
+    final String msg="Line " + ex.getLineNumber() + ", Col "+ ex.getColumnNumber()+ ": "+ ex.getMessage();
+    final IOException ioe=new IOException(msg);
+    ioe.setStackTrace(ex.getStackTrace());
+    throw ioe;
+  }
+catch (  final RuntimeException ex) {
+    throw ex;
+  }
+catch (  final Exception ex) {
+    final IOException ioe=new IOException(ex.getMessage());
+    ioe.setStackTrace(ex.getStackTrace());
+    throw ioe;
   }
 }

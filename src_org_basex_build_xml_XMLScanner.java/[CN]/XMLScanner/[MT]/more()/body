@@ -1,3 +1,29 @@
 {
-  return more;
+  token.reset();
+  byte ch=consume();
+  if (ch == 0) {
+    type=Type.EOF;
+    return false;
+  }
+switch (state) {
+case CONTENT:
+    scanCONTENT(ch);
+  break;
+case TAG:
+case ATT:
+scanTAG(ch);
+break;
+case QUOTE:
+scanATTVALUE(ch);
+}
+if (VERBOSE) {
+String typ=type.toString();
+String sta=state.toString();
+while (sta.length() < 12) sta+=" ";
+while (typ.length() < 13) typ+=" ";
+String out=sta + typ;
+if (token != null) out+="'" + token + "'";
+BaseX.outln(out);
+}
+return true;
 }

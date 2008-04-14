@@ -1,41 +1,25 @@
 {
-  byte c=ch;
-  chars=false;
-  if (c != '<' || isCDATA()) {
-    if (c == '<') {
-      scanCDATA();
-      c=consume();
-    }
-    type=Type.TEXT;
-    while (c != '<' || isCDATA()) {
-      if (c == 0)       return;
-      if (c == '<') {
-        scanCDATA();
-      }
- else {
-        if (c == ']') {
-          if ((consume()) == ']') {
-            if ((consume()) == '>')             error(CONTCDATA);
-            prevChar(1);
-          }
-          prevChar(1);
-        }
-        chars|=!ws(c);
-        if (c == '&')         token.add(getEntity());
- else         if (c != 0x0d)         token.add(c);
-      }
-      c=consume();
-    }
-    prevChar(1);
+  if (!tag && (ch != '<' || isCDATA())) {
+    content(ch);
     return;
   }
-  c=nextChar();
+  tag=false;
+  final byte c=nextChar();
   if (c == '!') {
-    scanCOMMENT();
+    if (consume(DOCTYPE)) {
+      type=Type.DTD;
+      dtd();
+    }
+ else {
+      type=Type.COMMENT;
+      if (!consume('-') || !consume('-'))       error(COMMDASH);
+      comment();
+    }
     return;
   }
   if (c == '?') {
-    scanPI();
+    type=Type.PI;
+    pi();
     return;
   }
   prolog=false;
@@ -45,5 +29,5 @@
     return;
   }
   type=Type.L_BR;
-  prevChar(1);
+  prev(1);
 }

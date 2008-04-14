@@ -1,0 +1,44 @@
+{
+  if (consume('#')) {
+    final TokenBuilder entity=new TokenBuilder();
+    int b=10;
+    byte ch=nextChar();
+    entity.add(ch);
+    if (ch == 'x') {
+      b=16;
+      entity.add(ch=nextChar());
+    }
+    int n=0;
+    do {
+      final boolean m=ch >= '0' && ch <= '9';
+      final boolean h=b == 16 && (ch >= 'a' && ch <= 'f' || ch >= 'A' && ch <= 'F');
+      if (!m && !h) {
+        completeRef(entity);
+        if (Prop.entity)         error(INVALIDENTITY,entity);
+        return EMPTY;
+      }
+      n*=b;
+      n+=ch & 15;
+      if (!m)       n+=9;
+      entity.add(ch=nextChar());
+    }
+ while (ch != ';');
+    if (!valid(n)) {
+      if (Prop.entity)       error(INVALIDENTITY,entity);
+      return EMPTY;
+    }
+    entity.reset();
+    entity.addUTF(n);
+    return entity.finish();
+  }
+  byte[] name=name(Prop.entity);
+  if (!consume(';')) {
+    if (Prop.entity)     error(INVALIDENTITY,name);
+    return EMPTY;
+  }
+  if (!f)   return concat(AMP,name,SEMI);
+  final byte[] en=ents.get(name);
+  if (en != null)   return en;
+  if (Prop.entity)   error(UNKNOWNENTITY,name);
+  return EMPTY;
+}

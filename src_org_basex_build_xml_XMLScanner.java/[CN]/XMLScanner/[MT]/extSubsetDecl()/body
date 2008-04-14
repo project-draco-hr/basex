@@ -1,0 +1,29 @@
+{
+  boolean found=false;
+  while (true) {
+    s();
+    if (markupDecl()) {
+      found=true;
+      continue;
+    }
+    if (!consume(COND))     return found;
+    found=true;
+    s();
+    boolean incl=consume(INCL);
+    if (!incl)     check(IGNO);
+    s();
+    check('[');
+    if (incl) {
+      extSubsetDecl();
+      check(CONE);
+    }
+ else {
+      int c=1;
+      while (c != 0) {
+        if (consume(COND))         c++;
+ else         if (consume(CONE))         c--;
+ else         if (consume() == 0)         error(INVEND);
+      }
+    }
+  }
+}
