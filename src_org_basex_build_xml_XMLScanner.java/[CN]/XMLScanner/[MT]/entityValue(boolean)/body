@@ -1,11 +1,11 @@
 {
-  byte qu=consume();
+  final int qu=consume();
   if (qu != '\'' && qu != '"') {
     prev(1);
     return null;
   }
   TokenBuilder tok=new TokenBuilder();
-  byte ch;
+  int ch;
   while ((ch=nextChar()) != qu) {
     if (ch == '&')     tok.add(ref(false));
  else     if (ch == '%') {
@@ -13,7 +13,7 @@
       tok.add(peRef());
     }
  else {
-      tok.add(ch);
+      tok.addUTF(ch);
     }
   }
   final XMLInput tmp=input;
@@ -21,7 +21,7 @@
   tok=new TokenBuilder();
   while ((ch=consume()) != 0) {
     if (ch == '&')     tok.add(ref(false));
- else     tok.add(ch);
+ else     tok.addUTF(ch);
   }
   input=tmp;
   return tok.finish();

@@ -6,8 +6,9 @@
   while (cap < max && cap < (1 << 24))   cap<<=1;
   next=new int[cap];
   bucket=new int[cap];
-  ids=new byte[cap][];
-  texts=new byte[cap][];
+  ids=new int[cap][];
+  texts=new byte[cap];
+  pos=new int[cap];
   total=data.size;
   final int type=text ? Data.TEXT : Data.ATTR;
   for (id=0; id < total; id++) {
@@ -15,21 +16,27 @@
     if (data.kind(id) != type)     continue;
     index(text ? data.text(id) : data.attValue(id),id);
   }
+  texts=null;
+  pos=null;
   final int bs=bucket.length;
   DataOutput out=new DataOutput(db,f + 'b');
   for (int i=0; i < bs; i++)   out.writeInt(bucket[i]);
   out.close();
+  bucket=null;
   out=new DataOutput(db,f + 'n');
   out.writeInt(text ? 0 : 1);
   for (int i=1; i < bs; i++)   out.writeInt(next[i]);
   out.close();
+  next=null;
   out=new DataOutput(db,f + 'l');
   out.writeInt(bs);
   final DataOutput out2=new DataOutput(db,f + 'i');
   for (int i=0; i < bs; i++) {
     out2.writeInt(out.size());
-    out.writeBytes(ids[i] == null ? Token.EMPTY : Num.finish(ids[i]));
+    out.writeBytes(ids[i] == null ? Token.EMPTY : Num.create(ids[i]));
+    ids[i]=null;
   }
+  ids=null;
   out.close();
   out2.close();
   return new Values(data,db,text);

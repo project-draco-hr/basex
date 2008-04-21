@@ -2,11 +2,11 @@
   if (consume('#')) {
     final TokenBuilder entity=new TokenBuilder();
     int b=10;
-    byte ch=nextChar();
-    entity.add(ch);
+    int ch=nextChar();
+    entity.addUTF(ch);
     if (ch == 'x') {
       b=16;
-      entity.add(ch=nextChar());
+      entity.addUTF(ch=nextChar());
     }
     int n=0;
     do {
@@ -20,7 +20,7 @@
       n*=b;
       n+=ch & 15;
       if (!m)       n+=9;
-      entity.add(ch=nextChar());
+      entity.addUTF(ch=nextChar());
     }
  while (ch != ';');
     if (!valid(n)) {
@@ -31,7 +31,7 @@
     entity.addUTF(n);
     return entity.finish();
   }
-  byte[] name=name(Prop.entity);
+  final byte[] name=name(Prop.entity);
   if (!consume(';')) {
     if (Prop.entity)     error(INVALIDENTITY,name);
     return EMPTY;

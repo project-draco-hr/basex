@@ -1,0 +1,37 @@
+{
+  type=Type.TEXT;
+  ws=true;
+  boolean f=true;
+  int c=ch;
+  while (c != 0) {
+    if (c != '<') {
+      ws&=ws(c);
+      if (c == '&') {
+        final byte[] r=ref(true);
+        if (r.length == 1)         token.add(r);
+ else         if (!input.add(r,false))         error(RECENT);
+      }
+ else {
+        if (c == ']') {
+          if ((consume()) == ']') {
+            if ((consume()) == '>')             error(CONTCDATA);
+            prev(1);
+          }
+          prev(1);
+        }
+        token.addUTF(c);
+      }
+    }
+ else {
+      if (!f && !isCDATA()) {
+        tag=true;
+        prev(1);
+        return;
+      }
+      ws=false;
+      cDATA();
+    }
+    c=consume();
+    f=false;
+  }
+}
