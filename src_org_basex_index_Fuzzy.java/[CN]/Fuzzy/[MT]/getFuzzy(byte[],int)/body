@@ -1,31 +1,33 @@
 {
-  int[][] dat=null;
-  int[][] td;
+  int[][] ft=null;
   byte[] to;
+  int dif;
+  int i=0;
+  int is=li.readBytes(0,1L)[0];
+  int ts=li.readBytes(1L,2L)[0];
+  dif=(tok.length - ts < 0) ? ts - tok.length : tok.length - ts;
+  while (i < is && dif > e) {
+    i++;
+    ts=li.readBytes(1L + i * 5L,1L + i * 5L + 1L)[0];
+    dif=(tok.length - ts < 0) ? ts - tok.length : tok.length - ts;
+  }
+  if (i == is)   return null;
   int p;
   int pe;
-  int dif;
-  for (int i=0; i < index.length; i++) {
-    dif=(tok.length - index[i][0] < 0) ? index[i][0] - tok.length : tok.length - index[i][0];
-    if (dif <= e) {
-      p=index[i][1];
-      pe=index[i + 1][1];
-      while (p < pe) {
-        to=ftdata.readBytes(p,p + index[i][0]);
-        if (calcEQ(to,0,tok,e)) {
-          td=new int[2][ftdata.readInt(p + index[i][0])];
-          p+=index[i][0] + (int)4L;
-          System.arraycopy(ftdata.readInts(p,p + td[0].length * 4L),0,td[0],0,td[0].length);
-          p+=td[0].length * 4L;
-          System.arraycopy(ftdata.readInts(p,p + td[0].length * 4L),0,td[1],0,td[0].length);
-          p+=td[0].length * 4L;
-          dat=FTUnion.calculateFTOr(dat,td);
-        }
- else {
-          p+=index[i][0] + (int)4L + (ftdata.readInt(p + index[i][0]) * 4L) * 2;
-        }
+  while (i < is && dif <= e) {
+    p=li.readInt(1L + i * 5L + 1L);
+    pe=li.readInt(1L + (i + 1) * 5L + 1L);
+    while (p < pe) {
+      to=ti.readBytes(p,p + ts);
+      if (calcEQ(to,0,tok,e)) {
+        System.out.println(new String(to));
+        ft=FTUnion.calculateFTOr(ft,getData(getPointerOnData(p,ts),getDataSize(p,ts)));
       }
+      p+=ts + (int)4L * 2;
     }
+    i++;
+    ts=li.readBytes(1L + i * 5L,1L + i * 5L + 1L)[0];
+    dif=(tok.length - ts < 0) ? ts - tok.length : tok.length - ts;
   }
-  return dat;
+  return ft;
 }

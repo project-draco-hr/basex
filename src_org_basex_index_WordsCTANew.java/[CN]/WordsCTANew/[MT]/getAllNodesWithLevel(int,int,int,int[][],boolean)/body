@@ -1,0 +1,28 @@
+{
+  int[][] dn=data;
+  int[] ne=getNodeEntry(id);
+  if (dotFound) {
+    dn=FTUnion.calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 2],ne[ne.length - 1]));
+    if (!hasNextNodes(ne))     return dn;
+    for (int i=ne[0] + 1; i < ne.length - 2; i+=2) {
+      dn=FTUnion.calculateFTOr(dn,getAllNodesWithLevel(ne[i],0,0,dn,dotFound));
+    }
+    return dn;
+  }
+  int neID=getIndexDotNE(ne);
+  if (!Token.digit(ne[1]) || neID > l2)   return dn;
+  if (l1 <= neID && neID <= l2) {
+    dn=FTUnion.calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 2],ne[ne.length - 1]));
+    if (!hasNextNodes(ne))     return dn;
+    for (int i=ne[0] + 1; i < ne.length - 2; i+=2) {
+      dn=FTUnion.calculateFTOr(dn,getAllNodesWithLevel(ne[i],l1 - ne[0],l2 - ne[0],dn,ne[0] > neID));
+    }
+  }
+ else   if (ne[0] < l1 && ne[0] == neID) {
+    if (!hasNextNodes(ne))     return dn;
+    for (int i=ne[0] + 1; i < ne.length - 2; i+=2) {
+      dn=FTUnion.calculateFTOr(dn,getAllNodesWithLevel(ne[i],l1 - ne[0],l2 - ne[0],dn,false));
+    }
+  }
+  return dn;
+}

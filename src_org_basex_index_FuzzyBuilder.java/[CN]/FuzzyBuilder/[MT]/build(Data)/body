@@ -1,38 +1,82 @@
 {
-  Object[] o=new Object[128];
-  o[0]=0;
-  o=cta.doPreOrderTravWISS(0,new StringBuffer(),o);
+  token=new IntArrayList[128];
+  token[0]=new IntArrayList();
+  token[0].add(new int[]{0});
+  ftpre=new IntArrayList[128];
+  ftpre[0]=new IntArrayList();
+  ftpre[0].add(new int[]{0});
+  ftpos=new IntArrayList[128];
+  ftpos[0]=new IntArrayList();
+  ftpos[0].add(new int[]{0});
+  total=data.size;
+  for (id=0; id < total; id++) {
+    checkStop();
+    if (data.kind(id) == Data.TEXT)     index(data.text(id),id);
+  }
+  int isize=token[0].list[0][0];
   final String db=data.meta.dbname;
-  final String f=DATATXT;
-  DataOutput out=new DataOutput(db,f + 'z');
-  DataOutput outs=new DataOutput(db,f + 'x');
-  outs.writeInt(((Integer)o[0]).intValue() + 1);
-  int ce=0;
-  int bw=0;
-  for (int in=1; in < o.length; in++) {
-    if (o[in] != null) {
-      int[][] td=(int[][])o[in];
-      outs.write((byte)in);
-      outs.writeInt(bw);
-      for (int k=0; k < td.length; k++) {
-        for (int j=0; j < in; j++) {
-          out.write((byte)td[k][j]);
+  final String f=DATAFTX;
+  outi=new DataOutput(db,f + 'x');
+  outt=new DataOutput(db,f + 'y');
+  outd=new DataOutput(db,f + 'z');
+  outi.write((byte)(isize + 1));
+  int[][] ind=new int[isize + 1][2];
+  int[] dtmp;
+  int c=0, tr=0, dr=0, ct=0, j=1;
+  for (; j < token.length; j++) {
+    if (c == isize)     break;
+    if (token[j] != null) {
+      int t=0;
+      while (t < token[j].list.length && token[j].list[t] != null) {
+        if (t == 0) {
+          outi.write((byte)j);
+          outi.writeInt(tr);
+          ind[c][0]=j;
+          ind[c][1]=tr;
         }
-        out.writeInt(td[k][in]);
-        for (int j=in + 1; j < td[k].length; j++) {
-          out.writeInt(td[k][j]);
+        for (int k=0; k < token[j].list[t].length - 1; k++) {
+          outt.write((byte)token[j].list[t][k]);
         }
+        outt.writeInt(dr);
+        outt.writeInt(token[j].list[t][token[j].list[t].length - 1]);
+        dtmp=new int[token[j].list[t][token[j].list[t].length - 1]];
+        System.arraycopy(ftpre[j].list[t],0,dtmp,0,dtmp.length);
+        outd.writeInts(dtmp);
+        System.arraycopy(ftpos[j].list[t],0,dtmp,0,dtmp.length);
+        outd.writeInts(dtmp);
+        dr+=2 * 4L * token[j].list[t][token[j].list[t].length - 1];
+        tr+=ind[c][0] * 1L + 4L + 4L;
+        ct++;
+        t++;
       }
-      bw=out.size();
-      ce++;
-      if (ce == (Integer)o[0]) {
-        outs.write((byte)(o.length - 1));
-        outs.writeInt(bw);
-        break;
-      }
+      c++;
     }
   }
-  outs.close();
-  out.close();
-  return new Fuzzy(data,db);
+  outi.write((byte)(j - 1));
+  outi.writeInt((int)(tr - (j - 1) * 1L - 4L - 4L));
+  ind[c][0]=j - 1;
+  ind[c][1]=(int)(tr - (j - 1) * 1L - 4L - 4L);
+  if (Prop.debug) {
+    System.out.println("Token Index, Tokens und FTData " + "im Hauptspeicher:");
+    Performance.gc(5);
+    System.out.println(Performance.getMem());
+  }
+  token=null;
+  outi.close();
+  outt.close();
+  outd.close();
+  ftd=new int[dr / 4];
+  if (Prop.debug) {
+    System.out.println("Platz f??r ftdata in Hauptspeicher alokiert.");
+    Performance.gc(5);
+    System.out.println(Performance.getMem());
+  }
+  Fuzzy index=new Fuzzy(data.meta.dbname);
+  if (Prop.debug) {
+    System.out.println("FTData im Hauptspeicher:");
+    Performance.gc(5);
+    System.out.println(Performance.getMem());
+  }
+  index.openDataFile(data.meta.dbname);
+  return index;
 }

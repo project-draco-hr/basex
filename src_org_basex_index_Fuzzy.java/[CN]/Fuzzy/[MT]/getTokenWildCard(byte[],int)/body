@@ -1,0 +1,25 @@
+{
+  if (tok[posw] == '.' && tok.length > posw + 1 && tok[posw + 1] == '*') {
+    int[][] b;
+    int[][] data=null;
+    byte[] dtok;
+    b=getBoundPointer(tok.length - 2);
+    while (true) {
+      if (b[0][1] >= b[1][1]) {
+        b[0]=b[1];
+        b[1]=getNextBoundPointer();
+        if (b[1] == null)         break;
+      }
+      dtok=ti.readBytes(b[0][1],b[0][0] + b[0][1]);
+      if (contains(tok,posw,dtok))       data=FTUnion.calculateFTOr(data,getData(getPointerOnData(b[0][1],b[0][0]),getDataSize(b[0][1],b[0][0])));
+      b[0][1]+=b[0][0] * 1L + 8L;
+    }
+    dtok=ti.readBytes(b[0][1],b[0][0] + b[0][1]);
+    if (contains(tok,posw,dtok))     data=FTUnion.calculateFTOr(data,getData(getPointerOnData(b[0][1],b[0][0]),getDataSize(b[0][1],b[0][0])));
+    return data;
+  }
+ else {
+    BaseX.debug("Sorry, FuzzyIndex supports only \'.*\' as wildcard.");
+    return null;
+  }
+}

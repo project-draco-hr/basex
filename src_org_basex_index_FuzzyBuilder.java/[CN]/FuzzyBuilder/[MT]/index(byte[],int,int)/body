@@ -1,0 +1,40 @@
+{
+  if (token[tok.length] == null) {
+    token[0].list[0][0]++;
+    IntArrayList ial=new IntArrayList();
+    int[] itok=new int[tok.length + 1];
+    for (int t=0; t < tok.length; t++)     itok[t]=tok[t];
+    itok[tok.length]=1;
+    ial.add(itok);
+    token[tok.length]=ial;
+    ftpre[tok.length]=new IntArrayList();
+    ftpre[tok.length].add(new int[]{pre});
+    ftpos[tok.length]=new IntArrayList();
+    ftpos[tok.length].add(new int[]{pos});
+  }
+ else {
+    int[] itok=new int[tok.length];
+    for (int t=0; t < tok.length; t++)     itok[t]=tok[t];
+    int m=token[tok.length].addSorted(itok,itok.length);
+    if (token[tok.length].found) {
+      token[tok.length].list[m][tok.length]++;
+      int n=token[tok.length].list[m][token[tok.length].list[m].length - 1] - 1;
+      if (n == ftpre[tok.length].list[m].length) {
+        int[] tmp=Array.resize(ftpre[tok.length].list[m],ftpre[tok.length].list[m].length,ftpos[tok.length].list[m].length << 1);
+        tmp[n]=pre;
+        ftpre[tok.length].list[m]=tmp;
+        tmp=Array.resize(ftpos[tok.length].list[m],ftpos[tok.length].list[m].length,ftpos[tok.length].list[m].length << 1);
+        tmp[n]=pos;
+        ftpos[tok.length].list[m]=tmp;
+      }
+ else {
+        ftpre[tok.length].list[m][n]=pre;
+        ftpos[tok.length].list[m][n]=pos;
+      }
+    }
+ else {
+      ftpre[tok.length].addAt(new int[]{pre},m);
+      ftpos[tok.length].addAt(new int[]{pos},m);
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  int i=0;
+  int is=li.readBytes(0,1L)[0];
+  int ts=li.readBytes(1L,2L)[0];
+  while (i < is && tok.length > ts) {
+    i++;
+    ts=li.readBytes(1L + i * 5L,1L + i * 5L + 1L)[0];
+  }
+  if (i == is || ts > tok.length)   return -1;
+  int l=li.readInt(1L + i * 5L + 1L);
+  int r=li.readInt(1L + (i + 1) * 5L + 1L);
+  int m=(int)(l + ((int)((r - l) / (tok.length * 1L + 8L) / 2)) * (tok.length * 1L + 8L));
+  int res=-2;
+  byte[] dtok=new byte[tok.length];
+  while (l < r) {
+    m=(int)(l + ((int)((r - l) / (tok.length * 1L + 8L) / 2)) * (tok.length * 1L + 8L));
+    dtok=ti.readBytes(m,m + dtok.length);
+    res=Token.cmp(dtok,tok);
+    if (res == 0)     return m;
+ else     if (res > 0)     l=(int)(m + tok.length * 1L + 8L);
+ else     r=(int)(m - (tok.length * 1L + 8L));
+  }
+  if (r == l) {
+    if (res == 0) {
+      return l;
+    }
+    dtok=ti.readBytes(l,l + dtok.length);
+    res=Token.cmp(dtok,tok);
+    if (res == 0)     return l;
+  }
+  return -1;
+}
