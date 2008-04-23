@@ -1,11 +1,18 @@
 {
   if (!lFlag || filesfound < limit) {
-    int[] dir=FSUtils.getAllOfDir(data,pre);
-    int[] allDir=new int[dir.length];
-    int j=0;
-    for (    int i : dir) {
-      if (FSUtils.isDir(data,i))       allDir[j++]=i;
-      if (FSUtils.isFile(data,i)) {
+    int[] contentDir=FSUtils.getAllOfDir(data,pre);
+    IntList res=new IntList();
+    for (    int i : contentDir) {
+      if (FSUtils.isDir(data,i)) {
+        String filefound=FSUtils.getFileName(data,i);
+        if (fileToFind.equalsIgnoreCase(filefound)) {
+          printDir(i);
+        }
+ else {
+          res.add(i);
+        }
+      }
+ else       if (FSUtils.isFile(data,i)) {
         String filefound=FSUtils.getFileName(data,i);
         if (fileToFind.equalsIgnoreCase(filefound)) {
           ++filesfound;
@@ -16,7 +23,8 @@
         }
       }
     }
-    for (int i=0; allDir[i] != 0 && i < allDir.length; i++) {
+    int[] allDir=res.finish();
+    for (int i=0; i < allDir.length; i++) {
       locateTable(allDir[i],limit);
     }
   }
