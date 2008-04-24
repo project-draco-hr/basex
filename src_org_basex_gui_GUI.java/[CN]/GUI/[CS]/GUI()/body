@@ -69,27 +69,14 @@
   input.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
       addKeys(e);
-      if (done && input.getText().length() == 0) {
-        pop.setVisible(false);
-        done=false;
-      }
       if (e.getKeyCode() == KeyEvent.VK_ENTER) {
         execute();
-        pop.setVisible(false);
-        done=false;
       }
     }
     @Override public void keyReleased(    final KeyEvent e){
       if (e.getKeyChar() == 0xFFFF || e.isControlDown())       return;
       if (GUIProp.searchmode == 2 || !context.db()) {
-        if (!done) {
-          String[] all={"cd","close","copy","create","delete","drop","exit","export","find","help","info","insert","list","open","set","update","xquery","xpath"};
-          char ch=e.getKeyChar();
-          pop=createJPop(all,ch);
-          input.add(pop);
-          pop.show(input,0,25);
-          done=true;
-        }
+        refreshPop(e.getKeyCode());
       }
       if (GUIProp.execrt && GUIProp.searchmode != 2 && context.db() && !input.getText().startsWith("!"))       execute();
     }

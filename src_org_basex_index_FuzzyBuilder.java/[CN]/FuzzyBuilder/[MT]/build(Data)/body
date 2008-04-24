@@ -1,28 +1,32 @@
 {
-  token=new IntArrayList[128];
+  token=new IntArrayList[Token.MAXLEN];
   token[0]=new IntArrayList();
   token[0].add(new int[]{0});
-  ftpre=new IntArrayList[128];
+  ftpre=new IntArrayList[Token.MAXLEN];
   ftpre[0]=new IntArrayList();
   ftpre[0].add(new int[]{0});
-  ftpos=new IntArrayList[128];
+  ftpos=new IntArrayList[Token.MAXLEN];
   ftpos[0]=new IntArrayList();
   ftpos[0].add(new int[]{0});
+  Performance p=new Performance();
   total=data.size;
   for (id=0; id < total; id++) {
     checkStop();
     if (data.kind(id) == Data.TEXT)     index(data.text(id),id);
   }
+  if (Prop.debug) {
+    Performance.gc(5);
+    System.out.println("Indexed: " + Performance.getMem() + ", "+ p);
+  }
   int isize=token[0].list[0][0];
   final String db=data.meta.dbname;
   final String f=DATAFTX;
-  outi=new DataOutput(db,f + 'x');
-  outt=new DataOutput(db,f + 'y');
-  outd=new DataOutput(db,f + 'z');
+  DataOutput outi=new DataOutput(db,f + 'x');
+  DataOutput outt=new DataOutput(db,f + 'y');
+  DataOutput outd=new DataOutput(db,f + 'z');
   outi.write((byte)(isize + 1));
   int[][] ind=new int[isize + 1][2];
-  int[] dtmp;
-  int c=0, tr=0, dr=0, ct=0, j=1;
+  int c=0, tr=0, dr=0, j=1;
   for (; j < token.length; j++) {
     if (c == isize)     break;
     if (token[j] != null) {
@@ -38,45 +42,30 @@
           outt.write((byte)token[j].list[t][k]);
         }
         outt.writeInt(dr);
-        outt.writeInt(token[j].list[t][token[j].list[t].length - 1]);
-        dtmp=new int[token[j].list[t][token[j].list[t].length - 1]];
-        System.arraycopy(ftpre[j].list[t],0,dtmp,0,dtmp.length);
-        outd.writeInts(dtmp);
-        System.arraycopy(ftpos[j].list[t],0,dtmp,0,dtmp.length);
-        outd.writeInts(dtmp);
-        dr+=2 * 4L * token[j].list[t][token[j].list[t].length - 1];
-        tr+=ind[c][0] * 1L + 4L + 4L;
-        ct++;
+        int ds=token[j].list[t][token[j].list[t].length - 1];
+        outt.writeInt(ds);
+        for (int d=0; d < ds; d++)         outd.writeInt(ftpre[j].list[t][d]);
+        for (int d=0; d < ds; d++)         outd.writeInt(ftpos[j].list[t][d]);
+        dr+=8L * ds;
+        tr+=ind[c][0] + 8L;
         t++;
       }
       c++;
     }
   }
   outi.write((byte)(j - 1));
-  outi.writeInt((int)(tr - (j - 1) * 1L - 4L - 4L));
+  outi.writeInt((int)(tr - j - 7L));
   ind[c][0]=j - 1;
-  ind[c][1]=(int)(tr - (j - 1) * 1L - 4L - 4L);
-  if (Prop.debug) {
-    System.out.println("Token Index, Tokens und FTData " + "im Hauptspeicher:");
-    Performance.gc(5);
-    System.out.println(Performance.getMem());
-  }
+  ind[c][1]=(int)(tr - j - 7L);
   token=null;
+  ftpre=null;
+  ftpos=null;
   outi.close();
   outt.close();
   outd.close();
-  ftd=new int[dr / 4];
   if (Prop.debug) {
-    System.out.println("Platz f??r ftdata in Hauptspeicher alokiert.");
     Performance.gc(5);
-    System.out.println(Performance.getMem());
+    System.out.println("Written: " + Performance.getMem() + ", "+ p);
   }
-  Fuzzy index=new Fuzzy(data.meta.dbname);
-  if (Prop.debug) {
-    System.out.println("FTData im Hauptspeicher:");
-    Performance.gc(5);
-    System.out.println(Performance.getMem());
-  }
-  index.openDataFile(data.meta.dbname);
-  return index;
+  return new Fuzzy(data.meta.dbname);
 }

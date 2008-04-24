@@ -1,0 +1,42 @@
+{
+  final String db=data.meta.dbname;
+  final DataOutput outx=new DataOutput(db,DATAFTX + 'x');
+  final DataOutput outy=new DataOutput(db,DATAFTX + 'y');
+  final DataOutput outz=new DataOutput(db,DATAFTX + 'z');
+  outx.write(isize);
+  int c=0, tr=0, dr=0;
+  byte j=1;
+  for (; j < tree.length; j++) {
+    if (c == isize - 1)     break;
+    final FZHash tre=tree[j];
+    if (tre == null)     continue;
+    outx.write(j);
+    outx.writeInt(tr);
+    tre.init();
+    while (tre.more()) {
+      int p=tre.next();
+      byte[] key=tre.key();
+      for (int x=0; x != j; x++)       outy.write(key[x]);
+      outy.writeInt(dr);
+      final int ds=tre.ns[p];
+      outy.writeInt(ds);
+      byte[] val=tre.pre[p];
+      for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++) {
+        outz.writeInt(Num.read(val,ip));
+      }
+      val=tre.pos[p];
+      for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++) {
+        outz.writeInt(Num.read(val,ip));
+      }
+      dr+=ds << 3;
+      tr+=j + 8L;
+    }
+    c++;
+  }
+  tree=null;
+  outx.write((byte)(j - 1));
+  outx.writeInt((int)(tr - j - 7L));
+  outx.close();
+  outy.close();
+  outz.close();
+}
