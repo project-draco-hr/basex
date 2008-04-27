@@ -1,10 +1,15 @@
 {
-  final int p=Token.hash(tok) & size - 1;
-  for (int tid=idxb.read4(p); tid != 0; tid=idxn.read4(tid)) {
-    final int pos=idxi.read4(tid);
-    final int pre=id.firstID(pos);
+  int l=0, h=size - 1;
+  while (l <= h) {
+    int m=(l + h) >>> 1;
+    final int pos=idxr.read4(m);
+    idxl.readNum(pos);
+    final int pre=idxl.readNum();
     final byte[] txt=text ? data.text(pre) : data.attValue(pre);
-    if (Token.eq(tok,txt))     return pos;
+    int d=Token.diff(txt,key);
+    if (d == 0)     return pos;
+    if (d < 0)     l=m + 1;
+ else     h=m - 1;
   }
   return 0;
 }

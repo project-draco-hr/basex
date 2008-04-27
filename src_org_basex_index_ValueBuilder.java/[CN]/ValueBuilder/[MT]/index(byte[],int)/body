@@ -1,27 +1,4 @@
 {
   if (tok.length > Token.MAXLEN || Token.ws(tok))   return;
-  if (size == next.length)   rehash(size << 1);
-  final int h=Token.hash(tok) & bucket.length - 1;
-  for (int tid=bucket[h]; tid != 0; tid=next[tid]) {
-    if (eq(tok,pos[tid])) {
-      ids[tid][0]+=1;
-      int s=ids[tid][0];
-      if (s == ids[tid].length) {
-        int[] t=new int[s + Math.max(1,s >> 3)];
-        System.arraycopy(ids[tid],0,t,0,s);
-        ids[tid]=t;
-      }
-      ids[tid][s]=pre;
-      return;
-    }
-  }
-  next[size]=bucket[h];
-  bucket[h]=size;
-  pos[size]=kl;
-  ids[size++]=new int[]{1,pre};
-  int tl=tok.length;
-  while (kl + tl + 1 >= texts.length)   texts=Array.extend(texts);
-  texts[kl++]=(byte)tl;
-  System.arraycopy(tok,0,texts,kl,tl);
-  kl+=tl;
+  index.index(tok,pre);
 }

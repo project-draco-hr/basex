@@ -1,28 +1,29 @@
 {
   final DataInput in=new DataInput(dbname,DATAINFO);
   String storage="";
+  String istorage="";
   int size=0;
   while (true) {
-    final String key=in.readString();
-    if (key.length() == 0)     break;
-    final String val=in.readString();
-    if (key.equals(DBSTORAGE))     storage=val;
- else     if (key.equals(DBFNAME))     filename=val;
- else     if (key.equals(DBFSIZE))     filesize=Token.toLong(val);
- else     if (key.equals(DBENCODING))     encoding=val;
- else     if (key.equals(DBHEIGHT))     height=Token.toInt(val);
- else     if (key.equals(DBSIZE))     size=Token.toInt(val);
- else     if (key.equals(DBCHOPPED))     chop=val.equals("ON");
- else     if (key.equals(DBENTITY))     entity=val.equals("ON");
- else     if (key.equals(DBTXTINDEX))     txtindex=val.equals("ON");
- else     if (key.equals(DBATVINDEX))     atvindex=val.equals("ON");
- else     if (key.equals(DBFTXINDEX))     ftxindex=val.equals("ON");
- else     if (key.equals(DBTIME))     time=Token.toLong(val);
- else     if (key.equals(DBLASTID))     lastid=Token.toLong(val);
+    final String k=in.readString();
+    if (k.length() == 0)     break;
+    final String v=in.readString();
+    if (k.equals(DBSTORAGE))     storage=v;
+ else     if (k.equals(IDBSTORAGE))     istorage=v;
+ else     if (k.equals(DBFNAME))     filename=v;
+ else     if (k.equals(DBFSIZE))     filesize=Token.toLong(v);
+ else     if (k.equals(DBENCODING))     encoding=v;
+ else     if (k.equals(DBHEIGHT))     height=Token.toInt(v);
+ else     if (k.equals(DBSIZE))     size=Token.toInt(v);
+ else     if (k.equals(DBCHOPPED))     chop=v.equals(ON) || v.equals("1");
+ else     if (k.equals(DBENTITY))     entity=v.equals(ON) || v.equals("1");
+ else     if (k.equals(DBTXTINDEX))     txtindex=v.equals(ON) || v.equals("1");
+ else     if (k.equals(DBATVINDEX))     atvindex=v.equals(ON) || v.equals("1");
+ else     if (k.equals(DBFTXINDEX))     ftxindex=v.equals(ON) || v.equals("1");
+ else     if (k.equals(DBTIME))     time=Token.toLong(v);
+ else     if (k.equals(DBLASTID))     lastid=Token.toLong(v);
   }
   in.close();
-  if (!storage.equals(STORAGE)) {
-    throw new BuildException(BaseX.info(DBUPDATE,storage));
-  }
+  if (!storage.equals(STORAGE))   throw new BuildException(DBUPDATE,storage);
+  if (!istorage.equals(ISTORAGE))   noIndex();
   return size;
 }
