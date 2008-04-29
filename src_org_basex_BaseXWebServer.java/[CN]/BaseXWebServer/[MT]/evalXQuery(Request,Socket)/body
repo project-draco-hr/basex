@@ -6,18 +6,18 @@
   out.println("Content-Type: text/html; charset=utf-8\n");
   out.println(DOCTYPE);
   try {
-    final String key=req.file + "/" + req.file.lastModified();
     XQueryProcessor xq=null;
     if (cache) {
+      final String key=req.file + "/" + req.file.date();
       xq=map.get(key);
       if (xq == null) {
-        final String query=new String(IOConstants.read(req.file),"UTF-8");
+        final String query=new String(req.file.content(),"UTF-8");
         xq=new XQueryProcessor(query,req.file);
         map.put(key,xq);
       }
     }
  else {
-      final String query=new String(IOConstants.read(req.file),"UTF-8");
+      final String query=new String(req.file.content(),"UTF-8");
       xq=new XQueryProcessor(query,req.file);
     }
     for (    final String[] arg : req.args) {

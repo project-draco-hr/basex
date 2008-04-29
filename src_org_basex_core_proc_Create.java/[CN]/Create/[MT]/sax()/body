@@ -1,12 +1,7 @@
 {
   if (cmd.nrArgs() != 2)   throw new IllegalArgumentException();
-  String path=cmd.arg(1);
-  if (path.startsWith("<"))   return xml();
-  try {
-    path=filePath(path,true);
-    return build(new SAXWrapper(path),path);
-  }
- catch (  final IOException e) {
-    return error(e.getMessage(),path);
-  }
+  final IO file=new IO(cmd.arg(1));
+  if (!file.exists())   return error(FILEWHICH,file);
+  final String db=file.dbname();
+  return build(new SAXWrapper(file),db);
 }

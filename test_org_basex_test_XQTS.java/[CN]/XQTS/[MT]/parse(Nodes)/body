@@ -5,16 +5,17 @@
   if (inname == null)   inname=outname;
   if (verbose)   System.out.println(inname);
   if (single != null && !outname.startsWith(single))   return true;
-  final File file=new File(queries + path + inname+ ".xq");
+  final IO file=new IO(queries + path + inname+ ".xq");
   final String input=read(file);
   String output="";
   String error=null;
   Result res=null;
   final TokenBuilder files=new TokenBuilder();
   try {
+    final Context context=new Context();
     final XQueryProcessor xq=new XQueryProcessor(input,file);
     final Nodes cont=nodes("contextItem",root);
-    final Nodes nodes=cont.size == 0 ? null : new Nodes(0,Check.check(sources + string(data.atom(cont.pre[0]))));
+    if (cont.size != 0)     Proc.execute(context,Commands.CHECK,sources + string(data.atom(cont.pre[0])) + IO.XMLSUFFIX);
     final XQContext ctx=xq.ctx;
     files.add(file(nodes("input-file",root),nodes("input-file/@variable",root),ctx));
     files.add(file(nodes("input-URI",root),nodes("input-URI/@variable",root),ctx));
@@ -26,7 +27,7 @@
       xq.module(ns,f);
     }
     final CachedOutput out=new CachedOutput();
-    res=xq.query(nodes);
+    res=xq.query(context.current());
     res.serialize(new PrintSerializer(out));
     output=norm(out.finish());
   }
@@ -56,7 +57,7 @@ catch (  final Error ex) {
   for (int o=0; o < outFiles.size; o++) {
     if (o != 0)     tb.append(DELIM);
     final String resFile=string(data.atom(outFiles.pre[o]));
-    tb.append(read(new File(expected + path + resFile)));
+    tb.append(read(new IO(expected + path + resFile)));
   }
   String result=tb.toString();
   String expError=text("expected-error/text()",root);

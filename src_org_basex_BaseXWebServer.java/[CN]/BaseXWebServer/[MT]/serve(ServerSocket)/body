@@ -12,7 +12,7 @@
     new Thread(){
       @Override public void run(){
         try {
-          final File file=req.file;
+          final IO file=req.file;
           final String path=absPath(file);
           if (req.code == 404) {
             BaseX.debug("File not found: %",path);
@@ -21,7 +21,7 @@
  else           if (req.code == 302) {
             send("302 Found","Location: " + path,"Redirecting to <a href='" + path + "'>"+ path+ "</a>.",s);
           }
- else           if (file.isDirectory()) {
+ else           if (file.isDir()) {
             sendDir(file,s);
           }
  else           if (req.suf.equals(XQSUFFIX)) {
@@ -36,7 +36,7 @@
           is.close();
           if (verbose) {
             final InetAddress addr=s.getInetAddress();
-            BaseX.outln("%:% => % [%]",addr.getHostAddress(),s.getPort(),req.file.getName(),p.getTimer());
+            BaseX.outln("%:% => % [%]",addr.getHostAddress(),s.getPort(),req.file,p.getTimer());
           }
         }
  catch (        final Exception ex) {

@@ -1,0 +1,19 @@
+{
+  try {
+    if (!fn.exists())     return null;
+    final Parser p=Prop.intparse ? new XMLParser(fn) : new SAXWrapper(fn);
+    if (Prop.onthefly)     return new MemBuilder().build(p,db);
+    final Data data=new DiskBuilder().build(p,db);
+    if (data.meta.txtindex)     data.openIndex(Index.TYPE.TXT,new ValueBuilder(true).build(data));
+    if (data.meta.atvindex)     data.openIndex(Index.TYPE.ATV,new ValueBuilder(false).build(data));
+    if (data.meta.ftxindex) {
+      if (Prop.fuzzyindex)       data.openIndex(Index.TYPE.FUY,new FZBuilder().build(data));
+ else       data.openIndex(Index.TYPE.FTX,new FTBuilder().build(data));
+    }
+    return data;
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    return null;
+  }
+}

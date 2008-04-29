@@ -1,13 +1,12 @@
 {
   meta=new MetaData(db);
-  meta.filename=parser.file;
-  final File f=new File(parser.file);
-  meta.filesize=f.length();
-  meta.time=f.lastModified();
+  meta.file=parser.file;
+  meta.filesize=meta.file.length();
+  meta.time=meta.file.date();
   stats=new Stats(db);
   Drop.drop(db);
-  IOConstants.dbpath(db).mkdirs();
-  int bs=1 << BLOCKPOWER;
+  IO.dbpath(db).mkdirs();
+  int bs=1 << IO.BLOCKPOWER;
   while (bs < meta.filesize && bs < (1 << 22))   bs<<=1;
   tout=new DataOutput(new TableOutput(db,DATATBL));
   xout=new DataOutput(db,DATATXT,bs);

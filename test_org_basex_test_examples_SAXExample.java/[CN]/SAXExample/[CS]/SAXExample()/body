@@ -1,9 +1,10 @@
 {
   Prop.read();
-  final Data data=Check.check(XMLFILE);
+  final Context ctx=new Context();
+  final Proc proc=Proc.get(ctx,Commands.CHECK,XMLFILE);
+  if (!proc.execute())   throw new Exception(proc.info());
   final QueryProcessor xpath=new XQueryProcessor(QUERY);
-  final Nodes nodes=new Nodes(0,data);
-  final Result result=xpath.query(nodes);
+  final Result result=xpath.query(ctx.current());
   final XMLReader reader=new SAXSerializer(result);
   reader.setContentHandler(this);
   reader.parse("");

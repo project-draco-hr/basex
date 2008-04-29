@@ -1,0 +1,18 @@
+{
+  File r=path.file().getCanonicalFile();
+  if (Prop.UNIX && isSymlink(r)) {
+    r=r.getCanonicalFile();
+    roots=new File[]{r};
+  }
+ else   if (path.equals("/") || path.path().length() == 0) {
+    roots=Prop.UNIX ? new File[]{new File("/")} : File.listRoots();
+  }
+ else {
+    roots=new File[]{r};
+  }
+  for (int r1=0; r1 < roots.length; r1++) {
+    for (    final FSVisitor v : visitors)     v.preTraversal(roots[r1].toString(),r1 == 0);
+    visitOrDescend(roots[r1]);
+    for (    final FSVisitor v : visitors)     v.postTraversal(r1 == roots.length - 1);
+  }
+}

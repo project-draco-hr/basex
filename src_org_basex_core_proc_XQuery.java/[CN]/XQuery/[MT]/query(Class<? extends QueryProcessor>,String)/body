@@ -27,21 +27,22 @@
       info(QUERYCOMPILE + Performance.getTimer(comp,Prop.runs) + NL);
       info(QUERYEVALUATE + Performance.getTimer(eval,Prop.runs) + NL);
     }
+    return true;
   }
  catch (  final IllegalArgumentException ex) {
     throw ex;
-  }
-catch (  final RuntimeException ex) {
-    return false;
   }
 catch (  final QueryException ex) {
     BaseX.debug(ex);
     return error(ex.getMessage());
   }
-catch (  final Exception ex) {
-    BaseX.debug(ex);
-    final String msg=ex.getMessage();
-    return error("Implementation Bug? " + ex.getClass().getSimpleName() + (msg != null ? ": " + msg : ""));
+catch (  final RuntimeException ex) {
+    if (ex.getClass() == RuntimeException.class)     return false;
+    ex.printStackTrace();
+    return error("Implementation Bug? " + ex.getClass().getSimpleName());
   }
-  return true;
+catch (  final Exception ex) {
+    ex.printStackTrace();
+    return error("Implementation Bug? " + ex.getClass().getSimpleName());
+  }
 }

@@ -1,6 +1,5 @@
 {
   String err="";
-  final String db=chopPath(file);
   Builder builder=null;
   try {
     if (Prop.onthefly) {
@@ -23,16 +22,20 @@
     context.data(data);
     return Prop.info ? timer(DBCREATED) : true;
   }
- catch (  final RuntimeException ex) {
-    throw ex;
-  }
-catch (  final FileNotFoundException ex) {
+ catch (  final FileNotFoundException ex) {
     BaseX.debug(ex);
-    err=BaseX.info(FILEWHICH,file);
+    err=BaseX.info(FILEWHICH,p.file);
   }
 catch (  final IOException ex) {
     BaseX.debug(ex);
     err=ex.getMessage();
+  }
+catch (  final RuntimeException ex) {
+    if (ex.getClass() == RuntimeException.class)     throw ex;
+    String msg=ex.getMessage();
+    if (msg == null)     msg=ex.toString();
+    BaseX.debug(ex);
+    err=BaseX.info(CREATEERR,cmd.args(),msg.length() != 0 ? msg : "");
   }
 catch (  final Exception ex) {
     String msg=ex.getMessage();

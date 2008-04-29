@@ -1,0 +1,19 @@
+{
+  try {
+    final DataInput in=new DataInput(db,DATAINFO);
+    String key;
+    IO f=null;
+    long t=0;
+    while ((key=in.readString()).length() != 0) {
+      final String val=in.readString();
+      if (key.equals(DBFNAME))       f=new IO(val);
+      if (key.equals(DBTIME))       t=Token.toLong(val);
+    }
+    in.close();
+    return f != null && f.eq(path) && f.date() == t;
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    return false;
+  }
+}

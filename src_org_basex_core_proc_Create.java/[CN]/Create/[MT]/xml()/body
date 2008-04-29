@@ -1,15 +1,12 @@
 {
   if (cmd.nrArgs() != 2)   throw new IllegalArgumentException();
-  final String file=cmd.arg(1);
-  String path=file;
+  final IO file=new IO(cmd.arg(1));
+  if (!file.exists())   return error(FILEWHICH,file);
+  final String db=file.dbname();
   try {
-    if (file.startsWith("<")) {
-      return build(new XMLParser(new CachedInput(Token.token(file))),"temp");
-    }
-    path=filePath(path,true);
-    return build(new XMLParser(path),path);
+    return build(new XMLParser(file),db);
   }
  catch (  final IOException e) {
-    return error(e.getMessage(),path);
+    return error(e.getMessage(),db);
   }
 }
