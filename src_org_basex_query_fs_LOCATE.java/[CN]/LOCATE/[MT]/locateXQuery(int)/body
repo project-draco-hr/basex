@@ -1,23 +1,19 @@
 {
-  String query;
+  String query="";
   int slash=fileToFind.indexOf('/');
   int lastSlash=0;
   int lastrIndexOfSlash=fileToFind.lastIndexOf('/');
-  if (slash != 0) {
-    query="//[@name='" + fileToFind.substring(lastSlash,slash) + "']";
+  if (slash > 0) {
+    query="//*[@name='" + fileToFind.substring(lastSlash,slash) + "']";
     while (slash < lastrIndexOfSlash) {
-      query+="/[@name='" + fileToFind.substring(lastSlash,slash) + "']";
+      query+="/*[@name='" + fileToFind.substring(lastSlash,slash) + "']";
       lastSlash=slash;
       slash=fileToFind.indexOf('/',lastSlash);
-      out.print(query);
-      out.print(NL);
     }
-    query+="/[@name='" + fileToFind.substring(lastrIndexOfSlash + 1,fileToFind.length()) + "']";
-    out.print(query);
-    out.print(NL);
+    query+="/*[@name='" + fileToFind.substring(lastrIndexOfSlash + 1,fileToFind.length()) + "']/descendant-or-self::*";
   }
  else {
-    query="//[@name='" + fileToFind + "']";
+    query="//*[@name='" + fileToFind + "']/descendant-or-self::*";
   }
   XPathProcessor qu=new XPathProcessor(query);
   try {
