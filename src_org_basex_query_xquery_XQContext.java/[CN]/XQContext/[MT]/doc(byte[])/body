@@ -1,9 +1,11 @@
 {
   if (contains(db,'<') || contains(db,'>'))   Err.or(INVDOC,db);
+  final String dbname=string(db);
+  for (  final DNode d : docs)   if (d.data.meta.dbname.equals(dbname))   return d;
   final IO bxw=new IO(string(db));
   for (  final DNode d : docs)   if (d.data.meta.file.eq(bxw))   return d;
-  Data data=Check.check(bxw);
-  if (data == null && file != null)   data=Check.check(file.merge(bxw));
+  Data data=Check.check(dbname);
+  if (data == null && file != null)   data=Check.check(file.merge(bxw).path());
   if (data == null)   Err.or(NODOC,bxw);
   final int dl=docs.length;
   docs=Array.add(docs,new DNode(data,0,null,Type.DOC));

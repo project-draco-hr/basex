@@ -5,7 +5,8 @@
   term.reset();
   final Item it=ctx.iter(expr).next();
   ctx.ftselect=tmp;
-  if (size == 0)   return Dbl.iter(it.dbl());
+  double s=it.dbl();
+  if (size == 0 || s == 0)   return Dbl.iter(s);
   if (ordered) {
     int c=-1;
     int d=-1;
@@ -49,7 +50,7 @@
       }
     }
   }
-  if (dunit != 0) {
+  if (dunit != null) {
     final long mn=checkItr(ctx.iter(dist[0]));
     final long mx=checkItr(ctx.iter(dist[1]));
     int l=-1;
@@ -57,7 +58,8 @@
       boolean o=false;
       for (int j=0; j < pos[i].size; j++) {
         final int p=calc(ctx,pos[i].get(j),dunit);
-        if (i != 0 && (mn <= p - l && mx >= p - l)) {
+        int d=Math.abs(p - l) - 1;
+        if (i == 0 || (d >= mn && d <= mx)) {
           o=true;
           l=p;
           break;
@@ -66,14 +68,14 @@
       if (!o)       return Dbl.iter(0);
     }
   }
-  if (wunit != 0) {
+  if (wunit != null) {
     final long c=checkItr(ctx.iter(window));
     int l=-1;
     for (int i=0; i < size; i++) {
       boolean o=false;
       for (int j=0; j < pos[i].size; j++) {
         final int p=calc(ctx,pos[i].get(j),wunit);
-        if (i != 0 && (Math.abs(p - l) < c)) {
+        if (i == 0 || (Math.abs(p - l) - 1 < c)) {
           o=true;
           l=p;
           break;
