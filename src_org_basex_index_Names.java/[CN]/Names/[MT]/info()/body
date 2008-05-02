@@ -1,20 +1,18 @@
 {
   final StringBuilder sb=new StringBuilder();
-  sb.append("- Main-Memory Hash\n");
-  sb.append("- Indexed Names: " + size() + "\n");
+  sb.append("- Main-Memory Hash\n\n");
   final int[] ids=sort();
   int len=0;
   for (int i=1; i < size; i++)   if (len < keys[i].length)   len=keys[i].length;
-  sb.append("- Longest Name : " + len + "\n\n");
-  len+=2;
+  len+=3;
   for (int i=1; i < size; i++) {
-    final byte[] key=keys[ids[i]];
+    final int s=ids[i];
+    final byte[] key=keys[s];
     sb.append(i + ": " + Token.string(key));
     for (int j=0; j < len - key.length; j++)     sb.append(' ');
-    sb.append(counter[ids[i]] + "x");
-    final boolean leaf=!noleaf[ids[i]];
-    if (leaf)     sb.append(" (leaf)");
-    sb.append('\n');
+    sb.append(counter[s] + "x" + stat[s]);
+    if (!noleaf[s])     sb.append(", leaf");
+    sb.append("\n");
   }
   return sb.toString();
 }
