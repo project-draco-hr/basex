@@ -1,0 +1,29 @@
+{
+  String file="";
+  int beginIndex=path.lastIndexOf('/');
+  if (beginIndex == -1) {
+    file=path;
+  }
+ else {
+    curDirPre=FSUtils.goToDir(context.data(),curDirPre,path.substring(0,beginIndex));
+    if (curDirPre == -1) {
+      out.print("rm: " + path + " No such file or directory");
+    }
+ else {
+      file=path.substring(beginIndex + 1);
+    }
+  }
+  int del=FSUtils.getSpecificFileOrDir(context.data(),curDirPre,file.getBytes(),Data.ELEM);
+  if (del == -1) {
+    out.print("rm: " + file + " No such file or directory");
+    return;
+  }
+  try {
+    out.print(file);
+    context.data().delete(del);
+    context.data().flush();
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}
