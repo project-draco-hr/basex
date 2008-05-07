@@ -1,24 +1,24 @@
 {
-  final byte[] t=utf8(tag,meta.encoding);
-  final int tok=tags.index(t,null);
+  final byte[] tag=utf8(name,meta.encoding);
+  final int tid=tags.index(tag,null);
   if (level != 0) {
-    if (level == 1 && inDoc)     error(MOREROOTS,parser.det(),t);
+    if (level == 1 && inDoc)     error(MOREROOTS,parser.det(),tag);
     tags.noleaf(tagStack[level - 1],true);
   }
-  final int attl=att != null ? att.length >> 1 : 0;
-  final int[] at=new int[attl];
-  for (int a=0; a < attl; a++) {
+  final int al=att != null ? att.length >> 1 : 0;
+  final int[] at=al != 0 ? new int[al] : null;
+  for (int a=0; a < al; a++) {
     at[a]=atts.index(att[a << 1],att[(a << 1) + 1]);
   }
-  for (int a=0; a < attl - 1; a++) {
-    for (int b=a + 1; b < attl; b++) {
+  for (int a=0; a < al - 1; a++) {
+    for (int b=a + 1; b < al; b++) {
       if (at[a] == at[b])       error(DUPLATT,parser.det(),att[a << 1]);
     }
   }
-  tagStack[level]=tok;
+  tagStack[level]=tid;
   parStack[level]=size;
   final int par=level != 0 ? size - parStack[level - 1] : 1;
-  addNode(tok,par,att,at,kind);
+  addNode(tid,par,att,at,kind);
   if (open && meta.height < ++level)   meta.height=level;
   if (size != 1)   inDoc=true;
 }
