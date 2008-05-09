@@ -1,16 +1,14 @@
 {
   Performance.gc(4);
   final Data data=context.data();
-  long fl=0;
   final File file=IO.dbpath(data.meta.dbname);
-  if (file.exists()) {
-    for (    final File f : file.listFiles())     fl+=f.length();
-  }
+  long fl=0;
+  if (file.exists())   for (  final File f : file.listFiles())   fl+=f.length();
   prop(out,INFODB,false);
   prop(out,INFODBNAME + data.meta.dbname,true);
   prop(out,INFODOC + data.meta.file,true);
   prop(out,INFOTIME + new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(new Date(data.meta.time)),true);
-  if (data.meta.filesize != 0)   prop(out,INFODOCSIZE + Performance.formatSize(data.meta.filesize),true);
+  prop(out,INFODOCSIZE + (data.meta.filesize != 0 ? Performance.formatSize(data.meta.filesize) : "-"),true);
   if (fl != 0)   prop(out,INFODBSIZE + Performance.formatSize(fl),true);
   prop(out,INFOENCODING + data.meta.encoding,true);
   prop(out,INFONODES + data.size,true);

@@ -1,0 +1,77 @@
+{
+  final TokenList names=new TokenList();
+  final TokenList values=new TokenList();
+  final int[] parent=new int[256];
+  final byte[][] token=new byte[256][];
+  int l=0;
+  int p=pos;
+  final int r=p;
+  final int s=data.size;
+  while (p < s) {
+    final int kind=data.kind(p);
+    final int pr=data.parent(p,kind);
+    if (r != 1 && p > r && pr < r)     break;
+    while (l > 0) {
+      if (parent[l - 1] < pr)       break;
+      ser.closeElement(token[--l]);
+    }
+    if (kind == Data.TEXT) {
+      ser.text(data.text(p++));
+    }
+ else     if (kind == Data.COMM) {
+      ser.comment(data.text(p++));
+    }
+ else     if (kind == Data.PI) {
+      ser.pi(data.text(p++));
+    }
+ else {
+      final byte[] name=data.tag(p);
+      ser.startElement(name);
+      final int ps=p + data.size(p,kind);
+      final int as=p + data.attSize(p,kind);
+      if (level != 0 || l != 0) {
+        while (++p != as)         ser.attribute(data.attName(p),data.attValue(p));
+      }
+ else {
+        names.reset();
+        values.reset();
+        while (++p != as) {
+          final byte[] at=data.attName(p);
+          names.add(at);
+          values.add(data.attValue(p));
+          final int i=data.ns.get(at,pre);
+          if (i != 0) {
+            final byte[] pref=substring(at,0,indexOf(at,':'));
+            final byte[] atr=concat(XMLNSCOL,pref);
+            if (!names.contains(atr)) {
+              names.add(atr);
+              values.add(data.ns.key(i));
+            }
+          }
+        }
+        final int i=data.ns.get(name,pre);
+        if (i != 0) {
+          final byte[] uri=data.ns.key(i);
+          final byte[] pref=substring(name,0,indexOf(name,':'));
+          final byte[] at=concat(XMLNSCOL,pref);
+          if (!names.contains(at)) {
+            names.add(at);
+            values.add(uri);
+          }
+        }
+        for (int n=0; n < names.size; n++) {
+          ser.attribute(names.list[n],values.list[n]);
+        }
+      }
+      if (as == ps) {
+        ser.emptyElement();
+      }
+ else {
+        ser.finishElement();
+        token[l]=name;
+        parent[l++]=pr;
+      }
+    }
+  }
+  while (l > 0)   ser.closeElement(token[--l]);
+}

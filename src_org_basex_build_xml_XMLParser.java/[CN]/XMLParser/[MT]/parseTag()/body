@@ -18,17 +18,26 @@
       consume(Type.EQ);
       skipSpace();
       consume(Type.QUOTE);
-      byte[] attValue=Token.EMPTY;
+      byte[] attValue=EMPTY;
       if (scanner.type == Type.ATTVALUE) {
         attValue=scanner.token.finish();
         scanner.more();
       }
       consume(Type.QUOTE);
-      final byte[][] tmp=new byte[as + 2][];
-      if (as > 0)       System.arraycopy(atts,0,tmp,0,as);
-      atts=tmp;
-      atts[as++]=attName;
-      atts[as++]=attValue;
+      final int s=indexOf(attName,':');
+      if (s != -1 && startsWith(attName,DataText.XMLNSC)) {
+        builder.startNS(substring(attName,s + 1),attValue);
+      }
+ else       if (eq(attName,DataText.XMLNS)) {
+        builder.startNS(EMPTY,attValue);
+      }
+ else {
+        final byte[][] tmp=new byte[as + 2][];
+        if (as > 0)         System.arraycopy(atts,0,tmp,0,as);
+        atts=tmp;
+        atts[as++]=attName;
+        atts[as++]=attValue;
+      }
       if (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
         consume(Type.WS);
       }
