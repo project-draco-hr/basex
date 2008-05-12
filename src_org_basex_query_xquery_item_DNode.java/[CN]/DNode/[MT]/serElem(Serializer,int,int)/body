@@ -40,7 +40,7 @@
           names.add(at);
           values.add(data.attValue(p));
           final int i=data.ns.get(at,pre);
-          if (i != 0) {
+          if (i > 0) {
             final byte[] pref=substring(at,0,indexOf(at,':'));
             final byte[] atr=concat(XMLNSCOL,pref);
             if (!names.contains(atr)) {
@@ -50,10 +50,11 @@
           }
         }
         final int i=data.ns.get(name,pre);
-        if (i != 0) {
+        if (i > 0) {
+          final int j=indexOf(name,':');
           final byte[] uri=data.ns.key(i);
-          final byte[] pref=substring(name,0,indexOf(name,':'));
-          final byte[] at=concat(XMLNSCOL,pref);
+          final byte[] pref=j == -1 ? null : substring(name,0,j);
+          final byte[] at=j == -1 ? XMLNS : concat(XMLNSCOL,pref);
           if (!names.contains(at)) {
             names.add(at);
             values.add(uri);
