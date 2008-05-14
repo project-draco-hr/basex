@@ -1,17 +1,16 @@
 {
   final Data data=context.data();
   final boolean db=data != null;
-  int s=!db ? 2 : GUIProp.searchmode;
-  final String mod=s == 2 ? BUTTONCMD : s == 1 ? BUTTONXPATH : BUTTONSEARCH;
-  if (!mod.equals(mode.getText())) {
-    saveMode();
+  final int t=mode.getSelectedIndex();
+  final int s=!db ? 2 : GUIProp.searchmode;
+  input.help=s == 0 ? data.deepfs ? HELPSEARCHFS : HELPSEARCHXML : s == 1 ? HELPXPATH : HELPCMD;
+  mode.setEnabled(db);
+  exec.setEnabled(s == 2 || !GUIProp.execrt);
+  if (s != t) {
+    saveMode(t);
     input.history(s == 0 ? GUIProp.search : s == 1 ? GUIProp.xpath : GUIProp.commands);
-    mode.setText(mod);
+    mode.setSelectedIndex(s);
     input.setText("");
     input.requestFocusInWindow();
   }
-  input.help=s == 0 ? data.deepfs ? HELPSEARCHFS : HELPSEARCHXML : s == 1 ? HELPXPATH : HELPCMD;
-  mode.setFocusable(db);
-  mode.setRolloverEnabled(db);
-  exec.setEnabled(s == 2 || !GUIProp.execrt);
 }

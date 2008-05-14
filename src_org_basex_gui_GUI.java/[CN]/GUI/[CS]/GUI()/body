@@ -25,7 +25,7 @@
   final BaseXBack p=new BaseXBack();
   hits=new BaseXLabel(" ");
   hits.setFont(fnt);
-  BaseXLayout.setWidth(hits,100);
+  BaseXLayout.setWidth(hits,150);
   hits.setHorizontalAlignment(SwingConstants.RIGHT);
   p.add(hits);
   p.add(Box.createHorizontalStrut(4));
@@ -46,12 +46,22 @@
   p.add(filter);
   buttons.add(p,BorderLayout.EAST);
   if (GUIProp.showbuttons)   control.add(buttons,BorderLayout.CENTER);
-  nav=new Box(BoxLayout.X_AXIS);
-  nav.setBorder(new EmptyBorder(4,2,0,2));
-  mode=new BaseXButton("",HELPMODE);
+  nav=new BaseXBack();
+  nav.setLayout(new BorderLayout(6,0));
+  nav.setBorder(2,2,0,4);
+  mode=new BaseXCombo(new String[]{BUTTONSEARCH,BUTTONXPATH,BUTTONCMD},HELPMODE,false);
+  mode.setSelectedIndex(2);
   mode.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
-      if (context.db())       GUICommands.INPUTMODE.execute();
+      final int t=GUIProp.searchmode;
+      final int i=mode.getSelectedIndex();
+      if (i == t || !mode.isEnabled())       return;
+      saveMode(t);
+      input.history(i == 0 ? GUIProp.search : i == 1 ? GUIProp.xpath : GUIProp.commands);
+      input.setText("");
+      input.help=i == 0 ? context.data().deepfs ? HELPSEARCHFS : HELPSEARCHXML : i == 1 ? HELPXPATH : HELPCMD;
+      exec.setEnabled(i == 2 || !GUIProp.execrt);
+      GUIProp.searchmode=i;
     }
   }
 );
@@ -61,8 +71,7 @@
     }
   }
 );
-  nav.add(mode);
-  nav.add(Box.createHorizontalStrut(6));
+  nav.add(mode,BorderLayout.WEST);
   input=new BaseXCombo(GUIProp.commands,null,true);
   final Font f=input.getFont();
   input.setFont(f.deriveFont((float)f.getSize() + 2));
@@ -82,7 +91,7 @@
     }
   }
 );
-  nav.add(input);
+  nav.add(input,BorderLayout.CENTER);
   exec=new BaseXButton(BUTTONEXEC,null);
   exec.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
@@ -96,8 +105,7 @@
     }
   }
 );
-  nav.add(Box.createHorizontalStrut(6));
-  nav.add(exec);
+  nav.add(exec,BorderLayout.EAST);
   if (GUIProp.showinput)   control.add(nav,BorderLayout.SOUTH);
   top.add(control,BorderLayout.NORTH);
   query=new QueryView(null);
