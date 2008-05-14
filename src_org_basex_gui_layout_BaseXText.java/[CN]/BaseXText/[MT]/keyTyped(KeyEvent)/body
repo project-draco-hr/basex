@@ -1,3 +1,14 @@
 {
-  if (editable)   e.consume();
+  final char ch=e.getKeyChar();
+  if (ch == KeyEvent.VK_BACK_SPACE || ch == KeyEvent.VK_DELETE)   return;
+  if (editable) {
+    if (!e.isControlDown() && !e.isActionKey()) {
+      if (text.start() != -1)       text.delete();
+      text.add(new char[]{ch});
+    }
+    e.consume();
+    text.setCaret();
+    rend.calc();
+    showCursor(0);
+  }
 }
