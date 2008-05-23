@@ -1,16 +1,9 @@
 {
   int s=0;
-  index=new CTArrayNew();
+  index=new CTArrayNew(128);
+  index.bl=data.meta.filesize > 1073741824 || index.bl;
   if (index.bl) {
-    token=new ByteArrayList[128];
-    token[0]=new ByteArrayList();
-    token[0].add(new byte[]{0});
-    ftpre=new IntArrayList[128];
-    ftpre[0]=new IntArrayList();
-    ftpre[0].add(new int[]{0});
-    ftpos=new IntArrayList[128];
-    ftpos[0]=new IntArrayList();
-    ftpos[0].add(new int[]{0});
+    hash=new FZHash();
   }
   total=data.size;
   for (id=0; id < total; id++) {
@@ -18,22 +11,27 @@
     if (data.kind(id) == Data.TEXT)     index(data.text(id));
   }
   if (Prop.debug) {
-    System.out.println("Trie in Hauptspeicher gehalten:");
+    System.out.println("Hash in Hauptspeicher gehalten:");
     Performance.gc(5);
     System.out.println(Performance.getMem());
   }
+  final String db=data.meta.dbname;
   if (index.bl) {
-    bulkLoad(total);
+    bulkLoad(db);
   }
+  if (Prop.debug) {
+    System.out.println("Hash und Trie in Hauptspeicher gehalten:");
+    Performance.gc(5);
+    System.out.println(Performance.getMem());
+  }
+  hash=null;
   index.finish();
   if (Prop.debug) {
     System.out.println("Trie in komprimierte Form ??berf??hrt.");
     Performance.gc(5);
     System.out.println(Performance.getMem());
   }
-  final String db=data.meta.dbname;
   DataOutput outN=new DataOutput(db,DATAFTX + 'a');
-  DataOutput outD=new DataOutput(db,DATAFTX + 'b');
   DataOutput outS=new DataOutput(db,DATAFTX + 'c');
   if (index != null && index.count != 1) {
     outN.write((byte)1);
@@ -44,32 +42,37 @@
       outN.write(index.tokens[index.next[index.next[0][j]][0]][0]);
     }
     outN.writeInt(index.next[0][j]);
-    outN.writeInt(-1);
+    outN.write5(-1);
     outS.writeInt(s);
-    s+=2L + (index.next[0].length - 3) * 5L + 8L;
+    s+=2L + (index.next[0].length - 3) * 5L + 9L;
+    int lp;
+    int[] tmp;
     for (int i=1; i < index.next.length; i++) {
+      lp=(index.next[i][index.next[i].length - 2] > -1) ? 0 : -1;
       outN.write((byte)index.tokens[index.next[i][0]].length);
       outN.write(index.tokens[index.next[i][0]]);
       j=1;
-      for (; j < index.next[i].length - 2; j++) {
+      for (; j < index.next[i].length - 2 + lp; j++) {
         outN.writeInt(index.next[i][j]);
         outN.write(index.tokens[index.next[index.next[i][j]][0]][0]);
       }
       outN.writeInt(index.next[i][j]);
       if (index.next[i][j] == 0 && index.next[i][j + 1] == 0) {
-        outN.writeInt(index.next[i][j + 1]);
+        outN.write5(index.next[i][j + 1]);
       }
  else {
-        outN.writeInt((int)outD.size());
-        outD.writeInts(index.pre[index.next[i][j + 1]]);
-        outD.writeInts(index.pos[index.next[i][j + 1]]);
+        if (lp == 0)         outN.write5(index.next[i][j + 1]);
+ else {
+          tmp=new int[2];
+          System.arraycopy(index.next[i],index.next[i].length - 2,tmp,0,tmp.length);
+          outN.write5(Token.intArrayToLong(tmp));
+        }
       }
       outS.writeInt(s);
-      s+=1L + index.tokens[index.next[i][0]].length * 1L + (index.next[i].length - 3) * 5L + 8L;
+      s+=1L + index.tokens[index.next[i][0]].length * 1L + (index.next[i].length - 3) * 5L + 9L;
     }
   }
   outS.writeInt(s);
-  outD.close();
   outN.close();
   outS.close();
   return new WordsCTANew(db);

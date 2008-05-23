@@ -4,7 +4,8 @@
   final DataOutput outy=new DataOutput(db,DATAFTX + 'y');
   final DataOutput outz=new DataOutput(db,DATAFTX + 'z');
   outx.write(isize);
-  int c=0, tr=0, dr=0;
+  long dr=0;
+  int c=0, tr=0;
   byte j=1;
   for (; j < tree.length; j++) {
     if (c == isize - 1)     break;
@@ -17,19 +18,15 @@
       int p=tre.next();
       byte[] key=tre.key();
       for (int x=0; x != j; x++)       outy.write(key[x]);
-      outy.writeInt(dr);
+      outy.write5(dr);
       final int ds=tre.ns[p];
       outy.writeInt(ds);
       byte[] val=tre.pre[p];
-      for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++) {
-        outz.writeInt(Num.read(val,ip));
-      }
+      for (int z=4; z < val.length; z++)       outz.write(val[z]);
       val=tre.pos[p];
-      for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++) {
-        outz.writeInt(Num.read(val,ip));
-      }
-      dr+=ds << 3;
-      tr+=j + 8L;
+      for (int z=4; z < val.length; z++)       outz.write(val[z]);
+      dr=outz.size();
+      tr=(int)outy.size();
     }
     c++;
   }
