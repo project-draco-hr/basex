@@ -2,11 +2,11 @@
   int j=pointerEnding;
   int i=pointerNode;
   boolean last=lastFound;
-  final byte[] curNodeEntry=getNodeEntry(node);
+  final byte[] ne=getNodeEntry(node);
   final int[] curDataEntry=getDataEntry(node);
   if (ending == null || ending.length == 0) {
-    astericsWildCardData=CTArrayX.ftOR(astericsWildCardData,getDataFromDataArray(curNodeEntry,curDataEntry));
-    final int[] nextNodes=getNextNodes(curNodeEntry);
+    adata=ftOR(adata,getDataFromDataArray(ne,curDataEntry));
+    final int[] nextNodes=getNextNodes(ne);
     if (nextNodes != null) {
       for (      final int n : nextNodes) {
         astericsWildCardTraversing(n,null,last,0,0);
@@ -14,45 +14,39 @@
     }
     return;
   }
-  if (curNodeEntry != null) {
-    while (!last && i < curNodeEntry[0] + 1 && curNodeEntry[i] != ending[j]) {
-      i++;
-    }
-    while (i + ending.length < curNodeEntry[0] + 1 && curNodeEntry[i + 1] == ending[0]) {
-      i++;
-    }
+  if (ne != null) {
+    while (!last && i < ne[0] + 1 && ne[i] != ending[j])     i++;
+    while (i + ending.length < ne[0] + 1 && ne[i + 1] == ending[0])     i++;
     countSkippedChars=countSkippedChars + i - pointerNode - 1;
-    while (i < curNodeEntry[0] + 1 && j < ending.length && curNodeEntry[i] == ending[j]) {
+    while (i < ne[0] + 1 && j < ending.length && ne[i] == ending[j]) {
       i++;
       j++;
-      if (!last) {
-        last=true;
-      }
+      last=true;
     }
   }
  else {
     countSkippedChars=0;
     return;
   }
-  if (node == 0 || j == ending.length && i < curNodeEntry[0] + 1) {
-    if (curNodeEntry[curNodeEntry[0] + 1] > 0) {
+  if (node == 0 || j == ending.length && i < ne[0] + 1) {
+    if (ne[ne[0] + 1] > 0) {
       countSkippedChars=0;
       return;
     }
-    final int[] nextNodes=getNextNodes(curNodeEntry);
+    final int[] nextNodes=getNextNodes(ne);
     for (    final int n : nextNodes) {
       astericsWildCardTraversing(n,ending,false,1,0);
     }
     countSkippedChars=0;
     return;
   }
- else   if (j == ending.length && i == curNodeEntry[0] + 1) {
-    final int[][] d=getDataFromDataArray(curNodeEntry,curDataEntry);
+ else   if (j == ending.length && i == ne[0] + 1) {
+    final int[][] d=getDataFromDataArray(ne,curDataEntry);
     if (d != null) {
-      astericsWildCardData=CTArrayX.ftOR(astericsWildCardData,d);
+      adata=ftOR(adata,d);
     }
     countSkippedChars=0;
-    final int[] nextNodes=getNextNodes(curNodeEntry);
+    final int[] nextNodes=getNextNodes(ne);
     if (nextNodes != null) {
       for (      final int n : nextNodes) {
         if (j == 1) {
@@ -63,20 +57,20 @@
     }
     return;
   }
- else   if (j < ending.length && i < curNodeEntry[0] + 1) {
-    if (curNodeEntry[curNodeEntry[0] + 1] > 0) {
+ else   if (j < ending.length && i < ne[0] + 1) {
+    if (ne[ne[0] + 1] > 0) {
       countSkippedChars=0;
       return;
     }
     astericsWildCardTraversing(node,ending,false,i + 1,0);
     return;
   }
- else   if (j < ending.length && i == curNodeEntry[0] + 1) {
-    if (curNodeEntry[curNodeEntry[0] + 1] > 0) {
+ else   if (j < ending.length && i == ne[0] + 1) {
+    if (ne[ne[0] + 1] > 0) {
       countSkippedChars=0;
       return;
     }
-    final int[] nextNodes=getNextNodes(curNodeEntry);
+    final int[] nextNodes=getNextNodes(ne);
     for (    final int n : nextNodes) {
       if (j == 1) {
         astericsWildCardTraversing(n,ending,last,1,0);

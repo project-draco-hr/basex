@@ -3,12 +3,13 @@
   String input=null;
   String line;
   boolean stop=false;
-  while ((line=br.readLine()).length() != 0) {
+  while ((line=br.readLine()) != null) {
+    if (line.length() == 0)     break;
     final Matcher m=QUERY.matcher(line);
     if (m.matches())     input=m.group(1);
     stop|=line.equals("STOP");
   }
   if (stop)   return new Request(0);
-  if (input == null)   new Request(400);
+  if (input == null)   return new Request(400);
   return new Request(URLDecoder.decode(input.replaceAll("&","|"),"UTF-8"));
 }

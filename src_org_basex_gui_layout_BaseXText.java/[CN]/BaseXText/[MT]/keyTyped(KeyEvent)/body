@@ -1,14 +1,35 @@
 {
+  if (!editable)   return;
   final char ch=e.getKeyChar();
-  if (ch == KeyEvent.VK_BACK_SPACE || ch == KeyEvent.VK_DELETE)   return;
-  if (editable) {
-    if (!e.isControlDown() && !e.isActionKey()) {
-      if (text.start() != -1)       text.delete();
-      text.add(new char[]{ch});
+  final byte[] txt=text.text;
+  boolean down=true;
+  final boolean ctrl=e.isControlDown();
+  if (ch == KeyEvent.VK_BACK_SPACE) {
+    if (text.start() == -1) {
+      if (text.pos() == 0)       return;
+      text.prev();
     }
-    e.consume();
-    text.setCaret();
-    rend.calc();
-    showCursor(0);
+    final boolean ld=Character.isLetterOrDigit(text.curr());
+    text.delete();
+    if (ctrl) {
+      while (text.pos() > 0 && ld == Character.isLetterOrDigit(text.prev()))       text.delete();
+      if (text.pos() != 0)       text.next();
+    }
+    down=false;
   }
+ else   if (ch == KeyEvent.VK_DELETE) {
+    final boolean ld=Character.isLetterOrDigit(text.curr());
+    text.delete();
+    if (ctrl) {
+      while (text.pos() < text.size && ld == Character.isLetterOrDigit(text.curr()))       text.delete();
+    }
+  }
+ else   if (!e.isControlDown() && !e.isActionKey()) {
+    if (text.start() != -1)     text.delete();
+    text.add(new char[]{ch});
+  }
+  e.consume();
+  text.setCaret();
+  if (txt != text.text)   rend.calc();
+  showCursor(down ? 2 : 0);
 }

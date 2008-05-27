@@ -1,10 +1,9 @@
 {
   final Iter iter=arg[0];
-  SeqIter seq=new SeqIter();
   Item i;
 switch (func) {
 case INDEXOF:
-    Item it=arg[1].atomic(this,false);
+    final Item it=arg[1].atomic(this,false);
   if (arg.length == 3)   checkColl(arg[2]);
 return indexOf(iter,it);
 case DISTINCT:
@@ -13,19 +12,21 @@ return distinctPipelined(iter);
 case INSBEF:
 final Iter sub=arg[2];
 long r=Math.max(1,checkItr(arg[1]));
+final SeqIter si=new SeqIter();
 while ((i=iter.next()) != null) {
-if (--r == 0) seq.add(sub);
-seq.add(i.iter());
+if (--r == 0) si.add(sub);
+si.add(i.iter());
 }
-if (r > 0) seq.add(sub);
-return seq;
+if (r > 0) si.add(sub);
+return si;
 case REVERSE:
 if (iter instanceof RangeIter) {
 ((RangeIter)iter).reverse();
 return iter;
 }
-while ((i=iter.next()) != null) seq.insert(i,0);
-return seq;
+final SeqIter sr=new SeqIter();
+while ((i=iter.next()) != null) sr.insert(i,0);
+return sr;
 case REMOVE:
 final long pos=checkItr(arg[1]);
 return remove(iter,pos);
