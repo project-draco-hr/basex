@@ -5,17 +5,21 @@
   int nodetype=Data.ELEM;
   int rootsize=data.size(root,nodetype);
   int pre;
-  int space=framex1;
+  int border=frameleft;
+  int sizeleft=space;
   while (iterator.more()) {
     pre=iterator.next();
     if (data.kind(pre) == nodetype) {
       double percent=(double)(data.size(pre,nodetype) + 1) / (double)rootsize;
-      int childframewidth=(int)((framex2 - framex1) * percent);
-      space+=childframewidth;
-      pointerx=space - childframewidth / 2;
-      pointery=20 + level * lvdistance;
+      int childframewidth=(int)(sizeleft * percent);
+      pointerx=border + childframewidth / 2;
+      pointery=topdistance + level * lvdistance;
       drawNode(g,pre,pointerx,pointery,elementColor);
-      drawTree(g,pre,level,space - childframewidth,space);
+      System.out.println(Token.string(data.tag(pre)) + "; Percent: " + percent+ "; Framewidth: "+ this.getWidth()+ "; framex1: "+ (space - childframewidth)+ "; space: "+ space);
+      drawTree(g,pre,level,border,childframewidth);
+      border+=childframewidth;
+      rootsize=rootsize - data.size(pre,nodetype) + 1;
+      sizeleft=sizeleft - childframewidth;
     }
   }
 }
