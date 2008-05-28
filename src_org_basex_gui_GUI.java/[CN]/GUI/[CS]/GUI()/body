@@ -1,13 +1,13 @@
 {
   setTitle(Text.TITLE);
   setIconImage(image(IMGICON));
-  final Dimension s=Toolkit.getDefaultToolkit().getScreenSize();
+  final Dimension scr=Toolkit.getDefaultToolkit().getScreenSize();
   final int w=GUIProp.guisize[0];
   final int h=GUIProp.guisize[1];
   int x=Math.max(0,GUIProp.guiloc[0]);
   int y=Math.max(0,GUIProp.guiloc[1]);
-  if (x > s.width - w)   x=Math.max(0,s.width - w);
-  if (y > s.height - h)   y=Math.max(0,s.height - h);
+  if (x > scr.width - w)   x=Math.max(0,scr.width - w);
+  if (y > scr.height - h)   y=Math.max(0,scr.height - h);
   setBounds(x,y,w,h);
   if (GUIProp.maxstate)   setExtendedState(MAXIMIZED_BOTH);
   top=new BaseXBack();
@@ -22,29 +22,14 @@
   buttons.setLayout(new BorderLayout());
   toolbar=new GUIToolBar();
   buttons.add(toolbar,BorderLayout.WEST);
-  final BaseXBack p=new BaseXBack();
+  BaseXBack b=new BaseXBack();
   hits=new BaseXLabel(" ");
   hits.setFont(fnt);
   BaseXLayout.setWidth(hits,150);
   hits.setHorizontalAlignment(SwingConstants.RIGHT);
-  p.add(hits);
-  p.add(Box.createHorizontalStrut(4));
-  filter=new BaseXButton(BUTTONFILTER,HELPFILTER,null);
-  filter.setToolTipText(Token.string(HELPFILTER));
-  filter.addActionListener(new ActionListener(){
-    public void actionPerformed(    final ActionEvent e){
-      GUICommands.FILTER.execute();
-    }
-  }
-);
-  filter.addKeyListener(new KeyAdapter(){
-    @Override public void keyPressed(    final KeyEvent e){
-      addKeys(e);
-    }
-  }
-);
-  p.add(filter);
-  buttons.add(p,BorderLayout.EAST);
+  b.add(hits);
+  b.add(Box.createHorizontalStrut(4));
+  buttons.add(b,BorderLayout.EAST);
   if (GUIProp.showbuttons)   control.add(buttons,BorderLayout.CENTER);
   nav=new BaseXBack();
   nav.setLayout(new BorderLayout(6,0));
@@ -54,45 +39,82 @@
   mode.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
       final int t=GUIProp.searchmode;
-      final int i=mode.getSelectedIndex();
-      if (i == t || !mode.isEnabled())       return;
-      saveMode(t);
-      input.history(i == 0 ? GUIProp.search : i == 1 ? GUIProp.xpath : GUIProp.commands);
+      final int s=mode.getSelectedIndex();
+      if (s == t || !mode.isEnabled())       return;
       input.setText("");
-      input.help=i == 0 ? context.data().deepfs ? HELPSEARCHFS : HELPSEARCHXML : i == 1 ? HELPXPATH : HELPCMD;
-      exec.setEnabled(i == 2 || !GUIProp.execrt);
-      GUIProp.searchmode=i;
+      input.help(s == 0 ? context.data().deepfs ? HELPSEARCHFS : HELPSEARCHXML : s == 1 ? HELPXPATH : HELPCMD);
+      exec.setEnabled(s == 2 || !GUIProp.execrt);
+      GUIProp.searchmode=s;
     }
   }
 );
   mode.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      addKeys(e);
+      checkKeys(e);
     }
   }
 );
   nav.add(mode,BorderLayout.WEST);
-  input=new BaseXCombo(GUIProp.commands,null,true);
+  b=new BaseXBack();
+  b.setLayout(new BorderLayout());
+  hist=new BaseXButton(icon("hist"),HELPHIST);
+  hist.trim();
+  hist.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      final JPopupMenu popup=new JPopupMenu("History");
+      final ActionListener al=new ActionListener(){
+        public void actionPerformed(        final ActionEvent ac){
+          input.setText(ac.getActionCommand());
+          input.requestFocusInWindow();
+          popup.setVisible(false);
+        }
+      }
+;
+      final int i=!context.db() ? 2 : GUIProp.searchmode;
+      final String[] hs=i == 0 ? GUIProp.search : i == 1 ? GUIProp.xpath : GUIProp.commands;
+      for (      final String en : hs) {
+        final JMenuItem jmi=new JMenuItem(en);
+        jmi.addActionListener(al);
+        popup.add(jmi);
+      }
+      popup.show(hist,0,hist.getHeight());
+    }
+  }
+);
+  input=new BaseXTextField(null);
   final Font f=input.getFont();
   input.setFont(f.deriveFont((float)f.getSize() + 2));
   input.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      addKeys(e);
-      if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-        execute();
+      checkKeys(e);
+      if (e.getKeyCode() != KeyEvent.VK_ENTER)       return;
+      final String txt=input.getText();
+      final StringList sl=new StringList();
+      sl.add(txt);
+      final int i=!context.db() ? 2 : GUIProp.searchmode;
+      final String[] hs=i == 0 ? GUIProp.search : i == 1 ? GUIProp.xpath : GUIProp.commands;
+      for (int p=0; p < hs.length && sl.size < 10; p++) {
+        if (!hs[p].equals(txt))         sl.add(hs[p]);
       }
+      if (i == 0)       GUIProp.search=sl.finish();
+ else       if (i == 1)       GUIProp.xpath=sl.finish();
+ else       GUIProp.commands=sl.finish();
+      execute();
     }
     @Override public void keyReleased(    final KeyEvent e){
       if (e.getKeyChar() == 0xFFFF || e.isControlDown())       return;
-      if (GUIProp.searchmode == 2 || !context.db()) {
-        refreshPop(e.getKeyCode());
-      }
+      if (GUIProp.searchmode == 2 || !context.db())       refreshPop(e.getKeyCode());
       if (GUIProp.execrt && GUIProp.searchmode != 2 && context.db() && !input.getText().startsWith("!"))       execute();
     }
   }
 );
-  nav.add(input,BorderLayout.CENTER);
-  exec=new BaseXButton(BUTTONEXEC,null);
+  b.add(hist,BorderLayout.WEST);
+  b.add(input,BorderLayout.CENTER);
+  nav.add(b,BorderLayout.CENTER);
+  b=new BaseXBack();
+  b.setLayout(new BorderLayout());
+  exec=new BaseXButton(icon("go"),HELPEXEC);
+  exec.trim();
   exec.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
       execute();
@@ -101,11 +123,28 @@
 );
   exec.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      addKeys(e);
+      checkKeys(e);
     }
   }
 );
-  nav.add(exec,BorderLayout.EAST);
+  filter=new BaseXButton(icon("filter"),HELPFILTER);
+  filter.trim();
+  filter.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      GUICommands.FILTER.execute();
+    }
+  }
+);
+  filter.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      checkKeys(e);
+    }
+  }
+);
+  b.add(filter);
+  b.add(exec,BorderLayout.CENTER);
+  b.add(filter,BorderLayout.EAST);
+  nav.add(b,BorderLayout.EAST);
   if (GUIProp.showinput)   control.add(nav,BorderLayout.SOUTH);
   top.add(control,BorderLayout.NORTH);
   query=new QueryView(null);
@@ -136,6 +175,7 @@
   Prop.allInfo=GUIProp.showinfo;
   Prop.info=GUIProp.showinfo;
   Prop.chop=true;
+  input.requestFocusInWindow();
   new Thread(){
     @Override public void run(){
       views.run();
