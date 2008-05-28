@@ -8,42 +8,62 @@
   input.addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
       int c=e.getKeyCode();
-      if (checkPop.isSelected()) {
-        if (all.size == 0) {
-          String[] test=keys(GUI.context.data());
-          for (int i=1; i < test.length; i++) {
-            all.add(test[i]);
-          }
-          String[] cmdList={"ancestor-or-self::","ancestor::","attribute::","child::","comment()","descendant-or-self::","following-sibling::","following::","namespace::","node()","parent::","preceding-sibling::","preceding::","processing-instruction()","self::","text()"};
-          for (int j=0; j < test.length; j++) {
-            all.add(cmdList[j]);
-          }
+      if (all.size == 0) {
+        String[] test=keys(GUI.context.data());
+        for (int i=1; i < test.length; i++) {
+          all.add(test[i]);
         }
-        if (c == KeyEvent.VK_SLASH) {
-          slashC++;
-          showPopAll();
+        String[] cmdList={"ancestor-or-self::","ancestor::","attribute::","child::","comment()","descendant-or-self::","following-sibling::","following::","namespace::","node()","parent::","preceding-sibling::","preceding::","processing-instruction()","self::","text()"};
+        for (int j=0; j < test.length; j++) {
+          all.add(cmdList[j]);
         }
- else         if (c == KeyEvent.VK_DELETE || c == KeyEvent.VK_BACK_SPACE) {
-          if (input.getText().length() == 0) {
-            slashC=0;
-            tmpIn="";
+      }
+      if (c == KeyEvent.VK_SLASH) {
+        slashC++;
+        showPopAll();
+      }
+ else       if (c == KeyEvent.VK_DELETE || c == KeyEvent.VK_BACK_SPACE) {
+        if (input.getText().length() == 0) {
+          slashC=0;
+          tmpIn="";
+          if (popInit) {
             pop.hide();
           }
         }
- else         if (c == KeyEvent.VK_UP || c == KeyEvent.VK_DOWN || c == KeyEvent.VK_RIGHT || c == KeyEvent.VK_LEFT)         return;
+      }
+ else       if (c == KeyEvent.VK_DOWN) {
+        if (box.getSelectedItem() == null) {
+          box.setSelectedIndex(0);
+        }
  else {
-          if (popInit) {
-            if (tmpIn.length() == 0) {
-              pop.hide();
-            }
+          int tmp=box.getSelectedIndex();
+          box.setSelectedIndex(tmp + 1);
+        }
+      }
+ else       if (c == KeyEvent.VK_UP) {
+        if (box.getSelectedItem() != null) {
+          int tmp=box.getSelectedIndex();
+          box.setSelectedIndex(tmp - 1);
+        }
+      }
+ else       if (c == KeyEvent.VK_ENTER) {
+        if (box.getSelectedItem() != null) {
+          input.setText(tmpIn + box.getSelectedItem().toString());
+          pop.hide();
+        }
+      }
  else {
-              slashC=0;
-              showSpecPop();
-            }
+        if (popInit) {
+          if (tmpIn.length() == 0) {
+            pop.hide();
+          }
+ else {
+            slashC=0;
+            showSpecPop();
           }
         }
       }
-      if (c == KeyEvent.VK_ESCAPE || c == KeyEvent.VK_ENTER)       return;
+      if (c == KeyEvent.VK_ESCAPE)       return;
       final String query=input.getText();
       GUI.get().execute(Commands.XPATH,query);
     }
@@ -51,9 +71,7 @@
 );
   setBorder(10,10,10,10);
   setLayout(new BorderLayout(0,4));
-  checkPop.setContentAreaFilled(false);
-  back.add(checkPop,BorderLayout.CENTER);
-  back.add(input,BorderLayout.SOUTH);
+  back.add(input,BorderLayout.CENTER);
   add(back,BorderLayout.NORTH);
   refreshLayout();
 }
