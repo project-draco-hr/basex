@@ -1,31 +1,31 @@
 {
-  final byte[] test=name();
-  if (test.length == 0) {
+  final String test=name();
+  if (test.length() == 0) {
     if (consume('*'))     return new TestName(true);
     error(NOTEST);
   }
   if (consume('(')) {
     TestNode result=null;
-    if (eq(test,PI)) {
+    if (test.equals(PI)) {
       if (curr(0))       error(PIBRACKETS);
-      final byte delim=curr();
+      final char delim=curr();
       if (delim != ')') {
         if (delim != '"' && delim != '\'')         error(PIQUOTE);
         consume(delim);
-        final byte[] pi=name();
+        final String pi=name();
         if (!consume(delim))         error(PIQUOTE);
         if (!consume(')'))         error(PIBRACKETS);
-        return new TestPI(pi);
+        return new TestPI(token(pi));
       }
       result=TestNode.PI;
     }
- else     if (eq(test,NODE)) {
+ else     if (test.equals(NODE)) {
       result=TestNode.NODE;
     }
- else     if (eq(test,COMMENT)) {
+ else     if (test.equals(COMMENT)) {
       result=TestNode.COMM;
     }
- else     if (eq(test,TEXT)) {
+ else     if (test.equals(TEXT)) {
       result=TestNode.TEXT;
     }
  else {
@@ -34,5 +34,5 @@
     if (consume(')'))     return result;
     error(KINDCLOSE);
   }
-  return new TestName(test,axis != Axis.ATTR);
+  return new TestName(token(test),axis != Axis.ATTR);
 }

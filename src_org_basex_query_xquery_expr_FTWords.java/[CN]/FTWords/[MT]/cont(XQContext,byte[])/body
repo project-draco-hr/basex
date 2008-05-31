@@ -1,0 +1,61 @@
+{
+  final FTOptions opt=ctx.ftopt;
+  byte[] tok=ctx.ftitem;
+  byte[] sb=opt.wildcards ? sub : FTCont.norm(new TokenBuilder(),sub).finish();
+  if (!opt.diacritics) {
+    sb=dc(sb);
+    tok=dc(tok);
+  }
+  if (opt.uppercase) {
+    sb=uc(sb);
+  }
+ else   if (!opt.sensitive || opt.lowercase) {
+    sb=lc(sb);
+    if (!opt.lowercase)     tok=lc(tok);
+  }
+  final int sl=sb.length;
+  final int tl=tok.length;
+  IntList il=null;
+  int p=-1;
+  if (opt.wildcards) {
+    final String cmp=string(sb);
+    for (    final String s : string(tok).split("[^A-Za-z0-9_]")) {
+      p++;
+      if (s.matches(cmp)) {
+        if (il == null)         il=new IntList();
+        il.add(p);
+      }
+    }
+  }
+ else {
+    for (int i=0; i <= tl - sl; i++) {
+      if (i > 0 && tok[i] > ' ')       continue;
+      while (i < tl - sl && !letterOrDigit(tok[i]))       i++;
+      p++;
+      int s=-1;
+      int t=i - 1;
+      if (opt.stopwords == null) {
+        while ((++t < tl & ++s < sl) && sb[s] == tok[t])         ;
+      }
+ else {
+        while (s < sl) {
+          final TokenBuilder st1=new TokenBuilder();
+          final TokenBuilder st2=new TokenBuilder();
+          while (++s < sl && letterOrDigit(sb[s]))           st1.add(sb[s]);
+          while (++t < tl && letterOrDigit(tok[t]))           st2.add(tok[t]);
+          final byte[] s1=st1.finish();
+          if (!opt.stopwords.contains(s1) && !eq(s1,st2.finish())) {
+            s=0;
+            break;
+          }
+        }
+      }
+      if (s == sl && (t == tl || !letterOrDigit(tok[t])) || opt.stemming) {
+        if (il == null)         il=new IntList();
+        il.add(p);
+      }
+    }
+  }
+  if (il != null)   ctx.ftselect.add(sub,il);
+  return il == null ? 0 : il.size;
+}

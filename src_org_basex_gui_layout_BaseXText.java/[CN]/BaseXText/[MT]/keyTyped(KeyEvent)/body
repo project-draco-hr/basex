@@ -4,6 +4,8 @@
   final byte[] txt=text.text;
   boolean down=true;
   final boolean ctrl=e.isControlDown();
+  if (e.isAltDown() || e.isMetaDown() || e.isActionKey()|| ch == KeyEvent.VK_ESCAPE)   return;
+  text.pos(text.cursor());
   if (ch == KeyEvent.VK_BACK_SPACE) {
     if (text.start() == -1) {
       if (text.pos() == 0)       return;
@@ -24,7 +26,8 @@
       while (text.pos() < text.size && ld == Character.isLetterOrDigit(text.curr()))       text.delete();
     }
   }
- else   if (!e.isControlDown() && !e.isActionKey()) {
+ else {
+    if (ctrl)     return;
     if (text.start() != -1)     text.delete();
     text.add(new char[]{ch});
   }

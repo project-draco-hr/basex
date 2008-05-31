@@ -5,19 +5,19 @@
   Expr[] cont={};
   Uri taguri=null;
   FAttr[] ns={};
-  while (letter(curr())) {
+  while (XMLToken.isXMLLetter(curr())) {
     final QNm atn=new QNm(qName(null));
     Expr[] attv={};
     consumeWSS();
     check('=');
     consumeWSS();
-    final byte delim=consume();
+    final char delim=consume();
     if (delim != '\'' && delim != '"')     Err.or(WRONGCHAR,QUOTE,found());
     final TokenBuilder tb=new TokenBuilder();
     boolean simple=true;
     do {
       while (!consume(delim)) {
-        final byte c=curr();
+        final char c=curr();
         if (c == '{') {
           if (next() == '{') {
             tb.add(consume());
@@ -42,10 +42,10 @@
           tb.add('}');
         }
  else         if (c == '<') {
-          Err.or(WRONGCHAR,(char)delim,found());
+          Err.or(WRONGCHAR,delim,found());
         }
  else         if (c == 0) {
-          Err.or(QUOTECLOSE,(char)delim);
+          Err.or(QUOTECLOSE,delim);
         }
  else         if (c == 0x0A || c == 0x09) {
           qp++;

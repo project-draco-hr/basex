@@ -1,0 +1,47 @@
+{
+  try {
+    file=f;
+    qu=q;
+    ql=qu.length();
+    if (ql == 0)     Err.or(QUERYEMPTY);
+    for (qp=ql; qp > 0; qp--) {
+      if (!XMLToken.valid(qu.charAt(qp - 1)))       Err.or(QUERYINV,(int)qu.charAt(qp - 1));
+    }
+    versionDecl();
+    if (u == null) {
+      ctx.root=mainModule();
+      if (ctx.root == null)       if (alter != null)       error();
+ else       Err.or(EXPREMPTY);
+    }
+ else {
+      moduleDecl(u);
+    }
+    if (qp != ql) {
+      if (alter != null)       error();
+      if (ctx.root instanceof Step) {
+        final Step step=(Step)ctx.root;
+        if (step.axis == Axis.CHILD && step.test.type == null && step.test.name != null)         Err.or(QUERYSTEP,step);
+      }
+      final int e=Math.min(ql,qp + 15);
+      Err.or(QUERYEND,qu.substring(qp,e) + (e == ql ? "" : "..."));
+    }
+    ctx.fun.check();
+  }
+ catch (  final XQException ex) {
+    if (ex.pos() != null)     throw ex;
+    int l=1;
+    int c=1;
+    for (int i=0; i + 1 < qp && i < ql; i++) {
+      final char ch=qu.charAt(i);
+      if (ch == 0x0A) {
+        l++;
+        c=1;
+      }
+ else       if (ch != 0x0D) {
+        c++;
+      }
+    }
+    ex.pos(file == null ? BaseX.info(POSINFO,l,c) : BaseX.info(POSFILEINFO,l,c,file));
+    throw ex;
+  }
+}
