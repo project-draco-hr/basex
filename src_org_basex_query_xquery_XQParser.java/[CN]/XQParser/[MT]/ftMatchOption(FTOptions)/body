@@ -1,58 +1,80 @@
 {
   if (consumeWS(LOWERCASE)) {
-    if (opt.lowercase || opt.uppercase || opt.sensitive)     Err.or(FTCASE);
-    opt.lowercase=true;
-    opt.sensitive=true;
+    if (opt.lc != null || opt.uc != null || opt.sens != null)     Err.or(FTCASE);
+    opt.lc=Bln.TRUE;
+    opt.sens=Bln.TRUE;
   }
  else   if (consumeWS(UPPERCASE)) {
-    if (opt.lowercase || opt.uppercase || opt.sensitive)     Err.or(FTCASE);
-    opt.uppercase=true;
-    opt.sensitive=true;
+    if (opt.lc != null || opt.uc != null || opt.sens != null)     Err.or(FTCASE);
+    opt.uc=Bln.TRUE;
+    opt.sens=Bln.TRUE;
   }
  else   if (consumeWS(CASE)) {
-    if (opt.lowercase || opt.uppercase || opt.sensitive)     Err.or(FTCASE);
-    opt.sensitive=consumeWS(SENSITIVE);
-    if (!opt.sensitive)     check(INSENSITIVE);
+    if (opt.lc != null || opt.uc != null || opt.sens != null)     Err.or(FTCASE);
+    opt.sens=Bln.get(consumeWS(SENSITIVE));
+    if (opt.sens == null)     check(INSENSITIVE);
   }
  else   if (consumeWS(DIACRITICS)) {
-    if (opt.diacritics)     Err.or(FTDIA);
-    opt.diacritics=consumeWS(SENSITIVE);
-    if (!opt.diacritics)     check(INSENSITIVE);
+    if (opt.diacr != null)     Err.or(FTDIA);
+    opt.diacr=Bln.get(consumeWS(SENSITIVE));
+    if (opt.diacr == null)     check(INSENSITIVE);
   }
  else   if (consumeWS(LANGUAGE)) {
-    opt.language=stringLiteral();
-    Err.or(FTLAN);
+    opt.lng=stringLiteral();
+    Err.or(FTLAN,opt.lng);
   }
  else {
+    final int p=qp;
     final boolean with=consumeWS(WITH);
     if (!with && !consumeWS(WITHOUT))     return false;
     if (consume(STEMMING)) {
-      opt.stemming=with;
-      if (with)       Err.or(FTSTEMMING);
+      opt.stem=Bln.get(with);
     }
  else     if (consume(THESAURUS)) {
-      opt.thesaurus=with;
+      opt.thes=Bln.get(with);
       if (with)       Err.or(FTTHES);
     }
  else     if (consume(STOP)) {
       check(WORDS);
-      if (with) {
-        if (with && consume(PAR1)) {
-          opt.stopwords=new TokenList();
-          do           opt.stopwords.add(stringLiteral());
+      opt.sw=new TokenList();
+      boolean union=false;
+      boolean except=false;
+      while (with) {
+        if (consume(PAR1)) {
+          do {
+            final byte[] sl=stringLiteral();
+            if (except) {
+              final int i=opt.sw.indexOf(sl);
+              if (i != -1)               opt.sw.remove(i);
+            }
+ else             if (!union || !opt.sw.contains(sl)) {
+              opt.sw.add(sl);
+            }
+          }
  while (consume(COMMA));
           check(PAR2);
         }
  else         if (consume(AT)) {
           final IO fl=new IO(string(stringLiteral()));
           try {
-            opt.stopwords=new TokenList();
-            opt.stopwords.add(split(norm(fl.content()),' '));
+            final byte[][] sl=split(norm(fl.content()),' ');
+            if (union) {
+              opt.sw.union(sl);
+            }
+ else             if (except) {
+              opt.sw.except(sl);
+            }
+ else {
+              opt.sw.add(sl);
+            }
           }
  catch (          final IOException ex) {
             Err.or(NOSTOPFILE,fl);
           }
         }
+        union=consume(UNION);
+        except=!union && consume(EXCEPT);
+        if (!union && !except)         break;
       }
     }
  else     if (consume(DEFAULT)) {
@@ -60,13 +82,11 @@
       check(WORDS);
     }
  else     if (consume(WILDCARDS)) {
-      opt.wildcards=with;
-    }
- else     if (!with && consume(CONTENT)) {
-      Err.or(FTIGNORE);
+      opt.wc=Bln.get(with);
     }
  else {
-      Err.or(FTMATCH,with ? WITH : WITHOUT);
+      qp=p;
+      return false;
     }
   }
   return true;

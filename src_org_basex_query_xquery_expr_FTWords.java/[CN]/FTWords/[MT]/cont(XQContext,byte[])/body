@@ -1,25 +1,31 @@
 {
   final FTOptions opt=ctx.ftopt;
-  byte[] tok=ctx.ftitem;
-  byte[] sb=opt.wildcards ? sub : FTCont.norm(new TokenBuilder(),sub).finish();
-  if (!opt.diacritics) {
-    sb=dc(sb);
-    tok=dc(tok);
+  byte[] tk=ctx.ftitem;
+  byte[] sb=opt.wc.bool() ? sub : FTCont.norm(new TokenBuilder(),sub).finish();
+  if (opt.stem.bool()) {
+    sb=STEM.stem(sb);
+    tk=STEM.stem(tk);
   }
-  if (opt.uppercase) {
+  if (!opt.diacr.bool()) {
+    sb=dc(sb);
+    tk=dc(tk);
+  }
+  if (opt.uc.bool()) {
     sb=uc(sb);
   }
- else   if (!opt.sensitive || opt.lowercase) {
+ else   if (!opt.sens.bool() || opt.lc.bool()) {
     sb=lc(sb);
-    if (!opt.lowercase)     tok=lc(tok);
+    if (!opt.lc.bool())     tk=lc(tk);
   }
   final int sl=sb.length;
-  final int tl=tok.length;
+  final int tl=tk.length;
+  final TokenBuilder st=new TokenBuilder();
+  final TokenBuilder tt=new TokenBuilder();
   IntList il=null;
   int p=-1;
-  if (opt.wildcards) {
+  if (opt.wc.bool()) {
     final String cmp=string(sb);
-    for (    final String s : string(tok).split("[^A-Za-z0-9_]")) {
+    for (    final String s : string(tk).split("[\\p{Punct}\\s]")) {
       p++;
       if (s.matches(cmp)) {
         if (il == null)         il=new IntList();
@@ -29,28 +35,32 @@
   }
  else {
     for (int i=0; i <= tl - sl; i++) {
-      if (i > 0 && tok[i] > ' ')       continue;
-      while (i < tl - sl && !letterOrDigit(tok[i]))       i++;
+      if (i > 0 && (tk[i] < 0 || tk[i] > ' '))       continue;
+      while (i < tl - sl && !letterOrDigit(tk[i]))       i++;
       p++;
       int s=-1;
       int t=i - 1;
-      if (opt.stopwords == null) {
-        while ((++t < tl & ++s < sl) && sb[s] == tok[t])         ;
+      if (opt.sw == null) {
+        while (++t < tl & ++s < sl) {
+          byte sv=sb[s];
+          byte tv=tk[t];
+          if (sv != tv && (sv < 0 || sv > ' ' || tv < 0 || tv > ' '))           break;
+        }
       }
  else {
         while (s < sl) {
-          final TokenBuilder st1=new TokenBuilder();
-          final TokenBuilder st2=new TokenBuilder();
-          while (++s < sl && letterOrDigit(sb[s]))           st1.add(sb[s]);
-          while (++t < tl && letterOrDigit(tok[t]))           st2.add(tok[t]);
-          final byte[] s1=st1.finish();
-          if (!opt.stopwords.contains(s1) && !eq(s1,st2.finish())) {
+          st.reset();
+          tt.reset();
+          while (++s < sl && letterOrDigit(sb[s]))           st.add(sb[s]);
+          while (++t < tl && letterOrDigit(tk[t]))           tt.add(tk[t]);
+          final byte[] s1=st.finish();
+          if (!opt.sw.contains(s1) && !eq(s1,tt.finish())) {
             s=0;
             break;
           }
         }
       }
-      if (s == sl && (t == tl || !letterOrDigit(tok[t])) || opt.stemming) {
+      if (s == sl && (t == tl || !letterOrDigit(tk[t]))) {
         if (il == null)         il=new IntList();
         il.add(p);
       }

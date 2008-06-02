@@ -1,6 +1,10 @@
 {
   final Expr expr=rangeExpr();
   if (!consumeWS(FTCONTAINS))   return expr;
-  consumeWS();
-  return new FTCont(expr,ftSelection());
+  final Expr select=ftSelection();
+  if (consume(WITHOUT) && consume(CONTENT)) {
+    unionExpr();
+    Err.or(FTIGNORE);
+  }
+  return new FTCont(expr,select);
 }
