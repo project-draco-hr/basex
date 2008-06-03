@@ -1,0 +1,29 @@
+{
+  mode=type;
+  if (fd != null) {
+    fd.setVisible(true);
+    return fd.getFile() != null;
+  }
+  int state=0;
+switch (type) {
+case OPEN:
+    state=fc.showOpenDialog(parent);
+  break;
+case SAVE:
+state=fc.showSaveDialog(parent);
+break;
+case DIR:
+fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+state=fc.showDialog(parent,null);
+break;
+}
+if (state != JFileChooser.APPROVE_OPTION) return false;
+if (mode == MODE.SAVE) {
+final IO file=getFile();
+if (mode == MODE.SAVE && file.exists()) {
+final int i=JOptionPane.showConfirmDialog(GUI.get(),BaseX.info(FILEREPLACE,file.name()),DIALOGINFO,JOptionPane.YES_NO_OPTION);
+if (i == JOptionPane.NO_OPTION) return false;
+}
+}
+return true;
+}
