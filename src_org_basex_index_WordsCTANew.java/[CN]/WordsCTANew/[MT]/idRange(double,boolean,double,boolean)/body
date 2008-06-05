@@ -1,0 +1,54 @@
+{
+  final byte[] tokFrom=Token.token(from);
+  final byte[] tokTo=Token.token(to);
+  int[] tokF=new int[tokFrom.length];
+  int tokFID=tokFrom.length;
+  int[] tokT=new int[tokTo.length];
+  int tokTID=tokTo.length;
+  for (int i=0; i < tokF.length; i++) {
+    tokF[i]=tokFrom[i];
+    if (tokFrom[i] == '.')     tokFID=i;
+  }
+  for (int i=0; i < tokTo.length; i++) {
+    tokT[i]=tokTo[i];
+    if (tokTo[i] == '.')     tokTID=i;
+  }
+  int[][] data=null;
+  fromi=itok0;
+  toi=itok1;
+  if (Token.ftdigit(tokFrom) && Token.ftdigit(tokTo)) {
+    int td=tokTo.length - tokFrom.length;
+    int[] ne=getNodeEntry(0);
+    if (hasNextNodes(ne)) {
+      for (int i=ne[0] + 1; i < ne.length - 1; i+=2) {
+        if (Token.letter(ne[i + 1]))         return Array.extractIDsFromData(data);
+        if (ne[i + 1] != tokFrom[0] && ne[i + 1] != tokTo[0]) {
+          if (tokTID == tokFID) {
+            if (ne[i + 1] > tokFrom[0] && ne[i + 1] < tokTo[0]) {
+              data=getAllNodesWithLevel(ne[i],tokFID,tokTID,data,false);
+            }
+          }
+ else {
+            int lb;
+            int ub=(ne[i + 1] < tokTo[0]) ? tokTID : tokTID - 1;
+            if (td > 1) {
+              lb=(ne[i + 1] < tokFrom[0]) ? tokFID + 1 : tokFID;
+              data=getAllNodesWithLevel(ne[i],lb,ub,data,false);
+            }
+ else {
+              lb=(ne[i + 1] < tokFrom[0]) ? ((ne[i + 1] < tokTo[0]) ? tokFID + 1 : -1) : tokFID;
+              if (lb > -1)               data=getAllNodesWithLevel(ne[i],lb,ub,data,false);
+            }
+          }
+        }
+ else {
+          data=getAllNodesWithinBounds(ne[i],new int[tokTo.length],tokT,tokTID,tokF,tokFID,0,data);
+        }
+      }
+    }
+  }
+ else   if (Token.letterOrDigit(tokFrom) && Token.letterOrDigit(tokTo)) {
+    data=idPosRangeText(tokF,tokT);
+  }
+  return Array.extractIDsFromData(data);
+}

@@ -1,0 +1,13 @@
+{
+  if (!(expr instanceof LocPathRel))   return Integer.MAX_VALUE;
+  final LocPathRel path=(LocPathRel)expr;
+  final Data data=ctx.local.data;
+  final boolean txt=data.meta.txtindex;
+  final boolean atv=data.meta.atvindex;
+  final Step step=path.steps.last();
+  final boolean text=txt && step.test == TestNode.TEXT && step.preds.size() == 0;
+  if (!text && !atv || !path.checkAxes() || !data.meta.chop)   return Integer.MAX_VALUE;
+  indexType=text ? Index.TYPE.TXT : Index.TYPE.ATV;
+  getKey(path,data,text);
+  return key == null || key.kind != StatsKey.Kind.DBL && key.kind != StatsKey.Kind.INT ? Integer.MAX_VALUE : 1;
+}
