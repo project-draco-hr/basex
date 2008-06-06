@@ -1,39 +1,17 @@
 {
-  final Iter iter=arg[0];
-  Item i;
 switch (func) {
 case INDEXOF:
-    final Item it=arg[1].atomic(this,false);
-  if (arg.length == 3)   checkColl(arg[2]);
-return indexOf(iter,it);
+    return indexOf(arg);
 case DISTINCT:
-if (arg.length == 2) checkColl(arg[1]);
-return distinctPipelined(iter);
+  return distinct(arg);
 case INSBEF:
-final Iter sub=arg[2];
-long r=Math.max(1,checkItr(arg[1]));
-final SeqIter si=new SeqIter();
-while ((i=iter.next()) != null) {
-if (--r == 0) si.add(sub);
-si.add(i.iter());
-}
-if (r > 0) si.add(sub);
-return si;
+return insbef(arg);
 case REVERSE:
-if (iter instanceof RangeIter) {
-((RangeIter)iter).reverse();
-return iter;
-}
-final SeqIter sr=new SeqIter();
-while ((i=iter.next()) != null) sr.insert(i,0);
-return sr;
+return reverse(arg);
 case REMOVE:
-final long pos=checkItr(arg[1]);
-return remove(iter,pos);
+return remove(arg);
 case SUBSEQ:
-final long start=checkItr(arg[1]);
-final long end=arg.length > 2 ? start + checkItr(arg[2]) : Long.MAX_VALUE;
-return subseq(iter,start,end);
+return subseq(arg);
 case DEEPEQ:
 return Bln.get(deep(arg)).iter();
 default :

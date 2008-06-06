@@ -1,0 +1,20 @@
+{
+  final Iter iter=arg[0];
+  if (iter instanceof RangeIter) {
+    ((RangeIter)iter).reverse();
+    return iter;
+  }
+  final SeqBuilder sb=new SeqBuilder();
+  Item i;
+  while ((i=iter.next()) != null)   sb.a(i);
+  return new Iter(){
+    int c=sb.size;
+    @Override public long size(){
+      return sb.size;
+    }
+    @Override public Item next(){
+      return --c < 0 ? null : sb.item[c];
+    }
+  }
+;
+}
