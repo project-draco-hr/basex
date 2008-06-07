@@ -12,16 +12,16 @@
  else   if (consumeWS(CASE)) {
     if (opt.lc != null || opt.uc != null || opt.sens != null)     Err.or(FTCASE);
     opt.sens=Bln.get(consumeWS(SENSITIVE));
-    if (opt.sens == null)     check(INSENSITIVE);
+    if (!opt.sens.bool())     check(INSENSITIVE);
   }
  else   if (consumeWS(DIACRITICS)) {
     if (opt.diacr != null)     Err.or(FTDIA);
     opt.diacr=Bln.get(consumeWS(SENSITIVE));
-    if (opt.diacr == null)     check(INSENSITIVE);
+    if (!opt.diacr.bool())     check(INSENSITIVE);
   }
  else   if (consumeWS(LANGUAGE)) {
-    opt.lng=stringLiteral();
-    Err.or(FTLAN,opt.lng);
+    opt.lng=lc(stringLiteral());
+    if (!eq(opt.lng,EN))     Err.or(FTLAN,opt.lng);
   }
  else {
     final int p=qp;
@@ -32,9 +32,20 @@
     }
  else     if (consume(THESAURUS)) {
       opt.thes=Bln.get(with);
-      if (with)       Err.or(FTTHES);
+      if (with) {
+        boolean par=consume(PAR1);
+        if (consume(AT)) {
+          ftThesaurusID();
+        }
+ else {
+          check(DEFAULT);
+        }
+        while (par && consume(COMMA))         ftThesaurusID();
+        if (par)         check(PAR2);
+        Err.or(FTTHES);
+      }
     }
- else     if (consume(STOP)) {
+ else     if (consumeWS(STOP)) {
       check(WORDS);
       opt.sw=new TokenList();
       boolean union=false;
@@ -55,7 +66,11 @@
           check(PAR2);
         }
  else         if (consume(AT)) {
-          final IO fl=new IO(string(stringLiteral()));
+          IO fl=new IO(string(stringLiteral()));
+          if (!fl.exists() && ctx.file != null) {
+            fl=file.merge(fl);
+            if (!fl.exists())             Err.or(NOSTOPFILE,fl);
+          }
           try {
             final byte[][] sl=split(norm(fl.content()),' ');
             if (union) {
@@ -77,7 +92,7 @@
         if (!union && !except)         break;
       }
     }
- else     if (consume(DEFAULT)) {
+ else     if (consumeWS(DEFAULT)) {
       check(STOP);
       check(WORDS);
     }

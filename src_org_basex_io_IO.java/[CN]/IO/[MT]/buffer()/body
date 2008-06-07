@@ -1,22 +1,15 @@
 {
-  try {
-    if (content || url)     return new CachedInput(content());
-    if (path.endsWith(ZIPSUFFIX)) {
-      ZipInputStream zip=new ZipInputStream(new FileInputStream(file));
-      ZipEntry entry=zip.getNextEntry();
-      final BufferInput in=new BufferInput(zip);
-      in.length(entry.getSize());
-      return in;
-    }
-    if (path.endsWith(GZSUFFIX)) {
-      GZIPInputStream zip=new GZIPInputStream(new FileInputStream(file));
-      return new BufferInput(zip);
-    }
-    return new BufferInput(path);
+  if (content || url)   return new CachedInput(content());
+  if (path.endsWith(ZIPSUFFIX)) {
+    ZipInputStream zip=new ZipInputStream(new FileInputStream(file));
+    ZipEntry entry=zip.getNextEntry();
+    final BufferInput in=new BufferInput(zip);
+    in.length(entry.getSize());
+    return in;
   }
- catch (  final IOException ex) {
-    ex.printStackTrace();
-    BaseX.notexpected();
-    return null;
+  if (path.endsWith(GZSUFFIX)) {
+    GZIPInputStream zip=new GZIPInputStream(new FileInputStream(file));
+    return new BufferInput(zip);
   }
+  return new BufferInput(path);
 }
