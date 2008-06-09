@@ -5,7 +5,7 @@
   term.reset();
   final Item it=ctx.iter(expr).next();
   ctx.ftselect=tmp;
-  double s=it.dbl();
+  final double s=it.dbl();
   if (size == 0 || s == 0)   return Dbl.iter(s);
   if (ordered) {
     int c=-1;
@@ -28,7 +28,7 @@
         final int ts=pos[i].size;
         for (int j=0; j < (ordered ? Math.min(1,ts) : ts); j++) {
           if (pos[i].get(j) == l) {
-            l+=words(term.list[i]);
+            l+=words(new FTTokenizer(term.list[i]));
             o=true;
           }
           if (ordered && !content)           break;
@@ -39,7 +39,7 @@
     }
     if (content && l != c)     return Dbl.iter(0);
     if (end) {
-      for (int i=0; i < size; i++)       l+=words(term.list[i]);
+      for (int i=0; i < size; i++)       l+=words(new FTTokenizer(term.list[i]));
       for (int i=0; i < size; i++) {
         boolean o=false;
         final int ts=pos[i].size;
@@ -63,7 +63,7 @@
       boolean o=false;
       for (int j=0; j < pos[i].size; j++) {
         final int p=calc(ctx,pos[i].get(j),dunit);
-        int d=Math.abs(p - l) - 1;
+        final int d=Math.abs(p - l) - 1;
         if (i == 0 || (d >= mn && d <= mx)) {
           o=true;
           l=p;

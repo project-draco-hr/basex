@@ -1,14 +1,18 @@
 {
-  prop(out,INFOGENERAL,false);
-  prop(out,INFODBPATH + Prop.dbpath,true);
-  prop(out,INFOMEM + Performance.getMem(),true);
-  prop(out,Set.flag(INFOMAINMEM,Prop.mainmem),true);
-  prop(out,Set.flag(INFOINFO,Prop.info) + (Prop.allInfo ? INFOALL : ""),true);
-  prop(out,NL + INFOINDEXES,false);
-  prop(out,Set.flag(INFOTXTINDEX,Prop.textindex),true);
-  prop(out,Set.flag(INFOATVINDEX,Prop.attrindex),true);
-  prop(out,Set.flag(INFOFTINDEX,Prop.ftindex) + (Prop.fzindex ? INFOFZINDEX : ""),true);
-  prop(out,NL + INFOCREATE,false);
-  prop(out,Set.flag(INFOCHOP,Prop.chop),true);
-  prop(out,Set.flag(INFOENTITIES,Prop.entity),true);
+  Performance.gc(4);
+  final int l=BaseX.max(new String[]{INFODBPATH,INFOMEM,INFOMM,INFOINFO});
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(INFOGENERAL + NL);
+  format(tb,INFODBPATH,Prop.dbpath,true,l);
+  format(tb,INFOMEM,Performance.getMem(),true,l);
+  format(tb,INFOMM,BaseX.flag(Prop.mainmem),true,l);
+  format(tb,INFOINFO,BaseX.flag(Prop.info) + (Prop.allInfo ? " (" + INFOALL + ")" : ""),true,l);
+  tb.add(NL + INFOCREATE + NL);
+  format(tb,INFOCHOP,BaseX.flag(Prop.chop),true,0);
+  format(tb,INFOENTITIES,BaseX.flag(Prop.entity),true,0);
+  tb.add(NL + INFOINDEX + NL);
+  format(tb,INFOTXTINDEX,BaseX.flag(Prop.textindex),true,0);
+  format(tb,INFOATVINDEX,BaseX.flag(Prop.attrindex),true,0);
+  format(tb,INFOFTINDEX,BaseX.flag(Prop.ftindex) + (Prop.ftfuzzy ? " (" + INFOFZINDEX + ")" : ""),true,0);
+  out.print(tb.finish());
 }

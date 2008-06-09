@@ -1,35 +1,92 @@
 {
   super(gui,INFOTITLE);
-  final BaseXBack info=new BaseXBack();
-  info.setLayout(new TableLayout(10,2));
-  info.setBorder(new CompoundBorder(new EtchedBorder(),new EmptyBorder(10,10,10,10)));
+  final BaseXBack p1=new BaseXBack();
+  p1.setBorder(new CompoundBorder(new EtchedBorder(),new EmptyBorder(8,8,8,8)));
+  p1.setLayout(new BorderLayout());
   final Data data=GUI.context.data();
   final MetaData meta=data.meta;
+  final BaseXLabel doc=new BaseXLabel(meta.dbname);
+  doc.setFont(new Font(GUIProp.font,0,18));
+  doc.setBorder(0,0,5,0);
+  p1.add(doc,BorderLayout.NORTH);
+  BaseXText text=text();
+  BaseXLayout.setHeight(text,220);
   final File dir=IO.dbpath(meta.dbname);
   long len=0;
   for (  final File f : dir.listFiles())   len+=f.length();
-  add(info,INFODBNAME,meta.dbname);
-  add(info,INFODOC,meta.file.path());
-  add(info,INFOTIME,new SimpleDateFormat("dd.MM.yyyy hh:mm:ss").format(new Date(meta.time)));
-  add(info,INFODOCSIZE,meta.filesize != 0 ? Performance.formatSize(meta.filesize) : "-");
-  add(info,INFODBSIZE,Performance.formatSize(len));
-  add(info,INFOENCODING,meta.encoding);
-  add(info,INFONODES,Integer.toString(data.size));
-  add(info,INFOHEIGHT,Integer.toString(meta.height));
-  final BaseXBack pp=new BaseXBack();
-  pp.setLayout(new BorderLayout());
-  pp.add(info,BorderLayout.NORTH);
-  final BaseXBack check=new BaseXBack();
-  check.setLayout(new TableLayout(3,2,0,5));
-  check.setBorder(10,10,10,10);
-  check.add(new BaseXLabel(INFOINDEX,true));
-  check.add(new BaseXLabel(""));
-  indexes[0]=add(check,INFOTXTINDEX,meta.txtindex);
-  indexes[2]=add(check,INFOFTINDEX,meta.ftxindex);
-  indexes[1]=add(check,INFOATVINDEX,meta.atvindex);
-  indexes[3]=add(check,CREATEFZINDEX,meta.fzindex);
-  pp.add(check,BorderLayout.CENTER);
-  set(pp,BorderLayout.CENTER);
+  text.setText(Info.db(meta,data.size,false,false));
+  p1.add(text,BorderLayout.CENTER);
+  final BaseXBack p2=new BaseXBack();
+  p2.setLayout(new TableLayout(4,1,0,0));
+  p2.setBorder(8,8,0,8);
+  p2.add(new BaseXLabel(INFOTAGINDEX));
+  text=text();
+  text.setText(data.info(Index.TYPE.TAG));
+  BaseXLayout.setHeight(text,110);
+  p2.add(text);
+  final BaseXLabel label=new BaseXLabel(INFOATNINDEX);
+  label.setBorder(8,0,0,0);
+  p2.add(label);
+  text=text();
+  text.setText(data.info(Index.TYPE.ATN));
+  BaseXLayout.setHeight(text,110);
+  p2.add(text);
+  final BaseXBack p3=new BaseXBack();
+  p3.setLayout(new TableLayout(6,1,0,0));
+  p3.setBorder(8,8,8,8);
+  indexes[0]=new BaseXCheckBox(INFOTXTINDEX,Token.token(TXTINDEXINFO),meta.txtindex,0,this);
+  p3.add(indexes[0]);
+  if (meta.txtindex) {
+    text=text();
+    text.setText(data.info(Index.TYPE.TXT));
+    BaseXLayout.setHeight(text,75);
+    p3.add(text);
+  }
+ else {
+    p3.add(new BaseXLabel(TXTINDEXINFO,8));
+  }
+  indexes[1]=new BaseXCheckBox(INFOATVINDEX,Token.token(ATTINDEXINFO),meta.atvindex,0,this);
+  p3.add(indexes[1]);
+  if (meta.atvindex) {
+    text=text();
+    text.setText(data.info(Index.TYPE.ATV));
+    BaseXLayout.setHeight(text,75);
+    p3.add(text);
+  }
+ else {
+    p3.add(new BaseXLabel(ATTINDEXINFO,8));
+  }
+  final BaseXBack p4=new BaseXBack();
+  p4.setLayout(new TableLayout(10,1,0,0));
+  p4.setBorder(8,8,8,8);
+  edit=!meta.ftxindex;
+  indexes[2]=new BaseXCheckBox(INFOFTINDEX,Token.token(FTINDEXINFO),meta.ftxindex,0,this);
+  p4.add(indexes[2]);
+  if (edit) {
+    p4.add(new BaseXLabel(FTINDEXINFO,edit ? 8 : 0));
+    final String[] cb={CREATEFZ,CREATESTEM,CREATEDC,CREATECS};
+    final String[] desc={FZINDEXINFO,FTSTEMINFO,FTDCINFO,FTCSINFO};
+    final boolean[] val={meta.ftfuzzy,meta.ftstem,meta.ftdc,meta.ftcs};
+    for (int f=0; f < ft.length; f++) {
+      ft[f]=new BaseXCheckBox(cb[f],Token.token(desc[f]),val[f],0,this);
+      fl[f]=new BaseXLabel(desc[f],8);
+      p4.add(ft[f]);
+      p4.add(fl[f]);
+    }
+  }
+ else {
+    text=text();
+    text.setText(data.info(Index.TYPE.FTX));
+    BaseXLayout.setHeight(text,150);
+    p4.add(text);
+  }
+  final JTabbedPane tabs=new JTabbedPane();
+  BaseXLayout.addDefaultKeys(tabs,this);
+  tabs.addTab(GENERALINFO,p1);
+  tabs.addTab(NAMESINFO,p2);
+  tabs.addTab(INDEXINFO,p3);
+  tabs.addTab(FTINFO,p4);
+  set(tabs,BorderLayout.CENTER);
   set(BaseXLayout.newButtons(this,true,new String[]{BUTTONOPT,BUTTONOK,BUTTONCANCEL},new byte[][]{HELPOPT,HELPOK,HELPCANCEL}),BorderLayout.SOUTH);
   action(null);
   finish(gui);

@@ -11,7 +11,6 @@
     if (maxid < id)     maxid=id;
   }
   input=new RandomAccess(f);
-  ids=new MAB2IDs();
   if (input.read() != '#' || input.read() != '#' || input.read() != '#') {
     throw new BuildException("Invalid MAB2 input (doesn't start with ###)");
   }
@@ -25,7 +24,7 @@
     final long pos=off;
     final byte[] par=par(input);
     final boolean child=par != null;
-    final MAB2Entry entry=ids.index(child ? par : id);
+    final MAB2Entry entry=ids.value(ids.add(child ? par : id));
     if (child)     entry.add(pos);
  else     entry.pos(pos);
     if (Prop.debug) {
@@ -40,7 +39,7 @@
   }
   final int is=ids.size;
   for (i=1; i < is; i++) {
-    final MAB2Entry entry=ids.get(i);
+    final MAB2Entry entry=ids.value(i);
     final long pos=entry.pos;
     if (pos != 0) {
       addEntry(input,pos,entry.size);

@@ -1,39 +1,39 @@
 {
   if (consumeWS(LOWERCASE)) {
-    if (opt.lc != null || opt.uc != null || opt.sens != null)     Err.or(FTCASE);
+    if (opt.lc != null || opt.uc != null || opt.cs != null)     Err.or(FTCASE);
     opt.lc=Bln.TRUE;
-    opt.sens=Bln.TRUE;
+    opt.cs=Bln.TRUE;
   }
  else   if (consumeWS(UPPERCASE)) {
-    if (opt.lc != null || opt.uc != null || opt.sens != null)     Err.or(FTCASE);
+    if (opt.lc != null || opt.uc != null || opt.cs != null)     Err.or(FTCASE);
     opt.uc=Bln.TRUE;
-    opt.sens=Bln.TRUE;
+    opt.cs=Bln.TRUE;
   }
  else   if (consumeWS(CASE)) {
-    if (opt.lc != null || opt.uc != null || opt.sens != null)     Err.or(FTCASE);
-    opt.sens=Bln.get(consumeWS(SENSITIVE));
-    if (!opt.sens.bool())     check(INSENSITIVE);
+    if (opt.lc != null || opt.uc != null || opt.cs != null)     Err.or(FTCASE);
+    opt.cs=Bln.get(consumeWS(SENSITIVE));
+    if (!opt.cs.bool())     check(INSENSITIVE);
   }
  else   if (consumeWS(DIACRITICS)) {
-    if (opt.diacr != null)     Err.or(FTDIA);
-    opt.diacr=Bln.get(consumeWS(SENSITIVE));
-    if (!opt.diacr.bool())     check(INSENSITIVE);
+    if (opt.dc != null)     Err.or(FTDIA);
+    opt.dc=Bln.get(consumeWS(SENSITIVE));
+    if (!opt.dc.bool())     check(INSENSITIVE);
   }
  else   if (consumeWS(LANGUAGE)) {
-    opt.lng=lc(stringLiteral());
-    if (!eq(opt.lng,EN))     Err.or(FTLAN,opt.lng);
+    opt.ln=lc(stringLiteral());
+    if (!eq(opt.ln,EN))     Err.or(FTLAN,opt.ln);
   }
  else {
     final int p=qp;
     final boolean with=consumeWS(WITH);
     if (!with && !consumeWS(WITHOUT))     return false;
     if (consume(STEMMING)) {
-      opt.stem=Bln.get(with);
+      opt.st=Bln.get(with);
     }
  else     if (consume(THESAURUS)) {
-      opt.thes=Bln.get(with);
+      opt.ts=Bln.get(with);
       if (with) {
-        boolean par=consume(PAR1);
+        final boolean par=consume(PAR1);
         if (consume(AT)) {
           ftThesaurusID();
         }
@@ -47,20 +47,15 @@
     }
  else     if (consumeWS(STOP)) {
       check(WORDS);
-      opt.sw=new TokenList();
+      opt.sw=new Set();
       boolean union=false;
       boolean except=false;
       while (with) {
         if (consume(PAR1)) {
           do {
             final byte[] sl=stringLiteral();
-            if (except) {
-              final int i=opt.sw.indexOf(sl);
-              if (i != -1)               opt.sw.remove(i);
-            }
- else             if (!union || !opt.sw.contains(sl)) {
-              opt.sw.add(sl);
-            }
+            if (except)             opt.sw.delete(sl);
+ else             if (!union || opt.sw.id(sl) == 0)             opt.sw.add(sl);
           }
  while (consume(COMMA));
           check(PAR2);
@@ -72,20 +67,17 @@
             if (!fl.exists())             Err.or(NOSTOPFILE,fl);
           }
           try {
-            final byte[][] sl=split(norm(fl.content()),' ');
-            if (union) {
-              opt.sw.union(sl);
-            }
- else             if (except) {
-              opt.sw.except(sl);
-            }
- else {
-              opt.sw.add(sl);
+            for (            final byte[] sl : split(norm(fl.content()),' ')) {
+              if (except)               opt.sw.delete(sl);
+ else               if (!union || opt.sw.id(sl) == 0)               opt.sw.add(sl);
             }
           }
  catch (          final IOException ex) {
             Err.or(NOSTOPFILE,fl);
           }
+        }
+ else         if (!union && !except) {
+          Err.or(FTSTOP);
         }
         union=consume(UNION);
         except=!union && consume(EXCEPT);

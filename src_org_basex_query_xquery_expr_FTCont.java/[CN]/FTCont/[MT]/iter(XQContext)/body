@@ -1,15 +1,14 @@
 {
   final Iter iter=ctx.iter(expr[0]);
-  final TokenBuilder tb=new TokenBuilder();
+  final FTTokenizer tmp=ctx.ftitem;
+  double d=0;
   Item i;
-  boolean more=false;
+  ctx.ftitem=ft;
   while ((i=iter.next()) != null) {
-    if (more)     tb.add(' ');
-    norm(tb,i.str());
-    more=true;
+    ft.init(i.str());
+    final Item it=ctx.iter(expr[1]).next();
+    d=Scoring.and(d,it.dbl());
   }
-  ctx.ftitem=tb.finish();
-  if (ctx.ftitem.length == 0)   return Bln.FALSE.iter();
-  final Item it=ctx.iter(expr[1]).next();
-  return new Bln(it.bool(),it.dbl()).iter();
+  ctx.ftitem=tmp;
+  return new Bln(d != 0,d).iter();
 }

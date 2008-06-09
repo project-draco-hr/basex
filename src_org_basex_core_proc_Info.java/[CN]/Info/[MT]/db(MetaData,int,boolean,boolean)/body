@@ -1,0 +1,33 @@
+{
+  final File dir=IO.dbpath(meta.dbname);
+  long len=0;
+  for (  final File f : dir.listFiles())   len+=f.length();
+  final TokenBuilder tb=new TokenBuilder();
+  final int l=BaseX.max(new String[]{INFODBNAME,INFODOC,INFOTIME,INFODOCSIZE,INFODBSIZE,INFOENCODING,INFONODES,INFOHEIGHT});
+  if (header) {
+    tb.add(INFODB + NL);
+    format(tb,INFODBNAME,meta.dbname,header,l);
+  }
+  format(tb,INFODOC,meta.file.path(),header,l);
+  format(tb,INFOTIME,DATE.format(new Date(meta.time)),header,l);
+  format(tb,INFODOCSIZE,meta.filesize != 0 ? Performance.formatSize(meta.filesize) : "-",header,l);
+  format(tb,INFODBSIZE,Performance.formatSize(len),header,l);
+  format(tb,INFOENCODING,meta.encoding,header,l);
+  format(tb,INFONODES,Integer.toString(size),header,l);
+  format(tb,INFOHEIGHT,Integer.toString(meta.height),header,l);
+  tb.add(NL + INFOCREATE + NL);
+  format(tb,INFOCHOP,BaseX.flag(meta.chop),true,0);
+  format(tb,INFOENTITIES,BaseX.flag(meta.chop),true,0);
+  if (index) {
+    tb.add(NL + INFOINDEX + NL);
+    if (meta.newindex) {
+      tb.add(" " + INDUPDATE + NL);
+    }
+ else {
+      format(tb,INFOTXTINDEX,BaseX.flag(meta.txtindex),true,0);
+      format(tb,INFOATVINDEX,BaseX.flag(meta.atvindex),true,0);
+      format(tb,INFOFTINDEX,BaseX.flag(meta.ftxindex) + (meta.ftfuzzy ? " (" + INFOFZINDEX + ")" : ""),true,0);
+    }
+  }
+  return tb.finish();
+}
