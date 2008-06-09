@@ -72,47 +72,37 @@
     return FTUnion.calculateFTOr(d,adata);
   }
  else   if (wildcard == '+') {
-    final byte[] searchChar=new byte[vsn.length - 1 - currentLength];
+    final int[] rne=getNodeEntry(resultNode);
+    byte[] nvsn=new byte[vsn.length + 1];
+    int l=0;
     if (bw != null) {
-      System.arraycopy(bw,0,searchChar,0,bw.length);
+      System.arraycopy(bw,0,nvsn,0,bw.length);
+      l=bw.length;
     }
-    searchChar[posw]='.';
-    if (bw == null) {
-      if (!(posw == 0 && vsn.length == 2)) {
-        aw=new byte[searchChar.length];
-        System.arraycopy(vsn,posw + 2,searchChar,1,searchChar.length);
-        System.arraycopy(vsn,posw + 2,aw,1,searchChar.length);
+    if (0 < vsn.length - posw - 2) {
+      System.arraycopy(vsn,posw + 2,nvsn,posw + 3,vsn.length - posw - 2);
+    }
+    nvsn[l + 1]='.';
+    nvsn[l + 2]='*';
+    int[][] tmpres=null;
+    if (rne[0] > counter[0] && resultNode > 0) {
+      nvsn[l]=(byte)rne[counter[0] + 1];
+      tmpres=getNodeFromTrieWithWildCard(nvsn,l + 1);
+    }
+ else     if (rne[0] == counter[0] || resultNode == 0) {
+      if (!hasNextNodes(rne)) {
+        return null;
+      }
+      for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
+        nvsn[l]=(byte)rne[t + 1];
+        tmpres=FTUnion.calculateFTOr(getNodeFromTrieWithWildCard(nvsn,l + 1),tmpres);
       }
     }
- else {
-      aw=new byte[searchChar.length - bw.length - 1];
-      System.arraycopy(vsn,posw + 2,searchChar,bw.length + 1,searchChar.length - bw.length - 1);
-      System.arraycopy(vsn,posw + 2,aw,0,searchChar.length - bw.length - 1);
-    }
-    d=getNodeFromTrieWithWildCard(0,searchChar,posw,true);
-    if (d == null)     return null;
-    byte[] newValue;
-    if (aw != null) {
-      newValue=new byte[bw.length + 3 + aw.length];
-      System.arraycopy(aw,0,newValue,bw.length + 3,aw.length);
-    }
- else {
-      newValue=new byte[3 + (bw == null ? 0 : bw.length)];
-    }
-    newValue[bw.length + 1]='.';
-    newValue[bw.length + 2]='*';
-    System.arraycopy(bw,0,newValue,0,bw.length);
-    for (    final byte v : valuesFound) {
-      if (v != 0) {
-        newValue[bw.length]=v;
-        d=FTUnion.calculateFTOr(d,getNodeFromTrieWithWildCard(newValue,bw.length + 1));
-      }
-    }
-    return d;
+    return tmpres;
   }
  else {
     final int[] rne=getNodeEntry(resultNode);
-    if (rne[0] > counter[0]) {
+    if (rne[0] > counter[0] && resultNode > 0) {
       vsn[posw]=(byte)rne[counter[0] + 1];
       final int[][] resultData=getNodeFromTrieRecursive(0,vsn);
       if (resultData != null && recCall) {
@@ -120,7 +110,7 @@
       }
       return resultData;
     }
- else     if (rne[0] == counter[0]) {
+ else     if (rne[0] == counter[0] || resultNode == 0) {
       if (!hasNextNodes(rne)) {
         return null;
       }

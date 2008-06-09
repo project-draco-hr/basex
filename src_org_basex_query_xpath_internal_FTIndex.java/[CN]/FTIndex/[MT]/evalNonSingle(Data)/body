@@ -4,7 +4,7 @@
   if (i == -1)   i=token.length;
   tok=new byte[i];
   System.arraycopy(token,0,tok,0,i);
-  int[][] tmp=data.ftIDs(Token.lc(tok),option);
+  int[][] tmp=data.ftIDs(tok,option);
   if (tmp == null)   return;
   int lastpre=-1;
   byte[] db=null;
@@ -13,6 +13,12 @@
   int j;
   int k;
   tok=token;
+  if (option.ftCase == FTOption.CASE.UPPERCASE) {
+    tok=Token.uc(tok);
+  }
+ else   if (option.ftCase == FTOption.CASE.INSENSITIVE || option.ftCase == FTOption.CASE.LOWERCASE) {
+    tok=Token.lc(tok);
+  }
   for (i=0; i < tmp[0].length; i++) {
     j=0;
     k=0;
@@ -20,26 +26,18 @@
       lastpre=tmp[0][i];
       db=data.text(lastpre);
     }
-    if (option.ftCase == FTOption.CASE.UPPERCASE) {
-      tok=Token.uc(tok);
-    }
- else     if (option.ftCase == FTOption.CASE.INSENSITIVE || option.ftCase == FTOption.CASE.LOWERCASE) {
-      tok=Token.lc(tok);
-      if (option.ftCase == FTOption.CASE.INSENSITIVE)       db=Token.lc(db);
-    }
     if (db.length >= tmp[1][i] + tok.length) {
-      if (option.ftCase == FTOption.CASE.INSENSITIVE) {
-        while (j < tok.length && tmp[1][i] + k < db.length) {
-          if (db[tmp[1][i] + k] == tok[j]) {
-            j++;
-            k++;
-          }
- else           if (!Token.ftChar(db[tmp[1][i] + k])) {
-            while (db.length > tmp[1][i] + k && !Token.ftChar(db[tmp[1][i] + k]))             k++;
-          }
+      if (option.ftCase == FTOption.CASE.INSENSITIVE)       db=Token.lc(db);
+      while (j < tok.length && tmp[1][i] + k < db.length) {
+        if (db[tmp[1][i] + k] == tok[j]) {
+          j++;
+          k++;
+        }
+ else         if (!Token.ftChar(db[tmp[1][i] + k])) {
+          while (db.length > tmp[1][i] + k && !Token.ftChar(db[tmp[1][i] + k]))           k++;
+        }
  else {
-            break;
-          }
+          break;
         }
       }
       if (j == tok.length) {

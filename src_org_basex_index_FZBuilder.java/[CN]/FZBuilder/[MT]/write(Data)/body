@@ -22,9 +22,19 @@
       final int ds=tre.ns[p];
       outy.writeInt(ds);
       byte[] val=tre.pre[p];
-      for (int z=4; z < val.length; z++)       outz.write(val[z]);
+      if (Prop.fcompress) {
+        for (int z=4; z < val.length; z++)         outz.write(val[z]);
+      }
+ else {
+        for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++)         outz.writeInt(Num.read(val,ip));
+      }
       val=tre.pos[p];
-      for (int z=4; z < val.length; z++)       outz.write(val[z]);
+      if (Prop.fcompress) {
+        for (int z=4; z < val.length; z++)         outz.write(val[z]);
+      }
+ else {
+        for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++)         outz.writeInt(Num.read(val,ip));
+      }
       dr=outz.size();
       tr=(int)outy.size();
     }
