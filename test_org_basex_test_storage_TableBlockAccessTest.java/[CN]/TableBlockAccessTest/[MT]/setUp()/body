@@ -1,0 +1,14 @@
+{
+  final IO file=new IO(TESTFILE);
+  new DiskBuilder().build(new XMLParser(file),DBNAME);
+  size=Open.open(DBNAME).size;
+  tba=new TableDiskAccess(DBNAME,DATATBL);
+  final int bytecount=size * (1 << IO.NODEPOWER);
+  storage=new byte[bytecount];
+  for (int i=0; i < bytecount; i++) {
+    storage[i]=(byte)tba.read1(i >> IO.NODEPOWER,i % (1 << IO.NODEPOWER));
+  }
+  maxEntriesPerBlock=(1 << IO.BLOCKPOWER) >>> IO.NODEPOWER;
+  blocks=(int)Math.ceil(size / Math.floor(maxEntriesPerBlock * IO.BLOCKFILL));
+  nodesPerBlock=(int)(maxEntriesPerBlock * IO.BLOCKFILL);
+}
