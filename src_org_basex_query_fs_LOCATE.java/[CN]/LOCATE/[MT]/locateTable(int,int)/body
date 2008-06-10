@@ -5,7 +5,13 @@
     for (    int i : contentDir) {
       if (FSUtils.isDir(data,i)) {
         byte[] name=FSUtils.getName(data,i);
-        if (Token.eq(name,fileToFindByte)) {
+        FSUtils.transformToRegex(fileToFind);
+        if (Pattern.matches(fileToFind,Token.string(name))) {
+          if (!cFlag) {
+            out.print(FSUtils.getPath(data,i));
+            out.print(NL);
+          }
+          ++filesfound;
           printDir(i);
         }
  else {
@@ -14,7 +20,7 @@
       }
  else       if (FSUtils.isFile(data,i)) {
         byte[] name=FSUtils.getName(data,i);
-        if (Token.eq(name,fileToFindByte)) {
+        if (Pattern.matches(fileToFind,Token.string(name))) {
           ++filesfound;
           if (!cFlag) {
             out.print(FSUtils.getPath(data,i));
