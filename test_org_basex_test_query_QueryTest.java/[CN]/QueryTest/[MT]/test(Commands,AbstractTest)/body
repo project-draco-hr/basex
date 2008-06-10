@@ -1,0 +1,43 @@
+{
+  boolean ok=true;
+  String name=test.getClass().getSimpleName();
+  System.out.println(name + " (" + test.queries.length+ " queries)...");
+  out("\nBuilding database...\n");
+  final String file=test.doc.replaceAll("\\\"","\\\\\"");
+  Proc proc=Proc.get(context,Commands.CREATEXML,"\"" + file + "\"");
+  if (!proc.execute()) {
+    err("\n",proc.info());
+    return false;
+  }
+  out("\nRunning tests...\n");
+  for (  final Object[] qu : test.queries) {
+    out("- " + qu[0] + ": ");
+    proc=Proc.get(context,cmd,qu[1].toString());
+    if (proc.execute()) {
+      Result value=proc.result();
+      if (cmd == Commands.XQUERY)       value=((XQResult)value).xpResult(context.data());
+      final Result cmp=(Result)qu[2];
+      if (value instanceof Nodes && cmp instanceof Nodes) {
+        ((Nodes)cmp).data=((Nodes)value).data;
+      }
+      if (qu.length == 2 || !value.same(cmp)) {
+        err("\"" + qu[1] + "\":\n  Expected: "+ (qu.length == 2 ? "error" : qu[2])+ "\n  Found: "+ value+ "\n",qu[0]);
+        ok=false;
+        continue;
+      }
+      out("ok\n");
+    }
+ else {
+      final String info=proc.info();
+      if (qu.length == 3) {
+        err(info + "\n",qu[0].toString());
+        ok=false;
+      }
+ else {
+        out("ok (" + info + ")\n");
+      }
+    }
+  }
+  out("\n");
+  return ok;
+}
