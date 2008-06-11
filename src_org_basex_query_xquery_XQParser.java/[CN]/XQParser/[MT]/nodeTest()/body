@@ -3,7 +3,7 @@
   final char ch=curr();
   if (XMLToken.isXMLLetter(ch)) {
     final byte[] name=qName(null);
-    consumeWS();
+    skipWS();
     if (consume('(')) {
       tok.reset();
       while (!consume(')')) {
@@ -12,15 +12,15 @@
       }
       final Type type=node(new QNm(name));
       if (type == Type.NOD)       return Test.NODE;
-      if (type != null)       return new Test(type,tok.finish(),ctx);
+      if (type != null)       return new Test(type,trim(tok.finish()),ctx);
     }
  else {
       if (contains(name,':')) {
-        consumeWS();
+        skipWS();
         return new Test(name,false,ctx);
       }
       if (!consume(':')) {
-        consumeWS();
+        skipWS();
         return new Test(name,false,ctx);
       }
       if (consume('*')) {

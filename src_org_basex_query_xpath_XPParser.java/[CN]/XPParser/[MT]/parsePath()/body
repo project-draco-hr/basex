@@ -1,0 +1,22 @@
+{
+  consumeWS();
+  final char c=curr();
+  if (c == '@' || c == '*' || c == '.' || c == '/')   return parseLocPath();
+  final int p=qp;
+  final String name=name();
+  consumeWS();
+  if (name.length() != 0 && (curr() != '(' || name.equals(NODE) || name.equals(TEXT) || name.equals(COMMENT) || name.equals(PI))) {
+    qp=p;
+    return parseLocPath();
+  }
+  qp=p;
+  final Expr e=parseFilter();
+  consumeWS();
+  if (!consume('/'))   return e;
+  checkNodesReturned(e);
+  final LocPath path=new LocPathRel();
+  if (consume('/')) {
+    path.steps.add(Axis.create(Axis.DESCORSELF,TestNode.NODE));
+  }
+  return new Path(e,parseRelLocPath(path));
+}

@@ -1,0 +1,52 @@
+{
+  if (curr('/')) {
+    final char c=next();
+    if (letter(c) || c == '@' || c == '*' || c == '.') {
+      return Axis.create(Axis.DESCORSELF,TestNode.NODE);
+    }
+    error(NOLOCSTEP);
+  }
+  Axis axis=null;
+  Test nodetest=null;
+  if (consume('.')) {
+    if (consume('.')) {
+      axis=Axis.PARENT;
+    }
+ else {
+      axis=Axis.SELF;
+    }
+    nodetest=TestNode.NODE;
+  }
+ else   if (curr('@')) {
+    consume('@');
+    axis=Axis.ATTR;
+    final String test=name();
+    if (test.length() != 0) {
+      nodetest=new TestName(Token.token(test),false);
+    }
+ else     if (consume('*')) {
+      nodetest=new TestName(false);
+    }
+ else {
+      error(NOATTNAME);
+    }
+  }
+ else   if (consume('*')) {
+    axis=Axis.CHILD;
+    nodetest=new TestName(true);
+  }
+ else   if (letter(curr())) {
+    axis=parseAxis();
+    nodetest=parseNodeTest(axis);
+  }
+ else {
+    error(NOLOCSTEP);
+  }
+  final Preds preds=new Preds();
+  consumeWS();
+  while (curr('[')) {
+    preds.add(parsePred());
+    consumeWS();
+  }
+  return Axis.create(axis,nodetest,preds);
+}

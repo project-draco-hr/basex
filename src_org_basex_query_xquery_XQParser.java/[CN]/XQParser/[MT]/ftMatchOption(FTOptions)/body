@@ -27,20 +27,20 @@
     final int p=qp;
     final boolean with=consumeWS(WITH);
     if (!with && !consumeWS(WITHOUT))     return false;
-    if (consume(STEMMING)) {
+    if (consumeWS2(STEMMING)) {
       opt.st=Bln.get(with);
     }
- else     if (consume(THESAURUS)) {
+ else     if (consumeWS2(THESAURUS)) {
       opt.ts=Bln.get(with);
       if (with) {
-        final boolean par=consume(PAR1);
-        if (consume(AT)) {
+        final boolean par=consumeWS2(PAR1);
+        if (consumeWS2(AT)) {
           ftThesaurusID();
         }
  else {
           check(DEFAULT);
         }
-        while (par && consume(COMMA))         ftThesaurusID();
+        while (par && consumeWS2(COMMA))         ftThesaurusID();
         if (par)         check(PAR2);
         Err.or(FTTHES);
       }
@@ -51,16 +51,16 @@
       boolean union=false;
       boolean except=false;
       while (with) {
-        if (consume(PAR1)) {
+        if (consumeWS2(PAR1)) {
           do {
             final byte[] sl=stringLiteral();
             if (except)             opt.sw.delete(sl);
  else             if (!union || opt.sw.id(sl) == 0)             opt.sw.add(sl);
           }
- while (consume(COMMA));
+ while (consumeWS2(COMMA));
           check(PAR2);
         }
- else         if (consume(AT)) {
+ else         if (consumeWS2(AT)) {
           IO fl=new IO(string(stringLiteral()));
           if (!fl.exists() && ctx.file != null) {
             fl=file.merge(fl);
@@ -79,8 +79,8 @@
  else         if (!union && !except) {
           Err.or(FTSTOP);
         }
-        union=consume(UNION);
-        except=!union && consume(EXCEPT);
+        union=consumeWS2(UNION);
+        except=!union && consumeWS2(EXCEPT);
         if (!union && !except)         break;
       }
     }
@@ -88,11 +88,11 @@
       check(STOP);
       check(WORDS);
     }
- else     if (consume(WILDCARDS)) {
+ else     if (consumeWS2(WILDCARDS)) {
       if (opt.fz != null)       Err.or(FTFZWC);
       opt.wc=Bln.get(with);
     }
- else     if (consume(FUZZY)) {
+ else     if (consumeWS2(FUZZY)) {
       if (opt.wc != null)       Err.or(FTFZWC);
       opt.fz=Bln.get(with);
     }

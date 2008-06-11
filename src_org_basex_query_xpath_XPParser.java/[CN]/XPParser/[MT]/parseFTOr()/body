@@ -1,0 +1,16 @@
+{
+  Expr e=parseFTAnd();
+  consumeWS();
+  if (!consume(FTOR))   return e;
+  ExprList el=new ExprList();
+  el.add(e);
+  consumeWS();
+  if (consume(FTNOT))   error(FTNOTEXC);
+  el.add(parseFTAnd());
+  consumeWS();
+  while (consume(FTOR)) {
+    consumeWS();
+    el.add(parseFTAnd());
+  }
+  return new FTOr(el.get());
+}

@@ -1,18 +1,18 @@
 {
   final int p=qp;
-  if (!consumeWS(XQUERY) || !consume(VERSION)) {
+  if (!consumeWS(XQUERY) || !consumeWS2(VERSION)) {
     qp=p;
     return;
   }
   final String ver=string(stringLiteral());
-  final byte[] enc=consume(ENCODING) ? lc(stringLiteral()) : null;
+  final byte[] enc=consumeWS2(ENCODING) ? lc(stringLiteral()) : null;
   if (enc != null) {
     boolean v=true;
     for (    final byte e : enc)     v&=letterOrDigit(e) || e == '-';
     if (!v)     Err.or(XQUERYENC2,enc);
   }
   ctx.encoding=enc;
-  consumeWS();
+  skipWS();
   check(';');
   if (!ver.equals(ONEZERO))   Err.or(XQUERYVER,ver);
 }

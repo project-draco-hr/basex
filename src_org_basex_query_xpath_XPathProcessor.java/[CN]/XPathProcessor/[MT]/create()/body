@@ -1,24 +1,3 @@
 {
-  qu=query.length() == 0 ? "." : query;
-  ql=qu.length();
-  qp=0;
-  try {
-    final Expr expr=parseOr();
-    if (!finished())     error(QUERYEND,query(20,0));
-    return new XPContext(expr);
-  }
- catch (  final QueryException ex) {
-    int l=1;
-    int c=1;
-    for (int i=0; i + 1 < qp; c++, i++) {
-      final int ch=qu.charAt(i);
-      if (ch == 0x0A || ch == 0x0D) {
-        l++;
-        c=0;
-      }
-    }
-    QueryException qe=new QueryException(POSINFO + ex.getMessage(),l,c);
-    qe.setStackTrace(ex.getStackTrace());
-    throw qe;
-  }
+  return new XPParser(query).parse();
 }

@@ -1,0 +1,40 @@
+{
+  final String test=name();
+  if (test.length() == 0) {
+    if (consume('*'))     return new TestName(true);
+    error(NOTEST);
+  }
+  consumeWS();
+  if (consume('(')) {
+    TestNode result=null;
+    if (test.equals(PI)) {
+      if (curr(0))       error(PIBRACKETS);
+      final char delim=curr();
+      if (delim != ')') {
+        if (delim != '"' && delim != '\'')         error(PIQUOTE);
+        consume(delim);
+        final String pi=name();
+        if (!consume(delim))         error(PIQUOTE);
+        if (!consume(')'))         error(PIBRACKETS);
+        return new TestPI(token(pi));
+      }
+      result=TestNode.PI;
+    }
+ else     if (test.equals(NODE)) {
+      result=TestNode.NODE;
+    }
+ else     if (test.equals(COMMENT)) {
+      result=TestNode.COMM;
+    }
+ else     if (test.equals(TEXT)) {
+      result=TestNode.TEXT;
+    }
+ else {
+      error(UNKNOWNKIND,test);
+    }
+    consumeWS();
+    if (consume(')'))     return result;
+    error(KINDCLOSE);
+  }
+  return new TestName(token(test),axis != Axis.ATTR);
+}

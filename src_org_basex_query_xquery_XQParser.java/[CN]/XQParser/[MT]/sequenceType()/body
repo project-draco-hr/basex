@@ -1,15 +1,15 @@
 {
   final QNm type=new QNm(qName(TYPEINVALID));
   tok.reset();
-  final boolean par=consume(PAR1);
+  final boolean par=consumeWS2(PAR1);
   if (par) {
-    while (!consume(PAR2)) {
+    while (!consumeWS2(PAR2)) {
       if (curr() == 0)       Err.or(FUNCMISS,type.str());
-      consumeWS();
+      skipWS();
       tok.add(consume());
     }
   }
-  consumeWS();
+  skipWS();
   final int mode=consume('?') ? 1 : consume('+') ? 2 : consume('*') ? 3 : 0;
   if (type.ns())   type.uri=ctx.ns.uri(type.pre());
   final SeqType seq=new SeqType(type,mode,tok.finish());

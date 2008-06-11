@@ -1,13 +1,13 @@
 {
-  consumeWS();
+  skipWS();
   final char delim=curr();
-  if (delim != '\'' && delim != '"')   Err.or(WRONGCHAR,QUOTE,found());
+  if (!quote(delim))   Err.or(WRONGCHAR,QUOTE,found());
   consume();
   tok.reset();
   while (true) {
     while (!consume(delim)) {
       if (curr() == 0)       Err.or(QUOTECLOSE,delim);
-      ent(tok);
+      entity(tok);
     }
     if (!consume(delim))     break;
     tok.add(delim);
