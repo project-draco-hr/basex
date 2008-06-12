@@ -12,7 +12,7 @@
     check('=');
     consumeWSS();
     final char delim=consume();
-    if (delim != '\'' && delim != '"')     Err.or(WRONGCHAR,QUOTE,found());
+    if (!quote(delim))     Err.or(NOQUOTE,QUOTE,found());
     final TokenBuilder tb=new TokenBuilder();
     boolean simple=true;
     do {
@@ -41,11 +41,8 @@
           check('}');
           tb.add('}');
         }
- else         if (c == '<') {
-          Err.or(WRONGCHAR,delim,found());
-        }
- else         if (c == 0) {
-          Err.or(QUOTECLOSE,delim);
+ else         if (c == '<' || c == 0) {
+          Err.or(NOQUOTE,found());
         }
  else         if (c == 0x0A || c == 0x09) {
           qp++;
