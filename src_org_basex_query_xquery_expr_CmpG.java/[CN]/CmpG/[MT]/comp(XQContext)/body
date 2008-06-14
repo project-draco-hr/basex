@@ -1,12 +1,9 @@
 {
   super.comp(ctx);
-  if (expr[0].e() || expr[1].e()) {
-    ctx.compInfo(OPTPREEVAL,this);
-    return Bln.FALSE;
-  }
-  if (expr[0].i() && expr[1].i()) {
-    ctx.compInfo(OPTPREEVAL,this);
-    return Bln.get(ev(iter(expr[0]),iter(expr[1])));
-  }
-  return this;
+  final Expr e1=expr[0];
+  final Expr e2=expr[1];
+  final boolean e=e1.e() || e2.e();
+  if (!(e || e1.i() && e2.i()))   return this;
+  ctx.compInfo(OPTPREEVAL,this);
+  return e ? Bln.FALSE : Bln.get(ev((Item)expr[0],(Item)expr[1],cmp.cmp));
 }
