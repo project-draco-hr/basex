@@ -5,14 +5,33 @@
     if (ids == null)     return new NodeSet(ctx);
     return new NodeSet(Array.extractIDsFromData(ids),ctx,ids);
   }
-  if (single) {
-    ids=data.ftIDs(token,option);
-    if (ids == null)     return new NodeSet(ctx);
-    return new NodeSet(Array.extractIDsFromData(ids),ctx,ids);
-  }
+  FTTokenizer ftt=new FTTokenizer();
+  ftt.init(token);
+  ftt.sens=option.ftCasesen;
+  ftt.wc=option.ftWild;
+  ftt.lc=option.ftlc | !ftt.sens;
+  ftt.uc=option.ftuc;
+  int c=0;
+  int pos;
+  int[][] d=null;
+  byte[] b;
+  while (ftt.more()) {
+    b=ftt.next();
+    c++;
+    if (ftt.wc) {
+      pos=Token.indexOf(b,'.');
+      if (pos > -1) {
+        d=data.wildcardIDs(b,pos);
+      }
  else {
-    evalNonSingle(data);
-    if (ids == null)     return new NodeSet(ctx);
-    return new NodeSet(Array.extractIDsFromData(ids),ctx,ids);
+        d=data.ftIDs(b,ftt.sens);
+      }
+    }
+ else {
+      d=data.ftIDs(b,ftt.sens);
+    }
+    break;
   }
+  if (d != null)   return new NodeSet(Array.extractIDsFromData(d),ctx,d);
+ else   return new NodeSet(ctx);
 }

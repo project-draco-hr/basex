@@ -1,0 +1,29 @@
+{
+  hash.init();
+  long c;
+  int ds, p;
+  byte[] val, tok;
+  while (hash.more()) {
+    p=hash.next();
+    tok=hash.key();
+    ds=hash.ns[p];
+    c=outD.size();
+    if (Prop.fcompress) {
+      val=Num.finish(hash.pre[p]);
+      for (int z=4; z < val.length; z++)       outD.write(val[z]);
+      val=Num.finish(hash.pos[p]);
+      for (int z=4; z < val.length; z++)       outD.write(val[z]);
+    }
+ else {
+      val=hash.pre[p];
+      for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++) {
+        outD.writeInt(Num.read(val,ip));
+      }
+      val=hash.pos[p];
+      for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++) {
+        outD.writeInt(Num.read(val,ip));
+      }
+    }
+    index.insertSorted(tok,ds,c);
+  }
+}

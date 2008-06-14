@@ -32,7 +32,7 @@
  else {
       System.arraycopy(vsn,posw + 2,sc,bw.length,sc.length - bw.length);
     }
-    d=getNodeFromTrieRecursive(0,sc);
+    d=getNodeFromTrieRecursive(0,sc,false);
     sc=new byte[vsn.length - 1];
     if (bw != null) {
       System.arraycopy(bw,0,sc,0,bw.length);
@@ -62,7 +62,7 @@
         System.arraycopy(vsn,posw + 2,searchChar,bw.length,searchChar.length - bw.length);
         System.arraycopy(vsn,posw + 2,aw,0,searchChar.length - bw.length);
       }
-      d=getNodeFromTrieRecursive(0,searchChar);
+      d=getNodeFromTrieRecursive(0,searchChar,false);
       if (bw != null && counter[1] != bw.length) {
         return d;
       }
@@ -104,7 +104,7 @@
     final int[] rne=getNodeEntry(resultNode);
     if (rne[0] > counter[0] && resultNode > 0) {
       vsn[posw]=(byte)rne[counter[0] + 1];
-      final int[][] resultData=getNodeFromTrieRecursive(0,vsn);
+      final int[][] resultData=getNodeFromTrieRecursive(0,vsn,false);
       if (resultData != null && recCall) {
         valuesFound=new byte[]{(byte)rne[counter[0] + 1]};
       }
@@ -120,7 +120,7 @@
       if (!recCall) {
         for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
           aw[0]=(byte)rne[t + 1];
-          tmpNode=FTUnion.calculateFTOr(tmpNode,getNodeFromTrieRecursive(rne[t],aw));
+          tmpNode=FTUnion.calculateFTOr(tmpNode,getNodeFromTrieRecursive(rne[t],aw,false));
         }
         return tmpNode;
       }
@@ -129,7 +129,7 @@
         for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
           aw[0]=(byte)rne[t + 1];
           valuesFound[t - rne[0] - 1]=(byte)rne[t + 1];
-          tmpNode=FTUnion.calculateFTOr(tmpNode,getNodeFromTrieRecursive(rne[t],aw));
+          tmpNode=FTUnion.calculateFTOr(tmpNode,getNodeFromTrieRecursive(rne[t],aw,false));
         }
       }
     }

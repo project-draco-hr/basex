@@ -1,0 +1,36 @@
+{
+  if (!casesen) {
+    return get(Token.lc(tok));
+  }
+  int[][] ids=get(Token.lc(tok));
+  if (ids == null)   return null;
+  byte[] tokenFromDB;
+  byte[] textFromDB;
+  int[][] rIds=new int[2][ids[0].length];
+  int count=0;
+  int readId;
+  int i=0;
+  while (i < ids[0].length) {
+    readId=ids[0][i];
+    textFromDB=data.text(ids[0][i]);
+    tokenFromDB=new byte[tok.length];
+    System.arraycopy(textFromDB,ids[1][i],tokenFromDB,0,tok.length);
+    readId=ids[0][i];
+    while (i < ids[0].length && readId == ids[0][i]) {
+      System.arraycopy(textFromDB,ids[1][i],tokenFromDB,0,tok.length);
+      readId=ids[0][i];
+      if (Token.eq(tokenFromDB,tok)) {
+        rIds[0][count]=ids[0][i];
+        rIds[1][count++]=ids[1][i];
+        while (i < ids[0].length && readId == ids[0][i])         i++;
+        break;
+      }
+      i++;
+    }
+  }
+  if (count == 0)   return null;
+  int[][] tmp=new int[2][count];
+  System.arraycopy(rIds[0],0,tmp[0],0,count);
+  System.arraycopy(rIds[1],0,tmp[1],0,count);
+  return tmp;
+}
