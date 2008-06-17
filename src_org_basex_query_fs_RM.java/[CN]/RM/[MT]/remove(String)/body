@@ -1,11 +1,12 @@
 {
+  Data data=context.data();
   String file="";
   int beginIndex=path.lastIndexOf('/');
   if (beginIndex == -1) {
     file=path;
   }
  else {
-    curDirPre=FSUtils.goToDir(context.data(),curDirPre,path.substring(0,beginIndex));
+    curDirPre=FSUtils.goToDir(data,curDirPre,path.substring(0,beginIndex));
     if (curDirPre == -1) {
       out.print("rm: '" + path + "' No such file or directory");
     }
@@ -13,25 +14,27 @@
       file=path.substring(beginIndex + 1);
     }
   }
-  int[] del=FSUtils.getSpecificFilesOrDirs(context.data(),curDirPre,file.getBytes());
+  int[] del=FSUtils.getSpecificFilesOrDirs(data,curDirPre,file.getBytes());
+  long sizeOfNode=0;
   for (  int toDel : del) {
     if (toDel == -1) {
       out.print("rm: '" + file + "' No such file or directory");
       return;
     }
  else {
-      out.println(toDel + " zu loeschen ");
-      if ((FSUtils.isDir(context.data(),toDel) && fRecursive) || (FSUtils.isFile(context.data(),toDel))) {
+      toDel-=sizeOfNode;
+      if ((FSUtils.isDir(data,toDel) && fRecursive) || (FSUtils.isFile(data,toDel))) {
         try {
-          context.data().delete(toDel);
-          context.data().flush();
+          sizeOfNode+=data.size(toDel,data.ELEM);
+          data.delete(toDel);
+          data.flush();
         }
  catch (        Exception e) {
           e.printStackTrace();
         }
       }
  else {
-        out.print("rm: cannot remove '" + FSUtils.getFileName(context.data(),toDel) + "': Is a directory");
+        out.print("rm: cannot remove '" + FSUtils.getFileName(data,toDel) + "': Is a directory");
       }
     }
   }

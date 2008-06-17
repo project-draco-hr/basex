@@ -1,0 +1,44 @@
+{
+  GetOpts g=new GetOpts(cmd,"bhn",1);
+  int ch=g.getopt();
+  while (ch != -1) {
+switch (ch) {
+case 'b':
+      fnumberNonBlankLines=true;
+    break;
+case 'h':
+  printHelp();
+break;
+case 'n':
+fnumberLines=true;
+break;
+case ':':
+fError=true;
+out.print("cd: missing argument");
+break;
+case '?':
+fError=true;
+out.print("cd: illegal option");
+break;
+}
+if (fError) {
+return;
+}
+ch=g.getopt();
+}
+int nodeToPrint=0;
+if (g.getPath() != null) {
+nodeToPrint=FSUtils.getSpecificFile(context.data(),curDirPre,g.getPath().getBytes());
+if (nodeToPrint == -1) {
+out.print("cat:" + g.getPath() + ": No such file or directory");
+}
+ else {
+if (FSUtils.isDir(context.data(),nodeToPrint)) {
+out.print("cat:" + g.getPath() + ": Is a directory");
+}
+ else {
+cat(nodeToPrint);
+}
+}
+}
+}
