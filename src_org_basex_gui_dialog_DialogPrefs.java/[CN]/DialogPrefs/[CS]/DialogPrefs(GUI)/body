@@ -7,7 +7,7 @@
   final BaseXBack pp=new BaseXBack();
   pp.setLayout(new TableLayout(10,1,0,0));
   pp.add(new BaseXLabel(DATABASEPATH,true));
-  final BaseXBack p=new BaseXBack();
+  BaseXBack p=new BaseXBack();
   p.setLayout(new TableLayout(1,2,6,0));
   path=new BaseXTextField(Prop.dbpath,HELPDBPATH,this);
   BaseXLayout.setWidth(path,300);
@@ -35,9 +35,20 @@
   names.setEnabled(data != null && !data.deepfs && data.nameID != 0);
   pp.add(names);
   pp.add(new BaseXLabel(PREFLANG,true));
+  p=new BaseXBack();
+  p.setLayout(new TableLayout(1,2,12,0));
   lang=new BaseXCombo(Prop.LANGUAGES,HELPLANG,false,this);
   lang.setSelectedItem(Prop.language);
-  pp.add(lang);
+  lang.addItemListener(new ItemListener(){
+    public void itemStateChanged(    final ItemEvent ie){
+      creds.setText(credits(lang.getSelectedItem().toString()));
+    }
+  }
+);
+  p.add(lang);
+  creds=new BaseXLabel(credits(Prop.language));
+  p.add(creds);
+  pp.add(p);
   set(pp,BorderLayout.CENTER);
   buttons=BaseXLayout.okCancel(this);
   set(buttons,BorderLayout.SOUTH);
