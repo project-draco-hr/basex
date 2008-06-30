@@ -7,7 +7,7 @@
  else {
     curDirPre=FSUtils.goToDir(context.data(),curDirPre,path.substring(0,beginIndex));
     if (curDirPre == -1) {
-      out.print("rm: " + path + " No such file or directory");
+      out.print("touch: " + path + " No such file or directory");
     }
  else {
       file=path.substring(beginIndex + 1);
@@ -15,6 +15,7 @@
   }
   int filePre=FSUtils.getSpecificFile(context.data(),curDirPre,file.getBytes());
   if (filePre > 0) {
+    context.data().update(filePre + 4,"mtime".getBytes(),("" + System.currentTimeMillis()).getBytes());
   }
  else {
     try {
@@ -26,7 +27,7 @@
       context.data().insert(preNewFile + 1,preNewFile,"name".getBytes(),file.getBytes());
       context.data().insert(preNewFile + 2,preNewFile,"suffix".getBytes(),getSuffix(file));
       context.data().insert(preNewFile + 3,preNewFile,"size".getBytes(),"0".getBytes());
-      context.data().insert(preNewFile + 4,preNewFile,"mtime".getBytes(),"222222".getBytes());
+      context.data().insert(preNewFile + 4,preNewFile,"mtime".getBytes(),("" + System.currentTimeMillis()).getBytes());
       context.data().flush();
     }
  catch (    Exception e) {
