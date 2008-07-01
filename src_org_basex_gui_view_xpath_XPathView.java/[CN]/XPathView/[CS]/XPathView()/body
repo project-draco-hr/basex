@@ -4,93 +4,45 @@
   back.setLayout(new BorderLayout());
   header=new BaseXLabel(GUIConstants.XPATHVIEW,10);
   back.add(header,BorderLayout.NORTH);
+  box=new JComboBox();
+  box.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      if (e.getModifiers() == 16)       completeInput();
+    }
+  }
+);
+  pop=new ComboPopup(box);
   input=new BaseXTextField(null);
-  input.setToolTipText(string(HELPXPATHV));
+  input.setToolTipText(HELPXPATHV);
   input.addKeyListener(new KeyAdapter(){
-    @Override public void keyReleased(    final KeyEvent e){
-      int c=e.getKeyCode();
-      if (c == KeyEvent.VK_SLASH) {
-        showPopAll();
-      }
- else       if (c == KeyEvent.VK_DELETE || c == KeyEvent.VK_BACK_SPACE) {
-        if (input.getText().length() == 0) {
-          tempIn="";
-          if (popInit) {
-            pop.hide();
-          }
-        }
- else         if (input.getText().endsWith("/")) {
-          if ('/' == input.getText().charAt(input.getText().length() - 1)) {
-            showPopAll();
-          }
- else           if ('/' == input.getText().charAt(input.getText().length() - 2)) {
-            showPopAll();
-          }
-        }
- else {
-          tempIn=input.getText();
-          pop.hide();
-        }
-      }
- else       if (c == KeyEvent.VK_DOWN) {
-        if (box.getSelectedItem() != null && box.getSelectedIndex() < box.getItemCount() - 1) {
-          int tmp=box.getSelectedIndex();
-          box.setSelectedIndex(tmp + 1);
-        }
- else {
-          box.setSelectedIndex(0);
-        }
+    @Override public void keyPressed(    final KeyEvent e){
+      final int count=box.getItemCount();
+      if (count == 0)       return;
+      int p=box.getSelectedIndex();
+      final int c=e.getKeyCode();
+      if (c == KeyEvent.VK_DOWN) {
+        if (++p == count)         p=0;
+        box.setSelectedIndex(p);
       }
  else       if (c == KeyEvent.VK_UP) {
-        if (box.getSelectedItem() != null) {
-          int tmp=box.getSelectedIndex();
-          box.setSelectedIndex(tmp - 1);
-        }
- else {
-          box.setSelectedIndex(box.getItemCount() - 1);
-        }
+        if (--p < 0)         p=count - 1;
+        box.setSelectedIndex(p);
       }
  else       if (c == KeyEvent.VK_ENTER) {
-        if (box.getSelectedItem() != null) {
-          input.setText(tempIn + box.getSelectedItem().toString());
-          if (box.getSelectedItem().toString().endsWith("::")) {
-            if (box.getSelectedItem().toString().equals("attribute::")) {
-              tempIn=input.getText();
-              atts=true;
-              showSpecPop();
-            }
- else {
-              tempIn=input.getText();
-              nodes=true;
-              showSpecPop();
-            }
-          }
-          if (box.getSelectedItem() != null) {
-            pop.hide();
-          }
-        }
+        if (box.getSelectedItem() != null)         completeInput();
       }
- else       if (c == KeyEvent.VK_SHIFT) {
+    }
+    @Override public void keyReleased(    final KeyEvent e){
+      final int c=e.getKeyCode();
+      if (c == KeyEvent.VK_DOWN || c == KeyEvent.VK_UP)       return;
+      if (c == KeyEvent.VK_ESCAPE) {
+        pop.setVisible(false);
         return;
       }
- else {
-        if (popInit) {
-          if (tempIn.length() == 0) {
-            pop.hide();
-          }
- else {
-            showSpecPop();
-          }
-        }
-      }
-      if (c == KeyEvent.VK_ESCAPE)       return;
-      final String query=input.getText();
-      final XPParser parser=new XPParser(query);
-      try {
-        parser.parse();
-        GUI.get().execute(Commands.XPATH,query);
-      }
- catch (      final QueryException ex) {
+      final boolean enter=c == KeyEvent.VK_ENTER;
+      if (!enter)       showPopup();
+      if (GUIProp.execrt || enter) {
+        GUI.get().execute(Commands.XPATH,input.getText());
       }
     }
   }

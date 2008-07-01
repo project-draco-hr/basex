@@ -1,0 +1,29 @@
+{
+  final StringList sl=new StringList();
+  final String query=input.getText();
+  final int slash=Math.max(query.lastIndexOf('/'),Math.max(query.lastIndexOf('['),query.lastIndexOf('(')));
+  final int axis=query.lastIndexOf("::");
+  final boolean test=axis > slash;
+  tempIn="";
+  if (test)   tempIn=query.substring(0,axis + 2);
+ else   if (slash != -1)   tempIn=query.substring(0,slash + 1);
+  if (query.length() != 0) {
+    String suf=input.getText().substring(tempIn.length());
+    final String[] all=createList();
+    if (test) {
+      final boolean attest=tempIn.endsWith("attribute::");
+      for (      final String a : all) {
+        if (a.endsWith("::"))         continue;
+        if (attest ^ a.startsWith("@"))         continue;
+        final String at=a.substring(attest ? 1 : 0);
+        if (at.startsWith(suf) && !at.equals(suf))         sl.add(at);
+      }
+    }
+ else {
+      for (      final String a : all) {
+        if (a.startsWith(suf) && !a.equals(suf))         sl.add(a);
+      }
+    }
+  }
+  createCombo(sl);
+}
