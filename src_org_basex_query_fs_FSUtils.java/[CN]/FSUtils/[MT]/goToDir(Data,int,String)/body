@@ -13,10 +13,19 @@
       n=3;
     }
  else     if (!p.equals(".")) {
-      n=getSpecificDir(data,n,Token.token(p));
-    }
-    if (n == -1) {
-      return -1;
+      p=transformToRegex(p);
+      final DirIterator it=new DirIterator(data,n);
+      n=-1;
+      while (it.more()) {
+        int j=it.next();
+        if (isDir(data,j) && Pattern.matches(p,Token.string(getName(data,j)))) {
+          n=j;
+          break;
+        }
+      }
+      if (n == -1) {
+        return -1;
+      }
     }
   }
   return n;
