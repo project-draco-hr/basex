@@ -1,7 +1,6 @@
 {
   String file=path.substring(path.lastIndexOf('/') + 1);
   int[] preFound=FSUtils.getSpecificFilesOrDirs(context.data(),curDirPre,path);
-  System.out.println(preFound.length);
   if (preFound.length > 0) {
     for (    int i : preFound) {
       if (FSUtils.isFile(context.data(),i)) {
@@ -10,6 +9,10 @@
     }
   }
  else {
+    if (file.indexOf('?') > 0 || file.indexOf('*') > 0 || file.indexOf('[') > 0) {
+      out.print("touch: " + file + ": filename not allowed.\n");
+      return;
+    }
     try {
       int preNewFile=4;
       if (!(curDirPre == FSUtils.getROOTDIR())) {
