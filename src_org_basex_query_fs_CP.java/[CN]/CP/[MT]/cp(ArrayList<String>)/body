@@ -13,33 +13,35 @@
   targetfile=targetfile.substring(targetfile.lastIndexOf('/') + 1);
 switch (sources.length) {
 case 0:
-    FSUtils.printError(out,"cat",sourcefile,2);
+    FSUtils.printError(out,"cp",sourcefile,2);
   break;
 case 1:
-byte[] size=("" + FSUtils.getSize(data,sources[0])).getBytes();
-byte[] mtime=("" + System.currentTimeMillis()).getBytes();
+if (FSUtils.isDir(data,sources[0])) {
+  FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,sources[0])),100);
+  break;
+}
+byte[] size=Token.token(FSUtils.getSize(data,sources[0]));
+byte[] mtime=Token.token(System.currentTimeMillis());
 if (target.length == 1) {
 if (FSUtils.isDir(data,target[0])) {
 byte[] name=FSUtils.getName(data,sources[0]);
 byte[] suffix=FSUtils.getSuffix(data,sources[0]);
 if (!(target[0] == FSUtils.getROOTDIR())) {
-  preOfNewFile=target[0] + 5;
+preOfNewFile=target[0] + 5;
 }
-insert(data,name,suffix,size,mtime,target[0],preOfNewFile);
+FSUtils.insert(data,name,suffix,size,mtime,target[0],preOfNewFile);
 }
  else {
-data.update(target[0] + 3,"size".getBytes(),("" + size).getBytes());
-data.update(target[0] + 4,"mtime".getBytes(),("" + System.currentTimeMillis()).getBytes());
-data.flush();
+FSUtils.update(data,FSUtils.getName(data,target[0]),FSUtils.getSuffix(data,target[0]),size,mtime,target[0]);
 }
 }
  else {
-byte[] name=targetfile.getBytes();
+byte[] name=Token.token(targetfile);
 byte[] suffix=getSuffix(targetfile);
 if (!(curDirPre == FSUtils.getROOTDIR())) {
 preOfNewFile=curDirPre + 5;
 }
-insert(data,name,suffix,size,mtime,curDirPre,preOfNewFile);
+FSUtils.insert(data,name,suffix,size,mtime,curDirPre,preOfNewFile);
 }
 break;
 default :
@@ -56,13 +58,17 @@ preOfNewFile=target[0] + 5;
 }
 ArrayList<byte[]> toInsert=new ArrayList<byte[]>();
 for (int i : sources) {
+if (FSUtils.isDir(data,i)) {
+FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,i)),100);
+continue;
+}
 toInsert.add(FSUtils.getName(data,i));
 toInsert.add(FSUtils.getSuffix(data,i));
-toInsert.add(("" + FSUtils.getSize(data,i)).getBytes());
+toInsert.add(Token.token(FSUtils.getSize(data,i)));
 }
-for (int i=0; i < sources.length; ++i) {
+for (int j=0; j < toInsert.size(); ++j) {
 mtime=("" + System.currentTimeMillis()).getBytes();
-insert(data,toInsert.remove(0),toInsert.remove(0),toInsert.remove(0),mtime,target[0],preOfNewFile);
+FSUtils.insert(data,toInsert.remove(0),toInsert.remove(0),toInsert.remove(0),mtime,target[0],preOfNewFile);
 }
 break;
 }
