@@ -1,0 +1,72 @@
+{
+  super(null);
+  final Font f=getFont();
+  setFont(f.deriveFont((float)f.getSize() + 2));
+  main=m;
+  box=new BaseXCombo();
+  box.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      if (e.getModifiers() == 16)       completeInput();
+    }
+  }
+);
+  pop=new ComboPopup(box);
+  addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      main.checkKeys(e);
+      final int count=box.getItemCount();
+      final int c=e.getKeyCode();
+      if (c == KeyEvent.VK_ENTER) {
+        if (pop.isVisible()) {
+          completeInput();
+        }
+ else {
+          final String txt=getText();
+          final StringList sl=new StringList();
+          sl.add(txt);
+          final int i=!GUI.context.db() ? 2 : GUIProp.searchmode;
+          final String[] hs=i == 0 ? GUIProp.search : i == 1 ? GUIProp.xpath : GUIProp.commands;
+          for (int p=0; p < hs.length && sl.size < 10; p++) {
+            if (!hs[p].equals(txt))             sl.add(hs[p]);
+          }
+          if (i == 0)           GUIProp.search=sl.finish();
+ else           if (i == 1)           GUIProp.xpath=sl.finish();
+ else           GUIProp.commands=sl.finish();
+          main.execute();
+        }
+        return;
+      }
+      if (count == 0)       return;
+      int bi=box.getSelectedIndex();
+      if (c == KeyEvent.VK_DOWN) {
+        if (!pop.isVisible()) {
+          showPopup();
+        }
+ else {
+          if (++bi == count)           bi=0;
+        }
+      }
+ else       if (c == KeyEvent.VK_UP) {
+        if (!pop.isVisible()) {
+          showPopup();
+        }
+ else {
+          if (--bi < 0)           bi=count - 1;
+        }
+      }
+      if (bi != box.getSelectedIndex())       box.setSelectedIndex(bi);
+    }
+    @Override public void keyReleased(    final KeyEvent e){
+      final int c=e.getKeyCode();
+      if (e.getKeyChar() == 0xFFFF || e.isControlDown() || c == KeyEvent.VK_DOWN || c == KeyEvent.VK_UP)       return;
+      if (c == KeyEvent.VK_ESCAPE) {
+        pop.setVisible(false);
+        return;
+      }
+      final boolean enter=c == KeyEvent.VK_ENTER;
+      if (!enter)       showPopup();
+      if (GUIProp.execrt && !cmdMode())       main.execute();
+    }
+  }
+);
+}

@@ -55,33 +55,7 @@
   }
 );
   nav.add(mode,BorderLayout.WEST);
-  input=new BaseXTextField(null);
-  final Font f=input.getFont();
-  input.setFont(f.deriveFont((float)f.getSize() + 2));
-  input.addKeyListener(new KeyAdapter(){
-    @Override public void keyPressed(    final KeyEvent e){
-      checkKeys(e);
-      if (e.getKeyCode() != KeyEvent.VK_ENTER)       return;
-      final String txt=input.getText();
-      final StringList sl=new StringList();
-      sl.add(txt);
-      final int i=!context.db() ? 2 : GUIProp.searchmode;
-      final String[] hs=i == 0 ? GUIProp.search : i == 1 ? GUIProp.xpath : GUIProp.commands;
-      for (int p=0; p < hs.length && sl.size < 10; p++) {
-        if (!hs[p].equals(txt))         sl.add(hs[p]);
-      }
-      if (i == 0)       GUIProp.search=sl.finish();
- else       if (i == 1)       GUIProp.xpath=sl.finish();
- else       GUIProp.commands=sl.finish();
-      execute();
-    }
-    @Override public void keyReleased(    final KeyEvent e){
-      if (e.getKeyChar() == 0xFFFF || e.isControlDown())       return;
-      if (GUIProp.searchmode == 2 || !context.db())       refreshPop(e.getKeyCode());
-      if (GUIProp.execrt && GUIProp.searchmode != 2 && context.db() && !input.getText().startsWith("!"))       execute();
-    }
-  }
-);
+  input=new GUIInput(this);
   hist=new BaseXButton(icon("hist"),HELPHIST);
   hist.trim();
   hist.addActionListener(new ActionListener(){
@@ -146,7 +120,7 @@
   info=new InfoView(HELPINFO);
   final ViewPanel textpanel=new ViewPanel(text,TEXTVIEW);
   final ViewPanel helppanel=new ViewPanel(help,HELPVIEW);
-  final ViewPanel[][] panels={{textpanel,helppanel},{new ViewPanel(new TreeView(HELPTREE),TREEVIEW),new ViewPanel(new RealView(),REALVIEW),new ViewPanel(new XPathView(),XPATHVIEW),new ViewPanel(new TableView(HELPTABLE),TABLEVIEW),new ViewPanel(new MapView(HELPMAP),MAPVIEW),new ViewPanel(query,QUERYVIEW),new ViewPanel(info,INFOVIEW),helppanel,textpanel}};
+  final ViewPanel[][] panels={{textpanel,helppanel},{new ViewPanel(new TreeView(HELPTREE),TREEVIEW),new ViewPanel(new RealView(),REALVIEW),new ViewPanel(new TableView(HELPTABLE),TABLEVIEW),new ViewPanel(new MapView(HELPMAP),MAPVIEW),new ViewPanel(query,QUERYVIEW),new ViewPanel(info,INFOVIEW),helppanel,textpanel}};
   views=new ViewContainer(panels);
   views.setViews(false);
   top.add(views,BorderLayout.CENTER);
