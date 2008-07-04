@@ -1,14 +1,9 @@
 {
   ctx=context;
   final byte[] lit=((Literal)exprs[0]).str();
-  ctx.compInfo(OPTFTINDEX);
-  if (fto != null) {
-    if (Token.indexOf(lit,' ') > 0) {
-      return new FTIndex(lit,fto,false,false);
-    }
- else {
-      return new FTIndex(lit,fto,false,true);
-    }
+  if (fto != null && context.ftcount++ == 0) {
+    ctx.compInfo(OPTFTINDEX);
+    return new FTIndex(lit,fto,false,Token.indexOf(lit,' ') < 0);
   }
-  return null;
+  return exprs[0];
 }
