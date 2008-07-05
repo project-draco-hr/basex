@@ -1,0 +1,13 @@
+{
+  final FTArrayExpr e=ftUnaryNot();
+  if (!consume(NOT))   return e;
+  FTArrayExpr[] list={e};
+  do {
+    consumeWS();
+    if (!consume(IN))     error(WRONGTEXT,IN,curr());
+    if (consume(FTNOT))     error(FTNOTEXC);
+    list=add(list,ftUnaryNot());
+  }
+ while (consume(NOT));
+  return new FTMildNot(list);
+}

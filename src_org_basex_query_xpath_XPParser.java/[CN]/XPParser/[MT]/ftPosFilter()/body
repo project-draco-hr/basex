@@ -1,0 +1,45 @@
+{
+  final FTPos pos=new FTPos();
+  final FTPositionFilter ftpos=new FTPositionFilter(pos);
+  while (true) {
+    if (consume(ORDERED)) {
+      consumeWS();
+      pos.ordered=true;
+    }
+ else     if (consume(WINDOW)) {
+      consumeWS();
+      ftpos.window=number();
+      pos.wunit=ftUnit();
+    }
+ else     if (consume(DISTANCE)) {
+      consumeWS();
+      ftpos.dist=ftRange();
+      pos.dunit=ftUnit();
+    }
+ else     if (consume(AT)) {
+      consumeWS();
+      if (consume(START))       pos.start=true;
+ else       if (consume(END))       pos.end=true;
+ else       error(FTSCOPE);
+    }
+ else     if (consume(ENTIRE)) {
+      consumeWS();
+      if (consume(CONTENT))       pos.content=true;
+ else       error(FTSCOPE);
+    }
+ else     if (consume(SAME)) {
+      consumeWS();
+      pos.same=true;
+      pos.sdunit=ftBigUnit();
+    }
+ else     if (consume(DIFFERENT)) {
+      consumeWS();
+      pos.different=true;
+      pos.sdunit=ftBigUnit();
+    }
+ else {
+      break;
+    }
+  }
+  return ftpos;
+}

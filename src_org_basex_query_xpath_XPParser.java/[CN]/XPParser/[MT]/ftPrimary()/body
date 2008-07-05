@@ -1,0 +1,29 @@
+{
+  if (consume('(')) {
+    final FTArrayExpr e=ftSelection();
+    consumeWS();
+    if (!consume(')'))     error(") expected");
+    return e;
+  }
+  if (curr('"') || curr('\'')) {
+    final byte[] word=literal().str();
+    consumeWS();
+    FTMode mode=FTMode.ANY;
+    if (consume(ALL)) {
+      consumeWS();
+      mode=consume(WORDS) ? FTMode.ALLWORDS : FTMode.ALL;
+    }
+ else     if (consume(ANY)) {
+      consumeWS();
+      mode=consume(WORD) ? FTMode.ANYWORD : FTMode.ANY;
+    }
+ else     if (consume(PHRASE)) {
+      consumeWS();
+      mode=FTMode.PHRASE;
+    }
+    consumeWS();
+    return new FTWords(word,mode,ftTimes());
+  }
+  error("\', \" or ( expected");
+  return null;
+}

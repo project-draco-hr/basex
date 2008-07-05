@@ -1,29 +1,25 @@
 {
   final Data data=ctx.local.data;
-  if (ne > 0) {
-    ids=data.fuzzyIDs(token,ne);
-    if (ids == null)     return new NodeSet(ctx);
-    return new NodeSet(Array.extractIDsFromData(ids),ctx,ids);
+  final FTTokenizer ft=new FTTokenizer();
+  ft.init(token);
+  ft.stem=option.st;
+  ft.dc=option.dc;
+  ft.lc=option.lc;
+  ft.uc=option.uc;
+  ft.cs=option.cs;
+  ft.wc=option.wc;
+  ft.fz=option.fz;
+  while (ft.more()) {
+    if (data.nrFTIDs(ft.next(),ft) == 0)     return new NodeSet(ctx);
   }
-  final FTTokenizer ftt=new FTTokenizer();
-  ftt.init(token);
-  ftt.sens=option.ftCasesen;
-  ftt.wc=option.ftWild;
-  ftt.lc=option.ftlc | !ftt.sens;
-  ftt.uc=option.ftuc;
   int[][] d=null;
-  while (ftt.more()) {
-    final byte[] b=ftt.next();
-    int[][] dd=null;
-    final int pos=Token.indexOf(b,'.');
-    if (ftt.wc && pos > -1) {
-      dd=data.wildcardIDs(b,pos);
-    }
- else {
-      dd=data.ftIDs(b,ftt.sens);
-    }
+  ft.init();
+  while (ft.more()) {
+    final byte[] b=ft.next();
+    int[][] dd=data.ftIDs(b,ft);
+    ctx.checkStop();
     d=d == null ? dd : phrase(d,dd);
     if (d == null || d.length == 0)     break;
   }
-  return new NodeSet(Array.extractIDsFromData(d),ctx);
+  return new NodeSet(Array.extractIDsFromData(d),ctx,d);
 }

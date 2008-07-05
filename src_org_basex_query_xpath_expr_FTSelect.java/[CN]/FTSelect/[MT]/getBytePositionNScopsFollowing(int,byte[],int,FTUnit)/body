@@ -1,0 +1,56 @@
+{
+  if (data == null || nn == 0 || unit == null) {
+    return -1;
+  }
+  byte v;
+  int n=nn;
+  int sp=s;
+  if (unit == FTUnit.WORDS) {
+    while (sp < data.length && n > 0) {
+      v=(byte)((data[sp] & 0x7F) + (data[sp] < 0 ? 128 : 0));
+      while (Token.ftChar(v)) {
+        sp++;
+        if (sp < data.length) {
+          v=(byte)((data[sp] & 0x7F) + (data[sp] < 0 ? 128 : 0));
+        }
+ else {
+          break;
+        }
+      }
+      if (sp >= data.length) {
+        break;
+      }
+      v=(byte)((data[sp] & 0x7F) + (data[sp] < 0 ? 128 : 0));
+      while (sp < data.length && !(((v > 64 && v < 91)) || (v > 96 && v < 123))) {
+        sp++;
+        if (sp < data.length) {
+          v=(byte)((data[sp] & 0x7F) + (data[sp] < 0 ? 128 : 0));
+        }
+ else {
+          break;
+        }
+      }
+      n--;
+    }
+    if (sp == data.length) {
+      if (n == 0) {
+        return sp - 1;
+      }
+ else {
+        return sp;
+      }
+    }
+    return sp;
+  }
+ else   if (unit == FTUnit.SENTENCES || unit == FTUnit.PARAGRAPHS) {
+    int ep=getSEPositions(data,sp,false,unit)[1] + 1;
+    while (ep < data.length && n > 0) {
+      ep=getSEPositions(data,ep + 1,false,unit)[1] + 1;
+      n--;
+    }
+    return ep;
+  }
+ else {
+  }
+  return -1;
+}

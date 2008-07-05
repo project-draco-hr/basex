@@ -1,0 +1,105 @@
+{
+  if (consumeWS(LOWERCASE)) {
+    if (opt.lc || opt.uc || opt.cs)     Err.or(FTCASE);
+    opt.lc=true;
+    opt.cs=true;
+  }
+ else   if (consumeWS(UPPERCASE)) {
+    if (opt.lc || opt.uc || opt.cs)     Err.or(FTCASE);
+    opt.uc=true;
+    opt.cs=true;
+  }
+ else   if (consumeWS(CASE)) {
+    if (opt.lc || opt.uc || opt.cs)     Err.or(FTCASE);
+    opt.cs=consumeWS(SENSITIVE);
+    if (!opt.cs)     check(INSENSITIVE);
+  }
+ else   if (consumeWS(DIACRITICS)) {
+    if (opt.dc)     Err.or(FTDIA);
+    opt.dc=consumeWS(SENSITIVE);
+    if (!opt.dc)     check(INSENSITIVE);
+  }
+ else   if (consumeWS(LANGUAGE)) {
+    opt.ln=lc(stringLiteral());
+    if (!eq(opt.ln,EN))     Err.or(FTLAN,opt.ln);
+  }
+ else {
+    final int p=qp;
+    final boolean with=consumeWS(WITH);
+    if (!with && !consumeWS(WITHOUT))     return false;
+    if (consumeWS2(STEMMING)) {
+      opt.st=with;
+    }
+ else     if (consumeWS2(THESAURUS)) {
+      opt.ts=with;
+      if (with) {
+        final boolean par=consumeWS2(PAR1);
+        if (consumeWS2(AT)) {
+          ftThesaurusID();
+        }
+ else {
+          check(DEFAULT);
+        }
+        while (par && consumeWS2(COMMA))         ftThesaurusID();
+        if (par)         check(PAR2);
+        Err.or(FTTHES);
+      }
+    }
+ else     if (consumeWS(STOP)) {
+      check(WORDS);
+      opt.sw=new Set();
+      boolean union=false;
+      boolean except=false;
+      while (with) {
+        if (consumeWS2(PAR1)) {
+          do {
+            final byte[] sl=stringLiteral();
+            if (except)             opt.sw.delete(sl);
+ else             if (!union || opt.sw.id(sl) == 0)             opt.sw.add(sl);
+          }
+ while (consumeWS2(COMMA));
+          check(PAR2);
+        }
+ else         if (consumeWS2(AT)) {
+          IO fl=new IO(string(stringLiteral()));
+          if (!fl.exists() && ctx.file != null) {
+            fl=file.merge(fl);
+            if (!fl.exists())             Err.or(NOSTOPFILE,fl);
+          }
+          try {
+            for (            final byte[] sl : split(norm(fl.content()),' ')) {
+              if (except)               opt.sw.delete(sl);
+ else               if (!union || opt.sw.id(sl) == 0)               opt.sw.add(sl);
+            }
+          }
+ catch (          final IOException ex) {
+            Err.or(NOSTOPFILE,fl);
+          }
+        }
+ else         if (!union && !except) {
+          Err.or(FTSTOP);
+        }
+        union=consumeWS2(UNION);
+        except=!union && consumeWS2(EXCEPT);
+        if (!union && !except)         break;
+      }
+    }
+ else     if (consumeWS(DEFAULT)) {
+      check(STOP);
+      check(WORDS);
+    }
+ else     if (consumeWS2(WILDCARDS)) {
+      if (opt.fz)       Err.or(FTFZWC);
+      opt.wc=with;
+    }
+ else     if (consumeWS2(FUZZY)) {
+      if (opt.wc)       Err.or(FTFZWC);
+      opt.fz=with;
+    }
+ else {
+      qp=p;
+      return false;
+    }
+  }
+  return true;
+}

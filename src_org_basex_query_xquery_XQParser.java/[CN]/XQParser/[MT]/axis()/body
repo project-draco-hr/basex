@@ -1,0 +1,36 @@
+{
+  Axis ax=null;
+  Test test=null;
+  if (consumeWS2(DOT2)) {
+    ax=Axis.PARENT;
+    test=Test.NODE;
+  }
+ else   if (consume('@')) {
+    ax=Axis.ATTR;
+    test=test();
+  }
+ else {
+    for (    final Axis a : Axis.values()) {
+      if (consumeWS(a.name,COL2,NOLOCSTEP)) {
+        consumeWS2(COL2);
+        alter=NOLOCSTEP;
+        ap=qp;
+        ax=a;
+        test=test();
+        break;
+      }
+    }
+  }
+  if (ax == null) {
+    ax=Axis.CHILD;
+    test=test();
+    if (test != null && test.type == Type.ATT)     ax=Axis.ATTR;
+  }
+  if (test == null)   return null;
+  Expr[] pred={};
+  while (consumeWS2(BR1)) {
+    pred=add(pred,expr());
+    check(BR2);
+  }
+  return new Step(ax,test,pred);
+}

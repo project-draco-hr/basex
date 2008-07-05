@@ -1,39 +1,40 @@
 {
-  final Expr expr=ftOr();
-  final FTSelect sel=new FTSelect(expr);
+  final Expr e=ftOr();
+  final FTPos pos=new FTPos();
+  final FTSelect sel=new FTSelect(e,pos);
   while (true) {
     if (consumeWS(ORDERED)) {
-      sel.ordered=true;
+      pos.ordered=true;
     }
  else     if (consumeWS(WINDOW)) {
-      sel.window=additiveExpr();
-      sel.wunit=ftUnit();
+      sel.window=additive();
+      pos.wunit=ftUnit();
     }
  else     if (consumeWS(DISTANCE)) {
       sel.dist=ftRange();
       if (sel.dist == null)       Err.or(FTRANGE);
-      sel.dunit=ftUnit();
+      pos.dunit=ftUnit();
     }
  else     if (consumeWS(AT)) {
-      sel.start=consumeWS(START);
-      if (!sel.start)       sel.end=consumeWS(END);
-      if (!sel.start && !sel.end)       Err.or(INCOMPLETE);
+      pos.start=consumeWS(START);
+      if (!pos.start)       pos.end=consumeWS(END);
+      if (!pos.start && !pos.end)       Err.or(INCOMPLETE);
     }
  else     if (consumeWS(ENTIRE)) {
       check(CONTENT);
-      sel.content=true;
+      pos.content=true;
     }
  else {
       final boolean same=consumeWS(SAME);
       final boolean diff=!same && consumeWS(DIFFERENT);
       if (!same && !diff)       break;
-      sel.same=same;
-      sel.different=diff;
-      if (consumeWS(SENTENCE))       sel.sdunit=FTSelect.Unit.SNT;
- else       if (consumeWS(PARAGRAPH))       sel.sdunit=FTSelect.Unit.PAR;
+      pos.same=same;
+      pos.different=diff;
+      if (consumeWS(SENTENCE))       pos.sdunit=FTUnit.SENTENCES;
+ else       if (consumeWS(PARAGRAPH))       pos.sdunit=FTUnit.PARAGRAPHS;
  else       Err.or(INCOMPLETE);
     }
   }
-  sel.weight=consumeWS(WEIGHT) ? rangeExpr() : Dbl.ONE;
+  sel.weight=consumeWS(WEIGHT) ? range() : Dbl.ONE;
   return sel;
 }

@@ -1,9 +1,12 @@
 {
-  if (!(ctx.local.data.meta.ftxindex && expr1 instanceof LocPathRel))   return Integer.MAX_VALUE;
+  final MetaData meta=ctx.local.data.meta;
+  if (!(expr1 instanceof LocPathRel && meta.ftxindex))   return Integer.MAX_VALUE;
   final LocPath path=(LocPathRel)expr1;
   final Step step=path.steps.last();
   final boolean text=step.test == TestNode.TEXT && step.preds.size() == 0;
   if (!text || !path.checkAxes())   return Integer.MAX_VALUE;
-  if (expr1 instanceof FTUnaryNot || expr2 instanceof FTUnaryNot)   return Integer.MAX_VALUE;
-  return 1;
+  if (expr2 instanceof FTUnaryNot)   return Integer.MAX_VALUE;
+  if (!((FTArrayExpr)expr2).indexOptions(meta))   return Integer.MAX_VALUE;
+  final int nrIDs=expr2.indexSizes(ctx,curr,min);
+  return Math.max(nrIDs,1);
 }

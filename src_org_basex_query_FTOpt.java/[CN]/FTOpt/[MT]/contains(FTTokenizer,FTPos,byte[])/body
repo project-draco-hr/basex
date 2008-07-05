@@ -1,0 +1,48 @@
+{
+  if (sub.length == 0)   return 0;
+  tk.stem=st;
+  tk.dc=dc;
+  tk.cs=cs;
+  tk.init();
+  sb.init(sub);
+  sb.stem=tk.stem;
+  sb.dc=tk.dc;
+  sb.cs=tk.cs;
+  sb.uc=uc;
+  sb.lc=lc;
+  sb.wc=wc;
+  sb.fz=fz;
+  IntList il=null;
+  while (tk.more()) {
+    final int tp=tk.p;
+    byte[] t=tk.next();
+    boolean f=true;
+    boolean c=false;
+    sb.init();
+    final int tpos=tk.pos;
+    while (f && sb.more()) {
+      final byte[] s=sb.next();
+      if (c) {
+        tk.more();
+        t=tk.next();
+      }
+ else {
+        c=true;
+      }
+      if (sw != null) {
+        final boolean s1=sw.id(s) != 0;
+        final boolean s2=sw.id(t) != 0;
+        f=!(s1 ^ s2);
+        if (s1 || s2)         continue;
+      }
+      f=sb.fz ? Levenshtein.similar(t,s) : sb.wc ? string(t).matches(string(s)) : eq(t,s);
+    }
+    if (f) {
+      if (il == null)       il=new IntList();
+      il.add(tpos);
+    }
+    tk.p=tp;
+  }
+  if (il != null)   pos.add(sub,il);
+  return il == null ? 0 : il.size;
+}

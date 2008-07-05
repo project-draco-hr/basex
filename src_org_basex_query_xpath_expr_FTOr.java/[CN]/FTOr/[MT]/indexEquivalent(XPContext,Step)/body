@@ -1,35 +1,33 @@
 {
-  Expr tmp;
-  ExprList ftun=new ExprList();
-  ExprList other=new ExprList();
+  FTArrayExpr tmp;
+  FTArrayExpr[] ftun={};
+  FTArrayExpr[] other={};
   for (int i=0; i != exprs.length; i++) {
     if (exprs[i] instanceof FTUnaryNot) {
-      ftun.add(exprs[i]);
+      ftun=Array.add(ftun,exprs[i]);
     }
  else {
       tmp=exprs[i].indexEquivalent(ctx,curr);
       if (tmp == null)       return null;
-      other.add(tmp);
+      other=Array.add(other,tmp);
     }
   }
-  if (ftun.get().length > 0 && other.get().length > 0) {
+  if (ftun.length > 0 && other.length > 0) {
     for (int i=0; i < curr.preds.size(); i++) {
       if (curr.preds.get(i) instanceof PredSimple) {
         PredSimple ps=(PredSimple)curr.preds.get(i);
         if (ps.getExpr() instanceof FTContains) {
-          Expr[] e=new Expr[ftun.get().length + 1];
-          e[0]=new FTUnion(other.get());
-          System.arraycopy(ftun.get(),0,e,1,ftun.get().length);
-          Or o=new Or(e);
-          System.out.println(o);
+          FTArrayExpr[] e=new FTArrayExpr[ftun.length + 1];
+          e[0]=new FTUnion(other);
+          System.arraycopy(ftun,0,e,1,ftun.length);
         }
       }
     }
-    Expr[] e=new Expr[ftun.get().length + 1];
-    e[0]=new FTUnion(other.get());
-    System.arraycopy(ftun.get(),0,e,1,ftun.get().length);
-    return new Or(e);
+    FTArrayExpr[] e=new FTArrayExpr[ftun.length + 1];
+    e[0]=new FTUnion(other);
+    System.arraycopy(ftun,0,e,1,ftun.length);
+    return new FTOr(e);
   }
   ctx.compInfo(OPTOR4);
-  return new FTUnion(other.get());
+  return new FTUnion(other);
 }

@@ -9,7 +9,7 @@ switch (mode) {
 case ALL:
     while ((i=iter.next()) != null) {
       final byte[] txt=i.str();
-      final int oc=cont(ctx,txt);
+      final int oc=ctx.ftopt.contains(ctx.ftitem,ctx.ftpos,txt);
       if (oc == 0)       return 0;
       len+=txt.length * oc;
       o+=oc;
@@ -18,7 +18,7 @@ case ALL:
 case ALLWORDS:
 while ((i=iter.next()) != null) {
   for (  final byte[] txt : split(i.str(),' ')) {
-    final int oc=cont(ctx,txt);
+    final int oc=ctx.ftopt.contains(ctx.ftitem,ctx.ftpos,txt);
     if (oc == 0)     return 0;
     len+=txt.length * oc;
     o+=oc;
@@ -28,7 +28,7 @@ break;
 case ANY:
 while ((i=iter.next()) != null) {
 final byte[] txt=i.str();
-final int oc=cont(ctx,txt);
+final int oc=ctx.ftopt.contains(ctx.ftitem,ctx.ftpos,txt);
 len+=txt.length * oc;
 o+=oc;
 }
@@ -36,22 +36,20 @@ break;
 case ANYWORD:
 while ((i=iter.next()) != null) {
 for (final byte[] txt : split(i.str(),' ')) {
-final int oc=cont(ctx,txt);
+final int oc=ctx.ftopt.contains(ctx.ftitem,ctx.ftpos,txt);
 len+=txt.length * oc;
 o+=oc;
 }
 }
 break;
 case PHRASE:
-final TokenBuilder tb=new TokenBuilder();
-boolean more=false;
+final TokenBuilder txt=new TokenBuilder();
 while ((i=iter.next()) != null) {
-if (more) tb.add(' ');
-tb.add(norm(i.str()));
-more=true;
+if (txt.size != 0) txt.add(' ');
+txt.add(i.str());
 }
-final int oc=cont(ctx,tb.finish());
-len+=tb.size * oc;
+final int oc=ctx.ftopt.contains(ctx.ftitem,ctx.ftpos,txt.finish());
+len+=txt.size * oc;
 o+=oc;
 break;
 }

@@ -1,0 +1,84 @@
+{
+  if (res == null || res[0].length == 0 || p == null) {
+    return new int[][]{};
+  }
+  final int[][] maxRes=new int[2][res[0].length * 2];
+  int c=0;
+  int cn=0;
+  int level=0;
+  int j=0;
+  int lid;
+  int lpo;
+  int ls=0;
+  IntList stack=new IntList();
+  boolean f=true;
+  int e;
+  int s=0;
+  int i;
+  int pold;
+  while (j < res[0].length) {
+    cn=c;
+    lid=res[0][j];
+    s=j;
+    ls=s;
+    pold=p[s + 1];
+    while (j < res[0].length && res[0][j] == lid && p[j + 1] == pold) {
+      j++;
+    }
+    e=j;
+    if (j == res[0].length)     break;
+    lpo=p[j + 1];
+    while (j < res[0].length && res[0][j] == lid) {
+      i=s;
+      while (i < e) {
+        if (res[1][i] > res[1][j]) {
+          break;
+        }
+        if (res[1][i] < res[1][j] && (res[1][ls] <= res[1][i])) {
+          stack.add(i);
+          if (f) {
+            level++;
+            f=false;
+            ls=s;
+          }
+          s=i + 1;
+        }
+        i++;
+      }
+      if (level == p[0]) {
+        for (int k=0; k < stack.size; k++) {
+          maxRes[0][c]=res[0][stack.get(k)];
+          maxRes[1][c++]=res[1][stack.get(k)];
+        }
+        level=0;
+        stack=new IntList();
+        f=true;
+        while (j < res[0].length && res[0][j] == lid && p[j + 1] == lpo) {
+          maxRes[0][c]=res[0][j];
+          maxRes[1][c++]=res[1][j++];
+        }
+        j--;
+      }
+      j++;
+      if (j >= res[0].length)       break;
+      if (lpo != p[j + 1] && lpo != p[0]) {
+        s=e;
+        e=j;
+        pold=p[s + 1];
+        lpo=p[e + 1];
+        lid=res[0][s];
+        f=true;
+      }
+    }
+    if (c < maxRes[0].length && cn < maxRes[0].length) {
+      Arrays.sort(maxRes[1],cn,c);
+    }
+    level=0;
+    stack=new IntList();
+    f=true;
+  }
+  final int[][] ret=new int[2][c];
+  System.arraycopy(maxRes[0],0,ret[0],0,c);
+  System.arraycopy(maxRes[1],0,ret[1],0,c);
+  return ret;
+}

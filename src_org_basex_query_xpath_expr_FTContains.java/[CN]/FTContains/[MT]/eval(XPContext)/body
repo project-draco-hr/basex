@@ -1,10 +1,21 @@
 {
-  if (expr1 instanceof LocPath && expr2 instanceof FTUnaryNot) {
-    final NodeSet ns=ctx.local;
-    ctx.local=(NodeSet)expr1.eval(ctx);
-    Bool bool=Bool.get(expr2.eval(ctx).bool());
-    ctx.local=ns;
-    return bool;
+  final FTTokenizer tmp=ctx.ftitem;
+  ctx.ftitem=ft;
+  final Item v1=ctx.eval(expr1);
+  if (v1.size() == 0)   return Bool.FALSE;
+  boolean res=false;
+  if (v1 instanceof NodeSet) {
+    NodeSet ns=(NodeSet)v1;
+    for (int i=0; i < ns.size; i++) {
+      ft.init(ctx.local.data.atom(ns.nodes[i]));
+      res=ctx.eval(expr2).bool();
+      if (res)       break;
+    }
   }
-  return super.eval(ctx);
+ else {
+    ft.init(v1.str());
+    res=ctx.eval(expr2).bool();
+  }
+  ctx.ftitem=tmp;
+  return Bool.get(res);
 }
