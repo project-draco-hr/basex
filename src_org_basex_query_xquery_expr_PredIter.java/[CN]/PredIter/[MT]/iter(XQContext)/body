@@ -2,44 +2,39 @@
   return new Iter(){
     Iter iter=ctx.iter(root);
     final Item ci=ctx.item;
-    final int cs=ctx.size;
     final int cp=ctx.pos;
-    boolean firstTime=true;
-    int predCount=0;
-    int predCountTemp=predCount - 1;
-    int itemPosition=0;
-    int newItemPosition=0;
-    final SeqIter sb=new SeqIter();
     Item i;
+    boolean firstTime=true;
+    boolean returnNull=false;
     @Override public Item next() throws XQException {
-      if (firstTime) {
-        while ((i=iter.next()) != null)         sb.add(i);
-        firstTime=false;
+      if (returnNull) {
+        ctx.item=ci;
+        ctx.pos=cp;
+        return null;
       }
-      while (predCount < expr.length) {
-        if ((predCount - 1) == predCountTemp) {
-          predCountTemp++;
-          ctx.size=sb.size;
-          ctx.pos=1;
-        }
-        while (itemPosition < sb.size) {
-          ctx.item=sb.item[itemPosition];
-          i=ctx.iter(expr[predCount]).ebv();
-          if (i.n() ? i.dbl() == ctx.pos : i.bool()) {
-            sb.item[newItemPosition]=sb.item[itemPosition];
-            ctx.pos++;
-            itemPosition++;
-            return sb.item[newItemPosition++];
-          }
+      if (firstTime) {
+        firstTime=false;
+        ctx.pos=1;
+      }
+      while ((i=iter.next()) != null) {
+        ctx.item=i;
+        i=ctx.iter(expr[0]).ebv();
+        if (i.n() ? i.dbl() == ctx.pos : i.bool()) {
           ctx.pos++;
-          itemPosition++;
+          if (numFlag) {
+            numFlag=false;
+            returnNull=true;
+            return ctx.item;
+          }
+          return ctx.item;
         }
-        predCount++;
-        itemPosition=0;
-        sb.size=newItemPosition;
+        ctx.pos++;
+      }
+      if (lastFlag) {
+        returnNull=true;
+        return ctx.item;
       }
       ctx.item=ci;
-      ctx.size=cs;
       ctx.pos=cp;
       return null;
     }
