@@ -13,9 +13,9 @@
       try {
         final CommandParser cp=new CommandParser(command);
         while (cp.more()) {
-          if (obsolete(thread))           return;
           final Command cmd=cp.next();
           final Commands cc=cmd.name;
+          if (obsolete(thread,cc))           return;
           if (cc == Commands.EXIT || cc == Commands.QUIT) {
             quit();
             return;
@@ -32,7 +32,7 @@
             return;
           }
           if (cc.updating())           View.working=false;
-          if (obsolete(thread))           return;
+          if (obsolete(thread,cc))           return;
           final Result result=p.result();
           final Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
           final CachedOutput out=new CachedOutput(TextView.MAX);
@@ -45,10 +45,15 @@
               out.addInfo();
             }
           }
-          final String time=perf.getTimer();
           final String inf=p.info();
-          if (obsolete(thread))           return;
           final boolean feedback=cc.printing() && data != null && GUIProp.showquery && cc == Commands.XQUERY && query.info(inf,ok);
+          if (!ok) {
+            if (feedback)             status.setText(STATUSOK);
+ else             status.setError(inf);
+            break;
+          }
+          final String time=perf.getTimer();
+          if (obsolete(thread,cc))           return;
           final Data ndata=context.data();
           if (ndata != data) {
             View.notifyInit();
@@ -81,20 +86,13 @@
               }
             }
           }
-          if (obsolete(thread))           return;
-          if (ok && cc.printing() && nodes == null) {
+          if (obsolete(thread,cc))           return;
+          if (cc.printing() && nodes == null) {
             text.setText(out.buffer(),out.size(),false);
           }
           setHits(result == null ? 0 : result.size());
           if (GUIProp.showinfo)           info.setInfo(result != null ? Token.token(inf) : Token.EMPTY);
-          if (ok) {
-            status.setText(BaseX.info(PROCTIME,time));
-          }
- else {
-            if (feedback)             status.setText(STATUSOK);
- else             status.setError(inf);
-            break;
-          }
+          status.setText(BaseX.info(PROCTIME,time));
         }
       }
  catch (      final IllegalArgumentException ex) {

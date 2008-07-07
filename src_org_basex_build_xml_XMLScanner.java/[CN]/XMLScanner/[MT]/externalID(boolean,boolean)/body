@@ -13,16 +13,16 @@
       final TokenBuilder tok=new TokenBuilder();
       while ((ch=nextChar()) != qu)       tok.addUTF(ch);
       if (!f)       return null;
-      final byte[] name=tok.finish();
+      final String name=string(tok.finish());
       final XMLInput tin=input;
       try {
-        final IO file=input.file.merge(new IO(string(name)));
+        final IO file=input.file.merge(new IO(name));
         cont=file.content();
-        input=new XMLInput(new IO(cont));
+        input=new XMLInput(new IO(cont,name));
       }
  catch (      final IOException ex) {
         BaseX.debug(ex);
-        error(DTDNP,string(name));
+        error(DTDNP,name);
       }
       if (consume(XML)) {
         check(XMLDECL);

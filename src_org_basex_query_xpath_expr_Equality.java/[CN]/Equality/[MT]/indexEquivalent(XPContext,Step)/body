@@ -1,10 +1,8 @@
 {
   final LocPath path=(LocPath)expr1;
-  final byte[] lit=((Literal)expr2).str();
   final LocPath inv=path.invertPath(curr);
-  ctx.compInfo(indexType == Index.TYPE.TXT ? OPTINDEX : OPTATTINDEX);
-  if (indexType == Index.TYPE.ATV) {
-    inv.steps.add(0,Axis.create(Axis.SELF,path.steps.last().test));
-  }
-  return new Path(new IndexAccess(indexType,lit),inv);
+  final boolean txt=index.type == IndexToken.TYPE.TXT;
+  ctx.compInfo(txt ? OPTINDEX : OPTATTINDEX);
+  if (!txt)   inv.steps.add(0,Axis.create(Axis.SELF,path.steps.last().test));
+  return new Path(new IndexAccess(index),inv);
 }

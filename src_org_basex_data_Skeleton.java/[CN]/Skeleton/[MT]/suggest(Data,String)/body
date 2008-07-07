@@ -1,0 +1,31 @@
+{
+  final StringList sl=new StringList();
+  ArrayList<Node> n=new ArrayList<Node>();
+  n.add(root);
+  final String input=xpath.startsWith("/") ? xpath : "/" + xpath;
+  final int il=input.length();
+  int s=0;
+  for (int i=0; i < il; i++) {
+    final char c=input.charAt(i);
+    if (c == '/' || c == '[') {
+      final boolean desc=i + 1 < il && input.charAt(i + 1) == '/';
+      if (desc && i + 2 < il && input.charAt(i + 2) == '/')       return sl;
+      n=child(n,data,input.substring(s,i),desc);
+      if (n.size() == 0)       return sl;
+      if (desc)       i++;
+      s=i + 1;
+    }
+  }
+  for (  final Node r : n) {
+    String name=null;
+    if (r.kind == Data.ATTR) {
+      name="@" + Token.string(data.atts.key(r.name));
+    }
+ else     if (r.kind == Data.ELEM) {
+      name=Token.string(data.tags.key(r.name));
+    }
+    if (name != null && !sl.contains(name))     sl.add(name);
+  }
+  sl.sort();
+  return sl;
+}

@@ -1,16 +1,14 @@
 {
-  final StringBuilder sb=new StringBuilder();
-  final int cs=panel.getComponentCount();
+  final TokenBuilder tb=new TokenBuilder();
   final Data data=GUI.context.data();
-  final boolean fsxml=data.deepfs;
-  boolean first=true;
-  for (int c=0; c < cs; c+=2) {
-    final int k=((BaseXCombo)panel.getComponent(c)).getSelectedIndex();
+  for (int c=0, cs=panel.getComponentCount(); c < cs; c+=2) {
+    final BaseXCombo com=(BaseXCombo)panel.getComponent(c);
+    final int k=com.getSelectedIndex();
     if (k <= 0)     continue;
-    String key=keys[k];
-    final boolean attr=keys[k].startsWith("@");
+    String key=com.getSelectedItem().toString();
+    final boolean attr=key.startsWith("@");
     final Component comp=panel.getComponent(c + 1);
-    String pattern=null;
+    String pattern="";
     String val1=null;
     String val2=null;
     if (comp instanceof BaseXTextField) {
@@ -42,20 +40,19 @@
         pattern=PATNUM;
       }
     }
-    if (pattern == null)     pattern=PATSIMPLE;
-    if (fsxml)     key="descendant-or-self::" + (attr ? "*/" : "") + key;
- else {
-      if (!attr)       key="self::" + key;
-      if (!first)       sb.append("/descendant-or-self::node()");
+    if (attr) {
+      tb.add("//.");
+      if (pattern.length() == 0)       pattern=PATSIMPLE;
     }
-    sb.append(BaseX.info(pattern,key,val1,key,val2));
-    first=false;
+ else {
+      tb.add("//" + key);
+      key="text()";
+    }
+    tb.add(pattern,key,val1,key,val2);
   }
-  String qu=sb.toString();
+  String qu=tb.toString();
   if (qu.length() != 0) {
-    final Nodes curr=GUI.context.current();
-    final boolean r=GUIProp.filterrt || curr.size == 1 && curr.pre[0] == 0;
-    qu=(r ? "/" : "") + "descendant-or-self::" + (fsxml ? "file" : "*")+ qu;
+    if (!GUIProp.filterrt && !GUI.context.root())     qu="." + qu;
   }
   String simple=all.getText().trim();
   if (simple.length() != 0) {
@@ -63,9 +60,7 @@
     qu=qu.length() != 0 ? simple + " | " + qu : simple;
   }
   if (qu.length() == 0) {
-    final boolean root=GUIProp.filterrt;
-    final Nodes current=GUI.context.current();
-    qu=root || current.size == 1 && current.pre[0] < 1 ? "/" : ".";
+    qu=GUIProp.filterrt || GUI.context.root() ? "/" : ".";
   }
   if (!force && last.equals(qu))   return;
   last=qu;

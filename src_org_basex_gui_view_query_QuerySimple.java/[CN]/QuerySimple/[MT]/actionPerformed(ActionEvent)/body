@@ -10,9 +10,9 @@
   if ((cp & 1) == 0) {
     final BaseXCombo combo=(BaseXCombo)source;
     panel.remove(cp + 1);
+    final Data data=GUI.context.data();
     if (combo.getSelectedIndex() != 0) {
       final String item=combo.getSelectedItem().toString();
-      final Data data=GUI.context.data();
       final boolean att=item.startsWith("@");
       final Names names=att ? data.atts : data.tags;
       final byte[] key=Token.token(att ? item.substring(1) : item);
@@ -31,24 +31,20 @@ case TEXT:
 addInput(cp + 1);
 break;
 case NONE:
-final BaseXLabel label=new BaseXLabel("");
-label.setBorder(3,0,0,0);
-panel.add(label,cp + 1);
+panel.add(new BaseXLabel(""),cp + 1);
 break;
 }
-if (cp + 2 == cs) addKeys(cp + 2);
-panel.validate();
-panel.repaint();
 }
  else {
 panel.add(new BaseXLabel(""),cp + 1);
-if (cp + 4 == cs && ((BaseXCombo)panel.getComponent(cp + 2)).getSelectedIndex() == 0) {
+}
+while (cp + 2 < panel.getComponentCount()) {
 panel.remove(cp + 2);
 panel.remove(cp + 2);
+}
+addKeys(data);
 panel.validate();
 panel.repaint();
-}
-}
 }
 if (GUIProp.execrt) query(false);
 }

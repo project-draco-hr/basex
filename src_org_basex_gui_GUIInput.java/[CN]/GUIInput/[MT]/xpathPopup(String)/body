@@ -1,27 +1,15 @@
 {
+  final int last=Math.max(query.lastIndexOf('|'),query.lastIndexOf('('));
+  final int slash=Math.max(Math.max(last,query.lastIndexOf('/')),query.lastIndexOf('['));
+  pre=slash != -1 ? query.substring(0,slash + 1) : "";
+  final String pref=query.substring(last + 1,slash != -1 ? slash + 1 : query.length()).trim();
   final StringList sl=new StringList();
-  final int slash=Math.max(query.lastIndexOf('/'),Math.max(query.lastIndexOf('['),query.lastIndexOf('(')));
-  final int axis=query.lastIndexOf("::");
-  final boolean test=axis > slash;
-  pre="";
-  if (test)   pre=query.substring(0,axis + 2);
- else   if (slash != -1)   pre=query.substring(0,slash + 1);
-  if (query.length() != 0) {
-    final String suf=getText().substring(pre.length());
-    final String[] all=xpathList();
-    if (test) {
-      final boolean attest=pre.endsWith("attribute::");
-      for (      final String a : all) {
-        if (a.endsWith("::"))         continue;
-        if (attest ^ a.startsWith("@"))         continue;
-        final String at=a.substring(attest ? 1 : 0);
-        if (at.startsWith(suf) && !at.equals(suf))         sl.add(at);
-      }
-    }
- else {
-      for (      final String a : all) {
-        if (a.startsWith(suf) && !a.equals(suf))         sl.add(a);
-      }
+  final Context ctx=GUI.context;
+  if (query.length() != 0 && (pref.startsWith("/") || ctx.root())) {
+    final String suf=getText().substring(pre.length()).trim();
+    final Data data=ctx.data();
+    for (    final String a : data.skel.suggest(data,pref).finish()) {
+      if (a.startsWith(suf) && !a.equals(suf))       sl.add(a);
     }
   }
   createCombo(sl);

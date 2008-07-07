@@ -5,9 +5,11 @@
   final boolean txt=data.meta.txtindex;
   final boolean atv=data.meta.atvindex;
   final Step step=path.steps.last();
-  final boolean text=txt && step.test == TestNode.TEXT && step.preds.size() == 0;
-  if (!text && !atv || !path.checkAxes() || !data.meta.chop)   return Integer.MAX_VALUE;
-  indexType=text ? Index.TYPE.TXT : Index.TYPE.ATV;
-  getKey(path,data,text);
-  return key == null || key.kind != StatsKey.Kind.DBL && key.kind != StatsKey.Kind.INT ? Integer.MAX_VALUE : data.size / 10;
+  final boolean text=txt && step.test == TestNode.TEXT && step.preds.size() == 0 && data.meta.chop;
+  if (!text && !atv || !path.checkAxes())   return Integer.MAX_VALUE;
+  ind=new RangeToken(text,min,max);
+  final StatsKey key=getKey(path,data,text);
+  if (key == null)   return Integer.MAX_VALUE;
+  if (ind.min > ind.max || ind.max < key.min || ind.min > key.max)   return 0;
+  return key.kind != StatsKey.Kind.DBL && key.kind != StatsKey.Kind.INT ? Integer.MAX_VALUE : data.size / 10;
 }

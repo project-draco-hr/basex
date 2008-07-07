@@ -1,6 +1,6 @@
 {
   byte ch=readByte();
-  if (enc == Token.UTF16LE)   return (ch & 0xFF) | (readByte() << 8) & 0xFF;
+  if (enc == Token.UTF16LE)   return (ch & 0xFF) | ((readByte() & 0xFF) << 8);
   if (enc == Token.UTF16BE)   return ((ch & 0xFF) << 8) | readByte() & 0xFF;
   if (enc == Token.UTF8) {
     final int cl=Token.cl(ch);
@@ -9,5 +9,19 @@
     for (int c=1; c < cl; c++)     CACHE[c]=readByte();
     return Token.cp(CACHE,0);
   }
-  return ch & 0xFF;
+  if (ch >= 0)   return ch;
+  int p=0;
+  while (true) {
+    if (p == 4)     return -CACHE[0];
+    CACHE[p++]=ch;
+    try {
+      CharBuffer cb=csd.decode(ByteBuffer.wrap(Array.finish(CACHE,p)));
+      int i=0;
+      for (int c=0; c < cb.limit(); c++)       i|=cb.get(c) << (c << 3);
+      return i;
+    }
+ catch (    final CharacterCodingException ex) {
+      ch=readByte();
+    }
+  }
 }

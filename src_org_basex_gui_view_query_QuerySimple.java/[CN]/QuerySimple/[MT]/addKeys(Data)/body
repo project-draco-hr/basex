@@ -1,0 +1,21 @@
+{
+  final int cs=panel.getComponentCount();
+  final StringBuilder sb=new StringBuilder("//");
+  for (int c=0; c < cs; c+=2) {
+    final BaseXCombo combo=(BaseXCombo)panel.getComponent(c);
+    if (combo.getSelectedIndex() == 0)     continue;
+    final String elem=combo.getSelectedItem().toString();
+    if (elem.startsWith("@"))     continue;
+    sb.append(elem + "//");
+  }
+  final String[] tmp=data.skel.suggest(data,sb.toString()).finish();
+  if (tmp.length == 0)   return;
+  final String[] keys=new String[tmp.length + 1];
+  System.arraycopy(tmp,0,keys,1,tmp.length);
+  keys[0]="(" + (tmp.length) + " entries)";
+  final BaseXCombo combo=new BaseXCombo(keys,HELPSEARCHCAT,false);
+  combo.addActionListener(this);
+  combo.addKeyListener(main);
+  panel.add(combo);
+  panel.add(new BaseXLabel(""));
+}
