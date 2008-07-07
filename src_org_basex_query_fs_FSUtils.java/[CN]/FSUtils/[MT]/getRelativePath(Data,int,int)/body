@@ -1,0 +1,26 @@
+{
+  int p=pre;
+  final int kind=data.kind(p);
+  if (isFile(data,p))   p=data.parent(p,kind);
+  final IntList il=new IntList();
+  while (p >= parrent && p != 0) {
+    il.add(p);
+    p=data.parent(p,kind);
+  }
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add('.');
+  final int s=il.size;
+  boolean keepSlash=false;
+  if (pre > parrent) {
+    tb.add('/');
+    keepSlash=true;
+  }
+  for (int i=s - 2; i >= 0; i--) {
+    final byte[] node=replace(getName(data,il.get(i)),'\\','/');
+    tb.add(node);
+    if (!endsWith(node,'/'))     tb.add('/');
+  }
+  byte[] node=tb.finish();
+  while (endsWith(node,'/') && !keepSlash)   node=substring(node,0,node.length - 1);
+  return node;
+}
