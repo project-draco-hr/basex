@@ -1,21 +1,15 @@
 {
-  int[][] res=null;
-  int[][] tmp;
-  int[] pntr;
-  Object[] o;
   Item it=exprs[0].eval(ctx);
   if (it instanceof NodeSet) {
-    res=((NodeSet)it).ftidpos;
-    pntr=((NodeSet)it).ftpointer;
+    int[][] res=((NodeSet)it).ftidpos;
+    int[] pntr=((NodeSet)it).ftpointer;
     for (int i=1; i < exprs.length; i++) {
       it=exprs[i].eval(ctx);
       if (it instanceof NodeSet) {
-        tmp=((NodeSet)it).ftidpos;
+        int[][] tmp=((NodeSet)it).ftidpos;
         if (po) {
-          o=calculateFTOr(res,tmp,pntr);
-          if (o.length == 0) {
-            return null;
-          }
+          Object[] o=calculateFTOr(res,tmp,pntr);
+          if (o.length == 0)           return null;
           res=(int[][])o[0];
           pntr=(int[])o[1];
         }
@@ -24,8 +18,7 @@
         }
       }
     }
-    if (po)     return new NodeSet(Array.extractIDsFromData(res),ctx,res,pntr);
-    return new NodeSet(Array.extractIDsFromData(res),ctx,res);
+    return new NodeSet(Array.extractIDsFromData(res),ctx,res,po ? pntr : null);
   }
   return null;
 }
