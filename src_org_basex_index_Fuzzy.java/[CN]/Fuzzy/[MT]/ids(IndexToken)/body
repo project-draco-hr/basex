@@ -13,8 +13,17 @@
   if (!ft.cs) {
     return get(Token.lc(tok));
   }
-  int[][] ids=get(Token.lc(tok));
-  if (ids == null)   return null;
+  IndexIterator ii=get(Token.lc(tok));
+  if (!ii.more())   return null;
+  final IntList pre=new IntList();
+  final IntList pos=new IntList();
+  do {
+    pre.add(ii.next());
+    ii.more();
+    pos.add(ii.next());
+  }
+ while (ii.more());
+  final int[][] ids={pre.finish(),pos.finish()};
   byte[] tokenFromDB;
   byte[] textFromDB;
   int[][] rIds=new int[2][ids[0].length];
@@ -43,5 +52,5 @@
   int[][] tmp=new int[2][count];
   System.arraycopy(rIds[0],0,tmp[0],0,count);
   System.arraycopy(rIds[1],0,tmp[1],0,count);
-  return tmp;
+  return new IndexArrayIterator(tmp[0],tmp[1]);
 }

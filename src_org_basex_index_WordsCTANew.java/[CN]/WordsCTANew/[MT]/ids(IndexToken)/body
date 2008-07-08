@@ -5,11 +5,15 @@
   if (ft.fz) {
     int k=Prop.lserr;
     if (k == 0)     k=Math.max(1,tok.length >> 2);
-    return getNodeFuzzy(0,null,-1,tok,0,0,0,k);
+    final int[][] ids=getNodeFuzzy(0,null,-1,tok,0,0,0,k);
+    return new IndexArrayIterator(ids[0],ids[1]);
   }
   if (ft.wc) {
     final int pw=Token.indexOf(tok,'.');
-    if (pw != -1)     return getNodeFromTrieWithWildCard(tok,pw);
+    if (pw != -1) {
+      final int[][] ids=getNodeFromTrieWithWildCard(tok,pw);
+      return new IndexArrayIterator(ids[0],ids[1]);
+    }
   }
   if (!cs && ft.cs) {
     int[][] ids=getNodeFromTrieRecursive(0,Token.lc(tok),false);
@@ -43,9 +47,8 @@
     final int[][] tmp=new int[2][count];
     System.arraycopy(rIds[0],0,tmp[0],0,count);
     System.arraycopy(rIds[1],0,tmp[1],0,count);
-    return tmp;
+    return new IndexArrayIterator(tmp[0],tmp[1]);
   }
- else {
-    return getNodeFromTrieRecursive(0,tok,ft.cs);
-  }
+  final int[][] tmp=getNodeFromTrieRecursive(0,tok,ft.cs);
+  return new IndexArrayIterator(tmp[0],tmp[1]);
 }

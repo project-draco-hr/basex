@@ -9,16 +9,29 @@
   ft.cs=option.cs;
   ft.wc=option.wc;
   ft.fz=option.fz;
-  while (ft.more()) {
-    if (data.nrIDs(ft) == 0)     return new NodeSet(ctx);
-  }
-  int[][] d=null;
+  while (ft.more())   if (data.nrIDs(ft) == 0)   return new NodeSet(ctx);
+  IntList pre=null, pos=null;
   ft.init();
+  int w=0;
   while (ft.more()) {
-    int[][] dd=data.ids(ft);
-    ctx.checkStop();
-    d=d == null ? dd : phrase(d,dd);
-    if (d == null || d.length == 0)     break;
+    final IndexIterator it=data.ids(ft);
+    final IntList pre2=new IntList();
+    final IntList pos2=new IntList();
+    while (it.more()) {
+      ctx.checkStop();
+      pre2.add(it.next());
+      pos2.add(it.next());
+    }
+    if (pre == null) {
+      pre=pre2;
+      pos=pos2;
+    }
+ else {
+      phrase(pre,pos,pre2,pos2,++w);
+    }
+    if (pre.size == 0)     break;
   }
-  return new NodeSet(Array.extractIDsFromData(d),ctx,d);
+  final int[][] d={pre.finish(),pos.finish()};
+  pre.distinct();
+  return new NodeSet(pre.finish(),ctx,d);
 }
