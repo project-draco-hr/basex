@@ -1,36 +1,33 @@
 {
   return new Iter(){
-    Iter iter=ctx.iter(root);
+    final Iter iter=ctx.iter(root);
     final Item ci=ctx.item;
     final int cp=ctx.pos;
     Item i;
-    boolean firstTime=true;
-    boolean returnNull=false;
+    boolean first=true;
+    boolean finished=false;
     @Override public Item next() throws XQException {
-      if (returnNull) {
+      if (finished) {
         ctx.item=ci;
         ctx.pos=cp;
         return null;
       }
-      if (firstTime) {
-        firstTime=false;
+      if (first) {
+        first=false;
         ctx.pos=1;
       }
       while ((i=iter.next()) != null) {
         ctx.item=i;
         i=ctx.iter(expr[0]).ebv();
-        if (i.n() ? i.dbl() == ctx.pos : i.bool()) {
-          if (numFlag) {
-            returnNull=true;
-            return ctx.item;
-          }
-          ctx.pos++;
+        final boolean found=i.n() ? i.dbl() == ctx.pos : i.bool();
+        ctx.pos++;
+        if (found) {
+          if (numFlag)           finished=true;
           return ctx.item;
         }
-        ctx.pos++;
       }
       if (lastFlag) {
-        returnNull=true;
+        finished=true;
         return ctx.item;
       }
       ctx.item=ci;
