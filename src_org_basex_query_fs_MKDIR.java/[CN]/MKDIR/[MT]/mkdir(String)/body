@@ -13,9 +13,14 @@
       dir=path.substring(beginIndex + 1);
     }
   }
-  int dirPre=FSUtils.getSpecificDir(context.data(),curDirPre,Token.token(dir));
-  if (dirPre > 0) {
-    FSUtils.printError(out,"mkdir",path,17);
+  int[] sources=FSUtils.getOneSpecificFileOrDir(context.data(),curDirPre,dir);
+  if (sources.length > 0) {
+    for (    int dirPre : sources) {
+      if (FSUtils.isDir(context.data(),dirPre)) {
+        FSUtils.printError(out,"mkdir",path,17);
+        return;
+      }
+    }
   }
  else {
     try {

@@ -1,25 +1,32 @@
 {
-  Data data=context.data();
-  if (args.size() != 2) {
+  if (args.size < 2) {
     printHelp();
     return;
   }
-  String sourcefile=args.remove(0);
-  String targetfile=args.remove(0);
-  int preOfNewFile=4;
-  int[] sources=FSUtils.getSpecificFilesOrDirs(data,curDirPre,sourcefile);
-  sourcefile=sourcefile.substring(sourcefile.lastIndexOf('/') + 1);
-  int[] target=FSUtils.getSpecificFilesOrDirs(data,curDirPre,targetfile);
-  targetfile=targetfile.substring(targetfile.lastIndexOf('/') + 1);
+  Data data=context.data();
+  String targetfile=args.remove(args.size - 1);
+  while (args.size > 0) {
+    String sourcefile=args.remove(0);
+    int[] sources=FSUtils.getSpecificFilesOrDirs(data,curDirPre,sourcefile);
+    sourcefile=sourcefile.substring(sourcefile.lastIndexOf('/') + 1);
+    int[] target=FSUtils.getSpecificFilesOrDirs(data,curDirPre,targetfile);
+    targetfile=targetfile.substring(targetfile.lastIndexOf('/') + 1);
+    int preOfNewFile=4;
 switch (sources.length) {
 case 0:
-    FSUtils.printError(out,"cp",sourcefile,2);
-  break;
+      FSUtils.printError(out,"cp",sourcefile,2);
+    break;
 case 1:
-if (FSUtils.isDir(data,sources[0])) {
-  FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,sources[0])),100);
-  break;
-}
+  if (FSUtils.isDir(data,sources[0])) {
+    if (fRecursive) {
+      cpRecursive(sources[0],target,targetfile);
+      break;
+    }
+ else {
+      FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,sources[0])),100);
+      break;
+    }
+  }
 byte[] size=Token.token(FSUtils.getSize(data,sources[0]));
 byte[] mtime=Token.token(System.currentTimeMillis());
 if (target.length == 1) {
@@ -27,7 +34,7 @@ if (FSUtils.isDir(data,target[0])) {
 byte[] name=FSUtils.getName(data,sources[0]);
 byte[] suffix=FSUtils.getSuffix(data,sources[0]);
 if (!(target[0] == FSUtils.getROOTDIR())) {
-preOfNewFile=target[0] + 5;
+  preOfNewFile=target[0] + 5;
 }
 FSUtils.insert(data,false,name,suffix,size,mtime,target[0],preOfNewFile);
 }
@@ -46,11 +53,11 @@ FSUtils.insert(data,false,name,suffix,size,mtime,curDirPre,preOfNewFile);
 break;
 default :
 if (target.length != 1) {
-out.print("cp: missing args");
+FSUtils.printError(out,"cp","",99);
 break;
 }
 if (FSUtils.isFile(data,target[0])) {
-out.print("cp: is not dir");
+FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,target[0])),20);
 break;
 }
 if (!(target[0] == FSUtils.getROOTDIR())) {
@@ -70,5 +77,6 @@ for (int j=0; j < toInsert.size(); ++j) {
 FSUtils.insert(data,false,toInsert.remove(0),toInsert.remove(0),toInsert.remove(0),Token.token(System.currentTimeMillis()),target[0],preOfNewFile);
 }
 break;
+}
 }
 }

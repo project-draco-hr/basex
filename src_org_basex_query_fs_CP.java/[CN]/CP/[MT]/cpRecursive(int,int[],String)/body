@@ -1,0 +1,65 @@
+{
+  int[] dirs=new int[]{pre};
+  Data data=context.data();
+  ArrayList<byte[]> toInsert=new ArrayList<byte[]>();
+  if (target.length == 1) {
+    if (FSUtils.isFile(data,target[0])) {
+      FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,target[0])),20);
+      return;
+    }
+  }
+  int d=0;
+  while (0 < dirs.length) {
+    IntList allDir=new IntList();
+    while (d < dirs.length) {
+      int[] toCopy=FSUtils.getAllOfDir(data,dirs[d]);
+      toInsert.add(null);
+      toInsert.add(FSUtils.getRelativePath(data,dirs[d],pre));
+      for (      int p : toCopy) {
+        if (FSUtils.isDir(data,p)) {
+          allDir.add(p);
+          toInsert.add(Token.token("d"));
+        }
+ else {
+          toInsert.add(Token.token("f"));
+        }
+        toInsert.add(FSUtils.getName(data,p));
+        toInsert.add(FSUtils.getSuffix(data,p));
+        toInsert.add(Token.token(FSUtils.getSize(data,p)));
+      }
+      ++d;
+    }
+    dirs=allDir.finish();
+    d=0;
+  }
+  int copyRoot;
+  int parPre;
+  int preOfNewFile=4;
+  if (target.length == 1) {
+    if (!(target[0] == FSUtils.getROOTDIR())) {
+      preOfNewFile=target[0] + 5;
+    }
+    parPre=target[0];
+    FSUtils.insert(data,true,FSUtils.getName(data,pre),Token.token(""),Token.token(0),Token.token(System.currentTimeMillis()),parPre,preOfNewFile);
+    parPre=preOfNewFile;
+  }
+ else {
+    if (!(curDirPre == FSUtils.getROOTDIR())) {
+      preOfNewFile=curDirPre + 5;
+    }
+    parPre=preOfNewFile;
+    FSUtils.insert(data,true,Token.token(targetFile),Token.token(""),Token.token(0),Token.token(System.currentTimeMillis()),curDirPre,preOfNewFile);
+  }
+  out.print("Par: " + parPre + "\n");
+  copyRoot=parPre;
+  while (!toInsert.isEmpty()) {
+    if (toInsert.get(0) == null) {
+      toInsert.remove(0);
+      parPre=FSUtils.goToDir(data,copyRoot,Token.string(toInsert.remove(0)));
+      continue;
+    }
+    boolean isDir=true;
+    if (Token.string(toInsert.remove(0)).equals("f"))     isDir=false;
+    FSUtils.insert(data,isDir,toInsert.remove(0),toInsert.remove(0),toInsert.remove(0),Token.token(System.currentTimeMillis()),parPre,parPre + 5);
+  }
+}
