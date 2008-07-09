@@ -7,34 +7,42 @@
  * Temporary iterator. 
  */
     NodeIter ir;
+    boolean finished=false;
+    Node nod;
     @Override public Node next() throws XQException {
+      if (finished)       return null;
       while (true) {
         if (ir == null) {
           final Item it=iter.next();
           if (it == null) {
             ctx.item=item;
+            if (lastFlag) {
+              finished=true;
+              return nod.finish();
+            }
             return null;
           }
           if (!it.node())           Err.or(NODESPATH,this,it);
           ir=axis.init((Node)it);
         }
-        final Node nod=ir.next();
+        nod=ir.next();
         if (nod != null) {
           if (test.e(nod,ctx)) {
             boolean add=true;
-            for (            final Expr e : expr) {
-              ctx.item=nod;
-              final Item i=ctx.iter(e).ebv();
-              if (i.bool()) {
-                nod.score(i.score());
-              }
+            ctx.item=nod;
+            final Item i=ctx.iter(expr[0]).ebv();
+            if (i.bool()) {
+              nod.score(i.score());
+            }
  else {
-                add=false;
-                break;
-              }
+              add=false;
             }
             if (add) {
               ctx.item=item;
+              if (numFlag) {
+                finished=true;
+                return nod.finish();
+              }
               return nod.finish();
             }
           }
