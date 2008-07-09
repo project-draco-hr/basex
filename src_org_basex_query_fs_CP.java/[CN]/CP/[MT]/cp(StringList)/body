@@ -34,7 +34,7 @@ if (FSUtils.isDir(data,target[0])) {
 byte[] name=FSUtils.getName(data,sources[0]);
 byte[] suffix=FSUtils.getSuffix(data,sources[0]);
 if (!(target[0] == FSUtils.getROOTDIR())) {
-  preOfNewFile=target[0] + 5;
+  preOfNewFile=target[0] + FSUtils.NUMATT;
 }
 FSUtils.insert(data,false,name,suffix,size,mtime,target[0],preOfNewFile);
 }
@@ -46,7 +46,7 @@ FSUtils.update(data,FSUtils.getName(data,target[0]),FSUtils.getSuffix(data,targe
 byte[] name=Token.token(targetfile);
 byte[] suffix=getSuffix(targetfile);
 if (!(curDirPre == FSUtils.getROOTDIR())) {
-preOfNewFile=curDirPre + 5;
+preOfNewFile=curDirPre + FSUtils.NUMATT;
 }
 FSUtils.insert(data,false,name,suffix,size,mtime,curDirPre,preOfNewFile);
 }
@@ -61,13 +61,22 @@ FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,target[0])),20);
 break;
 }
 if (!(target[0] == FSUtils.getROOTDIR())) {
-preOfNewFile=target[0] + 5;
+preOfNewFile=target[0] + FSUtils.NUMATT;
 }
 ArrayList<byte[]> toInsert=new ArrayList<byte[]>();
+int sizeToAdd=0;
 for (int i : sources) {
+i+=sizeToAdd;
 if (FSUtils.isDir(data,i)) {
+if (fRecursive) {
+sizeToAdd+=data.size(i,Data.ELEM);
+cpRecursive(i,target,"");
+continue;
+}
+ else {
 FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,i)),100);
 continue;
+}
 }
 toInsert.add(FSUtils.getName(data,i));
 toInsert.add(FSUtils.getSuffix(data,i));
