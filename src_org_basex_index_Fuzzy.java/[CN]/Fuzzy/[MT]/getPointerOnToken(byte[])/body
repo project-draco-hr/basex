@@ -1,32 +1,18 @@
 {
-  int i=0;
-  int is=li.readBytes(0,1L)[0];
-  int ts=li.readBytes(1L,2L)[0];
-  while (i < is && tok.length > ts) {
-    i++;
-    ts=li.readBytes(1L + i * 5L,1L + i * 5L + 1L)[0];
-  }
-  if (i == is || ts > tok.length)   return -1;
-  int l=li.readInt(1L + i * 5L + 1L);
-  int r=li.readInt(1L + (i + 1) * 5L + 1L);
-  int m=(int)(l + ((int)((r - l) / (tok.length * 1L + 9L) / 2)) * (tok.length * 1L + 9L));
-  int res=-2;
-  byte[] dtok=new byte[tok.length];
+  final int tl=tok.length;
+  int l=tp[tl];
+  if (l == -1)   return -1;
+  int r=-1;
+  int i=1;
+  do   r=tp[tl + i++];
+ while (r == -1);
+  final int o=tl + 9;
   while (l < r) {
-    m=(int)(l + ((int)((r - l) / (tok.length * 1L + 9L) / 2)) * (tok.length * 1L + 9L));
-    dtok=ti.readBytes(m,m + dtok.length);
-    res=Token.cmp(dtok,tok);
-    if (res == 0)     return m;
- else     if (res > 0)     l=(int)(m + tok.length * 1L + 9L);
- else     r=(int)(m - (tok.length * 1L + 9L));
+    final int m=l + (r - l) / 2 / o * o;
+    final int c=Token.cmp(ti.readBytes(m,m + tl),tok);
+    if (c == 0)     return m;
+ else     if (c > 0)     l=m + o;
+ else     r=m - o;
   }
-  if (r == l) {
-    if (res == 0) {
-      return l;
-    }
-    dtok=ti.readBytes(l,l + dtok.length);
-    res=Token.cmp(dtok,tok);
-    if (res == 0)     return l;
-  }
-  return -1;
+  return r == l && Token.eq(ti.readBytes(l,l + tl),tok) ? l : -1;
 }
