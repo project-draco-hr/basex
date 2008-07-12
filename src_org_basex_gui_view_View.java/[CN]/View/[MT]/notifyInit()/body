@@ -1,8 +1,9 @@
 {
-  final Data data=GUI.context.data();
-  if (data != null) {
-    NODEHIST[0]=new Nodes(0,data);
-    MARKHIST[0]=new Nodes(0,data);
+  final Context ctx=GUI.context;
+  final boolean db=ctx.db();
+  if (db) {
+    NODEHIST[0]=ctx.current();
+    MARKHIST[0]=new Nodes(ctx.data());
   }
   focused=-1;
   ftPos=null;
@@ -11,8 +12,8 @@
   maxhist=0;
   for (  final View v : view)   v.refreshInit();
   final GUI gui=GUI.get();
-  gui.views.setViews(data != null);
+  gui.views.setViews(db);
   gui.layoutViews();
   gui.status.setPerformance("");
-  gui.setTitle(Text.TITLE + (data == null ? "" : " - " + data.meta.dbname));
+  gui.setTitle(Text.TITLE + (db ? " - " + ctx.data().meta.dbname : ""));
 }

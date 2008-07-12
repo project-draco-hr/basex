@@ -18,20 +18,24 @@
   button.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
       final BaseXFileChooser fc=new BaseXFileChooser(DIALOGFC,path.getText(),parent);
-      if (fc.select(BaseXFileChooser.MODE.DIR))       path.setText(fc.getDir());
+      if (fc.select(BaseXFileChooser.MODE.DIR)) {
+        IO file=fc.getFile();
+        path.setText(file.path());
+        dbname.setText(file.dbname());
+      }
     }
   }
 );
   p.add(button);
   p.add(new BaseXLabel(IMPORTSAVE + "   "));
-  database=new BaseXTextField(GUIProp.importfsname,HELPFSNAME,this);
-  database.addKeyListener(new KeyAdapter(){
+  dbname=new BaseXTextField(GUIProp.importfsname,HELPFSNAME,this);
+  dbname.addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
       check();
     }
   }
 );
-  p.add(database);
+  p.add(dbname);
   all=new BaseXCheckBox(IMPORTALL,HELPFSALL,GUIProp.fsall,this);
   all.setToolTipText(IMPORTALLINFO);
   all.setBorder(new EmptyBorder(4,4,0,0));

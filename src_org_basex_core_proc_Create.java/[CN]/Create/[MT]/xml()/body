@@ -1,13 +1,8 @@
 {
-  if (cmd.nrArgs() != 2)   throw new IllegalArgumentException();
-  final IO file=new IO(cmd.arg(1));
-  if (!file.exists())   return error(FILEWHICH,file);
-  final String db=file.dbname();
-  try {
-    return build(new XMLParser(file),db);
-  }
- catch (  final IOException ex) {
-    BaseX.debug(ex);
-    return error(ex.getMessage(),db);
-  }
+  int n=cmd.nrArgs();
+  if (n < 2 || n > 3)   throw new IllegalArgumentException();
+  final IO f=new IO(cmd.arg(1));
+  if (!f.exists())   return error(FILEWHICH,f);
+  final String db=n != 3 ? f.dbname() : cmd.arg(2);
+  return build(new DirParser(f),db);
 }

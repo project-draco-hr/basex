@@ -4,15 +4,15 @@
   final int[] parent=new int[256];
   final byte[][] token=new byte[256][];
   int l=0;
-  int p=pos;
-  final int r=p;
-  final int s=data.size;
+  final int r=pr;
+  final int s=pr + data.size(pr,data.kind(pr));
+  int p=pr;
   while (p < s) {
     final int kind=data.kind(p);
-    final int pr=data.parent(p,kind);
-    if (r != 1 && p > r && pr < r)     break;
+    final int pa=data.parent(p,kind);
+    if (p > r && pa < r)     break;
     while (l > 0) {
-      if (parent[l - 1] < pr)       break;
+      if (parent[l - 1] < pa)       break;
       ser.closeElement(token[--l]);
     }
     if (kind == Data.TEXT) {
@@ -70,7 +70,7 @@
  else {
         ser.finishElement();
         token[l]=name;
-        parent[l++]=pr;
+        parent[l++]=pa;
       }
     }
   }
