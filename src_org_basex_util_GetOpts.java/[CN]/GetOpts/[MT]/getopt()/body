@@ -1,68 +1,56 @@
 {
   optarg=null;
   if (optindex >= args.length) {
-    return -1;
+    optopt=-1;
+    return optopt;
   }
   String arg=args[optindex];
   int argLength=arg.length();
   if (arg.startsWith("-") && argLength > 1) {
-    int optPos=optString.indexOf(args[optindex].charAt(multipleOptIndex));
+    optopt=args[optindex].charAt(multipleOptIndex);
+    int optPos=optString.indexOf(optopt);
     if (optPos > -1) {
       if (optString.length() - 1 > optPos && optString.charAt(optPos + 1) == ':') {
-        optopt=args[optindex].charAt(multipleOptIndex);
         if (argLength > multipleOptIndex + 1) {
+          optindex++;
           optarg=arg.substring(multipleOptIndex + 1,argLength);
-          ++optindex;
+        }
+ else         if (args.length > optindex + 1) {
+          optindex+=2;
+          optarg=args[optindex - 1];
         }
  else {
-          if (args.length > optindex + 1) {
-            optindex+=2;
-            optarg=args[optindex - 1];
-          }
- else {
-            optindex+=2;
-            optarg=":";
-          }
-        }
-        return optopt;
-      }
- else {
-        if (argLength == multipleOptIndex + 1) {
-          ++optindex;
-          int tmp=multipleOptIndex;
-          multipleOptIndex=1;
-          optopt=args[optindex - 1].charAt(tmp);
-          return optopt;
-        }
- else {
-          ++multipleOptIndex;
-          optopt=args[optindex].charAt(multipleOptIndex - 1);
-          return optopt;
+          optindex+=2;
+          optarg=":";
         }
       }
-    }
- else {
-      if (argLength == multipleOptIndex + 1) {
-        ++optindex;
+ else       if (argLength == multipleOptIndex + 1) {
+        optindex++;
         multipleOptIndex=1;
       }
  else {
-        ++multipleOptIndex;
+        multipleOptIndex++;
       }
-      return '?';
+      return optopt;
     }
-  }
- else {
-    if (args.length > 0 && args[optindex].length() > 0) {
-      path=args[optindex];
-      foundArgs.add(args[optindex]);
-    }
-    if (optindex + 1 == args.length) {
-      return -1;
+    if (argLength == multipleOptIndex + 1) {
+      optindex++;
+      multipleOptIndex=1;
     }
  else {
-      ++optindex;
-      return getopt();
+      multipleOptIndex++;
     }
+    optopt=0;
+    return optopt;
   }
+  if (args.length > 0 && args[optindex].length() > 0) {
+    path=args[optindex];
+    foundArgs.add(args[optindex]);
+  }
+  if (optindex + 1 == args.length) {
+    optopt=-1;
+    return optopt;
+  }
+  ++optindex;
+  return getopt();
 }

@@ -1,21 +1,20 @@
 {
   int[] dirs=new int[]{pre};
-  Data data=context.data();
-  ArrayList<byte[]> toInsert=new ArrayList<byte[]>();
+  final TokenList toInsert=new TokenList();
   if (target.length == 1) {
     if (FSUtils.isFile(data,target[0])) {
-      FSUtils.printError(out,"cp",Token.string(FSUtils.getName(data,target[0])),20);
+      error(FSUtils.getName(data,target[0]),20);
       return;
     }
   }
   int d=0;
   while (0 < dirs.length) {
-    IntList allDir=new IntList();
+    final IntList allDir=new IntList();
     while (d < dirs.length) {
-      int[] toCopy=FSUtils.getAllOfDir(data,dirs[d]);
+      final int[] toCopy=FSUtils.getChildren(data,dirs[d]);
       toInsert.add(null);
       toInsert.add(FSUtils.getRelativePath(data,dirs[d],pre));
-      for (      int p : toCopy) {
+      for (      final int p : toCopy) {
         if (FSUtils.isDir(data,p)) {
           allDir.add(p);
           toInsert.add(Token.token("d"));
@@ -40,26 +39,25 @@
       preOfNewFile=target[0] + FSUtils.NUMATT;
     }
     parPre=target[0];
-    FSUtils.insert(data,true,FSUtils.getName(data,pre),Token.token(""),Token.token(0),Token.token(System.currentTimeMillis()),parPre,preOfNewFile);
+    FSUtils.insert(data,true,FSUtils.getName(data,pre),Token.EMPTY,Token.ZERO,FSUtils.currTime(),parPre,preOfNewFile);
     parPre=preOfNewFile;
   }
  else {
-    if (!(curDirPre == FSUtils.getROOTDIR())) {
-      preOfNewFile=curDirPre + FSUtils.NUMATT;
+    if (!(curPre == FSUtils.getROOTDIR())) {
+      preOfNewFile=curPre + FSUtils.NUMATT;
     }
     parPre=preOfNewFile;
-    FSUtils.insert(data,true,Token.token(targetFile),Token.token(""),Token.token(0),Token.token(System.currentTimeMillis()),curDirPre,preOfNewFile);
+    FSUtils.insert(data,true,Token.token(targetFile),Token.EMPTY,Token.ZERO,FSUtils.currTime(),curPre,preOfNewFile);
   }
   copyRoot=parPre;
-  byte[] f=Token.token("f");
-  while (!toInsert.isEmpty()) {
-    if (toInsert.get(0) == null) {
-      toInsert.remove(0);
-      parPre=FSUtils.goToDir(data,copyRoot,Token.string(toInsert.remove(0)));
+  final byte[] f=Token.token("f");
+  while (toInsert.size != 0) {
+    if (toInsert.list[0] == null) {
+      toInsert.delete(0);
+      parPre=FSUtils.goToDir(data,copyRoot,Token.string(toInsert.delete(0)));
       continue;
     }
-    boolean isDir=true;
-    if (Token.eq(toInsert.remove(0),f))     isDir=false;
-    FSUtils.insert(data,isDir,toInsert.remove(0),toInsert.remove(0),toInsert.remove(0),Token.token(System.currentTimeMillis()),parPre,parPre + FSUtils.NUMATT);
+    final boolean isDir=!Token.eq(toInsert.delete(0),f);
+    FSUtils.insert(data,isDir,toInsert.delete(0),toInsert.delete(0),toInsert.delete(0),FSUtils.currTime(),parPre,parPre + FSUtils.NUMATT);
   }
 }

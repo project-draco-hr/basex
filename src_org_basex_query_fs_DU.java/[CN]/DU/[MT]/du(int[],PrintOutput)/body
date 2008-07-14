@@ -1,0 +1,27 @@
+{
+  for (  final int pre : sources) {
+    if (FSUtils.isFile(data,pre)) {
+      out.print(FSUtils.getSize(data,pre) + "\t" + Token.string(FSUtils.getRelativePath(data,pre,curPre))+ Token.string(FSUtils.getName(data,pre))+ "\r");
+    }
+ else {
+      final DirIterator it=new DirIterator(data,pre);
+      long diskusage=FSUtils.getSize(data,pre);
+      while (it.more()) {
+        final int n=it.next();
+        if (FSUtils.isDir(data,n)) {
+          diskusage+=du(new int[]{n},out);
+        }
+ else {
+          final long diskuse=FSUtils.getSize(data,n);
+          if (fPrintAll) {
+            out.print(diskuse + "\t" + Token.string(FSUtils.getRelativePath(data,pre,curPre))+ "/"+ Token.string(FSUtils.getName(data,n))+ "\r");
+          }
+          diskusage+=diskuse;
+        }
+      }
+      out.println(diskusage + "\t" + Token.string(FSUtils.getRelativePath(data,pre,curPre)));
+      return diskusage;
+    }
+  }
+  return -1;
+}

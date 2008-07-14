@@ -1,20 +1,21 @@
 {
   int p=pre;
-  final int kind=data.kind(p);
-  if (isFile(data,p))   p=data.parent(p,kind);
+  int k=data.kind(p);
+  if (isFile(data,p)) {
+    p=data.parent(p,k);
+    k=data.kind(p);
+  }
   final IntList il=new IntList();
-  while (p >= parrent && p != 0) {
+  while (p >= par && k != Data.DOC) {
     il.add(p);
-    p=data.parent(p,kind);
+    p=data.parent(p,k);
+    k=data.kind(p);
   }
   final TokenBuilder tb=new TokenBuilder();
   tb.add('.');
   final int s=il.size;
-  boolean keepSlash=false;
-  if (pre > parrent) {
-    tb.add('/');
-    keepSlash=true;
-  }
+  boolean keepSlash=pre > par;
+  if (keepSlash)   tb.add('/');
   for (int i=s - 2; i >= 0; i--) {
     final byte[] node=replace(getName(data,il.get(i)),'\\','/');
     tb.add(node);

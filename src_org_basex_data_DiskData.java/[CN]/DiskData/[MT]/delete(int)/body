@@ -1,23 +1,19 @@
 {
-  int kind=kind(pre);
-  final int siz=size(pre,kind);
+  int k=kind(pre);
+  final int s=size(pre,k);
   int par=pre;
-  if (kind == ATTR) {
+  if (k == ATTR) {
     par=parent(par,ATTR);
     attSize(par,ELEM,attSize(par,ELEM) - 1);
     size(par,ELEM,size(par,ELEM) - 1);
   }
   while (par > 0) {
-    kind=kind(par);
-    par=parent(par,kind);
-    size(par,kind,size(par,kind) - siz);
+    k=kind(par);
+    if (k == DOC)     break;
+    par=parent(par,k);
+    size(par,k,size(par,k) - s);
   }
-  table.delete(pre,siz);
-  size-=siz;
-  int p=pre;
-  while (p < size) {
-    kind=kind(p);
-    dist(p,kind,dist(p,kind) - siz);
-    p+=size(p,kind);
-  }
+  table.delete(pre,s);
+  size-=s;
+  updateDist(pre,-s);
 }

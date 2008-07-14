@@ -1,0 +1,31 @@
+{
+  String query="";
+  int slash=path.indexOf('/');
+  int lastSlash=0;
+  final int lastrIndexOfSlash=path.lastIndexOf('/');
+  if (slash > 0) {
+    query="//*" + filter(path.substring(lastSlash,slash));
+    while (slash < lastrIndexOfSlash) {
+      query+="/*" + filter(path.substring(lastSlash,slash));
+      lastSlash=slash;
+      slash=path.indexOf('/',lastSlash);
+    }
+    query+="/*" + filter(path.substring(lastrIndexOfSlash + 1,path.length())) + "/descendant-or-self::*";
+  }
+ else {
+    query="//*" + filter(path) + "/descendant-or-self::*";
+  }
+  final XPathProcessor qu=new XPathProcessor(query);
+  try {
+    final Nodes result=qu.queryNodes(context.current());
+    filesfound=result.size;
+    if (!cFlag) {
+      for (int i=0; i < filesfound && (!lFlag || i < limit); i++) {
+        out.println(FSUtils.getPath(data,result.pre[i]));
+      }
+    }
+  }
+ catch (  final QueryException e) {
+    e.printStackTrace();
+  }
+}

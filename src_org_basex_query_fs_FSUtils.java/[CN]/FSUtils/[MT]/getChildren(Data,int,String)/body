@@ -1,0 +1,18 @@
+{
+  String file=path;
+  int curDirPre=pre;
+  final int lastSlash=path.lastIndexOf('/');
+  if (lastSlash != -1) {
+    curDirPre=FSUtils.goToDir(data,pre,path.substring(0,lastSlash));
+    if (curDirPre == -1)     return Array.NOINTS;
+    file=path.substring(lastSlash + 1);
+  }
+  file=FSUtils.transformToRegex(file);
+  final IntList res=new IntList();
+  final DirIterator it=new DirIterator(data,curDirPre);
+  while (it.more()) {
+    final int n=it.next();
+    if (Pattern.matches(file,Token.string(getName(data,n))))     res.add(n);
+  }
+  return res.finish();
+}

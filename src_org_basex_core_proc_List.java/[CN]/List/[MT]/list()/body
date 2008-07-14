@@ -1,18 +1,8 @@
 {
-  int n=0;
-  final File file=new File(Prop.dbpath);
-  if (!file.exists())   return new String[]{};
-  for (  final File f : file.listFiles())   if (f.isDirectory())   n++;
-  final String[] db=new String[n];
-  n=0;
-  for (  final File f : file.listFiles()) {
-    if (f.isDirectory())     db[n++]=f.getName();
-  }
-  Arrays.sort(db,new Comparator<String>(){
-    public int compare(    final String s1,    final String s2){
-      return s1.compareToIgnoreCase(s2);
-    }
-  }
-);
+  final StringList db=new StringList();
+  final IO dir=new IO(Prop.dbpath);
+  if (!dir.exists())   return db;
+  for (  final IO f : dir.children())   if (f.isDir())   db.add(f.name());
+  db.sort();
   return db;
 }

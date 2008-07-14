@@ -1,11 +1,8 @@
 {
   int n=pre;
-  int kind=data.kind(pre);
-  if (path.length() < 1) {
-    return pre;
-  }
-  String[] paths=path.split("/");
-  for (  String p : paths) {
+  final int kind=data.kind(pre);
+  if (path.length() < 1)   return pre;
+  for (  final String p : path.split("/")) {
     if (p.equals("..")) {
       n=data.parent(n,kind);
     }
@@ -13,19 +10,8 @@
       n=3;
     }
  else     if (!p.equals(".")) {
-      p=transformToRegex(p);
-      final DirIterator it=new DirIterator(data,n);
-      n=-1;
-      while (it.more()) {
-        int j=it.next();
-        if (isDir(data,j) && Pattern.matches(p,Token.string(getName(data,j)))) {
-          n=j;
-          break;
-        }
-      }
-      if (n == -1) {
-        return -1;
-      }
+      n=getDir(data,n,p);
+      if (n == -1)       return -1;
     }
   }
   return n;
