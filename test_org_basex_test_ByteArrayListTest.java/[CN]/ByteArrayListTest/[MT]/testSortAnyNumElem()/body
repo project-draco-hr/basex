@@ -1,0 +1,31 @@
+{
+  int numEl=100;
+  boolean ins=false;
+  byte[][] sort=new byte[numEl][];
+  byte[][] unsort=new byte[numEl][];
+  for (int i=0; i < sort.length; i++) {
+    String s="" + (char)(97 + (i % 26));
+    for (int j=0; j < i; ++j) {
+      if (sort[j] != null) {
+        if (Token.string(sort[j]).compareTo(s) >= 0) {
+          System.arraycopy(sort,j,sort,j + 1,sort.length - j - 1);
+          sort[j]=Token.token(s);
+          ins=true;
+          break;
+        }
+      }
+    }
+    if (!ins) {
+      sort[i]=Token.token(s);
+      ins=false;
+    }
+    unsort[unsort.length - 1 - i]=Token.token(s);
+  }
+  ByteArrayList l=new ByteArrayList();
+  for (  byte[] element : unsort)   l.add(element);
+  l.sort(false,false);
+  byte[][] lFinish=l.finish();
+  for (int i=0; i < sort.length; ++i) {
+    assertEquals("Test Elements",Token.string(sort[i]),Token.string(lFinish[i]));
+  }
+}

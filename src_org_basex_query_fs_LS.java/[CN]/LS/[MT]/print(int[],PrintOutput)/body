@@ -1,17 +1,30 @@
 {
+  ByteArrayList b=new ByteArrayList();
   final IntList allDir=new IntList();
   for (  final int j : result) {
     if (FSUtils.isDir(data,j))     allDir.add(j);
     final byte[] name=FSUtils.getName(data,j);
     if (!fListDot && Token.startsWith(name,'.'))     continue;
+    if (fSorted)     b.add(name);
     if (fPrintLong) {
+      if (fSorted)       error("",102);
       final long size=FSUtils.getSize(data,j);
       final byte[] time=FSUtils.getMtime(data,j);
       final char file=FSUtils.isFile(data,j) ? 'f' : 'd';
       out.println(String.format("%-3s %-30s %10s %20s",file,Token.string(name),size,Token.string(time)));
     }
  else {
-      out.print(name);
+      if (!fSorted) {
+        out.print(name);
+        out.print("\t");
+      }
+    }
+  }
+  if (fSorted) {
+    b.sort(false,false);
+    byte[][] content=b.finish();
+    for (    byte[] el : content) {
+      out.print(el);
       out.print("\t");
     }
   }
