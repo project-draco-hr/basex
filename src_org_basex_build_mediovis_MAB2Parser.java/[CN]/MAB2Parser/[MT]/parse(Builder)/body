@@ -18,7 +18,6 @@
   builder=b;
   builder.startDoc(token(file.name()));
   builder.startElem(LIBRARY,null);
-  builder.endDoc();
   final Performance p=new Performance();
   int i=0;
   byte[] id;
@@ -26,7 +25,12 @@
     final long pos=off;
     final byte[] par=par(input);
     final boolean child=par != null;
-    final MAB2Entry entry=ids.value(ids.add(child ? par : id));
+    final byte[] key=child ? par : id;
+    MAB2Entry entry=ids.get(key);
+    if (entry == null) {
+      entry=new MAB2Entry(key);
+      ids.add(key,entry);
+    }
     if (child)     entry.add(pos);
  else     entry.pos(pos);
     if (Prop.debug) {
@@ -36,8 +40,7 @@
     }
   }
   if (Prop.debug) {
-    BaseX.err("\nParse Offsets (" + ids.size + "): ");
-    BaseX.err(p.getTimer() + "/" + Performance.getMem());
+    BaseX.err("\nParse Offsets (%): %/%\n",ids.size,p.getTimer(),Performance.getMem());
   }
   final int is=ids.size;
   for (i=1; i < is; i++) {
@@ -58,10 +61,10 @@
     }
   }
   if (Prop.debug) {
-    BaseX.err("\nCreate Titles: ");
-    BaseX.err(p.getTimer() + "/" + Performance.getMem()+ "\n");
+    BaseX.err("\nCreate Titles: %/%\n",p.getTimer(),Performance.getMem());
   }
   builder.endElem(LIBRARY);
+  builder.endDoc();
   input.close();
   final PrintOutput out=new PrintOutput(dir + "/mvids.dat");
   for (i=1; i < mvids.size; i++) {
