@@ -1,6 +1,7 @@
 {
   try {
-    final Parser p=Prop.intparse ? new XMLParser(fn) : new SAXWrapper(fn);
+    if (!fn.exists())     return null;
+    final Parser p=new DirParser(fn);
     if (Prop.onthefly)     return new MemBuilder().build(p,db);
     final Data data=new DiskBuilder().build(p,db);
     if (data.meta.txtindex)     data.openIndex(IndexToken.TYPE.TXT,new ValueBuilder(true).build(data));

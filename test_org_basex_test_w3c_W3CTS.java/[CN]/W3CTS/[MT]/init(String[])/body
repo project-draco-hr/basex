@@ -50,8 +50,12 @@
   for (  final int c : nodes("//collection",root).pre) {
     final Nodes nodes=new Nodes(c,data);
     final String cname=text("@ID",nodes);
-    final FDoc doc=coll(nodes("input-document",nodes),cname);
-    colls.put(cname,doc);
+    final TokenList dl=new TokenList();
+    final Nodes doc=nodes("input-document",nodes);
+    for (int d=0; d < doc.size; d++) {
+      dl.add(token(sources + string(data.atom(doc.pre[d])) + ".xml"));
+    }
+    colls.put(cname,dl.finish());
   }
   if (reporting) {
     BaseX.outln("Delete old results...");
