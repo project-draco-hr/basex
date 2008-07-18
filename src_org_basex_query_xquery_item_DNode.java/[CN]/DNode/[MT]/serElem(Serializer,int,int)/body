@@ -4,31 +4,29 @@
   final int[] parent=new int[256];
   final byte[][] token=new byte[256][];
   int l=0;
-  final int r=pr;
-  final int s=pr + data.size(pr,data.kind(pr));
   int p=pr;
+  final int s=pr + data.size(pr,data.kind(pr));
   while (p < s) {
-    final int kind=data.kind(p);
-    final int pa=data.parent(p,kind);
-    if (p > r && pa < r)     break;
-    while (l > 0) {
-      if (parent[l - 1] < pa)       break;
-      ser.closeElement(token[--l]);
+    final int k=data.kind(p);
+    final int pa=data.parent(p,k);
+    while (l > 0 && parent[l - 1] >= pa)     ser.closeElement(token[--l]);
+    if (k == Data.DOC) {
+      p++;
     }
-    if (kind == Data.TEXT) {
+ else     if (k == Data.TEXT) {
       ser.text(data.text(p++));
     }
- else     if (kind == Data.COMM) {
+ else     if (k == Data.COMM) {
       ser.comment(data.text(p++));
     }
- else     if (kind == Data.PI) {
+ else     if (k == Data.PI) {
       ser.pi(data.text(p++));
     }
  else {
       final byte[] name=data.tag(p);
       ser.startElement(name);
-      final int ps=p + data.size(p,kind);
-      final int as=p + data.attSize(p,kind);
+      final int ps=p + data.size(p,k);
+      final int as=p + data.attSize(p,k);
       if (level != 0 || l != 0) {
         while (++p != as)         ser.attribute(data.attName(p),data.attValue(p));
       }
