@@ -1,5 +1,11 @@
 {
   final byte[] t=string(token);
-  for (int i=0; i < t.length; i++)   if (t[i] == '?')   t[i]='+';
-  return t;
+  for (int i=0; i < t.length; i++)   if (t[i] == '?' || t[i] == '$')   t[i]='+';
+  TokenBuilder tb=new TokenBuilder();
+  for (  byte[] lang : split(t,'+')) {
+    final byte[] l=languages.get(lang);
+    if (tb.size != 0)     tb.add('+');
+    tb.add(l != null ? l : t);
+  }
+  return tb.finish();
 }
