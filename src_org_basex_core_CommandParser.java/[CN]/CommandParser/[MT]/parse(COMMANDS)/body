@@ -5,12 +5,12 @@ switch (consume(CREATE.class,cmd)) {
 case DATABASE:
 case DB:
 case XML:
-      return new CreateDB(path(cmd),name(null));
+      return new CreateDB(path(cmd,true),name(null));
 case MAB:
 case MAB2:
-    return new CreateMAB(path(cmd),name(null));
+    return new CreateMAB(path(cmd,true),name(null));
 case FS:
-  return new CreateFS(path(cmd),name(null));
+  return new CreateFS(path(cmd,true),name(null));
 case INDEX:
 return new CreateIndex(consume(INDEX.class,cmd));
 }
@@ -28,8 +28,8 @@ case INDEX:
 return new InfoIndex();
 case TABLE:
 String arg1=number(null);
-String arg2=arg1 != null ? number(null) : null;
-if (arg1 == null) arg1=xquery(null);
+final String arg2=arg1 != null ? number(null) : null;
+if (arg1 == null) arg1=xpath(null);
 return new InfoTable(arg1,arg2);
 }
 break;
@@ -51,23 +51,23 @@ break;
 case OPTIMIZE:
 return new Optimize();
 case EXPORT:
-return new Export(path(cmd));
+return new Export(path(cmd,true));
 case XPATH:
-return new XPath(xquery(null));
+return new XPath(xpath(null));
 case XPATHMV:
-return new XPathMV(number(cmd),number(cmd),xquery(cmd));
+return new XPathMV(number(cmd),number(cmd),xpath(cmd));
 case XQUERY:
 return new XQuery(xquery(cmd));
 case XQUENV:
 return new XQEnv(xquery(null));
 case FIND:
-return new Find(xquery(cmd));
+return new Find(path(cmd,false));
 case XMARK:
 return new XMark(number(cmd));
 case CD:
-return new Cd(xquery(null));
+return new Cd(xpath(null));
 case FS:
-return new Fs(consume(FS.class,cmd).name(),xquery(null));
+return new Fs(consume(FS.class,cmd).name(),xpath(null));
 case COPY:
 return new Copy(number(cmd),xpath(cmd),xpath(cmd));
 case DELETE:
@@ -110,7 +110,7 @@ if (o instanceof Boolean) {
 val=val.toUpperCase();
 final boolean info=opt.equals(SET.INFO.name());
 if (!val.equals(ON) && !val.equals(OFF) && !(info && val.equals(ALL))) {
-StringList sl=new StringList();
+final StringList sl=new StringList();
 sl.add(OFF);
 sl.add(ON);
 if (info) sl.add(ALL);

@@ -1,13 +1,14 @@
 {
   StringList sl=new StringList();
+  final boolean excl=query.startsWith("!");
   try {
-    pre=query.startsWith("!") ? "!" : "";
+    pre=excl ? "!" : "";
     final String suf=getText().substring(pre.length());
     new CommandParser(suf).parse();
   }
  catch (  final QueryException ex) {
     sl=ex.complete();
-    pre=query.substring(0,ex.col() - 1);
+    pre=query.substring(0,ex.col() - (excl ? 0 : 1));
   }
   createCombo(sl);
 }
