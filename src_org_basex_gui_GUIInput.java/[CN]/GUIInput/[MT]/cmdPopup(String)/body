@@ -1,12 +1,13 @@
 {
-  final StringList sl=new StringList();
-  pre=query.startsWith("!") ? "!" : "";
-  final String suf=getText().substring(pre.length());
-  if (suf.length() != 0) {
-    for (    final String cmd : Commands.list()) {
-      if (cmd.startsWith(suf) && !cmd.equals(suf))       sl.add(cmd);
-    }
+  StringList sl=new StringList();
+  try {
+    pre=query.startsWith("!") ? "!" : "";
+    final String suf=getText().substring(pre.length());
+    new CommandParser(suf).parse();
   }
-  sl.sort();
+ catch (  final QueryException ex) {
+    sl=ex.complete();
+    pre=query.substring(0,ex.col() - 1);
+  }
   createCombo(sl);
 }

@@ -3,9 +3,31 @@
   final String in=input.getText();
   if (cmd || in.startsWith("!")) {
     final int i=cmd ? 0 : 1;
-    if (in.length() > i)     execute(in.substring(i));
+    if (in.length() > i) {
+      try {
+        for (        final Process p : new CommandParser(in.substring(i)).parse()) {
+          if (!exec(p))           break;
+        }
+      }
+ catch (      final QueryException ex) {
+        final boolean db=context.db();
+        if (!GUIProp.showstarttext && !db || !GUIProp.showtext && db) {
+          GUICommands.SHOWTEXT.execute();
+        }
+        if (text.isValid()) {
+          try {
+            final CachedOutput out=new CachedOutput();
+            out.println(ex.getMessage());
+            text.setText(out.buffer(),out.size(),false);
+          }
+ catch (          final IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
   }
  else {
-    execute(Commands.XPATH,GUIProp.searchmode == 1 ? in : Find.find(in,context,GUIProp.filterrt));
+    execute(new XPath(GUIProp.searchmode == 1 ? in : Find.find(in,context,GUIProp.filterrt)));
   }
 }

@@ -3,27 +3,53 @@
     final Socket s=server.accept();
     final Performance perf=new Performance();
     final DataInputStream dis=new DataInputStream(s.getInputStream());
-    final Command cmd=new Command(dis.readUTF().trim());
-    if (cmd.name == Commands.STOP) {
+    final String in=dis.readUTF().trim();
+    final InetAddress addr=s.getInetAddress();
+    final String ip=addr.toString();
+    if (verbose)     BaseX.outln("[%:%] %",addr.getHostAddress(),s.getPort(),in);
+    Process pr=null;
+    try {
+      pr=new CommandParser(in).parse()[0];
+    }
+ catch (    final QueryException ex) {
+      BaseX.errln(ex.getMessage());
+      final OutputStream out=s.getOutputStream();
+      out.write(0);
+      out.close();
+      return;
+    }
+    final Process proc=pr;
+    if (proc instanceof Stop) {
       s.getOutputStream().write(1);
-      for (int p=0; p < MAX; p++)       if (core[p] != null)       core[p].stop();
+      for (int p=0; p < MAX; p++)       if (corc[p] != null)       corc[p].stop();
       running=false;
       return;
     }
     new Thread(){
       @Override public void run(){
         try {
-          final InetAddress addr=s.getInetAddress();
-          final String ip=addr.toString();
-          if (!cmd.name.server()) {
-            final Proc proc=cmd.proc(context);
-            final Proc p=newCore(proc,ip);
-            boolean ok=p != null;
+          if (proc instanceof GetResult || proc instanceof GetInfo) {
+            final OutputStream os=s.getOutputStream();
+            final PrintOutput out=new PrintOutput(new BufferedOutput(os));
+            final Process c=session(ip);
+            if (c == null) {
+              out.print(SERVERFULL);
+            }
+ else             if (proc instanceof GetResult) {
+              c.output(out);
+            }
+ else             if (proc instanceof GetInfo) {
+              c.info(out);
+            }
+            out.close();
+          }
+ else {
+            boolean ok=save(proc,ip);
             if (ok) {
-              ok=p.execute();
+              ok=proc.execute(context);
               if (!ok && verbose) {
                 final PrintOutput o=new ConsoleOutput(System.err);
-                p.info(o);
+                proc.info(o);
                 o.close();
               }
             }
@@ -31,31 +57,13 @@
             out.write(ok ? 1 : 0);
             out.close();
           }
- else {
-            final OutputStream os=s.getOutputStream();
-            final PrintOutput out=new PrintOutput(new BufferedOutput(os));
-            final Proc c=getSession(ip);
-            if (c == null) {
-              out.print(SERVERFULL);
-            }
- else             if (cmd.name == Commands.GETRESULT) {
-              c.output(out);
-              out.close();
-            }
- else             if (cmd.name == Commands.GETINFO) {
-              c.info(out);
-            }
-            out.close();
-          }
           dis.close();
-          if (verbose) {
-            BaseX.outln("%:% => % [%]",addr.getHostAddress(),s.getPort(),cmd,perf.getTimer());
-          }
         }
  catch (        final Exception ex) {
           if (ex instanceof IOException)           BaseX.errln(SERVERERR);
  else           ex.printStackTrace();
         }
+        if (verbose)         BaseX.outln("[%:%] %",addr.getHostAddress(),s.getPort(),perf.getTimer());
       }
     }
 .start();

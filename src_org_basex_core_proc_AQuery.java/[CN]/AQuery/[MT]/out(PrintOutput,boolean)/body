@@ -1,0 +1,19 @@
+{
+  final XMLSerializer ser=new XMLSerializer(Prop.serialize ? o : new NullOutput(),Prop.xmloutput,p);
+  for (int i=0; i < Prop.runs; i++) {
+    result.serialize(i == 0 ? ser : new XMLSerializer(new NullOutput(!Prop.serialize),Prop.xmloutput,Prop.xqformat));
+  }
+  o.print(Prop.NL);
+  if (Prop.info)   outInfo(o,result.size());
+  if (Prop.dotresult) {
+    final CachedOutput out=new CachedOutput();
+    result.serialize(new DOTSerializer(out));
+    new IO(RESULTDOT).write(out.finish());
+    try {
+      new ProcessBuilder(Prop.dotty,RESULTDOT).start().waitFor();
+    }
+ catch (    final InterruptedException ex) {
+      throw new IOException(ex);
+    }
+  }
+}

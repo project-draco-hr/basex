@@ -14,11 +14,7 @@
   Prop.onthefly=true;
   Prop.mainmem=true;
   final Context ctx=new Context();
-  final Proc pr=Proc.get(ctx,Commands.CHECK,FILE);
-  if (!pr.execute()) {
-    BaseX.outln(pr.info());
-    return;
-  }
+  new Check(FILE).execute(ctx,null);
   data=ctx.data();
   int ok=0;
   int wrong=0;
@@ -30,8 +26,8 @@
     final String uri=text("@URI",srcRoot);
     final boolean valid=text("@TYPE",srcRoot).equals("valid");
     Prop.intparse=true;
-    Proc proc=Proc.get(ctx,Commands.CREATEDB,PATH + uri);
-    final boolean success=proc.execute();
+    Process proc=new CreateDB(PATH + uri);
+    final boolean success=proc.execute(ctx);
     final boolean correct=valid == success;
     if (verbose || !correct) {
       BaseX.outln(uri + " = " + (valid ? "correct" : "wrong")+ " -> "+ (success ? "correct" : "wrong")+ (correct ? " (OK)" : " (WRONG)"));
@@ -39,16 +35,16 @@
         String inf=proc.info();
         if (inf.length() != 0)         BaseX.outln("[BASEX ] " + inf);
         Prop.intparse=false;
-        Proc.execute(ctx,Commands.CLOSE);
-        proc=Proc.get(ctx,Commands.CREATEDB,PATH + uri);
-        proc.execute();
+        new Close().execute(ctx);
+        proc=new CreateDB(PATH + uri);
+        proc.execute(ctx);
         inf=proc.info();
         if (inf.length() != 0)         BaseX.outln("[XERCES] " + inf);
       }
     }
     if (correct)     ok++;
  else     wrong++;
-    Proc.execute(ctx,Commands.CLOSE);
+    new Close().execute(ctx);
   }
   BaseX.outln("\nResult of Test \"" + new File(FILE).getName() + "\":");
   BaseX.outln("Successful: " + ok);

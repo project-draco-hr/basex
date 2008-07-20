@@ -1,22 +1,15 @@
 {
   System.out.println("First example, writing result to " + RESULT + ":");
   Context context=new Context();
-  Proc.execute(context,Commands.CREATEDB,XMLFILE);
-  Proc.execute(context,Commands.SET,"xmloutput on");
+  new CreateDB(XMLFILE,DBNAME).execute(context,null);
+  new Set("xmloutput","on").execute(context,null);
   PrintOutput file=new PrintOutput(RESULT);
-  Proc proc=Proc.get(context,Commands.XPATH,QUERY);
-  if (proc.execute()) {
-    proc.output(file);
-  }
- else {
-    proc.info(file);
-  }
+  new XPath(QUERY).execute(context,file);
   file.close();
   System.out.println();
   System.out.println("Second example, writing result to standard output:");
-  Data data=Create.xml(new IO(XMLFILE),DBNAME);
   QueryProcessor xpath=new XPathProcessor(QUERY);
-  Nodes nodes=new Nodes(0,data);
+  Nodes nodes=context.current();
   Result result=xpath.query(nodes);
   ConsoleOutput console=new ConsoleOutput(System.out);
   result.serialize(new XMLSerializer(console));

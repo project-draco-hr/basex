@@ -1,0 +1,16 @@
+{
+  context=ctx;
+  if (data() && context.data() == null)   return error(PROCNODB);
+  if (updating() && (Prop.mainmem || Prop.onthefly))   return error(PROCMM);
+  try {
+    return exec();
+  }
+ catch (  final Throwable ex) {
+    ex.printStackTrace();
+    if (ex instanceof OutOfMemoryError) {
+      Performance.gc(2);
+      return error(PROCOUTMEM,(Object[])args);
+    }
+    return error(PROCERR,(Object[])args);
+  }
+}

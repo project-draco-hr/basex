@@ -1,0 +1,36 @@
+{
+  final AbstractProcess proc=getProcess(p);
+  try {
+    final boolean ok=proc.execute(context);
+    if (ok && p.printing()) {
+      final PrintOutput out=output != null ? new PrintOutput(output) : new ConsoleOutput(System.out);
+      proc.output(out);
+      out.close();
+    }
+    final boolean set=p instanceof Set;
+    if (!ok || v || !p.printing()|| set) {
+      final CachedOutput out=new CachedOutput();
+      proc.info(out);
+      final String inf=out.toString();
+      if (!ok || inf.length() != 0) {
+        if (!ok) {
+          error(null,inf);
+        }
+ else {
+          if (info || console) {
+            BaseX.outln(inf);
+            if (console)             BaseX.outln("");
+          }
+        }
+      }
+      if (set && p.args[0].equals(SET.INFO)) {
+        info=inf.contains(INFOON);
+      }
+    }
+    return ok;
+  }
+ catch (  final IOException ex) {
+    error(ex,SERVERERR);
+    return false;
+  }
+}

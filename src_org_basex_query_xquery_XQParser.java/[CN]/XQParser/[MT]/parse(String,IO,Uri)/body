@@ -1,11 +1,10 @@
 {
   try {
-    file=f;
     init(q);
-    if (ql == 0)     Err.or(QUERYEMPTY);
-    for (qp=ql; qp > 0; qp--) {
-      if (!XMLToken.valid(qu.charAt(qp - 1)))       Err.or(QUERYINV,(int)qu.charAt(qp - 1));
-    }
+    file=f;
+    if (!more())     Err.or(QUERYEMPTY);
+    final int v=valid();
+    if (v != -1)     Err.or(QUERYINV,v);
     versionDecl();
     if (u == null) {
       ctx.root=mainModule();
@@ -15,18 +14,18 @@
  else {
       moduleDecl(u);
     }
-    if (qp != ql) {
+    if (more()) {
       if (alter != null)       error();
       if (ctx.root instanceof Step) {
         final Step step=(Step)ctx.root;
         if (step.axis == Axis.CHILD && step.test.type == null && step.test.name != null)         Err.or(QUERYSTEP,step);
       }
-      final int e=Math.min(ql,qp + 15);
-      Err.or(QUERYEND,qu.substring(qp,e) + (e == ql ? "" : "..."));
+      Err.or(QUERYEND,rest());
     }
     ctx.fun.check();
   }
  catch (  final XQException ex) {
+    mark();
     ex.pos(this);
     throw ex;
   }

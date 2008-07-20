@@ -1,0 +1,98 @@
+{
+  final int thread=++threadID;
+  while (proc != null) {
+    proc.stop();
+    Performance.sleep(50);
+    if (threadID != thread)     return true;
+  }
+  cursor(CURSORWAIT);
+  try {
+    if (obsolete(thread,pr))     return true;
+    if (pr.updating())     View.working=true;
+    final Performance perf=new Performance();
+    final Nodes current=context.current();
+    final Data data=context.data();
+    proc=pr;
+    final boolean ok=pr.execute(context);
+    if (!ok && pr.info().length() == 0) {
+      proc=null;
+      return false;
+    }
+    if (pr.updating())     View.working=false;
+    if (obsolete(thread,pr))     return true;
+    final Result result=pr.result();
+    final Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
+    final String inf=pr.info();
+    if (pr.printing() || (!ok && inf.length() != 0)) {
+      if (!GUIProp.showstarttext && data == null || !GUIProp.showtext && data != null && nodes == null) {
+        GUICommands.SHOWTEXT.execute();
+      }
+      if (text.isValid() && nodes == null) {
+        final CachedOutput out=new CachedOutput(TextView.MAX);
+        if (ok)         pr.output(out);
+ else         out.println(inf);
+        out.addInfo();
+        text.setText(out.buffer(),out.size(),false);
+      }
+    }
+    final boolean feedback=pr.printing() && data != null && GUIProp.showquery && pr instanceof XQuery && query.info(inf,ok);
+    if (!ok) {
+      if (feedback)       status.setText(STATUSOK);
+ else       status.setError(inf);
+      cursor(CURSORARROW,true);
+      proc=null;
+      return false;
+    }
+    if (obsolete(thread,pr))     return true;
+    final String time=perf.getTimer();
+    final Data ndata=context.data();
+    if (ndata != data) {
+      View.notifyInit();
+    }
+ else     if (pr.updating()) {
+      View.notifyUpdate();
+    }
+ else     if (result != null) {
+      if (context.current() != current || GUIProp.filterrt) {
+        if (nodes != null) {
+          if (GUIProp.filterrt) {
+            View.ftPos=nodes.ftpos;
+            View.ftPoi=nodes.ftpoin;
+          }
+          View.notifyContext((Nodes)result,GUIProp.filterrt);
+        }
+      }
+ else       if (context.marked() != null) {
+        Nodes marked=context.marked();
+        if (nodes != null) {
+          marked=nodes;
+        }
+ else         if (marked.size != 0) {
+          marked=new Nodes(data);
+        }
+        if (marked != context.marked()) {
+          View.ftPos=marked.ftpos;
+          View.ftPoi=marked.ftpoin;
+          View.notifyMark(marked);
+        }
+      }
+    }
+    if (obsolete(thread,pr))     return true;
+    setHits(result == null ? 0 : result.size());
+    if (GUIProp.showinfo)     info.setInfo(result != null ? Token.token(inf) : Token.EMPTY);
+    status.setText(BaseX.info(PROCTIME,time));
+  }
+ catch (  final IllegalArgumentException ex) {
+    JOptionPane.showMessageDialog(GUI.this,ex.getMessage(),DIALOGINFO,JOptionPane.INFORMATION_MESSAGE);
+    status.setText(STATUSOK);
+  }
+catch (  final Exception ex) {
+    ex.printStackTrace();
+    String msg=ex.toString();
+    if (msg.length() == 0)     msg=ex.getMessage();
+    JOptionPane.showMessageDialog(GUI.this,BaseX.info(PROCERR,pr,msg),DIALOGINFO,JOptionPane.ERROR_MESSAGE);
+  }
+  cursor(CURSORARROW,true);
+  proc=null;
+  return true;
+}
