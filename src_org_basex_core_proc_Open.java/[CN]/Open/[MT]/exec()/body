@@ -1,0 +1,19 @@
+{
+  final String db=args[0];
+  if (!IO.dbpath(db).exists())   return error(DBNOTFOUND,db);
+  context.close();
+  try {
+    final Data data=new DiskData(db);
+    context.data(data);
+    if (Prop.info) {
+      if (data.meta.newindex)       info(INDUPDATE + NL);
+      info(DBOPENED,perf.getTimer());
+    }
+    return true;
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    final String msg=ex.getMessage();
+    return error(msg.length() != 0 ? msg : DBOPENERR);
+  }
+}

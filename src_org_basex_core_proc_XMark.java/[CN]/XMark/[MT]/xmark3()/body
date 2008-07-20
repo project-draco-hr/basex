@@ -1,0 +1,18 @@
+{
+  final Nodes b=qu("/site/open_auctions/open_auction" + "[bidder[1]/increase/text() * 2 <= bidder[last()]/increase/text()]");
+  final XPathProcessor stepInc1=parse("bidder[1]/increase/text()");
+  final XPathProcessor stepInc2=parse("bidder[last()]/increase/text()");
+  final byte[] inc=token("increase");
+  final byte[] first=token("first");
+  final byte[] last=token("last");
+  int hits=0;
+  final int bs=b.size;
+  for (int bi=0; bi < bs; bi++) {
+    writeSep(hits++);
+    out.startElement(inc);
+    out.attribute(first,atom(b,bi,stepInc1));
+    out.attribute(last,atom(b,bi,stepInc2));
+    out.emptyElement();
+  }
+  return hits;
+}

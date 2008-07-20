@@ -1,0 +1,40 @@
+{
+  final Nodes p=qu("/site/people/person");
+  final Nodes c=qu("/site/closed_auctions/closed_auction");
+  final Nodes i=qu("/site/regions/europe/item");
+  final XPathProcessor stepName=parse("name/text()");
+  final XPathProcessor stepItemRef=parse("itemref/@item");
+  final XPathProcessor stepID=parse("@id");
+  final byte[] person=token("person");
+  final byte[] name=token("name");
+  final byte[] item=token("item");
+  final int ps=p.size;
+  for (int pi=0; pi < ps; pi++) {
+    writeSep(pi);
+    out.startElement(person);
+    out.attribute(name,atom(p,pi,stepName));
+    final byte[] token=atom(p,pi,stepID);
+    final Nodes a=eval(parse(".[buyer/@person = '" + string(token) + "']"),c);
+    if (a.size == 0) {
+      out.emptyElement();
+    }
+ else {
+      out.finishElement();
+      final int as=a.size;
+      for (int ai=0; ai < as; ai++) {
+        final Nodes n=eval(parse(".[@id = '" + string(atom(a,ai,stepItemRef)) + "']"),i);
+        if (n.size == 0) {
+          out.emptyElement(item);
+        }
+ else {
+          out.openElement(item);
+          final int ns=n.size;
+          for (int ni=0; ni < ns; ni++)           out.text(atom(n,ni,stepName));
+          out.closeElement(item);
+        }
+      }
+      out.closeElement(person);
+    }
+  }
+  return p.size;
+}

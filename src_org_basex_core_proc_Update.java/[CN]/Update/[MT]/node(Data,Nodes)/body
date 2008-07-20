@@ -1,0 +1,22 @@
+{
+  byte[] v=token(args[0]);
+  final int kind=type.ordinal();
+  final boolean pi=kind == Data.PI;
+  if (kind == Data.TEXT) {
+    if (v.length == 0)     return error(TXTINVALID,v);
+  }
+ else   if (kind == Data.ELEM || pi) {
+    if (!check(v))     return error(NAMEINVALID,v);
+    if (pi) {
+      final byte[] vv=token(args[1]);
+      v=v.length == 0 ? vv : concat(v,SPACE,vv);
+    }
+  }
+  for (int i=nodes.size - 1; i >= 0; i--) {
+    final int k=data.kind(nodes.pre[i]);
+    if (k != kind)     return error(UPDATENODE,UPDATE.values()[kind]);
+  }
+  data.noIndex();
+  for (int i=nodes.size - 1; i >= 0; i--)   data.update(nodes.pre[i],v);
+  return true;
+}

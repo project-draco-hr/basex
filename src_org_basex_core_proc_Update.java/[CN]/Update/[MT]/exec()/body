@@ -1,0 +1,17 @@
+{
+  final Data data=context.data();
+  final Nodes nodes=gui ? context.marked() : query(args[type == UPDATE.PI || type == UPDATE.ATTRIBUTE ? 2 : 1],null);
+  if (nodes == null)   return false;
+  boolean ok=false;
+switch (type) {
+case ATTRIBUTE:
+    ok=attr(data,nodes);
+  break;
+default :
+ok=node(data,nodes);
+break;
+}
+if (!ok) return false;
+data.flush();
+return Prop.info ? info(UPDATEINFO,nodes.size,perf.getTimer()) : true;
+}

@@ -1,0 +1,20 @@
+{
+  final Data data=context.data();
+  final Nodes nodes=gui ? context.marked() : query(args[type == UPDATE.PI ? 3 : 2],null);
+  if (nodes == null)   return false;
+  boolean ok=false;
+switch (type) {
+case ATTRIBUTE:
+    ok=attr(data,nodes);
+  break;
+case FRAGMENT:
+ok=frag(data,nodes);
+break;
+default :
+ok=node(data,nodes);
+break;
+}
+if (!ok) return false;
+data.flush();
+return Prop.info ? info(INSERTINFO,nodes.size,perf.getTimer()) : true;
+}

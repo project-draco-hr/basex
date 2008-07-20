@@ -1,0 +1,60 @@
+{
+  hits=Token.toInt(args[0]);
+  sub=Token.toInt(args[1]);
+  final String query=args[2] + "[position() <= " + (hits * sub)+ "]";
+  long pars=0;
+  long comp=0;
+  long eval=0;
+  long fini=0;
+  QueryProcessor qu=null;
+  try {
+    for (int i=0; i < Prop.runs; i++) {
+      qu=new XPathProcessor(query);
+      final Nodes nodes=context.current();
+      progress(qu);
+      qu.parse();
+      pars+=per.getTime();
+      qu.compile(nodes);
+      comp+=per.getTime();
+      result=qu.query(nodes);
+      eval+=per.getTime();
+      if (!(result instanceof NodeSet))       throw new QueryException(QUERYNODESERR);
+      final NodeSet ns=(NodeSet)result;
+      result=new Nodes(ns.nodes,ns.data);
+      final Data data=context.data();
+      final int medid=data.tagID(MAB2.MEDIUM);
+      final int mvid=data.attNameID(MAB2.MV_ID);
+      final Nodes res=(Nodes)result;
+      final int[] pres=res.pre;
+      final int size=res.size;
+      ids=new IDSet();
+      for (int n=0; n < size; n++) {
+        int pre=data.parent(pres[n],data.kind(pres[n]));
+        final boolean s=data.tagID(pre) == medid;
+        if (!s)         pre=pres[n];
+        final byte[] id=data.attValue(mvid,pre);
+        if (s) {
+          ids.index(id,pre,pres[n]);
+        }
+ else {
+          ids.index(id,pre);
+        }
+        if (ids.size() == hits)         break;
+      }
+      maxhits=ids.size();
+      fini+=per.getTime();
+    }
+    if (Prop.info) {
+      info(qu.getInfo());
+      info(QUERYPARSE + Performance.getTimer(pars,Prop.runs) + NL);
+      info(QUERYCOMPILE + Performance.getTimer(comp,Prop.runs) + NL);
+      info(QUERYEVALUATE + Performance.getTimer(eval,Prop.runs) + NL);
+      info(QUERYFINISH + Performance.getTimer(fini,Prop.runs) + NL);
+    }
+  }
+ catch (  final Exception ex) {
+    BaseX.debug(ex);
+    return error(ex.getMessage());
+  }
+  return true;
+}

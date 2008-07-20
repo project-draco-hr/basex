@@ -1,0 +1,40 @@
+{
+  data.noIndex();
+  final int[] parStack=new int[256];
+  final int[] tagStack=new int[256];
+  int h=0;
+  int l=0;
+  size=data.size;
+  for (pre=0; pre < size; pre++) {
+    final int kind=data.kind(pre);
+    final int par=data.parent(pre,kind);
+    while (l > 0 && parStack[l - 1] > par)     --l;
+    if (kind == Data.ELEM) {
+      final int id=data.tagID(pre);
+      final byte[] tag=data.tags.key(id);
+      data.tags.index(tag,null);
+      tagStack[l]=id;
+      parStack[l]=pre;
+      if (h < ++l)       h=l;
+    }
+ else     if (kind == Data.ATTR) {
+      data.atts.index(data.attName(pre),data.attValue(pre));
+    }
+ else     if (kind == Data.TEXT || kind == Data.DOC) {
+      if (l > 0)       data.tags.index(tagStack[l - 1],data.text(pre));
+    }
+  }
+  data.meta.height=h;
+  data.meta.newindex=false;
+  data.tags.stats=true;
+  data.atts.stats=true;
+  try {
+    data.tags.finish(data.meta.dbname);
+    data.atts.finish(data.meta.dbname);
+    data.meta.finish(data.size);
+  }
+ catch (  final IOException ex) {
+    return false;
+  }
+  return true;
+}

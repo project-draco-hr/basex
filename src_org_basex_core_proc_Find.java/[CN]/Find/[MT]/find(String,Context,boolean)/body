@@ -1,0 +1,47 @@
+{
+  if (query.startsWith("/"))   return query;
+  final boolean r=root || ctx.root();
+  if (query.length() == 0)   return r ? "/" : ".";
+  final Data data=ctx.data();
+  if (data.deepfs)   return findFS(query,ctx,root);
+  final String qu=query.replaceAll(" \\+"," ");
+  final String[] terms=split(qu);
+  String pre="";
+  String preds="";
+  final String tag="*";
+  for (  String term : terms) {
+    if (term.startsWith("@=")) {
+      preds+="[@* = \"" + term.substring(2) + "\"]";
+    }
+ else     if (term.startsWith("=")) {
+      preds+="[text() = \"" + term.substring(1) + "\"]";
+    }
+ else     if (term.startsWith("~")) {
+      preds+="[text() ~> \"" + term.substring(1) + "\"]";
+    }
+ else     if (term.startsWith("@")) {
+      if (term.length() == 1)       continue;
+      preds+="[" + ContainsLC.NAME + "(@*, \""+ term.substring(1)+ "\")]";
+      term=term.substring(1);
+      final byte[] t=Token.token(term);
+      if (Token.letter(t[0]) && Token.letterOrDigit(t)) {
+        pre+=(r ? "" : ".") + "//@" + term+ " | ";
+      }
+    }
+ else {
+      if (data.meta.ftxindex) {
+        preds+="[text() ftcontains \"" + term + "\"]";
+      }
+ else {
+        preds+="[" + ContainsLC.NAME + "(text(), \""+ term+ "\")]";
+      }
+      final byte[] t=Token.token(term);
+      if (Token.letter(t[0]) && Token.letterOrDigit(t)) {
+        pre+=(r ? "/" : "") + "descendant::" + term+ " | ";
+      }
+      pre+="//*[" + ContainsLC.NAME + "(@name, \""+ term+ "\")] | ";
+    }
+  }
+  if (pre.length() == 0 && preds.length() == 0)   return root ? "/" : ".";
+  return pre + (r ? "/" : "") + "descendant-or-self::"+ tag+ preds;
+}

@@ -1,0 +1,22 @@
+{
+  final String token=name(null);
+  try {
+    final String t=token == null ? "NULL" : token.toUpperCase();
+    if (!t.startsWith("DUMMY"))     return Enum.valueOf(cmp,t);
+  }
+ catch (  final IllegalArgumentException ex) {
+  }
+  final StringList alt=list(cmp,token);
+  if (token == null) {
+    error(alt,"Expecting command.");
+    help(alt,par);
+  }
+  final byte[] name=Token.lc(Token.token(token));
+  for (  final String a : alt.finish()) {
+    final byte[] sim=Token.lc(Token.token(a));
+    if (Levenshtein.similar(name,sim))     error(alt,CMDSIMILAR,name,sim);
+  }
+  if (par == null)   error(alt,CMDWHICH,token);
+  help(alt,par);
+  return null;
+}
