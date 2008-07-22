@@ -1,10 +1,12 @@
 {
   consumeWS();
-  if (!more())   return finish(cmd,"");
-  final XPParser p=new XPParser(qu);
-  p.qp=qp;
-  p.parse(false);
-  final String xp=qu.substring(qp,p.qp);
-  qp=p.qp;
-  return finish(cmd,xp);
+  final StringBuilder sb=new StringBuilder();
+  if (more() && !curr(';')) {
+    final XPParser p=new XPParser(qu,null);
+    p.qp=qp;
+    p.parse(false);
+    sb.append(qu.substring(qp,p.qp));
+    qp=p.qp;
+  }
+  return finish(cmd,sb);
 }

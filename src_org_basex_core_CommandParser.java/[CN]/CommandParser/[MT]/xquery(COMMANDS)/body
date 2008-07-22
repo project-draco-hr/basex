@@ -1,10 +1,13 @@
 {
   consumeWS();
-  final XQParser p=new XQParser(new XQContext());
-  p.init(qu);
-  p.qp=qp;
-  p.parse(null,false);
-  final String xp=qu.substring(qp,p.qp);
-  qp=p.qp;
-  return finish(cmd,xp);
+  final StringBuilder sb=new StringBuilder();
+  if (more() && !curr(';')) {
+    final XQParser p=new XQParser(new XQContext());
+    p.init(qu);
+    p.qp=qp;
+    p.parse(null,false);
+    sb.append(qu.substring(qp,p.qp));
+    qp=p.qp;
+  }
+  return finish(cmd,sb);
 }
