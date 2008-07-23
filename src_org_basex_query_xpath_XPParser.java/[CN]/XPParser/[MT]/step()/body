@@ -1,43 +1,28 @@
 {
-  if (curr('/')) {
-    final char c=next();
-    if (letter(c) || c == '@' || c == '*' || c == '.') {
-      return Axis.create(Axis.DESCORSELF,TestNode.NODE);
-    }
-    error(NOLOCSTEP);
-  }
   Axis axis=null;
-  Test nodetest=null;
-  if (consume('.')) {
-    if (consume('.')) {
-      axis=Axis.PARENT;
-    }
- else {
-      axis=Axis.SELF;
-    }
-    nodetest=TestNode.NODE;
+  Test test=null;
+  if (curr('/')) {
+    if (next() == '/')     error(NOLOCSTEP);
+    axis=Axis.DESCORSELF;
+    test=TestNode.NODE;
   }
- else   if (curr('@')) {
-    consume('@');
+ else   if (consume('.')) {
+    axis=consume('.') ? Axis.PARENT : Axis.SELF;
+    test=TestNode.NODE;
+  }
+ else   if (consume('@')) {
     axis=Axis.ATTR;
-    final String test=name();
-    if (test.length() != 0) {
-      nodetest=new TestName(Token.token(test),false);
-    }
- else     if (consume('*')) {
-      nodetest=new TestName(false);
-    }
- else {
-      error(NOATTNAME);
-    }
+    final String t=name();
+    test=t.length() != 0 ? new TestName(Token.token(t),false) : consume('*') ? new TestName(false) : null;
+    if (test == null)     error(NOATTNAME);
   }
  else   if (consume('*')) {
     axis=Axis.CHILD;
-    nodetest=new TestName(true);
+    test=new TestName(true);
   }
  else   if (letter(curr())) {
     axis=axis();
-    nodetest=test(axis);
+    test=test(axis);
   }
  else {
     error(NOLOCSTEP);
@@ -48,5 +33,6 @@
     preds.add(pred());
     consumeWS();
   }
-  return Axis.create(axis,nodetest,preds);
+  if (suggest != null)   suggest.step(axis,test,preds);
+  return Axis.create(axis,test,preds);
 }
