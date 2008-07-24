@@ -1,24 +1,8 @@
 {
   final StringList sl=new StringList();
-  if (ctx == null)   return sl;
   for (  final Node r : ctx) {
-    String name=null;
-    if (r.kind == Data.ATTR) {
-      name="@" + Token.string(curr.data.atts.key(r.name));
-    }
- else     if (r.kind == Data.ELEM) {
-      name=Token.string(curr.data.tags.key(r.name));
-    }
- else     if (r.kind == Data.TEXT) {
-      name="text()";
-    }
- else     if (r.kind == Data.COMM) {
-      name="comment()";
-    }
- else     if (r.kind == Data.PI) {
-      name="processing-instruction()";
-    }
-    if (name != null && !sl.contains(name))     sl.add(name);
+    final String name=Token.string(r.token(curr.data));
+    if (name.length() != 0 && !sl.contains(name))     sl.add(name);
   }
   sl.sort();
   return sl;

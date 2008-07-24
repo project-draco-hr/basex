@@ -1,15 +1,13 @@
 {
   boolean more=false;
-  if (suggest != null)   suggest.absLocPath();
   while (consume('/')) {
-    final char c=curr();
-    if (c != 0 && c != ']' && c != ')' && c != '|' && c != ',') {
-      path.steps.add(step());
-      more=true;
+    final Step step=step();
+    if (step == null) {
+      if (more)       error(NOLOCSTEP);
+      break;
     }
- else     if (more) {
-      error(NOLOCSTEP);
-    }
+    path.steps.add(step);
+    more=true;
   }
   return path;
 }
