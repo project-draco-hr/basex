@@ -1,18 +1,19 @@
 {
   final Step step=super.step();
+  if (stack.empty())   return step;
   filter(true);
   if (step == null) {
-    ctx=skel.child(ctx,0,false);
+    stack.push(skel.child(stack.pop(),0,false));
     return null;
   }
-  if (step.axis == Axis.CHILD) {
-    ctx=skel.child(ctx,0,false);
+  if (step.axis == Axis.CHILD || step.axis == Axis.ATTR) {
+    stack.push(skel.child(stack.pop(),0,false));
   }
  else   if (step.axis == Axis.DESC || step.axis == Axis.DESCORSELF) {
-    ctx=skel.child(ctx,0,true);
+    stack.push(skel.child(stack.pop(),0,true));
   }
  else {
-    ctx=new ArrayList<Node>();
+    stack.peek().clear();
   }
   last=step;
   return step;
