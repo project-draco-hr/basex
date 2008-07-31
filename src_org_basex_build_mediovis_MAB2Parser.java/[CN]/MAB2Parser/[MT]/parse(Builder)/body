@@ -47,13 +47,17 @@
   for (i=1; i < is; i++) {
     final MAB2Entry entry=ids.value(i);
     final long pos=entry.pos;
+    final int es=entry.size;
     if (pos != 0) {
-      addEntry(input,pos,entry.size);
-      addChildren(input,entry);
+      final byte[] last=addEntry(input,pos,es,null);
+      addChildren(input,entry,last);
       builder.endElem(MEDIUM);
     }
  else {
-      addChildren(input,entry);
+      for (int j=0; j < es; j++) {
+        addEntry(input,entry.children[j],0,null);
+        builder.endElem(MEDIUM);
+      }
     }
     if (Prop.debug) {
       if (i % 50000 == 0)       BaseX.err(" " + i + "\n");
