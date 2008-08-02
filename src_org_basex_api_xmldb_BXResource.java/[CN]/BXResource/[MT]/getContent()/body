@@ -1,9 +1,17 @@
 {
-  if (result instanceof NodeSet) {
-    NodeSet nodes=(NodeSet)result;
-    return new String(nodes.data.atom(nodes.nodes[pos]));
-  }
+  try {
+    final CachedOutput out=new CachedOutput();
+    final XMLSerializer ser=new XMLSerializer(out);
+    if (result instanceof NodeSet) {
+      final NodeSet nodes=(NodeSet)result;
+      ser.xml(nodes.data,nodes.nodes[pos]);
+    }
  else {
-    return result.toString();
+      ser.item(result.str());
+    }
+    return out.toString();
+  }
+ catch (  final IOException ex) {
+    throw new XMLDBException(ErrorCodes.UNKNOWN_ERROR,ex.getMessage());
   }
 }
