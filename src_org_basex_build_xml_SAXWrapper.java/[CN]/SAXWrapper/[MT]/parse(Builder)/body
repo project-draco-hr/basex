@@ -1,11 +1,14 @@
 {
   builder=build;
   try {
-    final SAXParserFactory f=SAXParserFactory.newInstance();
-    f.setNamespaceAware(true);
-    f.setValidating(false);
+    XMLReader r=reader;
+    if (r == null) {
+      final SAXParserFactory f=SAXParserFactory.newInstance();
+      f.setNamespaceAware(true);
+      f.setValidating(false);
+      r=f.newSAXParser().getXMLReader();
+    }
     final SAXParser p=new SAXParser();
-    final XMLReader r=f.newSAXParser().getXMLReader();
     r.setDTDHandler(p);
     r.setContentHandler(p);
     r.setProperty("http://xml.org/sax/properties/lexical-handler",p);
