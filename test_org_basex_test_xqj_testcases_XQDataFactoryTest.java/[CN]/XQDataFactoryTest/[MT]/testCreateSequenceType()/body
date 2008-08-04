@@ -1,0 +1,41 @@
+{
+  XQSequenceType xqtype=null;
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createSequenceType(xqc.createElementType(new QName("e"),XQItemType.XQBASETYPE_UNTYPED),XQSequenceType.OCC_EXACTLY_ONE);
+    fail("A-XQDF-1.1: createSequenceType() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createSequenceType(xqc.createElementType(new QName("e"),XQItemType.XQBASETYPE_UNTYPED),XQSequenceType.OCC_EMPTY);
+    fail("A-XQDF-11.1: item type parameter of createSequenceType() must be null with occurrence indicator empty.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createSequenceType(null,XQSequenceType.OCC_EXACTLY_ONE);
+    fail("A-XQDF-11.2: item type parameter of createSequenceType() must be not null with occurrence indicator different from empty.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createSequenceType(xqc.createElementType(new QName("e"),XQItemType.XQBASETYPE_UNTYPED),777);
+    fail("A-XQDF-11.3: createSequenceType() detects invalid occurrence indicator.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqtype=xqc.createSequenceType(xqc.createElementType(new QName("e"),XQItemType.XQBASETYPE_INTEGER),XQSequenceType.OCC_ONE_OR_MORE);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-11.4: createSequenceType() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-11.4: Successful createSequenceType.",XQItemType.XQITEMKIND_ELEMENT,xqtype.getItemType().getItemKind());
+  assertEquals("A-XQDF-11.4: Successful createSequenceType.",XQItemType.XQBASETYPE_INTEGER,xqtype.getItemType().getBaseType());
+  assertEquals("A-XQDF-11.4: Successful createSequenceType.",XQItemType.OCC_ONE_OR_MORE,xqtype.getItemOccurrence());
+  assertEquals("A-XQDF-11.4: Successful createSequenceType.",new QName("e"),xqtype.getItemType().getNodeName());
+  assertEquals("A-XQDF-11.4: Successful createSequenceType.","http://www.w3.org/2001/XMLSchema",xqtype.getItemType().getTypeName().getNamespaceURI());
+  assertEquals("A-XQDF-11.4: Successful createSequenceType.","integer",xqtype.getItemType().getTypeName().getLocalPart());
+}

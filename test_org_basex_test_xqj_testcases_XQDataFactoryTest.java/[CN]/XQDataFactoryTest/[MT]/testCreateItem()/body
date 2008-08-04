@@ -1,0 +1,25 @@
+{
+  XQItem xqi=xqc.createItemFromString("Hello world!",null);
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createItem(xqi);
+    fail("A-XQDF-1.1: createItem() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItem(null);
+    fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  XQItem xqresult=null;
+  try {
+    xqresult=xqc.createItem(xqi);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.7: createItem() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.7: Successful createItem().","Hello world!",xqresult.getItemAsString(null));
+}

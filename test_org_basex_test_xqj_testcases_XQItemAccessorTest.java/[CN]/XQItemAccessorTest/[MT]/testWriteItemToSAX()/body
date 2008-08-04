@@ -1,0 +1,67 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  try {
+    xqs.writeItemToSAX(new DefaultHandler());
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.writeItemToSAX(new DefaultHandler());
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.writeItemToSAX(new DefaultHandler());
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e a='Hello world!'/>/@*");
+  xqs.next();
+  try {
+    xqs.writeItemToSAX(new DefaultHandler());
+    fail("A-XQIA-8.1: serialization process fails when sequence contains a top-level attribute");
+  }
+ catch (  XQException xq) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  try {
+    xqs.writeItemToSAX((ContentHandler)null);
+    fail("A-XQIA-11.3: writeItem accepts a null buffer as first argument");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  TestContentHandler result=new TestContentHandler();
+  try {
+    xqs.writeItemToSAX(result);
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-11.1: writeItem failed with message: " + e.getMessage());
+  }
+  assertTrue("A-XQIA-11.1: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result.buffer.toString() + "'",result.buffer.toString().indexOf("<e>Hello world!</e>") != -1);
+  xqe.close();
+}

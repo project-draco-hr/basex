@@ -1,0 +1,60 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  boolean b=false;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2");
+  try {
+    xqs.previous();
+    fail("A-XQS-1.1: SCROLLTYPE_FORWARD_ONLY sequence supports previous()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2");
+  xqs.close();
+  try {
+    xqs.previous();
+    fail("A-XQS-1.2: closed sequence supports previous()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2");
+  xqs.afterLast();
+  try {
+    b=xqs.previous();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-19.1: previous() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-19.1: previous() failed",true,b);
+  assertEquals("A-XQS-19.1: previous() failed",2,xqs.getInt());
+  try {
+    b=xqs.previous();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-19.1: previous() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-19.1: previous() failed",true,b);
+  assertEquals("A-XQS-19.1: previous() failed",1,xqs.getInt());
+  try {
+    b=xqs.previous();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-19.2: previous() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-19.2: previous() failed",false,b);
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("()");
+  xqs.afterLast();
+  b=xqs.previous();
+  assertEquals("previous() failed",false,b);
+  xqe.close();
+}

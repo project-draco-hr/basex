@@ -1,0 +1,58 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  try {
+    xqs.isAfterLast();
+    fail("A-XQS-13.1: SCROLLTYPE_FORWARD_ONLY sequence supports isAfterLast()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  xqs.close();
+  try {
+    xqs.isAfterLast();
+    fail("A-XQS-1.2: closed sequence supports isAfterLast()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  try {
+    assertEquals("A-XQS-13.3: isAfterLast() failed when before first item",false,xqs.isAfterLast());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-13.3: isAfterLast() failed with message: " + e.getMessage());
+  }
+  xqs.next();
+  try {
+    assertEquals("A-XQS-13.3: isAfterLast() failed when on item",false,xqs.isAfterLast());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-13.3: isAfterLast() failed with message: " + e.getMessage());
+  }
+  xqs.next();
+  try {
+    assertEquals("A-XQS-13.2: isAfterLast() failed when after last item",true,xqs.isAfterLast());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-13.2: isAfterLast() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("()");
+  try {
+    assertEquals("A-XQS-13.3: isAfterLast() failed in case of empty sequence",false,xqs.isAfterLast());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-13.4: isAfterLast() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

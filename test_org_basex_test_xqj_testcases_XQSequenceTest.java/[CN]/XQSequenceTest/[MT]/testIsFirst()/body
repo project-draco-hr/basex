@@ -1,0 +1,49 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  try {
+    xqs.isFirst();
+    fail("A-XQS-15.1: SCROLLTYPE_FORWARD_ONLY sequence supports isFirst()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  xqs.close();
+  try {
+    xqs.isFirst();
+    fail("A-XQS-1.2: closed sequence supports isFirst()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  try {
+    assertEquals("A-XQS-15.3: isFirst() failed when before first item",false,xqs.isFirst());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-15.3: isFirst() failed with message: " + e.getMessage());
+  }
+  xqs.next();
+  try {
+    assertEquals("A-XQS-15.2: isFirst() failed when on item",true,xqs.isFirst());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-15.2: isFirst() failed with message: " + e.getMessage());
+  }
+  xqs.next();
+  try {
+    assertEquals("A-XQS-15.3: isFirst() failed when after last item",false,xqs.isFirst());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-15.3: isFirst() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

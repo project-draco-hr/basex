@@ -1,0 +1,14 @@
+{
+  check();
+  final XQContext ctx=query.ctx;
+  ctx.ns=sc.ns;
+  try {
+    query.create();
+    Iter iter=ctx.compile(sc.ctx.current()).iter();
+    if (sc.scrollable && !(iter instanceof SeqIter))     iter=new SeqIter(iter);
+    return new BXQSequence(iter,ctx,this,sc,(BXQConnection)par);
+  }
+ catch (  final QueryException ex) {
+    throw new XQQueryException(ex.getMessage());
+  }
+}

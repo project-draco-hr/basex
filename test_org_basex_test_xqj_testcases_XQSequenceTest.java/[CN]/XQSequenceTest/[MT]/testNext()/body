@@ -1,0 +1,46 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  boolean b=false;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2");
+  xqs.close();
+  try {
+    xqs.next();
+    fail("A-XQS-1.2: closed sequence supports last()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2");
+  try {
+    b=xqs.next();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-18.1: next() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-18.1: next() failed",true,b);
+  assertEquals("A-XQS-18.1: next() failed",1,xqs.getInt());
+  try {
+    b=xqs.next();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-18.1: next() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-18.1: next() failed",true,b);
+  assertEquals("A-XQS-18.1: next() failed",2,xqs.getInt());
+  try {
+    b=xqs.next();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-18.2: next() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-18.2: next() failed",false,b);
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("()");
+  b=xqs.next();
+  assertEquals("next() failed",false,b);
+  xqe.close();
+}

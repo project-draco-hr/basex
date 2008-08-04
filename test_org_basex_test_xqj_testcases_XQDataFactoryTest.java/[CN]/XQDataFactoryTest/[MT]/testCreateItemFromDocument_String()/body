@@ -1,0 +1,36 @@
+{
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createItemFromDocument("<e>Hello world!</e>",null,null);
+    fail("A-XQDF-1.1: createItemFromDocument() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument((String)null,null,null);
+    fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument("<e>Hello world!</e>",null,xqc.createAtomicType(XQItemType.XQBASETYPE_BOOLEAN));
+    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument("<e>",null,null);
+    fail("A-XQDF-1.4: The conversion of the value to an XDM instance must fail.");
+  }
+ catch (  XQException e) {
+  }
+  XQItem xqi=null;
+  try {
+    xqi=xqc.createItemFromDocument("<e>Hello world!</e>",null,null);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.","<e>Hello world!</e>",xqi.getItemAsString(null));
+}

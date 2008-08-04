@@ -1,0 +1,28 @@
+{
+  XQExpression xqe;
+  xqe=xqc.createExpression();
+  xqe.close();
+  try {
+    xqe.setImplicitTimeZone(new SimpleTimeZone(-28800000,"America/Los_Angeles"));
+    fail("A-XQDC-1.1: setImplicitTimeZone() throws an XQException when the dynamic context is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  xqe=xqc.createExpression();
+  xqe.close();
+  try {
+    xqe.setImplicitTimeZone(null);
+    fail("A-XQDC-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  xqe=xqc.createExpression();
+  try {
+    xqe.setImplicitTimeZone(new SimpleTimeZone(-28800000,"America/Los_Angeles"));
+  }
+ catch (  XQException e) {
+    fail("A-XQDC-2.1: setImplicitTimeZone() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDC-2.1: setImplicitTimeZone() sets the timezone for this dynamic context.",new SimpleTimeZone(-28800000,"America/Los_Angeles"),xqe.getImplicitTimeZone());
+  xqe.close();
+}

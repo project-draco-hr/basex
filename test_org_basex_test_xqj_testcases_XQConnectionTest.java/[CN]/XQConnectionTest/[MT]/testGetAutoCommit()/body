@@ -1,0 +1,30 @@
+{
+  if (xqc.getMetaData().isTransactionSupported()) {
+    XQConnection my_xqc;
+    my_xqc=xqds.getConnection();
+    my_xqc.close();
+    try {
+      my_xqc.getAutoCommit();
+      fail("A-XQC-3.1: closed connection supports getAutoCommit()");
+    }
+ catch (    XQException e) {
+    }
+    boolean mode=false;
+    try {
+      mode=xqc.getAutoCommit();
+    }
+ catch (    XQException e) {
+      fail("A-XQC-3.2: getAutoCommit() failed with message: " + e.getMessage());
+    }
+    assertTrue("A-XQC-3.2: The default auto commit mode is true.",mode);
+    mode=true;
+    try {
+      xqc.setAutoCommit(false);
+      mode=xqc.getAutoCommit();
+    }
+ catch (    XQException e) {
+      fail("A-XQC-3.3: Retrieve the auto commit mode failed with message: " + e.getMessage());
+    }
+    assertFalse("A-XQC-3.3: Successfully retrieve the auto commit mode.",mode);
+  }
+}

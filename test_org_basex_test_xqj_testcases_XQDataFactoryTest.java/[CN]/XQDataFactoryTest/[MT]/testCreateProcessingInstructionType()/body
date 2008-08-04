@@ -1,0 +1,29 @@
+{
+  XQItemType xqtype=null;
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createProcessingInstructionType(null);
+    fail("A-XQDF-1.1: createProcessingInstructionType() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqtype=xqc.createProcessingInstructionType(null);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-9.1: createProcessingInstructionType() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-9.1: Successful createProcessingInstructionType.",XQItemType.XQITEMKIND_PI,xqtype.getItemKind());
+  assertEquals("A-XQDF-9.1: Successful createProcessingInstructionType.",(String)null,xqtype.getPIName());
+  assertEquals("A-XQDF-9.1: Successful createProcessingInstructionType.",XQItemType.OCC_EXACTLY_ONE,xqtype.getItemOccurrence());
+  try {
+    xqtype=xqc.createProcessingInstructionType("Hello");
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-9.1: createProcessingInstructionType() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-9.1: Successful createProcessingInstructionType.",XQItemType.XQITEMKIND_PI,xqtype.getItemKind());
+  assertEquals("A-XQDF-9.1: Successful createProcessingInstructionType.","Hello",xqtype.getPIName());
+  assertEquals("A-XQDF-9.1: Successful createProcessingInstructionType.",XQItemType.OCC_EXACTLY_ONE,xqtype.getItemOccurrence());
+}

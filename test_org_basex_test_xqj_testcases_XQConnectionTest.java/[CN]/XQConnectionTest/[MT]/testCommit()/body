@@ -1,0 +1,26 @@
+{
+  if (xqc.getMetaData().isTransactionSupported()) {
+    XQConnection my_xqc;
+    my_xqc=xqds.getConnection();
+    my_xqc.close();
+    try {
+      my_xqc.commit();
+      fail("A-XQC-4.1: closed connection supports commit()");
+    }
+ catch (    XQException e) {
+    }
+    try {
+      xqc.commit();
+      fail("A-XQC-4.2: commit() on a connection in auto commit mode must fail");
+    }
+ catch (    XQException e) {
+    }
+    try {
+      xqc.setAutoCommit(false);
+      xqc.commit();
+    }
+ catch (    XQException e) {
+      fail("A-XQC-4.3: commit() failed with message: " + e.getMessage());
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  Object object=null;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>");
+  try {
+    xqs.getObject();
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getObject();
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.getObject();
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>, 'Hello world!'");
+  xqs.next();
+  try {
+    object=xqs.getObject();
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-4.1: getObject on element() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQIA-4.1: getObject on element() failed",true,object instanceof org.w3c.dom.Element);
+  assertEquals("A-XQIA-4.1: getObject on element() failed","e",((org.w3c.dom.Node)object).getLocalName());
+  xqs.next();
+  try {
+    object=xqs.getObject();
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-4.1: getObject on xs:string failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQIA-4.1: getObject on xs:string failed",true,object instanceof String);
+  assertEquals("A-XQIA-4.1: getObject on xs:string failed","Hello world!",(String)object);
+  xqe.close();
+}

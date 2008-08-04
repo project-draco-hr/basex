@@ -1,0 +1,37 @@
+{
+  XQConnection my_xqc;
+  my_xqc=xqds.getConnection();
+  my_xqc.close();
+  try {
+    my_xqc.prepareExpression(new ByteArrayInputStream("'Hello world!'".getBytes("UTF-8")));
+    fail("A-XQC-8.1: closed connection supports preparing expressions");
+  }
+ catch (  XQException e) {
+  }
+  XQPreparedExpression xqpe;
+  try {
+    xqpe=xqc.prepareExpression((InputStream)null);
+    xqpe.close();
+    fail("A-XQC-8.6: prepareExpression() with a null xquery argument must throw an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqpe=xqc.prepareExpression(new ByteArrayInputStream("'Hello world!'".getBytes("UTF-8")));
+    xqpe.close();
+  }
+ catch (  XQException e) {
+    fail("A-XQC-8.2: preparing an expression failed with message: " + e.getMessage());
+  }
+  try {
+    XQStaticContext xqsc=xqc.getStaticContext();
+    xqsc.declareNamespace("foo","http://www.foo.com");
+    xqc.setStaticContext(xqsc);
+    xqpe=xqc.prepareExpression(new ByteArrayInputStream("<foo:e/>".getBytes("UTF-8")));
+    xqpe.executeQuery();
+    xqpe.close();
+  }
+ catch (  XQException e) {
+    fail("A-XQC-8.3: Failed to copy the default static context with message: " + e.getMessage());
+  }
+}

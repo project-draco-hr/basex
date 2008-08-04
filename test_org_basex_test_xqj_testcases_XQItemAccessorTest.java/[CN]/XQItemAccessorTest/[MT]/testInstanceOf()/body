@@ -1,0 +1,44 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  XQItemType xqstringtype;
+  XQItemType xqinttype;
+  xqstringtype=xqc.createAtomicType(XQItemType.XQBASETYPE_STRING);
+  xqinttype=xqc.createAtomicType(XQItemType.XQBASETYPE_INT);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'1'");
+  try {
+    xqs.instanceOf(xqstringtype);
+    fail("A-XQIA-7.1: instanceOf() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'1'");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.instanceOf(xqstringtype);
+    fail("A-XQIA-7.2: closed item accessor supports instanceOf()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'Hello world!'");
+  xqs.next();
+  try {
+    assertEquals("A-XQIA-7.3: instanceOf failed",true,xqs.instanceOf(xqstringtype));
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-7.3: instanceOf() failed with message: " + e.getMessage());
+  }
+  try {
+    assertEquals("A-XQIA-7.4: instanceOf failed",false,xqs.instanceOf(xqinttype));
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-7.4: instanceOf() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

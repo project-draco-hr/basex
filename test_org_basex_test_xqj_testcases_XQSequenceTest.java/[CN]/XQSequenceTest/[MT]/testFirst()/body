@@ -1,0 +1,48 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  boolean b=false;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    xqs.first();
+    fail("A-XQS-1.1: SCROLLTYPE_FORWARD_ONLY sequence supports first()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.close();
+  try {
+    xqs.first();
+    fail("A-XQS-1.2: closed sequence supports first()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.first();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-11.1: first() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-11.1: first() failed",true,b);
+  assertEquals("A-XQS-11.1: first() failed",1,xqs.getInt());
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("()");
+  try {
+    b=xqs.first();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-11.2: first() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-11.2: first() failed",false,b);
+  xqe.close();
+}

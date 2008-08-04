@@ -1,0 +1,24 @@
+{
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createItemFromBoolean(true,null);
+    fail("A-XQDF-1.1: createItemFromBoolean() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromBoolean(true,xqc.createCommentType());
+    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+  }
+ catch (  XQException e) {
+  }
+  XQItem xqi=null;
+  try {
+    xqi=xqc.createItemFromBoolean(true,xqc.createAtomicType(XQItemType.XQBASETYPE_BOOLEAN));
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createItemFromBoolean() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.","true",xqi.getItemAsString(null));
+}

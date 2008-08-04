@@ -1,0 +1,55 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'1'");
+  xqs.next();
+  try {
+    xqs.getDouble();
+    fail("A-XQIA-1.1: conversion to double should fail");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:double('1')");
+  try {
+    xqs.getDouble();
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:double('1')");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getDouble();
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:double('1')");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.getDouble();
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:double('1')");
+  xqs.next();
+  try {
+    assertEquals("A-XQIA-1.6: getDouble on xs:double failed",1E0,xqs.getDouble(),0);
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-1.6:  getDouble on xs:double failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

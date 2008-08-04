@@ -1,0 +1,43 @@
+{
+  XQStaticContext xqsc=xqc.getStaticContext();
+  try {
+    xqsc.declareNamespace("p",null);
+    fail("A-XQSC-3.1: declareNamespace() with null argument must throw an XQException.");
+  }
+ catch (  XQException e) {
+  }
+catch (  Exception other_e) {
+    fail("A-XQSC-3.1: declareNamespace() with null argument must throw an XQException.");
+  }
+  try {
+    xqsc.declareNamespace("p","http://www.xqj.org");
+  }
+ catch (  XQException e) {
+    fail("A-XQSC-3.2: declareNamespace() failed with message: " + e.getMessage());
+  }
+  String[] prefixes=xqsc.getNamespacePrefixes();
+  boolean found=false;
+  for (int i=0; i < prefixes.length && !found; i++) {
+    found="p".equals(prefixes[i]);
+  }
+  assertTrue("A-XQSC-3.2: Successfully declare a namespace.",found);
+  assertEquals("A-XQSC-3.2: Successfully declare a namespace.","http://www.xqj.org",xqsc.getNamespaceURI("p"));
+  try {
+    xqsc.declareNamespace("p","");
+  }
+ catch (  XQException e) {
+    fail("A-XQSC-3.3: declareNamespace() failed with message: " + e.getMessage());
+  }
+  prefixes=xqsc.getNamespacePrefixes();
+  found=false;
+  for (int i=0; i < prefixes.length && !found; i++) {
+    found="p".equals(prefixes[i]);
+  }
+  assertFalse("A-XQSC-3.2: Successfully undeclare a namespace.",found);
+  try {
+    xqsc.getNamespaceURI("p");
+    fail("A-XQSC-3.2: Successfully undeclare a namespace.");
+  }
+ catch (  XQException e) {
+  }
+}

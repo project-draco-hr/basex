@@ -1,0 +1,26 @@
+{
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createItemFromDouble(1d,null);
+    fail("A-XQDF-1.1: createItemFromDouble() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDouble(1d,xqc.createCommentType());
+    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+  }
+ catch (  XQException e) {
+  }
+  XQItem xqi=null;
+  try {
+    xqi=xqc.createItemFromDouble(1d,xqc.createAtomicType(XQItemType.XQBASETYPE_DOUBLE));
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createItemFromDouble() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.",XQItemType.XQITEMKIND_ATOMIC,xqi.getItemType().getItemKind());
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.",XQItemType.XQBASETYPE_DOUBLE,xqi.getItemType().getBaseType());
+  assertTrue("A-XQDF-1.5: Successful createItemFromXXX.",1d == xqi.getDouble());
+}

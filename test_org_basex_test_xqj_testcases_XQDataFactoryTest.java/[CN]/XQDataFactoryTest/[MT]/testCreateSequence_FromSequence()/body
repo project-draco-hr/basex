@@ -1,0 +1,28 @@
+{
+  XQSequence xqs;
+  XQPreparedExpression xqpe=xqc.prepareExpression("'Hello world!'");
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  xqs=xqpe.executeQuery();
+  try {
+    xqdf.createSequence(xqs);
+    fail("A-XQDF-1.1: createItem() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqdf.createSequence((XQSequence)null);
+    fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  XQSequence xqsresult=null;
+  try {
+    xqsresult=xqc.createSequence(xqs);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createSequence() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createSequence.","Hello world!",xqsresult.getSequenceAsString(null));
+  xqpe.close();
+}

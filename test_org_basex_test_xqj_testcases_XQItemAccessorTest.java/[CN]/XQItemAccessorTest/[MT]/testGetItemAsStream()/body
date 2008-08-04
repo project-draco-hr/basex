@@ -1,0 +1,70 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  XMLStreamReader xmlReader=null;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  try {
+    xqs.getItemAsStream();
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getItemAsStream();
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.getItemAsStream();
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e a='Hello world!'/>/@*");
+  xqs.next();
+  try {
+    xmlReader=xqs.getItemAsStream();
+    while (xmlReader.hasNext())     xmlReader.next();
+    fail("A-XQIA-8.1: serialization process fails when sequence contains a top-level attribute");
+  }
+ catch (  XQException xq) {
+  }
+catch (  XMLStreamException xml) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  try {
+    xmlReader=xqs.getItemAsStream();
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-9.1: getItemAsStream failed with message: " + e.getMessage());
+  }
+  try {
+    assertNotNull("A-XQIA-9.1: getItemAsStream returned a null XMLStreamReader",xmlReader);
+    assertEquals("A-XQIA-9.1: unexpected first event returned by XMLStreamReader",XMLStreamReader.START_DOCUMENT,xmlReader.getEventType());
+    assertEquals("A-XQIA-9.1: unexpected second event returned by XMLStreamReader",XMLStreamReader.START_ELEMENT,xmlReader.next());
+    assertEquals("A-XQIA-9.1: unexpected third event returned by XMLStreamReader",XMLStreamReader.CHARACTERS,xmlReader.next());
+    assertEquals("A-XQIA-9.1: unexpected fourth event returned by XMLStreamReader",XMLStreamReader.END_ELEMENT,xmlReader.next());
+    assertEquals("A-XQIA-9.1: unexpected fifth event returned by XMLStreamReader",XMLStreamReader.END_DOCUMENT,xmlReader.next());
+  }
+ catch (  XMLStreamException e) {
+    fail("A-XQIA-9.1: XMLStreamReader.next() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

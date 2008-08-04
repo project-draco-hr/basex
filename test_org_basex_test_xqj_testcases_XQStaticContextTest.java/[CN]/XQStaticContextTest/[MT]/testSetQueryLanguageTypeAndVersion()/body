@@ -1,0 +1,30 @@
+{
+  XQStaticContext xqsc=xqc.getStaticContext();
+  try {
+    xqsc.setQueryLanguageTypeAndVersion(999);
+    fail("A-XQSC-31.1: setQueryLanguageTypeAndVersion() with invalid argument must throw an XQException.");
+  }
+ catch (  XQException e) {
+  }
+catch (  Exception other_e) {
+    fail("A-XQSC-31.1: setQueryLanguageTypeAndVersion() with invalid argument must throw an XQException.");
+  }
+  try {
+    xqsc.setQueryLanguageTypeAndVersion(XQConstants.LANGTYPE_XQUERY);
+  }
+ catch (  XQException e) {
+    fail("A-XQSC-31.2: setQueryLanguageTypeAndVersion() failed with message: " + e.getMessage());
+  }
+  int lang=xqsc.getQueryLanguageTypeAndVersion();
+  assertEquals("A-XQSC-31.2: Successfully set the query language.",XQConstants.LANGTYPE_XQUERY,lang);
+  if (xqc.getMetaData().isXQueryXSupported()) {
+    try {
+      xqsc.setQueryLanguageTypeAndVersion(XQConstants.LANGTYPE_XQUERYX);
+    }
+ catch (    XQException e) {
+      fail("A-XQSC-31.2: setQueryLanguageTypeAndVersion() failed with message: " + e.getMessage());
+    }
+    lang=xqsc.getQueryLanguageTypeAndVersion();
+    assertEquals("A-XQSC-31.2: Successfully set the query language.",XQConstants.LANGTYPE_XQUERYX,lang);
+  }
+}

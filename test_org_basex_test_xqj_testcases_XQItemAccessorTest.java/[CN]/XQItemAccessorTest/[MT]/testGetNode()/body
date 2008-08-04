@@ -1,0 +1,67 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  org.w3c.dom.Node node=null;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'1'");
+  xqs.next();
+  try {
+    xqs.getNode();
+    fail("A-XQIA-1.1: conversion to org.w3c.dom.Node should fail");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>");
+  try {
+    xqs.getNode();
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getNode();
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.getNode();
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e/>, <e a=''/>/@*");
+  xqs.next();
+  try {
+    node=xqs.getNode();
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-3.1: getNode on element() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQIA-3.1: getNode on element() failed",true,node instanceof org.w3c.dom.Element);
+  assertEquals("A-XQIA-3.1: getNode on element() failed","e",node.getLocalName());
+  xqs.next();
+  try {
+    node=xqs.getNode();
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-3.1: getNode on attribute() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQIA-3.1: getNode on attribute() failed",true,node instanceof org.w3c.dom.Attr);
+  assertEquals("A-XQIA-3.1: getNode on attribute() failed","a",node.getLocalName());
+  xqe.close();
+}

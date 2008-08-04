@@ -1,0 +1,39 @@
+{
+  XQPreparedExpression xqpe;
+  XQSequenceType xqtype=null;
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  xqpe.close();
+  try {
+    xqpe.getStaticVariableType(new QName("v"));
+    junit.framework.Assert.fail("A-XQPE-6.1: closed prepared expression supports getStaticVariableType()");
+  }
+ catch (  XQException e) {
+  }
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.getStaticVariableType(new QName("foo"));
+    junit.framework.Assert.fail("A-XQPE-6.2: getStaticVariableType() specifying undeclared variable");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.getStaticVariableType(null);
+    junit.framework.Assert.fail("A-XQPE-6.3: getStaticVariableType() specifying null");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqtype=xqpe.getStaticVariableType(new QName("v"));
+  }
+ catch (  XQException e) {
+    junit.framework.Assert.fail("A-XQPE-6.4: getStaticVariableType() failed with message: " + e.getMessage());
+  }
+  junit.framework.Assert.assertNotNull("A-XQPE-6.4: getStaticVariableType() failed",xqtype);
+  junit.framework.Assert.assertEquals("A-XQPE-6.4: getStaticResultType() failed",XQItemType.OCC_ZERO_OR_MORE,xqtype.getItemOccurrence());
+  junit.framework.Assert.assertEquals("A-XQPE-6.4: getStaticResultType() failed",XQItemType.XQITEMKIND_ITEM,xqtype.getItemType().getItemKind());
+  xqpe.close();
+}

@@ -1,0 +1,26 @@
+{
+  if (xqc.getMetaData().isTransactionSupported()) {
+    XQConnection my_xqc;
+    my_xqc=xqds.getConnection();
+    my_xqc.close();
+    try {
+      my_xqc.rollback();
+      fail("A-XQC-9.1: closed connection supports rollback()");
+    }
+ catch (    XQException e) {
+    }
+    try {
+      xqc.rollback();
+      fail("A-XQC-9.2: rollback() on a connection in auto commit mode must fail");
+    }
+ catch (    XQException e) {
+    }
+    try {
+      xqc.setAutoCommit(false);
+      xqc.rollback();
+    }
+ catch (    XQException e) {
+      fail("A-XQC-9.3: rollback() failed with message: " + e.getMessage());
+    }
+  }
+}

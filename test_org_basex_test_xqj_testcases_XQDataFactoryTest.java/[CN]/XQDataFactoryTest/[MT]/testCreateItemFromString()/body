@@ -1,0 +1,45 @@
+{
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createItemFromString("Hello world!",null);
+    fail("A-XQDF-1.1: createItemFromString() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromString(null,null);
+    fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromString("Hello world!",xqc.createCommentType());
+    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromString("123",xqc.createAtomicType(XQItemType.XQBASETYPE_NCNAME));
+    fail("A-XQDF-1.4: The conversion of the value to an XDM instance must fail.");
+  }
+ catch (  XQException e) {
+  }
+  XQItem xqi=null;
+  try {
+    xqi=xqc.createItemFromString("Hello world!",xqc.createAtomicType(XQItemType.XQBASETYPE_STRING));
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createItemFromString() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.","Hello world!",xqi.getItemAsString(null));
+  try {
+    xqi=xqc.createItemFromString("Hello",xqc.createAtomicType(XQItemType.XQBASETYPE_NCNAME));
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createItemFromString() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.",XQItemType.XQITEMKIND_ATOMIC,xqi.getItemType().getItemKind());
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.",XQItemType.XQBASETYPE_NCNAME,xqi.getItemType().getBaseType());
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.","Hello",xqi.getObject());
+}

@@ -1,0 +1,39 @@
+{
+  try {
+    XQConnection my_xqc;
+    my_xqc=xqds.getConnection();
+    XQMetaData my_xqmd=my_xqc.getMetaData();
+    my_xqc.close();
+    my_xqmd.isXQueryXSupported();
+    fail("A-XQMD-1.1: XQMetaData methods throw an XQException when the parent XQConnection object is closed.");
+  }
+ catch (  XQException e) {
+  }
+catch (  Exception other_e) {
+    fail("A-XQMD-1.1: XQMetaData methods throw an XQException when the parent XQConnection object is closed.");
+  }
+  XQMetaData xqmd=xqc.getMetaData();
+  boolean supportsXQueryX=true;
+  try {
+    supportsXQueryX=xqmd.isXQueryXSupported();
+  }
+ catch (  XQException e) {
+    fail("A-XQMD-1.2: XQMetaData method failed with message: " + e.getMessage());
+  }
+  if (supportsXQueryX) {
+    try {
+      String xqueryx="<xqx:module xmlns:xqx='http://www.w3.org/2005/XQueryX'>" + "  <xqx:mainModule>" + "    <xqx:queryBody>"+ "      <xqx:stringConstantExpr>"+ "        <xqx:value>Hello world!</xqx:value>"+ "      </xqx:stringConstantExpr>"+ "    </xqx:queryBody>"+ "  </xqx:mainModule>"+ "</xqx:module>";
+      XQStaticContext xqsc=xqc.getStaticContext();
+      xqsc.setQueryLanguageTypeAndVersion(XQConstants.LANGTYPE_XQUERYX);
+      XQExpression xqe=xqc.createExpression(xqsc);
+      XQSequence xqs=xqe.executeQuery(xqueryx);
+      xqs.next();
+      String s=xqs.getAtomicValue();
+      xqe.close();
+      assertEquals("XQueryX is supported, executing an XQueryX query yields unexpected results.","Hello world!",s);
+    }
+ catch (    XQException e) {
+      fail("A-XQMD-2.1: XQueryX is supported, executing an XQueryX query failed with message: " + e.getMessage());
+    }
+  }
+}

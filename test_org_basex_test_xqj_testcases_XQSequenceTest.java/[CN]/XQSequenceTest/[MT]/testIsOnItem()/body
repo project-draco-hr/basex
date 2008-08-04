@@ -1,0 +1,37 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  xqs.close();
+  try {
+    xqs.isOnItem();
+    fail("A-XQS-1.2: closed sequence supports isOnItem()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  try {
+    assertEquals("A-XQS-9.2: isOnItem() failed when before first item",false,xqs.isOnItem());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-9.2: isOnItem() failed with message: " + e.getMessage());
+  }
+  xqs.next();
+  try {
+    assertEquals("A-XQS-9.1: isOnItem() failed when on item",true,xqs.isOnItem());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-9.1: isOnItem() failed with message: " + e.getMessage());
+  }
+  xqs.next();
+  try {
+    assertEquals("A-XQS-9.2: isOnItem() failed when after last item",false,xqs.isOnItem());
+  }
+ catch (  XQException e) {
+    fail("A-XQS-9.2: isOnItem() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

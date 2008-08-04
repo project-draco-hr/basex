@@ -1,0 +1,23 @@
+{
+  XQPreparedExpression xqpe;
+  XQSequenceType xqtype=null;
+  xqpe=xqc.prepareExpression("'Hello world!'");
+  xqpe.close();
+  try {
+    xqpe.getStaticResultType();
+    junit.framework.Assert.fail("A-XQPE-5.1: closed prepared expression supports getStaticResultType()");
+  }
+ catch (  XQException e) {
+  }
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqtype=xqpe.getStaticResultType();
+  }
+ catch (  XQException e) {
+    junit.framework.Assert.fail("A-XQPE-5.2: getStaticResultType() failed with message: " + e.getMessage());
+  }
+  junit.framework.Assert.assertNotNull("A-XQPE-5.2: getStaticResultType() failed",xqtype);
+  junit.framework.Assert.assertEquals("A-XQPE-5.2: getStaticResultType() failed",XQItemType.OCC_ZERO_OR_MORE,xqtype.getItemOccurrence());
+  junit.framework.Assert.assertEquals("A-XQPE-5.2: getStaticResultType() failed",XQItemType.XQITEMKIND_ITEM,xqtype.getItemType().getItemKind());
+  xqpe.close();
+}

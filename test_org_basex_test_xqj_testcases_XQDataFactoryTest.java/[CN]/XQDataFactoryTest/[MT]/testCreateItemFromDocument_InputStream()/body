@@ -1,0 +1,36 @@
+{
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createItemFromDocument(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?><e>Hello world!</e>".getBytes("UTF-8")),null,null);
+    fail("A-XQDF-1.1: createItemFromDocument() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument((InputStream)null,null,null);
+    fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?><e>Hello world!</e>".getBytes("UTF-8")),null,xqc.createAtomicType(XQItemType.XQBASETYPE_BOOLEAN));
+    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?><e>".getBytes("UTF-8")),null,null);
+    fail("A-XQDF-1.4: The conversion of the value to an XDM instance must fail.");
+  }
+ catch (  XQException e) {
+  }
+  XQItem xqi=null;
+  try {
+    xqi=xqc.createItemFromDocument(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?><e>Hello world!</e>".getBytes("UTF-8")),null,null);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.","<e>Hello world!</e>",xqi.getItemAsString(null));
+}

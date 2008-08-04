@@ -1,0 +1,49 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  XQItemType xqtype;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'1'");
+  try {
+    xqs.getItemType();
+    fail("A-XQIA-6.1: getItemType() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'1'");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getItemType();
+    fail("A-XQIA-6.2: closed item accessor supports getItemType()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'Hello world!'");
+  xqs.next();
+  try {
+    xqtype=xqs.getItemType();
+    assertNotNull("A-XQIA-6.3: getItemType() failed",xqtype);
+    assertEquals("A-XQIA-6.3: getItemType() failed",XQItemType.XQITEMKIND_ATOMIC,xqtype.getItemKind());
+    assertEquals("A-XQIA-6.3: getItemType() failed",XQItemType.XQBASETYPE_STRING,xqtype.getBaseType());
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-6.3: getItemType() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.getItemType();
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-6.4: getItemType() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

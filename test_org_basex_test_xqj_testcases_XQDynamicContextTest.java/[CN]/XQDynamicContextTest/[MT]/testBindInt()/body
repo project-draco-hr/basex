@@ -1,0 +1,75 @@
+{
+  XQPreparedExpression xqpe;
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  xqpe.close();
+  try {
+    xqpe.bindInt(new QName("v"),1,null);
+    fail("A-XQDC-1.1: bindInt() throws an XQException when the dynamic context is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindInt(null,1,null);
+    fail("A-XQDC-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindInt(new QName("v"),1,xqc.createCommentType());
+    fail("A-XQDC-1.3: An invalid type of the value to be bound must fail.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindInt(new QName("v"),128,xqc.createAtomicType(XQItemType.XQBASETYPE_BYTE));
+    xqpe.executeQuery().getSequenceAsString(null);
+    fail("A-XQDC-1.4: The conversion of the value to an XDM instance must fail.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindInt(new QName("foo"),1,null);
+    fail("A-XQDC-1.5: The bound variable must be declared external in the prepared expression.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v as xs:string external; $v");
+  try {
+    xqpe.bindInt(new QName("v"),1,null);
+    xqpe.executeQuery().getSequenceAsString(null);
+    fail("A-XQDC-1.6: The dynamic type of the bound value is not compatible with the static type of the variable and must fail.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindInt(new QName("v"),1,null);
+  }
+ catch (  XQException e) {
+    junit.framework.Assert.fail("A-XQDC-1.7: bindInt() failed with message: " + e.getMessage());
+  }
+  junit.framework.Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.","1",xqpe.executeQuery().getSequenceAsString(null));
+  xqpe.close();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindInt(new QName("v"),1,xqc.createAtomicType(XQItemType.XQBASETYPE_INTEGER));
+  }
+ catch (  XQException e) {
+    junit.framework.Assert.fail("A-XQDC-1.7: bindInt() failed with message: " + e.getMessage());
+  }
+  XQSequence xqs=xqpe.executeQuery();
+  xqs.next();
+  junit.framework.Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.",XQItemType.XQITEMKIND_ATOMIC,xqs.getItemType().getItemKind());
+  junit.framework.Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.",XQItemType.XQBASETYPE_INTEGER,xqs.getItemType().getBaseType());
+  junit.framework.Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.","1",xqs.getAtomicValue());
+  xqpe.close();
+}

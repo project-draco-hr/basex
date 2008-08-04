@@ -1,0 +1,32 @@
+{
+  XQExpression xqe=xqc.createExpression();
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createItemFromDocument(xqe.executeQuery("<e>Hello world!</e>").getSequenceAsStream(),null);
+    fail("A-XQDF-1.1: createItemFromDocument() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument((XMLStreamReader)null,null);
+    fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqc.createItemFromDocument(xqe.executeQuery("<e>Hello world!</e>").getSequenceAsStream(),xqc.createAtomicType(XQItemType.XQBASETYPE_BOOLEAN));
+    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+  }
+ catch (  XQException e) {
+  }
+  XQItem xqi=null;
+  try {
+    xqi=xqc.createItemFromDocument(xqe.executeQuery("<e>Hello world!</e>").getSequenceAsStream(),null);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-1.5: createItemFromDocument() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.","<e>Hello world!</e>",xqi.getItemAsString(null));
+  xqe.close();
+}

@@ -1,0 +1,58 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.next();
+  xqs.getInt();
+  try {
+    xqs.getItem();
+    fail("A-XQS-12.1: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    xqs.getItem();
+    fail("A-XQS-12.2: sequence supports getItem() when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getItem();
+    fail("A-XQS-1.2: closed sequence supports getItem()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.next();
+  try {
+    xqs.getItem();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-12.3: getItem() failed with message: " + e.getMessage());
+  }
+  try {
+    xqs.getItem();
+  }
+ catch (  XQException e) {
+    fail("A-XQS-12.4: SCROLLTYPE_SCROLLABLE sequence doesn't supports getting item twice()");
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.next();
+  assertTrue("A-XQS-12.5: Item must be XQResultItem",xqs.getItem() instanceof XQResultItem);
+}

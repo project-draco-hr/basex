@@ -1,0 +1,39 @@
+{
+  XQItemType xqtype=null;
+  XQConnection xqdf=xqds.getConnection();
+  xqdf.close();
+  try {
+    xqdf.createAtomicType(XQItemType.XQBASETYPE_UNTYPEDATOMIC);
+    fail("A-XQDF-1.1: createAtomicType() throws an XQException when the data factory is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqdf.createAtomicType(XQItemType.XQBASETYPE_UNTYPED);
+    fail("A-XQDF-2.1: createAtomicType() detects invalid xqbasetype arguments.");
+  }
+ catch (  XQException e) {
+  }
+  try {
+    xqtype=xqc.createAtomicType(XQItemType.XQBASETYPE_UNTYPEDATOMIC);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-2.2: createAtomicType() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.",XQItemType.XQITEMKIND_ATOMIC,xqtype.getItemKind());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.",XQItemType.XQBASETYPE_UNTYPEDATOMIC,xqtype.getBaseType());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.",XQItemType.OCC_EXACTLY_ONE,xqtype.getItemOccurrence());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.","http://www.w3.org/2001/XMLSchema",xqtype.getTypeName().getNamespaceURI());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.","untypedAtomic",xqtype.getTypeName().getLocalPart());
+  try {
+    xqtype=xqc.createAtomicType(XQItemType.XQBASETYPE_UNTYPEDATOMIC,new QName("http://www.w3.org/2001/XMLSchema","untypedAtomic"),null);
+  }
+ catch (  XQException e) {
+    fail("A-XQDF-2.2: createAtomicType() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.",XQItemType.XQITEMKIND_ATOMIC,xqtype.getItemKind());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.",XQItemType.XQBASETYPE_UNTYPEDATOMIC,xqtype.getBaseType());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.",XQItemType.OCC_EXACTLY_ONE,xqtype.getItemOccurrence());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.","http://www.w3.org/2001/XMLSchema",xqtype.getTypeName().getNamespaceURI());
+  assertEquals("A-XQDF-2.2: Successful createAtomicType.","untypedAtomic",xqtype.getTypeName().getLocalPart());
+}

@@ -1,0 +1,72 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'1'");
+  xqs.next();
+  try {
+    xqs.getByte();
+    fail("A-XQIA-1.1: conversion to byte should fail");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:byte('1')");
+  try {
+    xqs.getByte();
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:byte('1')");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getByte();
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:byte('1')");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.getByte();
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:decimal('1.1')");
+  xqs.next();
+  try {
+    xqs.getByte();
+    fail("A-XQIA-1.5: getByte on xs:decimal out of value space of byte should fail");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:byte('1'), 10.0");
+  xqs.next();
+  try {
+    assertEquals("A-XQIA-1.6: getByte on xs:byte failed",1,xqs.getByte());
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-1.6: getByte on xs:byte failed with message: " + e.getMessage());
+  }
+  xqs.next();
+  try {
+    assertEquals("A-XQIA-1.6: getByte on xs:decimal failed",10,xqs.getByte());
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-1.6: getByte on xs:decimal failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

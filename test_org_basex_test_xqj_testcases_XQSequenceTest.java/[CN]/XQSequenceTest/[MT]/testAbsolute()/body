@@ -1,0 +1,82 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  boolean b=false;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    xqs.absolute(2);
+    fail("A-XQS-1.1: SCROLLTYPE_FORWARD_ONLY sequence supports absolute()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.close();
+  try {
+    xqs.absolute(2);
+    fail("A-XQS-1.2: closed sequence supports absolute()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.absolute(2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-2.1: absolute() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-2.1: absolute(2) failed",true,b);
+  assertEquals("A-XQS-2.1: absolute(2) failed",2,xqs.getInt());
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.absolute(5);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-2.4: absolute() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-2.4: absolute(5) failed",false,b);
+  assertEquals("A-XQS-2.4: absolute(5) failed",true,xqs.isAfterLast());
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.absolute(0);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-2.3: absolute() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-2.3: absolute(0) failed",false,b);
+  assertEquals("A-XQS-2.3: absolute(0) failed",true,xqs.isBeforeFirst());
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.absolute(-2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-2.2: absolute() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-2.2: absolute(-2) failed",true,b);
+  assertEquals("A-XQS-2.2: absolute(-2) failed",3,xqs.getInt());
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.absolute(-5);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-2.4: absolute() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-2.4: absolute(-5) failed",false,b);
+  assertEquals("A-XQS-2.4: absolute(-5) failed",true,xqs.isBeforeFirst());
+  xqe.close();
+}

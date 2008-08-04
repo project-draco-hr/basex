@@ -1,0 +1,55 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("'true'");
+  xqs.next();
+  try {
+    xqs.getBoolean();
+    fail("A-XQIA-1.1: conversion to boolean should fail");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:boolean('true')");
+  try {
+    xqs.getBoolean();
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:boolean('true')");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.getBoolean();
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:boolean('true')");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.getBoolean();
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("xs:boolean('true')");
+  xqs.next();
+  try {
+    assertEquals("A-XQIA-1.6: getBoolean on xs:boolean failed",true,xqs.getBoolean());
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-1.6: getBoolean on xs:boolean failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

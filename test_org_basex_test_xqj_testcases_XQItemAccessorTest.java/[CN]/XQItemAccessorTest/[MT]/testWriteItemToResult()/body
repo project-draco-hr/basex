@@ -1,0 +1,57 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  try {
+    xqs.writeItemToResult(new StreamResult(new StringWriter()));
+    fail("A-XQIA-1.2: getXXX() should fail when not positioned on an item");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  xqs.close();
+  try {
+    xqs.writeItemToResult(new StreamResult(new StringWriter()));
+    fail("A-XQIA-1.3: closed item accessor supports getXXX()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  xqs.getItem();
+  try {
+    xqs.writeItemToResult(new StreamResult(new StringWriter()));
+    fail("A-XQIA-1.4: SCROLLTYPE_FORWARD_ONLY sequence supports getting item twice()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  try {
+    xqs.writeItemToResult((Result)null);
+    fail("A-XQIA-11.3: writeItemToResult accepts a null buffer as first argument");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("<e>Hello world!</e>");
+  xqs.next();
+  StringWriter result=new StringWriter();
+  try {
+    xqs.writeItemToResult(new StreamResult(result));
+  }
+ catch (  XQException e) {
+    fail("A-XQIA-11.1: writeItemToResult failed with message: " + e.getMessage());
+  }
+  assertTrue("A-XQIA-11.1: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result.toString() + "'",result.toString().indexOf("<e>Hello world!</e>") != -1);
+  xqe.close();
+}

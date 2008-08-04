@@ -1,0 +1,53 @@
+{
+  XQPreparedExpression xqpe;
+  XQExpression xqe=xqc.createExpression();
+  XQSequence xqs=xqc.createSequence(xqe.executeQuery("'Hello world!'"));
+  xqe.close();
+  xqs.beforeFirst();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  xqpe.close();
+  try {
+    xqpe.bindSequence(new QName("v"),xqs);
+    fail("A-XQDC-1.1: bindSequence() throws an XQException when the dynamic context is in closed state.");
+  }
+ catch (  XQException e) {
+  }
+  xqs.beforeFirst();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindSequence(null,xqs);
+    fail("A-XQDC-1.2: null argument is invalid and throws an XQException.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqs.beforeFirst();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindSequence(new QName("foo"),xqs);
+    fail("A-XQDC-1.5: The bound variable must be declared external in the prepared expression.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqs.beforeFirst();
+  xqpe=xqc.prepareExpression("declare variable $v as xs:decimal external; $v");
+  try {
+    xqpe.bindSequence(new QName("v"),xqs);
+    xqpe.executeQuery().getSequenceAsString(null);
+    fail("A-XQDC-1.6: The dynamic type of the bound value is not compatible with the static type of the variable and must fail.");
+  }
+ catch (  XQException e) {
+  }
+  xqpe.close();
+  xqs.beforeFirst();
+  xqpe=xqc.prepareExpression("declare variable $v external; $v");
+  try {
+    xqpe.bindSequence(new QName("v"),xqs);
+  }
+ catch (  XQException e) {
+    fail("A-XQDC-1.7: bindSequence() failed with message: " + e.getMessage());
+  }
+  junit.framework.Assert.assertEquals("A-XQDC-1.7: Successful bindXXX.","Hello world!",xqpe.executeQuery().getSequenceAsString(null));
+  xqpe.close();
+}

@@ -1,0 +1,35 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    xqs.count();
+    fail("A-XQS-7.1: SCROLLTYPE_FORWARD_ONLY sequence supports count()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.close();
+  try {
+    xqs.count();
+    fail("A-XQS-1.2: closed sequence supports count()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    assertEquals("A-XQS-7.2: count() failed",xqs.count(),4);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-7.2: count() failed with message: " + e.getMessage());
+  }
+  xqe.close();
+}

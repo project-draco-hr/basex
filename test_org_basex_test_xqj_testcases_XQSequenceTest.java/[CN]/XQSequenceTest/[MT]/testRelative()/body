@@ -1,0 +1,93 @@
+{
+  XQExpression xqe;
+  XQSequence xqs;
+  boolean b=false;
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    xqs.relative(2);
+    fail("A-XQS-1.1: SCROLLTYPE_FORWARD_ONLY sequence supports relative()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  XQStaticContext xqsc=xqc.getStaticContext();
+  xqsc.setScrollability(XQConstants.SCROLLTYPE_SCROLLABLE);
+  xqc.setStaticContext(xqsc);
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.close();
+  try {
+    xqs.relative(2);
+    fail("A-XQS-1.2: closed sequence supports absolute()");
+  }
+ catch (  XQException e) {
+  }
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.relative(2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-20.1: relative() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-20.1: relative(2) failed",true,b);
+  assertEquals("A-XQS-20.1: relative(2) failed",2,xqs.getInt());
+  try {
+    b=xqs.relative(2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-20.1: relative() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-20.1: relative(2) failed",true,b);
+  assertEquals("A-XQS-20.1: relative(2) failed",4,xqs.getInt());
+  try {
+    b=xqs.relative(2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-20.4: relative() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-20.4: relative(2) failed",false,b);
+  assertEquals("A-XQS-20.4: relative(2) failed",true,xqs.isAfterLast());
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  try {
+    b=xqs.relative(0);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-20.3: relative() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-20.3: relative(0) failed",false,b);
+  assertEquals("A-XQS-20.3: relative(0) failed",true,xqs.isBeforeFirst());
+  xqe.close();
+  xqe=xqc.createExpression();
+  xqs=xqe.executeQuery("1,2,3,4");
+  xqs.afterLast();
+  try {
+    b=xqs.relative(-2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-20.2: relative() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-20.2: relative(-2) failed",true,b);
+  assertEquals("A-XQS-20.2: relative(-2) failed",3,xqs.getInt());
+  try {
+    b=xqs.relative(-2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-20.2: relative() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-20.2: relative(-2) failed",true,b);
+  assertEquals("A-XQS-20.2: relative(-2) failed",1,xqs.getInt());
+  try {
+    b=xqs.relative(-2);
+  }
+ catch (  XQException e) {
+    fail("A-XQS-20.4: relative() failed with message: " + e.getMessage());
+  }
+  assertEquals("A-XQS-20.4: relative(-2) failed",false,b);
+  assertEquals("A-XQS-20.4: relative(-2) failed",true,xqs.isBeforeFirst());
+  xqe.close();
+}
