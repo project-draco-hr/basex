@@ -1,9 +1,15 @@
 {
   final Context ctx=new Context();
   if (uri.startsWith(BASEXDB_URI)) {
-    final String tmp=uri.substring(uri.lastIndexOf('/'));
-    if (new Open(tmp).execute(ctx)) {
-      return new BXCollection(ctx);
+    final String host=uri.substring(BASEXDB_URI.length());
+    if (host.startsWith(LOCALHOST)) {
+      final String tmp=host.substring(LOCALHOST.length());
+      if (new Open(tmp).execute(ctx)) {
+        return new BXCollection(ctx);
+      }
+    }
+ else {
+      throw new XMLDBException(1,"Not implemented yet");
     }
   }
  else {
