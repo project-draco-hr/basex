@@ -28,7 +28,7 @@
       final int n=Token.toInt(line,0,3);
       if (n == 1) {
         if (bibID == null) {
-          bibID=num(line);
+          bibID=string(line);
           mvID=mvids.get(bibID);
           if (mvID == null) {
             mvID=Token.token(++maxid);
@@ -106,14 +106,17 @@
     }
  else {
       byte[][] atts=null;
-      if (sub == 0) {
+      if (sub == 0 || Prop.mab2flat) {
         atts=new byte[][]{MV_ID,mvID,BIB_ID,bibID};
       }
  else {
         atts=new byte[][]{MV_ID,mvID,BIB_ID,bibID,MAX,Token.token(sub)};
       }
-      if (last != null && title != null && !eq(last,title))       title=concat(last,SEMI,title);
-      if (!top || !Prop.mab2flat) {
+      if (last != null) {
+        if (title == null)         title=last;
+ else         if (!eq(last,title))         title=concat(last,SEMI,title);
+      }
+      if (!top || !Prop.mab2flat || sub == 0) {
         builder.startElem(MEDIUM,atts);
         addTag(TYPE,type);
         addTag(LANGUAGE,language);
@@ -137,6 +140,7 @@
         addTag(ISBN,isbn);
         addTag(POSTER,posters.get(bibID));
         addTag(GENRE,genres.get(mvID));
+        if (sub == 0)         builder.endElem(MEDIUM);
       }
       return title;
     }
