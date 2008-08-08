@@ -1,11 +1,11 @@
 {
-  Collection col=null;
+  Collection collection=null;
   try {
     Class<?> c=Class.forName(driver);
     Database database=(Database)c.newInstance();
     DatabaseManager.registerDatabase(database);
-    col=DatabaseManager.getCollection(url);
-    XPathQueryService service=(XPathQueryService)col.getService("XPathQueryService","1.0");
+    collection=DatabaseManager.getCollection(url);
+    XPathQueryService service=(XPathQueryService)collection.getService("XPathQueryService","1.0");
     ResourceSet resultSet=service.query(query);
     ResourceIterator results=resultSet.getIterator();
     while (results.hasMoreResources()) {
@@ -13,7 +13,7 @@
       System.out.println(res.getContent());
     }
     String id="input";
-    XMLResource resource=(XMLResource)col.getResource(id);
+    XMLResource resource=(XMLResource)collection.getResource(id);
     String cont=(String)resource.getContent();
     System.out.println("------XML Document Retrieval------");
     System.out.println(cont);
@@ -25,14 +25,19 @@
     SAXSerializer sax=new SAXSerializer(null);
     ContentHandler handler=sax.getContentHandler();
     resource.getContentAsSAX(handler);
+    Node node=resource.getContentAsDOM();
+    System.out.println("------DOM Node Retrieval------");
+    TransformerFactory.newInstance().newTransformer().transform(new DOMSource(node),new StreamResult(System.out));
+    System.out.println("------DOM Node Retrieval END------");
+    collection.removeResource(collection.getResource(id));
   }
  catch (  XMLDBException e) {
     System.err.println("XML:DB Exception occured " + e.errorCode);
     e.printStackTrace();
   }
  finally {
-    if (col != null) {
-      col.close();
+    if (collection != null) {
+      collection.close();
     }
   }
 }
