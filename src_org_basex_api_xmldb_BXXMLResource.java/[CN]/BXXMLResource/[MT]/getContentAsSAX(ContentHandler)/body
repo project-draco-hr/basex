@@ -1,2 +1,28 @@
 {
+  XMLReader reader=null;
+  SAXParserFactory saxFactory=SAXParserFactory.newInstance();
+  saxFactory.setNamespaceAware(true);
+  saxFactory.setValidating(false);
+  try {
+    SAXParser sax=saxFactory.newSAXParser();
+    reader=sax.getXMLReader();
+  }
+ catch (  ParserConfigurationException pce) {
+    throw new XMLDBException(1,pce.getMessage());
+  }
+catch (  SAXException saxe) {
+    saxe.printStackTrace();
+    throw new XMLDBException(1,saxe.getMessage());
+  }
+  try {
+    reader.setContentHandler(handler);
+    reader.parse(new InputSource(new FileInputStream(new File(ctx.data().meta.file.toString()))));
+  }
+ catch (  SAXException saxe) {
+    saxe.printStackTrace();
+    throw new XMLDBException(1,saxe.getMessage());
+  }
+catch (  IOException ioe) {
+    throw new XMLDBException(1,ioe.getMessage());
+  }
 }

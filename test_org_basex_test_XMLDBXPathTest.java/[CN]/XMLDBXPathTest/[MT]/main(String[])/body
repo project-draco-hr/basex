@@ -14,11 +14,17 @@
     }
     String id="input";
     XMLResource resource=(XMLResource)col.getResource(id);
-    String doc=(String)resource.getContent();
-    System.out.println(doc);
-    XMLResource resource2=(XMLResource)col.getResource(id);
-    Document doc2=(Document)resource2.getContentAsDOM();
-    System.out.println(doc2);
+    String cont=(String)resource.getContent();
+    System.out.println("------XML Document Retrieval------");
+    System.out.println(cont);
+    System.out.println("------XML Document Retrieval END------");
+    Document doc=(Document)resource.getContentAsDOM();
+    System.out.println("------DOC Document Retrieval------");
+    TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc),new StreamResult(System.out));
+    System.out.println("------DOC Document Retrieval END------");
+    SAXSerializer sax=new SAXSerializer(null);
+    ContentHandler handler=sax.getContentHandler();
+    resource.getContentAsSAX(handler);
   }
  catch (  XMLDBException e) {
     System.err.println("XML:DB Exception occured " + e.errorCode);
