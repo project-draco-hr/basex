@@ -5,8 +5,9 @@
     final DataInputStream dis=new DataInputStream(s.getInputStream());
     final String in=dis.readUTF().trim();
     final InetAddress addr=s.getInetAddress();
-    final String ip=addr.toString();
-    if (verbose)     BaseX.outln("[%:%] %",addr.getHostAddress(),s.getPort(),in);
+    final String ha=addr.getHostAddress();
+    final int sp=s.getPort();
+    if (verbose)     BaseX.outln("[%:%] %",ha,sp,in);
     Process pr=null;
     try {
       pr=new CommandParser(in).parse()[0];
@@ -21,17 +22,18 @@
     final Process proc=pr;
     if (proc instanceof Exit) {
       s.getOutputStream().write(1);
-      for (int p=0; p < MAX; p++)       if (corc[p] != null)       corc[p].stop();
+      for (      final BaseXSession ss : sess)       ss.core.stop();
       running=false;
       return;
     }
-    new Thread(){
-      @Override public void run(){
+    new Action(){
+      public void run(){
         try {
           if (proc instanceof GetResult || proc instanceof GetInfo) {
             final OutputStream os=s.getOutputStream();
             final PrintOutput out=new PrintOutput(new BufferedOutput(os));
-            final Process c=session(ip);
+            final int id=Math.abs(Integer.parseInt(proc.args().trim()));
+            final Process c=get(id);
             if (c == null) {
               out.print(SERVERFULL);
             }
@@ -44,18 +46,9 @@
             out.close();
           }
  else {
-            boolean ok=save(proc,ip);
-            if (ok) {
-              ok=proc.execute(context);
-              if (!ok && verbose) {
-                final PrintOutput o=new ConsoleOutput(System.err);
-                proc.info(o);
-                o.close();
-              }
-            }
-            final OutputStream out=s.getOutputStream();
-            out.write(ok ? 1 : 0);
-            out.close();
+            add(new BaseXSession(sp,System.nanoTime(),proc));
+            final boolean ok=proc.execute(context);
+            new DataOutputStream(s.getOutputStream()).writeInt(ok ? sp : -sp);
           }
           dis.close();
         }
@@ -63,10 +56,10 @@
           if (ex instanceof IOException)           BaseX.errln(SERVERERR);
  else           ex.printStackTrace();
         }
-        if (verbose)         BaseX.outln("[%:%] %",addr.getHostAddress(),s.getPort(),perf.getTimer());
+        if (verbose)         BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
       }
     }
-.start();
+.execute();
   }
  catch (  final Exception ex) {
     if (ex instanceof IOException)     BaseX.errln(SERVERERR);

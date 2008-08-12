@@ -7,16 +7,14 @@
   button=y < ww || y > hh - ww;
   if (sliding)   dragPos=barPos - y;
   if (sliding || animated)   return;
-  new Thread(){
-    @Override public void run(){
+  new Action(){
+    public void run(){
       animated=moving;
       while (animated) {
         if (moving)         step=Math.max(0,Math.min(STEPS.length - 1,step + (down ? 1 : -1)));
  else         step+=step < STEPS.length / 2 ? 1 : -1;
         int offset=STEPS[step];
-        if (!button) {
-          offset=offset * hh / MAXSTEP / 4;
-        }
+        if (!button)         offset=offset * hh / MAXSTEP / 4;
         pos=Math.max(0,Math.min(height - hh,pos + offset));
         comp.repaint();
         Performance.sleep(25);
@@ -30,5 +28,5 @@
       }
     }
   }
-.start();
+.execute();
 }

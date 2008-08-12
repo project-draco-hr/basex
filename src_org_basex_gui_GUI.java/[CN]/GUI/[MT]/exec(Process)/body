@@ -7,7 +7,6 @@
   }
   cursor(CURSORWAIT);
   try {
-    if (obsolete(thread,pr))     return true;
     if (pr.updating())     View.working=true;
     final Performance perf=new Performance();
     final Nodes current=context.current();
@@ -19,7 +18,6 @@
       return false;
     }
     if (pr.updating())     View.working=false;
-    if (obsolete(thread,pr))     return true;
     final Result result=pr.result();
     final Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
     final String inf=pr.info();
@@ -41,9 +39,9 @@
       proc=null;
       return false;
     }
-    if (obsolete(thread,pr))     return true;
-    final String time=perf.getTimer();
     final Data ndata=context.data();
+    final String time=perf.getTimer();
+    Nodes marked=context.marked();
     if (ndata != data) {
       View.notifyInit();
     }
@@ -60,22 +58,24 @@
           View.notifyContext((Nodes)result,GUIProp.filterrt);
         }
       }
- else       if (context.marked() != null) {
-        Nodes marked=context.marked();
+ else       if (marked != null) {
         if (nodes != null) {
           marked=nodes;
         }
  else         if (marked.size != 0) {
           marked=new Nodes(data);
         }
-        if (marked != context.marked()) {
+        if (!marked.sameAs(context.marked())) {
           View.ftPos=marked.ftpos;
           View.ftPoi=marked.ftpoin;
           View.notifyMark(marked);
         }
+        if (thread != threadID) {
+          proc=null;
+          return true;
+        }
       }
     }
-    if (obsolete(thread,pr))     return true;
     setHits(result == null ? 0 : result.size());
     if (GUIProp.showinfo)     info.setInfo(result != null ? Token.token(inf) : Token.EMPTY);
     status.setText(BaseX.info(PROCTIME,time));
