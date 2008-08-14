@@ -1,0 +1,23 @@
+{
+  FTNode ftn=exprs[0].next(ctx);
+  final FTPositionFilter tmp=ctx.ftpos;
+  ctx.ftpos=ftpos;
+  ftpos.pos.init(ctx.ftitem);
+  if (ftn.size() > 0) {
+    init(ftn,ctx);
+    while (!seqEval()) {
+      if (more()) {
+        ftn=exprs[0].next(ctx);
+        init(ftn,ctx);
+      }
+ else {
+        ctx.ftpos=tmp;
+        return new FTNode();
+      }
+    }
+    ctx.ftpos=tmp;
+    return ftn;
+  }
+  ctx.ftpos=tmp;
+  return new FTNode();
+}

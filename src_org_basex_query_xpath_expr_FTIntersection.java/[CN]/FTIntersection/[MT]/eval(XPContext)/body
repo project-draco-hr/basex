@@ -1,41 +1,11 @@
 {
-  int[][] res=null;
-  int[][] tmp;
-  int[] pntr=null;
-  Object[] o;
-  Item it=exprs[0].eval(ctx);
-  if (it instanceof NodeSet) {
-    res=((NodeSet)it).ftidpos;
-    pntr=((NodeSet)it).ftpointer;
-    for (int i=1; i < exprs.length; i++) {
-      it=exprs[i].eval(ctx);
-      if (it instanceof NodeSet) {
-        tmp=((NodeSet)it).ftidpos;
-        if (pres) {
-          o=calculateFTAndOrderPreserving(res,tmp,pntr);
-          if (o != null && o.length == 2 && o[0] == null && o[1] == null) {
-            return new NodeSet(ctx);
-          }
-          res=(int[][])o[0];
-          pntr=(int[])o[1];
-        }
- else         if (Prop.ftdetails) {
-          o=calculateFTAnd(res,tmp,pntr);
-          if (o != null && o.length == 2 && o[0] == null && o[1] == null) {
-            return new NodeSet(ctx);
-          }
-          res=(int[][])o[0];
-          pntr=(int[])o[1];
-        }
- else {
-          res=calculateFTAnd(res,tmp);
-        }
-      }
-    }
-    if (pres || Prop.ftdetails) {
-      return new NodeSet(Array.extractIDsFromData(res),ctx,res,pntr);
-    }
-    return new NodeSet(Array.extractIDsFromData(res),ctx,res);
+  for (  int i : pex) {
+    final Bool it=(Bool)exprs[i].eval(ctx);
+    if (!it.bool())     return it;
   }
-  return null;
+  for (  int i : nex) {
+    final Bool it=(Bool)exprs[i].eval(ctx);
+    if (!it.bool())     return it;
+  }
+  return Bool.TRUE;
 }

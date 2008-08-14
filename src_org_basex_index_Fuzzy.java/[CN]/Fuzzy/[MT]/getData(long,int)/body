@@ -1,12 +1,14 @@
 {
   dat.cursor(p);
-  return new IndexIterator(){
-    @Override public int next(){
-      return dat.readNum();
-    }
-    @Override public int size(){
-      return s;
-    }
+  int[][] d=new int[2][s];
+  if (data.meta.fcompress) {
+    d[0][0]=dat.readNum();
+    for (int i=1; i < s; i++)     d[0][i]=dat.readNum();
+    for (int i=0; i < s; i++)     d[1][i]=dat.readNum();
   }
-;
+ else {
+    d[0]=dat.readInts(p,s * 4L + p);
+    d[1]=dat.readInts(s * 4L + p,s * 8L + p);
+  }
+  return new IndexArrayIterator(d,true);
 }

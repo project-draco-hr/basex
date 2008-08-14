@@ -1,3 +1,20 @@
 {
-  return ids(ind).size();
+  FTTokenizer fto=(FTTokenizer)ind;
+  if (fto.fz || fto.wc || fto.st|| fto.cs|| fto.dc)   return 1;
+  byte[] tok=Token.lc(ind.get());
+  final int id=cache.id(tok);
+  if (id > 0) {
+    return cache.getSize(id);
+  }
+ else {
+    final int[] ne=getNodeIdFromTrieRecursive(0,Token.lc(ind.get()));
+    if (ne != null && ne[ne.length - 1] > 0) {
+      cache.add(Token.lc(ind.get()),ne[ne.length - 1],did);
+      return ne[ne.length - 1];
+    }
+ else {
+      cache.add(Token.lc(ind.get()),0,0);
+      return 0;
+    }
+  }
 }

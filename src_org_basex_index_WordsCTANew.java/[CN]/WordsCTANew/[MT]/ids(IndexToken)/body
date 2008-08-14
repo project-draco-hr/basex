@@ -6,45 +6,25 @@
     int k=Prop.lserr;
     if (k == 0)     k=Math.max(1,tok.length >> 2);
     final int[][] ids=getNodeFuzzy(0,null,-1,tok,0,0,0,k);
-    return new IndexArrayIterator(ids);
+    return (ids == null) ? IndexIterator.EMPTY : new IndexArrayIterator(ids,true);
   }
   if (ft.wc) {
     final int pw=Token.indexOf(tok,'.');
     if (pw != -1) {
       final int[][] ids=getNodeFromTrieWithWildCard(tok,pw);
-      return new IndexArrayIterator(ids);
+      return (ids == null) ? IndexIterator.EMPTY : new IndexArrayIterator(ids,true);
     }
   }
   if (!cs && ft.cs) {
     int[][] ids=getNodeFromTrieRecursive(0,Token.lc(tok),false);
     if (ids == null) {
-      return null;
+      return IndexIterator.EMPTY;
     }
-    byte[] tokenFromDB;
-    byte[] textFromDB;
-    int[][] rIds=new int[2][ids[0].length];
-    int count=0;
-    int readId;
-    int i=0;
-    while (i < ids[0].length) {
-      readId=ids[0][i];
-      textFromDB=data.text(ids[0][i]);
-      tokenFromDB=new byte[tok.length];
-      System.arraycopy(textFromDB,ids[1][i],tokenFromDB,0,tok.length);
-      while (i < ids[0].length && readId == ids[0][i]) {
-        System.arraycopy(textFromDB,ids[1][i],tokenFromDB,0,tok.length);
-        readId=ids[0][i];
-        if (Token.eq(tokenFromDB,tok)) {
-          rIds[0][count]=ids[0][i];
-          rIds[1][count++]=ids[1][i];
-          while (i < ids[0].length && readId == ids[0][i])           i++;
-          break;
-        }
-        i++;
-      }
-    }
-    return new IndexArrayIterator(rIds,count);
+    final FTTokenizer ftdb=new FTTokenizer();
+    ftdb.st=ft.st;
+    int count=Fuzzy.csDBCheck(ids,data,ftdb,tok);
+    return (count == 0) ? IndexIterator.EMPTY : new IndexArrayIterator(ids,count,true);
   }
   final int[][] tmp=getNodeFromTrieRecursive(0,tok,ft.cs);
-  return new IndexArrayIterator(tmp);
+  return (tmp == null) ? IndexIterator.EMPTY : new IndexArrayIterator(tmp,true);
 }

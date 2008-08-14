@@ -1,0 +1,31 @@
+{
+  if (n.length == 0)   return null;
+ else   if (n.length == 1)   return exprs[n[0]].next(ctx);
+  FTNode n1=exprs[n[0]].next(ctx);
+  FTNode n2;
+  for (int i=1; i < n.length; i++) {
+    n2=exprs[n[i]].next(ctx);
+    if (n1.size() == 0 || n2.size() == 0)     return new FTNode();
+    int d=n1.getPre() - n2.getPre();
+    while (d != 0) {
+      if (d < 0) {
+        if (i != 1) {
+          i=1;
+          n2=exprs[n[i]].next(ctx);
+        }
+        if (exprs[n[0]].more())         n1=exprs[n[0]].next(ctx);
+ else         return new FTNode();
+      }
+ else {
+        if (exprs[n[i]].more())         n2=exprs[n[i]].next(ctx);
+ else         return new FTNode();
+      }
+      d=n1.getPre() - n2.getPre();
+    }
+  }
+  for (int i=1; i < n.length; i++) {
+    n2=exprs[n[i]].next(ctx);
+    n1.merge(n2,0);
+  }
+  return n1;
+}

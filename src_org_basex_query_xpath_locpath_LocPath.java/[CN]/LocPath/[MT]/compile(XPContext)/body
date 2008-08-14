@@ -27,16 +27,19 @@
         minP=p;
       }
     }
-    if (min == Integer.MAX_VALUE)     continue;
-    if (this instanceof LocPathRel && min > ctx.local.data.size / 10)     continue;
+    final boolean seq=min == Integer.MAX_VALUE;
+    if (!seq && this instanceof LocPathRel && min > ctx.local.data.size / 10)     continue;
     final IntList oldPreds=new IntList();
     Expr indexArg=null;
     for (int p=0; p < preds.size(); p++) {
       final Pred pred=preds.get(p);
-      if (p == minP && indexArg == null) {
+      if (seq || p == minP && indexArg == null) {
         oldPreds.add(p);
-        indexArg=pred.indexEquivalent(ctx,step);
+        indexArg=pred.indexEquivalent(ctx,step,seq);
       }
+    }
+    if (seq) {
+      continue;
     }
     final LocPath oldPath=new LocPathRel();
     for (final int j=i + 1; j < steps.size(); ) {

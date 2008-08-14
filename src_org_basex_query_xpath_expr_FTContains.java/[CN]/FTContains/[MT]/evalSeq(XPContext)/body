@@ -1,0 +1,32 @@
+{
+  if (!iu)   return evalWithoutIndex(ctx);
+  final FTTokenizer tmp=ctx.ftitem;
+  ctx.ftitem=ft;
+  if (!f) {
+    v1=ctx.eval(expr2);
+    f=true;
+  }
+  if (v1.bool()) {
+    FTArrayExpr ftae=(FTArrayExpr)expr2;
+    ftn=(ftn == null && ftae.more()) ? ftae.next(ctx) : ftn;
+    if (ftn != null) {
+      while (ftn.getPre() < ctx.local.nodes[0] + 1) {
+        if (ftae.more())         ftn=ftae.next(ctx);
+ else         break;
+      }
+      if (ftn.size() > 0) {
+        final boolean not=ftn.not;
+        if (ftn.getPre() == ctx.local.nodes[0] + 1) {
+          ftn=null;
+          return Bool.get(!not);
+        }
+ else {
+          return Bool.get(not);
+        }
+      }
+    }
+    return Bool.TRUE;
+  }
+  ctx.ftitem=tmp;
+  return Bool.FALSE;
+}

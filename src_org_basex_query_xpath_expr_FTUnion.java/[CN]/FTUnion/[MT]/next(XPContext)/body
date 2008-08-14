@@ -1,0 +1,24 @@
+{
+  if (minp == -1) {
+    minp=0;
+    while (!mp[minp])     minp++;
+    cp.set(minp,0);
+    for (int ip=minp + 1; ip < pex.length; ip++) {
+      if (mp[ip]) {
+        if (exprs[pex[ip]].next(ctx).getPre() < exprs[pex[minp]].next(ctx).getPre()) {
+          minp=ip;
+          cp.set(ip,0);
+        }
+ else         if (exprs[pex[ip]].next(ctx).getPre() == exprs[pex[minp]].next(ctx).getPre()) {
+          cp.add(ip);
+        }
+      }
+    }
+  }
+  minp=-1;
+  FTNode m=exprs[pex[cp.get(0)]].next(ctx);
+  for (int i=1; i < cp.size; i++) {
+    m.merge(exprs[pex[cp.get(i)]].next(ctx),0);
+  }
+  return m;
+}

@@ -1,7 +1,21 @@
 {
-  final FTTokenizer ft=(FTTokenizer)index;
-  if (ft.fz)   return 1;
+  FTTokenizer fto=(FTTokenizer)index;
+  if (fto.fz)   return 1;
   final byte[] tok=index.get();
-  final long p=getPointerOnToken(Token.lc(tok));
-  return p == -1 ? 0 : getDataSize(p,tok.length);
+  final int id=cache.id(Token.lc(tok));
+  if (id > 0) {
+    return cache.getSize(id);
+  }
+ else {
+    final long p=getPointerOnToken(Token.lc(tok));
+    if (p > -1) {
+      final int size=getDataSize(p,tok.length);
+      cache.add(tok,size,p);
+      return size;
+    }
+ else {
+      cache.add(tok,0,0);
+      return 0;
+    }
+  }
 }

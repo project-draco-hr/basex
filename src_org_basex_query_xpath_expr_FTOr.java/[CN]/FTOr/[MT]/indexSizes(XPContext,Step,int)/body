@@ -1,10 +1,20 @@
 {
+  IntList i1=new IntList(exprs.length);
+  boolean seq=false;
   int sum=0;
-  for (  final Expr expr : exprs) {
-    final int nrIDs=expr.indexSizes(ctx,curr,min);
-    if (nrIDs == Integer.MAX_VALUE)     return nrIDs;
-    sum+=nrIDs;
-    if (sum > min)     return min;
+  int nrIDs=0;
+  for (int i=0; i < exprs.length; i++) {
+    nrIDs=exprs[i].indexSizes(ctx,curr,min);
+    if (!(exprs[i] instanceof FTUnaryNot)) {
+      i1.add(i);
+      sum+=nrIDs;
+    }
+ else     if (nrIDs > 0) {
+      i1.add(i);
+      seq=true;
+    }
   }
+  pex=i1.finish();
+  if (seq)   return Integer.MAX_VALUE;
   return sum > min ? min : sum;
 }

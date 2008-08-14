@@ -9,36 +9,34 @@
   ft.cs=option.cs;
   ft.wc=option.wc;
   ft.fz=option.fz;
+  ft.lp=ctx.ftpos.lp;
+  int sum=0;
+  int n=0;
+  iat=new IndexArrayIterator();
   while (ft.more()) {
-    if (data.nrIDs(ft) == 0)     return new NodeSet(ctx);
+    n=data.nrIDs(ft);
+    if (n == 0)     return Bool.FALSE;
     ctx.checkStop();
+    sum+=n;
   }
-  IntList pre=null, pos=null;
   ft.init();
   int w=0;
+  IndexIterator it;
   while (ft.more()) {
-    final IndexIterator it=data.ids(ft);
-    final IntList pre2=new IntList();
-    int s=it.size();
-    for (int i=0; i < s; i++) {
-      ctx.checkStop();
-      pre2.add(it.next());
-    }
-    final IntList pos2=new IntList();
-    for (int i=0; i < s; i++) {
-      ctx.checkStop();
-      pos2.add(it.next());
-    }
-    if (pre == null) {
-      pre=pre2;
-      pos=pos2;
+    it=data.ids(ft);
+    if (it == IndexIterator.EMPTY)     return Bool.FALSE;
+    if (w == 0) {
+      iat=(IndexArrayIterator)it;
     }
  else {
-      phrase(pre,pos,pre2,pos2,++w);
+      iat=phrase(iat,(IndexArrayIterator)it,w);
     }
-    if (pre.size == 0)     break;
+    w++;
   }
-  final int[][] d={pre.finish(),pos.finish()};
-  pre.distinct();
-  return new NodeSet(pre.finish(),ctx,d);
+  if (iat.size() > 0) {
+    if (ctx.ftpos.st)     iat.setToken(new FTTokenizer[]{ft});
+    iat.setTokenNum(++ctx.ftcount);
+    return Bool.TRUE;
+  }
+  return Bool.FALSE;
 }
