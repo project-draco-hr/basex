@@ -7,8 +7,7 @@
   long dr=0;
   int c=0, tr=0;
   byte j=1;
-  for (; j < tree.length; j++) {
-    if (c == isize - 1)     break;
+  for (; j < tree.length && c < isize - 1; j++) {
     final FZHash tre=tree[j];
     if (tre == null)     continue;
     outx.write(j);
@@ -22,27 +21,19 @@
       final int ds=tre.ns[p];
       outy.writeInt(ds);
       byte[] val=tre.pre[p];
-      if (Prop.fcompress) {
-        for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++)         outz.writeNum(Num.read(val,ip));
-      }
- else {
-        for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++)         outz.writeInt(Num.read(val,ip));
-      }
+      int is=Num.size(val);
+      for (int z=4; z < is; z++)       outz.write(val[z]);
       val=tre.pos[p];
-      if (Prop.fcompress) {
-        for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++)         outz.writeNum(Num.read(val,ip));
-      }
- else {
-        for (int v=0, ip=4; v < ds; ip+=Num.len(val,ip), v++)         outz.writeInt(Num.read(val,ip));
-      }
+      is=Num.size(val);
+      for (int z=4; z < is; z++)       outz.write(val[z]);
       dr=outz.size();
       tr=(int)outy.size();
     }
     c++;
   }
   tree=null;
-  outx.write((byte)(j - 1));
-  outx.writeInt((int)(tr - j - 7L));
+  outx.write(--j);
+  outx.writeInt(tr - j - 9);
   outx.close();
   outy.close();
   outz.close();
