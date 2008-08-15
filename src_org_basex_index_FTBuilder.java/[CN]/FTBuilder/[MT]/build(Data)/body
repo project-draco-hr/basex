@@ -1,13 +1,13 @@
 {
   wp.cs=data.meta.ftcs;
   int s=0;
-  index=new CTArrayNew(128,data.meta.ftcs);
+  index=new FTArray(128,data.meta.ftcs);
   index.bl|=data.meta.filesize > 1073741824;
   if (index.bl) {
     if (wp.cs) {
       index.bl=false;
     }
- else     hash=new FZHash();
+ else     hash=new FTHash();
   }
   total=data.size;
   for (id=0; id < total; id++) {
@@ -20,7 +20,7 @@
     System.out.println(Performance.getMem());
   }
   final String db=data.meta.dbname;
-  DataOutput outD=new DataOutput(db,DATAFTX + 'b');
+  final DataOutput outD=new DataOutput(db,DATAFTX + 'b');
   if (index.bl) {
     bulkLoad(outD);
   }
@@ -30,70 +30,73 @@
     System.out.println(Performance.getMem());
   }
   hash=null;
-  index.finish();
   if (Prop.debug) {
     System.out.println("Trie in komprimierte Form ??berf??hrt.");
     Performance.gc(5);
     System.out.println(Performance.getMem());
   }
-  DataOutput outN=new DataOutput(db,DATAFTX + 'a');
-  DataOutput outS=new DataOutput(db,DATAFTX + 'c');
+  final byte[][] tokens=index.tokens.list;
+  final int[][] next=index.next.list;
+  final int[][] pre=index.pre.list;
+  final int[][] pos=index.pos.list;
+  final DataOutput outN=new DataOutput(db,DATAFTX + 'a');
+  final DataOutput outS=new DataOutput(db,DATAFTX + 'c');
   if (index != null && index.count != 1) {
     outN.write((byte)1);
     outN.write((byte)-1);
     int j=1;
-    for (; j < index.next[0].length - 2; j++) {
-      outN.writeInt(index.next[0][j]);
-      outN.write(index.tokens[index.next[index.next[0][j]][0]][0]);
+    for (; j < next[0].length - 2; j++) {
+      outN.writeInt(next[0][j]);
+      outN.write(tokens[next[next[0][j]][0]][0]);
     }
-    outN.writeInt(index.next[0][j]);
+    outN.writeInt(next[0][j]);
     outN.write5(-1);
     outS.writeInt(s);
-    s+=2L + (index.next[0].length - 3) * 5L + 9L;
+    s+=2L + (next[0].length - 3) * 5L + 9L;
     int lp;
     int[] tmp;
-    for (int i=1; i < index.next.length; i++) {
-      lp=(index.next[i][index.next[i].length - 2] > -1) ? 0 : -1;
-      outN.write((byte)index.tokens[index.next[i][0]].length);
-      outN.write(index.tokens[index.next[i][0]]);
+    for (int i=1, il=index.next.size; i < il; i++) {
+      lp=(next[i][next[i].length - 2] > -1) ? 0 : -1;
+      outN.write((byte)tokens[next[i][0]].length);
+      outN.write(tokens[next[i][0]]);
       j=1;
-      for (; j < index.next[i].length - 2 + lp; j++) {
-        outN.writeInt(index.next[i][j]);
-        outN.write(index.tokens[index.next[index.next[i][j]][0]][0]);
+      for (; j < next[i].length - 2 + lp; j++) {
+        outN.writeInt(next[i][j]);
+        outN.write(tokens[next[next[i][j]][0]][0]);
       }
-      outN.writeInt(index.next[i][j]);
-      if (index.next[i][j] == 0 && index.next[i][j + 1] == 0) {
-        outN.write5(index.next[i][j + 1]);
+      outN.writeInt(next[i][j]);
+      if (next[i][j] == 0 && next[i][j + 1] == 0) {
+        outN.write5(next[i][j + 1]);
       }
  else {
         if (index.bl) {
           if (lp == 0) {
-            outN.write5(index.next[i][j + 1]);
+            outN.write5(next[i][j + 1]);
           }
  else {
             tmp=new int[2];
-            System.arraycopy(index.next[i],index.next[i].length - 2,tmp,0,tmp.length);
+            System.arraycopy(next[i],next[i].length - 2,tmp,0,tmp.length);
             outN.write5(Token.intArrayToLong(tmp));
           }
         }
  else {
-          writeData(outD,index.pre[index.next[i][index.next[i].length - 1]]);
-          writeData(outD,index.pos[index.next[i][index.next[i].length - 1]]);
+          writeData(outD,pre[next[i][next[i].length - 1]]);
+          writeData(outD,pos[next[i][next[i].length - 1]]);
         }
       }
       outS.writeInt(s);
-      s+=1L + index.tokens[index.next[i][0]].length * 1L + (index.next[i].length - 3 + lp) * 5L + 9L;
+      s+=1L + tokens[next[i][0]].length * 1L + (next[i].length - 3 + lp) * 5L + 9L;
     }
   }
   if (!index.bl) {
-    for (int i=0; i < index.pre.length; i++) {
-      writeData(outD,index.pre[i]);
-      writeData(outD,index.pos[i]);
+    for (int i=0, il=index.pre.size; i < il; i++) {
+      writeData(outD,pre[i]);
+      writeData(outD,pos[i]);
     }
   }
   outS.writeInt(s);
   outD.close();
   outN.close();
   outS.close();
-  return new WordsCTANew(data,db);
+  return new FTTrie(data,db);
 }
