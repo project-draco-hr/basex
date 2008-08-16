@@ -1,0 +1,37 @@
+{
+  int[][] dn=dt;
+  int[] ne=getNodeEntry(id);
+  long ldid=did;
+  int in=getIndexDotNE(ne);
+  if (in + c < lbid) {
+    if (!hasNextNodes(ne))     return dn;
+    System.arraycopy(ne,1,v,c,ne[0]);
+    for (int i=ne[0] + 1; i < ne.length - 1; i+=2) {
+      dn=getAllNodesWithinBounds(ne[i],v,ub,ubid,lb,lbid,c + ne[0],dn);
+    }
+  }
+ else   if (in + c > ubid && ubid == ub.length) {
+    return dn;
+  }
+ else {
+    int[] vn=v;
+    if (v.length < c + ne[0])     vn=Array.resize(v,v.length,v.length << 2 + c + ne[0]);
+    System.arraycopy(ne,1,vn,c,ne[0]);
+    int vid=getIndexDot(vn,c + ne[0]);
+    if (vid == c + ne[0]) {
+      if (checkLBConstrain(vn,vid,lb,lbid) && checkUBConstrain(vn,vid,ub,ubid)) {
+        dn=calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 1],ldid));
+      }
+    }
+ else {
+      if (checkLBConstrainDbl(vn,vid,lb,lbid) && checkUBConstrainDbl(vn,vid,ub,ubid)) {
+        dn=calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 1],ldid));
+      }
+    }
+    if (!hasNextNodes(ne))     return dn;
+    for (int i=ne[0] + 1; i < ne.length - 1; i+=2) {
+      dn=calculateFTOr(dn,getAllNodesWithinBounds(ne[i],vn,ub,ubid,lb,lbid,c + ne[0],dn));
+    }
+  }
+  return dn;
+}

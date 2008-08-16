@@ -1,0 +1,24 @@
+{
+  boolean mp=morePos();
+  boolean nmp=n.morePos();
+  if (getPre() != n.getPre() || !(mp && nmp))   return false;
+  IntList il=new IntList();
+  IntList pn=(p != null) ? initNewPointer(n.p) : null;
+  il.add(getPre());
+  int d;
+  while (mp && nmp) {
+    d=nextPos() - n.nextPos() + w;
+    if (d == 0)     add(this,il,pn);
+    if (d <= 0)     mp=morePos();
+    if (d >= 0)     nmp=n.morePos();
+  }
+  ip=il;
+  if (tok != null) {
+    FTTokenizer[] tmp=new FTTokenizer[tok.length + n.tok.length];
+    System.arraycopy(tok,0,tmp,0,tok.length);
+    System.arraycopy(n.tok,0,tmp,tok.length,n.tok.length);
+    tok=tmp;
+  }
+  p=(p != null) ? new IntList(pn.finish()) : null;
+  return ip.size > 1;
+}

@@ -1,0 +1,152 @@
+{
+  if (cn == 0) {
+    if (next.list[cn].length > 3) {
+      final int p=getInsertingPosition(cn,v[0]);
+      if (!found) {
+        int[] e;
+        e=new int[3];
+        e[0]=tokens.size;
+        tokens.add(v);
+        if (d == null) {
+          e[1]=0;
+          e[2]=0;
+        }
+ else {
+          e[1]=d[0].length;
+          e[2]=addDataToNode(0,d,0);
+        }
+        next.add(e);
+        insertNodeInNextArray(cn,next.size - 1,p);
+        return next.size - 1;
+      }
+ else {
+        return insertNodeIntoTrie(next.list[cn][p],v,d);
+      }
+    }
+  }
+  final byte[] is=(next.list[cn][0] == -1) ? null : calculateIntersection(tokens.list[next.list[cn][0]],v);
+  byte[] r1=(next.list[cn][0] == -1) ? null : tokens.list[next.list[cn][0]];
+  byte[] r2=v;
+  if (is != null) {
+    r1=getBytes(r1,is.length,r1.length);
+    r2=getBytes(v,is.length,v.length);
+  }
+  if (is != null) {
+    if (r1 == null) {
+      if (r2 == null) {
+        if (d != null) {
+          if (next.list[cn][next.list[cn].length - 2] == 0) {
+            next.list[cn][next.list[cn].length - 1]=addDataToNode(next.list[cn][next.list[cn].length - 2],d,next.list[cn][next.list[cn].length - 1]);
+            next.list[cn][next.list[cn].length - 2]=d[0].length;
+          }
+ else {
+            addDataToNode(next.list[cn][next.list[cn].length - 2],d,next.list[cn][next.list[cn].length - 1]);
+            next.list[cn][next.list[cn].length - 2]+=d[0].length;
+          }
+        }
+        return cn;
+      }
+ else {
+        final int posti=getInsertingPosition(cn,r2[0]);
+        if (!found) {
+          int[] e;
+          e=new int[3];
+          e[0]=tokens.size;
+          tokens.add(r2);
+          if (d == null) {
+            e[1]=0;
+            e[2]=0;
+          }
+ else {
+            e[1]=d[0].length;
+            e[2]=addDataToNode(0,d,0);
+          }
+          next.add(e);
+          insertNodeInNextArray(cn,next.size - 1,posti);
+          return next.size - 1;
+        }
+ else {
+          return insertNodeIntoTrie(next.list[cn][posti],r2,d);
+        }
+      }
+    }
+ else {
+      if (r2 == null) {
+        final int[] oe=new int[4];
+        tokens.list[next.list[cn][0]]=is;
+        oe[0]=next.list[cn][0];
+        final int did=next.list[cn][next.list[cn].length - 1];
+        if (d != null) {
+          oe[3]=addDataToNode(0,d,0);
+          oe[2]=d[0].length;
+        }
+ else {
+          oe[3]=0;
+          oe[2]=0;
+        }
+        final int[] ne=new int[next.list[cn].length];
+        System.arraycopy(next.list[cn],0,ne,0,ne.length);
+        ne[0]=tokens.size;
+        tokens.add(r1);
+        ne[ne.length - 1]=did;
+        ne[ne.length - 2]=pre.list[did].length;
+        next.add(ne);
+        oe[1]=next.size - 1;
+        next.list[cn]=oe;
+        return next.size - 1;
+      }
+ else {
+        tokens.list[next.list[cn][0]]=is;
+        final int[] one=next.list[cn];
+        int[] ne=new int[5];
+        ne[0]=one[0];
+        if (Token.lc(r2[0]) < Token.lc(r1[0]) || (Token.lc(r2[0]) == Token.lc(r1[0]) && Token.uc(r2[0]) == r1[0])) {
+          ne[1]=next.size;
+          ne[2]=next.size + 1;
+        }
+ else {
+          ne[1]=next.size + 1;
+          ne[2]=next.size;
+        }
+        ne[3]=0;
+        ne[4]=0;
+        next.list[cn]=ne;
+        ne=new int[3];
+        ne[0]=tokens.size;
+        tokens.add(r2);
+        if (d != null) {
+          ne[1]=d[0].length;
+          ne[2]=addDataToNode(0,d,0);
+        }
+ else {
+          ne[1]=0;
+          ne[2]=0;
+        }
+        next.add(ne);
+        ne=new int[one.length];
+        System.arraycopy(one,0,ne,0,ne.length);
+        ne[0]=tokens.size;
+        tokens.add(r1);
+        next.add(ne);
+        return next.size - 1;
+      }
+    }
+  }
+ else {
+    final int[] ne=new int[3];
+    ne[0]=tokens.size;
+    tokens.add(v);
+    if (d != null) {
+      ne[2]=addDataToNode(0,d,0);
+      ne[1]=d[0].length;
+    }
+ else {
+      ne[1]=0;
+      ne[2]=0;
+    }
+    next.add(ne);
+    final int ip=getInsertingPosition(cn,v[0]);
+    insertNodeInNextArray(cn,next.size - 1,ip);
+    return next.size - 1;
+  }
+}
