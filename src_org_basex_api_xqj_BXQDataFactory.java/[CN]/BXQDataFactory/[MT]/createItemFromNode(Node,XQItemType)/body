@@ -1,5 +1,15 @@
 {
   check();
-  BaseX.notimplemented();
-  return null;
+  check(it,Type.DOC);
+  check(v,Node.class);
+  final ByteArrayOutputStream ba=new ByteArrayOutputStream();
+  try {
+    new XMLSerializer(ba,null).serialize(v);
+  }
+ catch (  final IOException ex) {
+    throw new BXQException(ex);
+  }
+  final IO tmp=new IO(ba.toByteArray(),TMP);
+  final Data data=CreateDB.xml(tmp,TMP);
+  return new BXQItem(new DNode(data,0,null,Type.DOC));
 }
