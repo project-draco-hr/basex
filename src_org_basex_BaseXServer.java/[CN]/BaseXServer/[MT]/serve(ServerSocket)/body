@@ -14,20 +14,18 @@
     }
  catch (    final QueryException ex) {
       BaseX.errln(ex.getMessage());
-      final OutputStream out=s.getOutputStream();
-      out.write(0);
-      out.close();
+      send(s,0);
       return;
     }
     final Process proc=pr;
     if (proc instanceof Exit) {
-      s.getOutputStream().write(1);
+      send(s,1);
       for (      final BaseXSession ss : sess)       ss.core.stop();
       running=false;
       return;
     }
-    new Action(){
-      public void run(){
+    new Thread(){
+      @Override public void run(){
         try {
           if (proc instanceof GetResult || proc instanceof GetInfo) {
             final OutputStream os=s.getOutputStream();
@@ -47,8 +45,7 @@
           }
  else {
             add(new BaseXSession(sp,System.nanoTime(),proc));
-            final boolean ok=proc.execute(context);
-            new DataOutputStream(s.getOutputStream()).writeInt(ok ? sp : -sp);
+            send(s,proc.execute(context) ? sp : -sp);
           }
           dis.close();
         }
@@ -59,7 +56,7 @@
         if (verbose)         BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
       }
     }
-.execute();
+.start();
   }
  catch (  final Exception ex) {
     if (ex instanceof IOException)     BaseX.errln(SERVERERR);
