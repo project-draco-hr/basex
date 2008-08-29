@@ -1,0 +1,50 @@
+{
+  if (Token.eq(attrX,Token.token("")) || Token.eq(attrY,Token.token("")))   return;
+  final Data data=GUI.context.data();
+  final StatsKey xKey=xIsTag ? data.tags.stat(data.tags.id(attrX)) : data.atts.stat(data.atts.id(attrX));
+  xNumeric=xKey.kind == Kind.INT || xKey.kind == Kind.DBL;
+  if (xNumeric) {
+    xMin=xKey.min;
+    xMax=xKey.max;
+  }
+ else {
+    xCats=xKey.cats.keys();
+    xNrCats=xCats.length;
+    System.out.println(xNrCats);
+  }
+  final StatsKey yKey=yIsTag ? data.tags.stat(data.tags.id(attrY)) : data.atts.stat(data.atts.id(attrY));
+  yNumeric=yKey.kind == Kind.INT || yKey.kind == Kind.DBL;
+  if (yNumeric) {
+    yMin=yKey.min;
+    yMax=yKey.max;
+  }
+ else {
+    yCats=yKey.cats.keys();
+    yNrCats=yCats.length;
+    System.out.println(yNrCats);
+  }
+  tmpPres=new IntList();
+  tmpX=new LinkedList<Double>();
+  tmpY=new LinkedList<Double>();
+  final int s=data.size;
+  final int itmID=data.tagID(item);
+  int p=1;
+  while (p < s) {
+    final int kind=data.kind(p);
+    if (kind == Data.ELEM) {
+      if (data.tagID(p) == itmID) {
+        findItemValue(p,data);
+      }
+      p+=data.attSize(p,kind);
+    }
+ else {
+      p++;
+    }
+  }
+  pres=tmpPres.finish();
+  size=pres.length;
+  x=new Double[size];
+  y=new Double[size];
+  tmpX.toArray(x);
+  tmpY.toArray(y);
+}
