@@ -1,0 +1,21 @@
+{
+  checkType(START_ELEMENT);
+  next();
+  final TokenBuilder tb=new TokenBuilder();
+  while (type != END_ELEMENT) {
+    if (isType(CHARACTERS,CDATA,SPACE,ENTITY_REFERENCE)) {
+      tb.add(item.str());
+    }
+ else     if (isType(END_DOCUMENT)) {
+      throw new XMLStreamException("Unexpected end of document.");
+    }
+ else     if (isType(START_ELEMENT)) {
+      throw new XMLStreamException("START_ELEMENT not expected.");
+    }
+ else {
+      checkType(PROCESSING_INSTRUCTION,COMMENT);
+    }
+    next();
+  }
+  return tb.toString();
+}
