@@ -1,5 +1,16 @@
 {
-  check();
-  pos();
-  BaseX.notimplemented();
+  check(result,Result.class);
+  if (it != null && !next)   throw new BXQException(TWICE);
+  if (result instanceof StreamResult) {
+    writeSequence(((StreamResult)result).getWriter(),null);
+  }
+ else   if (result instanceof SAXResult) {
+    final SAXSerializer ser=new SAXSerializer(null);
+    ContentHandler h=((SAXResult)result).getHandler();
+    ser.setContentHandler(h);
+    while (next())     serialize(item().it,ctx,ser);
+  }
+ else {
+    BaseX.notimplemented();
+  }
 }

@@ -1,4 +1,16 @@
 {
   check();
-  BaseX.notimplemented();
+  check(result,Result.class);
+  if (result instanceof StreamResult) {
+    writeItem(((StreamResult)result).getWriter(),null);
+  }
+ else   if (result instanceof SAXResult) {
+    final SAXSerializer ser=new SAXSerializer(null);
+    ContentHandler h=((SAXResult)result).getHandler();
+    ser.setContentHandler(h);
+    serialize(it,ctx,ser);
+  }
+ else {
+    BaseX.notimplemented();
+  }
 }

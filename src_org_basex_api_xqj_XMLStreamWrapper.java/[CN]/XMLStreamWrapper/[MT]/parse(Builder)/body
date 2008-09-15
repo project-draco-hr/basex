@@ -1,0 +1,56 @@
+{
+  builder=build;
+  try {
+    builder.startDoc(token(file.name()));
+    while (reader.hasNext()) {
+      final int kind=reader.next();
+switch (kind) {
+case XMLStreamConstants.START_ELEMENT:
+        final int as=reader.getAttributeCount();
+      byte[][] atts=null;
+    if (as != 0) {
+      atts=new byte[as << 1][];
+      for (int a=0; a < as; a++) {
+        atts[a << 1]=Token.token(reader.getAttributeLocalName(a));
+        atts[(a << 1) + 1]=Token.token(reader.getAttributeValue(a));
+      }
+    }
+  builder.startElem(Token.token(reader.getLocalName()),atts);
+nodes++;
+break;
+case XMLStreamConstants.END_ELEMENT:
+builder.endElem(Token.token(reader.getLocalName()));
+break;
+case XMLStreamConstants.CHARACTERS:
+builder.text(new TokenBuilder(reader.getText()),false);
+nodes++;
+break;
+case XMLStreamConstants.PROCESSING_INSTRUCTION:
+builder.pi(new TokenBuilder(reader.getPITarget() + ' ' + reader.getPIData()));
+nodes++;
+break;
+case XMLStreamConstants.COMMENT:
+builder.comment(new TokenBuilder(reader.getText()));
+nodes++;
+break;
+case XMLStreamConstants.END_DOCUMENT:
+break;
+default :
+throw new IOException("Unknown node kind " + kind);
+}
+}
+builder.endDoc();
+}
+ catch (final ProgressException ex) {
+throw ex;
+}
+catch (final IOException ex) {
+ex.printStackTrace();
+throw ex;
+}
+catch (final XMLStreamException ex) {
+final IOException ioe=new IOException(ex.getMessage());
+ioe.setStackTrace(ex.getStackTrace());
+throw ioe;
+}
+}
