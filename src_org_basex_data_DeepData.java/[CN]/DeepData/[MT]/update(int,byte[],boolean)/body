@@ -1,0 +1,19 @@
+{
+  final long v=Token.toSimpleInt(val);
+  if (v != Integer.MIN_VALUE) {
+    textOff(pre,v | 0x8000000000L);
+  }
+ else {
+    long off=textOff(pre);
+    final boolean replace=(off & 0x8000000000L) == 0 && val.length <= (txt ? textLen(pre) : attLen(pre));
+    final DataAccess da=txt ? texts : values;
+    if (replace) {
+      da.writeBytes(off,val);
+    }
+ else {
+      if (da.readNum(off) + da.pos() != da.length())       off=da.length();
+      da.writeBytes(off,val);
+      textOff(pre,off);
+    }
+  }
+}

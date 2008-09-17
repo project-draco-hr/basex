@@ -1,9 +1,9 @@
 {
   final String db=args[0].replaceAll("(.*)\\..*","$1");
-  if (!IO.dbpath(db).exists())   return error(DBNOTFOUND,db);
+  if (!IO.dbpath(db).exists())   if (!db.equals(DEEPDB))   return error(DBNOTFOUND,db);
   context.close();
   try {
-    final Data data=new DiskData(db);
+    final Data data=db.equals(DEEPDB) ? new DeepData(db) : new DiskData(db);
     context.data(data);
     if (Prop.info) {
       if (data.meta.newindex)       info(INDUPDATE + NL);

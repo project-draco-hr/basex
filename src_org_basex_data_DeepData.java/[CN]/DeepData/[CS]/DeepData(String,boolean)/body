@@ -1,0 +1,18 @@
+{
+  if (!libLoaded)   throw new IOException(libError);
+  meta=new MetaData(db);
+  size=meta.read();
+  tags=new Names(db,true);
+  atts=new Names(db,false);
+  ns=new Namespaces(db);
+  skel=new Skeleton(db);
+  table=Prop.mainmem ? new TableMemAccess(db,DATATBL,size) : new TableDiskAccess(db,DATATBL);
+  texts=new DataAccess(db,DATATXT);
+  values=new DataAccess(db,DATAATV);
+  if (index) {
+    if (meta.txtindex)     openIndex(IndexToken.TYPE.TXT,new Values(this,db,true));
+    if (meta.atvindex)     openIndex(IndexToken.TYPE.ATV,new Values(this,db,false));
+    if (meta.ftxindex)     openIndex(IndexToken.TYPE.FTX,meta.ftfuzzy ? new FTFuzzy(this,db) : new FTTrie(this,db));
+  }
+  initNames();
+}
