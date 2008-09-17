@@ -1,17 +1,17 @@
 {
   final Data data=GUI.context.data();
   final int size=parentList.size;
-  IntList temp=new IntList();
+  HashMap<Integer,Integer> temp=new HashMap<Integer,Integer>();
   int x=0;
   final int y=1 * level * fontHeight* 2;
   final double width=this.getSize().width - 1;
   final int ratio=(int)Math.rint(width / size);
-  int lo=0;
+  final int minSpace=39;
+  boolean space=ratio > minSpace ? true : false;
   for (int i=0; i < size; i++) {
     final int pre=parentList.get(i);
     if (pre == -1) {
       x+=ratio;
-      lo++;
       continue;
     }
     final int nodeSize=data.size(pre,Data.ELEM);
@@ -23,17 +23,21 @@
     g.setColor(new Color(c,0,255 - c));
     g.fillRect(x + 1,y + 1,ratio - 1,fontHeight - 1);
     int boxMiddle=x + Math.round(ratio / 2f);
+    g.setColor(Color.black);
+    if (space) {
+      String s=Token.string(data.tag(pre));
+      int textWidth=BaseXLayout.width(g,s);
+      g.drawString(s,boxMiddle - textWidth / 2,y + fontHeight - 2);
+    }
     if (parentPos != null) {
-      g.setColor(Color.black);
       int line=Math.round(fontHeight / 4f);
-      int parentMiddle=lo > parentPos.length - 1 ? 0 : parentPos[lo];
+      int parentMiddle=parentPos.get(data.parent(pre,Data.ELEM));
       g.drawLine(boxMiddle,y,boxMiddle,y - line);
       g.drawLine(boxMiddle,y - line,parentMiddle,y - line);
       g.drawLine(parentMiddle,y - line,parentMiddle,y - fontHeight);
     }
-    if (nodeSize > 0)     temp.add(boxMiddle);
+    if (nodeSize > 0)     temp.put(pre,boxMiddle);
     x+=ratio;
   }
-  parentPos=temp.finish();
-  temp=new IntList();
+  parentPos=temp;
 }
