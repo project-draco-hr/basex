@@ -1,13 +1,20 @@
 {
   final Data data=GUI.context.data();
   final int size=parentList.size;
+  IntList temp=new IntList();
   int x=0;
   final int y=1 * level * fontHeight* 2;
   final double width=this.getSize().width - 1;
-  final int ratio=(int)Math.rint((width - 1) / size);
+  final int ratio=(int)Math.rint(width / size);
+  int lo=0;
   for (int i=0; i < size; i++) {
     final int pre=parentList.get(i);
-    final int nodeSize=data.size(pre,data.kind(pre));
+    if (pre == -1) {
+      x+=ratio;
+      lo++;
+      continue;
+    }
+    final int nodeSize=data.size(pre,Data.ELEM);
     final double nodePercent=nodeSize / (double)sumNodeSizeInLine;
     g.setColor(Color.black);
     g.drawRect(x,y,ratio,fontHeight);
@@ -15,6 +22,18 @@
     c=c > 255 ? 255 : c;
     g.setColor(new Color(c,0,255 - c));
     g.fillRect(x + 1,y + 1,ratio - 1,fontHeight - 1);
+    int boxMiddle=x + Math.round(ratio / 2f);
+    if (parentPos != null) {
+      g.setColor(Color.black);
+      int line=Math.round(fontHeight / 4f);
+      int parentMiddle=lo > parentPos.length - 1 ? 0 : parentPos[lo];
+      g.drawLine(boxMiddle,y,boxMiddle,y - line);
+      g.drawLine(boxMiddle,y - line,parentMiddle,y - line);
+      g.drawLine(parentMiddle,y - line,parentMiddle,y - fontHeight);
+    }
+    if (nodeSize > 0)     temp.add(boxMiddle);
     x+=ratio;
   }
+  parentPos=temp.finish();
+  temp=new IntList();
 }
