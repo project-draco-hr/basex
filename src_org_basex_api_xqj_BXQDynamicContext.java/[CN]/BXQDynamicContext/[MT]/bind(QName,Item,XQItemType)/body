@@ -1,11 +1,17 @@
 {
   check();
   check(var,QName.class);
+  final QNm name=new QNm(Token.token(var.getLocalPart()));
+  Var v=new Var(name);
+  if (this instanceof BXQPreparedExpression) {
+    v=query.ctx.vars.get(v);
+    if (v == null)     throw new BXQException(VAR,var);
+  }
+ else {
+    query.ctx.vars.addGlobal(v);
+  }
   try {
-    final Var v=new Var(new QNm(Token.token(var.getLocalPart())));
-    final BXQItemType bit=(BXQItemType)t;
-    final Item i=t == null || bit.type == it.type ? it : check(t,it.type).e(it,null);
-    query.ctx.vars.addGlobal(v.item(i));
+    v.item(t == null || ((BXQItemType)t).type == it.type ? it : check(t,it.type).e(it,null));
   }
  catch (  final QueryException ex) {
     throw new BXQException(ex);
