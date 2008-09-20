@@ -1,7 +1,7 @@
 {
   builder=build;
   try {
-    XMLReader r=reader;
+    XMLReader r=source != null ? source.getXMLReader() : null;
     if (r == null) {
       final SAXParserFactory f=SAXParserFactory.newInstance();
       f.setNamespaceAware(true);
@@ -14,8 +14,14 @@
     r.setProperty("http://xml.org/sax/properties/lexical-handler",p);
     r.setErrorHandler(p);
     builder.startDoc(token(file.name()));
-    if (reader == null)     r.parse(file.next());
- else     r.parse(file.path());
+    if (source == null) {
+      r.parse(file.inputSource());
+    }
+ else {
+      final InputSource is=source.getInputSource();
+      if (is != null)       r.parse(is);
+ else       r.parse(source.getSystemId());
+    }
     builder.endDoc();
   }
  catch (  final SAXParseException ex) {

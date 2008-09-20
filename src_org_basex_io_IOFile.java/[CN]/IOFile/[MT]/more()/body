@@ -1,0 +1,26 @@
+{
+  if (is instanceof ZipInputStream || path.endsWith(ZIPSUFFIX)) {
+    if (is == null)     is=new ZipInputStream(new FileInputStream(file));
+ else     return false;
+    while (is != null) {
+      ZipEntry e=((ZipInputStream)is).getNextEntry();
+      if (e == null) {
+        is=null;
+      }
+ else {
+        len=e.getSize();
+        path=e.getName();
+        if (!e.isDirectory())         break;
+      }
+    }
+    more=true;
+  }
+ else   if (path.endsWith(GZSUFFIX)) {
+    if (is == null)     is=new GZIPInputStream(new FileInputStream(file));
+    more=false;
+  }
+ else {
+    more^=true;
+  }
+  return more;
+}
