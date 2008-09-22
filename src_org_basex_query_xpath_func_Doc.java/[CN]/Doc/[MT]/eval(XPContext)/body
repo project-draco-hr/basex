@@ -1,6 +1,10 @@
 {
-  final Item arg=evalArgs(ctx)[0];
-  final String db=Token.string(arg.str());
-  ctx.local=new NodeSet(Check.check(db));
-  return ctx.local;
+  final String db=Token.string(evalArgs(ctx)[0].str());
+  try {
+    ctx.local=new NodeSet(Check.check(db));
+    return ctx.local;
+  }
+ catch (  final IOException ex) {
+    throw new QueryException(UNKNOWNDOC,db);
+  }
 }

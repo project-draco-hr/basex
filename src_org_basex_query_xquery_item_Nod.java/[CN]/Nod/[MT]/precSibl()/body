@@ -1,0 +1,33 @@
+{
+  return new NodeIter(){
+    /** 
+ * Children nodes. 
+ */
+    private NodIter ch;
+    /** 
+ * Counter. 
+ */
+    private int c;
+    /** 
+ * First call. 
+ */
+    private boolean more;
+    @Override public Nod next() throws XQException {
+      if (!more) {
+        final Nod r=parent();
+        if (r == null)         return null;
+        ch=new NodIter();
+        final NodeIter iter=r.child();
+        Nod n;
+        while ((n=iter.next()) != null) {
+          if (n.is(Nod.this))           break;
+          ch.add(n.finish());
+        }
+        c=ch.size;
+        more=true;
+      }
+      return c > 0 ? ch.list[--c] : null;
+    }
+  }
+;
+}

@@ -5,14 +5,26 @@
       if (eq(db,ni.list[n].base()))       return (DNode)ni.list[n];
     }
   }
-  final String dbname=string(db);
+  String dbname=string(db);
   for (  final DNode d : docs)   if (d.data.meta.dbname.equals(dbname))   return d;
   final IO bxw=IO.get(string(db));
   for (  final DNode d : docs)   if (d.data.meta.file.eq(bxw))   return d;
-  Data data=Check.check(dbname);
-  if (data == null && file != null)   data=Check.check(file.merge(bxw).path());
+  Data data=null;
+  try {
+    data=Check.check(dbname);
+  }
+ catch (  final IOException ex) {
+  }
+  if (data == null && file != null) {
+    dbname=file.merge(bxw).path();
+    try {
+      data=Check.check(dbname);
+    }
+ catch (    final IOException ex) {
+    }
+  }
   if (data == null)   Err.or(NODOC,bxw);
   final int dl=docs.length;
-  docs=Array.add(docs,new DNode(data,0,null,Type.DOC));
+  docs=Array.add(docs,new DNode(data,0));
   return addNS(docs[dl]);
 }

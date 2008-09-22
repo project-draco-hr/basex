@@ -1,0 +1,27 @@
+{
+  final Type t=type(o.getClass());
+  if (t != Type.JAVA)   return t;
+  if (o instanceof Element)   return Type.ELM;
+  if (o instanceof Document)   return Type.DOC;
+  if (o instanceof DocumentFragment)   return Type.DOC;
+  if (o instanceof Attr)   return Type.ATT;
+  if (o instanceof Comment)   return Type.COM;
+  if (o instanceof ProcessingInstruction)   return Type.PI;
+  if (o instanceof Text)   return Type.TXT;
+  if (o instanceof Duration) {
+    final Duration d=(Duration)o;
+    return !d.isSet(YEARS) && !d.isSet(MONTHS) ? Type.DTD : !d.isSet(HOURS) && !d.isSet(MINUTES) && !d.isSet(SECONDS) ? Type.YMD : Type.DUR;
+  }
+  if (o instanceof XMLGregorianCalendar) {
+    final QName type=((XMLGregorianCalendar)o).getXMLSchemaType();
+    if (type == DATE)     return Type.DAT;
+    if (type == DATETIME)     return Type.DTM;
+    if (type == TIME)     return Type.TIM;
+    if (type == GYEARMONTH)     return Type.YMO;
+    if (type == GMONTHDAY)     return Type.MDA;
+    if (type == GYEAR)     return Type.YEA;
+    if (type == GMONTH)     return Type.MON;
+    if (type == GDAY)     return Type.DAY;
+  }
+  return null;
+}
