@@ -1,0 +1,18 @@
+{
+  final XQConnection conn=conn(drv);
+  final XQExpression xqe=conn.createExpression();
+  XQSequence xqs;
+  DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+  DocumentBuilder parser=factory.newDocumentBuilder();
+  Document document=parser.parse(new InputSource(new StringReader("<e>Hello world!</e>")));
+  DocumentFragment frag=document.createDocumentFragment();
+  Element el1=document.createElement("A");
+  Element el2=document.createElement("B");
+  frag.appendChild(el1);
+  frag.appendChild(el2);
+  xqe.bindNode(new QName("v"),document,null);
+  xqs=xqe.executeQuery("declare variable $v external; $v");
+  while (xqs.next()) {
+    System.out.println("> " + xqs.getNode());
+  }
+}

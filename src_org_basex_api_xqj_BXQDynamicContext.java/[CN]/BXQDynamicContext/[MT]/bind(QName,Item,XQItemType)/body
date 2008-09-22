@@ -1,6 +1,6 @@
 {
-  check();
-  check(var,QName.class);
+  opened();
+  valid(var,QName.class);
   final QNm name=new QNm(Token.token(var.getLocalPart()));
   Var v=new Var(name);
   if (this instanceof BXQPreparedExpression) {
@@ -11,7 +11,8 @@
     query.ctx.vars.addGlobal(v);
   }
   try {
-    v.item(t == null || ((BXQItemType)t).getType() == it.type ? it : check(t,it.type).e(it,null));
+    final Type tt=check(it.type,t);
+    v.item(tt == it.type ? it : tt.e(it,null));
   }
  catch (  final QueryException ex) {
     throw new BXQException(ex);
