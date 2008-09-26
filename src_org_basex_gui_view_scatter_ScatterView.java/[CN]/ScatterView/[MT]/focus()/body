@@ -1,9 +1,14 @@
 {
+  if (mouseX < XMARGIN || mouseX > getWidth() - XMARGIN + ITEMSIZE / 2 || mouseY < YMARGIN - ITEMSIZE / 2 || mouseY > getHeight() - YMARGIN) {
+    valueFocused=false;
+    focusedItem=-1;
+    return false;
+  }
   valueFocused=true;
   focusedValueX=calcFocusedValue(true);
   focusedValueY=calcFocusedValue(false);
+  focusedItem=-1;
   int dist=Integer.MAX_VALUE;
-  int currFocusedItem=-1;
   for (int i=0; i < scatterData.size; i++) {
     final int x=calcCoordinate(true,scatterData.xAxis.co[i]);
     final int y=calcCoordinate(false,scatterData.yAxis.co[i]);
@@ -13,14 +18,10 @@
       final int currDist=distX * distY;
       if (currDist < dist) {
         dist=currDist;
-        currFocusedItem=i;
+        focusedItem=i;
       }
     }
   }
-  if (focusedItem != currFocusedItem) {
-    focusedItem=currFocusedItem;
-    if (focusedItem != -1)     notifyFocus(scatterData.pres[focusedItem],this);
-    return true;
-  }
-  return false;
+  notifyFocus(focusedItem > -1 ? scatterData.pres[focusedItem] : -1,this);
+  return true;
 }
