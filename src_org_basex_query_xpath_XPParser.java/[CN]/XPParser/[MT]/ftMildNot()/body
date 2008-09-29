@@ -1,12 +1,15 @@
 {
-  final FTArrayExpr e=ftUnaryNot();
+  boolean[] notnext=new boolean[2];
+  final FTArrayExpr e=ftUnaryNot(notnext);
   if (!consume(NOT))   return e;
   FTArrayExpr[] list={e};
   do {
     consumeWS();
     if (!consume(IN))     error(WRONGTEXT,IN,curr());
-    if (consume(FTNOT))     error(FTNOTEXC);
-    list=add(list,ftUnaryNot());
+    consumeWS();
+    if (consume(FTNOT))     error(FTMILDNOT);
+    notnext[FTTIMES]=true;
+    list=add(list,ftUnaryNot(notnext));
   }
  while (consume(NOT));
   return new FTMildNot(list);
