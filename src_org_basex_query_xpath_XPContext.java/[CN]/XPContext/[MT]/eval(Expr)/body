@@ -1,9 +1,11 @@
 {
   checkStop();
-  final Item v=e.eval(this);
-  if (!inf || cc >= MAXDUMP)   return v;
-  final double time=((System.nanoTime() - evalTime) / 10000) / 100.0;
-  evalInfo(time + MS + ": "+ e+ " -> "+ v);
-  if (++cc == MAXDUMP)   evalInfo(XPText.EVALSKIP);
-  return v;
+  final Item it=e.eval(this);
+  if (inf) {
+    final double t=((System.nanoTime() - evalTime) / 10000) / 100d;
+    evalInfo(t + MS + ": "+ e+ " -> "+ it);
+    inf=++cc < MAXDUMP;
+    if (!inf)     evalInfo(XPText.EVALSKIP);
+  }
+  return it;
 }

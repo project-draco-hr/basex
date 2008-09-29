@@ -1,19 +1,10 @@
 {
-  final Matcher mt=TIME.matcher(Token.string(val).trim());
-  if (!mt.matches())   Err.date(type,ex);
+  final Matcher mt=TIM.matcher(Token.string(d).trim());
+  if (!mt.matches())   Err.date(type,e);
   final int h=Token.toInt(mt.group(1));
-  final int m=Token.toInt(mt.group(2));
   final int s=Token.toInt(mt.group(3));
-  if (h > 24 || m > 59 || s > 59 || h == 24 && (m > 0 || s > 0))   Err.range(type,val);
-  if (mt.group(4) != null) {
-    mil=Double.parseDouble(mt.group(4));
-    if (h == 24 && mil > 0)     Err.date(type,ex);
-  }
-  sec+=h * 3600 + m * 60 + s;
-  minus&=sec != 0 || mil != 0;
-  if (sec / DAYSECONDS > dpm(mon / 12,mon % 12)) {
-    sec%=DAYSECONDS;
-    mon++;
-  }
-  zone(mt,6,val);
+  if (s > 59)   Err.range(type,d);
+  final double ms=mt.group(4) != null ? Double.parseDouble(mt.group(4)) : 0;
+  if (h == 24 && ms > 0)   Err.date(type,e);
+  zone(mt,6,d);
 }

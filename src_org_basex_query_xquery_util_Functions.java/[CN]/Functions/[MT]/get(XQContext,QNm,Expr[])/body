@@ -2,17 +2,17 @@
   final Uri uri=name.uri;
   final byte[] ln=name.ln();
   if (uri.eq(Uri.XS)) {
-    final SeqType seq=new SeqType(name,1,null);
+    final SeqType seq=new SeqType(name,1,false);
     if (seq.type == null)     typeErr(name);
     if (args.length != 1)     Err.or(FUNCTYPE,name.str());
     return new Cast(args[0],seq);
   }
   if (Token.startsWith(uri.str(),JAVAPRE)) {
     final String c=Token.string(Token.substring(uri.str(),JAVAPRE.length));
-    StringBuilder sb=new StringBuilder(c);
+    final StringBuilder sb=new StringBuilder(c);
     sb.append(".");
     boolean dash=false;
-    for (    char b : Token.string(ln).toCharArray()) {
+    for (    final char b : Token.string(ln).toCharArray()) {
       if (dash) {
         sb.append(Character.toUpperCase(b));
         dash=false;
@@ -29,11 +29,11 @@
       final String mth=java.substring(i + 1);
       return new FunJava(cls,mth,args);
     }
- catch (    ClassNotFoundException ex) {
+ catch (    final ClassNotFoundException ex) {
       Err.or(FUNCJAVA,java);
     }
   }
-  Fun fun=FNIndex.get().get(ln,uri,args);
+  final Fun fun=FNIndex.get().get(ln,uri,args);
   if (fun != null)   return fun;
   for (int l=0; l < size; l++) {
     final QNm qn=func[l].var.name;

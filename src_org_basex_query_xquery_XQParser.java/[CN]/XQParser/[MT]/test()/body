@@ -3,34 +3,37 @@
   final char ch=curr();
   if (XMLToken.isXMLLetter(ch)) {
     final byte[] name=qName(null);
-    skipWS();
-    if (consume('(')) {
-      tok.reset();
-      while (!consume(')')) {
-        if (curr() == 0)         Err.or(TESTINCOMPLETE);
-        tok.add(consume());
+    if (consumeWS(PAR1)) {
+      final Type type=Type.node(new QNm(name));
+      if (type != null) {
+        tok.reset();
+        while (!consumeWS(PAR2)) {
+          if (curr() == 0)           Err.or(TESTINCOMPLETE);
+          tok.add(consume());
+        }
+        final byte[] ext=tok.finish();
+        final QNm qn=checkTest(type,ext);
+        if (type == Type.NOD)         return Test.NODE;
+        return new KindTest(type,qn);
       }
-      final Type type=node(new QNm(name));
-      if (type == Type.NOD)       return Test.NODE;
-      if (type != null)       return new Test(type,trim(tok.finish()),ctx);
     }
  else {
       if (contains(name,':')) {
         skipWS();
-        return new Test(name,false,ctx);
+        return new NameTest(name,false,ctx);
       }
       if (!consume(':')) {
         skipWS();
-        return new Test(name,false,ctx);
+        return new NameTest(name,false,ctx);
       }
       if (consume('*')) {
-        return new Test(name,false,ctx);
+        return new NameTest(name,false,ctx);
       }
     }
   }
  else   if (consume('*')) {
-    if (!consume(':'))     return new Test();
-    return new Test(qName(null),true,ctx);
+    if (!consume(':'))     return new NameTest();
+    return new NameTest(qName(null),true,ctx);
   }
   qp=p;
   return null;

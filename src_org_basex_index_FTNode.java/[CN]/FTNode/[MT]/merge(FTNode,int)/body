@@ -2,39 +2,40 @@
   if (not != n.not)   return false;
   boolean mp=morePos();
   boolean nmp=n.morePos();
-  if (getPre() != n.getPre() || !(mp && nmp))   return false;
-  IntList il=new IntList();
-  IntList pn=(p != null) ? initNewPointer(n.p) : null;
+  if (!(mp && nmp) || getPre() != n.getPre())   return false;
+  final IntList il=new IntList();
+  final IntList pn=p != null ? initNewPointer(n.p) : null;
   il.add(getPre());
-  int d;
   while (mp && nmp) {
-    d=nextPos() - n.nextPos() + w;
+    final int d=nextPos() - n.nextPos() + w;
     if (d == 0) {
-      add(this,il,pn);
-      if (w > 0)       add(n,il,pn);
+      add(il,pn);
+      if (w > 0)       n.add(il,pn);
       mp=morePos();
       nmp=n.morePos();
     }
  else     if (d < 0) {
-      if (w == 0)       add(this,il,pn);
+      if (w == 0)       add(il,pn);
       mp=morePos();
     }
  else {
-      if (w == 0)       add(n,il,pn);
+      if (w == 0)       n.add(il,pn);
       nmp=n.morePos();
     }
   }
-  if (w == 0)   while (mp) {
-    add(this,il,pn);
-    mp=morePos();
-  }
-  if (w == 0)   while (nmp) {
-    add(n,il,pn);
-    nmp=n.morePos();
+  if (w == 0) {
+    while (mp) {
+      add(il,pn);
+      mp=morePos();
+    }
+    while (nmp) {
+      n.add(il,pn);
+      nmp=n.morePos();
+    }
   }
   ip=new IntList(il.finish());
   if (tok != null) {
-    FTTokenizer[] tmp=new FTTokenizer[tok.length + n.tok.length];
+    final FTTokenizer[] tmp=new FTTokenizer[tok.length + n.tok.length];
     System.arraycopy(tok,0,tmp,0,tok.length);
     System.arraycopy(n.tok,0,tmp,tok.length,n.tok.length);
     tok=tmp;

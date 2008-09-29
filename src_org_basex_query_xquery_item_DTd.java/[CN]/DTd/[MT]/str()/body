@@ -1,32 +1,26 @@
 {
   final TokenBuilder tb=new TokenBuilder();
-  if (minus)   tb.add('-');
+  if (sc.signum() < 0)   tb.add('-');
   tb.add('P');
-  final int d=(int)(sec / DAYSECONDS);
-  final int t=(int)(sec % DAYSECONDS);
-  if (d != 0) {
-    tb.add(d);
+  if (day() != 0) {
+    tb.add(Math.abs(day()));
     tb.add('D');
   }
-  if (t != 0 || mil != 0) {
+  if (sc.remainder(BigDecimal.valueOf(DAYSECONDS)).signum() != 0) {
     tb.add('T');
-    final int h=t / 3600;
-    if (h != 0) {
-      tb.add(h);
+    if (hou() != 0) {
+      tb.add(Math.abs(hou()));
       tb.add('H');
     }
-    final int n=t % 3600 / 60;
-    if (n != 0) {
-      tb.add(n);
+    if (min() != 0) {
+      tb.add(Math.abs(min()));
       tb.add('M');
     }
-    final int s=t % 60;
-    if (s != 0 || mil != 0) {
-      tb.add(s != 0 ? s : 0);
-      if (mil != 0)       tb.add(Token.substring(Token.token(mil),1));
+    if (sec().signum() != 0) {
+      tb.add(sc());
       tb.add('S');
     }
   }
-  if (sec == 0 && mil == 0)   tb.add(Token.token("T0S"));
+  if (sc.signum() == 0)   tb.add("T0S");
   return tb.finish();
 }

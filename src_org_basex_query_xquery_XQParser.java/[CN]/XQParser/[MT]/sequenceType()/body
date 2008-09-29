@@ -1,19 +1,20 @@
 {
   final QNm type=new QNm(qName(TYPEINVALID));
   tok.reset();
-  final boolean par=consumeWS2(PAR1);
+  final boolean par=consumeWS(PAR1);
   if (par) {
-    while (!consumeWS2(PAR2)) {
+    while (!consumeWS(PAR2)) {
       if (curr() == 0)       Err.or(FUNCMISS,type.str());
-      skipWS();
       tok.add(consume());
     }
   }
   skipWS();
   final int mode=consume('?') ? 1 : consume('+') ? 2 : consume('*') ? 3 : 0;
   if (type.ns())   type.uri=ctx.ns.uri(type.pre());
-  final SeqType seq=new SeqType(type,mode,tok.finish());
-  if (seq.type == Type.EMP && mode != 0)   Err.or(EMPTYSEQOCC,seq.type);
+  final byte[] ext=tok.finish();
+  final SeqType seq=new SeqType(type,mode,true);
   if (seq.type == null)   Err.or(par ? NOTYPE : TYPEUNKNOWN,type,par);
+  if (seq.type == Type.EMP && mode != 0)   Err.or(EMPTYSEQOCC,seq.type);
+  seq.ext=checkTest(seq.type,ext);
   return seq;
 }

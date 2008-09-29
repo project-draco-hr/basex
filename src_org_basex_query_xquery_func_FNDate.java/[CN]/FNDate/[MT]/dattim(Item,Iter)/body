@@ -5,12 +5,13 @@
   final Item t=time.u() ? new Tim(time.str()) : time;
   final Dtm dtm=new Dtm((Dat)check(d,Type.DAT));
   final Tim tim=(Tim)check(t,Type.TIM);
-  dtm.sec+=tim.sec;
-  dtm.mil=dtm.mil;
-  if (dtm.zone && tim.zone && dtm.zshift != tim.zshift)   Err.or(FUNZONE,dtm,tim);
-  if (!dtm.zone) {
-    dtm.zone=tim.zone;
-    dtm.zshift=tim.zshift;
+  dtm.xc.setTime(tim.xc.getHour(),tim.xc.getMinute(),tim.xc.getSecond(),tim.xc.getMillisecond());
+  final int zone=tim.xc.getTimezone();
+  if (dtm.xc.getTimezone() == UNDEF) {
+    dtm.xc.setTimezone(zone);
+  }
+ else   if (dtm.xc.getTimezone() != zone && zone != UNDEF) {
+    Err.or(FUNZONE,dtm,tim);
   }
   return dtm.iter();
 }

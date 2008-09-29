@@ -6,6 +6,10 @@
   if (verbose)   BaseX.outln(inname);
   if (single != null && !outname.startsWith(single))   return true;
   final IO file=IO.get(queries + pth + inname+ ".xq");
+  if (!file.exists()) {
+    BaseX.errln("Not found: " + file);
+    return true;
+  }
   final String in=read(file);
   String output="";
   String error=null;
@@ -57,7 +61,8 @@ catch (  final Error ex) {
   for (int o=0; o < outFiles.size; o++) {
     if (o != 0)     tb.append(DELIM);
     final String resFile=string(data.atom(outFiles.pre[o]));
-    tb.append(read(IO.get(expected + pth + resFile)));
+    final IO exp=IO.get(expected + pth + resFile);
+    tb.append(exp.exists() ? read(exp) : ("Not Found: " + exp));
   }
   String result=tb.toString();
   String expError=text("expected-error/text()",root);

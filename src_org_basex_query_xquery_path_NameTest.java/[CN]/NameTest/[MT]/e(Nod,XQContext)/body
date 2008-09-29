@@ -1,0 +1,12 @@
+{
+  if (tmp.type != Type.ELM && tmp.type != Type.ATT)   return false;
+  if (name == null)   return true;
+  if (wild) {
+    final byte[] nm=tmp.nname();
+    return eq(ln,substring(nm,indexOf(nm,':') + 1));
+  }
+  final QNm nm=tmp.qname(qname);
+  if (!pre && !nm.ns())   return eq(nm.str(),ln);
+  ctx.ns.uri(nm);
+  return eq(ln,nm.ln()) && (name.uri.eq(nm.uri) || name.uri == Uri.EMPTY && nm.uri == Uri.XMLNS);
+}

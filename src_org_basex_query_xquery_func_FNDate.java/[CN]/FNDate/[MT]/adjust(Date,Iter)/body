@@ -1,36 +1,22 @@
 {
-  Item zon=z != null ? z.next() : null;
+  final Item zon=z != null ? z.next() : null;
   if (z != null && zon == null) {
-    date.zone=false;
-    date.zshift=0;
+    date.xc.setTimezone(UNDEF);
     return date;
   }
-  final java.util.Date d=Calendar.getInstance().getTime();
-  final byte[] zone=Token.token(new SimpleDateFormat("Z").format(d));
-  final int cshift=Token.toInt(Token.substring(zone,0,3)) * 60 + Token.toInt(Token.substring(zone,3));
+  final int zn=date.xc.getTimezone();
+  int tz=0;
   if (zon == null) {
-    if (date.zone)     date.sec-=60L * (date.zshift - cshift);
-    date.zone=true;
-    date.zshift=cshift;
+    final Calendar c=Calendar.getInstance();
+    tz=(c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET)) / 60000;
   }
  else {
-    check(zon,Type.DTD);
-    final DTd dtd=(DTd)zon;
-    if (dtd.sec % 60 != 0 || dtd.mil != 0 || dtd.sec > 50400)     Err.or(INVALZONE,zon);
-    final long nsec=dtd.minus ? -dtd.sec : dtd.sec;
-    if (date.zone)     date.sec-=date.zshift * 60 - nsec;
-    date.zshift=(int)(nsec / 60);
-    date.zone=true;
+    final DTd dtd=(DTd)check(zon,Type.DTD);
+    ;
+    tz=(int)(dtd.min() + dtd.hou() * 60);
+    if (dtd.sec().signum() != 0 || Math.abs(tz) > 840)     Err.or(INVALZONE,zon);
   }
-  if (date.sec / 86400 > Date.dpm(date.mon / 12,date.mon % 12)) {
-    date.sec%=86400;
-    date.mon++;
-  }
-  if (date.sec < 0) {
-    date.sec+=86400;
-    if (--date.mon >= 0 && date.sec < 86400) {
-      date.sec+=Date.dpm(date.mon / 12,date.mon % 12) * 86400;
-    }
-  }
+  if (zn != UNDEF)   date.xc.add(Date.df.newDuration(-60000L * (zn - tz)));
+  date.xc.setTimezone(tz);
   return date;
 }
