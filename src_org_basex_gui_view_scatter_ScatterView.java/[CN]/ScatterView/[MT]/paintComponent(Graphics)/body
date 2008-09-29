@@ -22,13 +22,22 @@
   if (scatterData.size == 0)   return;
   if (plotImg == null || plotChanged)   plotImg=createPlotImage();
   g.drawImage(plotImg,0,0,this);
-  final Nodes marked=GUI.context.marked();
-  if (marked.size() > 0) {
-    final int[] pres=marked.pre;
-    for (int i=0; i < marked.size(); i++) {
-      final int prePos=scatterData.getPrePos(pres[i]);
-      if (prePos > -1)       drawItem(g,scatterData.xAxis.co[prePos],scatterData.yAxis.co[prePos],false,true);
+  if (markingChanged) {
+    Performance p=new Performance();
+    final Nodes marked=GUI.context.marked();
+    if (marked.size() > 0) {
+      final IntList tmpPre=new IntList();
+      for (int i=0; i < marked.size(); i++) {
+        final int prePos=scatterData.getPrePos(marked.pre[i]);
+        if (prePos > -1)         tmpPre.add(prePos);
+      }
+      temporaryMarkedPos=tmpPre.finish();
+      System.out.println(p.getTimer());
     }
+    markingChanged=false;
+  }
+  for (int i=0; i < temporaryMarkedPos.length; i++) {
+    drawItem(g,scatterData.xAxis.co[temporaryMarkedPos[i]],scatterData.yAxis.co[temporaryMarkedPos[i]],false,true);
   }
   if (focusedItem > -1) {
     drawItem(g,scatterData.xAxis.co[focusedItem],scatterData.yAxis.co[focusedItem],true,false);
@@ -37,8 +46,8 @@
     g.setColor(GUIConstants.color6);
     final String x=mouseX > XMARGIN + NOVALUEBORDER ? scatterData.xAxis.getValue(focusedValueX) : "";
     final String y=mouseY < h - YMARGIN - NOVALUEBORDER ? scatterData.yAxis.getValue(focusedValueY) : "";
-    g.drawString("x  " + x,XMARGIN,h - 50);
-    g.drawString("y  " + y,XMARGIN,h - 35);
+    g.drawString("x  " + x,XMARGIN,YMARGIN - 50);
+    g.drawString("y  " + y,XMARGIN,YMARGIN - 35);
   }
   if (dragging) {
     g.setColor(ScatterBoundingBox.back);
