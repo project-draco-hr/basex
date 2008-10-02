@@ -1,11 +1,23 @@
 {
-  for (int i=0; i < ctx.data().doc().length; i++) {
-    int test=ctx.data().doc()[i];
-    String name=new String(ctx.data().text(test));
-    if (name.equals(id)) {
-      return new BXXMLResource(ctx.current(),id,test);
+  if (ctx.data().doc().length == 1) {
+    if (new String(ctx.data().text(0)).equals(id)) {
+      return new BXXMLResource(ctx.current(),id,0);
     }
   }
-  ;
+ else {
+    for (int i=0; i < ctx.data().doc().length; i++) {
+      int test=ctx.data().doc()[i];
+      String name=new String(ctx.data().text(test));
+      if (name.equals(id)) {
+        Context tmpCtx=new Context();
+        Nodes nodes=new Nodes(test,ctx.data());
+        for (int j=test + 1; j < ctx.data().doc()[i + 1]; j++) {
+          nodes.add(j);
+        }
+        tmpCtx.current(nodes);
+        return new BXXMLResource(tmpCtx.current(),id,test);
+      }
+    }
+  }
   throw new XMLDBException(ErrorCodes.NO_SUCH_RESOURCE);
 }
