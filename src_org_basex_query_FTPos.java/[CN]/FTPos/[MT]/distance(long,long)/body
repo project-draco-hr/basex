@@ -1,32 +1,56 @@
 {
   if (dunit == null)   return true;
-  int p1=-1;
-  int p2=-1;
-  int j=0;
+  IntList p=new IntList();
+  IntList pp=new IntList();
   int[] k=new int[size];
-  boolean o=false;
-  while (j + 1 < pos.length && checkSize(k)) {
-    p1=calcPosition(pos[j].get(k[j]),dunit);
-    p2=calcPosition(pos[j + 1].get(k[j + 1]),dunit);
-    final int d=Math.abs(p1 - p2) - 1;
-    if (d >= mn && d <= mx) {
-      o=true;
-      j++;
-    }
- else     if (p1 < p2) {
-      if (j == 0)       k[j]++;
- else {
-        j=0;
-        k[j]++;
+  int min=0;
+  int p1;
+  int p2;
+  boolean q=false;
+  while (true) {
+    min=0;
+    q=true;
+    for (int j=0; j < size; j++) {
+      if (k[j] > -1) {
+        if (k[min] == -1)         min=j;
+        q=false;
+        if (pos[min].get(k[min]) > pos[j].get(k[j]))         min=j;
       }
     }
- else     if (p1 > p2) {
-      k[j + 1]++;
-    }
- else {
-      k[j]++;
-      k[j + 1]++;
-    }
+    if (q)     break;
+    p.add(pos[min].get(k[min]));
+    pp.add(min);
+    k[min]++;
+    if (k[min] == pos[min].size)     k[min]=-1;
   }
-  return o;
+  int[] res=new int[p.size];
+  int c=0;
+  int i=0;
+  int lp=0;
+  while (i < pp.size && pp.get(lp) == pp.get(i)) {
+    res[c++]=i;
+    i++;
+  }
+  while (i < pp.size) {
+    int[] tmp=new int[p.size];
+    int tc=0;
+    lp=i;
+    while (i < pp.size && pp.get(lp) == pp.get(i)) {
+      p1=calcPosition(p.get(i),dunit);
+      boolean o=false;
+      for (int z=0; z < c; z++) {
+        p2=calcPosition(p.get(res[z]),dunit);
+        final int d=Math.abs(p1 - p2) - 1;
+        if (d >= mn && d <= mx) {
+          o=true;
+          break;
+        }
+      }
+      if (o)       tmp[tc++]=i;
+      i++;
+    }
+    res=tmp;
+    c=tc;
+  }
+  return c > 0;
 }
