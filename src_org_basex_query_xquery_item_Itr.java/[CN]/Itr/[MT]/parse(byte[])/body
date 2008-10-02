@@ -1,20 +1,10 @@
 {
-  int t=0;
-  final int l=val.length;
-  while (t < l && val[t] >= 0 && val[t] <= ' ')   t++;
-  if (t == l)   ZERO.castErr(val);
-  boolean m=false;
-  if (val[t] == '-' || val[t] == '+')   m=val[t++] == '-';
-  if (t == l)   ZERO.castErr(val);
-  long v=0;
-  for (; t < l; t++) {
-    final byte c=val[t];
-    if (c < '0' || c > '9')     break;
-    final long w=(v << 3) + (v << 1) + c - '0';
-    if (w < v)     ZERO.castErr(val);
-    v=w;
+  try {
+    final String v=string(trim(val));
+    return Long.parseLong(v.startsWith("+") ? v.substring(1) : v);
   }
-  while (t < l && val[t] >= 0 && val[t] <= ' ')   t++;
-  if (t != l)   ZERO.castErr(val);
-  return m ? -v : v;
+ catch (  final NumberFormatException ex) {
+    ZERO.castErr(val);
+    return 0;
+  }
 }
