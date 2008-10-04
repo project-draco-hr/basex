@@ -2,19 +2,21 @@
   final String id=res.getId();
   Data tmp=null;
   try {
-    if (res.getContent() instanceof Document) {
-      tmp=CreateDB.xml(new DOCWrapper((Document)res.getContent()),id);
+    final Object cont=res.getContent();
+    if (cont instanceof Document) {
+      tmp=CreateDB.xml(new DOCWrapper((Document)cont,id),id);
     }
  else {
-      tmp=CreateDB.xml(IO.get(res.getContent().toString()),id);
+      tmp=CreateDB.xml(IO.get(cont.toString()),id);
     }
-    ctx.data().insert(ctx.data().size,-1,tmp);
-    ctx.data().flush();
+    final Data data=ctx.data();
+    data.insert(data.size,-1,tmp);
+    data.flush();
     tmp.close();
     DropDB.drop(id);
   }
  catch (  final IOException ex) {
-    ex.printStackTrace();
+    BaseX.debug(ex);
     throw new XMLDBException(ErrorCodes.INVALID_RESOURCE);
   }
 }
