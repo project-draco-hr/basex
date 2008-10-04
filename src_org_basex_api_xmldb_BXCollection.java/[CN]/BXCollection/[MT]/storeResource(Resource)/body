@@ -1,19 +1,19 @@
 {
   final String id=res.getId();
   Data tmp=null;
-  try {
-    final Object cont=res.getContent();
-    if (cont instanceof Document) {
-      tmp=CreateDB.xml(new DOCWrapper((Document)cont,id),id);
-    }
+  final Object cont=res.getContent();
+  Parser p=null;
+  if (cont instanceof Document) {
+    p=new DOCWrapper((Document)cont,id);
+  }
  else {
-      tmp=CreateDB.xml(IO.get(cont.toString()),id);
-    }
+    p=new DirParser(IO.get(cont.toString()));
+  }
+  try {
+    tmp=new MemBuilder().build(p,id);
     final Data data=ctx.data();
     data.insert(data.size,-1,tmp);
     data.flush();
-    tmp.close();
-    DropDB.drop(id);
   }
  catch (  final IOException ex) {
     BaseX.debug(ex);
