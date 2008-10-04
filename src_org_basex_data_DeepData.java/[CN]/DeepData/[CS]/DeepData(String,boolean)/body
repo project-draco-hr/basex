@@ -1,11 +1,12 @@
 {
   if (libError != null)   throw new IOException(libError);
+  final DataInput in=new DataInput(db,DATAINFO);
   meta=new MetaData(db);
-  size=meta.read();
-  tags=new Names(db,true);
-  atts=new Names(db,false);
-  ns=new Namespaces(db);
-  skel=new Skeleton(db);
+  size=meta.read(in);
+  tags=new Names(in);
+  atts=new Names(in);
+  skel=new Skeleton(in);
+  ns=new Namespaces(in);
   table=Prop.mainmem ? new TableMemAccess(db,DATATBL,size) : new TableDiskAccess(db,DATATBL);
   texts=new DataAccess(db,DATATXT);
   values=new DataAccess(db,DATAATV);

@@ -1,17 +1,12 @@
 {
   writeBlock();
-  if (indexdirty) {
-    DataOutput out=new DataOutput(db,fn + 'x');
-    for (int i=0; i < indexSize; i++) {
-      out.writeInt(firstPres[i]);
-      out.writeInt(blocks[i]);
-    }
-    out.close();
-    out=new DataOutput(db,fn + 'i');
-    out.writeInt(nrBlocks);
-    out.writeInt(indexSize);
-    out.writeInt(count);
-    out.close();
-    indexdirty=false;
-  }
+  if (!indexdirty)   return;
+  final DataOutput out=new DataOutput(db,fn + 'i');
+  out.writeNum(nrBlocks);
+  out.writeNum(indexSize);
+  out.writeNum(count);
+  out.writeNums(firstPres);
+  out.writeNums(blocks);
+  out.close();
+  indexdirty=false;
 }

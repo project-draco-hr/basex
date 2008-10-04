@@ -1,3 +1,14 @@
 {
-  ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,GUIProp.fontalias ? RenderingHints.VALUE_TEXT_ANTIALIAS_ON : RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+  Object hint=RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
+  if (GUIProp.fontalias) {
+    try {
+      final Class<?> rh=RenderingHints.class;
+      hint=rh.getField("VALUE_TEXT_ANTIALIAS_GASP").get(null);
+    }
+ catch (    final Exception e) {
+      hint=RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
+    }
+  }
+  final Graphics2D gg=(Graphics2D)g;
+  gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,hint);
 }

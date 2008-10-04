@@ -20,15 +20,14 @@
     ser.attribute(at,atts.list[n].str());
   }
   if (level == 0) {
-    byte[] pre=name.pre();
-    final Uri uri=name.uri;
-    if (uri != Uri.EMPTY) {
-      final byte[] p=ctx.ns.prefix(uri);
+    final QNm ns=nsAnc();
+    if (ns != null) {
+      final byte[] p=ctx.ns.prefix(ns.uri);
       if (!Token.eq(p,XML)) {
-        pre=p.length == 0 ? XMLNS : Token.concat(XMLNSCOL,pre);
+        byte[] pre=p.length == 0 ? XMLNS : concat(XMLNSCOL,ns.pre());
         if (!nms.contains(pre)) {
           nms.add(pre);
-          vls.add(uri.str());
+          vls.add(ns.uri.str());
         }
       }
     }

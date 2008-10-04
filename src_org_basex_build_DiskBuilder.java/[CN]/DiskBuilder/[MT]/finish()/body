@@ -1,13 +1,15 @@
 {
   if (tags.size() > 0xFFFF)   throw new IOException(LIMITTAGS);
   if (atts.size() > 0xFFFF)   throw new IOException(LIMITATTS);
-  final String db=meta.dbname;
-  tags.finish(db);
-  atts.finish(db);
-  ns.finish(db);
-  skel.finish(db);
-  meta.finish(size);
   close();
+  final String db=meta.dbname;
+  final DataOutput out=new DataOutput(meta.dbname,DATAINFO);
+  meta.finish(out,size);
+  tags.finish(out);
+  atts.finish(out);
+  skel.finish(out);
+  ns.finish(out);
+  out.close();
   final TableAccess ta=new TableDiskAccess(db,DATATBL);
   final DataInput in=new DataInput(db,DATATMP);
   for (int pre=0; pre < ssize; pre++) {

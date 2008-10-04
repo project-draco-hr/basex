@@ -1,0 +1,25 @@
+{
+  final QNm name=fun.var.name;
+  final Uri uri=name.uri;
+  if (uri == Uri.EMPTY)   Err.or(FUNNONS,name.str());
+  if (GlobalNS.standard(uri)) {
+    if (fun.decl)     Err.or(NAMERES,name.str());
+ else     funError(fun.var.name);
+  }
+  final byte[] ln=name.ln();
+  for (int l=0; l < size; l++) {
+    final QNm qn=func[l].var.name;
+    final Uri u=qn.uri;
+    final byte[] nm=qn.ln();
+    if (Token.eq(ln,nm) && uri.eq(u) && fun.args.length == func[l].args.length) {
+      if (!func[l].decl) {
+        func[l]=fun;
+        return l;
+      }
+      Err.or(FUNCDEFINED,fun);
+    }
+  }
+  if (size == func.length)   func=Array.extend(func);
+  func[size]=fun;
+  return size++;
+}
