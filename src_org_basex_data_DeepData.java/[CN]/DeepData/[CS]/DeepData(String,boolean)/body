@@ -1,19 +1,13 @@
 {
   if (libError != null)   throw new IOException(libError);
-  final DataInput in=new DataInput(db,DATAINFO);
+  jni_init(index);
   meta=new MetaData(db);
-  size=meta.read(in);
-  tags=new Names(in);
-  atts=new Names(in);
-  skel=new Skeleton(in);
-  ns=new Namespaces(in);
-  table=Prop.mainmem ? new TableMemAccess(db,DATATBL,size) : new TableDiskAccess(db,DATATBL);
-  texts=new DataAccess(db,DATATXT);
-  values=new DataAccess(db,DATAATV);
-  if (index) {
-    if (meta.txtindex)     openIndex(IndexToken.TYPE.TXT,new Values(this,db,true));
-    if (meta.atvindex)     openIndex(IndexToken.TYPE.ATV,new Values(this,db,false));
-    if (meta.ftxindex)     openIndex(IndexToken.TYPE.FTX,meta.ftfz ? new FTFuzzy(this,db) : new FTTrie(this,db));
-  }
-  initNames();
+  size=jni_get_file_table_size();
+  tags=null;
+  atts=null;
+  skel=null;
+  ns=new Namespaces();
+  table=null;
+  texts=null;
+  values=null;
 }
