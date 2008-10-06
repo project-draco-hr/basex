@@ -1,14 +1,18 @@
 {
-  if (!ordered)   return true;
-  int c=-1;
-  int d=-1;
-  for (int i=0; i < size; i++) {
-    for (int j=0; j < pos[i].size; j++) {
-      d=pos[i].get(j);
-      if (c <= d)       break;
-    }
-    if (c > d)     return false;
-    c=d;
+  if (!ordered || size == 1)   return true;
+  final IntList[] il=sortPositions();
+  IntList p=il[0];
+  IntList pp=il[1];
+  int i=0;
+  int lp;
+  while (i < p.size && pp.get(i) != 0)   i++;
+  lp=i;
+  i++;
+  while (i < p.size) {
+    if (pp.get(i) == pp.get(lp) + 1)     lp=i;
+ else     if (pp.get(i) < pp.get(lp))     return false;
+    if (pp.get(lp) == size - 1)     return true;
+    i++;
   }
-  return true;
+  return false;
 }
