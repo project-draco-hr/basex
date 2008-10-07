@@ -1,4 +1,5 @@
 {
+  if (handler == null)   throw new XMLDBException(ErrorCodes.INVALID_RESOURCE);
   XMLReader reader=null;
   final SAXParserFactory saxFactory=SAXParserFactory.newInstance();
   saxFactory.setNamespaceAware(true);
@@ -6,23 +7,10 @@
   try {
     final SAXParser sax=saxFactory.newSAXParser();
     reader=sax.getXMLReader();
-  }
- catch (  final ParserConfigurationException pce) {
-    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,pce.getMessage());
-  }
-catch (  final SAXException saxe) {
-    saxe.printStackTrace();
-    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,saxe.getMessage());
-  }
-  try {
     reader.setContentHandler(handler);
     reader.parse(new InputSource(new StringReader(getContent().toString())));
   }
- catch (  final SAXException saxe) {
-    saxe.printStackTrace();
-    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,saxe.getMessage());
-  }
-catch (  final IOException ioe) {
-    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ioe.getMessage());
+ catch (  final Exception pce) {
+    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,pce.getMessage());
   }
 }
