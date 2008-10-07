@@ -19,13 +19,13 @@
     final Context context=new Context();
     final XQueryProcessor xq=new XQueryProcessor(in,file);
     final Nodes cont=nodes("contextItem",root);
-    if (cont.size != 0)     new Check(sources + string(data.atom(cont.pre[0])) + IO.XMLSUFFIX).execute(context,null);
+    if (cont.size != 0)     new Check(sources + string(data.atom(cont.nodes[0])) + IO.XMLSUFFIX).execute(context,null);
     final XQContext ctx=xq.ctx;
     files.add(file(nodes("input-file",root),nodes("input-file/@variable",root),ctx));
     files.add(file(nodes("input-URI",root),nodes("input-URI/@variable",root),ctx));
     files.add(file(nodes("defaultCollection",root),null,ctx));
     var(nodes("input-query/@name",root),nodes("input-query/@variable",root),pth,ctx);
-    for (    final int p : nodes("module",root).pre) {
+    for (    final int p : nodes("module",root).nodes) {
       final String ns=text("@namespace",new Nodes(p,data));
       final String f=modules.get(string(data.atom(p))) + ".xq";
       xq.module(ns,f);
@@ -60,7 +60,7 @@ catch (  final Error ex) {
   final StringBuilder tb=new StringBuilder();
   for (int o=0; o < outFiles.size; o++) {
     if (o != 0)     tb.append(DELIM);
-    final String resFile=string(data.atom(outFiles.pre[o]));
+    final String resFile=string(data.atom(outFiles.nodes[o]));
     final IO exp=IO.get(expected + pth + resFile);
     tb.append(exp.exists() ? read(exp) : ("Not Found: " + exp));
   }
@@ -110,7 +110,7 @@ catch (  final Error ex) {
     final String[] split=CHOP.split(result,0);
     int s=-1;
     while (++s < split.length) {
-      inspect|=s < cmpFiles.pre.length && eq(data.atom(cmpFiles.pre[s]),INSPECT);
+      inspect|=s < cmpFiles.nodes.length && eq(data.atom(cmpFiles.nodes[s]),INSPECT);
       if (split[s].equals(output))       break;
     }
     if (s == split.length && !inspect) {
