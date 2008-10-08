@@ -1,11 +1,14 @@
 {
-  byte[] idd=Token.token(id);
-  int[] docs=ctx.data().doc();
-  for (int i=0; i < docs.length; i++) {
-    int pre=docs[i];
-    if (Token.eq(ctx.data().text(pre),idd)) {
-      return new BXXMLResource(ctx.data(),id,pre,this);
+  if (isOpen()) {
+    byte[] idd=Token.token(id);
+    int[] docs=ctx.data().doc();
+    for (int i=0; i < docs.length; i++) {
+      int pre=docs[i];
+      if (Token.eq(ctx.data().text(pre),idd)) {
+        return new BXXMLResource(ctx.data(),id,pre,this);
+      }
+      return null;
     }
   }
-  throw new XMLDBException(ErrorCodes.VENDOR_ERROR);
+  throw new XMLDBException(ErrorCodes.COLLECTION_CLOSED);
 }

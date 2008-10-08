@@ -1,4 +1,14 @@
 {
-  ctx.data().delete(((BXXMLResource)res).getPre());
-  ctx.data().flush();
+  if (isOpen()) {
+    if (res instanceof BXXMLResource) {
+      BXXMLResource tmp=(BXXMLResource)res;
+      if (Token.string(ctx.data().text(tmp.getPre())).equals(tmp.getDocumentId())) {
+        ctx.data().delete(((BXXMLResource)res).getPre());
+        ctx.data().flush();
+      }
+      throw new XMLDBException(ErrorCodes.NO_SUCH_RESOURCE);
+    }
+    throw new XMLDBException(ErrorCodes.INVALID_RESOURCE);
+  }
+  throw new XMLDBException(ErrorCodes.COLLECTION_CLOSED);
 }
