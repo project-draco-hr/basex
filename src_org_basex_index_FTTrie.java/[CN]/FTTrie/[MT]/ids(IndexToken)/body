@@ -25,6 +25,17 @@
     final int count=FTFuzzy.csDBCheck(ids,data,ftdb,tok);
     return (count == 0) ? IndexIterator.EMPTY : new IndexArrayIterator(ids,count,true);
   }
-  final int[][] tmp=getNodeFromTrieRecursive(0,tok,ft.cs);
+  final int id=cache.id(tok);
+  final int[][] tmp;
+  if (id > -1) {
+    final int size=cache.getSize(id);
+    final long p=cache.getPointer(id);
+    if (data.meta.ftittr) {
+    }
+    tmp=getDataFromDataArray(size,p);
+  }
+ else {
+    tmp=getNodeFromTrieRecursive(0,tok,ft.cs);
+  }
   return (tmp == null) ? IndexIterator.EMPTY : new IndexArrayIterator(tmp,true);
 }

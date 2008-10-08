@@ -1,17 +1,23 @@
 {
   if (!(expr1 instanceof LocPathRel))   return this;
-  s=seq;
   final LocPath path=(LocPath)expr1;
   ctx.compInfo(OPTFTINDEX);
   final FTArrayExpr ae=(FTArrayExpr)(iu ? expr2.indexEquivalent(ctx,curr,seq) : expr2);
   Expr expr;
+  iec=true;
   if (!seq) {
-    expr=new FTContains(expr1,ae,option);
-    return new Path(expr,path.invertPath(curr));
+    expr=new FTContains(expr1,ae,option,seq,iu);
+    if (curr != null)     return new Path(expr,path.invertPath(curr));
+ else     return expr;
   }
  else {
-    if (!iu)     expr=new FTContains(expr1,expr2,option);
- else     expr=new FTContains(expr1,ae,option);
+    if (!iu) {
+      expr=new FTContains(expr1,expr2,option,seq,iu);
+    }
+ else {
+      expr=new FTContains(expr1,ae,option,seq,iu);
+    }
+    if (curr == null)     return expr;
     return new Path(expr,path);
   }
 }

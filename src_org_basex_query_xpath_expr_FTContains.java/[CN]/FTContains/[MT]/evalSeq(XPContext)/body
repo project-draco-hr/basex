@@ -2,21 +2,23 @@
   if (!iu)   return evalWithoutIndex(ctx);
   final FTTokenizer tmp=ctx.ftitem;
   ctx.ftitem=ft;
+  final NodeSet ns=(NodeSet)expr1.eval(ctx);
+  if (!ns.bool())   return Bool.FALSE;
   if (!f) {
-    v1=ctx.eval(expr2);
+    v2=ctx.eval(expr2);
     f=true;
   }
-  if (v1.bool()) {
+  if (v2.bool()) {
     final FTArrayExpr ftae=(FTArrayExpr)expr2;
     ftn=(ftn == null && ftae.more()) ? ftae.next(ctx) : ftn;
     if (ftn != null) {
-      while (ftn.getPre() < ctx.item.nodes[0] + 1) {
+      while (ftn.getPre() < ns.nodes[0]) {
         if (ftae.more())         ftn=ftae.next(ctx);
  else         break;
       }
       if (ftn.size > 0) {
         final boolean not=ftn.not;
-        if (ftn.getPre() == ctx.item.nodes[0] + 1) {
+        if (ftn.getPre() == ns.nodes[0]) {
           ftn=null;
           return Bool.get(!not);
         }

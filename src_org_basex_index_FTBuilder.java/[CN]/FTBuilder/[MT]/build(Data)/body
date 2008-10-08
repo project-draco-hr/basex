@@ -20,9 +20,9 @@
     System.out.println(Performance.getMem());
   }
   final String db=data.meta.dbname;
-  final DataOutput outD=new DataOutput(db,DATAFTX + 'b');
+  final DataOutput outPre=new DataOutput(db,DATAFTX + 'b');
   if (index.bl) {
-    bulkLoad(outD);
+    bulkLoad(outPre,data.meta.ftittr);
   }
   if (Prop.debug) {
     System.out.println("Hash und Trie in Hauptspeicher gehalten:");
@@ -77,8 +77,8 @@
           }
         }
  else {
-          writeData(outD,pre[next[i][next[i].length - 1]]);
-          writeData(outD,pos[next[i][next[i].length - 1]]);
+          writeData(outPre,pre[next[i][next[i].length - 1]]);
+          writeData(outPre,pos[next[i][next[i].length - 1]]);
         }
       }
       outS.writeInt(s);
@@ -88,12 +88,12 @@
   if (!index.bl) {
     final int il=index.pre.size;
     for (int i=0; i < il; i++) {
-      writeData(outD,pre[i]);
-      writeData(outD,pos[i]);
+      writeData(outPre,pre[i]);
+      writeData(outPre,pos[i]);
     }
   }
   outS.writeInt(s);
-  outD.close();
+  outPre.close();
   outN.close();
   outS.close();
   return new FTTrie(data,db);

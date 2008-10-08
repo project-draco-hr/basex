@@ -73,7 +73,17 @@
     final Preds newPreds=new Preds();
     if (!indexMatch && invPath.steps.size() != 0)     newPreds.add(invPath);
     for (int p=0; p != step.preds.size(); p++) {
-      if (!oldPreds.contains(p))       newPreds.add(step.preds.get(p));
+      if (!oldPreds.contains(p)) {
+        Pred pred=step.preds.get(p);
+        if (pred instanceof PredSimple) {
+          Expr e=((PredSimple)pred).getExpr();
+          if (e instanceof FTContains) {
+            e=e.indexEquivalent(ctx,null,true);
+          }
+          pred=new PredSimple(e);
+        }
+        newPreds.add(pred);
+      }
     }
     result=new InterSect(new Expr[]{indexArg}).compile(ctx);
     if (newPreds.size() != 0)     result=new Filter(result,newPreds).compile(ctx);
