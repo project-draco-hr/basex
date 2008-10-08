@@ -1,12 +1,10 @@
 {
-  final int[] parent=new int[data.meta.height];
-  final byte[][] token=new byte[data.meta.height][];
   int l=0;
-  int p=pr;
-  final int s=pr + data.size(pr,data.kind(pr));
+  int p=pre;
+  final int s=pre + data.size(pre,data.kind(p));
   while (p < s) {
     if (finished())     return s;
-    final int k=data.kind(p);
+    int k=data.kind(p);
     final int pa=data.parent(p,k);
     while (l > 0 && parent[l - 1] >= pa)     closeElement(token[--l]);
     if (k == Data.DOC) {
@@ -24,10 +22,25 @@
  else {
       final byte[] name=data.tag(p);
       startElement(name);
+      nms.reset();
+      vls.reset();
       final int ps=p + data.size(p,k);
       final int as=p + data.attSize(p,k);
+      int pp=p;
       while (++p != as)       attribute(data.attName(p),data.attValue(p));
-      if (p == ps) {
+      if (level == 0 && l == 0) {
+        do {
+          addNS(data,pp);
+          pp=data.parent(pp,k);
+          k=data.kind(pp);
+        }
+ while (k == Data.ELEM);
+      }
+ else {
+        addNS(data,pp);
+      }
+      for (int n=0; n < nms.size; n++)       attribute(nms.list[n],vls.list[n]);
+      if (as == ps) {
         emptyElement();
       }
  else {

@@ -3,8 +3,7 @@
   final QNm open=new QNm(qName(NOTAGNAME));
   consumeWSS();
   Expr[] cont={};
-  Uri taguri=null;
-  FAttr[] ns={};
+  QNm[] ns={};
   while (XMLToken.isXMLLetter(curr())) {
     final QNm atn=new QNm(qName(null));
     Expr[] attv={};
@@ -58,9 +57,10 @@
     if (tb.size != 0)     attv=add(attv,Str.get(tb.finish()));
     if (eq(atn.str(),XMLNS)) {
       if (!simple)       Err.or(NSCONS);
-      if (taguri != null)       Err.or(DUPLNSDEF,atn);
       final byte[] v=attv.length == 0 ? EMPTY : attv[0].str();
-      taguri=Uri.uri(v);
+      atn.uri=Uri.uri(v);
+      open.uri=atn.uri;
+      ns=addNS(ns,atn);
     }
  else     if (eq(atn.pre(),XMLNS)) {
       if (!simple)       Err.or(NSCONS);
@@ -68,15 +68,13 @@
       if (v.length == 0)       Err.or(NSEMPTYURI);
       atn.uri=Uri.uri(v);
       ctx.ns.index(atn);
-      ns=checkNS(ns,atn,v);
+      ns=addNS(ns,atn);
     }
  else {
       cont=add(cont,new CAttr(atn,attv,false));
     }
     if (!consumeWSS())     break;
   }
-  ctx.ns.uri(open);
-  if (open.uri == Uri.EMPTY && taguri != null)   open.uri=taguri == Uri.EMPTY ? null : taguri;
   if (consume('/')) {
     check('>');
   }

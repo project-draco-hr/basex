@@ -1,51 +1,56 @@
 {
-  final byte[] nm=name.str();
-  ser.startElement(nm);
-  final TokenList nms=new TokenList();
-  final TokenList vls=new TokenList();
-  for (  final FAttr ns : names) {
-    nms.add(ns.nname());
-    vls.add(ns.str());
-  }
+  final byte[] tag=name.str();
+  ser.startElement(tag);
   for (int n=0; n < atts.size; n++) {
-    final Nod a=atts.list[n];
-    final byte[] at=a.nname();
-    if (level == 0 && a.qname().ns()) {
-      final byte[] pref=substring(at,0,indexOf(at,':'));
-      final byte[] atr=concat(XMLNSC,pref);
-      boolean f=Token.eq(pref,XML);
-      for (      final FAttr ns : names)       f|=Token.eq(ns.nname(),atr);
-      if (!f)       ser.attribute(atr,a.qname().uri.str());
-    }
-    ser.attribute(at,atts.list[n].str());
+    ser.attribute(atts.list[n].nname(),atts.list[n].str());
   }
   if (level == 0) {
-    final QNm ns=nsAnc();
-    if (ns != null) {
-      final byte[] p=ctx.ns.prefix(ns.uri);
-      if (!Token.eq(p,XML)) {
-        byte[] pre=p.length == 0 ? XMLNS : concat(XMLNSC,ns.pre());
-        if (!nms.contains(pre)) {
-          nms.add(pre);
-          vls.add(ns.uri.str());
+    final TokenList nms=new TokenList();
+    Nod elm=this;
+    boolean xmlns=false;
+    do {
+      for (      final QNm ns : ((FElem)elm).names) {
+        final byte[] key=ns.str();
+        final Uri val=ns.uri;
+        if (nms.contains(key))         continue;
+        nms.add(key);
+        if (Token.eq(key,XMLNS)) {
+          xmlns=true;
+          if (val == Uri.EMPTY)           continue;
         }
+        ser.attribute(key,val.str());
       }
+      elm=elm.parent();
     }
- else     if (ctx.nsElem != Uri.EMPTY) {
-      nms.add(XMLNS);
-      vls.add(ctx.nsElem.str());
+ while (elm instanceof FElem);
+    final QNm[] qn=ctx.ns.ns();
+    for (int p=0; p < qn.length; p++) {
+      byte[] key=qn[p].str();
+      key=key.length == 0 ? XMLNS : concat(XMLNSC,key);
+      final byte[] val=qn[p].uri.str();
+      if (nms.contains(key))       continue;
+      nms.add(key);
+      if (Token.eq(key,XMLNS)) {
+        xmlns=true;
+        if (val.length == 0)         continue;
+      }
+      ser.attribute(key,val);
+    }
+    if (ctx.nsElem != Uri.EMPTY && !xmlns) {
+      ser.attribute(XMLNS,ctx.nsElem.str());
     }
   }
-  for (int n=0; n < nms.size; n++)   ser.attribute(nms.list[n],vls.list[n]);
+ else {
+    for (    final QNm ns : names)     ser.attribute(ns.str(),ns.uri.str());
+  }
   if (children.size == 0) {
     ser.emptyElement();
   }
  else {
     ser.finishElement();
     for (int n=0; n < children.size; n++) {
-      final Item child=children.list[n];
-      child.serialize(ser,ctx,level + 1);
+      children.list[n].serialize(ser,ctx,level + 1);
     }
-    ser.closeElement(nm);
+    ser.closeElement(tag);
   }
 }
