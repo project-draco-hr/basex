@@ -1,11 +1,13 @@
 {
   if (skipWS())   Err.or(NOTAGNAME);
   final QNm open=new QNm(qName(NOTAGNAME));
+  if (!open.ns())   open.uri=ctx.nsElem;
   consumeWSS();
   Expr[] cont={};
-  QNm[] ns={};
+  final Atts ns=new Atts();
+  final int s=ctx.ns.size;
   while (XMLToken.isXMLLetter(curr())) {
-    final QNm atn=new QNm(qName(null));
+    final byte[] atn=qName(null);
     Expr[] attv={};
     consumeWSS();
     check('=');
@@ -55,23 +57,21 @@
     }
  while (true);
     if (tb.size != 0)     attv=add(attv,Str.get(tb.finish()));
-    if (eq(atn.str(),XMLNS)) {
+    if (eq(atn,XMLNS)) {
       if (!simple)       Err.or(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : attv[0].str();
-      atn.uri=Uri.uri(v);
-      open.uri=atn.uri;
-      ns=addNS(ns,atn);
+      open.uri=Uri.uri(v);
+      addNS(ns,atn,v);
     }
- else     if (eq(atn.pre(),XMLNS)) {
+ else     if (startsWith(atn,XMLNS)) {
       if (!simple)       Err.or(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : attv[0].str();
       if (v.length == 0)       Err.or(NSEMPTYURI);
-      atn.uri=Uri.uri(v);
-      ctx.ns.index(atn);
-      ns=addNS(ns,atn);
+      ctx.ns.add(new QNm(atn,Uri.uri(v)));
+      addNS(ns,atn,v);
     }
  else {
-      cont=add(cont,new CAttr(atn,attv,false));
+      cont=add(cont,new CAttr(new QNm(atn),attv,false));
     }
     if (!consumeWSS())     break;
   }
@@ -92,5 +92,6 @@
     check('>');
     if (!eq(open.str(),close))     Err.or(TAGWRONG,open.str(),close);
   }
+  ctx.ns.size=s;
   return new CElem(open,cont,ns);
 }

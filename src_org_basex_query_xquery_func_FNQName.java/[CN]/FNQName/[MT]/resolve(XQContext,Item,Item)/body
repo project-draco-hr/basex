@@ -1,0 +1,22 @@
+{
+  final byte[] name=trim(checkStr(q));
+  if (!XMLToken.isQName(name))   Err.value(Type.QNM,q);
+  final QNm nm=new QNm(name);
+  final byte[] pre=nm.pre();
+  Nod n=(Nod)check(it,Type.ELM);
+  nm.uri=n.qname().uri;
+  if (nm.uri != Uri.EMPTY)   return nm.iter();
+  while (n != null) {
+    final Atts at=n.ns();
+    if (at == null)     break;
+    final int i=at.get(pre);
+    if (i != -1) {
+      nm.uri=Uri.uri(at.val[i]);
+      return nm.iter();
+    }
+    n=n.parent();
+  }
+  if (pre.length != 0)   Err.or(NSDECL,pre);
+  nm.uri=ctx.nsElem;
+  return nm.iter();
+}

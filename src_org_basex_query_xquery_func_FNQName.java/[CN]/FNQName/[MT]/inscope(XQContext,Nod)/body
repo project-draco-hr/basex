@@ -1,16 +1,13 @@
 {
   final TokenList tl=new TokenList();
-  tl.add(Token.XML);
-  if (ctx.nsElem != Uri.EMPTY)   tl.add(Token.EMPTY);
+  tl.add(XML);
+  if (ctx.nsElem != Uri.EMPTY)   tl.add(EMPTY);
   Nod n=node;
   while (n != null) {
-    final QNm[] at=n.ns();
+    final Atts at=n.ns();
     if (at == null)     break;
-    for (    final QNm name : at) {
-      if (name.ns()) {
-        final byte[] pre=name.ln();
-        if (!tl.contains(pre))         tl.add(pre);
-      }
+    for (int a=0; a < at.size; a++) {
+      if (!tl.contains(at.key[a]))       tl.add(at.key[a]);
     }
     n=n.parent();
   }

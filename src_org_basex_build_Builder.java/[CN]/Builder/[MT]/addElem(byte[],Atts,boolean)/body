@@ -1,0 +1,29 @@
+{
+  final byte[] tag=utf8(name,meta.encoding);
+  if (level != 0) {
+    if (level == 1 && inDoc)     error(MOREROOTS,parser.det(),tag);
+    tags.noleaf(tagStack[level - 1],true);
+  }
+  final int tid=tags.index(tag,null);
+  skel.add(tid,level,Data.ELEM);
+  tagStack[level]=tid;
+  parStack[level]=size;
+  final boolean n=ns.open(size);
+  final int dis=level != 0 ? size - parStack[level - 1] : 1;
+  final int al=att.size;
+  int tns=ns.get(tag);
+  if (tns == 0)   tns=nsStack[level];
+  addElem(tid,tns,dis,al + 1,n);
+  for (int a=0; a < al; a++) {
+    final byte[] av=att.val[a];
+    final int an=atts.index(att.key[a],av);
+    final int ans=ns.get(att.key[a]);
+    skel.add(an,level + 1,Data.ATTR);
+    addAttr(an,ans,av,a + 1);
+  }
+  if (open) {
+    if (meta.height < ++level)     meta.height=level;
+    nsStack[level]=nsStack[level - 1];
+  }
+  if (size != 1)   inDoc=true;
+}

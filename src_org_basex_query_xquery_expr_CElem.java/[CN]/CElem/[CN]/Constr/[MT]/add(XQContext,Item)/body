@@ -1,9 +1,9 @@
 {
   if (it == null)   return false;
   if (it.node() && it.type != Type.TXT) {
-    final Nod node=(Nod)it;
+    Nod node=(Nod)it;
     if (it.type == Type.ATT) {
-      if (text.size != 0 || nodes.size != 0)       Err.or(NOATTALL);
+      if (text.size != 0 || children.size != 0)       Err.or(NOATTALL);
       final QNm name=node.qname();
       final byte[] ln=name.ln();
       final byte[] pre=name.pre();
@@ -18,18 +18,28 @@
       }
       ats.add(node.copy());
     }
+ else     if (it.type == Type.DOC) {
+      final NodeIter iter=node.child();
+      Nod ch;
+      while ((ch=iter.next()) != null)       add(ctx,ch);
+    }
  else {
-      if (it.type == Type.DOC) {
-        final NodeIter iter=node.child();
-        Nod ch;
-        while ((ch=iter.next()) != null)         add(ctx,ch);
+      if (text.size != 0) {
+        children.add(new FTxt(text.finish(),null));
+        text.reset();
       }
- else {
-        if (text.size != 0) {
-          nodes.add(new FTxt(text.finish(),null));
-          text.reset();
+      node=node.copy();
+      children.add(node);
+      final Atts atts=node.ns();
+      if (atts != null) {
+        node=node.parent();
+        while (node != null && node.type == Type.ELM) {
+          final Atts ns=node.ns();
+          for (int a=0; a < ns.size; a++) {
+            atts.addUnique(ns.key[a],ns.val[a]);
+          }
+          node=node.parent();
         }
-        nodes.add(node.copy());
       }
     }
     more=false;
