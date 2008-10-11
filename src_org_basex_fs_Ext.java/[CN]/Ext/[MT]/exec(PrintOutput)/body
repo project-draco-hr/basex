@@ -1,0 +1,29 @@
+{
+  final ProcessBuilder pb=new ProcessBuilder(cmd.split(" "));
+  pb.directory(new File(Token.string(fs.path(curPre))));
+  try {
+    final Process pr=pb.start();
+    final byte[][] cache=new byte[2][];
+    final Thread t1=new Thread(){
+      @Override public void run(){
+        cache[0]=getStream(pr.getInputStream());
+      }
+    }
+;
+    final Thread t2=new Thread(){
+      @Override public void run(){
+        cache[1]=getStream(pr.getErrorStream());
+      }
+    }
+;
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
+    out.print(cache[cache[1].length == 0 ? 0 : 1]);
+  }
+ catch (  final Exception ex) {
+    BaseX.debug(ex);
+    out.println(ex.getMessage());
+  }
+}
