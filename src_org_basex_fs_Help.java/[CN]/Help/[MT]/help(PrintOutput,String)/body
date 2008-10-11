@@ -1,0 +1,49 @@
+{
+  try {
+    if (cmd.length() == 0) {
+      out.println(FSText.HELP);
+      final Field[] fields=FSText.class.getFields();
+      int maxW=0;
+      for (      final Field f : fields)       maxW=Math.max(maxW,f.getName().length());
+      for (      final Field f : fields) {
+        final Object o=f.get(null);
+        if (o instanceof String[]) {
+          final String[] cm=(String[])o;
+          out.print(LI);
+          out.print(token(f.getName().toLowerCase()),maxW + 2);
+          out.println(cm[0]);
+        }
+      }
+    }
+ else {
+      final String cl=cmd.toLowerCase();
+      final String cu=cmd.toUpperCase();
+      final String[] help=(String[])FSText.class.getField(cu).get(null);
+      if (VERBOSE) {
+        out.println(String.format("%-23s%-35s%18s",cu + "(1)",FSText.HEAD,"(1)" + cu) + NL);
+        out.println(" " + FSText.NAME);
+        out.println("   " + cl + " -- "+ help[0]+ NL);
+        out.println(" " + FSText.SYNO);
+        out.println("   " + cl + " "+ help[1]+ NL);
+        out.println(" " + FSText.DESC);
+        for (int i=2; i < help.length; i++)         out.println("   " + help[i]);
+      }
+ else {
+        out.println(FSText.USAGE + cl + " "+ help[1]);
+        out.println(help[0] + NL);
+        for (int i=2; i < help.length; i++)         out.println(help[i]);
+      }
+    }
+  }
+ catch (  final Exception ex) {
+    final byte[] n=lc(token(cmd));
+    for (    final Commands.FS c : Commands.FS.values()) {
+      final byte[] s=lc(token(c.name()));
+      if (Levenshtein.similar(n,s)) {
+        out.println(BaseX.info(CMDSIMILAR,n,s));
+        return;
+      }
+    }
+    out.println(BaseX.info(CMDUNKNOWN,cmd));
+  }
+}

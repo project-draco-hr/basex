@@ -1,9 +1,21 @@
 {
   Process[] list=new Process[0];
   if (!more())   return list;
+  boolean fsmode=Prop.fsmode;
   while (true) {
-    final COMMANDS cmd=consume(COMMANDS.class,null);
-    list=Array.add(list,parse(cmd));
+    Process proc;
+    COMMANDS cmd=null;
+    if (fsmode) {
+      cmd=COMMANDS.BASH;
+      proc=new Fs(consume(FS.class,cmd).name(),path(null,false));
+      if (FS.valueOf(proc.args[0]) == Commands.FS.EXIT)       fsmode=false;
+    }
+ else {
+      cmd=consume(COMMANDS.class,null);
+      proc=parse(cmd);
+      if (proc instanceof Fs)       fsmode=true;
+    }
+    list=Array.add(list,proc);
     consumeWS();
     if (!more())     return list;
     if (!consume(';'))     help(null,cmd);

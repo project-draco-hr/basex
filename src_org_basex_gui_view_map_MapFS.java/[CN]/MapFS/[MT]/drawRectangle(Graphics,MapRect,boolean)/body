@@ -5,8 +5,8 @@
   final int pre=rect.p;
   final int kind=data.kind(pre);
   final boolean tag=kind == Data.ELEM || kind == Data.DOC;
-  final boolean file=FSUtils.isFile(data,pre);
-  final boolean dir=!file && FSUtils.isDir(data,pre);
+  final boolean file=fs.isFile(pre);
+  final boolean dir=!file && fs.isDir(pre);
   final Nodes current=context.current();
   final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size == 1 && pre != 0 && !file && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(data,pre);
   final boolean isImage=GUIFS.mime(name) == GUIFS.Type.IMAGE;
@@ -59,7 +59,7 @@
       g.setColor(Color.black);
       BaseXLayout.drawText(g,rect,text);
       if (h == GUIProp.fontsize && img != null) {
-        final long size=Token.toLong(FSUtils.getSize(data,pre));
+        final long size=Token.toLong(fs.size(pre));
         final byte[] info=Token.token(Performance.formatSize(size,false));
         w=BaseXLayout.width(g,info);
         if (BaseXLayout.width(g,text) < rect.w - w - 10) {
@@ -87,7 +87,7 @@
       rect.h-=18;
       g.setColor(Color.black);
       final int w=BaseXLayout.chopString(g,text,rect.x + off + 3,rect.y,rect.w - off - 3);
-      final long size=Token.toLong(FSUtils.getSize(data,pre));
+      final long size=Token.toLong(fs.size(pre));
       final String info=GUIFS.desc(text,dir) + ", " + Performance.formatSize(size,true);
       rect.w-=10;
       final int sw=BaseXLayout.width(g,info);

@@ -1,0 +1,42 @@
+{
+  final int p=qp;
+  final char ch=curr();
+  if (XMLToken.isXMLLetter(ch)) {
+    final byte[] name=qName(null);
+    if (consumeWS(PAR1)) {
+      final Type type=Type.node(new QNm(name));
+      if (type != null) {
+        tok.reset();
+        while (!consumeWS(PAR2)) {
+          if (curr() == 0)           Err.or(TESTINCOMPLETE);
+          tok.add(consume());
+        }
+        final byte[] ext=tok.finish();
+        final QNm qn=checkTest(type,ext);
+        if (type == Type.NOD)         return Test.NODE;
+        return new KindTest(type,qn);
+      }
+    }
+ else {
+      if (contains(name,':')) {
+        skipWS();
+        return new NameTest(new QNm(name,ctx),NameTest.TYPE.STD);
+      }
+      if (!consume(':')) {
+        skipWS();
+        return att ? new NameTest(new QNm(name),NameTest.TYPE.NAME) : new NameTest(new QNm(name,ctx.nsElem),NameTest.TYPE.STD);
+      }
+      if (consume('*')) {
+        final QNm nm=new QNm(EMPTY);
+        nm.uri=ctx.ns.uri(name);
+        return new NameTest(nm,NameTest.TYPE.NS);
+      }
+    }
+  }
+ else   if (consume('*')) {
+    if (!consume(':'))     return new NameTest();
+    return new NameTest(new QNm(qName(null)),NameTest.TYPE.NAME);
+  }
+  qp=p;
+  return null;
+}

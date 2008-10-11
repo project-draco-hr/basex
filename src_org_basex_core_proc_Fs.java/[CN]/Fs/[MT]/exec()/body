@@ -1,11 +1,16 @@
 {
+  if (context.data().fs == null)   return error(PROCNOFS);
+  if (args.length == 0)   return fsmode(true);
   try {
-    fs=cmd(args[0]);
+    final Commands.FS cmd=FS.valueOf(args[0]);
+    if (cmd == Commands.FS.EXIT)     return fsmode(false);
+    fs=cmd(cmd);
     fs.context(context);
     fs.args(args[1] == null ? "" : args[1]);
     return true;
   }
  catch (  final FSException ex) {
+    BaseX.debug(ex);
     return error(ex.getMessage());
   }
 }

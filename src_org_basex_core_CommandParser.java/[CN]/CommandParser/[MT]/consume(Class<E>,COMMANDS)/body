@@ -11,10 +11,11 @@
     if (par == null)     error(alt,CMDNO);
     help(alt,par);
   }
-  final byte[] name=Token.lc(Token.token(token));
-  for (  final String a : alt.finish()) {
-    final byte[] sim=Token.lc(Token.token(a));
-    if (Levenshtein.similar(name,sim))     error(alt,CMDSIMILAR,name,sim);
+  final byte[] name=lc(token(token));
+  for (  final Enum<?> e : cmp.getEnumConstants()) {
+    if (e instanceof COMMANDS && !((COMMANDS)e).official)     continue;
+    final byte[] sm=lc(token(e.name()));
+    if (Levenshtein.similar(name,sm))     error(alt,CMDSIMILAR,name,sm);
   }
   if (par == null)   error(alt,CMDWHICH,token);
   help(alt,par);
