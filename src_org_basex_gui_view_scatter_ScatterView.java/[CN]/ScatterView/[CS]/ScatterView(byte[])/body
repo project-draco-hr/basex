@@ -26,15 +26,25 @@
   itemCombo=new BaseXCombo();
   itemCombo.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
-      if (scatterData.setItem((String)itemCombo.getSelectedItem())) {
+      final String item=(String)itemCombo.getSelectedItem();
+      if (scatterData.setItem(item)) {
         plotChanged=true;
         markingChanged=true;
+        final StringList input=new StringList();
+        input.add(item);
+        final String[] keys=scatterData.getStatKeys(input);
+        xCombo.setModel(new DefaultComboBoxModel(keys));
+        yCombo.setModel(new DefaultComboBoxModel(keys));
       }
       repaint();
     }
   }
 );
   box.add(Box.createHorizontalGlue());
+  box.add(new JLabel("Item"));
+  box.add(Box.createHorizontalStrut(3));
+  box.add(itemCombo);
+  box.add(Box.createHorizontalStrut(10));
   box.add(new JLabel("X"));
   box.add(Box.createHorizontalStrut(3));
   box.add(xCombo);
@@ -42,10 +52,6 @@
   box.add(new JLabel("Y"));
   box.add(Box.createHorizontalStrut(3));
   box.add(yCombo);
-  box.add(Box.createHorizontalStrut(10));
-  box.add(new JLabel("Item"));
-  box.add(Box.createHorizontalStrut(3));
-  box.add(itemCombo);
   box.add(Box.createHorizontalStrut(32));
   add(box,BorderLayout.NORTH);
   tmpMarkedPos=new IntList();
