@@ -1,36 +1,19 @@
 {
-  if (!lFlag || filesfound < limit) {
-    final int[] contentDir=fs.children(pre);
-    final IntList res=new IntList();
-    for (    final int i : contentDir) {
-      if (fs.isDir(i)) {
-        final byte[] name=fs.name(i);
-        path=fs.regex(path);
-        if (Pattern.matches(path,Token.string(name))) {
-          if (!cFlag) {
-            out.print(fs.path(i));
-            out.print(NL);
-          }
-          ++filesfound;
-          printDir(i,out);
-        }
+  final IntList dirs=new IntList();
+  final byte[] pat=Token.token(path);
+  for (  final int c : fs.children(pre)) {
+    if (filesfound >= limit)     return;
+    final boolean dir=fs.isDir(c);
+    if (Token.contains(fs.name(c),pat)) {
+      if (!cFlag)       out.println(fs.path(c));
+      if (dir)       printDir(c,out);
+      ++filesfound;
+    }
  else {
-          res.add(i);
-        }
-      }
- else       if (fs.isFile(i)) {
-        final byte[] name=fs.name(i);
-        if (Pattern.matches(path,Token.string(name))) {
-          ++filesfound;
-          if (!cFlag) {
-            out.print(fs.path(i));
-            out.print(NL);
-          }
-        }
-      }
+      if (dir)       dirs.add(c);
     }
-    for (    final int dir : res.finish()) {
-      locateTable(dir,out);
-    }
+  }
+  for (  final int dir : dirs.finish()) {
+    locateTable(dir,out);
   }
 }

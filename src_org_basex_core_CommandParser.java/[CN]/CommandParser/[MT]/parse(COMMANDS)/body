@@ -5,12 +5,12 @@ switch (consume(CREATE.class,cmd)) {
 case DATABASE:
 case DB:
 case XML:
-      return new CreateDB(path(cmd,true),name(null));
+      return new CreateDB(path(cmd),name(null));
 case MAB:
 case MAB2:
-    return new CreateMAB(path(cmd,true),name(null));
+    return new CreateMAB(path(cmd),name(null));
 case FS:
-  return new CreateFS(path(cmd,true),name(null));
+  return new CreateFS(path(cmd),name(null));
 case INDEX:
 return new CreateIndex(consume(INDEX.class,cmd));
 }
@@ -51,7 +51,7 @@ break;
 case OPTIMIZE:
 return new Optimize();
 case EXPORT:
-return new Export(path(cmd,true));
+return new Export(path(cmd));
 case XPATH:
 return new XPath(xpath(null));
 case XPATHMV:
@@ -61,7 +61,7 @@ return new XQuery(xquery(cmd));
 case XQUENV:
 return new XQEnv(xquery(null));
 case FIND:
-return new Find(path(cmd,false));
+return new Find(string(cmd));
 case XMARK:
 return new XMark(number(cmd));
 case CS:
@@ -74,6 +74,7 @@ case INSERT:
 final UPDATE ins=consume(UPDATE.class,cmd);
 switch (ins) {
 case FRAGMENT:
+return new Insert(ins,string(cmd,true),number(cmd),xpath(cmd));
 case ELEMENT:
 case TEXT:
 case COMMENT:
@@ -99,7 +100,7 @@ default :
 break;
 case SET:
 final String opt=name(cmd).toUpperCase();
-String val=path(null,true);
+String val=string(null,false);
 try {
 final Object o=Prop.class.getField(opt.toLowerCase()).get(null);
 if (val != null) {

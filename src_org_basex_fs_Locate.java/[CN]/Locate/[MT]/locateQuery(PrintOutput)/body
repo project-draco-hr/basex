@@ -1,0 +1,26 @@
+{
+  final TokenBuilder query=new TokenBuilder("/");
+  final String[] names=path.split("/");
+  if (names.length > 1) {
+    add(query,"ends-with",names[0]);
+    final int nl=names.length - 1;
+    for (int n=1; n < nl; n++)     add(query,"contains",names[n]);
+    add(query,"starts-with",names[nl]);
+  }
+ else {
+    add(query,"contains",path);
+  }
+  final XPathProcessor qu=new XPathProcessor("(/descendant-or-self::*" + query + ")[position() <= "+ limit+ "]");
+  try {
+    final Nodes result=qu.queryNodes(context.current());
+    filesfound=result.size;
+    if (!cFlag) {
+      for (int i=0; i < filesfound; i++) {
+        out.println(fs.path(result.nodes[i]));
+      }
+    }
+  }
+ catch (  final QueryException e) {
+    e.printStackTrace();
+  }
+}

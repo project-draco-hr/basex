@@ -1,28 +1,29 @@
 {
-  final int tr=0;
-  final int ts=td.size(tr,td.kind(tr));
-  final int tl=tr + ts;
-  for (int i=tr; i < tl; i++) {
-    final int tk=td.kind(i);
-    int dis=i - td.parent(i,tk);
-    if (dis > i)     dis=pre - par;
-    final int p=pre + i - tr - 1;
-switch (tk) {
+  final int pr=par > 0 ? par : -1;
+  final int ta=dt.kind(0) == DOC && pr > 0 ? 1 : 0;
+  final int ts=dt.size(ta,dt.kind(ta));
+  final int tb=ta + ts;
+  for (int t=ta; t < tb; t++) {
+    final int k=dt.kind(t);
+    final int r=dt.parent(t,k);
+    final int d=r < ta ? pre - pr : t - r;
+    final int p=pre + t - ta - 1;
+switch (k) {
 case ELEM:
-      insertElem(p,dis,td.tag(i),td.attSize(i,tk),td.size(i,tk));
+      insertElem(p,d,dt.tag(t),dt.attSize(t,k),dt.size(t,k));
     break;
 case DOC:
-  insertDoc(p,td.size(i,tk),td.text(i));
+  insertDoc(p,dt.size(t,k),dt.text(t));
 break;
 case TEXT:
 case COMM:
 case PI:
-insertText(p,dis,td.text(i),tk);
+insertText(p,d,dt.text(t),k);
 break;
 case ATTR:
-insertAttr(p,dis,td.attName(i),td.attValue(i));
+insertAttr(p,d,dt.attName(t),dt.attValue(t));
 break;
 }
 }
-updateTable(pre,par,ts);
+updateTable(pre,pr,ts);
 }
