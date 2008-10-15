@@ -22,10 +22,11 @@
   }
   final int[] items=scatterData.pres;
   co=new double[items.length];
+  vals=new byte[items.length][];
   for (int i=0; i < items.length; i++) {
     int p=items[i];
     final int limit=p + data.size(p,Data.ELEM);
-    double currentValue=-1;
+    byte[] value={};
     p++;
     while (p < limit) {
       final int kind=data.kind(p);
@@ -33,21 +34,26 @@
         final byte[] currName=data.tag(p);
         if ((Token.eq(attr,currName)) && isTag) {
           final int attSize=data.attSize(p,kind);
-          final byte[] value=data.text(p + attSize);
-          currentValue=calcPosition(value);
+          value=data.text(p + attSize);
           break;
         }
       }
  else       if (kind == Data.ATTR) {
         final byte[] currName=data.attName(p);
         if ((Token.eq(attr,currName)) && !isTag) {
-          final byte[] value=data.attValue(p);
-          currentValue=calcPosition(value);
+          value=data.attValue(p);
           break;
         }
       }
       p++;
     }
-    co[i]=currentValue;
+    vals[i]=value;
+  }
+  calcExtremeValues();
+  for (int i=0; i < vals.length; i++) {
+    final byte[] val=vals[i];
+    if (val.length > 0) {
+      co[i]=calcPosition(val);
+    }
   }
 }

@@ -1,0 +1,42 @@
+{
+  min=Integer.MAX_VALUE;
+  max=Integer.MIN_VALUE;
+  for (int i=0; i < vals.length; i++) {
+    if (vals[i].length < 1)     continue;
+    double d=Token.toDouble(vals[i]);
+    if (d < min)     min=d;
+    if (d > max)     max=d;
+  }
+  final double range=max - min;
+  if (range < 10) {
+    min=Math.floor(min);
+    max=Math.ceil(max);
+    return;
+  }
+  final int lmin=(int)(min - (range / (15 / 100)));
+  final int lmax=(int)(max + (range / (15 / 100)));
+  int tmin=(int)Math.floor(min);
+  int tmax=(int)Math.ceil(max);
+  final double rangePow=Math.floor(Math.log10(range) + .5d);
+  final int step=(int)(Math.pow(10,rangePow - 1));
+  min=tmin;
+  while (tmin > lmin) {
+    if (tmin % step == 0) {
+      min=tmin;
+      break;
+    }
+ else {
+      tmin--;
+    }
+  }
+  max=tmax;
+  while (tmax < lmax) {
+    if (tmax % step == 0) {
+      max=tmax;
+      break;
+    }
+ else {
+      tmax++;
+    }
+  }
+}
