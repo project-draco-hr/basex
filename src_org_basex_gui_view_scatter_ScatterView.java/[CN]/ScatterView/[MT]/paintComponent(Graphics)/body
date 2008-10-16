@@ -1,14 +1,22 @@
 {
   final Data data=GUI.context.data();
   if (data == null)   return;
+  final int w=getWidth();
+  final int h=getHeight();
+  if (w < 250 || h < 250) {
+    super.paintComponent(g);
+    final String s="insufficient space for plot drawing";
+    final int sw=BaseXLayout.width(g,s);
+    g.setColor(Color.black);
+    g.drawString(s,w / 2 - sw / 2,h / 2);
+    return;
+  }
   if (scatterData == null) {
     refreshInit();
     return;
   }
   super.paintComponent(g);
   g.setColor(new Color(90,90,150,90));
-  final int w=getWidth();
-  final int h=getHeight();
   if (w + h != viewDimension) {
     viewDimension=w + h;
     plotChanged=true;
