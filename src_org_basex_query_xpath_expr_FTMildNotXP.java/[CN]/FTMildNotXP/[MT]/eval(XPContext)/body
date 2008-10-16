@@ -1,10 +1,6 @@
 {
-  Bool b0=(Bool)exprs[0].eval(ctx);
-  if (!b0.bool())   return b0;
+  if (!ctx.eval(exprs[0]).bool())   return Bool.FALSE;
   boolean f=false;
-  for (int i=1; i < exprs.length; i++) {
-    f|=exprs[i].eval(ctx).bool();
-  }
-  if (f)   return Bool.get(evalMildNot(ctx.ftpos.pos.getPos()));
-  return Bool.get(!f);
+  for (int i=1; i < exprs.length; i++)   f|=ctx.eval(exprs[i]).bool();
+  return Bool.get(!f || ctx.ftpos.pos.mildNot());
 }

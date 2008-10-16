@@ -4,7 +4,7 @@
   consumeWSS();
   Expr[] cont={};
   final Atts ns=new Atts();
-  final int s=ctx.ns.size;
+  final int s=ctx.ns.size();
   while (XMLToken.isXMLLetter(curr())) {
     final byte[] atn=qName(null);
     Expr[] attv={};
@@ -59,7 +59,7 @@
     if (eq(atn,XMLNS)) {
       if (!simple)       Err.or(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : attv[0].str();
-      open.uri=Uri.uri(v);
+      if (!open.ns())       open.uri=Uri.uri(v);
       addNS(ns,atn,v);
     }
  else     if (startsWith(atn,XMLNS)) {
@@ -91,6 +91,6 @@
     check('>');
     if (!eq(open.str(),close))     Err.or(TAGWRONG,open.str(),close);
   }
-  ctx.ns.size=s;
+  ctx.ns.size(s);
   return new CElem(open,cont,ns);
 }

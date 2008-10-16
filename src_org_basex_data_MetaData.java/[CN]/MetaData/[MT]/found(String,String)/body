@@ -2,16 +2,17 @@
   if (path.equals(db) && IO.dbpath(db).exists())   return true;
   try {
     final DataInput in=new DataInput(db,DATAINFO);
-    String key;
+    String str="", k;
     IO f=null;
     long t=0;
-    while ((key=in.readString()).length() != 0) {
-      final String val=in.readString();
-      if (key.equals(DBFNAME))       f=IO.get(val);
-      if (key.equals(DBTIME))       t=Token.toLong(val);
+    while ((k=in.readString()).length() != 0) {
+      final String v=in.readString();
+      if (k.equals(DBSTORAGE))       str=v;
+ else       if (k.equals(DBFNAME))       f=IO.get(v);
+ else       if (k.equals(DBTIME))       t=Token.toLong(v);
     }
     in.close();
-    return f != null && f.path().equals(path) && f.date() == t;
+    return f != null && f.path().equals(path) && f.date() == t && STORAGE.equals(str);
   }
  catch (  final IOException ex) {
     BaseX.debug(ex);

@@ -1,14 +1,17 @@
 {
   final int s=ctx.vars.size();
+  final NSLocal lc=ctx.ns;
+  ctx.ns=lc.copy();
   final Func func=ctx.fun.get(id);
   for (int a=0; a < func.args.length; a++) {
     ctx.vars.add(func.args[a].item(ctx.iter(expr[a]).finish(),ctx).clone());
   }
   final Item it=ctx.item;
   ctx.item=null;
-  Item i=ctx.iter(func.expr).finish();
+  final Item i=ctx.iter(func.expr).finish();
   ctx.vars.reset(s);
   ctx.item=it;
+  ctx.ns=lc;
   final SeqType t=func.var.type;
   return (t != null ? t.cast(i,ctx) : i).iter();
 }

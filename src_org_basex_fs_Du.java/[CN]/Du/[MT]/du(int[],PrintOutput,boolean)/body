@@ -1,26 +1,13 @@
 {
   long size=0;
   for (  final int p : nodes) {
-    if (fs.isFile(p)) {
-      if (!fSum || top)       print(out,toLong(fs.size(p)),concat(fs.path(p,curPre,false),fs.name(p)));
+    final boolean f=fs.isFile(p);
+    final long s=f ? toLong(fs.size(p)) : du(fs.children(p),out,false);
+    if (top || f && fPrintAll || !f && !fSum) {
+      out.print(token(fHuman ? format(s) : Long.toString(s)),8);
+      out.println(fs.path(p,curPre,false));
     }
- else {
-      final ChildIterator it=new ChildIterator(fs.data,p);
-      long sz=0;
-      while (it.more()) {
-        final int n=it.next();
-        if (fs.isDir(n)) {
-          sz+=du(new int[]{n},out,false);
-        }
- else {
-          final long s=toLong(fs.size(n));
-          if (fPrintAll && (!fSum || top))           print(out,s,concat(fs.path(p,curPre,false),token('/'),fs.name(n)));
-          sz+=s;
-        }
-      }
-      if (!fSum || top)       print(out,sz,fs.path(p,curPre,false));
-      size+=sz;
-    }
+    size+=s;
   }
   return size;
 }
