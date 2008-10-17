@@ -1,6 +1,7 @@
 {
   final Data data=GUI.context.data();
-  colW=new double[cols.size];
+  final int cs=cols.size;
+  colW=new double[cs];
   final int nRows=rows.size;
   final TableIterator ti=new TableIterator(data,this);
   for (int l=0; l < MAXROWS && l < nRows; l++) {
@@ -10,12 +11,32 @@
       colW[ti.col]+=ti.elem ? data.textLen(ti.pre) : data.attValue(ti.pre).length;
     }
   }
-  double sum=0;
-  for (int c=0; c < cols.size; c++)   sum+=colW[c];
-  for (int c=0; c < cols.size; c++) {
-    colW[c]=Math.max(1.0 / cols.size,colW[c] / sum);
+  for (int c=0; c < cs; c++) {
+    System.out.println(c + ": " + colW[c]);
   }
+  System.out.println("---------");
+  double sum=0;
+  for (int c=0; c < cs; c++)   sum+=colW[c];
+  for (int c=0; c < cs; c++)   colW[c]=Math.max(0.5 / cs,colW[c] / sum);
   sum=0;
-  for (int c=0; c < cols.size; c++)   sum+=colW[c];
-  for (int c=0; c < cols.size; c++)   colW[c]/=sum;
+  for (int c=0; c < cs; c++)   sum+=colW[c];
+  for (int c=0; c < cs; c++)   colW[c]/=sum;
+  final TokenList tl=new TokenList();
+  for (int c=0; c < cs; c++)   tl.add(Token.token(colW[c]));
+  final IntList il=IntList.createOrder(tl.finish(),true,false);
+  final double[] cw=new double[cs];
+  final IntList co=new IntList();
+  final BoolList ce=new BoolList();
+  final TokenList cn=new TokenList();
+  for (int c=0; c < cs; c++) {
+    final int i=il.list[c];
+    cw[c]=colW[i];
+    co.add(cols.list[i]);
+    ce.add(elms.list[i]);
+    cn.add(colNames.list[i]);
+  }
+  colW=cw;
+  cols=co;
+  elms=ce;
+  colNames=cn;
 }

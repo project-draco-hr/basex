@@ -4,9 +4,7 @@
   final TokenList sizes=new TokenList(n);
   final TokenList times=new TokenList(n);
   final BoolList dirs=new BoolList(n);
-  final IntList nodes=new IntList(n);
   int maxN=1, maxS=1;
-  int c=0;
   for (  final int pre : result) {
     byte[] tok=fs.name(pre);
     names.add(fs.name(pre));
@@ -16,18 +14,17 @@
     maxS=Math.max(maxS,tok.length);
     times.add(fs.time(pre));
     dirs.add(fs.isDir(pre));
-    nodes.add(c++);
   }
   final TokenList sort=fSize ? sizes : fTime ? times : names;
   final boolean num=fSize || fTime;
-  nodes.sort(Array.finish(sort.finish(),n),num,!(num ^ fReverse));
+  final IntList nodes=IntList.createOrder(Array.finish(sort.finish(),n),num,!(num ^ fReverse));
   int col=0;
   int mcl=80 / maxN;
   maxN+=2;
   maxS+=2;
   final IntList dpre=new IntList();
   for (int i=0; i < nodes.size; i++) {
-    c=nodes.list[i];
+    int c=nodes.list[i];
     final boolean dir=dirs.list[c];
     if (dir)     dpre.add(result[c]);
     final byte[] name=names.list[c];

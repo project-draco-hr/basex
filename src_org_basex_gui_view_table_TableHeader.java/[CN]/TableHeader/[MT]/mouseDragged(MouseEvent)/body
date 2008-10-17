@@ -1,18 +1,24 @@
 {
-  if (moveC == -1)   return;
-  final int x=e.getX();
-  final double p=(double)(x - mouseX) / (getWidth() - BaseXBar.SIZE);
-  final double[] ww=tdata.colW.clone();
-  if (e.isShiftDown()) {
-    ww[moveC - 1]+=p;
-    ww[moveC]-=p;
-  }
+  if (moveC != -1) {
+    final int x=e.getX();
+    final double p=(double)(x - mouseX) / (getWidth() - BaseXBar.SIZE);
+    final double[] ww=tdata.colW.clone();
+    if (e.isShiftDown()) {
+      ww[moveC - 1]+=p;
+      ww[moveC]-=p;
+    }
  else {
-    for (int i=0; i < moveC; i++)     ww[i]+=p / moveC;
-    for (int i=moveC; i < ww.length; i++)     ww[i]-=p / (ww.length - moveC);
+      for (int i=0; i < moveC; i++)       ww[i]+=p / moveC;
+      for (int i=moveC; i < ww.length; i++)       ww[i]-=p / (ww.length - moveC);
+    }
+    for (    final double w : ww)     if (w < 0.0001)     return;
+    mouseX=x;
+    tdata.colW=ww;
   }
-  for (  double w : ww)   if (w < 0.0001)   return;
-  mouseX=x;
-  tdata.colW=ww;
+ else   if (clickCol != -1) {
+    int c=tdata.column(getWidth() - BaseXBar.SIZE,e.getX());
+    if (c == -1)     c=tdata.cols.size;
+    if (c != clickCol || header != header(e.getY()))     clickCol=-1;
+  }
   view.repaint();
 }

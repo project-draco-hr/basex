@@ -9,22 +9,20 @@
     return;
   }
   mark();
-  Nodes n=new Nodes(GUI.context.data());
+  final IntList il=new IntList();
   final int[] ti=tmpMarkedPos.finish();
   for (int i=0; i < ti.length; i++) {
-    n.add(scatterData.pres[ti[i]]);
+    il.add(scatterData.pres[ti[i]]);
   }
   final boolean left=SwingUtilities.isLeftMouseButton(e);
   if (!left) {
   }
  else   if (e.isShiftDown()) {
     final Nodes marked=GUI.context.marked();
-    for (int i=0; i < n.size; i++) {
-      marked.add(n.nodes[i]);
-    }
+    marked.union(il.finish());
     notifyMark(marked);
   }
  else {
-    notifyMark(n);
+    notifyMark(new Nodes(il.finish(),GUI.context.data()));
   }
 }
