@@ -1,27 +1,23 @@
 {
-  if (isOpen()) {
-    final String id=((BXXMLResource)res).getDocumentId();
-    Data tmp=null;
-    final Object cont=res.getContent();
-    Parser p=null;
-    if (cont instanceof Document) {
-      p=new DOCWrapper((Document)cont,id);
-    }
- else {
-      p=new DirParser(IO.get(cont.toString()));
-    }
-    try {
-      tmp=new MemBuilder().build(p,id);
-      final Data data=ctx.data();
-      data.insert(data.size,-1,tmp);
-      data.flush();
-    }
- catch (    final IOException ex) {
-      BaseX.debug(ex);
-      throw new XMLDBException(ErrorCodes.INVALID_RESOURCE);
-    }
+  check();
+  final String id=((BXXMLResource)res).getDocumentId();
+  Data tmp=null;
+  final Object cont=res.getContent();
+  Parser p=null;
+  if (cont instanceof Document) {
+    p=new DOCWrapper((Document)cont,id);
   }
  else {
-    throw new XMLDBException(ErrorCodes.COLLECTION_CLOSED);
+    p=new DirParser(IO.get(cont.toString()));
+  }
+  try {
+    tmp=new MemBuilder().build(p,id);
+    final Data data=ctx.data();
+    data.insert(data.size,-1,tmp);
+    data.flush();
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    throw new XMLDBException(ErrorCodes.INVALID_RESOURCE);
   }
 }
