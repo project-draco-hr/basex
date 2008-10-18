@@ -1,27 +1,32 @@
 {
-  super.mouseReleased(e);
-  if (clickCol == -1)   return;
-  if (header(e.getY())) {
-    if (moveC == -1) {
-      if (clickCol == tdata.cols.size) {
-        chooseRoot(e);
-      }
- else {
-        GUI.get().cursor(GUIConstants.CURSORWAIT);
-        tdata.asc=tdata.sortCol == clickCol ? !tdata.asc : true;
-        tdata.sortCol=clickCol;
-        tdata.createRows();
-        GUI.get().cursor(GUIConstants.CURSORARROW,true);
-      }
-    }
+  if (tdata.rows == null)   return;
+  if (!SwingUtilities.isLeftMouseButton(e)) {
+    chooseCols(e);
   }
  else {
-    if (clickCol != tdata.cols.size) {
-      filter(clickCol);
+    if (clickCol == -1)     return;
+    if (header(e.getY())) {
+      if (moveC == -1) {
+        if (clickCol == tdata.cols.length) {
+          chooseRoot(e);
+        }
+ else {
+          GUI.get().cursor(GUIConstants.CURSORWAIT);
+          tdata.asc=tdata.sortCol == clickCol ? !tdata.asc : true;
+          tdata.sortCol=clickCol;
+          tdata.sort();
+          GUI.get().cursor(GUIConstants.CURSORARROW,true);
+        }
+      }
     }
  else {
-      tdata.resetFilter();
-      tdata.find();
+      if (clickCol != tdata.cols.length) {
+        filter(clickCol);
+      }
+ else {
+        tdata.resetFilter();
+        tdata.find();
+      }
     }
   }
   clickCol=-1;

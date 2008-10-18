@@ -1,7 +1,12 @@
 {
   roots=new TokenList();
   for (  final byte[] k : data.skel.desc(Token.EMPTY,true,true)) {
-    if (data.skel.desc(k,true,false).size > 1)     roots.add(k);
+    int c=0;
+    for (    final byte[] kk : data.skel.desc(k,true,false)) {
+      final Names index=!startsWith(kk,'@') ? data.tags : data.atts;
+      if (!index.noLeaf(index.id(delete(kk,'@'))))       c++;
+    }
+    if (c > 1)     roots.add(k);
   }
   init(data,-1);
 }

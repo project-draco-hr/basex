@@ -1,7 +1,15 @@
 {
   final Data data=GUI.context.data();
-  final boolean root=rows == rootRows;
-  final String xpath=Find.findTable(filter,colNames,data.tags.key(rootTag),data,GUIProp.filterrt || root);
+  final boolean r=rows == rootRows;
+  final StringList filters=new StringList();
+  final TokenList names=new TokenList();
+  final BoolList elems=new BoolList();
+  for (  TableCol col : cols) {
+    filters.add(col.filter);
+    names.add(col.name);
+    elems.add(col.elem);
+  }
+  final String xpath=Find.findTable(filters,names,elems,data.tags.key(root),data,GUIProp.filterrt || r);
   if (xpath.equals(last))   return;
   last=xpath;
   GUI.get().execute(new XPath(xpath.length() != 0 ? xpath : "/"));

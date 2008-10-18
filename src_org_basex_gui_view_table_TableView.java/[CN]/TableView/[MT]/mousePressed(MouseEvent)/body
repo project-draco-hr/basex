@@ -1,7 +1,7 @@
 {
   super.mousePressed(e);
   final Data data=GUI.context.data();
-  if (tdata.invalid || data.fs != null && tdata.mouseX < 20)   return;
+  if (tdata.rows == null || data.fs != null && tdata.mouseX < 20)   return;
   if (e.getY() < header.getHeight())   return;
   final int pre=focused;
   if (SwingUtilities.isLeftMouseButton(e)) {
@@ -9,7 +9,8 @@
       final String str=content.focusedString;
       if (str == null || str.length() > Token.MAXLEN)       return;
       if (!e.isShiftDown())       tdata.resetFilter();
-      tdata.filter[tdata.column(getWidth() - BaseXBar.SIZE,e.getX())]=str;
+      final int c=tdata.column(getWidth() - BaseXBar.SIZE,e.getX());
+      tdata.cols[c].filter=str;
       tdata.find();
       repaint();
     }

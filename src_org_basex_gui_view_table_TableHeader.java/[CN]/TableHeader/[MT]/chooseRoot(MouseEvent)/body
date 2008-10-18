@@ -1,20 +1,19 @@
 {
   if (tdata.roots.size == 0)   return;
   final Data data=GUI.context.data();
-  final JPopupMenu popup=new JPopupMenu("History");
-  final ActionListener al=new ActionListener(){
-    public void actionPerformed(    final ActionEvent ac){
-      final int root=data.tags.id(Token.token(ac.getActionCommand()));
-      tdata.init(data,root);
-      view.refreshContext(true,false);
-      popup.setVisible(false);
-    }
-  }
-;
+  final JPopupMenu popup=new JPopupMenu("Items");
+  final byte[] root=data.tags.key(tdata.root);
   for (  final byte[] en : tdata.roots) {
-    final JMenuItem jmi=new JMenuItem(Token.string(en));
-    jmi.addActionListener(al);
-    popup.add(jmi);
+    final int id=data.tags.id(en);
+    final JMenuItem mi=new JRadioButtonMenuItem(string(en),eq(root,en));
+    mi.addActionListener(new ActionListener(){
+      public void actionPerformed(      final ActionEvent ac){
+        tdata.init(data,id);
+        view.refreshContext(true,false);
+      }
+    }
+);
+    popup.add(mi);
   }
   popup.show(this,e.getX(),e.getY());
 }

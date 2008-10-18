@@ -1,14 +1,16 @@
 {
-  super.paintComponent(g);
   final Data data=GUI.context.data();
   if (data == null)   return;
+  super.paintComponent(g);
+  BaseXLayout.antiAlias(g);
   final int w=getWidth();
   final int h=getHeight();
-  if (w < 250 || h < 250) {
-    final String s="insufficient space for plot drawing";
-    final int sw=BaseXLayout.width(g,s);
+  final boolean nostats=!data.tags.stats;
+  if (nostats || w < 200 || h < 200) {
+    final String s=nostats ? DBNOSTATS : NOSPACE;
+    g.setFont(GUIConstants.font);
     g.setColor(Color.black);
-    g.drawString(s,w / 2 - sw / 2,h / 2);
+    BaseXLayout.drawCenter(g,s,getWidth(),h / 2);
     return;
   }
   if (scatterData == null) {
