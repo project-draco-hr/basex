@@ -1,0 +1,27 @@
+{
+  try {
+    coll.createResource("hans","UnknownResource");
+    fail("Resource Type is expected to be unknown.");
+  }
+ catch (  final XMLDBException ex) {
+  }
+  Resource res=coll.createResource(null,XMLResource.RESOURCE_TYPE);
+  assertTrue("XMLResource expected.",res instanceof XMLResource);
+  assertNotNull("No ID was created.",res.getId());
+  final String id=AllTests.DOC2;
+  res=coll.createResource(id,XMLResource.RESOURCE_TYPE);
+  assertEquals("Resource has wrong ID.",id,res.getId());
+  final Code code=new Code(){
+    Object run() throws XMLDBException {
+      return coll.createResource(null,BinaryResource.RESOURCE_TYPE);
+    }
+  }
+;
+  try {
+    code.run();
+  }
+ catch (  final XMLDBException ex) {
+    checkCode(ErrorCodes.VENDOR_ERROR,ex);
+  }
+  checkClosed(code);
+}

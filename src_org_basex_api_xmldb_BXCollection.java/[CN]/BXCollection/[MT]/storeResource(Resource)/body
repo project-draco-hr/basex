@@ -1,23 +1,22 @@
 {
   check();
-  final String id=((BXXMLResource)res).getDocumentId();
-  Data tmp=null;
-  final Object cont=res.getContent();
+  BXXMLResource xml=checkXML(res);
+  if (res.getContent() == null)   throw new XMLDBException(ErrorCodes.INVALID_RESOURCE,ERR_EMPTY);
+  final String id=res.getId();
+  if (id == null)   throw new XMLDBException(ErrorCodes.INVALID_RESOURCE,ERR_ID);
+  final Resource old=getResource(id);
+  if (old != null)   removeResource(getResource(id));
+  final Object cont=xml.content;
   Parser p=null;
-  if (cont instanceof Document) {
-    p=new DOCWrapper((Document)cont,id);
-  }
- else {
-    p=new DirParser(IO.get(cont.toString()));
-  }
+  if (cont instanceof Document)   p=new DOCWrapper((Document)cont,id);
+ else   p=new DirParser(new IOContent((byte[])cont,id));
   try {
-    tmp=new MemBuilder().build(p,id);
     final Data data=ctx.data();
-    data.insert(data.size,-1,tmp);
+    data.insert(data.size,-1,new MemBuilder().build(p,id));
     data.flush();
   }
  catch (  final IOException ex) {
     BaseX.debug(ex);
-    throw new XMLDBException(ErrorCodes.INVALID_RESOURCE);
+    throw new XMLDBException(ErrorCodes.INVALID_RESOURCE,ex.getMessage());
   }
 }

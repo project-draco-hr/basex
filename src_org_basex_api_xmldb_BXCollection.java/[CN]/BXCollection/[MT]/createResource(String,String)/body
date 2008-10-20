@@ -1,7 +1,11 @@
 {
   check();
   if (type.equals(XMLResource.RESOURCE_TYPE)) {
-    return new BXXMLResource(null,id,-1,this);
+    final String uid=id == null || id.length() == 0 ? createId() : id;
+    return new BXXMLResource(null,0,uid,this);
   }
-  throw new XMLDBException(ErrorCodes.UNKNOWN_RESOURCE_TYPE);
+  if (type.equals(BinaryResource.RESOURCE_TYPE)) {
+    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_BINARY);
+  }
+  throw new XMLDBException(ErrorCodes.UNKNOWN_RESOURCE_TYPE,ERR_TYPE + type);
 }

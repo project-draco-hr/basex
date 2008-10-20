@@ -1,0 +1,44 @@
+{
+  Resource res=coll.createResource("NoContent",XMLResource.RESOURCE_TYPE);
+  try {
+    coll.storeResource(res);
+    fail("Resource has no contents.");
+  }
+ catch (  final XMLDBException ex) {
+    checkCode(ErrorCodes.INVALID_RESOURCE,ex);
+  }
+  res=coll.createResource("Faulty",XMLResource.RESOURCE_TYPE);
+  res.setContent("<xml");
+  try {
+    coll.storeResource(res);
+    fail("Resource are faulty.");
+  }
+ catch (  final XMLDBException ex) {
+    checkCode(ErrorCodes.INVALID_RESOURCE,ex);
+  }
+  res=coll.createResource("Correct",XMLResource.RESOURCE_TYPE);
+  res.setContent("<xml/>");
+  coll.storeResource(res);
+  XMLResource xml1=(XMLResource)coll.createResource(AllTests.DOC2,XMLResource.RESOURCE_TYPE);
+  final DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+  final DocumentBuilder builder=factory.newDocumentBuilder();
+  final Node node=builder.parse(new File(AllTests.DOC2));
+  xml1.setContentAsDOM(node);
+  coll.storeResource(xml1);
+  XMLResource xml2=(XMLResource)coll.createResource(AllTests.DOC3,XMLResource.RESOURCE_TYPE);
+  final XMLReader reader=XMLReaderFactory.createXMLReader();
+  reader.setContentHandler(xml2.setContentAsSAX());
+  reader.parse(new InputSource(AllTests.DOC3));
+  coll.storeResource(xml2);
+  assertEquals("Wrong number of documents.",4,coll.getResourceCount());
+  res=coll.createResource("Correct",XMLResource.RESOURCE_TYPE);
+  res.setContent("<XML/>");
+  coll.storeResource(res);
+  assertEquals("Wrong number of documents.",4,coll.getResourceCount());
+  checkClosed(new Code(){
+    Object run() throws XMLDBException {
+      return coll.createResource("id",null);
+    }
+  }
+);
+}

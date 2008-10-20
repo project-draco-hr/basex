@@ -1,0 +1,17 @@
+{
+  final ResourceSet set=serv.query("//node()");
+  final ResourceIterator iter=set.getIterator();
+  long size=set.getSize();
+  while (iter.hasMoreResources()) {
+    iter.nextResource();
+    size--;
+  }
+  assertEquals("Wrong result size.",0,size);
+  try {
+    iter.nextResource();
+    fail("No resources left.");
+  }
+ catch (  final XMLDBException ex) {
+    assertEquals("Wrong error code.",ErrorCodes.NO_SUCH_RESOURCE,ex.errorCode);
+  }
+}

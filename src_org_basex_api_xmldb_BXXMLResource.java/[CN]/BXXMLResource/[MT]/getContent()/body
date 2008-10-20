@@ -2,12 +2,21 @@
   if (content == null) {
     try {
       final CachedOutput out=new CachedOutput();
-      new XMLSerializer(out).node(data,pre);
-      content=out.toString();
+      final XMLSerializer ser=new XMLSerializer(out);
+      if (data != null) {
+        new DNode(data,pos).serialize(ser);
+      }
+ else       if (result != null) {
+        result.serialize(ser,pos);
+      }
+ else {
+        return null;
+      }
+      content=out.finish();
     }
  catch (    final IOException ex) {
       throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ex.getMessage());
     }
   }
-  return content;
+  return content instanceof byte[] ? string((byte[])content) : content;
 }

@@ -1,0 +1,28 @@
+{
+  coll.removeResource(coll.getResource("Correct"));
+  assertEquals("Wrong number of documents.",3,coll.getResourceCount());
+  try {
+    coll.removeResource(coll.getResource("test"));
+    fail("Document does not exist.");
+  }
+ catch (  final XMLDBException ex) {
+    checkCode(ErrorCodes.NO_SUCH_RESOURCE,ex);
+  }
+  coll.removeResource(coll.getResource(AllTests.DOC2));
+  coll.removeResource(coll.getResource(AllTests.DOC3));
+  assertEquals("Wrong number of documents.",1,coll.getResourceCount());
+  try {
+    coll.removeResource(coll.getResource(null));
+    fail("Document does not exist.");
+  }
+ catch (  final XMLDBException ex) {
+    checkCode(ErrorCodes.NO_SUCH_RESOURCE,ex);
+  }
+  checkClosed(new Code(){
+    Object run() throws XMLDBException {
+      coll.removeResource(null);
+      return null;
+    }
+  }
+);
+}

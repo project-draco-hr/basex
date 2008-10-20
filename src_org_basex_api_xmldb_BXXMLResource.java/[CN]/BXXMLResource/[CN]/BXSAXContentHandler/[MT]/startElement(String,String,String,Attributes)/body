@@ -1,23 +1,11 @@
 {
-  cont.append("<");
-  cont.append(s2);
-  for (int i=0; i < attributes.getLength(); i++) {
-    cont.append(" ");
-    cont.append(attributes.getQName(i));
-    cont.append("=");
-    cont.append("\"");
-    cont.append(attributes.getValue(i));
-    cont.append("\"");
+  try {
+    xml.startElement(token(s2));
+    for (int i=0; i < attributes.getLength(); i++)     xml.attribute(token(attributes.getQName(i)),token(attributes.getValue(i)));
+    for (    final String k : ns.keySet())     xml.attribute(concat(XMLNS,token(k)),token(ns.get(k)));
+    xml.finishElement();
   }
-  String s3;
-  for (Enumeration enumeration=ns.keys(); enumeration.hasMoreElements(); ns.remove(s3)) {
-    s3=(String)enumeration.nextElement();
-    cont.append(" xmlns:");
-    cont.append(s3);
-    cont.append("=");
-    cont.append("\"");
-    cont.append(ns.get(s3));
-    cont.append("\"");
+ catch (  final IOException ex) {
+    throw new SAXException(ex);
   }
-  cont.append(">");
 }
