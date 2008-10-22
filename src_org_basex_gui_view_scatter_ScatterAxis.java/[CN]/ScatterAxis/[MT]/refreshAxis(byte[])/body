@@ -1,0 +1,37 @@
+{
+  if (attr.length == 0)   return;
+  isTag=!contains(attr,'@');
+  final byte[] a=delete(attr,'@');
+  final Data data=GUI.context.data();
+  attrID=isTag ? data.tags.id(a) : data.atts.id(a);
+  final StatsKey key=isTag ? data.tags.stat(attrID) : data.atts.stat(attrID);
+  numeric=key.kind == Kind.INT || key.kind == Kind.DBL || key.kind == Kind.TEXT;
+  if (numeric) {
+    numType=key.kind;
+  }
+ else {
+    final TokenList tl=new TokenList();
+    for (    final byte[] k : key.cats.keys())     tl.add(k);
+    tl.sort(true);
+    cats=tl.finish();
+    nrCats=cats.length;
+  }
+  final int[] items=scatterData.pres;
+  co=new double[items.length];
+  vals=new byte[items.length][];
+  for (int i=0; i < items.length; i++) {
+    byte[] value=getValue(items[i]);
+    if (numeric && numType == Kind.TEXT && value.length > TEXTLENGTH) {
+      value=substring(value,0,TEXTLENGTH);
+    }
+    vals[i]=value;
+  }
+  if (numeric) {
+    if (numType == Kind.TEXT)     textToNum();
+    calcExtremeValues();
+  }
+  for (int i=0; i < vals.length; i++) {
+    co[i]=calcPosition(vals[i]);
+  }
+  vals=null;
+}

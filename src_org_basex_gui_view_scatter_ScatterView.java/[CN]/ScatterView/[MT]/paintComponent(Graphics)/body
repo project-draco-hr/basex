@@ -6,7 +6,9 @@
   final int w=getWidth();
   final int h=getHeight();
   final boolean nostats=!data.tags.stats;
-  if (nostats || w < 300 || h < 300) {
+  final int novalue=noValueSize();
+  final int minSize=novalue * 8;
+  if (nostats || w < minSize || h < minSize) {
     final String s=nostats ? DBNOSTATS : NOSPACE;
     g.setFont(GUIConstants.font);
     g.setColor(Color.black);
@@ -17,15 +19,14 @@
     refreshInit();
     return;
   }
-  g.setColor(new Color(90,90,150,90));
   if (w + h != viewDimension) {
     viewDimension=w + h;
     plotChanged=true;
   }
-  plotWidth=w - (MARGINLEFT + MARGINRIGHT);
-  plotHeight=h - (MARGINTOP + MARGINBOTTOM);
-  g.setColor(new Color(90,90,90,40));
-  g.fillRect(MARGINLEFT + NOVALUEBORDER,MARGINTOP,plotWidth - NOVALUEBORDER,plotHeight - NOVALUEBORDER);
+  plotWidth=w - (MARGIN[1] + MARGIN[3]);
+  plotHeight=h - (MARGIN[0] + MARGIN[2]);
+  g.setColor(GUIConstants.back);
+  g.fillRect(MARGIN[1] + novalue,MARGIN[0],plotWidth - novalue,plotHeight - novalue);
   drawAxis(g,true);
   drawAxis(g,false);
   if (scatterData.size == 0)   return;
@@ -46,30 +47,31 @@
   for (int i=0; i < ti.length; i++) {
     drawItem(g,scatterData.xAxis.co[ti[i]],scatterData.yAxis.co[ti[i]],false,true);
   }
-  if (focusedItem > -1 && !dragging) {
-    drawItem(g,scatterData.xAxis.co[focusedItem],scatterData.yAxis.co[focusedItem],true,false);
-  }
-  if (valueFocused) {
-    g.setColor(GUIConstants.color6);
-    final String x=mouseX > MARGINLEFT + NOVALUEBORDER ? scatterData.xAxis.getValue(focusedValueX) : "";
-    final String y=mouseY < h - MARGINBOTTOM - NOVALUEBORDER ? scatterData.yAxis.getValue(focusedValueY) : "";
-    g.drawString("x  " + x,MARGINLEFT,MARGINTOP - 20);
-    g.drawString("y  " + y,MARGINLEFT,MARGINTOP - 6);
+  if (focusedItem != -1) {
+    if (!dragging) {
+      drawItem(g,scatterData.xAxis.co[focusedItem],scatterData.yAxis.co[focusedItem],true,false);
+      g.setFont(GUIConstants.font);
+      final String x=string(scatterData.xAxis.getValue(focused));
+      final String y=string(scatterData.yAxis.getValue(focused));
+      final String label=x + "/" + y;
+      final int tw=BaseXLayout.width(g,label);
+      final int th=g.getFontMetrics().getHeight();
+      final int xx=Math.min(getWidth() - tw - 8,mouseX);
+      g.setColor(GUIConstants.COLORS[10]);
+      g.fillRect(xx - 1,mouseY - th,tw + 4,th);
+      g.setColor(GUIConstants.color1);
+      g.drawString(label,xx,mouseY - 4);
+    }
   }
   if (dragging) {
-    g.setColor(ScatterBoundingBox.back);
+    g.setColor(GUIConstants.back);
     final int selW=selectionBox.getWidth();
     final int selH=selectionBox.getHeight();
     final int x1=selectionBox.x1;
     final int y1=selectionBox.y1;
-    final int x2=selectionBox.x2;
-    final int y2=selectionBox.y2;
     g.fillRect(selW > 0 ? x1 : x1 + selW,selH > 0 ? y1 : y1 + selH,Math.abs(selW),Math.abs(selH));
-    g.setColor(ScatterBoundingBox.frame);
-    g.drawLine(x1,y1,x2,y1);
-    g.drawLine(x1,y1,x1,y2);
-    g.drawLine(x1,y2,x2,y2);
-    g.drawLine(x2,y1,x2,y2);
+    g.setColor(GUIConstants.frame);
+    g.drawRect(selW > 0 ? x1 : x1 + selW,selH > 0 ? y1 : y1 + selH,Math.abs(selW),Math.abs(selH));
   }
   plotChanged=false;
 }
