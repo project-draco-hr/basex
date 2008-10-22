@@ -1,0 +1,43 @@
+{
+  if (s == 0 || ldid < 0)   return IndexIterator.EMPTY;
+  if (data.meta.ftittr) {
+    return new IndexArrayIterator(s){
+      boolean f=true;
+      int lpre=-1;
+      int c=0;
+      long pos=ldid;
+      FTNode n=new FTNode();
+      @Override public boolean more(){
+        if (c == s)         return false;
+        IntList il=new IntList();
+        int pre;
+        if (f) {
+          f=false;
+          pre=inD.readNum(pos);
+          pos=inD.pos();
+        }
+ else {
+          pre=lpre;
+        }
+        f=false;
+        il.add(pre);
+        il.add(inD.readNum(pos));
+        c++;
+        while (c < s && (lpre=inD.readNum()) == pre) {
+          il.add(inD.readNum());
+          c++;
+        }
+        pos=inD.pos();
+        n=new FTNode(il.finish(),1);
+        return true;
+      }
+      @Override public FTNode nextFTNodeFD(){
+        return n;
+      }
+    }
+;
+  }
+ else {
+    return new IndexArrayIterator(getDataFromDataArray(s,ldid),true);
+  }
+}
