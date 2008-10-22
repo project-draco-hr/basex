@@ -4,24 +4,20 @@
   area.setSyntax(new QuerySyntax());
   area.addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
-      String xq=Token.string(area.getText());
-      if (!xq.equals(last)) {
-        last=xq;
-        final boolean module=xq.trim().startsWith("module namespace ");
-        if (xq.trim().length() == 0)         xq=".";
-        if (GUIProp.execrt && !module) {
-          GUI.get().execute(new XQuery(xq));
-        }
+      if (GUIProp.execrt) {
+        query(false);
+      }
  else {
-          final XQParser parser=new XQParser(new XQContext());
-          try {
-            if (module)             parser.module(xq);
- else             parser.parse(xq);
-            info("",true);
-          }
- catch (          final QueryException ex) {
-            info(ex.getMessage(),false);
-          }
+        final String xq=Token.string(area.getText());
+        final boolean mod=xq.trim().startsWith("module namespace ");
+        final XQParser parser=new XQParser(new XQContext());
+        try {
+          if (mod)           parser.module(xq);
+ else           parser.parse(xq);
+          info("",true);
+        }
+ catch (        final QueryException ex) {
+          info(ex.getMessage(),false);
         }
       }
     }
@@ -29,5 +25,24 @@
 );
   south=new BaseXBack(GUIConstants.FILL.NONE);
   south.setLayout(new BorderLayout(8,8));
+  info=new BaseXLabel("");
+  info.setFont(info.getFont().deriveFont((float)13));
+  info.setIcon(GUI.icon(IMGERROR));
+  info.setName(Integer.toString(0));
+  info.setCursor(GUIConstants.CURSORHAND);
+  info.addMouseListener(new MouseAdapter(){
+    @Override public void mouseClicked(    final MouseEvent e){
+      area.setCaret(Integer.parseInt(info.getName()));
+      area.requestFocusInWindow();
+    }
+  }
+);
+  BaseXLayout.enable(info,false);
+  south.add(info,BorderLayout.CENTER);
   initPanel();
+  final Box box=new Box(BoxLayout.X_AXIS);
+  box.add(stop);
+  box.add(Box.createHorizontalStrut(4));
+  box.add(go);
+  south.add(box,BorderLayout.EAST);
 }
