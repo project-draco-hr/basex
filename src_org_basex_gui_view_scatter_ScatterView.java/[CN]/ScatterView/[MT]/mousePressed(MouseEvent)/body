@@ -7,33 +7,32 @@
     notifyMark(n);
     return;
   }
-  if (focused > -1) {
-    final IntList il=new IntList();
-    final int pre=scatterData.findPre(focused);
-    final int mx=calcCoordinate(true,scatterData.xAxis.co[pre]);
-    final int my=calcCoordinate(false,scatterData.yAxis.co[pre]);
-    for (int i=0; i < scatterData.size; i++) {
-      final int x=calcCoordinate(true,scatterData.xAxis.co[i]);
-      final int y=calcCoordinate(false,scatterData.yAxis.co[i]);
-      if (mx == x && my == y) {
-        il.add(scatterData.pres[i]);
-      }
+  final int pre=scatterData.findPre(focused);
+  if (pre < 0)   return;
+  final IntList il=new IntList();
+  final int mx=calcCoordinate(true,scatterData.xAxis.co[pre]);
+  final int my=calcCoordinate(false,scatterData.yAxis.co[pre]);
+  for (int i=0; i < scatterData.size; i++) {
+    final int x=calcCoordinate(true,scatterData.xAxis.co[i]);
+    final int y=calcCoordinate(false,scatterData.yAxis.co[i]);
+    if (mx == x && my == y) {
+      il.add(scatterData.pres[i]);
     }
-    final boolean left=SwingUtilities.isLeftMouseButton(e);
-    if (e.isShiftDown() || !left) {
-      final Nodes marked=GUI.context.marked();
-      marked.union(il.finish());
-      notifyMark(marked);
-    }
- else     if (e.getClickCount() == 2) {
-      final Nodes marked=new Nodes(GUI.context.data());
-      marked.union(il.finish());
-      notifyContext(marked,false);
-    }
+  }
+  final boolean left=SwingUtilities.isLeftMouseButton(e);
+  if (e.isShiftDown() || !left) {
+    final Nodes marked=GUI.context.marked();
+    marked.union(il.finish());
+    notifyMark(marked);
+  }
+ else   if (e.getClickCount() == 2) {
+    final Nodes marked=new Nodes(GUI.context.data());
+    marked.union(il.finish());
+    notifyContext(marked,false);
+  }
  else {
-      final Nodes marked=new Nodes(GUI.context.data());
-      marked.union(il.finish());
-      notifyMark(marked);
-    }
+    final Nodes marked=new Nodes(GUI.context.data());
+    marked.union(il.finish());
+    notifyMark(marked);
   }
 }
