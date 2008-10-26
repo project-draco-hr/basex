@@ -32,25 +32,18 @@
   if (scatterData.size == 0)   return;
   if (plotImg == null || plotChanged)   plotImg=createPlotImage();
   g.drawImage(plotImg,0,0,this);
-  if (markingChanged) {
-    final Nodes marked=GUI.context.marked();
-    if (marked.size() > 0 && !dragging) {
-      tmpMarkedPos.reset();
-      for (int i=0; i < marked.size(); i++) {
-        final int prePos=scatterData.getPrePos(marked.nodes[i]);
-        if (prePos > -1)         tmpMarkedPos.add(prePos);
-      }
+  final Nodes marked=GUI.context.marked();
+  if (marked.size() > 0) {
+    for (int i=0; i < marked.size(); i++) {
+      final int prePos=scatterData.findPre(marked.nodes[i]);
+      if (prePos > -1)       drawItem(g,scatterData.xAxis.co[prePos],scatterData.yAxis.co[prePos],false,true);
     }
-    markingChanged=false;
   }
-  final int[] ti=tmpMarkedPos.finish();
-  for (int i=0; i < ti.length; i++) {
-    drawItem(g,scatterData.xAxis.co[ti[i]],scatterData.yAxis.co[ti[i]],false,true);
-  }
-  if (focusedItem > -1) {
+  final int f=scatterData.findPre(focused);
+  if (f > -1) {
     if (!dragging) {
-      final double x1=scatterData.xAxis.co[focusedItem];
-      final double y1=scatterData.yAxis.co[focusedItem];
+      final double x1=scatterData.xAxis.co[f];
+      final double y1=scatterData.yAxis.co[f];
       drawItem(g,x1,y1,true,false);
       g.setFont(GUIConstants.font);
       final String x=string(scatterData.xAxis.getValue(focused));

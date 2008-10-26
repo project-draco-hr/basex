@@ -1,25 +1,34 @@
 {
   final int size=itemImg.getWidth() / 2;
+  int focusedPre=focused;
   if (mouseX < MARGIN[1] || mouseX > getWidth() - MARGIN[3] + size || mouseY < MARGIN[0] - size || mouseY > getHeight() - MARGIN[2]) {
-    focusedItem=-1;
-    return false;
+    if (focusedPre == -1) {
+      return false;
+    }
+    notifyFocus(-1,this);
+    return true;
   }
-  focusedItem=-1;
-  int dist=Integer.MAX_VALUE;
-  for (int i=0; i < scatterData.size && dist != 0; i++) {
-    final int x=calcCoordinate(true,scatterData.xAxis.co[i]);
-    final int y=calcCoordinate(false,scatterData.yAxis.co[i]);
-    final int distX=Math.abs(mouseX - x);
-    final int distY=Math.abs(mouseY - y);
-    final int off=itemSize(false) / 2;
-    if (distX < off && distY < off) {
-      final int currDist=distX * distY;
-      if (currDist < dist) {
-        dist=currDist;
-        focusedItem=i;
+ else {
+    focusedPre=-1;
+    int dist=Integer.MAX_VALUE;
+    for (int i=0; i < scatterData.size && dist != 0; i++) {
+      final int x=calcCoordinate(true,scatterData.xAxis.co[i]);
+      final int y=calcCoordinate(false,scatterData.yAxis.co[i]);
+      final int distX=Math.abs(mouseX - x);
+      final int distY=Math.abs(mouseY - y);
+      final int off=itemSize(false) / 2;
+      if (distX < off && distY < off) {
+        final int currDist=distX * distY;
+        if (currDist < dist) {
+          dist=currDist;
+          focusedPre=scatterData.pres[i];
+        }
       }
     }
+    if (focusedPre != focused) {
+      notifyFocus(focusedPre,this);
+      return true;
+    }
+    return false;
   }
-  notifyFocus(focusedItem > -1 ? scatterData.pres[focusedItem] : -1,this);
-  return true;
 }
