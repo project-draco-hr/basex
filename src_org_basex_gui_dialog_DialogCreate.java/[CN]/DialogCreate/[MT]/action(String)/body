@@ -3,22 +3,29 @@
   for (int f=0; f < ft.length; f++)   ft[f].setEnabled(ftx);
   entities.setEnabled(intparse.isSelected());
   dtd.setEnabled(intparse.isSelected());
-  final String path=input();
-  final IO file=IO.get(path);
-  final boolean exists=path.length() != 0 && file.exists();
-  if (exists)   GUIProp.createpath=file.getDir();
-  filter.setEnabled(exists && file.isDir());
+  final String pth=path();
+  final IO file=IO.get(pth);
+  final boolean exists=pth.length() != 0 && file.exists();
+  if (exists) {
+    GUIProp.createpath=file.getDir();
+    filter.setEnabled(file.isDir());
+  }
   final String nm=dbname();
-  dbname.setEnabled(exists);
   ok=exists && nm.length() != 0;
-  final String inf1=!exists ? PATHWHICH : " ";
-  String inf2="";
+  String inf=!exists ? PATHWHICH : !ok ? DBWHICH : " ";
+  ImageIcon img=null;
   if (ok) {
     ok=IO.valid(nm);
-    if (!ok)     inf2=RENAMEINVALID;
- else     if (db.contains(nm))     inf2=RENAMEOVER;
+    if (!ok) {
+      inf=RENAMEINVALID;
+    }
+ else     if (db.contains(nm)) {
+      inf=RENAMEOVER;
+      img=GUI.icon("warn");
+    }
   }
-  info1.setText(inf1);
-  info2.setText(inf2);
+  final boolean err=inf.trim().length() != 0;
+  info.setText(inf);
+  info.setIcon(err ? img != null ? img : GUI.icon("error") : null);
   BaseXLayout.enableOK(buttons,ok);
 }

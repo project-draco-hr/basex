@@ -1,0 +1,34 @@
+{
+  final boolean sel=!all.isSelected();
+  BaseXLayout.enable(path,sel);
+  BaseXLayout.enable(button,sel);
+  BaseXLayout.enable(maxsize,cont.isSelected());
+  final String nm=dbname.getText().trim();
+  ok=nm.length() != 0;
+  if (ok)   GUIProp.importfsname=nm;
+  boolean exists=all.isSelected();
+  if (!exists) {
+    final String p=path.getText().trim();
+    ;
+    final IO file=IO.get(p);
+    exists=p.length() != 0 && file.exists();
+    if (exists)     GUIProp.fspath=path.getText();
+  }
+  ok&=exists;
+  String inf=!exists ? PATHWHICH : !ok ? DBWHICH : " ";
+  ImageIcon img=null;
+  if (ok) {
+    ok=IO.valid(nm);
+    if (!ok) {
+      inf=RENAMEINVALID;
+    }
+ else     if (db.contains(nm)) {
+      inf=RENAMEOVER;
+      img=GUI.icon("warn");
+    }
+  }
+  final boolean err=inf.trim().length() != 0;
+  info.setText(inf);
+  info.setIcon(err ? img != null ? img : GUI.icon("error") : null);
+  BaseXLayout.enableOK(buttons,ok);
+}

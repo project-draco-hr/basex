@@ -4,14 +4,14 @@
   area.setSyntax(new QuerySyntax());
   area.addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
-      if (GUIProp.execrt) {
+      final String xq=Token.string(area.getText());
+      final boolean mod=xq.trim().startsWith("module namespace ");
+      if (GUIProp.execrt && !mod) {
         query(false);
       }
  else {
-        final String xq=Token.string(area.getText());
-        final boolean mod=xq.trim().startsWith("module namespace ");
-        final XQParser parser=new XQParser(new XQContext());
         try {
+          final XQParser parser=new XQParser(new XQContext());
           if (mod)           parser.module(xq);
  else           parser.parse(xq);
           info("",true);
@@ -23,11 +23,8 @@
     }
   }
 );
-  south=new BaseXBack(GUIConstants.FILL.NONE);
-  south.setLayout(new BorderLayout(8,8));
-  info=new BaseXLabel("");
-  info.setFont(info.getFont().deriveFont((float)13));
-  info.setIcon(GUI.icon(IMGERROR));
+  south=new Box(BoxLayout.X_AXIS);
+  info=new BaseXLabel(" ");
   info.setName(Integer.toString(0));
   info.setCursor(GUIConstants.CURSORHAND);
   info.addMouseListener(new MouseAdapter(){
@@ -37,12 +34,13 @@
     }
   }
 );
+  south.add(info);
   BaseXLayout.enable(info,false);
-  south.add(info,BorderLayout.CENTER);
   initPanel();
-  final Box box=new Box(BoxLayout.X_AXIS);
-  box.add(stop);
-  box.add(Box.createHorizontalStrut(4));
-  box.add(go);
-  south.add(box,BorderLayout.EAST);
+  south.add(Box.createHorizontalGlue());
+  south.add(stop);
+  south.add(Box.createHorizontalStrut(1));
+  south.add(go);
+  okIcon=GUI.icon("ok");
+  errIcon=GUI.icon("error");
 }

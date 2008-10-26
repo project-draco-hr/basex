@@ -1,18 +1,19 @@
 {
   super(parent,IMPORTFSTITLE);
-  final BaseXBack pp=new BaseXBack();
-  pp.setLayout(new TableLayout(10,1,0,0));
-  pp.add(new BaseXLabel(IMPORTFSTEXT,true));
+  final BaseXBack p1=new BaseXBack();
+  p1.setLayout(new TableLayout(7,1));
+  p1.setBorder(8,8,8,8);
+  p1.add(new BaseXLabel(IMPORTFSTEXT,false,true));
   BaseXBack p=new BaseXBack();
-  p.setLayout(new TableLayout(2,3,6,0));
-  p.add(new BaseXLabel(IMPORTDIR + "   "));
+  p.setLayout(new TableLayout(3,2,6,0));
   path=new BaseXTextField(GUIProp.fspath,HELPFSPATH,this);
   path.addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
-      check();
+      action(null);
     }
   }
 );
+  BaseXLayout.setWidth(path,240);
   p.add(path);
   button=new BaseXButton(BUTTONBROWSE,HELPBROWSE,this);
   button.addActionListener(new ActionListener(){
@@ -27,40 +28,46 @@
   }
 );
   p.add(button);
-  p.add(new BaseXLabel(IMPORTSAVE + "   "));
+  p.add(new BaseXLabel(CREATENAME,false,true));
+  p.add(new BaseXLabel(""));
   dbname=new BaseXTextField(GUIProp.importfsname,HELPFSNAME,this);
   dbname.addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
-      check();
+      action(null);
     }
   }
 );
+  BaseXLayout.setWidth(dbname,240);
   p.add(dbname);
   all=new BaseXCheckBox(IMPORTALL,HELPFSALL,GUIProp.fsall,this);
   all.setToolTipText(IMPORTALLINFO);
   all.setBorder(new EmptyBorder(4,4,0,0));
   all.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
-      check();
+      action(null);
     }
   }
 );
   p.add(all);
-  pp.add(p);
-  BaseXLabel label=new BaseXLabel(IMPORTFSTEXT1,true);
-  label.setBorder(15,0,8,0);
-  pp.add(label);
+  p1.add(p);
+  info=new BaseXLabel(" ");
+  info.setBorder(30,0,0,0);
+  p1.add(info);
+  final BaseXBack p2=new BaseXBack();
+  p2.setLayout(new TableLayout(9,1));
+  p2.setBorder(8,8,8,8);
+  BaseXLabel label=new BaseXLabel(IMPORTFSTEXT1,false,true);
+  p2.add(label);
   meta=new BaseXCheckBox(IMPORTMETA,HELPMETA,Prop.fsmeta,this);
-  pp.add(meta);
-  label=new BaseXLabel(IMPORTFSTEXT2,true);
-  label.setBorder(10,0,8,0);
-  pp.add(label);
+  p2.add(meta);
+  label=new BaseXLabel(IMPORTFSTEXT2,false,true);
+  p2.add(label);
   p=new BaseXBack();
   p.setLayout(new BorderLayout());
   cont=new BaseXCheckBox(IMPORTCONT,HELPCONT,Prop.fscont,this);
   cont.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
-      check();
+      action(null);
     }
   }
 );
@@ -74,11 +81,15 @@
   }
   maxsize.setSelectedIndex(i);
   p.add(maxsize,BorderLayout.EAST);
-  BaseXLayout.setWidth(p,pp.getPreferredSize().width);
-  pp.add(p);
-  set(pp,BorderLayout.CENTER);
+  BaseXLayout.setWidth(p,p2.getPreferredSize().width);
+  p2.add(p);
+  final JTabbedPane tabs=new JTabbedPane();
+  BaseXLayout.addDefaultKeys(tabs,this);
+  tabs.addTab(GENERALINFO,p1);
+  tabs.addTab(METAINFO,p2);
+  set(tabs,BorderLayout.CENTER);
   buttons=BaseXLayout.okCancel(this);
   set(buttons,BorderLayout.SOUTH);
-  check();
+  action(null);
   finish(parent);
 }

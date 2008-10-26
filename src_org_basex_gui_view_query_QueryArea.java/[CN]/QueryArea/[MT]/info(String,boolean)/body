@@ -1,10 +1,11 @@
 {
   BaseXLayout.enable(stop,false);
   if (inf == null)   return;
-  final String text=ok ? "" : inf.replaceAll("Stopped.*","");
+  final String text=ok ? STATUSOK : inf.replaceAll("Stopped.*","");
   info.setText(text);
-  info.setToolTipText(ok ? null : text);
+  info.setIcon(ok ? okIcon : errIcon);
   BaseXLayout.enable(info,!ok);
+  info.setToolTipText(ok ? null : text);
   err=-1;
   if (!ok) {
     final Matcher m=ERRPATTERN.matcher(inf);
@@ -14,10 +15,8 @@
       el=Integer.parseInt(m.group(1));
       ec=Integer.parseInt(m.group(2));
     }
-    int l=1;
-    int c=1;
     final int ll=last.length();
-    for (int i=0; i < ll; c++, i++) {
+    for (int i=0, l=1, c=1; i < ll; c++, i++) {
       if (l == el && c == ec) {
         err=i;
         break;
