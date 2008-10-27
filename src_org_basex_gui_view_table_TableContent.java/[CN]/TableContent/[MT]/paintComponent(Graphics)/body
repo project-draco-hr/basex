@@ -48,11 +48,20 @@
       if (ti.pre == focus || data.parent(ti.pre,data.kind(ti.pre)) == focus)       fcol=c;
       if (tb[c].size < 100) {
         if (tb[c].size != 0)         tb[c].add("; ");
-        byte[] txt=ti.elem ? data.text(ti.pre) : data.attValue(ti.pre);
-        if (tdata.cols[c].id == data.atts.id(DataText.MTIME)) {
-          txt=token(BaseXLayout.date(toLong(txt)));
+        if (ti.elem) {
+          tb[c].add(data.text(ti.pre));
         }
-        tb[c].add(txt);
+ else {
+          byte[] txt=data.attValue(ti.pre);
+          if (data.fs != null) {
+            final boolean size=tdata.cols[c].id == data.fs.sizeID;
+            final boolean time=tdata.cols[c].id == data.fs.timeID;
+            if (size || time) {
+              txt=token(BaseXLayout.value(toDouble(txt),size,time));
+            }
+          }
+          tb[c].add(txt);
+        }
       }
     }
     for (int t=0; t < tb.length; t++)     if (tb[t].size > 100)     tb[t].add("...");
