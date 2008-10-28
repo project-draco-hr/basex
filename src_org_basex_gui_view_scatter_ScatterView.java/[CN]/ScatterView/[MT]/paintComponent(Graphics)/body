@@ -3,26 +3,25 @@
   if (data == null)   return;
   super.paintComponent(g);
   BaseXLayout.antiAlias(g);
-  final int w=getWidth();
-  final int h=getHeight();
-  final int novalue=noValueSize();
-  final int minSize=novalue * 8;
-  if (w < minSize || h < minSize) {
-    g.setFont(GUIConstants.font);
-    g.setColor(Color.black);
-    BaseXLayout.drawCenter(g,NOSPACE,getWidth(),h / 2);
-    return;
-  }
   if (scatterData == null) {
     refreshInit();
     return;
   }
+  final int w=getWidth();
+  final int h=getHeight();
   if (w + h != viewDimension) {
     viewDimension=w + h;
     plotChanged=true;
   }
   plotWidth=w - (MARGIN[1] + MARGIN[3]);
   plotHeight=h - (MARGIN[0] + MARGIN[2]);
+  final int novalue=noValueSize();
+  if (plotWidth - novalue < 0 || plotHeight - novalue < 0) {
+    g.setFont(GUIConstants.font);
+    g.setColor(Color.black);
+    BaseXLayout.drawCenter(g,NOSPACE,getWidth(),(h + MARGIN[0]) / 2);
+    return;
+  }
   g.setColor(GUIConstants.back);
   g.fillRect(MARGIN[1] + novalue,MARGIN[0],plotWidth - novalue,plotHeight - novalue);
   drawAxis(g,true);

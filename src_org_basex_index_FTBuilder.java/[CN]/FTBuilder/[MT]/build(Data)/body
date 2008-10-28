@@ -1,4 +1,5 @@
 {
+  final Performance p=new Performance();
   wp.cs=data.meta.ftcs;
   int s=0;
   index=new FTArray(128,data.meta.ftcs);
@@ -15,9 +16,8 @@
     if (data.kind(id) == Data.TEXT)     index(data.text(id));
   }
   if (Prop.debug) {
-    System.out.println("Hash in Hauptspeicher gehalten:");
-    Performance.gc(5);
-    System.out.println(Performance.getMem());
+    Performance.gc(3);
+    BaseX.outln("- Indexed: % (%)",p,Performance.getMem());
   }
   final String db=data.meta.dbname;
   final DataOutput outPre=new DataOutput(db,DATAFTX + 'b');
@@ -25,15 +25,13 @@
     bulkLoad(outPre,data.meta.ftittr);
   }
   if (Prop.debug) {
-    System.out.println("Hash und Trie in Hauptspeicher gehalten:");
-    Performance.gc(5);
-    System.out.println(Performance.getMem());
+    Performance.gc(3);
+    BaseX.outln("- Hash&Trie: % (%)",p,Performance.getMem());
   }
   hash=null;
   if (Prop.debug) {
-    System.out.println("Trie in komprimierte Form ??berf??hrt.");
-    Performance.gc(5);
-    System.out.println(Performance.getMem());
+    Performance.gc(3);
+    BaseX.outln("- Compressed: % (%)",p,Performance.getMem());
   }
   final byte[][] tokens=index.tokens.list;
   final int[][] next=index.next.list;
@@ -96,5 +94,9 @@
   outPre.close();
   outN.close();
   outS.close();
+  if (Prop.debug) {
+    Performance.gc(3);
+    BaseX.outln("- Written: % (%)",p,Performance.getMem());
+  }
   return new FTTrie(data,db);
 }
