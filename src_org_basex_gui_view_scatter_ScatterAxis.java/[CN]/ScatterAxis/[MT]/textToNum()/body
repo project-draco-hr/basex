@@ -1,11 +1,29 @@
 {
-  final double p=987331;
+  Set set=new Set();
   for (int i=0; i < vals.length; i++) {
-    int v=0;
-    final int vl=vals[i].length;
-    for (int j=0; j < vl; j++) {
-      v+=((vals[i][j] & 0xFF) << ((TEXTLENGTH - 1 - j) << 3)) % p;
+    set.add(vals[i]);
+  }
+  nrCats=set.size() + 2;
+  set=null;
+  final int[] tmpI=IntList.createOrder(vals,false,true).finish();
+  final int vl=vals.length;
+  int i=0;
+  while (i < vl && vals[i].length == 0) {
+    co[tmpI[i]]=-1;
+    i++;
+  }
+  int p=1;
+  while (i < vl) {
+    final byte[] b=vals[i];
+    int l=i;
+    while (l < vl && eq(vals[l],b)) {
+      l++;
     }
-    vals[i]=token(v);
+    while (i < l) {
+      final double d=(1.0d / (nrCats - 1)) * p;
+      co[tmpI[i]]=d;
+      i++;
+    }
+    p++;
   }
 }

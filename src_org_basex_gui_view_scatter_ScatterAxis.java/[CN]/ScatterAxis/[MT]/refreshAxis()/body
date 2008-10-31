@@ -1,11 +1,8 @@
 {
   final Data data=GUI.context.data();
   final StatsKey key=isTag ? data.tags.stat(attrID) : data.atts.stat(attrID);
-  numeric=key.kind == Kind.INT || key.kind == Kind.DBL || key.kind == Kind.TEXT;
-  if (numeric) {
-    numType=key.kind;
-  }
- else {
+  type=key.kind;
+  if (type == Kind.CAT) {
     final TokenList tl=new TokenList();
     tl.add(EMPTY);
     for (    final byte[] k : key.cats.keys())     tl.add(k);
@@ -19,17 +16,21 @@
   vals=new byte[items.length][];
   for (int i=0; i < items.length; i++) {
     byte[] value=getValue(items[i]);
-    if (numeric && numType == Kind.TEXT && value.length > TEXTLENGTH) {
+    if (type == Kind.TEXT && value.length > TEXTLENGTH) {
       value=substring(value,0,TEXTLENGTH);
     }
     vals[i]=value;
   }
-  if (numeric) {
-    if (numType == Kind.TEXT)     textToNum();
-    calcExtremeValues();
+  if (type != Kind.CAT) {
+    if (type == Kind.TEXT) {
+      textToNum();
+    }
+ else {
+      calcExtremeValues();
+    }
   }
-  for (int i=0; i < vals.length; i++) {
-    co[i]=calcPosition(vals[i]);
+  if (type != Kind.TEXT) {
+    for (int i=0; i < vals.length; i++)     co[i]=calcPosition(vals[i]);
   }
   vals=null;
 }

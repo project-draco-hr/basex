@@ -7,12 +7,16 @@
     if (d < min)     min=d;
     if (d > max)     max=d;
   }
+  if (max - min == 0)   return;
+  final Data data=GUI.context.data();
+  int fsplus=6;
+  final boolean fss=data.fs != null && eq(data.atts.key(attrID),ATSIZE);
   final double range=max - min;
   final double lmin=min - range / 2;
   final double lmax=max + range / 2;
-  final double rangePow=Math.floor(Math.log10(range) + .5d);
-  final double lstep=(int)(Math.pow(10,rangePow));
-  calculatedCaptionStep=(int)(Math.pow(10,rangePow - 1));
+  final double rangePow=Math.floor(fss ? Math.log(Math.pow(Math.E,Math.exp(2))) : Math.log10(range) + .5d);
+  final double lstep=(int)(Math.pow(fss ? 2 : 10,fss ? rangePow + fsplus : rangePow));
+  calculatedCaptionStep=(int)(Math.pow(fss ? 2 : 10,rangePow - (fss ? -fsplus : 1)));
   double c=Math.floor(min);
   double m=c - c % calculatedCaptionStep;
   if (m > lmin)   min=m;
