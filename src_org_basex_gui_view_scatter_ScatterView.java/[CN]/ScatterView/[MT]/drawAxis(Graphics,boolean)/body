@@ -16,7 +16,6 @@
     if (plotChanged)     axis.calcCaption(pHeight);
   }
   final Kind type=axis.type;
-  if (type == Kind.TEXT)   return;
   final int nrCaptions=axis.nrCaptions;
   final double step=axis.captionStep;
   final double range=1.0d / (nrCaptions - 1);
@@ -24,13 +23,16 @@
   g.setFont(GUIConstants.font);
   for (int i=0; i < nrCaptions; i++) {
     String caption="";
-    if (type != Kind.CAT) {
+    if (type == Kind.CAT) {
+      caption=string(axis.cats[i]);
+    }
+ else     if (type == Kind.TEXT) {
+      caption="TEXT";
+    }
+ else {
       final double min=axis.min;
       final double captionValue=i == nrCaptions - 1 ? axis.max : min + (i * step);
       caption=formatString(captionValue,drawX);
-    }
- else {
-      caption=string(axis.cats[i]);
     }
     if (caption.length() > 10)     caption=caption.substring(0,10) + "...";
     final int imgW=BaseXLayout.width(g,caption) + fs;
