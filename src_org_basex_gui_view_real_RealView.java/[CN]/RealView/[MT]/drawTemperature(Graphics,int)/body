@@ -16,7 +16,8 @@
       x+=ratio;
       continue;
     }
-    final int nodeSize=data.size(pre,Data.ELEM);
+    int nodeKind=data.kind(pre);
+    final int nodeSize=data.size(pre,nodeKind);
     final double nodePercent=nodeSize / (double)sumNodeSizeInLine;
     g.setColor(Color.black);
     final int l=(int)ratio;
@@ -28,23 +29,44 @@
     g.setColor(new Color(c,0,255 - c));
     g.fillRect((int)x + 1,y + 1,l - 1,h - 1);
     final double boxMiddle=x + ratio / 2f;
-    g.setColor(Color.WHITE);
     if (space) {
-      String s=Token.string(data.tag(pre));
-      int textWidth=0;
-      while ((textWidth=BaseXLayout.width(g,s)) + 4 > ratio) {
-        s=s.substring(0,s.length() / 2).concat("?");
-      }
-      g.drawString(s,(int)boxMiddle - textWidth / 2,y + fontHeight - 2);
-    }
-    if (parentPos != null) {
-      final double parentMiddle=parentPos.get(data.parent(pre,Data.ELEM));
-      g.setColor(new Color(c,0,255 - c,100));
-      g.drawLine((int)boxMiddle,y - 1,(int)parentMiddle,y - fontHeight + 1);
-    }
-    if (nodeSize > 0)     temp.put(pre,boxMiddle);
-    x+=ratio;
-  }
-  rects.add(tRect);
-  parentPos=temp;
+      String s="";
+switch (nodeKind) {
+case Data.ELEM:
+        s=Token.string(data.tag(pre));
+      g.setColor(Color.WHITE);
+    break;
+case Data.COMM:
+  s=Token.string(data.text(pre));
+g.setColor(Color.GREEN);
+break;
+case Data.PI:
+s=Token.string(data.text(pre));
+g.setColor(Color.PINK);
+break;
+case Data.DOC:
+s=Token.string(data.text(pre));
+g.setColor(Color.BLUE);
+break;
+default :
+s=Token.string(data.text(pre));
+g.setColor(Color.YELLOW);
+}
+Token.string(data.text(pre));
+int textWidth=0;
+while ((textWidth=BaseXLayout.width(g,s)) + 4 > ratio) {
+s=s.substring(0,s.length() / 2).concat("?");
+}
+g.drawString(s,(int)boxMiddle - textWidth / 2,y + fontHeight - 2);
+}
+if (parentPos != null) {
+final double parentMiddle=parentPos.get(data.parent(pre,nodeKind));
+g.setColor(new Color(c,0,255 - c,100));
+g.drawLine((int)boxMiddle,y - 1,(int)parentMiddle,y - fontHeight + 1);
+}
+if (nodeSize > 0) temp.put(pre,boxMiddle);
+x+=ratio;
+}
+rects.add(tRect);
+parentPos=temp;
 }
