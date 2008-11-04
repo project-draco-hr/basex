@@ -1,14 +1,20 @@
 {
-  final TokenBuilder tb=new TokenBuilder();
-  final int[] ids=sort();
+  final byte[][] tl=new byte[size][];
   int len=0;
-  for (int i=1; i < size; i++)   if (len < keys[i].length)   len=keys[i].length;
-  len+=3;
-  for (int i=1; i < size; i++) {
-    final int s=ids[i];
+  for (int i=0; i < size; i++) {
+    if (len < keys[i].length)     len=keys[i].length;
+    tl[i]=Token.token(counter[i]);
+  }
+  len+=2;
+  final IntList ids=IntList.createOrder(tl,true,false);
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(NAMINDEX + NL);
+  tb.add(IDXENTRIES + (size - 1) + NL);
+  for (int i=0; i < size - 1; i++) {
+    final int s=ids.list[i];
     if (counter[s] == 0)     continue;
     final byte[] key=keys[s];
-    tb.add(LI);
+    tb.add("  ");
     tb.add(key);
     for (int j=0; j < len - key.length; j++)     tb.add(' ');
     tb.add(counter[s] + "x" + stat[s]);
