@@ -13,7 +13,10 @@
   final TableAccess ta=new TableDiskAccess(db,DATATBL);
   final DataInput in=new DataInput(db,DATATMP);
   for (int pre=0; pre < ssize; pre++) {
-    ta.write4(in.readNum(),8,in.readNum());
+    final boolean sz=in.readBool();
+    final int p=in.readNum();
+    if (sz)     ta.write4(p,8,in.readNum());
+ else     ta.write5(p,3,in.readNum());
   }
   ta.close();
   in.close();
