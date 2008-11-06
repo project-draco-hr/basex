@@ -1,7 +1,12 @@
 {
   context=ctx;
-  if (data() && context.data() == null)   return error(PROCNODB);
-  if (updating() && (Prop.mainmem || Prop.onthefly))   return error(PROCMM);
+  if (data() && context.data() == null) {
+    return error(PROCNODB);
+  }
+  if (updating()) {
+    if (Prop.mainmem || Prop.onthefly)     return error(PROCMM);
+    if (context.data().ns.size() != 0)     return error(UPDATENS);
+  }
   try {
     final boolean ok=exec();
     if (updating() && !(this instanceof Fs))     context.flush();

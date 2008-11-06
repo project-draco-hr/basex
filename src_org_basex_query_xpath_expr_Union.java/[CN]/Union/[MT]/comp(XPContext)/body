@@ -1,0 +1,13 @@
+{
+  int el=exprs.length;
+  for (int e=0; e != el; e++) {
+    exprs[e]=exprs[e].comp(ctx);
+    if (exprs[e] instanceof NodeSet && ((NodeSet)exprs[e]).size == 0) {
+      final Expr[] tmp=new Expr[exprs.length - 1];
+      System.arraycopy(exprs,0,tmp,0,e);
+      System.arraycopy(exprs,e + 1,tmp,e,--el - --e - 1);
+      exprs=tmp;
+    }
+  }
+  return el == 0 ? new NodeSet(ctx) : el == 1 ? exprs[0] : this;
+}
