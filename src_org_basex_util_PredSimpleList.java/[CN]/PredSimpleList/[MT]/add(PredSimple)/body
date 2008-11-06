@@ -1,0 +1,24 @@
+{
+  if (p.expr instanceof FTContains) {
+    final FTContains ftc1=(FTContains)p.expr;
+    FTContains ftc2;
+    for (int i=0; i < size; i++) {
+      ftc2=(FTContains)list[i].expr;
+      if (ftc1.expr1.sameAs(ftc2.expr1)) {
+        if (ftc2.expr2 instanceof FTAnd) {
+          FTAnd ftand=(FTAnd)ftc2.expr2;
+          ftand.add((FTArrayExpr)ftc1.expr2);
+        }
+ else {
+          FTAnd fta=new FTAnd(new FTArrayExpr[]{(FTArrayExpr)ftc1.expr2,(FTArrayExpr)ftc2.expr2});
+          ftc2.expr2=fta;
+        }
+        return i;
+      }
+    }
+    if (size == list.length)     list=Array.extend(list);
+    list[size++]=p;
+    return size - 1;
+  }
+  return -1;
+}
