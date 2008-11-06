@@ -5,25 +5,6 @@
     ctx.ftitem.init(lit.str());
     return expr2.eval(ctx);
   }
-  Item res;
-  if (s)   res=evalSeq(ctx);
- else   if (isc && !iec)   res=evalWithoutIndex(ctx);
- else {
-    final FTTokenizer tmp=ctx.ftitem;
-    ctx.ftitem=ft;
-    res=ctx.eval(expr2);
-    if (res.bool()) {
-      final FTArrayExpr ftae=(FTArrayExpr)expr2;
-      final IntList il=new IntList();
-      while (ftae.more()) {
-        ftn=ftae.next(ctx);
-        if (ftn.size == 0)         break;
-        il.add(ftn.getPre());
-      }
-      res=new NodeSet(il.finish(),ctx);
-    }
-    ctx.item=(NodeSet)res;
-    ctx.ftitem=tmp;
-  }
-  return res;
+  if (iu)   return evalSeq(ctx);
+ else   return evalWithoutIndex(ctx);
 }

@@ -1,0 +1,18 @@
+{
+  final FTTokenizer tmp=ctx.ftitem;
+  ctx.ftitem=ft;
+  Item res=ctx.eval(expr2);
+  if (res.bool()) {
+    final FTArrayExpr ftae=(FTArrayExpr)expr2;
+    final IntList il=new IntList();
+    while (ftae.more()) {
+      ftn=ftae.next(ctx);
+      if (ftn.size == 0)       break;
+      il.add(ftn.getPre());
+    }
+    res=new NodeSet(il.finish(),ctx);
+    ctx.item=(NodeSet)res;
+  }
+  ctx.ftitem=tmp;
+  return res;
+}

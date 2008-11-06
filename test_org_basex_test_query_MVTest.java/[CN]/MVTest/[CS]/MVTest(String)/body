@@ -1,6 +1,7 @@
 {
   new Open(db).execute(context,null);
-  final File file=new File("etc/xml/mv.txt");
+  BufferedWriter out=new BufferedWriter(new FileWriter(new File("mv1.log")));
+  final File file=new File("mv.txt");
   if (!file.exists()) {
     System.out.println("Could not read \"" + file.getAbsolutePath() + "\"");
     return;
@@ -8,7 +9,7 @@
   Prop.serialize=true;
   Prop.info=true;
   final FileInputStream fis=new FileInputStream(file);
-  final InputStreamReader isr=new InputStreamReader(fis,"ISO-8859-15");
+  final InputStreamReader isr=new InputStreamReader(fis,"UTF8");
   final BufferedReader br=new BufferedReader(isr);
   String line=null;
   while ((line=br.readLine()) != null) {
@@ -67,6 +68,8 @@
       j=info.indexOf(" Item",i);
       final String nodes=info.substring(i + "Results   : ".length(),j);
       System.out.println(time + "\t" + nodes+ "\t"+ query);
+      out.write(nodes + "\t" + query);
+      out.newLine();
     }
     if (++curr >= STOPAFTER)     break;
   }
