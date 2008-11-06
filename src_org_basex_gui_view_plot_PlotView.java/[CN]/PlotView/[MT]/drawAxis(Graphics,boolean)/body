@@ -1,0 +1,55 @@
+{
+  Performance pe=new Performance();
+  final int h=getHeight();
+  final int w=getWidth();
+  g.setColor(GUIConstants.back);
+  final int novalue=noValueSize();
+  final int pWidth=plotWidth - novalue;
+  final int pHeight=plotHeight - novalue;
+  final PlotAxis axis=drawX ? plotData.xAxis : plotData.yAxis;
+  if (drawX) {
+    g.drawLine(MARGIN[1],h - MARGIN[2],w - MARGIN[3],h - MARGIN[2]);
+    if (plotChanged)     axis.calcCaption(pWidth);
+  }
+ else {
+    g.drawLine(MARGIN[1],MARGIN[0],MARGIN[1],getHeight() - MARGIN[2]);
+    if (plotChanged)     axis.calcCaption(pHeight);
+  }
+  final Kind type=axis.type;
+  final int nrCaptions=axis.nrCaptions;
+  final double step=axis.captionStep;
+  final double capRange=1.0d / (nrCaptions - 1);
+  g.setFont(GUIConstants.font);
+  if (type == Kind.TEXT) {
+    final double[] coSorted=Arrays.copyOf(axis.co,axis.co.length);
+    drawCaptionAndGrid(g,drawX,string(axis.firstCat),0);
+    drawCaptionAndGrid(g,drawX,string(axis.lastCat),1);
+    Arrays.sort(coSorted);
+    int i=0;
+    double op=capRange;
+    final int cl=coSorted.length;
+    while (i < cl && coSorted[i] == 0)     i++;
+    while (i < cl && op < 1.0d - 0.6d * capRange) {
+      if (coSorted[i] > op) {
+        final double distL=Math.abs(coSorted[i - 1] - op);
+        final double distG=Math.abs(coSorted[i] - op);
+        op=distL < distG ? coSorted[i - 1] : coSorted[i];
+        int j=0;
+        while (j < axis.co.length && axis.co[j] != op)         j++;
+        drawCaptionAndGrid(g,drawX,string(axis.getValue(plotData.pres[j])),op);
+        op+=capRange;
+      }
+      i++;
+    }
+  }
+ else {
+    int i=1;
+    drawCaptionAndGrid(g,drawX,formatString(axis.min,drawX),0);
+    while (i < nrCaptions - 1) {
+      drawCaptionAndGrid(g,drawX,formatString(axis.min + i * step,drawX),capRange * i);
+      i++;
+    }
+    drawCaptionAndGrid(g,drawX,formatString(axis.max,drawX),1);
+  }
+  System.out.println(pe.getTimer());
+}

@@ -1,0 +1,40 @@
+{
+  if (working)   return;
+  super.mousePressed(e);
+  mouseX=e.getX();
+  mouseY=e.getY();
+  focus();
+  if (focused == -1) {
+    Nodes n=new Nodes(GUI.context.data());
+    notifyMark(n);
+    return;
+  }
+  final int pre=plotData.findPre(focused);
+  if (pre < 0)   return;
+  final IntList il=new IntList();
+  final int mx=calcCoordinate(true,plotData.xAxis.co[pre]);
+  final int my=calcCoordinate(false,plotData.yAxis.co[pre]);
+  for (int i=0; i < plotData.size; i++) {
+    final int x=calcCoordinate(true,plotData.xAxis.co[i]);
+    final int y=calcCoordinate(false,plotData.yAxis.co[i]);
+    if (mx == x && my == y) {
+      il.add(plotData.pres[i]);
+    }
+  }
+  final boolean left=SwingUtilities.isLeftMouseButton(e);
+  if (e.isShiftDown() || !left) {
+    final Nodes marked=GUI.context.marked();
+    marked.union(il.finish());
+    notifyMark(marked);
+  }
+ else   if (e.getClickCount() == 2) {
+    final Nodes marked=new Nodes(GUI.context.data());
+    marked.union(il.finish());
+    notifyContext(marked,false);
+  }
+ else {
+    final Nodes marked=new Nodes(GUI.context.data());
+    marked.union(il.finish());
+    notifyMark(marked);
+  }
+}
