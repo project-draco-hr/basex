@@ -20,9 +20,10 @@
   final double capRange=1.0d / (nrCaptions - 1);
   g.setFont(GUIConstants.font);
   if (type == Kind.TEXT) {
+    final int nrCats=axis.nrCats;
     final double[] coSorted=Arrays.copyOf(axis.co,axis.co.length);
-    drawCaptionAndGrid(g,drawX,string(axis.firstCat),0);
-    drawCaptionAndGrid(g,drawX,string(axis.lastCat),1);
+    drawCaptionAndGrid(g,drawX,nrCats > 1 ? string(axis.firstCat) : "",0);
+    drawCaptionAndGrid(g,drawX,nrCats > 1 ? string(axis.lastCat) : "",1);
     if (nrCaptions == 0)     return;
     Arrays.sort(coSorted);
     double op=capRange;
@@ -40,6 +41,12 @@
         op+=capRange;
       }
       i++;
+    }
+    if (nrCats == 1) {
+      op=.5d;
+      int j=0;
+      while (j < axis.co.length && axis.co[j] != op)       j++;
+      drawCaptionAndGrid(g,drawX,string(axis.getValue(plotData.pres[j])),op);
     }
   }
  else {
