@@ -1,28 +1,15 @@
 {
-  tmp=new NodeSet(ctx);
-  PredSimpleList p=new PredSimpleList(size);
+  tmp=new Nod(ctx);
   for (int j=0; j < size; j++) {
-    final Pred pred=preds[j].compile(ctx);
-    if (pred.alwaysFalse()) {
+    preds[j]=preds[j].compile(ctx);
+    if (preds[j].alwaysFalse()) {
       ctx.compInfo(OPTEMPTY);
-      size=0;
       return false;
     }
-    if (pred.alwaysTrue()) {
+    if (preds[j].alwaysTrue()) {
       ctx.compInfo(OPTTRUE);
-      remove(j);
+      remove(j--);
     }
- else {
-      preds[j]=pred;
-    }
-    if (pred instanceof PredSimple) {
-      p.add((PredSimple)pred);
-    }
-  }
-  if (p.size > 0 && p.size < size) {
-    preds=p.finish();
-    size=p.size;
-    ctx.compInfo(OPTSUMPREDS);
   }
   return true;
 }

@@ -1,16 +1,16 @@
 {
-  if (!(exprs[0] instanceof Comparison))   return this;
-  final Comparison e1=(Comparison)exprs[0];
-  if (!e1.simple())   return this;
-  for (int e=1; e != exprs.length; e++) {
-    if (!(exprs[e] instanceof Comparison))     return this;
-    final Comparison e2=(Comparison)exprs[e];
-    if (!e2.simple() || e1.type != e2.type || !e1.expr1.sameAs(e2.expr1))     return this;
+  if (!(expr[0] instanceof Cmp))   return this;
+  final Cmp e1=(Cmp)expr[0];
+  if (!e1.standard())   return this;
+  for (int e=1; e != expr.length; e++) {
+    if (!(expr[e] instanceof Cmp))     return this;
+    final Cmp e2=(Cmp)expr[e];
+    if (!e2.standard() || e1.type != e2.type || !e1.expr[0].sameAs(e2.expr[0]))     return this;
   }
-  final Item[] ex=new Item[exprs.length];
-  for (int e=0; e != exprs.length; e++) {
-    ex[e]=(Item)((Comparison)exprs[e]).expr2;
+  final Item[] ex=new Item[expr.length];
+  for (int e=0; e != expr.length; e++) {
+    ex[e]=(Item)((Cmp)expr[e]).expr[1];
   }
   ctx.compInfo(OPTOR5);
-  return new OneOf((LocPath)e1.expr1,ex,e1.type);
+  return new OneOf((LocPath)e1.expr[0],ex,e1.type);
 }

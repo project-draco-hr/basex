@@ -1,15 +1,15 @@
 {
   final FTTokenizer tmp=ctx.ftitem;
   ctx.ftitem=ft;
-  final NodeSet ns=(NodeSet)expr1.eval(ctx);
-  if (!ns.bool())   return Bool.FALSE;
+  final Nod ns=(Nod)expr[0].eval(ctx);
+  if (!ns.bool())   return Bln.FALSE;
   if (!f) {
-    v2=ctx.eval(expr2);
+    v2=ctx.eval(expr[1]);
     f=true;
   }
   if (v2.bool()) {
-    if (expr2 instanceof FTArrayExpr) {
-      final FTArrayExpr ftae=(FTArrayExpr)expr2;
+    if (expr[1] instanceof FTArrayExpr) {
+      final FTArrayExpr ftae=(FTArrayExpr)expr[1];
       ftn=(ftn == null && ftae.more()) ? ftae.next(ctx) : ftn;
       for (int z=0; z < ns.size(); z++) {
         while (ftn != null && ns.nodes[z] > ftn.getPre()) {
@@ -18,16 +18,16 @@
         if (ftn != null) {
           final boolean not=ftn.not;
           if (ftn.getPre() == ns.nodes[z]) {
-            return Bool.get(!not);
+            return Bln.get(!not);
           }
         }
       }
     }
- else     if (expr2 instanceof Bool) {
-      if (expr1.eval(ctx).bool())       return (Bool)expr2;
+ else     if (expr[1] instanceof Bln) {
+      if (expr[0].eval(ctx).bool())       return (Bln)expr[1];
     }
-    return Bool.TRUE;
+    return Bln.TRUE;
   }
   ctx.ftitem=tmp;
-  return Bool.FALSE;
+  return Bln.FALSE;
 }

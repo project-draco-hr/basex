@@ -4,28 +4,30 @@
     steps.set(0,Axis.create(Axis.CHILD,TestNode.TEXT));
     ctx.compInfo(OPTTEXT);
   }
-  if (!steps.compile(ctx) || steps.emptyPath(ctx))   return new NodeSet(ctx);
+  if (!steps.compile(ctx) || steps.emptyPath(ctx))   return new Nod(ctx);
   steps.mergeSelf(ctx);
   steps.mergeDescendant(ctx);
   Expr result=this;
-  for (int i=0; i < steps.size(); i++) {
+  MAIN:   for (int i=0; i < steps.size(); i++) {
     final Step step=steps.get(i);
     final Preds preds=step.preds;
-    if (preds.size() == 0 || step.posPred() > 0)     continue;
     if (invertAxis(step.axis) == null)     continue;
+    boolean pos=false;
     int min=Integer.MAX_VALUE;
     int minP=-1;
     for (int p=0; p < preds.size(); p++) {
       final Pred pred=preds.get(p);
       final int nrIDs=pred.indexSizes(ctx,step,min);
+      if (nrIDs == 0) {
+        ctx.compInfo(OPTLOC);
+        return new Nod(ctx);
+      }
       if (min > nrIDs) {
-        if (nrIDs == 0) {
-          ctx.compInfo(OPTLOC);
-          return new NodeSet(ctx);
-        }
+        if (pos)         continue MAIN;
         min=nrIDs;
         minP=p;
       }
+      pos|=pred.usesPos() || pred.usesSize();
     }
     final boolean seq=min == Integer.MAX_VALUE;
     if (!seq && this instanceof LocPathRel && min > ctx.item.data.size / 10)     continue;
@@ -38,9 +40,7 @@
         indexArg=pred.indexEquivalent(ctx,step,seq);
       }
     }
-    if (seq) {
-      continue;
-    }
+    if (seq)     continue;
     final LocPath oldPath=new LocPathRel();
     for (final int j=i + 1; j < steps.size(); ) {
       final Step oldStep=steps.get(j);
@@ -76,11 +76,10 @@
       if (!oldPreds.contains(p)) {
         Pred pred=step.preds.get(p);
         if (pred instanceof PredSimple) {
-          Expr e=((PredSimple)pred).getExpr();
+          Expr e=((PredSimple)pred).expr;
           if (e instanceof FTContains) {
-            e=e.indexEquivalent(ctx,null,true);
+            ((PredSimple)pred).expr=e.indexEquivalent(ctx,null,true);
           }
-          pred=new PredSimple(e);
         }
         newPreds.add(pred);
       }

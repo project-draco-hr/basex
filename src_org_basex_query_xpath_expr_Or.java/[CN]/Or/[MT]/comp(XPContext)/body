@@ -1,22 +1,22 @@
 {
-  for (int i=0; i != exprs.length; i++) {
-    exprs[i]=exprs[i].comp(ctx);
-    if (exprs[i] instanceof LocPath) {
-      ((LocPath)exprs[i]).addPosPred(ctx);
+  super.comp(ctx);
+  for (int i=0; i != expr.length; i++) {
+    if (expr[i] instanceof LocPath) {
+      ((LocPath)expr[i]).addPosPred(ctx);
     }
- else     if (exprs[i] instanceof Item) {
-      if (((Item)exprs[i]).bool()) {
+ else     if (expr[i] instanceof Item) {
+      if (((Item)expr[i]).bool()) {
         ctx.compInfo(OPTOR1);
-        return Bool.TRUE;
+        return Bln.TRUE;
       }
       ctx.compInfo(OPTOR2);
-      final Expr[] tmp=new Expr[exprs.length - 1];
-      System.arraycopy(exprs,0,tmp,0,i);
-      System.arraycopy(exprs,i + 1,tmp,i,exprs.length - i-- - 1);
-      exprs=tmp;
+      final Expr[] tmp=new Expr[expr.length - 1];
+      System.arraycopy(expr,0,tmp,0,i);
+      System.arraycopy(expr,i + 1,tmp,i,expr.length - i-- - 1);
+      expr=tmp;
     }
   }
-  if (exprs.length == 0)   return Bool.FALSE;
-  if (exprs.length == 1)   return exprs[0];
+  if (expr.length == 0)   return Bln.FALSE;
+  if (expr.length == 1)   return expr[0];
   return oneOf(ctx);
 }
