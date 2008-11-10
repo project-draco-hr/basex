@@ -15,6 +15,17 @@
       System.arraycopy(expr,i + 1,tmp,i,expr.length - i-- - 1);
       expr=tmp;
     }
+ else     if (expr[i] instanceof And) {
+      final ExprInfoList eil=new ExprInfoList();
+      final And o=(And)expr[i];
+      for (int j=0; j < o.expr.length; j++)       eil.add(o.expr[j],true);
+      if (eil.size > 0 && eil.size < o.expr.length) {
+        Expr[] e=eil.finishE();
+        if (e.length == 1)         expr[i]=e[0];
+        o.expr=eil.finishE();
+        ctx.compInfo(OPTSUMPREDS);
+      }
+    }
   }
   if (expr.length == 0)   return Bln.FALSE;
   if (expr.length == 1)   return expr[0];

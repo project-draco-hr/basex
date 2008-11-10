@@ -1,14 +1,22 @@
 {
   final FTTokenizer tmp=ctx.ftitem;
   ctx.ftitem=ft;
-  Item it=expr[0].eval(ctx);
+  final Nod c=ctx.item;
+  final Item it=expr[0].eval(ctx);
   if (!it.bool())   return Bln.FALSE;
+  Item res;
   if (it instanceof Nod) {
-    it=evalNS(ctx,it);
+    ctx.item=(Nod)it;
+    res=evalNS(ctx,it);
+  }
+ else   if (it instanceof Bln) {
+    res=expr[1].eval(ctx);
   }
  else {
-    it=expr[1].eval(ctx);
+    ctx.ftitem=new FTTokenizer(it.str());
+    res=expr[1].eval(ctx);
   }
   ctx.ftitem=tmp;
-  return Bln.get(it.bool());
+  ctx.item=c;
+  return Bln.get(res.bool());
 }

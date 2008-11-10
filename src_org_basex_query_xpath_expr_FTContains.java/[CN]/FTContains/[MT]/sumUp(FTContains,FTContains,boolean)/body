@@ -1,0 +1,45 @@
+{
+  final LocPathRel l1=(LocPathRel)ftc1.expr[0];
+  final LocPathRel l2=(LocPathRel)ftc2.expr[0];
+  if (l1.sameAs(l2) && l1.steps.size() == 1) {
+    if (check(ftc1,ftc2)) {
+      final FTSelect fts1=(FTSelect)ftc1.expr[1];
+      final FTSelect fts2=(FTSelect)ftc2.expr[1];
+      if (and) {
+        if (fts2.getExpr() instanceof FTAnd) {
+          FTAnd ftand=(FTAnd)fts2.getExpr();
+          ftand.add(fts1.getExpr());
+        }
+ else {
+          final FTAnd fta=new FTAnd(new FTArrayExpr[]{fts1.getExpr(),fts2.getExpr()});
+          fts2.setExpr(fta);
+        }
+        return ftc2;
+      }
+ else {
+        if (fts2.getExpr() instanceof FTOr) {
+          FTOr ftor=(FTOr)fts2.getExpr();
+          ftor.add(fts1.getExpr());
+        }
+ else {
+          final FTOr ftor=new FTOr(new FTArrayExpr[]{fts1.getExpr(),fts2.getExpr()});
+          fts2.setExpr(ftor);
+        }
+      }
+    }
+ else {
+      FTSelect fts;
+      if (and) {
+        FTAnd fta=new FTAnd(new FTArrayExpr[]{(FTArrayExpr)ftc2.expr[1],(FTArrayExpr)ftc1.expr[1]});
+        fts=new FTSelect(fta,new FTPositionFilter(new FTPos()));
+      }
+ else {
+        FTAnd fta=new FTAnd(new FTArrayExpr[]{(FTArrayExpr)ftc2.expr[1],(FTArrayExpr)ftc1.expr[1]});
+        fts=new FTSelect(fta,new FTPositionFilter(new FTPos()));
+      }
+      ftc2.expr[1]=fts;
+    }
+    return ftc2;
+  }
+  return null;
+}
