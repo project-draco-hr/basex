@@ -13,8 +13,19 @@
     mergeDesc(ctx);
     checkEmpty();
     cache=true;
+    boolean noPreds=true;
     for (    final Expr ex : expr) {
-      cache&=((Step)ex).expr.length == 0 || !ex.uses(Using.VAR);
+      if (((Step)ex).expr.length != 0) {
+        noPreds=false;
+        if (ex.uses(Using.VAR)) {
+          cache=false;
+          break;
+        }
+      }
+    }
+    final Axis axis=((Step)expr[0]).axis;
+    if (!cache && noPreds && expr.length == 1 && (axis == Axis.DESC || axis == Axis.DESCORSELF || axis == Axis.CHILD)) {
+      return new SimpleIterPath(root,expr);
     }
   }
   return this;
