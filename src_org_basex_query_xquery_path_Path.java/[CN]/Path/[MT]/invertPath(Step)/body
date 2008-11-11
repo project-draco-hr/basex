@@ -1,0 +1,23 @@
+{
+  final Expr[] el=new Expr[expr.length + 1];
+  int c=0;
+  if (!steps) {
+    return this;
+  }
+  Axis lastAxis;
+  int k=expr.length;
+  while (k > -1 && !(expr[k] instanceof Step))   k--;
+  if (k > -1) {
+    lastAxis=invertAxis(((Step)expr[k]).axis);
+    while (k > -1) {
+      if (expr[k] instanceof Step) {
+        final Step step=(Step)expr[k];
+        final Step inv=new Step(lastAxis,step.test,step.expr);
+        lastAxis=invertAxis(step.axis);
+        el[c++]=inv;
+      }
+    }
+    el[c++]=new Step(lastAxis,curr.test,new Expr[]{});
+  }
+  return c > 0 ? new Path(root,Array.finish(el,c)) : this;
+}
