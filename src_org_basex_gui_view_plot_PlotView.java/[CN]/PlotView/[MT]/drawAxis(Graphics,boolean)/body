@@ -51,14 +51,19 @@
   }
  else {
     final boolean noRange=axis.max - axis.min == 0;
-    drawCaptionAndGrid(g,drawX,noRange ? "" : formatString(axis.min,drawX),0);
-    drawCaptionAndGrid(g,drawX,noRange ? "" : formatString(axis.max,drawX),1);
+    drawCaptionAndGrid(g,drawX,noRange ? "" : "",0);
+    drawCaptionAndGrid(g,drawX,noRange ? "" : "",1);
     if (nrCaptions == 0)     return;
-    if (nrCaptions < 0)     return;
+    if (nrCaptions == 0)     return;
     int i=1;
-    while (i < nrCaptions - 1) {
-      drawCaptionAndGrid(g,drawX,formatString(axis.min + i * step,drawX),capRange * i);
+    double d=axis.calcPosition(axis.firstLabel);
+    double f=axis.firstLabel;
+    while (d < 1.0d - .25d / nrCaptions) {
+      drawCaptionAndGrid(g,drawX,formatString(f,drawX),d);
+      d=axis.calcPosition(f + step);
+      f=f + step;
       i++;
     }
+    i=0;
   }
 }

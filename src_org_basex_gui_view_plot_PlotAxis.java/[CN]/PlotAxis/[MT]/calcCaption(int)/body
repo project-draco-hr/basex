@@ -1,20 +1,32 @@
 {
-  if (type == Kind.DBL || type == Kind.INT) {
-    final double range=max - min;
-    if (range == 0) {
-      nrCaptions=3;
-      captionStep=0;
-      return;
-    }
+  if (type == Kind.DBL) {
+    final double range=Math.abs(max - min);
     captionStep=calculatedCaptionStep;
     nrCaptions=(int)(range / captionStep) + 1;
-    if (nrCaptions * PlotView.itemSize(false) * 2 > space) {
-      captionStep*=2;
-      nrCaptions=(int)(range / captionStep) + 1;
+    while (2 * nrCaptions * PlotView.CAPTIONWHITESPACE* 2 < space) {
+      captionStep/=2;
+      nrCaptions=(int)(range / captionStep);
     }
+    while (nrCaptions * PlotView.CAPTIONWHITESPACE * 2 > space) {
+      captionStep*=2;
+      nrCaptions=(int)(range / captionStep);
+    }
+    firstLabel=sigVal;
+    while (firstLabel > min + captionStep * 1.4d)     firstLabel-=captionStep;
+  }
+ else   if (type == Kind.INT) {
+    final double range=Math.abs(max - min);
+    captionStep=calculatedCaptionStep;
+    nrCaptions=(int)(range / captionStep) + 1;
+    while (2 * nrCaptions * PlotView.CAPTIONWHITESPACE* 2 < space && captionStep % 2 == 0) {
+      captionStep/=2;
+      nrCaptions=(int)(range / captionStep);
+    }
+    firstLabel=sigVal;
+    while (firstLabel > min + captionStep * 1.4d)     firstLabel-=captionStep;
   }
  else {
-    nrCaptions=space / (PlotView.CAPTIONWHITESPACE * 3);
+    nrCaptions=space / (PlotView.CAPTIONWHITESPACE);
     if (nrCaptions > nrCats)     nrCaptions=nrCats;
     captionStep=1.0d / (nrCaptions - 1);
   }

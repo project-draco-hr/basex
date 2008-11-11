@@ -8,33 +8,26 @@
     if (d > max)     max=d;
   }
   if (max - min == 0)   return;
-  if (min == Integer.MAX_VALUE)   min=0;
-  if (max == Integer.MIN_VALUE)   max=0;
-  int fsplus=6;
-  final boolean fss=false;
-  final double range=max - min;
-  final double lmin=min - range / 2;
-  final double lmax=max + range / 2;
-  final double rangePow=Math.floor(fss ? 10 : Math.log10(range) + .5d);
-  final double lstep=(int)(Math.pow(fss ? 2 : 10,fss ? rangePow + fsplus : rangePow));
-  calculatedCaptionStep=(int)(Math.pow(fss ? 2 : 10,rangePow - (fss ? -fsplus : 1)));
-  double c=Math.floor(min);
-  double m=c - c % calculatedCaptionStep;
-  if (m > lmin)   min=m;
-  m=c - c % lstep;
-  if (m > lmin)   min=m;
-  c=Math.ceil(max);
-  boolean f=false;
-  while (c < lmax) {
-    if (c % lstep == 0) {
-      max=c;
-      break;
-    }
-    if (!f && c % calculatedCaptionStep == 0 && ((c - min) / calculatedCaptionStep) % 2 == 0) {
-      max=c;
-      f=true;
-    }
-    c-=c % calculatedCaptionStep;
-    c+=calculatedCaptionStep;
+  double range=Math.abs(max - min);
+  if (range < 1) {
+    double dec=1.0d / range;
+    double pow=(int)(Math.floor(Math.log10(dec) + .5d) + 2) * 2;
+    double fac=(int)(Math.pow(10,pow));
+    double tmin=min * fac;
+    double tmax=max * fac;
+    range=Math.abs(tmax - tmin);
+    final double d=tmin + range * .55d;
+    pow=range < 10 ? 0 : (int)(Math.floor(Math.log10(range) + .5d)) - 1;
+    double lstep=(int)(Math.pow(10,pow));
+    sigVal=d - d % lstep;
+    sigVal/=fac;
+    lstep/=fac;
+    calculatedCaptionStep=lstep;
+    return;
   }
+  final int pow=range < 10 ? 0 : (int)(Math.floor(Math.log10(range) + .5d)) - 1;
+  double lstep=(int)(Math.pow(10,pow));
+  final double d=min + range * .6d;
+  sigVal=d - d % lstep;
+  calculatedCaptionStep=lstep;
 }
