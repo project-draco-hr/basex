@@ -1,0 +1,62 @@
+{
+  final int o=GUIProp.fontsize + 4;
+  if (ne - ns == 1) {
+    final MapRect t=new MapRect(r.x,r.y,r.w,r.h,l.list[ns],r.l);
+    final int x=t.x + layout.x;
+    final int y=t.y + layout.y;
+    final int w=t.w - layout.w;
+    final int h=t.h - layout.h;
+    mainRects.add(t);
+    if (w > 0 && h > 0 && !ViewData.isLeaf(GUI.context.data(),t.p)) {
+      final IntList ch=children(t.p);
+      if (ch.size >= 0)       calcSliceMap(new MapRect(x,y,w,h,l.list[ns],t.l + 1),ch,0,ch.size - 1,level + 1);
+    }
+  }
+ else {
+    int nn=l.size - 1;
+    int lines=1;
+    int perline=(int)Math.ceil((float)nn / lines);
+    final boolean v=(level % 2) == 0 ? true : false;
+    int xx=r.x;
+    int yy=r.y;
+    int ww, hh, ceilcount;
+    if (v) {
+      ww=(int)Math.ceil((float)r.w * lines / nn);
+      ceilcount=(r.w - (ww * (nn / 2))) / (ww - 1);
+      hh=r.h / lines;
+    }
+ else {
+      ww=r.w / lines;
+      hh=(int)Math.ceil((float)r.h * lines / nn);
+      ceilcount=(r.h - (hh * (nn / 2))) / (hh - 1);
+    }
+    for (int i=0; i < l.size - 1; i++) {
+      int[] liste=new int[1];
+      liste[0]=l.list[i];
+      if (ww > 0 && hh > 0) {
+        if (v) {
+          if (i == ceilcount) {
+            ww-=1;
+          }
+          if (i % perline == 0 && i != 0) {
+            yy+=hh;
+            xx=r.x;
+          }
+          calcSliceMap(new MapRect(xx,yy,ww,hh,0,r.l),new IntList(liste),0,1,level);
+          xx+=ww;
+        }
+ else {
+          if (i == ceilcount) {
+            hh-=1;
+          }
+          if (i % perline == 0 && i != 0) {
+            xx+=ww;
+            yy=r.y;
+          }
+          calcSliceMap(new MapRect(xx,yy,ww,hh,0,r.l),new IntList(liste),0,1,level);
+          yy+=hh;
+        }
+      }
+    }
+  }
+}
