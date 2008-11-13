@@ -1,23 +1,23 @@
 {
   if (consumeWS(LOWERCASE)) {
-    if (opt.lc || opt.uc || opt.cs)     Err.or(FTCASE);
-    opt.lc=true;
-    opt.cs=true;
+    if (opt.is(FTOpt.LC) || opt.is(FTOpt.UC) || opt.is(FTOpt.CS))     Err.or(FTCASE);
+    opt.set(FTOpt.CS,true);
+    opt.set(FTOpt.LC,true);
   }
  else   if (consumeWS(UPPERCASE)) {
-    if (opt.lc || opt.uc || opt.cs)     Err.or(FTCASE);
-    opt.uc=true;
-    opt.cs=true;
+    if (opt.is(FTOpt.LC) || opt.is(FTOpt.UC) || opt.is(FTOpt.CS))     Err.or(FTCASE);
+    opt.set(FTOpt.CS,true);
+    opt.set(FTOpt.UC,true);
   }
  else   if (consumeWS(CASE)) {
-    if (opt.lc || opt.uc || opt.cs)     Err.or(FTCASE);
-    opt.cs=consumeWS(SENSITIVE);
-    if (!opt.cs)     check(INSENSITIVE);
+    if (opt.is(FTOpt.LC) || opt.is(FTOpt.UC) || opt.is(FTOpt.CS))     Err.or(FTCASE);
+    opt.set(FTOpt.CS,consumeWS(SENSITIVE));
+    if (!opt.is(FTOpt.CS))     check(INSENSITIVE);
   }
  else   if (consumeWS(DIACRITICS)) {
-    if (opt.dc)     Err.or(FTDIA);
-    opt.dc=consumeWS(SENSITIVE);
-    if (!opt.dc)     check(INSENSITIVE);
+    if (opt.is(FTOpt.DC))     Err.or(FTDIA);
+    opt.set(FTOpt.DC,consumeWS(SENSITIVE));
+    if (!opt.is(FTOpt.DC))     check(INSENSITIVE);
   }
  else   if (consumeWS(LANGUAGE)) {
     opt.ln=lc(stringLiteral());
@@ -31,10 +31,10 @@
     final boolean with=consumeWS(WITH);
     if (!with && !consumeWS(WITHOUT))     return false;
     if (consumeWS2(STEMMING)) {
-      opt.st=with;
+      opt.set(FTOpt.ST,with);
     }
  else     if (consumeWS2(THESAURUS)) {
-      opt.ts=with;
+      opt.set(FTOpt.TS,with);
       if (with) {
         final boolean par=consumeWS2(PAR1);
         if (consumeWS2(AT)) {
@@ -92,12 +92,12 @@
       check(WORDS);
     }
  else     if (consumeWS2(WILDCARDS)) {
-      if (opt.fz)       Err.or(FTFZWC);
-      opt.wc=with;
+      if (opt.is(FTOpt.FZ))       Err.or(FTFZWC);
+      opt.set(FTOpt.WC,with);
     }
  else     if (consumeWS2(FUZZY)) {
-      if (opt.wc)       Err.or(FTFZWC);
-      opt.fz=with;
+      if (opt.is(FTOpt.WC))       Err.or(FTFZWC);
+      opt.set(FTOpt.FZ,with);
     }
  else {
       qp=p;
