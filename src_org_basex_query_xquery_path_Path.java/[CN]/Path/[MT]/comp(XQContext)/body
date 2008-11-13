@@ -28,5 +28,96 @@
       return new SimpleIterPath(root,expr);
     }
   }
-  return this;
+  Expr result=this;
+  if (FTIndexInfo.optimize && steps) {
+    MAIN:     for (int i=0; i < expr.length; i++) {
+      final Step step=(Step)expr[i];
+      final Expr[] preds=step.expr;
+      if (invertAxis(step.axis) == null)       continue;
+      boolean pos=false;
+      int min=Integer.MAX_VALUE;
+      int minP=-1;
+      final Expr[] ie=new Expr[preds.length];
+      final FTIndexInfo[] ftii=new FTIndexInfo[preds.length];
+      for (int p=0; p < preds.length; p++) {
+        final Expr pred=preds[p];
+        ftii[p]=new FTIndexInfo();
+        ie[p]=pred.indexEquivalent(ctx,ftii[p],step);
+        final int nrIDs=ftii[p].indexSize;
+        if (ftii[p].indexSize == 0) {
+          ctx.compInfo(OPTLOC);
+          return Bln.FALSE;
+        }
+        if (min > nrIDs) {
+          if (pos)           continue MAIN;
+          min=nrIDs;
+          minP=p;
+        }
+        pos|=pred.uses(Using.POS) || pred.uses(Using.VAR);
+      }
+      if (minP == -1 || ftii[minP].seq)       continue;
+      final IntList oldPreds=new IntList();
+      Expr indexArg=null;
+      for (int p=0; p < preds.length; p++) {
+        if (ftii[minP].seq || p == minP && indexArg == null) {
+          oldPreds.add(p);
+          indexArg=ie[p];
+        }
+      }
+      if (ftii[minP].seq)       continue;
+      final Expr[] oldPath=new Expr[expr.length - i - 1];
+      if (i + 1 < expr.length) {
+        System.arraycopy(expr,i + 1,oldPath,0,oldPath.length);
+        Expr[] exprN=new Expr[i];
+        System.arraycopy(expr,0,exprN,0,exprN.length);
+        expr=exprN;
+      }
+      final Path invPath=new Path(root,new Expr[]{});
+      boolean indexMatch=true;
+      for (int j=i; j >= 0; j--) {
+        final Step curr=(Step)expr[j];
+        final Axis axis=invertAxis(curr.axis);
+        if (axis == null)         break;
+        if (j == 0) {
+          if (axis == Axis.PARENT) {
+            Expr[] ex=new Expr[invPath.expr.length + 1];
+            System.arraycopy(invPath.expr,0,ex,0,invPath.expr.length);
+            ex[ex.length - 1]=new Step(axis,Test.NODE,null);
+          }
+ else {
+            indexMatch=false;
+          }
+        }
+ else {
+          final Step prev=(Step)expr[j - 1];
+          if (prev.expr.length != 0)           break;
+          Expr[] ex=new Expr[invPath.expr.length + 1];
+          System.arraycopy(invPath.expr,0,ex,0,invPath.expr.length);
+          ex[ex.length - 1]=new Step(axis,prev.test,null);
+        }
+        if (invPath.expr.length > 0) {
+          Expr[] ex=new Expr[invPath.expr.length - 1];
+          System.arraycopy(expr,0,ex,0,j - 1);
+          System.arraycopy(expr,j + 1,ex,j,expr.length - j - 1);
+        }
+      }
+      int predlength=preds.length - oldPreds.size;
+      if (indexMatch || invPath.expr.length != 0)       predlength+=1;
+      Expr[] newPreds=new Expr[step.expr.length];
+      int c=0;
+      if (!indexMatch && invPath.expr.length != 0)       newPreds[c++]=invPath;
+      for (int p=0; p != step.expr.length; p++) {
+        if (!oldPreds.contains(p)) {
+          if (ie[p] != null)           newPreds[c++]=ie[p];
+        }
+      }
+      if (c == 0)       newPreds=new Expr[]{};
+ else       Array.finish(newPreds,c);
+      result=(new InterSect(new Expr[]{indexArg})).comp(ctx);
+      if (newPreds.length != 0)       result=ctx.comp(new Pred(result,newPreds));
+      if (indexMatch)       result=new IndexMatch(this,result,invPath);
+      if (oldPath.length != 0)       result=new Path(result,oldPath);
+    }
+  }
+  return result;
 }

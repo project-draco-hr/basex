@@ -1,4 +1,17 @@
 {
-  final int len=contains(ctx);
+  int len;
+  if (query instanceof FTIndex) {
+    if (ftni == null)     ftni=(FTNodeIter)ctx.iter(query);
+    if (ftni == Iter.EMPTY)     return Iter.EMPTY;
+    FTIndexItem ftii=ftni.next();
+    final DNode dn=(DNode)ctx.coll(null).next();
+    ctx.item=new DNode(dn.data,ftii.ftnode.getPre(),null,Type.TXT);
+    ctx.ftitem=lt ? new FTTokenizer(dn.data.text(ftii.ftnode.getPre())) : new FTTokenizer();
+    ctx.ftpos.setPos(ftii.ftnode.convertPos(),ftii.ftnode.size);
+    len=ftii.ftnode.size;
+  }
+ else {
+    len=contains(ctx);
+  }
   return Dbl.iter(len == 0 ? 0 : Scoring.word(ctx.ftitem.size(),len));
 }
