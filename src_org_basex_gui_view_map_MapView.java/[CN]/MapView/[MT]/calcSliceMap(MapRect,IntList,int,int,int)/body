@@ -1,4 +1,5 @@
 {
+  final Data data=GUI.context.data();
   if (ne - ns == 1) {
     final MapRect t=new MapRect(r.x,r.y,r.w,r.h,l.list[ns],r.l);
     final int x=t.x + layout.x;
@@ -13,49 +14,31 @@
   }
  else {
     int nn=l.size - 1;
+    int par=data.parent(l.list[ns],Data.ELEM);
+    long parsize=Token.toLong(data.attValue(par + FSParser.SIZEOFFSET));
     int lines=1;
     int perline=(int)Math.ceil((float)nn / lines);
     final boolean v=(level % 2) == 0 ? true : false;
-    int xx=r.x;
-    int yy=r.y;
-    int ww, hh, ceilcount;
-    if (v) {
-      ww=(int)Math.ceil((float)r.w * lines / nn);
-      ceilcount=(r.w - (ww * (nn / 2))) / (ww - 1);
-      hh=r.h / lines;
-    }
- else {
-      ww=r.w / lines;
-      hh=(int)Math.ceil((float)r.h * lines / nn);
-      ceilcount=(r.h - (hh * (nn / 2))) / (hh - 1);
-    }
+    float xx=r.x;
+    float yy=r.y;
+    float hh=0;
+    float ww=0;
     for (int i=0; i < l.size - 1; i++) {
+      if (v) {
+        yy+=hh;
+        float hoehe=(float)Token.toLong(data.attValue(l.list[i] + FSParser.SIZEOFFSET)) * r.h / parsize;
+        hh=hoehe;
+        ww=r.w / lines;
+      }
+ else {
+        xx+=ww;
+        float breite=(float)Token.toLong(data.attValue(l.list[i] + FSParser.SIZEOFFSET)) * r.w / parsize;
+        ww=breite;
+        hh=r.h / lines;
+      }
       int[] liste=new int[1];
       liste[0]=l.list[i];
-      if (ww > 0 && hh > 0) {
-        if (v) {
-          if (i == ceilcount) {
-            ww-=1;
-          }
-          if (i % perline == 0 && i != 0) {
-            yy+=hh;
-            xx=r.x;
-          }
-          calcSliceMap(new MapRect(xx,yy,ww,hh,0,r.l),new IntList(liste),0,1,level);
-          xx+=ww;
-        }
- else {
-          if (i == ceilcount) {
-            hh-=1;
-          }
-          if (i % perline == 0 && i != 0) {
-            xx+=ww;
-            yy=r.y;
-          }
-          calcSliceMap(new MapRect(xx,yy,ww,hh,0,r.l),new IntList(liste),0,1,level);
-          yy+=hh;
-        }
-      }
+      calcSliceMap(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.l),new IntList(liste),0,1,level);
     }
   }
 }
