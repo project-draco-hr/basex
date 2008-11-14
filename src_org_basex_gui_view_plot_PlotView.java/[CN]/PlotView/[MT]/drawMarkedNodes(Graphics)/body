@@ -1,0 +1,55 @@
+{
+  final Data data=GUI.context.data();
+  if (!drawContextMarked) {
+    final int[] t=tmpMarked.finish();
+    for (int i=0; i < t.length; i++) {
+      drawItem(g,plotData.xAxis.co[t[i]],plotData.yAxis.co[t[i]],false,true,false);
+    }
+    return;
+  }
+  final Nodes marked=GUI.context.marked();
+  if (marked.size() <= 0)   return;
+  final int[] m=Arrays.copyOf(marked.nodes,marked.nodes.length);
+  Arrays.sort(m);
+  final int[] p=plotData.pres;
+  int i=0;
+  int k=plotData.findPre(m[0]);
+  if (k > -1) {
+    drawItem(g,plotData.xAxis.co[k],plotData.yAxis.co[k],false,true,false);
+    k++;
+  }
+ else {
+    k*=-1;
+    k--;
+  }
+  if (stepBack) {
+    tmpMarked.reset();
+    while (i < m.length && k < p.length) {
+      final int a=m[i];
+      final int b=p[k];
+      if (a == b) {
+        drawItem(g,plotData.xAxis.co[k],plotData.yAxis.co[k],false,true,false);
+        tmpMarked.add(k);
+        i++;
+        k++;
+      }
+ else       if (a < b)       i++;
+ else       k++;
+    }
+    stepBack=false;
+    drawContextMarked=false;
+    return;
+  }
+  while (i < m.length && k < p.length) {
+    final int ns=data.size(m[i],data.kind(m[i])) - 1;
+    if (m[i] == p[k]) {
+      drawItem(g,plotData.xAxis.co[k],plotData.yAxis.co[k],false,true,false);
+      k++;
+    }
+ else     if (m[i] + ns >= p[k]) {
+      drawItem(g,plotData.xAxis.co[k],plotData.yAxis.co[k],false,false,true);
+      k++;
+    }
+ else     i++;
+  }
+}
