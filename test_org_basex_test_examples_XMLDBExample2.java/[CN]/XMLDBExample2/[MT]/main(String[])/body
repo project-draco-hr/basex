@@ -1,0 +1,22 @@
+{
+  Collection col=null;
+  try {
+    Class c=Class.forName(DRIVER);
+    Database database=(Database)c.newInstance();
+    DatabaseManager.registerDatabase(database);
+    col=DatabaseManager.getCollection(DBNAME);
+    String id="NewDocument";
+    String document="This is the new Document!";
+    XMLResource resource=(XMLResource)col.createResource(id,XMLResource.RESOURCE_TYPE);
+    resource.setContent(document);
+    col.storeResource(resource);
+  }
+ catch (  XMLDBException e) {
+    System.err.println("XML:DB Exception occured " + e.errorCode);
+  }
+ finally {
+    if (col != null) {
+      col.close();
+    }
+  }
+}

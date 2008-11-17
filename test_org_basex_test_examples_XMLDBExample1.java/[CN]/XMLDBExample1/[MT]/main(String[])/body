@@ -1,0 +1,24 @@
+{
+  Collection col=null;
+  try {
+    Class c=Class.forName(DRIVER);
+    Database database=(Database)c.newInstance();
+    DatabaseManager.registerDatabase(database);
+    col=DatabaseManager.getCollection(DBNAME);
+    XPathQueryService service=(XPathQueryService)col.getService("XPathQueryService","1.0");
+    ResourceSet resultSet=service.query(QUERY);
+    ResourceIterator results=resultSet.getIterator();
+    while (results.hasMoreResources()) {
+      Resource res=results.nextResource();
+      System.out.println((String)res.getContent());
+    }
+  }
+ catch (  XMLDBException e) {
+    System.err.println("XML:DB Exception occured " + e.errorCode);
+  }
+ finally {
+    if (col != null) {
+      col.close();
+    }
+  }
+}
