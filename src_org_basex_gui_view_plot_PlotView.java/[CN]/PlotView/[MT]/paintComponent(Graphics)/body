@@ -9,18 +9,19 @@
   }
   final int w=getWidth();
   final int h=getHeight();
-  if (w + h != viewDimension) {
-    viewDimension=w + h;
-    plotChanged=true;
-  }
   plotWidth=w - (MARGIN[1] + MARGIN[3]);
   plotHeight=h - (MARGIN[0] + MARGIN[2]);
   final int novalue=noValueSize();
   if (plotWidth - novalue < 0 || plotHeight - novalue < 0) {
     g.setFont(GUIConstants.font);
     g.setColor(Color.black);
-    BaseXLayout.drawCenter(g,NOSPACE,getWidth(),(h + MARGIN[0]) / 2);
+    BaseXLayout.drawCenter(g,NOSPACE,w,(h + MARGIN[0]) / 2);
     return;
+  }
+  painting=true;
+  if (w + h != viewDimension) {
+    viewDimension=w + h;
+    plotChanged=true;
   }
   if (plotImg == null || plotChanged)   plotImg=createPlotImage();
   g.drawImage(plotImg,0,0,this);
@@ -49,4 +50,5 @@
     g.drawRect(selW > 0 ? x1 : x1 + selW,selH > 0 ? y1 : y1 + selH,Math.abs(selW),Math.abs(selH));
   }
   plotChanged=false;
+  painting=false;
 }
