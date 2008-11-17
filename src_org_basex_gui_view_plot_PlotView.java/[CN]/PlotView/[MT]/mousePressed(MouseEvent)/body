@@ -1,16 +1,16 @@
 {
   if (working || painting)   return;
-  selfImplied=true;
   super.mousePressed(e);
   mouseX=e.getX();
   mouseY=e.getY();
   focus();
   if (focused == -1) {
     Nodes n=new Nodes(GUI.context.data());
-    notifyMark(n);
+    notifyMark(n,this);
     tmpMarked.reset();
     return;
   }
+  drawContextMarked=false;
   final int pre=plotData.findPre(focused);
   if (pre < 0)   return;
   final boolean left=SwingUtilities.isLeftMouseButton(e);
@@ -29,16 +29,16 @@
   if (e.isShiftDown() || !left) {
     final Nodes marked=GUI.context.marked();
     marked.union(il.finish());
-    notifyMark(marked);
+    notifyMark(marked,this);
   }
  else   if (e.getClickCount() == 2) {
     final Nodes marked=new Nodes(GUI.context.data());
     marked.union(il.finish());
-    notifyContext(marked,false);
+    notifyContext(marked,false,null);
   }
  else {
     final Nodes marked=new Nodes(GUI.context.data());
     marked.union(il.finish());
-    notifyMark(marked);
+    notifyMark(marked,this);
   }
 }
