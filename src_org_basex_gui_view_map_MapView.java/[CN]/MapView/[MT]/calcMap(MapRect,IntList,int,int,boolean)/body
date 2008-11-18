@@ -18,21 +18,21 @@
     ln=nn >> 1;
     ni=ns + ln;
     if (!GUIProp.mapsimple && !first) {
-      final Data data=GUI.context.data();
       nn=l.list[ne] - l.list[ns];
       ni=ns + 1;
-      int par=data.parent(l.list[ns],Data.ELEM);
-      long parsize=Token.toLong(data.attValue(par + FSParser.SIZEOFFSET));
-      long sum=0;
-      for (; ni < ne - 1; ni++) {
-        if (Prop.onthefly && data.fs != null) {
+      final Data data=GUI.context.data();
+      if (data.fs != null && GUIProp.mapaggr) {
+        int par=data.parent(l.list[ns],Data.ELEM);
+        long parsize=Token.toLong(data.attValue(data.sizeID,par));
+        long sum=0;
+        for (; ni < ne - 1; ni++) {
           if (sum >= parsize / 2)           break;
- else           sum+=Token.toLong(data.attValue(ni + FSParser.SIZEOFFSET));
+          sum+=Token.toLong(data.attValue(data.sizeID,par));
         }
+      }
  else {
-          if (l.list[ni] - l.list[ns] >= (nn >> 1)) {
-            break;
-          }
+        for (; ni < ne - 1; ni++) {
+          if (l.list[ni] - l.list[ns] >= (nn >> 1))           break;
         }
       }
       ln=l.list[ni] - l.list[ns];
