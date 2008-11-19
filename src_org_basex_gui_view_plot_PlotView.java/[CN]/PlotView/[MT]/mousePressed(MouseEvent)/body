@@ -1,6 +1,5 @@
 {
   if (working || painting)   return;
-  super.mousePressed(e);
   mouseX=e.getX();
   mouseY=e.getY();
   focus();
@@ -10,12 +9,11 @@
     tmpMarked.reset();
     return;
   }
-  drawContextMarked=false;
   final int pre=plotData.findPre(focused);
   if (pre < 0)   return;
   final boolean left=SwingUtilities.isLeftMouseButton(e);
   final IntList il=new IntList();
-  if (left)   tmpMarked.reset();
+  if (left && !e.isShiftDown())   tmpMarked.reset();
   final int mx=calcCoordinate(true,plotData.xAxis.co[pre]);
   final int my=calcCoordinate(false,plotData.yAxis.co[pre]);
   for (int i=0; i < plotData.size; i++) {
@@ -26,7 +24,8 @@
       tmpMarked.add(i);
     }
   }
-  if (e.isShiftDown() || !left) {
+  if (SwingUtilities.isRightMouseButton(e))   drawMarkedContext=false;
+  if (e.isShiftDown()) {
     final Nodes marked=GUI.context.marked();
     marked.union(il.finish());
     notifyMark(marked,this);
