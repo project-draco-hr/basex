@@ -1,9 +1,16 @@
 {
   builder=build;
   builder.encoding(Prop.ENCODING);
-  final FSWalker f=new FSWalker();
-  f.register(this);
   builder.startDoc(token(io.name()));
-  f.fileHierarchyTraversal(io);
+  builder.startElem(token(DEEPFS),atts.reset());
+  final String fp=io.path();
+  for (  final File f : fp.equals("/") ? File.listRoots() : new File[]{new File(fp).getCanonicalFile()}) {
+    preStack[lvl]=builder.startElem(DIR,atts(f));
+    sizeStack[lvl]=0;
+    parse(f);
+    builder.endElem(DIR);
+    builder.setAttValue(preStack[lvl] + SIZEOFFSET,token(sizeStack[lvl]));
+  }
+  builder.endElem(token(DEEPFS));
   builder.endDoc();
 }

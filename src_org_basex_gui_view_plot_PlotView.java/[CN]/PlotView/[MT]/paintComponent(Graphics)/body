@@ -19,13 +19,9 @@
     return;
   }
   painting=true;
-  if (w + h != viewDimension) {
-    viewDimension=w + h;
-    plotChanged=true;
-  }
-  if (plotImg == null || plotChanged)   plotImg=createPlotImage();
+  if (plotImg == null || plotChanged)   createPlotImage();
   g.drawImage(plotImg,0,0,this);
-  if (markingChanged || markedImg == null)   drawMarkedNodes();
+  if (markingChanged || markedImg == null)   createMarkedNodes();
   g.drawImage(markedImg,0,0,this);
   final int f=plotData.findPre(focused);
   if (f > -1) {
@@ -39,9 +35,9 @@
       final String x=formatString(true);
       final String y=formatString(false);
       final String label=(x.length() > 16 ? x.substring(0,14) + ".." : x) + " / " + (y.length() > 16 ? y.substring(0,14) + ".." : y);
-      int xa=calcCoordinate(true,x1) + 15;
+      final int xa=calcCoordinate(true,x1) + 15;
       int ya=calcCoordinate(false,y1) + GUIProp.plotdots;
-      int ww=getWidth();
+      final int ww=getWidth();
       if (name.length() > 0 && plotData.xAxis.attrID != data.nameID && plotData.yAxis.attrID != data.nameID) {
         final int lw=BaseXLayout.width(g,label);
         if (ya < MARGIN[0] + textH && xa < w - lw) {
