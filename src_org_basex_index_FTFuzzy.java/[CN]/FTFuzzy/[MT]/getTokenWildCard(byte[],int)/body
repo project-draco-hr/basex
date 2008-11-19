@@ -1,7 +1,7 @@
 {
   if (tok[posw] == '.' && tok.length > posw + 1 && tok[posw + 1] == '*') {
     int[][] b;
-    int[][] dt=null;
+    IndexArrayIterator it=new IndexArrayIterator(0);
     byte[] dtok;
     b=getBoundPointer(tok.length - 2);
     while (true) {
@@ -11,12 +11,16 @@
         if (b[1] == null)         break;
       }
       dtok=ti.readBytes(b[0][1],b[0][0] + b[0][1]);
-      if (contains(tok,posw,dtok))       dt=FTTrie.calculateFTOr(dt,finish(getData(getPointerOnData(b[0][1],b[0][0]),getDataSize(b[0][1],b[0][0]))));
+      if (contains(tok,posw,dtok)) {
+        it=IndexArrayIterator.merge(getData(getPointerOnData(b[0][1],b[0][0]),getDataSize(b[0][1],b[0][0])),it);
+      }
       b[0][1]+=b[0][0] * 1L + 9L;
     }
     dtok=ti.readBytes(b[0][1],b[0][0] + b[0][1]);
-    if (contains(tok,posw,dtok))     dt=FTTrie.calculateFTOr(dt,finish(getData(getPointerOnData(b[0][1],b[0][0]),getDataSize(b[0][1],b[0][0]))));
-    return new IndexArrayIterator(dt,true);
+    if (contains(tok,posw,dtok)) {
+      it=IndexArrayIterator.merge(getData(getPointerOnData(b[0][1],b[0][0]),getDataSize(b[0][1],b[0][0])),it);
+    }
+    return it;
   }
   BaseX.notexpected();
   return null;
