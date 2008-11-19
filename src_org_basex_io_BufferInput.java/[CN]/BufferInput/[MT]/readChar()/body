@@ -1,13 +1,13 @@
 {
   byte ch=readByte();
-  if (enc == Token.UTF16LE)   return (ch & 0xFF) | ((readByte() & 0xFF) << 8);
-  if (enc == Token.UTF16BE)   return ((ch & 0xFF) << 8) | readByte() & 0xFF;
-  if (enc == Token.UTF8) {
-    final int cl=Token.cl(ch);
+  if (enc == UTF16LE)   return (ch & 0xFF) | ((readByte() & 0xFF) << 8);
+  if (enc == UTF16BE)   return ((ch & 0xFF) << 8) | readByte() & 0xFF;
+  if (enc == UTF8) {
+    final int cl=cl(ch);
     if (cl == 1)     return ch & 0xFF;
     CACHE[0]=ch;
     for (int c=1; c < cl; c++)     CACHE[c]=readByte();
-    return Token.cp(CACHE,0);
+    return cp(CACHE,0);
   }
   if (ch >= 0)   return ch;
   int p=0;
