@@ -3,13 +3,12 @@
   builder.encoding(Prop.ENCODING);
   builder.startDoc(token(io.name()));
   builder.startElem(token(DEEPFS),atts.reset());
-  final String fp=io.path();
-  for (  final File f : fp.equals("/") ? File.listRoots() : new File[]{new File(fp).getCanonicalFile()}) {
-    preStack[lvl]=builder.startElem(DIR,atts(f));
-    sizeStack[lvl]=0;
+  for (  final File f : root ? File.listRoots() : new File[]{new File(io.path()).getCanonicalFile()}) {
+    preStack[0]=builder.startElem(DIR,atts(f,true));
+    sizeStack[0]=0;
     parse(f);
     builder.endElem(DIR);
-    builder.setAttValue(preStack[lvl] + SIZEOFFSET,token(sizeStack[lvl]));
+    builder.setAttValue(preStack[0] + SIZEOFFSET,token(sizeStack[0]));
   }
   builder.endElem(token(DEEPFS));
   builder.endDoc();
