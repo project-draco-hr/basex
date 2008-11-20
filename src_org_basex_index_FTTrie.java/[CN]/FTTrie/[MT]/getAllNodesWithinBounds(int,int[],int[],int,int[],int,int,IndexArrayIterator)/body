@@ -1,5 +1,5 @@
 {
-  int[][] dn=dt;
+  IndexArrayIterator dn=dt;
   final int[] ne=getNodeEntry(id);
   final long ldid=did;
   final int in=getIndexDotNE(ne);
@@ -20,17 +20,17 @@
     final int vid=getIndexDot(vn,c + ne[0]);
     if (vid == c + ne[0]) {
       if (checkLBConstrain(vn,vid,lb,lbid) && checkUBConstrain(vn,vid,ub,ubid)) {
-        dn=calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 1],ldid));
+        dn=IndexArrayIterator.merge(getData(ne[ne.length - 1],ldid),dn);
       }
     }
  else {
       if (checkLBConstrainDbl(vn,vid,lb,lbid) && checkUBConstrainDbl(vn,vid,ub,ubid)) {
-        dn=calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 1],ldid));
+        dn=IndexArrayIterator.merge(getData(ne[ne.length - 1],ldid),dn);
       }
     }
     if (!hasNextNodes(ne))     return dn;
     for (int i=ne[0] + 1; i < ne.length - 1; i+=2) {
-      dn=calculateFTOr(dn,getAllNodesWithinBounds(ne[i],vn,ub,ubid,lb,lbid,c + ne[0],dn));
+      dn=IndexArrayIterator.merge(getAllNodesWithinBounds(ne[i],vn,ub,ubid,lb,lbid,c + ne[0],dn),dn);
     }
   }
   return dn;

@@ -3,7 +3,7 @@
   final int[][] idNNT=new int[2][tokTo.length];
   int c=0;
   int b;
-  int[][] dt=null;
+  IndexArrayIterator dt=null;
   int[] ne;
   long ldid;
   cl=0;
@@ -17,7 +17,7 @@
  else {
     ne=getNodeEntry(b);
     ldid=did;
-    dt=getDataFromDataArray(ne[ne.length - 1],ldid);
+    dt=getData(ne[ne.length - 1],ldid);
     dt=getAllNodes(b,b,dt);
   }
   c=0;
@@ -28,15 +28,15 @@
   if (id > -1) {
     ne=getNodeEntry(id);
     ldid=did;
-    final int[][] tmp=getDataFromDataArray(ne[ne.length - 1],ldid);
-    dt=calculateFTOr(dt,getAllNodes(id,b,tmp));
+    final IndexArrayIterator tmp=getData(ne[ne.length - 1],ldid);
+    dt=IndexArrayIterator.merge(getAllNodes(id,b,tmp),dt);
   }
   for (int i=0; i < idNNF[0].length; i++) {
     if (i > 0 && idNNF[0][i] == 0 && idNNF[1][i] == 0)     break;
     ne=getNodeEntry(idNNF[0][i]);
     ldid=did;
     if (ne.length - 2 - ne[0] / 2 >= idNNF[1][i]) {
-      for (int k=idNNF[1][i]; k < ne.length - 2 - ne[0]; k+=2)       dt=calculateFTOr(dt,getAllNodes(ne[k],b,dt));
+      for (int k=idNNF[1][i]; k < ne.length - 2 - ne[0]; k+=2)       dt=IndexArrayIterator.merge(getAllNodes(ne[k],b,dt),dt);
     }
   }
   return dt;

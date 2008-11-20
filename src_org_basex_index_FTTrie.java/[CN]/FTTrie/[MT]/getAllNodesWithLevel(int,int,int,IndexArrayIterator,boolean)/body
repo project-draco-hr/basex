@@ -1,28 +1,28 @@
 {
-  int[][] dn=dt;
+  IndexArrayIterator dn=dt;
   final int[] ne=getNodeEntry(id);
   final long tdid=did;
   if (dotFound) {
-    dn=calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 1],tdid));
+    dn=IndexArrayIterator.merge(getData(ne[ne.length - 1],tdid),dn);
     if (!hasNextNodes(ne))     return dn;
     for (int i=ne[0] + 1; i < ne.length - 2; i+=2) {
-      dn=calculateFTOr(dn,getAllNodesWithLevel(ne[i],0,0,dn,dotFound));
+      dn=IndexArrayIterator.merge(getAllNodesWithLevel(ne[i],0,0,dn,dotFound),dn);
     }
     return dn;
   }
   final int neID=getIndexDotNE(ne);
   if (!Token.digit(ne[1]) || neID > l2)   return dn;
   if (l1 <= neID && neID <= l2) {
-    dn=calculateFTOr(dn,getDataFromDataArray(ne[ne.length - 1],tdid));
+    dn=IndexArrayIterator.merge(getData(ne[ne.length - 1],tdid),dn);
     if (!hasNextNodes(ne))     return dn;
     for (int i=ne[0] + 1; i < ne.length - 1; i+=2) {
-      dn=calculateFTOr(dn,getAllNodesWithLevel(ne[i],l1 - ne[0],l2 - ne[0],dn,ne[0] > neID));
+      dn=IndexArrayIterator.merge(getAllNodesWithLevel(ne[i],l1 - ne[0],l2 - ne[0],dn,ne[0] > neID),dn);
     }
   }
  else   if (ne[0] < l1 && ne[0] == neID) {
     if (!hasNextNodes(ne))     return dn;
     for (int i=ne[0] + 1; i < ne.length - 1; i+=2) {
-      dn=calculateFTOr(dn,getAllNodesWithLevel(ne[i],l1 - ne[0],l2 - ne[0],dn,false));
+      dn=IndexArrayIterator.merge(getAllNodesWithLevel(ne[i],l1 - ne[0],l2 - ne[0],dn,false),dn);
     }
   }
   return dn;

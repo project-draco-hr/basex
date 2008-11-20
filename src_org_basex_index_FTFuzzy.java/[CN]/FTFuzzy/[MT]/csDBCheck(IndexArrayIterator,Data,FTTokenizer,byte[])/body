@@ -1,0 +1,37 @@
+{
+  return new IndexArrayIterator(1){
+    FTNode r;
+    int tn;
+    @Override public boolean more(){
+      r=new FTNode();
+      while (ids.more()) {
+        r=ids.nextFTNode();
+        ftdb.init(d.text(r.getPre()));
+        int i=0;
+        ftdb.more();
+        while (r.morePos()) {
+          ftdb.cs=false;
+          while (i < r.nextPos() && ftdb.more())           i++;
+          ftdb.cs=true;
+          if (!Token.eq(tok,ftdb.get())) {
+            r.removePos();
+          }
+        }
+        if (r.hasPos())         return true;
+      }
+      return false;
+    }
+    @Override public FTNode nextFTNode(){
+      r.genPointer(tn);
+      r.reset();
+      return r;
+    }
+    @Override public int next(){
+      return r.getPre();
+    }
+    @Override public void setTokenNum(    final int t){
+      tn=t;
+    }
+  }
+;
+}

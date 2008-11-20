@@ -4,12 +4,12 @@
   byte[] bw=null;
   final int currentLength=0;
   int resultNode;
-  int[][] d=null;
+  IndexArrayIterator d=IndexArrayIterator.EMP;
   if (posw > 0) {
     bw=new byte[posw];
     System.arraycopy(vsn,0,bw,0,posw);
     resultNode=getNodeFromTrieRecursiveWildcard(cn,bw);
-    if (resultNode == -1)     return null;
+    if (resultNode == -1)     return IndexArrayIterator.EMP;
   }
  else {
     resultNode=0;
@@ -43,7 +43,7 @@
       sc[0]='.';
       System.arraycopy(vsn,posw + 2,sc,1,sc.length - 1);
     }
-    d=calculateFTOr(d,getNodeFromTrieWithWildCard(0,sc,posw,false));
+    d=IndexArrayIterator.merge(getNodeFromTrieWithWildCard(0,sc,posw,false),d);
     return d;
   }
  else   if (wildcard == '*') {
@@ -67,9 +67,9 @@
         return d;
       }
     }
-    adata=null;
+    idata=IndexArrayIterator.EMP;
     astericsWildCardTraversing(resultNode,aw,false,counter[0],0);
-    return calculateFTOr(d,adata);
+    return IndexArrayIterator.merge(d,idata);
   }
  else   if (wildcard == '+') {
     final int[] rne=getNodeEntry(resultNode);
@@ -84,18 +84,18 @@
     }
     nvsn[l + 1]='.';
     nvsn[l + 2]='*';
-    int[][] tmpres=null;
+    IndexArrayIterator tmpres=IndexArrayIterator.EMP;
     if (rne[0] > counter[0] && resultNode > 0) {
       nvsn[l]=(byte)rne[counter[0] + 1];
       tmpres=getNodeFromTrieWithWildCard(nvsn,l + 1);
     }
  else     if (rne[0] == counter[0] || resultNode == 0) {
       if (!hasNextNodes(rne)) {
-        return null;
+        return IndexArrayIterator.EMP;
       }
       for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
         nvsn[l]=(byte)rne[t + 1];
-        tmpres=calculateFTOr(getNodeFromTrieWithWildCard(nvsn,l + 1),tmpres);
+        tmpres=IndexArrayIterator.merge(getNodeFromTrieWithWildCard(nvsn,l + 1),tmpres);
       }
     }
     return tmpres;
@@ -104,23 +104,23 @@
     final int[] rne=getNodeEntry(resultNode);
     if (rne[0] > counter[0] && resultNode > 0) {
       vsn[posw]=(byte)rne[counter[0] + 1];
-      final int[][] resultData=getNodeFromTrieRecursive(0,vsn,false);
-      if (resultData != null && recCall) {
+      IndexArrayIterator resultData=getNodeFromTrieRecursive(0,vsn,false);
+      if (resultData != IndexArrayIterator.EMP && recCall) {
         valuesFound=new byte[]{(byte)rne[counter[0] + 1]};
       }
       return resultData;
     }
  else     if (rne[0] == counter[0] || resultNode == 0) {
       if (!hasNextNodes(rne)) {
-        return null;
+        return IndexArrayIterator.EMP;
       }
-      int[][] tmpNode=null;
+      IndexArrayIterator tmpNode=IndexArrayIterator.EMP;
       aw=new byte[vsn.length - posw];
       System.arraycopy(vsn,posw + 1,aw,1,aw.length - 1);
       if (!recCall) {
         for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
           aw[0]=(byte)rne[t + 1];
-          tmpNode=calculateFTOr(tmpNode,getNodeFromTrieRecursive(rne[t],aw,false));
+          tmpNode=IndexArrayIterator.merge(getNodeFromTrieRecursive(rne[t],aw,false),tmpNode);
         }
         return tmpNode;
       }
@@ -129,10 +129,10 @@
         for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
           aw[0]=(byte)rne[t + 1];
           valuesFound[t - rne[0] - 1]=(byte)rne[t + 1];
-          tmpNode=calculateFTOr(tmpNode,getNodeFromTrieRecursive(rne[t],aw,false));
+          tmpNode=IndexArrayIterator.merge(getNodeFromTrieRecursive(rne[t],aw,false),tmpNode);
         }
       }
     }
   }
-  return null;
+  return IndexArrayIterator.EMP;
 }
