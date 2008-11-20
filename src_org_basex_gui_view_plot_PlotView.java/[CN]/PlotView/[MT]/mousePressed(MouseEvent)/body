@@ -1,28 +1,27 @@
 {
   if (working || painting)   return;
+  markingChanged=true;
   mouseX=e.getX();
   mouseY=e.getY();
   focus();
-  if (focused == -1) {
-    notifyMark(new Nodes(GUI.context.data()),this);
-    markingChanged=true;
+  final boolean r=SwingUtilities.isRightMouseButton(e);
+  if (r) {
+    rightClick=true;
     return;
   }
-  if (rightClick) {
-    rightClick=false;
+  if (focused == -1) {
+    notifyMark(new Nodes(GUI.context.data()),this);
+    return;
   }
-  final boolean r=SwingUtilities.isRightMouseButton(e);
-  if (r)   rightClick=true;
   final int pre=plotData.findPre(focused);
-  if (pre < 0)   return;
-  markingChanged=true;
   final int[] il=getOverlappingNodes(pre);
-  if (e.isShiftDown() || r) {
+  if (e.isShiftDown()) {
     final Nodes marked=GUI.context.marked();
     marked.union(il);
     notifyMark(marked,this);
   }
  else   if (e.getClickCount() == 2) {
+    rightClick=true;
     final Nodes marked=new Nodes(GUI.context.data());
     marked.union(il);
     notifyContext(marked,false,null);
