@@ -16,29 +16,20 @@
   final int pre=plotData.findPre(focused);
   if (pre < 0)   return;
   markingChanged=true;
-  final IntList il=new IntList();
-  final int mx=calcCoordinate(true,plotData.xAxis.co[pre]);
-  final int my=calcCoordinate(false,plotData.yAxis.co[pre]);
-  for (int i=0; i < plotData.size; i++) {
-    final int x=calcCoordinate(true,plotData.xAxis.co[i]);
-    final int y=calcCoordinate(false,plotData.yAxis.co[i]);
-    if (mx == x && my == y) {
-      il.add(plotData.pres[i]);
-    }
-  }
+  final int[] il=getOverlappingNodes(pre);
   if (e.isShiftDown()) {
     final Nodes marked=GUI.context.marked();
-    marked.union(il.finish());
+    marked.union(il);
     notifyMark(marked,this);
   }
  else   if (e.getClickCount() == 2) {
     final Nodes marked=new Nodes(GUI.context.data());
-    marked.union(il.finish());
+    marked.union(il);
     notifyContext(marked,false,null);
   }
  else {
     final Nodes marked=new Nodes(GUI.context.data());
-    marked.union(il.finish());
+    marked.union(il);
     notifyMark(marked,this);
   }
 }
