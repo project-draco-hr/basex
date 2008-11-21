@@ -1,0 +1,158 @@
+{
+switch (cmd) {
+case CREATE:
+switch (consume(CmdCreate.class,cmd)) {
+case DATABASE:
+case DB:
+case XML:
+      return new CreateDB(path(cmd),name(null));
+case MAB:
+case MAB2:
+    return new CreateMAB(path(cmd),name(null));
+case FS:
+  return new CreateFS(path(cmd),name(cmd));
+case INDEX:
+return new CreateIndex(consume(CmdIndex.class,cmd));
+}
+break;
+case OPEN:
+return new Open(name(cmd));
+case INFO:
+switch (consume(CmdInfo.class,cmd)) {
+case NULL:
+return new Info();
+case DATABASE:
+case DB:
+return new InfoDB();
+case INDEX:
+return new InfoIndex();
+case TABLE:
+String arg1=number(null);
+final String arg2=arg1 != null ? number(null) : null;
+if (arg1 == null) arg1=xpath(null);
+return new InfoTable(arg1,arg2);
+}
+break;
+case CHECK:
+return new Check(name(cmd));
+case CLOSE:
+return new Close();
+case LIST:
+return new List();
+case DROP:
+switch (consume(CmdDrop.class,cmd)) {
+case DATABASE:
+case DB:
+return new DropDB(name(null));
+case INDEX:
+return new DropIndex(consume(CmdIndex.class,cmd));
+}
+break;
+case OPTIMIZE:
+return new Optimize();
+case EXPORT:
+return new Export(path(cmd));
+case XPATH:
+return new XPath(xpath(null));
+case XPATHMV:
+return new XPathMV(number(cmd),number(cmd),xpath(cmd));
+case XQUERY:
+return new XQuery(xquery(cmd));
+case XQUENV:
+return new XQEnv(xquery(null));
+case FIND:
+return new Find(string(cmd));
+case XMARK:
+return new XMark(number(cmd));
+case CS:
+return new Cs(xpath(null));
+case COPY:
+final String num=number(cmd);
+final String xp1=xpath(cmd);
+consume(',');
+final String xp2=xpath(cmd);
+return new Copy(num,xp1,xp2);
+case DELETE:
+return new Delete(xpath(cmd));
+case INSERT:
+final CmdUpdate ins=consume(CmdUpdate.class,cmd);
+switch (ins) {
+case FRAGMENT:
+return new Insert(ins,string(cmd,true),number(cmd),xpath(cmd));
+case ELEMENT:
+case TEXT:
+case COMMENT:
+return new Insert(ins,name(cmd),number(cmd),xpath(cmd));
+case PI:
+return new Insert(ins,name(cmd),name(cmd),number(cmd),xpath(cmd));
+case ATTRIBUTE:
+return new Insert(ins,name(cmd),name(cmd),xpath(cmd));
+}
+break;
+case UPDATE:
+final CmdUpdate upd=consume(CmdUpdate.class,cmd);
+switch (upd) {
+case ELEMENT:
+case TEXT:
+case COMMENT:
+return new Update(upd,name(cmd),xpath(cmd));
+case PI:
+case ATTRIBUTE:
+return new Update(upd,name(cmd),name(cmd),xpath(cmd));
+default :
+}
+break;
+case SET:
+final String opt=name(cmd).toUpperCase();
+String val=string(null,false);
+try {
+final Object o=Prop.class.getField(opt.toLowerCase()).get(null);
+if (val != null) {
+if (o instanceof Boolean) {
+val=val.toUpperCase();
+final boolean info=opt.equals(CmdSet.INFO.name());
+if (!val.equals(ON) && !val.equals(OFF) && !(info && val.equals(ALL))) {
+final StringList sl=new StringList();
+sl.add(OFF);
+sl.add(ON);
+if (info) sl.add(ALL);
+help(sl,cmd);
+}
+}
+ else if (o instanceof Integer) {
+if (toInt(val) == Integer.MIN_VALUE) help(null,cmd);
+}
+}
+return new Set(opt,val);
+}
+ catch (final IllegalAccessException ex) {
+help(list(CmdSet.class,opt),cmd);
+}
+catch (final NoSuchFieldException ex) {
+help(list(CmdSet.class,opt),cmd);
+}
+break;
+case HELP:
+String hc=name(null);
+if (hc != null && !hc.toUpperCase().equals(ALL)) {
+qp=qm;
+hc=consume(Cmd.class,cmd).toString();
+}
+return new Help(hc);
+case PING:
+return new Ping();
+case PROMPT:
+return new Prompt();
+case GETRESULT:
+return new GetResult(number(null));
+case GETINFO:
+return new GetInfo(number(null));
+case BASH:
+return new Fs();
+case EXIT:
+case QUIT:
+return new Exit();
+default :
+}
+return null;
+}

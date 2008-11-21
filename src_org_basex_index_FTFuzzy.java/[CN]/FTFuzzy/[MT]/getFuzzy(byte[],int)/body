@@ -1,31 +1,21 @@
 {
   IndexArrayIterator it=new IndexArrayIterator(0);
-  byte[] to;
-  int i=0;
-  final int is=li.readBytes(0,1L)[0];
-  int ts=li.readBytes(1L,2L)[0];
-  int dif=Math.abs(tok.length - ts);
-  while (i < is && dif > e) {
-    i++;
-    ts=li.readBytes(1L + i * 5L,1L + i * 5L + 1L)[0];
-    dif=Math.abs(tok.length - ts);
-  }
-  if (i == is)   return null;
-  int p;
-  int pe;
-  while (i < is && dif <= e) {
-    p=li.readInt(1L + i * 5L + 1L);
-    pe=li.readInt(1L + (i + 1) * 5L + 1L);
-    while (p < pe) {
-      to=ti.readBytes(p,p + ts);
-      if (calcEQ(to,0,tok,e)) {
-        it=IndexArrayIterator.merge(getData(getPointerOnData(p,ts),getDataSize(p,ts),dat,data.meta),it);
+  final int tl=tok.length;
+  final int e=Math.min(tp.length,tl + k);
+  int s=Math.max(1,tl - k) - 1;
+  while (++s <= e) {
+    int p=tp[s];
+    if (p == -1)     continue;
+    int i=s + 1;
+    int r=-1;
+    do     r=tp[i++];
+ while (r == -1);
+    while (p < r) {
+      if (ls.similar(ti.readBytes(p,p + s),tok)) {
+        it=IndexArrayIterator.merge(getData(getPointerOnData(p,s),getDataSize(p,s),dat,data.meta),it);
       }
-      p+=ts + 4L + 5L;
+      p+=s + 9;
     }
-    i++;
-    ts=li.readBytes(1L + i * 5L,1L + i * 5L + 1L)[0];
-    dif=Math.abs(tok.length - ts);
   }
   return it;
 }
