@@ -7,19 +7,20 @@
     if (k == 0)     k=Math.max(1,tok.length >> 2);
     return getNodeFuzzy(0,null,-1,tok,0,0,0,k);
   }
+  IndexArrayIterator iai=null;
+  int pw=tok.length;
   if (ft.wc) {
-    final int pw=Token.indexOf(tok,'.');
-    if (pw != -1) {
-      return getNodeFromTrieWithWildCard(tok,pw);
-    }
+    pw=Token.indexOf(tok,'.');
+    if (pw != -1)     iai=getNodeFromTrieWithWildCard(lc(tok),pw);
   }
   if (!cs && ft.cs) {
-    IndexArrayIterator iai=getNodeFromTrieRecursive(0,Token.lc(tok),false);
+    if (iai == null)     iai=getNodeFromTrieRecursive(0,Token.lc(tok),false);
     if (iai == IndexArrayIterator.EMP)     return iai;
     final FTTokenizer ftdb=new FTTokenizer();
     ftdb.st=ft.st;
-    return FTFuzzy.csDBCheck(iai,data,ftdb,tok);
+    return FTFuzzy.csDBCheck(iai,data,ftdb,tok,pw);
   }
+  if (iai != null)   return iai;
   final int id=cache.id(tok);
   IndexArrayIterator tmp=IndexArrayIterator.EMP;
   if (id > -1) {

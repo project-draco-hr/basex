@@ -6,13 +6,15 @@
     if (k == 0)     k=Math.max(1,tok.length >> 2);
     return getFuzzy(tok,k);
   }
+  int pw=tok.length;
+  IndexArrayIterator iai=null;
   if (ft.wc) {
-    final int pw=indexOf(tok,'.');
-    if (pw != -1)     return getTokenWildCard(lc(tok),pw);
+    pw=indexOf(tok,'.');
+    if (pw != -1)     iai=getTokenWildCard(lc(tok),pw);
   }
-  final IndexIterator ii=get(lc(tok));
-  if (ii == IndexIterator.EMPTY || !ft.cs)   return ii;
+  if (iai == null)   iai=get(lc(tok));
+  if (iai == IndexArrayIterator.EMP || !ft.cs)   return iai;
   final FTTokenizer ftdb=new FTTokenizer();
   ftdb.st=ft.st;
-  return csDBCheck((IndexArrayIterator)ii,data,ftdb,tok);
+  return csDBCheck(iai,data,ftdb,tok,pw);
 }
