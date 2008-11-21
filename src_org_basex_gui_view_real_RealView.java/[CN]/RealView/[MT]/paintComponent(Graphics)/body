@@ -1,22 +1,48 @@
 {
+  final Data data=GUI.context.data();
   super.paintComponent(g);
   BaseXLayout.antiAlias(g);
   g.setColor(Color.BLACK);
   g.setFont(GUIConstants.font);
+  data.doc();
   final Performance perf=new Performance();
   perf.initTimer();
   fontHeight=g.getFontMetrics().getHeight();
   pointerx=getWidth() / 2;
   pointery=topdistance;
-  System.out.println();
+  if (windowSizeChanged()) {
 switch (3) {
 case 1:
-    drawTree(g,0,0,0,getWidth());
-  break;
+      drawTree(g,0,0,0,getWidth());
+    break;
 case 2:
-drawPrePost(g,1,1);
+  drawPrePost(g,1,1);
 break;
 case 3:
 temperature(0,g);
+}
+}
+ else {
+g.drawImage(realImage,0,0,getWidth(),getHeight(),this);
+}
+if (focusedRealRect != null) {
+RealRect r=focusedRealRect;
+g.drawRect(r.x1,r.y1,r.x2 - r.x1,r.y2 - r.y1);
+final int pre=r.p;
+String s="";
+if (data.kind(pre) == Data.ELEM) {
+s=Token.string(data.tag(pre));
+}
+ else {
+s=Token.string(data.text(pre));
+}
+for (int y=0; y < data.attSize(pre,data.kind(pre)) - 1; y++) {
+s+=" " + Token.string(data.attName(pre + y + 1)) + "="+ "\""+ Token.string(data.attValue(pre + y + 1))+ "\" ";
+}
+int w=BaseXLayout.width(g,s);
+g.setColor(Color.WHITE);
+g.fillRect(r.x1,r.y1 - fontHeight,w,fontHeight);
+g.setColor(Color.BLACK);
+g.drawString(s,r.x1,(int)(r.y1 - fontHeight / 4f));
 }
 }
