@@ -1,8 +1,6 @@
 {
   return new IndexArrayIterator(1){
     FTNode r;
-    int tn;
-    FTTokenizer[] tokens=null;
     @Override public boolean more(){
       r=new FTNode();
       while (ids.more()) {
@@ -14,7 +12,7 @@
           ftdb.cs=false;
           while (i < r.nextPos() && ftdb.more())           i++;
           ftdb.cs=true;
-          if (!Token.eq(tok,ftdb.get())) {
+          if (!Token.eq(token,ftdb.get())) {
             r.removePos();
           }
         }
@@ -23,19 +21,13 @@
       return false;
     }
     @Override public FTNode nextFTNode(){
-      r.genPointer(tn);
+      r.genPointer(toknum);
       r.reset();
-      if (tokens != null)       r.setToken(tokens);
+      if (tok != null)       r.setToken(tok);
       return r;
     }
     @Override public int next(){
       return r.getPre();
-    }
-    @Override public void setTokenNum(    final int t){
-      tn=t;
-    }
-    @Override public void setToken(    final FTTokenizer[] token){
-      tokens=token;
     }
   }
 ;
