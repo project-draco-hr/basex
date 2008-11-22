@@ -22,8 +22,7 @@ realImage=createImage();
 Graphics rg=realImage.getGraphics();
 rects=new ArrayList<RealRect[]>();
 for (int i=0; i < GUI.context.current().size; i++) {
-rootNumber=i;
-temperature(GUI.context.current().nodes[i],rg);
+temperature(GUI.context.current().nodes[i],rg,i);
 }
 }
 }
@@ -47,5 +46,29 @@ g.setColor(Color.WHITE);
 g.fillRect(r.x1,r.y1 - fontHeight,w,fontHeight);
 g.setColor(Color.BLACK);
 g.drawString(s,r.x1,(int)(r.y1 - fontHeight / 4f));
+}
+if (!rects.isEmpty() && GUI.context.marked().size > 0) {
+g.setColor(Color.GREEN);
+Iterator<RealRect[]> it=rects.iterator();
+while (it.hasNext()) {
+final RealRect[] r=it.next();
+int size=GUI.context.marked().size;
+final int[] markedNodes=new int[size];
+System.arraycopy(GUI.context.marked().nodes,0,markedNodes,0,size);
+for (int i=0; i < r.length; i++) {
+for (int j=0; j < size; j++) {
+if (r[i].p == markedNodes[j]) {
+g.drawRect(r[i].x1,r[i].y1,r[i].x2 - r[i].x1,r[i].y2 - r[i].y1);
+if (size < 2) {
+return;
+}
+ else if (j < size - 1) {
+markedNodes[j]=markedNodes[size - 1];
+}
+size--;
+}
+}
+}
+}
 }
 }
