@@ -1,24 +1,22 @@
 {
   if (working || ++dragTol < 8)   return;
-  super.mouseDragged(e);
   int mx=mouseX;
   int my=mouseY;
   int mw=e.getX() - mx;
   int mh=e.getY() - my;
   if (mw < 0)   mx-=mw=-mw;
   if (mh < 0)   my-=mh=-mh;
-  dragRect=new MapRect(mx,my,mw,mh);
-  final Context context=GUI.context;
-  final Data data=context.data();
-  final IntList list=new IntList();
+  selBox=new MapRect(mx,my,mw,mh);
+  final Data data=GUI.context.data();
+  final IntList il=new IntList();
   int np=0;
   for (int r=0, rl=mainRects.size(); r < rl; r++) {
     final MapRect rect=mainRects.get(r);
     if (mainRects.get(r).p < np)     continue;
-    if (dragRect.contains(rect)) {
-      list.add(rect.p);
+    if (selBox.contains(rect)) {
+      il.add(rect.p);
       np=rect.p + data.size(rect.p,data.kind(rect.p));
     }
   }
-  View.notifyMark(new Nodes(list.finish(),data),null);
+  View.notifyMark(new Nodes(il.finish(),data),null);
 }
