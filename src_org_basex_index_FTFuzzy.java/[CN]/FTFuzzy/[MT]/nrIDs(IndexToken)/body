@@ -1,13 +1,13 @@
 {
   final FTTokenizer fto=(FTTokenizer)index;
-  if (fto.fz || fto.wc)   return 1;
-  final byte[] tok=lc(index.get());
+  if (fto.fz || fto.wc || fto.cs|| data.meta.ftcs)   return 1;
+  final byte[] tok=Token.lc(index.get());
   final int id=cache.id(tok);
   if (id > 0)   return cache.getSize(id);
-  final long p=getPointerOnToken(tok);
+  long p=getPointerOnTokenCS(tok,-1,false);
   if (p > -1) {
     final int size=getDataSize(p,tok.length);
-    cache.add(tok,size,p);
+    cache.add(tok,size,getPointerOnData(p,tok.length));
     return size;
   }
  else {
