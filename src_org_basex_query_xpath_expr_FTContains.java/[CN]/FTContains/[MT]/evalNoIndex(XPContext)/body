@@ -1,0 +1,24 @@
+{
+  final FTTokenizer tmp=ctx.ftitem;
+  ctx.ftitem=ft;
+  final Nod c=ctx.item;
+  final Item it=expr[0].eval(ctx);
+  boolean found=false;
+  if (it instanceof Nod) {
+    ctx.item=(Nod)it;
+    final Nod nodes=(Nod)it;
+    final Data data=nodes.data;
+    for (int n=0; n < nodes.size; n++) {
+      ft.init(data.atom(nodes.nodes[n]));
+      found=expr[1].eval(ctx).bool();
+      if (found)       break;
+    }
+  }
+ else {
+    ft.init(it.str());
+    found=expr[1].eval(ctx).bool();
+  }
+  ctx.ftitem=tmp;
+  ctx.item=c;
+  return Bln.get(found);
+}
