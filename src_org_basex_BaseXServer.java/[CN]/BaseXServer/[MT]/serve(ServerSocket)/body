@@ -13,17 +13,21 @@
       pr=new CommandParser(in).parse()[0];
     }
  catch (    final QueryException ex) {
-      BaseX.errln(ex.getMessage());
-      send(s,0);
+      pr=new Process(0){
+      }
+;
+      pr.error(ex.extended());
+      add(new BaseXSession(sp,System.nanoTime(),pr));
+      send(s,-sp);
       return;
     }
-    final Process proc=pr;
-    if (proc instanceof Exit) {
+    if (pr instanceof Exit) {
       send(s,1);
       for (      final BaseXSession ss : sess)       ss.core.stop();
       running=false;
       return;
     }
+    final Process proc=pr;
     new Thread(){
       @Override public void run(){
         try {
@@ -33,7 +37,7 @@
             final int id=Math.abs(Integer.parseInt(proc.args().trim()));
             final Process c=get(id);
             if (c == null) {
-              out.print(SERVERFULL);
+              out.print(BaseX.info(SERVERTIME,Prop.timeout));
             }
  else             if (proc instanceof GetResult) {
               c.output(out);

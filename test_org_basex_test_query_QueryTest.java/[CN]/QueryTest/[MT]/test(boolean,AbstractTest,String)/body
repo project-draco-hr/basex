@@ -9,7 +9,8 @@
   for (  final Object[] qu : test.queries) {
     final boolean correct=qu.length == 3;
     final String query=qu[correct ? 2 : 1].toString();
-    if (VERBOSE)     err(query,ext);
+    final String cmd=(xquery ? "xquery " : "xpath ") + query;
+    if (VERBOSE)     err(cmd,ext);
     proc=xquery ? new XQuery(query) : new XPath(query);
     if (proc.execute(CONTEXT)) {
       Result val=proc.result();
@@ -19,7 +20,7 @@
         ((Nodes)cmp).data=((Nodes)val).data;
       }
       if (!correct || !val.same(cmp)) {
-        err(qu[0] + ": " + (xquery ? "xquery " : "xpath ")+ query,"  Right: " + (correct ? qu[1] : "error") + "\n  Found: "+ val+ (ext != null ? "\n  Flags: " + ext : ""));
+        err(qu[0] + ": " + cmd,"  Right: " + (correct ? qu[1] : "error") + "\n  Found: "+ val+ (ext != null ? "\n  Flags: " + ext : ""));
         ok=false;
         continue;
       }
