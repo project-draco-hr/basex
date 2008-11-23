@@ -13,8 +13,11 @@
  else   if (consume('@')) {
     axis=Axis.ATTR;
     final String t=name();
-    test=t.length() != 0 ? new TestName(Token.token(t),false) : consume('*') ? new TestName(false) : null;
-    if (test == null)     error(NOATTNAME);
+    test=t.length() != 0 ? new TestName(token(t),false) : consume('*') ? new TestName(false) : null;
+    if (test == null) {
+      checkStep(axis,new TestName(EMPTY,false));
+      error(NOATTNAME);
+    }
   }
  else   if (consume('*')) {
     axis=Axis.CHILD;
