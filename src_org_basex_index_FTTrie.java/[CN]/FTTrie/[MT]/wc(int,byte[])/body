@@ -1,0 +1,28 @@
+{
+  byte[] vsn=sn;
+  final int[] cne=entry(cn);
+  if (cn != 0) {
+    counter[1]+=cne[0];
+    int i=0;
+    while (i < vsn.length && i < cne[0] && cne[i + 1] == vsn[i])     i++;
+    if (cne[0] == i) {
+      if (vsn.length == i) {
+        counter[0]=i;
+        return cn;
+      }
+      final byte[] tmp=new byte[vsn.length - i];
+      System.arraycopy(vsn,i,tmp,0,tmp.length);
+      vsn=tmp;
+      final int pos=insPos(cne,vsn[0]);
+      if (pos >= 0)       return wc(cne[pos],vsn);
+    }
+    counter[0]=i;
+    counter[1]=counter[1] - cne[0] + i;
+    return cn;
+  }
+  final int pos=insPos(cne,vsn[0]);
+  if (pos >= 0)   return wc(cne[pos],vsn);
+  counter[0]=-1;
+  counter[1]=-1;
+  return -1;
+}

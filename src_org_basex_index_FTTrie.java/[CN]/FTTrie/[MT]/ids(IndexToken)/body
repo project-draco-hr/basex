@@ -1,36 +1,15 @@
 {
-  if (ind.range())   return idRange((RangeToken)ind);
   final FTTokenizer ft=(FTTokenizer)ind;
   final byte[] tok=ft.get();
   if (ft.fz) {
     int k=Prop.lserr;
     if (k == 0)     k=tok.length >> 2;
-    return getNodeFuzzy(0,null,-1,tok,0,0,0,k);
+    return fuzzy(0,null,-1,tok,0,0,0,k);
   }
-  IndexArrayIterator iai=null;
-  int pw=tok.length;
   if (ft.wc) {
-    pw=Token.indexOf(tok,'.');
-    if (pw != -1)     iai=getNodeFromTrieWithWildCard(lc(tok),pw);
+    final int pw=indexOf(tok,'.');
+    if (pw != -1)     return wc(tok,pw);
   }
-  if (!cs && ft.cs) {
-    if (iai == null)     iai=getNodeFromTrieRecursive(0,Token.lc(tok),false);
-    if (iai.size() == 0)     return iai;
-    final FTTokenizer ftdb=new FTTokenizer();
-    ftdb.st=ft.st;
-    ftdb.dc=ft.dc;
-    return FTFuzzy.csDBCheck(iai,data,ftdb,tok,pw);
-  }
-  if (iai != null)   return iai;
   final int id=cache.id(tok);
-  IndexArrayIterator tmp=IndexArrayIterator.EMP;
-  if (id > 0) {
-    final int size=cache.getSize(id);
-    final long p=cache.getPointer(id);
-    return FTFuzzy.getData(p,size,inD,data);
-  }
- else {
-    tmp=getNodeFromTrieRecursive(0,tok,ft.cs);
-  }
-  return tmp;
+  return id == 0 ? get(0,tok) : FTFuzzy.data(cache.getPointer(id),cache.getSize(id),inD,data);
 }
