@@ -4,12 +4,13 @@
   Process proc=new CreateDB(file);
   if (!proc.execute(CONTEXT)) {
     err(proc.info(),null);
+    wrong++;
     return false;
   }
   for (  final Object[] qu : test.queries) {
     final boolean correct=qu.length == 3;
     final String query=qu[correct ? 2 : 1].toString();
-    final String cmd=(xquery ? "xquery " : "xpath ") + query;
+    final String cmd=qu[0] + ": " + (xquery ? "xquery " : "xpath ")+ query;
     if (VERBOSE)     err(cmd,ext);
     proc=xquery ? new XQuery(query) : new XPath(query);
     if (proc.execute(CONTEXT)) {
@@ -22,11 +23,13 @@
       if (!correct || !val.same(cmp)) {
         err(qu[0] + ": " + cmd,"  Right: " + (correct ? qu[1] : "error") + "\n  Found: "+ val+ (ext != null ? "\n  Flags: " + ext : ""));
         ok=false;
+        wrong++;
         continue;
       }
     }
  else     if (correct) {
       err(qu[0].toString(),proc.info() + (ext != null ? "\n  Flags: " + ext : ""));
+      wrong++;
       ok=false;
     }
   }
