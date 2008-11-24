@@ -4,16 +4,25 @@
   if (v2 == null)   v2=ctx.eval(expr[1]);
   if (v2.bool()) {
     final Nod ns=(Nod)expr[0].eval(ctx);
-    final FTArrayExpr ftae=(FTArrayExpr)expr[1];
-    ftn=(ftn == null && ftae.more()) ? ftae.next(ctx) : ftn;
-    for (int z=0; z < ns.size(); z++) {
-      while (ftn != null && ns.nodes[z] > ftn.getPre()) {
-        ftn=ftae.more() ? ftae.next(ctx) : null;
+    if (expr[1] instanceof FTArrayExpr) {
+      final FTArrayExpr ftae=(FTArrayExpr)expr[1];
+      ftn=(ftn == null && ftae.more()) ? ftae.next(ctx) : ftn;
+      for (int z=0; z < ns.size(); z++) {
+        while (ftn != null && ns.nodes[z] > ftn.getPre() && ftn.size > 0) {
+          ftn=ftae.more() ? ftae.next(ctx) : null;
+        }
+        if (ftn != null) {
+          final boolean not=ftn.not;
+          if (ftn.getPre() == ns.nodes[z]) {
+            ftn=null;
+            return Bln.get(!not);
+          }
+ else           if (not)           return Bln.TRUE;
+        }
       }
-      if (ftn != null) {
-        final boolean not=ftn.not;
-        if (ftn.getPre() == ns.nodes[z])         return Bln.get(!not);
-      }
+    }
+ else     if (expr[1] instanceof Bln) {
+      return Bln.get(ns.bool() && ((Bln)expr[1]).bool());
     }
   }
   ctx.ftitem=tmp;
