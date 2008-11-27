@@ -13,30 +13,56 @@
     }
   }
  else {
-    int par=data.parent(l.list[ns],Data.ELEM);
-    long parsize=Token.toLong(data.attValue(par + FSParser.SIZEOFFSET));
-    int lines=1;
-    final boolean v=(level % 2) == 0 ? true : false;
+    int nn=ne - ns;
+    long parsize=1;
+    final boolean v=(r.w > r.h) ? false : true;
     double xx=r.x;
     double yy=r.y;
-    double hh=0;
-    double ww=0;
-    for (int i=0; i < l.size - 1; i++) {
+    double ww, hh;
+    if (data.fs != null && GUIProp.mapaggr) {
+      int par=data.parent(l.list[ns],Data.ELEM);
+      parsize=Token.toLong(data.attValue(par + FSParser.SIZEOFFSET));
+      hh=0;
+      ww=0;
+    }
+ else {
       if (v) {
-        yy+=hh;
-        double hoehe=(double)Token.toLong(data.attValue(l.list[i] + FSParser.SIZEOFFSET)) * r.h / parsize;
-        hh=hoehe;
-        ww=r.w / lines;
+        ww=r.w;
+        hh=(double)r.h / nn;
       }
  else {
-        xx+=ww;
-        double breite=(double)Token.toLong(data.attValue(l.list[i] + FSParser.SIZEOFFSET)) * r.w / parsize;
-        ww=breite;
-        hh=r.h / lines;
+        ww=(double)r.w / nn;
+        hh=r.h;
       }
+    }
+    for (int i=0; i < l.size - 1; i++) {
       int[] liste=new int[1];
       liste[0]=l.list[i];
-      if (ww > 0 && hh > 0)       calcSliceMap(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.l),new IntList(liste),0,1,level);
+      if (data.fs != null && GUIProp.mapaggr) {
+        if (v) {
+          yy+=hh;
+          hh=(double)Token.toLong(data.attValue(data.sizeID,l.list[i])) * r.h / parsize;
+          ww=r.w;
+        }
+ else {
+          xx+=ww;
+          ww=(double)Token.toLong(data.attValue(data.sizeID,l.list[i])) * r.w / parsize;
+          hh=r.h;
+        }
+        if (ww > 0 && hh > 0)         calcSliceMap(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.l),new IntList(liste),0,1,level);
+      }
+ else {
+        if (ww > 0 && hh > 0) {
+          if (v) {
+            calcSliceMap(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.l),new IntList(liste),0,1,level);
+            yy+=hh;
+          }
+ else {
+            calcSliceMap(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.l),new IntList(liste),0,1,level);
+            xx+=ww;
+          }
+        }
+      }
     }
   }
 }

@@ -59,6 +59,30 @@
       if (tt.length() > 32)       tt=tt.substring(0,30) + DOTS;
       BaseXLayout.drawTooltip(g,tt,x,y,getWidth(),focusedRect.l + 5);
     }
+    if (GUIProp.mapinteraction == 1) {
+      int myx, myy;
+      if (mouseX - GUIProp.lenswidth < 0)       myx=0;
+ else       if (mouseX + GUIProp.lenswidth > getWidth())       myx=getWidth() - (GUIProp.lenswidth << 1);
+ else       myx=mouseX - GUIProp.lenswidth;
+      if (mouseY - GUIProp.lensheight < 0)       myy=0;
+ else       if (mouseY + GUIProp.lensheight > getHeight())       myy=getHeight() - (GUIProp.lensheight << 1);
+ else       myy=mouseY - GUIProp.lensheight;
+      MapRect rectToZoom=new MapRect(myx + GUIProp.lenswidth - GUIProp.lensareawidth,myy + GUIProp.lensheight - GUIProp.lensareaheight,GUIProp.lensareawidth << 1,GUIProp.lensareaheight << 1);
+      g.setColor(Color.red);
+      g.drawRect(rectToZoom.x,rectToZoom.y,rectToZoom.w,rectToZoom.h);
+      int np=0;
+      final IntList il=new IntList();
+      for (int r=0, rl=mainRects.size(); r < rl; r++) {
+        final MapRect rect=mainRects.get(r);
+        if (mainRects.get(r).p < np)         continue;
+        if (rectToZoom.contains(rect)) {
+          il.add(rect.p);
+          np=rect.p + data.size(rect.p,data.kind(rect.p));
+        }
+      }
+      g.setColor(Color.black);
+      g.drawRect(myx,myy,GUIProp.lenswidth << 1,GUIProp.lensheight << 1);
+    }
   }
   painting=false;
 }
