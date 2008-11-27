@@ -13,13 +13,14 @@
     }
   }
  else {
-    int nn, ln, ni;
+    long nn, ln;
+    int ni;
     nn=ne - ns;
     ln=nn >> 1;
-    ni=ns + ln;
+    ni=(int)(ns + ln);
     if (!GUIProp.mapsimple && level != 0) {
       nn=l.list[ne] - l.list[ns];
-      ni=ns + 1;
+      ni=ns;
       final Data data=GUI.context.data();
       if (data.fs != null && GUIProp.mapaggr) {
         int par=data.parent(l.list[ns],Data.ELEM);
@@ -27,22 +28,24 @@
         long sum=0;
         for (; ni < ne - 1; ni++) {
           if (sum >= parsize / 2)           break;
-          sum+=Token.toLong(data.attValue(data.sizeID,par));
+          sum+=Token.toLong(data.attValue(data.sizeID,l.list[ni]));
         }
+        nn=parsize;
+        ln=sum;
       }
  else {
         for (; ni < ne - 1; ni++) {
           if (l.list[ni] - l.list[ns] >= (nn >> 1))           break;
         }
+        ln=l.list[ni] - l.list[ns];
       }
-      ln=l.list[ni] - l.list[ns];
     }
     final int p=GUIProp.mapprop;
     final boolean v=p > 4 ? r.w > r.h * (p + 4) / 8 : r.w * (13 - p) / 8 > r.h;
     int xx=r.x;
     int yy=r.y;
-    int ww=!v ? r.w : (int)((long)r.w * ln / nn);
-    int hh=v ? r.h : (int)((long)r.h * ln / nn);
+    int ww=!v ? r.w : (int)(r.w * ln / nn);
+    int hh=v ? r.h : (int)(r.h * ln / nn);
     if (ww > 0 && hh > 0)     calcMap(new MapRect(xx,yy,ww,hh,0,r.l),l,ns,ni,level);
     if (v) {
       xx+=ww;
