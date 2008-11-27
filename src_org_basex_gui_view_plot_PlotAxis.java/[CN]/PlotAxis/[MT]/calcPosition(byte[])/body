@@ -2,8 +2,17 @@
   if (value.length == 0) {
     return -1;
   }
-  final double d=toDouble(value);
-  final double range=max - min;
+  double range=max - min;
   if (range == 0)   return 0.5d;
- else   return 1 / range * (d - min);
+  final double d=toDouble(value);
+  if (!log)   return 1 / range * (d - min);
+  range=logMax - logMin;
+  if (min < 0 && max >= 0) {
+    final double p=logMax > logMin ? portion(logMax,logMin) : 1.0d - portion(logMin,logMax);
+    if (d == 0)     return p;
+    if (d < 0)     return p - (p * (1 / logMin * logx(d)));
+    return 1.0d - p - ((1 / range * (logx(d) - logMin)) * 1.0d - p);
+  }
+  if (min < 0 && max < 0)   return 1 / range * (logx(d) - logMin);
+  return 1 / range * (logx(d) - logMin);
 }
