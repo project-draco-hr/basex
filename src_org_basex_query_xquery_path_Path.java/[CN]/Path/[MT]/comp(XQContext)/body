@@ -12,19 +12,20 @@
   if (steps) {
     mergeDesc(ctx);
     checkEmpty();
-    cache=true;
+    System.out.println(" *** Root *** " + root.toString());
+    cache=!root.uses(Using.VAR);
     boolean noPreds=true;
-    for (    final Expr ex : expr) {
-      if (((Step)ex).expr.length != 0) {
+    for (    final Expr step : expr) {
+      if (((Step)step).expr.length != 0) {
         noPreds=false;
-        if (ex.uses(Using.VAR)) {
+        if (step.uses(Using.VAR)) {
           cache=false;
           break;
         }
       }
     }
     final Axis axis=((Step)expr[0]).axis;
-    if (!cache && noPreds && expr.length == 1 && (axis == Axis.DESC || axis == Axis.DESCORSELF || axis == Axis.CHILD)) {
+    if (cache && noPreds && expr.length == 1 && (axis == Axis.DESC || axis == Axis.DESCORSELF || axis == Axis.CHILD)) {
       return new SimpleIterPath(root,expr);
     }
   }
