@@ -48,8 +48,8 @@
  else {
     final int x=focusedRect.x;
     final int y=focusedRect.y;
-    final int w=focusedRect.w;
-    final int h=focusedRect.h;
+    int w=focusedRect.w;
+    int h=focusedRect.h;
     g.setColor(color6);
     g.drawRect(x,y,w,h);
     g.drawRect(x + 1,y + 1,w - 2,h - 2);
@@ -82,6 +82,17 @@
       }
       g.setColor(Color.black);
       g.drawRect(myx,myy,GUIProp.lenswidth << 1,GUIProp.lensheight << 1);
+      w=GUIProp.lenswidth << 1;
+      h=GUIProp.lensheight << 1;
+      final MapRect rect=new MapRect(0,0,w,h,0,0);
+      ArrayList<MapRect> lensRects=new ArrayList<MapRect>();
+      final Nodes nodes=new Nodes(focused,data);
+      BufferedImage bi=new BufferedImage(w,h,BufferedImage.TYPE_INT_BGR);
+      calc(rect,lensRects,nodes,bi);
+      final int ac=AlphaComposite.SRC_OVER;
+      ((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,1.0f));
+      drawMap(bi,lensRects);
+      g.drawImage(bi,myx,myy,this);
     }
   }
   painting=false;
