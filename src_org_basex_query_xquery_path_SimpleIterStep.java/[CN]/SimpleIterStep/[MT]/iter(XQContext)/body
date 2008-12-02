@@ -1,28 +1,18 @@
 {
   final Iter iter=checkCtx(ctx);
-  final Item item=ctx.item;
   return new NodeIter(){
-    /** 
- * Temporary iterator. 
- */
     NodeIter ir;
     @Override public Nod next() throws XQException {
       while (true) {
         if (ir == null) {
           final Item it=iter.next();
-          if (it == null) {
-            ctx.item=item;
-            return null;
-          }
+          if (it == null)           return null;
           if (!it.node())           Err.or(NODESPATH,this,it.type);
           ir=axis.init((Nod)it);
         }
         final Nod nod=ir.next();
         if (nod == null)         ir=null;
- else         if (test.e(nod)) {
-          ctx.item=item;
-          return nod.finish();
-        }
+ else         if (test.e(nod))         return nod.finish();
       }
     }
     @Override public String toString(){

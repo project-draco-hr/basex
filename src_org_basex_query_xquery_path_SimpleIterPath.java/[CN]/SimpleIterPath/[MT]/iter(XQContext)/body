@@ -1,14 +1,18 @@
 {
   return new Iter(){
-    final Item item=ctx.iter(root).finish();
+    final Item tmp=ctx.item;
+    boolean first=true;
+    NodeIter step;
+    Item item;
     @Override public Item next() throws XQException {
       if (first) {
+        item=ctx.iter(root).finish();
         ctx.item=item;
-        step=(NodeIter)(ctx.iter(expr[0]));
+        step=(NodeIter)ctx.iter(expr[0]);
         first=false;
       }
-      Nod it=step.next();
-      ctx.item=it;
+      final Nod it=step.next();
+      ctx.item=tmp;
       return it;
     }
   }
