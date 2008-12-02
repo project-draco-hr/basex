@@ -1,22 +1,28 @@
 {
-  final IntList i1=new IntList();
-  boolean seq=false;
+  final IntList p=new IntList();
+  final IntList n=new IntList();
   int sum=0;
   for (int i=0; i < exprs.length; i++) {
     final int nrIDs=exprs[i].indexSizes(ctx,curr,min);
     if (!(exprs[i] instanceof FTNot) && nrIDs > 0) {
-      i1.add(i);
+      p.add(i);
       sum+=nrIDs;
     }
  else     if (nrIDs > 0) {
-      i1.add(i);
-      seq=true;
+      n.add(i);
+    }
+ else {
+      ctx.iu=false;
+      return Integer.MAX_VALUE;
     }
   }
-  pex=i1.finish();
-  if (pex.length == 0) {
+  nex=n.finish();
+  pex=p.finish();
+  if (pex.length == 0 || nex.length > 0 && pex.length > 0) {
     ctx.iu=false;
     return Integer.MAX_VALUE;
   }
-  return seq ? Integer.MAX_VALUE : sum > min ? min : sum;
+ else {
+    return sum > min ? min : sum;
+  }
 }

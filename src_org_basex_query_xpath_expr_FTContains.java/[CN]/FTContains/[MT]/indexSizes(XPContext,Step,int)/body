@@ -5,13 +5,18 @@
   final Step step=path.steps.last();
   final boolean text=step.test == TestNode.TEXT && step.preds.size() == 0;
   if (!text || !path.checkAxes())   return Integer.MAX_VALUE;
-  iu=((FTArrayExpr)expr[1]).indexOptions(meta);
+  iut=((FTArrayExpr)expr[1]).indexOptions(meta);
   final boolean tmp=ctx.iu;
-  ctx.iu=iu;
-  if (!iu)   return Integer.MAX_VALUE;
+  ctx.iu=iut;
+  if (!iut)   return Integer.MAX_VALUE;
   final int nrIDs=expr[1].indexSizes(ctx,curr,min);
-  iu=ctx.iu;
-  if (!iu)   return Integer.MAX_VALUE;
+  if (!meta.ftoptpreds && nrIDs > min) {
+    iu=false;
+    ctx.iu=false;
+    return min;
+  }
+  iut=ctx.iu;
+  if (!iut)   return Integer.MAX_VALUE;
   ctx.iu=tmp;
   if (nrIDs == -1)   expr[1]=Bln.TRUE;
   return nrIDs == -1 ? Integer.MAX_VALUE : nrIDs;
