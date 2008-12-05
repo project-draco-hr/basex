@@ -65,11 +65,23 @@
     }
     int c=0;
     if (axis.log) {
-      int l=(int)Math.log10(axis.startvalue);
+      int l=(int)Math.log10(axis.startvalue + 1);
+      l=l > 0 ? l : 1;
       int d=(int)Math.pow(10,l);
-      while (d < axis.max) {
+      if (d < axis.min)       d=(int)Math.pow(10,++l);
+      while (d < axis.max && calcCoordinate(drawX,axis.calcPosition(d)) < w - MARGIN[3] - sizeFactor()) {
         drawCaptionAndGrid(g,drawX,formatString(d,drawX),axis.calcPosition(d));
         d=(int)Math.pow(10,++l);
+      }
+      if (axis.min < 0) {
+        if (properDistance(drawX,axis.min,0) && properDistance(drawX,axis.max,0))         drawCaptionAndGrid(g,drawX,"0",axis.calcPosition(0));
+        l=(int)Math.log10(axis.startvalue + 1);
+        l=l > 0 ? l : 1;
+        d=(int)(-1 * Math.pow(10,l));
+        while (d > axis.min && calcCoordinate(drawX,axis.calcPosition(d)) > MARGIN[1] + 0 + sizeFactor() * 2) {
+          drawCaptionAndGrid(g,drawX,formatString(d,drawX),axis.calcPosition(d));
+          d=(int)(-1 * Math.pow(10,++l));
+        }
       }
     }
  else {
