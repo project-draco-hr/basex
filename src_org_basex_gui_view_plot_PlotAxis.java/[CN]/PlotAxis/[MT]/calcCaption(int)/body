@@ -1,9 +1,12 @@
 {
   if (type == Kind.DBL || type == Kind.INT) {
-    if (log)     return;
     final double range=Math.abs(max - min);
     if (range == 0) {
       nrCaptions=1;
+      return;
+    }
+    if (log) {
+      startvalue=0;
       return;
     }
     final boolean dbl=type == Kind.DBL;
@@ -17,8 +20,8 @@
       actlCaptionStep*=2;
       nrCaptions=(int)(range / actlCaptionStep);
     }
-    firstLabel=sigVal;
-    while (firstLabel > min + actlCaptionStep * 1.2d)     firstLabel-=actlCaptionStep;
+    startvalue=min + (actlCaptionStep - (min % actlCaptionStep));
+    if (startvalue - min < actlCaptionStep / 4)     startvalue+=actlCaptionStep;
   }
  else {
     nrCaptions=space / (PlotView.CAPTIONWHITESPACE * 3);
