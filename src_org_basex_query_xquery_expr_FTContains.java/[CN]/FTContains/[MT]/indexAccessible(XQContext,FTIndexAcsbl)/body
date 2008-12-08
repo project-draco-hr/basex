@@ -1,0 +1,16 @@
+{
+  if (!(ctx.item instanceof DNode))   return;
+  final Data data=((DNode)ctx.item).data;
+  if (!(expr[0] instanceof SimpleIterStep && data.meta.ftxindex && !data.meta.ftst&& expr[1] instanceof FTExpr)) {
+    ia.set(false,-1,false);
+    return;
+  }
+  final SimpleIterStep path=(SimpleIterStep)expr[0];
+  final boolean text=path.test.type == Type.TXT && path.expr.length == 0;
+  if (!text) {
+    ia.set(false,-1,false);
+    return;
+  }
+  ia.data=data;
+  expr[1].indexAccessible(ctx,ia);
+}

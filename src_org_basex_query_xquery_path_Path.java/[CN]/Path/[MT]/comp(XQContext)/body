@@ -27,6 +27,31 @@
     if (cache && noPreds && expr.length == 1 && (axis == Axis.DESC || axis == Axis.DESCORSELF || axis == Axis.CHILD)) {
       return new SimpleIterPath(root,expr);
     }
+    final Step s=(Step)expr[0];
+    if (s.expr != null && s.expr.length == 1 && s.expr[0] instanceof FTContains) {
+      final FTContains ftc=(FTContains)s.expr[0];
+      FTIndexAcsbl ia=new FTIndexAcsbl();
+      ftc.indexAccessible(ctx,ia);
+      if (ia.io && ia.iu) {
+        final FTIndexEq ieq=new FTIndexEq(s,ia.seq);
+        final Expr ie=ftc.indexEquivalent(ctx,ieq);
+        if (ia.indexSize == 0) {
+          if (ia.ftnot) {
+            s.expr[0]=ftc.expr[0];
+            return this;
+          }
+ else {
+            return Seq.EMPTY;
+          }
+        }
+        if (ia.seq) {
+          s.expr[0]=ie;
+        }
+ else {
+          return ie;
+        }
+      }
+    }
   }
   return this;
 }
