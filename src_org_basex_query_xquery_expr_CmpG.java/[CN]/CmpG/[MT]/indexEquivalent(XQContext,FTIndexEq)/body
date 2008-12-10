@@ -1,0 +1,18 @@
+{
+  if (index == null)   return this;
+  final SimpleIterStep sis=(SimpleIterStep)expr[0];
+  final boolean txt=index.type == IndexToken.Type.TXT;
+  ctx.compInfo(txt ? XPText.OPTINDEX : XPText.OPTATTINDEX);
+  final Path p=Path.invertStep(sis,ieq.curr,new IndexAccess(index));
+  if (!txt) {
+    ieq.addFilter=false;
+    if (p.expr != null && p.expr.length > 0) {
+      Expr[] ex=new Expr[p.expr.length + 1];
+      System.arraycopy(p.expr,0,ex,1,p.expr.length);
+      p.expr=ex;
+    }
+ else     p.expr=new Expr[1];
+    p.expr[0]=new Step(Axis.SELF,sis.test,new Expr[]{});
+  }
+  return p;
+}

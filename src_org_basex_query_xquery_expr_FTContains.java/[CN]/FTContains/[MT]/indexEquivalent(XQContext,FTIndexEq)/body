@@ -1,11 +1,26 @@
 {
-  if (!(expr[0] instanceof SimpleIterStep))   return this;
-  final SimpleIterStep sis=(SimpleIterStep)expr[0];
-  final Expr ae=expr[1].indexEquivalent(ctx,ieq);
-  ctx.compInfo(OPTFTINDEX);
-  if (!ieq.seq) {
-    Expr ex=new FTContainsIndex(ft,expr[0],ae);
-    return Path.invertSIStep(sis,ieq.curr,ex);
+  Step s=null;
+  final boolean p=expr[0] instanceof Path;
+  if (p) {
+    s=(Step)((Path)expr[0]).expr[0];
   }
-  return new FTContains(true,expr[0],ae);
+ else   if (expr[0] instanceof SimpleIterStep) {
+    s=(Step)expr[0];
+  }
+ else   return this;
+  final Expr ae=expr[1].indexEquivalent(ctx,ieq);
+  ctx.compInfo(XPText.OPTFTINDEX);
+  Expr ex;
+  if (!ieq.seq) {
+    ex=new FTContainsIndex(ft,expr[0],ae);
+    if (p) {
+      final Path pa=(Path)expr[0];
+      return pa.invertPathNew(ieq.curr,ex);
+    }
+ else     return Path.invertStep(s,ieq.curr,ex);
+  }
+ else {
+    ex=new FTContains(true,expr[0],ae);
+    return ex;
+  }
 }

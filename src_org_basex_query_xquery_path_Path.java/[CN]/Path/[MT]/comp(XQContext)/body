@@ -27,28 +27,46 @@
     if (cache && noPreds && expr.length == 1 && (axis == Axis.DESC || axis == Axis.DESCORSELF || axis == Axis.CHILD)) {
       return new SimpleIterPath(root,expr);
     }
-    final Step s=(Step)expr[0];
-    if (s.expr != null && s.expr.length == 1 && s.expr[0] instanceof FTContains) {
-      final FTContains ftc=(FTContains)s.expr[0];
-      final FTIndexAcsbl ia=new FTIndexAcsbl();
-      ftc.indexAccessible(ctx,ia);
-      if (ia.io && ia.iu) {
-        final FTIndexEq ieq=new FTIndexEq(s,ia.seq);
-        final Expr ie=ftc.indexEquivalent(ctx,ieq);
-        if (ia.indexSize == 0) {
-          if (ia.ftnot) {
-            s.expr[0]=ftc.expr[0];
-            return this;
-          }
- else {
-            return Seq.EMPTY;
+    if (expr.length == 1 && checkAxes() && isAbsPath()) {
+      for (int i=0; i < expr.length; i++) {
+        final Step s=(Step)expr[i];
+        FTIndexAcsbl iacs=null;
+        int minp=0;
+        int min=Integer.MAX_VALUE;
+        for (int j=0; j < s.expr.length; j++) {
+          FTIndexAcsbl ia=new FTIndexAcsbl();
+          s.expr[j].indexAccessible(ctx,ia);
+          if (ia.io && ia.iu) {
+            if (min > ia.indexSize) {
+              min=ia.indexSize;
+              iacs=ia;
+              minp=j;
+            }
           }
         }
-        if (ia.seq) {
-          s.expr[0]=ie;
-        }
+        if (iacs != null && iacs.io && iacs.iu) {
+          final FTIndexEq ieq=new FTIndexEq(s,iacs.seq);
+          Expr ie=s.expr[minp].indexEquivalent(ctx,ieq);
+          if (iacs.indexSize == 0) {
+            if (iacs.ftnot) {
+              s.expr[0]=((FTContains)s.expr[minp]).expr[0];
+              return this;
+            }
  else {
-          return ie;
+              return Seq.EMPTY;
+            }
+          }
+          if (iacs.seq) {
+            s.expr[0]=ie;
+          }
+ else {
+            Expr result=ie;
+            final Expr[] newPreds=new Expr[s.expr.length - 1];
+            int c=0;
+            for (int p=0; p != s.expr.length; p++)             if (p != minp)             newPreds[c++]=s.expr[p];
+            if (newPreds.length > 0 && ieq.addFilter)             result=new Filter(ie,newPreds).comp(ctx);
+            return result;
+          }
         }
       }
     }

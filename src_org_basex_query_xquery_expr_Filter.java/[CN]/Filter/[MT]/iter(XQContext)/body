@@ -1,0 +1,20 @@
+{
+  return new Iter(){
+    final Iter iter=ctx.iter(expr);
+    @Override public Item next() throws XQException {
+      final Item i=iter.next();
+      if (i == null)       return i;
+      final Item tmp=ctx.item;
+      ctx.item=i;
+      Item t=null;
+      for (int j=0; j < preds.length; j++) {
+        ctx.item=i;
+        t=ctx.iter(preds[j]).next();
+        if (!t.bool())         return next();
+      }
+      ctx.item=tmp;
+      return i;
+    }
+  }
+;
+}
