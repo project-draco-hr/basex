@@ -1,0 +1,28 @@
+{
+  data=((DNode)ctx.item).data;
+  final FTTokenizer ft=new FTTokenizer();
+  ft.init(tok);
+  ft.lp=true;
+  while (ft.more()) {
+    if (data.nrIDs(ft) == 0)     return false;
+    ctx.checkStop();
+  }
+  ft.init();
+  int w=0;
+  while (ft.more()) {
+    final IndexIterator it=data.ids(ft);
+    if (w == 0) {
+      iat=(IndexArrayIterator)it;
+    }
+ else {
+      iat=IndexArrayIterator.and(iat,(IndexArrayIterator)it,w);
+    }
+    w++;
+  }
+  if (iat != null && iat.size() > 0) {
+    iat.setToken(new FTTokenizer[]{ft});
+    iat.setTokenNum(++ctx.ftcount);
+    return true;
+  }
+  return false;
+}
