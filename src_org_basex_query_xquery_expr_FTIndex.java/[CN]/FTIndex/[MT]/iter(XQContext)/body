@@ -1,8 +1,34 @@
 {
   return new FTNodeIter(){
     @Override public FTNodeItem next(){
-      if (iat == null && !evalIter(ctx))       return new FTNodeItem();
+      if (iat == null && !evalIter())       return new FTNodeItem();
       return iat.more() ? new FTNodeItem(iat.nextFTNode(),data) : new FTNodeItem(new FTNode(),data);
+    }
+    /** 
+ * Evaluates the index access.
+ * @return boolean
+ */
+    private boolean evalIter(){
+      final FTTokenizer ft=new FTTokenizer();
+      ft.init(tok);
+      ft.lp=true;
+      while (ft.more()) {
+        if (data.nrIDs(ft) == 0)         return false;
+        ctx.checkStop();
+      }
+      ft.init();
+      int w=0;
+      while (ft.more()) {
+        final IndexArrayIterator it=(IndexArrayIterator)data.ids(ft);
+        iat=w == 0 ? it : IndexArrayIterator.and(iat,it,w);
+        w++;
+      }
+      if (iat != null && iat.size() > 0) {
+        iat.setToken(new FTTokenizer[]{ft});
+        iat.setTokenNum(++ctx.ftcount);
+        return true;
+      }
+      return false;
     }
   }
 ;

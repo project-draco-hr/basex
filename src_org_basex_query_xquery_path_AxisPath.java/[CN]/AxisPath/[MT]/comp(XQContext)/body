@@ -1,0 +1,84 @@
+{
+  for (int i=0; i != step.length; i++)   step[i]=(Step)ctx.comp(step[i]);
+  super.comp(ctx);
+  mergeDesc(ctx);
+  checkEmpty();
+  cache=root != null && !root.uses(Using.VAR);
+  boolean noPreds=true;
+  for (  final Step s : step) {
+    if (s.pred.length != 0) {
+      noPreds=false;
+      if (s.uses(Using.VAR)) {
+        cache=false;
+        break;
+      }
+    }
+  }
+  if (!cache)   return this;
+  final Axis axis=step[0].axis;
+  if (noPreds && step.length == 1 && axis.down)   return new SimpleIterPath(root,step);
+  DBNode dbnode=null;
+  if (root != null) {
+    if (root instanceof DBNode)     dbnode=(DBNode)root;
+    if (root instanceof Root)     dbnode=(DBNode)root.iter(ctx).next();
+  }
+  cache&=dbnode != null;
+  if (!cache)   return this;
+  for (  final Step s : step)   if (s.uses(Using.POS) || !s.axis.vert)   return this;
+  Expr result=this;
+  for (int i=0; i < step.length; i++) {
+    final Step stp=step[i];
+    FTIndexAcsbl iacs=null;
+    int minp=0;
+    for (int p=0; p < stp.pred.length; p++) {
+      final FTIndexAcsbl ia=new FTIndexAcsbl(dbnode.data);
+      stp.pred[p].indexAccessible(ctx,ia);
+      if (ia.io && ia.iu) {
+        if (iacs == null || iacs.is > ia.is) {
+          iacs=ia;
+          minp=p;
+        }
+      }
+    }
+    if (iacs == null || !iacs.io || !iacs.iu)     continue;
+    if (iacs.is == 0 && iacs.ftnot) {
+      stp.pred[minp]=Bln.TRUE;
+      continue;
+    }
+    final FTIndexEq ieq=new FTIndexEq(iacs,stp);
+    final Expr ie=stp.pred[minp].indexEquivalent(ctx,ieq);
+    if (iacs.seq) {
+      stp.pred[minp]=ie;
+    }
+ else {
+      final AxisPath res=(AxisPath)ie;
+      Step[] inv={};
+      final Expr[] newPreds=new Expr[stp.pred.length - 1];
+      int c=0;
+      for (int p=0; p != stp.pred.length; p++) {
+        if (p != minp)         newPreds[c++]=stp.pred[p];
+      }
+      for (int j=i; j >= 0; j--) {
+        final Axis a=step[j].axis.invert();
+        if (a == null)         break;
+        if (j == 0) {
+          if (a == Axis.PARENT)           inv=Array.add(inv,Step.get(a,Test.NODE));
+        }
+ else {
+          final Step prev=step[j - 1];
+          if (prev.pred.length != 0)           break;
+          inv=Array.add(inv,Step.get(a,prev.test));
+        }
+      }
+      if (inv.length != 0) {
+        res.step[res.step.length - 1].addPred(new AxisPath(null,inv));
+      }
+      for (int j=i + 1; j < step.length; j++) {
+        res.step=Array.add(res.step,step[j]);
+      }
+      result=res;
+      break;
+    }
+  }
+  return result;
+}

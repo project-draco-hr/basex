@@ -1,9 +1,10 @@
 {
-  ia.iu=false;
-  ia.io=true;
-  if (!(expr[0] instanceof SimpleIterStep))   return;
-  index=indexable(ctx,expr[1]);
-  if (index == null)   return;
+  final Step s=indexStep(expr);
+  if (s == null || !(expr[1] instanceof Str) || cmp != CmpG.Comp.EQ)   return;
+  final boolean text=ia.data.meta.txtindex && s.test.type == Type.TXT;
+  final boolean attr=!text && ia.data.meta.atvindex && s.simpleName(Axis.ATTR,true);
+  if (!text && !attr)   return;
+  index=new ValuesToken(text,((Str)expr[1]).str());
   ia.iu=true;
-  ia.indexSize=((DNode)ctx.item).data.nrIDs(index);
+  ia.is=ia.data.nrIDs(index);
 }

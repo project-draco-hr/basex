@@ -1,19 +1,10 @@
 {
-  ia.io=ia.io && checkItr(ctx.iter(occ[0])) == 1 && checkItr(ctx.iter(occ[1])) == Long.MAX_VALUE;
+  ia.io&=occ[0].i() && ((Item)occ[0]).itr() == 1 && occ[1].i() && ((Item)occ[1]).itr() == Long.MAX_VALUE && query instanceof Str;
   if (!ia.io)   return;
-  if (query instanceof Str) {
-    tok=((Str)query).str();
-    ctx.ftopt.sb.text=tok;
-    int i=Integer.MAX_VALUE;
-    while (ctx.ftopt.sb.more()) {
-      final int n=ia.data.nrIDs(ctx.ftopt.sb);
-      if (n == 0)       ia.indexSize=0;
-      i=Math.min(i,n);
-    }
-    ia.indexSize=i;
-    ia.iu=true;
+  tok=((Str)query).str();
+  ctx.ftopt.sb.text=tok;
+  while (ia.is != 0 && ctx.ftopt.sb.more()) {
+    ia.is=Math.min(ia.is,ia.data.nrIDs(ctx.ftopt.sb));
   }
- else {
-    ia.io=false;
-  }
+  ia.iu=true;
 }

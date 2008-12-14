@@ -1,20 +1,5 @@
 {
-  ia.init();
-  if (!(ctx.item instanceof DNode))   return;
-  final Data data=((DNode)ctx.item).data;
-  if (!(data.meta.ftxindex && !data.meta.ftst && expr[1] instanceof FTExpr))   return;
-  Step s=null;
-  if (expr[0] instanceof Path) {
-    final Path path=(Path)expr[0];
-    if (path.expr != null && path.expr.length == 1 && path.root instanceof Step && !(path.expr[0] instanceof Str))     s=(Step)path.expr[0];
-  }
- else   if (expr[0] instanceof Step) {
-    s=(Step)expr[0];
-  }
- else   return;
-  if (s == null)   return;
-  final boolean text=s.test.type == Type.TXT && (s.expr == null || s.expr.length == 0);
-  if (!text)   return;
-  ia.data=data;
+  final Step s=CmpG.indexStep(expr);
+  if (s == null || s.test.type != Type.TXT || !ia.data.meta.ftxindex)   return;
   expr[1].indexAccessible(ctx,ia);
 }
