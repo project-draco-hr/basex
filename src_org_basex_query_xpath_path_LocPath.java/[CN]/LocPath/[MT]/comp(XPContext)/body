@@ -7,6 +7,13 @@
   if (!steps.compile(ctx) || steps.emptyPath(ctx))   return new Nod(ctx);
   steps.mergeSelf(ctx);
   steps.mergeDescendant(ctx);
+  if (this instanceof LocPathRel)   return this;
+  for (int i=0; i < steps.size(); i++) {
+    final Preds preds=steps.get(i).preds;
+    for (int p=0; p < preds.size(); p++) {
+      if (preds.get(p) instanceof PredPos)       return this;
+    }
+  }
   Expr result=this;
   MAIN:   for (int i=0; i < steps.size(); i++) {
     final Step step=steps.get(i);
@@ -73,20 +80,14 @@
     if (!indexMatch && invPath.steps.size() != 0)     newPreds.add(invPath);
     for (int p=0; p != step.preds.size(); p++) {
       if (!oldPreds.contains(p)) {
-        Pred pred=step.preds.get(p);
+        final Pred pred=step.preds.get(p);
         if (pred instanceof PredSimple) {
-          Expr e=((PredSimple)pred).expr;
+          final Expr e=((PredSimple)pred).expr;
           if (e instanceof FTContains) {
             ((PredSimple)pred).expr=e.indexEquivalent(ctx,null,true);
           }
-          newPreds.add(pred);
         }
- else         if (pred instanceof PredPos && invPath.steps.size() > 0) {
-          invPath.steps.get(invPath.steps.size() - 1).addPosPred((PredPos)pred);
-        }
- else {
-          newPreds.add(pred);
-        }
+        newPreds.add(pred);
       }
     }
     result=new InterSect(indexArg).comp(ctx);

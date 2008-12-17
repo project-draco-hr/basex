@@ -1,7 +1,8 @@
 {
   boolean ok=true;
+  final String name=test.getClass().getSimpleName();
   final String file=test.doc.replaceAll("\\\"","\\\\\"");
-  Process proc=new CreateDB(file);
+  Process proc=new CreateDB(file,name);
   if (!proc.execute(CONTEXT)) {
     err(proc.info(),null);
     wrong++;
@@ -33,8 +34,7 @@
       ok=false;
     }
   }
-  final String db=CONTEXT.data().meta.dbname;
   new Close().execute(CONTEXT);
-  DropDB.drop(db);
+  DropDB.drop(name);
   return ok;
 }
