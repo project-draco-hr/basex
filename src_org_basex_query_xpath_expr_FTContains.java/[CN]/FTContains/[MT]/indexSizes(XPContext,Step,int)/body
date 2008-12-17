@@ -1,15 +1,15 @@
 {
   final MetaData meta=ctx.item.data.meta;
-  if (!(expr[0] instanceof LocPathRel && meta.ftxindex && !meta.ftst))   return Integer.MAX_VALUE;
-  final LocPath path=(LocPathRel)expr[0];
+  if (!(cont instanceof LocPathRel && meta.ftxindex && !meta.ftst))   return Integer.MAX_VALUE;
+  final LocPath path=(LocPathRel)cont;
   final Step step=path.steps.last();
   final boolean text=step.test == TestNode.TEXT && step.preds.size() == 0;
   if (!text || !path.checkAxes())   return Integer.MAX_VALUE;
-  iut=((FTArrayExpr)expr[1]).indexOptions(meta);
+  iut=query.indexOptions(meta);
   final boolean tmp=ctx.iu;
   ctx.iu=iut;
   if (!iut)   return Integer.MAX_VALUE;
-  final int nrIDs=expr[1].indexSizes(ctx,curr,min);
+  final int nrIDs=query.indexSizes(ctx,curr,min);
   if (!meta.ftoptpreds && nrIDs > min) {
     iu=false;
     ctx.iu=false;
@@ -18,6 +18,6 @@
   iut=ctx.iu;
   if (!iut)   return Integer.MAX_VALUE;
   ctx.iu=tmp;
-  if (nrIDs == -1)   expr[1]=Bln.TRUE;
+  if (nrIDs == -1)   query=new FTBool(true);
   return nrIDs == -1 ? Integer.MAX_VALUE : nrIDs;
 }

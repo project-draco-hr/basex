@@ -1,6 +1,5 @@
 {
   tmp=new Nod(ctx);
-  ExprList p=new ExprList(size);
   for (int j=0; j < size; j++) {
     preds[j]=preds[j].compile(ctx);
     if (preds[j].alwaysFalse()) {
@@ -11,9 +10,10 @@
       ctx.compInfo(OPTTRUE);
       remove(j--);
     }
-    if (j > -1 && preds[j] instanceof PredSimple)     p.addPS(preds[j],ctx);
   }
-  if (p.size > 0 && p.size < size) {
+  final ExprList p=new ExprList();
+  for (int j=0; j < size; j++)   p.addPS(preds[j],ctx);
+  if (p.size != size) {
     preds=p.finishPS();
     size=p.size;
     ctx.compInfo(OPTPREDS);

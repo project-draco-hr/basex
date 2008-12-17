@@ -1,0 +1,118 @@
+{
+  final FTOpt opt=new FTOpt();
+  while (true) {
+    consumeWS();
+    if (consume(LOWERCASE)) {
+      opt.set(FTOpt.CS,true);
+      opt.set(FTOpt.LC,true);
+    }
+ else     if (consume(UPPERCASE)) {
+      opt.set(FTOpt.CS,true);
+      opt.set(FTOpt.UC,true);
+    }
+ else     if (consume(CASE)) {
+      consumeWS();
+      if (consume(SENSITIVE))       opt.set(FTOpt.CS,true);
+ else       if (consume(INSENSITIVE))       opt.set(FTOpt.CS,false);
+ else       error(FTCASE);
+    }
+ else     if (consume(DIACRITICS)) {
+      consumeWS();
+      if (consume(SENSITIVE))       opt.set(FTOpt.DC,true);
+ else       if (consume(INSENSITIVE))       opt.set(FTOpt.DC,false);
+ else       error(FTDIA);
+    }
+ else     if (consume(WITHOUT)) {
+      consumeWS();
+      if (consume(WILDCARDS))       opt.set(FTOpt.WC,false);
+ else       if (consume(FUZZY))       opt.set(FTOpt.FZ,false);
+ else       if (consume(STEMMING))       opt.set(FTOpt.ST,false);
+ else       if (consume(THESAURUS))       opt.set(FTOpt.TS,false);
+ else       if (consume(STOP)) {
+        if (!consume(WORDS))         error(FTSTOP);
+        opt.sw=new Set();
+      }
+    }
+ else     if (consume(WITH)) {
+      consumeWS();
+      if (consume(WILDCARDS))       opt.set(FTOpt.WC,true);
+ else       if (consume(FUZZY))       opt.set(FTOpt.FZ,true);
+ else       if (consume(STEMMING))       opt.set(FTOpt.ST,true);
+ else       if (consume(STOP)) {
+        consumeWS();
+        if (!consume(WORDS))         error(FTSTOP);
+        opt.sw=new Set();
+        boolean union=false;
+        boolean except=false;
+        while (true) {
+          consumeWS();
+          if (consume('(')) {
+            do {
+              consumeWS();
+              final byte[] sl=literal().str();
+              if (except)               opt.sw.delete(sl);
+ else               if (!union || opt.sw.id(sl) == 0)               opt.sw.add(sl);
+              consumeWS();
+            }
+ while (consume(','));
+            if (!consume(')'))             error(FTSTOP);
+          }
+ else           if (consume(AT)) {
+            final IO fl=IO.get(string(literal().str()));
+            if (!fl.exists())             error(FTSWFILE,fl);
+            try {
+              for (              final byte[] sl : split(norm(fl.content()),' ')) {
+                if (except)                 opt.sw.delete(sl);
+ else                 if (!union || opt.sw.id(sl) == 0)                 opt.sw.add(sl);
+              }
+            }
+ catch (            final IOException ex) {
+              error(FTSWFILE,fl);
+            }
+          }
+ else           if (!union && !except) {
+            error(FTSTOP);
+          }
+          consumeWS();
+          union=consume(UNION);
+          except=!union && consume(EXCEPT);
+          if (!union && !except)           break;
+        }
+      }
+ else       if (consume(THESAURUS)) {
+        consumeWS();
+        opt.set(FTOpt.TS,true);
+        final boolean par=consume('(');
+        consumeWS();
+        if (consume(AT)) {
+          consumeWS();
+          ftThesaurusID();
+        }
+ else {
+          if (!consume(DEFAULT))           error(FTTHES);
+        }
+        while (par && consume(',')) {
+          consumeWS();
+          ftThesaurusID();
+        }
+        if (par && !consume(')'))         error(FTTHES);
+        error(FTTHES);
+      }
+    }
+ else     if (consume(LANGUAGE)) {
+      consumeWS();
+      opt.ln=lc(literal().str());
+      if (!eq(opt.ln,EN))       error(FTLANG,opt.ln);
+    }
+ else     if (consume(DEFAULT)) {
+      consumeWS();
+      if (!consume(STOP))       error(FTSTOP);
+      consumeWS();
+      if (!consume(WORDS))       error(FTSTOP);
+    }
+ else {
+      break;
+    }
+  }
+  return opt;
+}

@@ -1,15 +1,19 @@
 {
   final FTTokenizer fti=ctx.ftitem;
   ctx.ftitem=ft;
-  if (v2 == null)   v2=ctx.eval(expr[1]);
-  if (v2.bool()) {
-    final Nod ns=(Nod)expr[0].eval(ctx);
-    if (expr[1] instanceof FTArrayExpr) {
-      final FTArrayExpr ftae=(FTArrayExpr)expr[1];
-      ftn=(ftn == null && ftae.more()) ? ftae.next(ctx) : ftn;
+  if (cache == null)   cache=ctx.eval(query);
+  if (cache.bool()) {
+    final Nod ns=(Nod)cont.eval(ctx);
+    if (query instanceof FTBool) {
+      final Bln b=Bln.get(ns.bool() && query.eval(ctx).bool());
+      ctx.ftitem=fti;
+      return b;
+    }
+ else {
+      ftn=(ftn == null && query.more()) ? query.next(ctx) : ftn;
       for (int z=0; z < ns.size(); z++) {
         while (ftn != null && ns.nodes[z] > ftn.getPre() && ftn.size > 0) {
-          ftn=ftae.more() ? ftae.next(ctx) : null;
+          ftn=query.more() ? query.next(ctx) : null;
         }
         if (ftn != null) {
           final boolean not=ftn.not;
@@ -24,11 +28,6 @@
           }
         }
       }
-    }
- else {
-      final Bln b=Bln.get(ns.bool() && ((Bln)expr[1]).bool());
-      ctx.ftitem=fti;
-      return b;
     }
   }
   ctx.ftitem=fti;
