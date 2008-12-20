@@ -3,7 +3,6 @@
     final Iter iter=ctx.iter(root);
     final Item ci=ctx.item;
     final int cp=ctx.pos;
-    Item i;
     boolean first=true;
     boolean finished=false;
     @Override public Item next() throws XQException {
@@ -16,18 +15,19 @@
         first=false;
         ctx.pos=1;
       }
+      Item i;
       while ((i=iter.next()) != null) {
         ctx.item=i;
-        i=ctx.iter(expr[0]).ebv();
+        i=ctx.iter(pred[0]).ebv();
         final boolean found=i.n() ? i.dbl() == ctx.pos : i.bool();
         ctx.pos++;
         if (found) {
           ctx.item.score(i.score());
-          if (numFlag)           finished=true;
+          if (num)           finished=true;
           return ctx.item;
         }
       }
-      if (lastFlag) {
+      if (last) {
         finished=true;
         return ctx.item;
       }

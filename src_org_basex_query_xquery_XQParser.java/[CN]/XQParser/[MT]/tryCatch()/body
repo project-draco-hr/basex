@@ -1,0 +1,44 @@
+{
+  if (!consumeWS2(TRY))   return null;
+  final Expr tr=enclosed(NOENCLEXPR);
+  check(CATCH);
+  Catch[] ct={};
+  do {
+    QNm[] codes={};
+    do {
+      consumeWS();
+      if (XMLToken.isXMLLetter(curr())) {
+        codes=Array.add(codes,new QNm(qName(QNAMEINV)));
+      }
+ else {
+        check("*");
+        codes=Array.add(codes,null);
+      }
+    }
+ while (consume(PIPE));
+    Var var1=null;
+    Var var2=null;
+    Var var3=null;
+    final int s=ctx.vars.size();
+    if (consumeWS2(PAR1)) {
+      var1=new Var(varName());
+      ctx.vars.add(var1);
+      if (consumeWS2(COMMA)) {
+        var2=new Var(varName());
+        if (var1.name.eq(var2.name))         Err.or(VARDEFINED,var2);
+        ctx.vars.add(var2);
+        if (consumeWS2(COMMA)) {
+          var3=new Var(varName());
+          if (var1.name.eq(var3.name) || var2.name.eq(var3.name))           Err.or(VARDEFINED,var3);
+          ctx.vars.add(var3);
+        }
+      }
+      check(PAR2);
+    }
+    final Expr ex=enclosed(NOENCLEXPR);
+    ctx.vars.reset(s);
+    ct=Array.add(ct,new Catch(ex,codes,var1,var2,var3));
+  }
+ while (consume(CATCH));
+  return new Try(tr,ct);
+}

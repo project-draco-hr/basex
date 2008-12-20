@@ -1,7 +1,17 @@
 {
   root=ctx.comp(root);
-  super.comp(ctx);
-  final boolean last=expr[0] instanceof Fun && ((Fun)expr[0]).func == FunDef.LAST;
-  final boolean num=expr[0].i() && ((Item)expr[0]).n();
-  return expr.length > 1 || (!last && !num && uses(Using.POS)) ? this : new PredIter(root,expr,last,num);
+  for (int p=0; p != pred.length; p++) {
+    pred[p]=ctx.comp(pred[p]);
+    if (pred[p].i()) {
+      final Item it=(Item)pred[p];
+      if (it.n() || !it.bool())       continue;
+      Array.move(pred,p + 1,-1,pred.length - p-- - 1);
+      pred=Array.finish(pred,pred.length - 1);
+    }
+  }
+  if (pred.length == 0)   return root;
+  final boolean last=pred[0] instanceof Fun && ((Fun)pred[0]).func == FunDef.LAST;
+  final boolean num=pred[0].i() && ((Item)pred[0]).n();
+  if (pred.length > 1 || (!last && !num && uses(Using.POS)))   return this;
+  return new PredIter(root,pred,last,num);
 }

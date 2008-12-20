@@ -16,9 +16,24 @@
     }
   }
  else {
-    ok=setInfo();
+    final String db=choice.getValue().trim();
+    ok=db.length() != 0 && IO.dbpath(db).exists();
+    if (ok)     doc.setText(db);
+    BaseXLayout.enableOK(buttons,BUTTONDROP,ok);
+    if (ok) {
+      try {
+        final DataInput in=new DataInput(db,DATAINFO);
+        final MetaData meta=new MetaData(db);
+        final int size=meta.read(in);
+        in.close();
+        detail.setText(InfoDB.db(meta,size,false,true));
+      }
+ catch (      final IOException ex) {
+        detail.setText(Token.token(ex.getMessage()));
+        ok=false;
+      }
+    }
     BaseXLayout.enableOK(buttons,BUTTONOPEN,ok);
     BaseXLayout.enableOK(buttons,BUTTONRENAME,ok);
-    BaseXLayout.enableOK(buttons,BUTTONDROP,ok);
   }
 }

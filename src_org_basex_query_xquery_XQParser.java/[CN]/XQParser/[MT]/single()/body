@@ -1,22 +1,11 @@
 {
-  if (!consumeWS2(TRY))   return single2();
-  final Expr tr=enclosed(NOENCLEXPR);
-  check(CATCH);
-  check(PAR1);
-  final int s=ctx.vars.size();
-  Var var1=null;
-  Var var2=null;
-  if (curr() == '$') {
-    var1=new Var(varName());
-    ctx.vars.add(var1);
-    if (consumeWS2(COMMA)) {
-      var2=new Var(varName());
-      if (var1.name.eq(var2.name))       Err.or(VARDEFINED,var2);
-      ctx.vars.add(var2);
-    }
-  }
-  check(PAR2);
-  final Expr ct=enclosed(NOENCLEXPR);
-  ctx.vars.reset(s);
-  return new Try(tr,ct,var1,var2);
+  alter=null;
+  Expr e=flwor();
+  if (e == null)   e=quantified();
+  if (e == null)   e=typeswitch();
+  if (e == null)   e=iff();
+  if (e == null)   e=tryCatch();
+  if (e == null)   e=deletee();
+  if (e == null)   e=or();
+  return e;
 }
