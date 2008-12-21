@@ -1,0 +1,49 @@
+{
+  final double xx=r.x;
+  final double ww=r.w;
+  final double f=0.25 * GUIProp.fontsize;
+  final int fh=(int)Math.max(1,0.5 * GUIProp.fontsize);
+  final int lh=(int)Math.max(1,0.8 * GUIProp.fontsize);
+  final double ys=r.y + 3;
+  double yy=ys;
+  int wl=0;
+  int ll=0;
+  final int[][] ft=View.ftPos;
+  int k=-1;
+  final Color textc=g.getColor();
+  boolean c=false;
+  for (int i=0; i <= s.length; i++) {
+    if (k > -1 && k < ft[0].length && i == ft[1][k] && r.pre == ft[0][k]) {
+      k++;
+      c=true;
+    }
+    if (i == s.length || ws(s[i])) {
+      if (f * (ll + wl) > ww && ll != 0) {
+        yy+=lh;
+        ll=0;
+      }
+      if (yy + lh >= r.y + r.h)       return;
+      if (c && k > -1) {
+        g.setColor(View.ftPoi != null ? thumbnailcolor[View.ftPoi[k]] : COLORERROR);
+        c=false;
+      }
+ else {
+        g.setColor(textc);
+      }
+      final int xw=(int)Math.min(ww - f * ll - 4,f * wl);
+      g.fillRect((int)(xx + f * ll),(int)yy,xw,fh);
+      ll+=wl;
+      if (i < s.length && s[i] == '\n' || ll + 1 >= ww) {
+        yy+=lh;
+        ll=0;
+      }
+ else {
+        ll++;
+      }
+      wl=0;
+    }
+ else {
+      wl+=cl(s[i]);
+    }
+  }
+}

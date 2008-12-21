@@ -1,0 +1,143 @@
+{
+  final Context context=GUI.context;
+  final Data data=context.data();
+  final int o=GUIProp.fontsize;
+  final int pre=rect.pre;
+  final int kind=data.kind(pre);
+  final boolean tag=kind == Data.ELEM || kind == Data.DOC;
+  final boolean file=fs.isFile(pre);
+  final boolean dir=!file && fs.isDir(pre);
+  final Nodes current=context.current();
+  final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size == 1 && pre != 0 && !file && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(data,pre);
+  final boolean isImage=GUIFS.mime(name) == GUIFS.Type.IMAGE;
+  if (isImage) {
+    final Image image=images.get(pre);
+    if (image != null) {
+      final int ww=rect.w - (PICOFFSET << 1);
+      final int hh=rect.h - (PICOFFSET << 1);
+      float iw=image.getWidth(view);
+      float ih=image.getHeight(view);
+      final float min=Math.min(ww / iw,hh / ih);
+      if (min < 1) {
+        iw*=min;
+        ih*=min;
+      }
+      rect.x+=PICOFFSET;
+      rect.y+=PICOFFSET;
+      g.drawImage(image,rect.x + ((ww - (int)iw) >> 1),rect.y + ((hh - (int)ih) >> 1),(int)iw,(int)ih,view);
+      return false;
+    }
+  }
+  final boolean full=!isImage && rect.w >= GUIProp.fontsize * 12 && rect.h >= GUIProp.fontsize * 8 || rect.w == view.getWidth() && rect.h == view.getHeight();
+  final int fullsize=full && file ? 1 : 0;
+  final int off=(16 << fullsize) + fullsize * 8;
+  final byte[] text=tag ? name : data.text(pre);
+  g.setFont(tag ? fullsize == 1 ? lfont : font : mfont);
+  final Image img=file ? GUIFS.images(name,fullsize) : null;
+  final int fh=g.getFontMetrics().getHeight();
+  if (fullsize == 0) {
+    if (img == null && !file) {
+      g.setColor(Color.black);
+      BaseXLayout.chopString(g,text,rect.x + 2,rect.y,rect.w);
+    }
+ else {
+      final int x=rect.x;
+      int w=rect.w;
+      if (img != null) {
+        rect.x+=off;
+        rect.w-=off;
+      }
+      final int h=BaseXLayout.calcHeight(g,rect,text);
+      if (img != null) {
+        if (!mark) {
+          g.setColor(COLORS[rect.level + 1]);
+          g.fillRect(x + 1,rect.y + 1,w - 2,h - GUIProp.fontsize);
+        }
+        g.drawImage(img,x,rect.y + 2,view);
+      }
+      g.setColor(Color.black);
+      BaseXLayout.drawText(g,rect,text);
+      if (h == GUIProp.fontsize && img != null) {
+        final long size=toLong(fs.size(pre));
+        final byte[] info=token(Performance.format(size,false));
+        w=BaseXLayout.width(g,info);
+        if (BaseXLayout.width(g,text) < rect.w - w - 10) {
+          final int ox=rect.x;
+          rect.x+=rect.w - w - 2;
+          BaseXLayout.chopString(g,info,rect.x,rect.y,rect.w);
+          rect.x=ox;
+        }
+      }
+      rect.y+=h;
+      rect.h-=h;
+      rect.x-=o;
+      rect.w+=o;
+    }
+    rect.x+=3;
+    rect.w-=3;
+  }
+ else {
+    if (tag) {
+      if (GUIFS.mime(name) == GUIFS.Type.IMAGE)       return false;
+      g.setColor(COLORS[rect.level + 2]);
+      g.fillRect(rect.x + 2,rect.y + 2,rect.w - 5,fh + 12);
+      g.drawImage(img,rect.x + 6,rect.y + 6,view);
+      rect.y+=18;
+      rect.h-=18;
+      g.setColor(Color.black);
+      final int w=BaseXLayout.chopString(g,text,rect.x + off + 3,rect.y,rect.w - off - 3);
+      final long size=toLong(fs.size(pre));
+      final String info=GUIFS.desc(text,dir) + ", " + Performance.format(size,true);
+      rect.w-=10;
+      final int sw=BaseXLayout.width(g,info);
+      if (w + sw + 40 < rect.w) {
+        g.setColor(COLORS[rect.level + 10]);
+        BaseXLayout.chopString(g,token(info),rect.x + rect.w - sw,rect.y,rect.w);
+      }
+      rect.x+=10;
+      rect.y+=30;
+      rect.h-=38;
+    }
+ else {
+      rect.x+=12;
+      rect.y+=12;
+      rect.w-=24;
+      rect.h-=24;
+      g.setColor(Color.black);
+      BaseXLayout.drawText(g,rect,data.text(pre));
+    }
+  }
+  if (!file || rect.w < (o << 1) || rect.h < (o << 1))   return false;
+  g.setColor(Color.black);
+  rect.y+=o >> 1;
+  rect.h-=o >> 1;
+  long s=0;
+  final byte[] path=ViewData.path(data,pre);
+  byte[] fileBuf=null;
+  try {
+    boolean binary=GUIFS.mime(name) == GUIFS.Type.IMAGE;
+    if (!binary) {
+      s=Math.max(0,rect.h * rect.w / o * 4 / mfwidth['A']);
+      final File f=new File(string(path));
+      s=Math.min(s,f.length());
+      fileBuf=new byte[(int)s];
+      BufferInput.read(f,fileBuf);
+      int n=0;
+      for (      final byte b : fileBuf)       if (b >= ' ' || ws(b))       n++;
+      binary=(n << 3) + n < (s << 3);
+    }
+    if (binary) {
+      fileBuf=MAPBINARY;
+      s=fileBuf.length;
+    }
+  }
+ catch (  final IOException ex) {
+    if (!error)     BaseX.debug(FILEERR,path);
+    BaseX.debug(ex);
+    error=true;
+    return true;
+  }
+  g.setFont(mfont);
+  BaseXLayout.drawText(g,rect,fileBuf,(int)s,true);
+  return false;
+}

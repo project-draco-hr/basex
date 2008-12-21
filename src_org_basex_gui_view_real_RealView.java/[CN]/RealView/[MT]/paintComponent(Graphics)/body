@@ -20,7 +20,7 @@ break;
 case 3:
 realImage=createImage();
 Graphics rg=realImage.getGraphics();
-rects=new ArrayList<RealRect[]>();
+rects=new ArrayList<ViewRect[]>();
 Nodes curr=GUI.context.current();
 for (int i=0; i < curr.size; i++) {
 temperature(curr.nodes[i],rg,i);
@@ -29,10 +29,10 @@ temperature(curr.nodes[i],rg,i);
 focus();
 }
 g.drawImage(realImage,0,0,getWidth(),getHeight(),this);
-if (focusedRealRect != null) {
-RealRect r=focusedRealRect;
-g.drawRect(r.x1,r.y1,r.x2 - r.x1,r.y2 - r.y1);
-final int pre=r.p;
+if (focusedRect != null) {
+ViewRect r=focusedRect;
+g.drawRect(r.x,r.y,r.w,r.h);
+final int pre=r.pre;
 String s="";
 if (data.kind(pre) == Data.ELEM) {
 s=Token.string(data.tag(pre));
@@ -45,22 +45,22 @@ s+=" " + Token.string(data.attName(pre + y + 1)) + "="+ "\""+ Token.string(data.
 }
 int w=BaseXLayout.width(g,s);
 g.setColor(Color.WHITE);
-g.fillRect(r.x1,r.y1 - fontHeight,w,fontHeight);
+g.fillRect(r.x,r.y - fontHeight,w,fontHeight);
 g.setColor(Color.BLACK);
-g.drawString(s,r.x1,(int)(r.y1 - fontHeight / 4f));
+g.drawString(s,r.x,(int)(r.y - fontHeight / 4f));
 }
 if (!rects.isEmpty() && GUI.context.marked().size > 0) {
 g.setColor(Color.GREEN);
-Iterator<RealRect[]> it=rects.iterator();
+Iterator<ViewRect[]> it=rects.iterator();
 while (it.hasNext()) {
-final RealRect[] r=it.next();
+final ViewRect[] r=it.next();
 int size=GUI.context.marked().size;
 final int[] markedNodes=new int[size];
 System.arraycopy(GUI.context.marked().nodes,0,markedNodes,0,size);
 for (int i=0; i < r.length; i++) {
 for (int j=0; j < size; j++) {
-if (r[i].p == markedNodes[j]) {
-g.drawRect(r[i].x1,r[i].y1,r[i].x2 - r[i].x1,r[i].y2 - r[i].y1);
+if (r[i].pre == markedNodes[j]) {
+g.drawRect(r[i].x,r[i].y,r[i].w,r[i].h);
 if (size < 2) {
 return;
 }

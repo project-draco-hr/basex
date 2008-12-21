@@ -13,7 +13,7 @@
   final String in=read(file);
   String output="";
   String error=null;
-  Result res=null;
+  Item item=null;
   final TokenBuilder files=new TokenBuilder();
   try {
     final Context context=new Context();
@@ -31,8 +31,8 @@
       xq.module(ns,f);
     }
     final CachedOutput out=new CachedOutput();
-    res=xq.query(context.current());
-    res.serialize(new XMLSerializer(out));
+    item=xq.iter(context.current()).finish();
+    item.serialize(new XMLSerializer(out));
     output=norm(out.finish());
   }
  catch (  final QueryException ex) {
@@ -124,8 +124,7 @@ catch (  final Error ex) {
         logErr.append(chop(output));
         logErr.append(Prop.NL);
         logErr.append(Prop.NL);
-        final Item it=((XQResult)res).item();
-        final boolean nodes=it instanceof Nod && it.type != Type.TXT;
+        final boolean nodes=item instanceof Nod && item.type != Type.TXT;
         addLog(pth,outname + (nodes ? IO.XMLSUFFIX : IO.TXTSUFFIX),output);
       }
       if (reporting)       logFile.append("fail");
@@ -138,8 +137,7 @@ catch (  final Error ex) {
         logOK.append(chop(output));
         logOK.append(Prop.NL);
         logOK.append(Prop.NL);
-        final Item it=((XQResult)res).item();
-        final boolean nodes=it instanceof Nod && it.type != Type.TXT;
+        final boolean nodes=item instanceof Nod && item.type != Type.TXT;
         addLog(pth,outname + (nodes ? IO.XMLSUFFIX : IO.TXTSUFFIX),output);
       }
       if (reporting) {

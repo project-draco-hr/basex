@@ -1,0 +1,36 @@
+{
+  rect.x+=3;
+  rect.w-=3;
+  final int pre=rect.pre;
+  final Context context=GUI.context;
+  final Data data=context.data();
+  final Nodes current=context.current();
+  final int kind=data.kind(pre);
+  if (kind == Data.ELEM || kind == Data.DOC) {
+    final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size == 1 && pre != 0 && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(data,pre);
+    g.setColor(Color.black);
+    g.setFont(font);
+    BaseXLayout.chopString(g,name,rect.x,rect.y,rect.w);
+  }
+ else {
+    g.setColor(COLORS[Math.min(255,rect.level * 2 + 8)]);
+    g.setFont(mfont);
+    final byte[] text=ViewData.content(data,pre,false);
+    final int p=BaseXLayout.centerPos(g,text,rect.w);
+    if (p != -1) {
+      rect.x+=p;
+      rect.y+=(rect.h - GUIProp.fontsize) / 2 - 1;
+      BaseXLayout.drawText(g,rect,text);
+    }
+ else {
+      if (BaseXLayout.calcHeight(g,rect,text) < rect.h) {
+        BaseXLayout.drawText(g,rect,text);
+      }
+ else {
+        BaseXLayout.drawThumbnails(g,rect,text);
+        return true;
+      }
+    }
+  }
+  return false;
+}

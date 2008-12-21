@@ -15,43 +15,51 @@
   if (!dragging && !inBox)   return;
   if (!dragging) {
     dragging=true;
-    selectionBox.setStart(mouseX,mouseY);
+    selectionBox.x=mouseX;
+    selectionBox.y=mouseY;
   }
+  int x=mouseX;
+  int y=mouseY;
   if (!inBox) {
     if (mouseX < lb) {
       if (mouseY > bb) {
-        selectionBox.setEnd(lb,bb);
+        x=lb;
+        y=bb;
       }
  else       if (mouseY < tb) {
-        selectionBox.setEnd(lb,tb);
+        x=lb;
+        y=tb;
       }
  else {
-        selectionBox.setEnd(lb,mouseY);
+        x=lb;
       }
     }
  else     if (mouseX > rb) {
       if (mouseY > bb) {
-        selectionBox.setEnd(rb,bb);
+        x=rb;
+        y=bb;
       }
  else       if (mouseY < tb) {
-        selectionBox.setEnd(rb,tb);
+        x=rb;
+        y=tb;
       }
  else {
-        selectionBox.setEnd(rb,mouseY);
+        x=rb;
       }
     }
  else     if (mouseY < tb) {
-      selectionBox.setEnd(mouseX,tb);
+      y=tb;
     }
- else     selectionBox.setEnd(mouseX,bb);
-  }
  else {
-    selectionBox.setEnd(mouseX,mouseY);
+      y=bb;
+    }
   }
+  selectionBox.w=x - selectionBox.x;
+  selectionBox.h=y - selectionBox.y;
   final IntList il=new IntList();
   for (int i=0; i < plotData.size; i++) {
-    final int x=calcCoordinate(true,plotData.xAxis.co[i]);
-    final int y=calcCoordinate(false,plotData.yAxis.co[i]);
+    x=calcCoordinate(true,plotData.xAxis.co[i]);
+    y=calcCoordinate(false,plotData.yAxis.co[i]);
     if (selectionBox.contains(x,y))     il.add(plotData.pres[i]);
   }
   notifyMark(new Nodes(il.finish(),GUI.context.data()),this);

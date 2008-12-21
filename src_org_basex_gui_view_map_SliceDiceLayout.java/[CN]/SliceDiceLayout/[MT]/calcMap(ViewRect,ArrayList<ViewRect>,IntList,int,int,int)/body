@@ -1,0 +1,68 @@
+{
+  final Data data=GUI.context.data();
+  if (ne - ns == 1) {
+    final ViewRect t=new ViewRect(r.x,r.y,r.w,r.h,l.list[ns],r.level);
+    final int x=t.x + layout.x;
+    final int y=t.y + layout.y;
+    final int w=t.w - layout.w;
+    final int h=t.h - layout.h;
+    mainRects.add(t);
+    if (w > 0 && h > 0 && !ViewData.isLeaf(GUI.context.data(),t.pre)) {
+      final IntList ch=children(t.pre);
+      if (ch.size >= 0)       calcMap(new ViewRect(x,y,w,h,l.list[ns],t.level + 1),mainRects,ch,0,ch.size - 1,level + 1);
+    }
+  }
+ else {
+    int nn=ne - ns;
+    long parsize=1;
+    final boolean v=(r.w > r.h) ? false : true;
+    double xx=r.x;
+    double yy=r.y;
+    double ww, hh;
+    if (data.fs != null && GUIProp.mapaggr) {
+      int par=data.parent(l.list[ns],Data.ELEM);
+      parsize=Token.toLong(data.attValue(par + FSParser.SIZEOFFSET));
+      hh=0;
+      ww=0;
+    }
+ else {
+      if (v) {
+        ww=r.w;
+        hh=(double)r.h / nn;
+      }
+ else {
+        ww=(double)r.w / nn;
+        hh=r.h;
+      }
+    }
+    for (int i=0; i < l.size - 1; i++) {
+      int[] liste=new int[1];
+      liste[0]=l.list[i];
+      if (data.fs != null && GUIProp.mapaggr) {
+        if (v) {
+          yy+=hh;
+          hh=(double)Token.toLong(data.attValue(data.sizeID,l.list[i])) * r.h / parsize;
+          ww=r.w;
+        }
+ else {
+          xx+=ww;
+          ww=(double)Token.toLong(data.attValue(data.sizeID,l.list[i])) * r.w / parsize;
+          hh=r.h;
+        }
+        if (ww > 0 && hh > 0)         calcMap(new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
+      }
+ else {
+        if (ww > 0 && hh > 0) {
+          if (v) {
+            calcMap(new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
+            yy+=hh;
+          }
+ else {
+            calcMap(new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
+            xx+=ww;
+          }
+        }
+      }
+    }
+  }
+}

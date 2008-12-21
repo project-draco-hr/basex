@@ -2,7 +2,7 @@
   return new Iter(){
     private Iter[] iter;
     private Iter ir;
-    private int p=0;
+    private int p;
     @Override public Item next() throws XQException {
       if (iter == null) {
         iter=new Iter[fl.length];
@@ -19,17 +19,12 @@
             if (p + 1 != fl.length) {
               p++;
             }
- else {
-              if (where == null || ctx.iter(where).ebv().bool()) {
-                ir=ctx.iter(expr);
-                break;
-              }
+ else             if (where == null || ctx.iter(where).ebv().bool()) {
+              ir=ctx.iter(expr);
+              break;
             }
           }
-          if (ir == null) {
-            if (p == 0)             return null;
-            --p;
-          }
+          if (ir == null && p-- == 0)           return null;
         }
       }
     }

@@ -1,9 +1,11 @@
 {
-  fto=ctx.ftopt;
   return new FTNodeIter(){
+    public final FTOpt fto=ctx.ftopt;
     @Override public FTNodeItem next(){
-      if (iat == null && !evalIter())       return new FTNodeItem();
-      return iat.more() ? new FTNodeItem(iat.nextFTNode(),data) : new FTNodeItem(new FTNode(),data);
+      if (iat == null && !evalIter()) {
+        return new FTNodeItem();
+      }
+      return new FTNodeItem(iat.more() ? iat.nextFTNode() : new FTNode(),data);
     }
     /** 
  * Evaluates the index access.
@@ -12,11 +14,11 @@
     private boolean evalIter(){
       final FTTokenizer ft=new FTTokenizer();
       ft.init(tok);
-      ft.lc=FTIndex.this.fto.is(FTOpt.LC);
-      ft.uc=FTIndex.this.fto.is(FTOpt.UC);
-      ft.cs=FTIndex.this.fto.is(FTOpt.CS);
-      ft.wc=FTIndex.this.fto.is(FTOpt.WC);
-      ft.fz=FTIndex.this.fto.is(FTOpt.FZ);
+      ft.lc=fto.is(FTOpt.LC);
+      ft.uc=fto.is(FTOpt.UC);
+      ft.cs=fto.is(FTOpt.CS);
+      ft.wc=fto.is(FTOpt.WC);
+      ft.fz=fto.is(FTOpt.FZ);
       ft.lp=true;
       while (ft.more()) {
         if (data.nrIDs(ft) == 0)         return false;
