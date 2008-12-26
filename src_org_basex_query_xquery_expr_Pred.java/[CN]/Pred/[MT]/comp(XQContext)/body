@@ -4,7 +4,8 @@
     pred[p]=ctx.comp(pred[p]);
     if (pred[p].i()) {
       final Item it=(Item)pred[p];
-      if (it.n() || !it.bool())       continue;
+      if (!it.bool())       return Seq.EMPTY;
+      if (it.n())       continue;
       Array.move(pred,p + 1,-1,pred.length - p-- - 1);
       pred=Array.finish(pred,pred.length - 1);
     }
@@ -12,6 +13,6 @@
   if (pred.length == 0)   return root;
   final boolean last=pred[0] instanceof Fun && ((Fun)pred[0]).func == FunDef.LAST;
   final boolean num=pred[0].i() && ((Item)pred[0]).n();
-  if (pred.length > 1 || (!last && !num && uses(Using.POS)))   return this;
+  if (pred.length > 1 || !last && !num && uses(Using.POS))   return this;
   return new PredIter(root,pred,last,num);
 }

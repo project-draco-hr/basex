@@ -1,65 +1,54 @@
 {
-  final Item ci=ctx.item;
-  final int cp=ctx.pos;
-  final Iter iter=checkCtx(ctx);
   return new NodeIter(){
-    /** 
- * Temporary iterator. 
- */
+    final Item ci=ctx.item;
+    final int cp=ctx.pos;
+    boolean more=true;
     NodeIter ir;
-    boolean first=true;
-    boolean finished=false;
-    Nod nod;
-    Nod temp;
+    Iter iter;
     @Override public Nod next() throws XQException {
-      if (finished)       return null;
-      if (first) {
-        first=false;
-        ctx.pos=1;
-      }
-      while (true) {
-        if (ir == null) {
-          final Item it=iter.next();
-          if (it == null) {
-            ctx.item=ci;
-            ctx.pos=cp;
-            if (lastFlag && temp != null) {
-              finished=true;
-              return temp;
-            }
-            return null;
-          }
-          if (!it.node())           Err.or(NODESPATH,IterStep.this,it.type);
-          ir=axis.init((Nod)it);
+      if (more) {
+        if (iter == null) {
+          iter=checkCtx(ctx);
+          ctx.pos=1;
         }
-        nod=ir.next();
-        if (nod != null) {
-          if (test.e(nod)) {
-            boolean add=true;
-            ctx.item=nod;
-            final Item i=ctx.iter(pred[0]).ebv();
-            if (i.n() ? i.dbl() == ctx.pos : i.bool()) {
-              nod.score(i.score());
-            }
- else {
-              add=false;
-            }
-            temp=lastFlag ? nod.finish() : null;
-            ctx.pos++;
-            if (add) {
+        Nod temp=null;
+        while (true) {
+          if (ir == null) {
+            final Item i=iter.next();
+            if (i == null) {
               ctx.item=ci;
-              if (numFlag) {
-                finished=true;
+              ctx.pos=cp;
+              if (temp != null) {
+                more=false;
+                return temp;
+              }
+              return null;
+            }
+            if (!i.node())             Err.or(NODESPATH,IterStep.this,i.type);
+            ir=axis.init((Nod)i);
+          }
+          final Nod nod=ir.next();
+          if (nod != null) {
+            if (test.e(nod)) {
+              ctx.item=nod;
+              final Item i=ctx.iter(pred[0]).ebv();
+              final boolean found=i.n() ? i.dbl() == ctx.pos : i.bool();
+              ctx.pos++;
+              if (found) {
+                nod.score(i.score());
+                if (num)                 more=false;
+                ctx.item=ci;
                 return nod.finish();
               }
-              return nod.finish();
+              if (last)               temp=nod.finish();
             }
           }
-        }
  else {
-          ir=null;
+            ir=null;
+          }
         }
       }
+      return null;
     }
   }
 ;

@@ -1,0 +1,25 @@
+{
+  final int vs=ctx.vars.size();
+  for (int f=0; f != fl.length; f++) {
+    final Expr e=ctx.comp(fl[f]);
+    if (e.e()) {
+      ctx.vars.reset(vs);
+      return Seq.EMPTY;
+    }
+    fl[f]=(ForLet)e;
+  }
+  if (where != null) {
+    where=ctx.comp(where);
+    if (where.i()) {
+      if (!((Item)where).bool()) {
+        ctx.vars.reset(vs);
+        return Seq.EMPTY;
+      }
+      where=null;
+    }
+  }
+  if (order != null)   order.comp(ctx);
+  expr=ctx.comp(expr);
+  ctx.vars.reset(vs);
+  return this;
+}
