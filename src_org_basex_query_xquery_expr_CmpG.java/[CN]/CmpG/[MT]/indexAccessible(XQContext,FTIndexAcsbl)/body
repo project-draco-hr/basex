@@ -1,10 +1,16 @@
 {
   final Step s=indexStep(expr);
-  if (s == null || !(expr[1] instanceof Str) || cmp != CmpG.Comp.EQ)   return;
+  if (s == null || cmp != Comp.EQ || !(expr[1] instanceof Str) && !(expr[1] instanceof Seq))   return;
   final boolean text=ia.data.meta.txtindex && s.test.type == Type.TXT;
   final boolean attr=!text && ia.data.meta.atvindex && s.simpleName(Axis.ATTR);
   if (!text && !attr)   return;
-  index=new ValuesToken(text,((Str)expr[1]).str());
+  final Iter ir=expr[1].iter(ctx);
+  Item i;
+  while ((i=ir.next()) != null) {
+    if (!(i instanceof Str))     return;
+    final ValuesToken vt=new ValuesToken(text,i.str());
+    ia.is=Math.max(ia.data.nrIDs(vt),ia.is);
+    index=Array.add(index,vt);
+  }
   ia.iu=true;
-  ia.is=ia.data.nrIDs(index);
 }

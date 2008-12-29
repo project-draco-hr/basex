@@ -1,12 +1,11 @@
 {
-  final Step[] e=new Step[step.length];
+  int s=step.length;
+  final Step[] e=new Step[s--];
+  Expr rt=step[s].pred.length != 0 ? new Pred(r,step[s].pred) : r;
   int c=0;
-  Axis lastAxis=step[step.length - 1].axis.invert();
-  for (int k=step.length - 2; k >= 0; k--) {
-    final Step inv=Step.get(lastAxis,step[k].test,step[k].pred);
-    lastAxis=inv.axis.invert();
-    e[c++]=inv;
+  while (--s >= 0) {
+    e[c++]=Step.get(step[s + 1].axis.invert(),step[s].test,step[s].pred);
   }
-  e[c]=Step.get(lastAxis,curr.test);
-  return new AxisPath(r,e);
+  e[c]=Step.get(step[s + 1].axis.invert(),curr.test);
+  return new AxisPath(rt,e);
 }

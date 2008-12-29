@@ -1,18 +1,31 @@
 {
-  final DataInput in=new DataInput(db,DATAINFO);
-  meta=new MetaData(db);
-  size=meta.read(in);
-  tags=new Names(in);
-  atts=new Names(in);
-  skel=new Skeleton(this,in);
-  ns=new Namespaces(in);
-  table=Prop.mainmem ? new TableMemAccess(db,DATATBL,size) : new TableDiskAccess(db,DATATBL);
-  texts=new DataAccess(db,DATATXT);
-  values=new DataAccess(db,DATAATV);
-  if (index) {
-    if (meta.txtindex)     txtindex=new Values(this,db,true);
-    if (meta.atvindex)     atvindex=new Values(this,db,false);
-    if (meta.ftxindex)     ftxindex=meta.ftfz ? new FTFuzzy(this,db) : new FTTrie(this,db);
+  DataInput in=null;
+  try {
+    in=new DataInput(db,DATAINFO);
+    meta=new MetaData(db);
+    meta.read(in);
+    tags=new Names(in);
+    atts=new Names(in);
+    skel=new Skeleton(this,in);
+    ns=new Namespaces(in);
+    table=Prop.mainmem ? new TableMemAccess(db,DATATBL,meta.size) : new TableDiskAccess(db,DATATBL);
+    texts=new DataAccess(db,DATATXT);
+    values=new DataAccess(db,DATAATV);
+    if (index) {
+      if (meta.txtindex)       txtindex=new Values(this,db,true);
+      if (meta.atvindex)       atvindex=new Values(this,db,false);
+      if (meta.ftxindex)       ftxindex=meta.ftfz ? new FTFuzzy(this,db) : new FTTrie(this,db);
+    }
+    initNames();
   }
-  initNames();
+ catch (  final IOException ex) {
+    throw ex;
+  }
+ finally {
+    try {
+      if (in != null)       in.close();
+    }
+ catch (    final IOException e) {
+    }
+  }
 }

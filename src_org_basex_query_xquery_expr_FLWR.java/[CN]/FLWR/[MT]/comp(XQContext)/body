@@ -2,11 +2,15 @@
   final Expr ex=super.comp(ctx);
   if (ex != this)   return ex;
   for (int f=0; f != fl.length; f++) {
-    if (fl[f].var.expr != null)     fl=Array.delete(fl,f--);
+    if (fl[f].var.expr != null) {
+      ctx.compInfo(OPTSTAT,fl[f]);
+      fl=Array.delete(fl,f--);
+    }
   }
   if (fl.length == 0) {
-    if (where == null)     return expr;
-    return new If(where,expr,Seq.EMPTY);
+    if (where != null)     expr=new If(where,expr,Seq.EMPTY);
+    ctx.compInfo(OPTSIMPLE,this,expr);
+    return expr;
   }
   return this;
 }

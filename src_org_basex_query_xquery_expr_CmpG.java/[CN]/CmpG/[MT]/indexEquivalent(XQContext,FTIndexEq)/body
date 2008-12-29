@@ -1,9 +1,15 @@
 {
-  final boolean txt=index.type == IndexToken.Type.TXT;
-  final Expr ex=new IndexAccess(ieq.data,index);
+  final int il=index.length;
+  final Expr[] ia=new IndexAccess[il];
+  for (int i=0; i < il; i++)   ia[i]=new IndexAccess(ieq.data,index[i]);
+  final Expr root=il == 1 ? ia[0] : new Union(ia);
   final AxisPath orig=(AxisPath)expr[0];
-  final AxisPath path=orig.invertPath(ex,ieq.curr);
-  if (!txt) {
+  final AxisPath path=orig.invertPath(root,ieq.curr);
+  if (index[0].type == IndexToken.Type.TXT) {
+    ctx.compInfo(OPTTXTINDEX);
+  }
+ else {
+    ctx.compInfo(OPTATVINDEX);
     final Step step=orig.step[0];
     Step[] steps={Step.get(Axis.SELF,step.test)};
     for (    final Step s : path.step)     steps=Array.add(steps,s);

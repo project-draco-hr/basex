@@ -1,0 +1,20 @@
+{
+  if (ctx.ns.size() != 0) {
+    if (name != null && name.uri == Uri.EMPTY) {
+      name.uri=Uri.uri(ctx.ns.uri(name.pre()));
+    }
+  }
+ else   if (ctx.item instanceof DBNode) {
+    final Data data=((DBNode)ctx.item).data;
+    if (ctx.nsElem.length == 0 && data.ns.size() == 0) {
+      if (kind == Kind.STD && !name.ns())       kind=Kind.NAME;
+      if (kind == Kind.NAME) {
+        if ((type == Type.ELM ? data.tagID(ln) : data.attNameID(ln)) == 0) {
+          ctx.compInfo(OPTNAME,ln);
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}

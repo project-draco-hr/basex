@@ -1,35 +1,18 @@
 {
   super.comp(ctx);
-  final ExprList eil0=new ExprList();
   for (int e=0; e != expr.length; e++) {
     if (expr[e] instanceof LocPath) {
       ((LocPath)expr[e]).addPosPred(ctx);
     }
  else     if (expr[e] instanceof Item) {
       if (!((Item)expr[e]).bool()) {
-        ctx.compInfo(OPTAND1);
+        ctx.compInfo(OPTFALSE);
         return Bln.FALSE;
       }
-      ctx.compInfo(OPTAND2);
-      final Expr[] tmp=new Expr[expr.length - 1];
-      System.arraycopy(expr,0,tmp,0,e);
-      System.arraycopy(expr,e + 1,tmp,e,expr.length - e-- - 1);
-      expr=tmp;
+      ctx.compInfo(OPTTRUE);
+      expr=Array.delete(expr,e--);
     }
- else     if (expr[e] instanceof Or) {
-      final ExprList eil=new ExprList();
-      final Or o=(Or)expr[e];
-      for (int j=0; j < o.expr.length; j++)       eil.add(o.expr[j],ctx,false);
-      if (eil.size > 0 && eil.size < o.expr.length) {
-        Expr[] ex=eil.finishE();
-        if (ex.length == 1)         expr[e]=ex[0];
- else         o.expr=eil.finishE();
-        ctx.compInfo(OPTPREDS);
-      }
-    }
-    eil0.add(expr[e],ctx,true);
   }
-  if (eil0.size < expr.length)   expr=eil0.finishE();
   if (expr.length == 0)   return Bln.TRUE;
   if (expr.length == 1)   return expr[0];
   Pos pos=new Pos(Integer.MIN_VALUE,Integer.MAX_VALUE);

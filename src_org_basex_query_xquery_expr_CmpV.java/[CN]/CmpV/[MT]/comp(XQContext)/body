@@ -2,11 +2,9 @@
   super.comp(ctx);
   final Expr e1=expr[0];
   final Expr e2=expr[1];
-  final boolean e=e1.e() || e2.e();
-  if (e)   return Seq.EMPTY;
-  if (!e1.i() || !e2.i())   return this;
-  final Item i1=(Item)expr[0];
-  final Item i2=(Item)expr[1];
-  if (!valCheck(i1,i2))   Err.cmp(i1,i2);
-  return Bln.get(cmp.e(i1,i2));
+  Expr e=this;
+  if (e1.i() && e2.i())   e=ev((Item)expr[0],(Item)expr[1]);
+ else   if (e1.e() || e2.e())   e=Seq.EMPTY;
+  if (e != this)   ctx.compInfo(OPTSIMPLE,this,e);
+  return e;
 }

@@ -1,12 +1,8 @@
 {
   final Var v=var.clone();
   final Var p=pos != null ? pos.clone() : null;
-  final Var sc=score != null ? score.clone() : null;
+  final Var s=score != null ? score.clone() : null;
   return new ResetIter(){
-    /** 
- * Iterator flag. 
- */
-    private boolean more;
     /** 
  * Variable stack size. 
  */
@@ -14,34 +10,34 @@
     /** 
  * Iterator flag. 
  */
-    private Iter iter;
+    private Iter ir;
     /** 
  * Counter. 
  */
     private int c;
     @Override public Bln next() throws XQException {
-      if (!more) {
+      if (ir == null) {
         vs=ctx.vars.size();
-        iter=ctx.iter(expr);
+        ir=ctx.iter(expr);
         ctx.vars.add(v);
         if (p != null)         ctx.vars.add(p);
-        if (sc != null)         ctx.vars.add(sc);
-        c=0;
+        if (s != null)         ctx.vars.add(s);
       }
-      final Item it=iter.next();
-      more=it != null;
-      if (more) {
-        v.item(it,ctx);
-        if (p != null)         p.item(Itr.get(++c),ctx);
-        if (sc != null)         sc.item(Dbl.get(Scoring.finish(it.score())),ctx);
+      final Item it=ir.next();
+      if (it != null) {
+        v.bind(it,ctx);
+        if (p != null)         p.bind(Itr.get(++c),ctx);
+        if (s != null)         s.bind(Dbl.get(Scoring.finish(it.score())),ctx);
       }
  else {
-        ctx.vars.reset(vs);
+        reset();
       }
-      return Bln.get(more);
+      return Bln.get(ir != null);
     }
     @Override public void reset(){
-      more=false;
+      ctx.vars.reset(vs);
+      ir=null;
+      c=0;
     }
   }
 ;

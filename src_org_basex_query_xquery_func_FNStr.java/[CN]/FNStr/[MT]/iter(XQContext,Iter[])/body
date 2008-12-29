@@ -11,7 +11,7 @@ Item it1=iter.atomic(this,true);
 Item it2=arg[1].atomic(this,true);
 if (it1 == null || it2 == null) return Iter.EMPTY;
 final int d=diff(checkStr(it1),checkStr(it2));
-return Itr.iter(Math.max(-1,Math.min(1,d)));
+return Itr.get(Math.max(-1,Math.min(1,d))).iter();
 case CODEPNT:
 it1=iter.atomic(this,true);
 it2=arg[1].atomic(this,true);
@@ -24,24 +24,24 @@ return substr(arg);
 case NORMUNI:
 return normuni(arg);
 case UPPER:
-return Str.iter(uc(checkStr(iter)));
+return Str.get(uc(checkStr(iter))).iter();
 case LOWER:
-return Str.iter(lc(checkStr(iter)));
+return Str.get(lc(checkStr(iter))).iter();
 case TRANS:
 return trans(arg);
 case ENCURI:
-return Str.iter(uri(checkStr(iter),false));
+return Str.get(uri(checkStr(iter),false)).iter();
 case IRIURI:
-return Str.iter(uri(checkStr(iter),true));
+return Str.get(uri(checkStr(iter),true)).iter();
 case ESCURI:
-return Str.iter(esc(checkStr(iter)));
+return Str.get(esc(checkStr(iter))).iter();
 case CONCAT:
 final TokenBuilder tb=new TokenBuilder();
 for (final Iter a : arg) {
 final Item it=a.atomic(this,true);
 if (it != null) tb.add(it.str());
 }
-return Str.iter(tb.finish());
+return Str.get(tb.finish()).iter();
 case CONTAINS:
 if (arg.length == 3) checkColl(arg[2]);
 Item it=arg[1].atomic(this,true);
@@ -62,12 +62,12 @@ if (arg.length == 3) checkColl(arg[2]);
 final byte[] str=checkStr(iter);
 final byte[] sa=checkStr(arg[1]);
 int pa=indexOf(str,sa);
-return pa != -1 ? Str.iter(substring(str,pa + sa.length)) : Str.ZERO.iter();
+return (pa != -1 ? Str.get(substring(str,pa + sa.length)) : Str.ZERO).iter();
 case SUBBEFORE:
 if (arg.length == 3) checkColl(arg[2]);
 final byte[] sb=checkStr(iter);
 final int pb=indexOf(sb,checkStr(arg[1]));
-return pb > 0 ? Str.iter(substring(sb,0,pb)) : Str.ZERO.iter();
+return (pb > 0 ? Str.get(substring(sb,0,pb)) : Str.ZERO).iter();
 default :
 BaseX.notexpected(func);
 return null;

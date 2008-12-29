@@ -19,22 +19,22 @@
  else {
       if (contains(name,':')) {
         skipWS();
-        return new NameTest(new QNm(name,ctx),NameTest.Kind.STD);
+        return new NameTest(new QNm(name,ctx),NameTest.Kind.STD,att);
       }
       if (!consume(':')) {
         skipWS();
-        return att ? new NameTest(new QNm(name),NameTest.Kind.NAME) : new NameTest(new QNm(name,Uri.uri(ctx.nsElem)),NameTest.Kind.STD);
+        return att ? new NameTest(new QNm(name),NameTest.Kind.NAME,att) : new NameTest(new QNm(name,Uri.uri(ctx.nsElem)),NameTest.Kind.STD,att);
       }
       if (consume('*')) {
         final QNm nm=new QNm(EMPTY);
         nm.uri=Uri.uri(ctx.ns.uri(name));
-        return new NameTest(nm,NameTest.Kind.NS);
+        return new NameTest(nm,NameTest.Kind.NS,att);
       }
     }
   }
  else   if (consume('*')) {
-    if (!consume(':'))     return new NameTest();
-    return new NameTest(new QNm(qName(null)),NameTest.Kind.NAME);
+    if (!consume(':'))     return new NameTest(att);
+    return new NameTest(new QNm(qName(null)),NameTest.Kind.NAME,att);
   }
   qp=p;
   return null;

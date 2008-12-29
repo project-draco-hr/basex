@@ -1,13 +1,13 @@
 {
-  final XQExprList exli=new XQExprList(expr.length);
-  for (  final Expr e : expr) {
-    final Expr ex=ctx.comp(e);
-    if (!ex.i()) {
-      exli.add(ex);
-    }
- else     if (((Item)ex).bool()) {
+  for (int e=0; e < expr.length; e++) {
+    expr[e]=ctx.comp(expr[e]);
+    if (!expr[e].i())     continue;
+    if (((Item)expr[e]).bool()) {
+      ctx.compInfo(OPTTRUE,expr[e]);
       return Bln.TRUE;
     }
+    ctx.compInfo(OPTFALSE,expr[e]);
+    expr=Array.delete(expr,e--);
   }
-  return exli.size == 0 ? Bln.FALSE : new Or(exli.finish());
+  return expr.length == 0 ? Bln.FALSE : oneOf(ctx);
 }
