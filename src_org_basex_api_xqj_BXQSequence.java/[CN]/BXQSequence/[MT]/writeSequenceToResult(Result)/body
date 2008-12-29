@@ -5,11 +5,16 @@
     writeSequence(((StreamResult)res).getWriter(),null);
   }
  else   if (res instanceof SAXResult) {
-    final SAXSerializer ser=new SAXSerializer(null);
-    final SAXResult sax=(SAXResult)res;
-    ser.setContentHandler(sax.getHandler());
-    ser.setLexicalHandler(sax.getLexicalHandler());
-    while (next())     serialize(item().it,ctx,ser);
+    try {
+      final SAXSerializer ser=new SAXSerializer(null);
+      final SAXResult sax=(SAXResult)res;
+      ser.setContentHandler(sax.getHandler());
+      ser.setLexicalHandler(sax.getLexicalHandler());
+      while (next())       serialize(item().it,ctx,ser);
+    }
+ catch (    final IOException ex) {
+      throw new BXQException(ex);
+    }
   }
  else {
     BaseX.notimplemented();

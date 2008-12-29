@@ -1,6 +1,13 @@
 {
   opened();
   final CachedOutput co=new CachedOutput();
-  serialize(it,ctx,new XMLSerializer(co));
+  try {
+    final XMLSerializer ser=new XMLSerializer(co);
+    serialize(it,ctx,ser);
+    ser.close();
+  }
+ catch (  final IOException ex) {
+    throw new BXQException(ex);
+  }
   return co.toString();
 }
