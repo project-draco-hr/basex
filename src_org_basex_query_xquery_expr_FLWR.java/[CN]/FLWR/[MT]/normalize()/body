@@ -1,0 +1,56 @@
+{
+  boolean n=false;
+  ForLet[] tmp=new ForLet[0];
+  Step last=null;
+  Var v=null;
+  for (int f=0; f != fl.length; f++) {
+    if (fl[f] instanceof For) {
+      final For fe=(For)fl[f];
+      v=v == null ? fe.var : v;
+      if (v != fe.var) {
+        v=null;
+        break;
+      }
+      if (fe.expr instanceof AxisPath && ((AxisPath)fe.expr).root != null) {
+        AxisPath ap=(AxisPath)fe.expr;
+        tmp=Array.add(tmp,new For(ap.root,fe.var,fe.pos,fe.score));
+        tmp=Array.add(tmp,ap.convSteps(fe.var,fe.pos,fe.score));
+        last=ap.step[ap.step.length - 1];
+        n=true;
+      }
+ else       tmp=Array.add(tmp,fe);
+    }
+ else     tmp=Array.add(tmp,fl[f]);
+  }
+  if (where != null && last != null && v != null) {
+    if (where instanceof CmpG) {
+      final CmpG c=(CmpG)where;
+      VarCall[] vc=((CmpG)where).getVarCalls();
+      if (vc.length == 1 && vc[0].eq(v)) {
+        c.removeVarCall();
+      }
+    }
+    if (last.pred == null) {
+      last.pred=new Expr[]{where};
+    }
+ else {
+      last.pred=Array.add(last.pred,where);
+    }
+    where=null;
+  }
+  if (expr != null && expr instanceof AxisPath && last != null && v != null) {
+    AxisPath ap=(AxisPath)expr;
+    ForLet[] rtmp=new ForLet[0];
+    VarCall[] vc=ap.getVarCalls();
+    if (vc.length == 1 && vc[0].eq(v)) {
+      rtmp=Array.add(rtmp,ap.convSteps(v,null,null));
+    }
+    FLWR flwr=new FLWR(new ForLet[]{rtmp[rtmp.length - 1]},null,vc[0]);
+    for (int i=rtmp.length - 2; i > -1; i--) {
+      flwr=new FLWR(new ForLet[]{rtmp[i]},null,flwr);
+    }
+    expr=flwr;
+  }
+  fl=tmp;
+  return n;
+}

@@ -1,0 +1,90 @@
+{
+  final double xx=r.x;
+  final double ww=r.w;
+  final double f=0.25 * GUIProp.fontsize;
+  final int fh=(int)Math.max(1,0.5 * GUIProp.fontsize);
+  final int lh=(int)Math.max(1,0.8 * GUIProp.fontsize);
+  final double ys=r.y + 3;
+  double yy=ys;
+  int wl=0;
+  int ll=0;
+  final FTTokenizer ftt=new FTTokenizer(s);
+  final Color textc=g.getColor();
+  int count=-1;
+  int pp=0;
+  int cp=0;
+  int cs=0;
+  while (ftt.more()) {
+    count++;
+    wl=ftt.p - ftt.s;
+    if (cs < ftt.sent && sen || cs < ftt.para && !sen) {
+      if (sen) {
+        ll++;
+        cs=ftt.sent;
+      }
+      if (cp < ftt.para) {
+        cp=ftt.para;
+        yy+=lh;
+        ll=0;
+      }
+    }
+    if (r.pos != null) {
+      while ((cs == ftt.sent && sen || cs == ftt.para && !sen) && (r.pos == null || pp < r.pos.length && count < r.pos[pp]) && ftt.more()) {
+        wl+=ftt.p - ftt.s;
+        count++;
+      }
+    }
+    if (f * (ll + wl) > ww) {
+      final int fp=(int)(ww - f * ll - 4) / (int)f;
+      if (fp <= 1) {
+        yy+=lh;
+        ll=0;
+      }
+ else {
+        final int sp=wl - fp;
+        g.fillRect((int)(xx + f * ll),(int)yy,(int)((fp - 1) * f),fh);
+        ll+=fp - 1;
+        g.setColor(new Color(0,0,0));
+        g.fillRect((int)(xx + f * ll),(int)yy,(int)f,fh);
+        g.setColor(textc);
+        if (yy + lh >= r.y + r.h)         return;
+        yy+=lh;
+        ll=0;
+        g.setColor(new Color(0,0,0));
+        g.fillRect((int)xx,(int)yy,(int)f,fh);
+        g.setColor(textc);
+        wl=sp;
+        ll=1;
+      }
+      while (f * wl > r.w) {
+        g.fillRect((int)(xx + f),(int)yy,(int)(r.w - f * 2 - 4),fh);
+        g.setColor(new Color(0,0,0));
+        g.fillRect((int)(r.x + r.w - f - 4),(int)yy,(int)f,fh);
+        wl-=r.w / f;
+        if (yy + lh >= r.y + r.h)         return;
+        yy+=lh;
+        g.fillRect((int)xx,(int)yy,(int)f,fh);
+        g.setColor(textc);
+      }
+      if (yy + lh >= r.y + r.h)       return;
+      g.fillRect((int)(xx + f * ll),(int)yy,(int)f * wl,fh);
+      ll+=wl;
+    }
+ else {
+      g.fillRect((int)(xx + f * ll),(int)yy,(int)f * wl,fh);
+      ll+=wl;
+    }
+    if (r.pos != null && pp < r.pos.length && count == r.pos[pp]) {
+      pp++;
+      g.setColor(thumbnailcolor[r.poi[pp]]);
+      wl=ftt.p - ftt.s;
+      if (f * ll + f * wl > r.w) {
+        yy+=lh;
+        ll=0;
+      }
+      g.fillRect((int)(xx + f * ll),(int)yy,(int)f * wl,fh);
+      ll+=wl;
+      g.setColor(textc);
+    }
+  }
+}

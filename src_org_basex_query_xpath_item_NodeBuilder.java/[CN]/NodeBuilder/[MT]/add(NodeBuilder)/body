@@ -3,14 +3,27 @@
   final int sl=build.size;
   if (sl == 0)   return;
   if (sl == 1) {
-    add(set[0]);
+    if (build.pos != null)     add(set[0],build.pos[0],build.poi[0]);
+ else     add(set[0]);
   }
  else {
     final int s=size + sl;
     int t=nodes.length;
     while (t <= s)     t<<=1;
-    if (t != nodes.length)     nodes=Array.resize(nodes,size,t);
+    if (t != nodes.length) {
+      nodes=Array.resize(nodes,size,t);
+      if (pos != null && build.pos != null)       pos=Array.resize(pos,size,t);
+      if (poi != null && build.poi != null)       poi=Array.resize(poi,size,t);
+    }
     System.arraycopy(set,0,nodes,size,sl);
+    if (pos != null) {
+      if (build.pos != null)       System.arraycopy(build.pos,0,pos,size,sl);
+    }
+ else     pos=build.pos;
+    if (poi != null) {
+      if (build.poi != null)       System.arraycopy(build.poi,0,poi,size,sl);
+    }
+ else     poi=build.poi;
     size=s;
     sort=true;
   }
