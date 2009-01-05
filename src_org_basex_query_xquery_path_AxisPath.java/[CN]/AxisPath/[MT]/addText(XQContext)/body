@@ -3,7 +3,8 @@
   if (s.pred.length > 0 || !s.axis.down || s.test.kind != Test.Kind.NAME || !(ctx.item instanceof DBNode))   return;
   final Data data=((DBNode)ctx.item).data;
   final byte[] name=s.test.name.ln();
-  if (data.meta.uptodate && !data.tags.noLeaf(data.tags.id(name))) {
+  final StatsKey stats=data.tags.stat(data.tags.id(name));
+  if (data.meta.uptodate && stats != null && stats.leaf) {
     step=Array.add(step,Step.get(Axis.CHILD,new KindTest(Type.TXT)));
     ctx.compInfo(OPTTEXT,this);
   }

@@ -1,9 +1,10 @@
 {
   final byte[][] tl=new byte[size][];
   int len=0;
+  tl[0]=Token.EMPTY;
   for (int i=1; i < size; i++) {
     if (len < keys[i].length)     len=keys[i].length;
-    tl[i]=Token.token(counter[i]);
+    tl[i]=Token.token(stat[i].counter);
   }
   len+=2;
   final IntList ids=IntList.createOrder(tl,true,false);
@@ -12,14 +13,12 @@
   tb.add(IDXENTRIES + (size - 1) + NL);
   for (int i=0; i < size - 1; i++) {
     final int s=ids.list[i];
-    if (counter[s] == 0)     continue;
+    if (stat[s] == null)     continue;
     final byte[] key=keys[s];
     tb.add("  ");
     tb.add(key);
     for (int j=0; j < len - key.length; j++)     tb.add(' ');
-    tb.add(counter[s] + "x" + stat[s]);
-    if (!noleaf[s])     tb.add(", leaf");
-    tb.add(NL);
+    tb.add(stat[s] + NL);
   }
   return tb.finish();
 }
