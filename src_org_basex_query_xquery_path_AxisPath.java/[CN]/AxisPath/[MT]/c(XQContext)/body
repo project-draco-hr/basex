@@ -6,48 +6,42 @@
     step[i]=(Step)e;
   }
   mergeDesc(ctx);
+  if (iterable(root,step))   return new SimpleIterPath(root,step);
   cache=root != null && !root.uses(Using.VAR);
-  boolean noPreds=true;
   for (  final Step s : step) {
-    if (s.pred.length != 0) {
-      noPreds=false;
-      if (s.uses(Using.VAR)) {
-        cache=false;
-        break;
-      }
+    if (s.pred.length != 0 && s.uses(Using.VAR)) {
+      cache=false;
+      return this;
     }
-  }
-  if (!cache)   return this;
-  final Axis axis=step[0].axis;
-  if (noPreds && step.length == 1 && axis.down) {
-    return new SimpleIterPath(root,step);
   }
   if (!(ctx.item instanceof DBNode))   return this;
   final DBNode db=(DBNode)ctx.item;
   for (  final Step s : step)   if (s.uses(Using.POS) || !s.axis.vert)   return this;
-  AxisPath result=this;
   for (int i=0; i < step.length; i++) {
     final Step stp=step[i];
-    FTIndexAcsbl iacs=null;
+    IndexContext ictx=null;
     int minp=0;
     for (int p=0; p < stp.pred.length; p++) {
-      final FTIndexAcsbl ia=new FTIndexAcsbl(db.data);
-      stp.pred[p].indexAccessible(ctx,ia);
-      if (ia.io && ia.iu) {
-        if (iacs == null || iacs.is > ia.is) {
-          iacs=ia;
+      final IndexContext ic=new IndexContext(db.data,stp);
+      stp.pred[p].indexAccessible(ctx,ic);
+      if (ic.io && ic.iu) {
+        if (ictx == null || ictx.is > ic.is) {
+          ictx=ic;
           minp=p;
         }
       }
     }
-    if (iacs == null || !iacs.io || !iacs.iu)     continue;
-    if (iacs.is == 0 && iacs.ftnot) {
-      stp.pred[minp]=Bln.TRUE;
-      continue;
+    if (ictx == null || !ictx.io || !ictx.iu)     continue;
+    if (ictx.is == 0) {
+      if (ictx.ftnot) {
+        stp.pred[minp]=Bln.TRUE;
+        continue;
+      }
+      ctx.compInfo(OPTNOINDEX,this);
+      return Seq.EMPTY;
     }
-    final FTIndexEq ieq=new FTIndexEq(iacs,stp);
-    final Expr ie=stp.pred[minp].indexEquivalent(ctx,ieq);
-    if (iacs.seq) {
+    final Expr ie=stp.pred[minp].indexEquivalent(ctx,ictx);
+    if (ictx.seq) {
       stp.pred[minp]=ie;
     }
  else {
@@ -69,16 +63,29 @@
           inv=Array.add(inv,Step.get(a,prev.test));
         }
       }
-      final AxisPath res=(AxisPath)ie;
+      final boolean add=inv.length != 0 || newPreds.length != 0;
+      AxisPath result=null;
+      if (ie instanceof AxisPath) {
+        result=(AxisPath)ie;
+      }
+ else       if (add || i + 1 < step.length) {
+        result=add ? new AxisPath(ie,Step.get(Axis.SELF,Test.NODE)) : new AxisPath(ie);
+      }
+ else {
+        return ie;
+      }
+      final int sl=result.step.length - 1;
+      for (int p=0; p < newPreds.length; p++) {
+        result.step[sl]=result.step[sl].addPred(newPreds[p]);
+      }
       if (inv.length != 0) {
-        res.step[res.step.length - 1]=res.step[res.step.length - 1].addPred(new AxisPath(null,inv));
+        result.step[sl]=result.step[sl].addPred(new AxisPath(null,inv));
       }
       for (int j=i + 1; j < step.length; j++) {
-        res.step=Array.add(res.step,step[j]);
+        result.step=Array.add(result.step,step[j]);
       }
-      result=res;
       break;
     }
   }
-  return result;
+  return this;
 }

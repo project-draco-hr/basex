@@ -1,12 +1,20 @@
 {
   for (int e=0; e < expr.length; e++) {
-    expr[e]=ctx.comp(expr[e]);
-    if (!expr[e].i())     continue;
-    if (!((Item)expr[e]).bool()) {
-      ctx.compInfo(OPTFALSE,expr[e]);
+    Expr ex=ctx.comp(expr[e]);
+    if (ex instanceof AxisPath) {
+      final AxisPath ap=((AxisPath)ex).addPos();
+      if (ap != null) {
+        ex=ap;
+        ctx.compInfo(OPTPOS);
+      }
+    }
+    expr[e]=ex;
+    if (!ex.i())     continue;
+    if (!((Item)ex).bool()) {
+      ctx.compInfo(OPTFALSE,ex);
       return Bln.FALSE;
     }
-    ctx.compInfo(OPTTRUE,expr[e]);
+    ctx.compInfo(OPTTRUE,ex);
     expr=Array.delete(expr,e--);
   }
   return expr.length == 0 ? Bln.TRUE : this;
