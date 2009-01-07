@@ -1,26 +1,20 @@
 {
   checkEmpty();
   for (int i=0; i != step.length; i++) {
-    final Expr e=ctx.comp(step[i]);
+    final Expr e=step[i].comp(ctx);
     if (!(e instanceof Step))     return e;
     step[i]=(Step)e;
   }
   mergeDesc(ctx);
-  if (iterable(root,step))   return new SimpleIterPath(root,step);
+  final AxisPath ap=iterator(root,step);
+  if (ap != null)   return ap;
   cache=root != null && !root.uses(Using.VAR);
-  boolean childAxis=true;
-  boolean noPreds=true;
   for (  final Step s : step) {
-    if (s.axis != Axis.CHILD)     childAxis=false;
-    if (s.pred.length != 0) {
-      noPreds=false;
-      if (s.uses(Using.VAR)) {
-        cache=false;
-        return this;
-      }
+    if (s.pred.length != 0 && s.uses(Using.VAR)) {
+      cache=false;
+      return this;
     }
   }
-  if (noPreds && childAxis)   return new ChildIterPath(root,step);
   if (!(ctx.item instanceof DBNode))   return this;
   final DBNode db=(DBNode)ctx.item;
   for (  final Step s : step)   if (s.uses(Using.POS) || !s.axis.vert)   return this;

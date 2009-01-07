@@ -1,6 +1,7 @@
 {
+  super.comp(ctx);
   for (int e=0; e < expr.length; e++) {
-    expr[e]=ctx.comp(expr[e]);
+    expr[e]=addPos(ctx,expr[e]);
     if (!expr[e].i())     continue;
     if (((Item)expr[e]).bool()) {
       ctx.compInfo(OPTTRUE,expr[e]);
@@ -8,6 +9,7 @@
     }
     ctx.compInfo(OPTFALSE,expr[e]);
     expr=Array.delete(expr,e--);
+    if (expr.length == 0)     return Bln.FALSE;
   }
-  return expr.length == 0 ? Bln.FALSE : oneOf(ctx);
+  return cmpG(ctx);
 }
