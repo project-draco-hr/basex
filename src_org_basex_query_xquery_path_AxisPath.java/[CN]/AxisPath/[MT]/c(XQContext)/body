@@ -8,16 +8,16 @@
   mergeDesc(ctx);
   final AxisPath ap=iterator(root,step);
   if (ap != null)   return ap;
-  cache=root != null && !root.uses(Using.VAR);
+  cache=root != null && !root.usesVar(null);
   for (  final Step s : step) {
-    if (s.pred.length != 0 && s.uses(Using.VAR)) {
+    if (s.pred.length != 0 && s.usesVar(null)) {
       cache=false;
       return this;
     }
   }
   if (!(ctx.item instanceof DBNode))   return this;
   final DBNode db=(DBNode)ctx.item;
-  for (  final Step s : step)   if (s.uses(Using.POS) || !s.axis.vert)   return this;
+  for (  final Step s : step)   if (s.usesPos() || !s.axis.vert)   return this;
   for (int i=0; i < step.length; i++) {
     final Step stp=step[i];
     IndexContext ictx=null;
@@ -85,7 +85,7 @@
       for (int j=i + 1; j < step.length; j++) {
         result.step=Array.add(result.step,step[j]);
       }
-      break;
+      return result;
     }
   }
   return this;

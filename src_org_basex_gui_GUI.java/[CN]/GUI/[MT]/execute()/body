@@ -6,7 +6,7 @@
     if (in.length() > i) {
       try {
         for (        final Process p : new CommandParser(in.substring(i)).parse()) {
-          if (!exec(p))           break;
+          if (!exec(p,true))           break;
         }
       }
  catch (      final QueryException ex) {
@@ -20,6 +20,13 @@
     }
   }
  else {
-    execute(new XPath(GUIProp.searchmode == 1 ? in : Find.find(in,context,GUIProp.filterrt)));
+    if (View.working)     return;
+    new Action(){
+      public void run(){
+        if (GUIProp.searchmode == 1)         exec(new XPath(in),true);
+        exec(new XQuery(Find.find(in,context,GUIProp.filterrt)),true);
+      }
+    }
+.execute();
   }
 }
