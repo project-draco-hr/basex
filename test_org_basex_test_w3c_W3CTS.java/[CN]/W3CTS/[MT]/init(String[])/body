@@ -35,25 +35,25 @@
   new Check(path + input).execute(context,null);
   data=context.data();
   final Nodes root=new Nodes(0,data);
-  BaseX.outln("\nBaseX vs. XQuery Test Suite " + text("/test-suite/@version",root));
+  BaseX.outln("\nBaseX vs. XQuery Test Suite " + text("/*:test-suite/@version",root));
   BaseX.outln("\nCaching Sources...");
-  for (  final int s : nodes("//source",root).nodes) {
+  for (  final int s : nodes("//*:source",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
     final String source=(path + text("@FileName",srcRoot)).replace('\\','/');
     srcFiles.put(text("@ID",srcRoot),source);
   }
   BaseX.outln("Caching Modules...");
-  for (  final int s : nodes("//module",root).nodes) {
+  for (  final int s : nodes("//*:module",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
     final String module=(path + text("@FileName",srcRoot)).replace('\\','/');
     modules.put(text("@ID",srcRoot),module);
   }
   BaseX.outln("Caching Collections...");
-  for (  final int c : nodes("//collection",root).nodes) {
+  for (  final int c : nodes("//*:collection",root).nodes) {
     final Nodes nodes=new Nodes(c,data);
     final String cname=text("@ID",nodes);
     final TokenList dl=new TokenList();
-    final Nodes doc=nodes("input-document",nodes);
+    final Nodes doc=nodes("*:input-document",nodes);
     for (int d=0; d < doc.size; d++) {
       dl.add(token(sources + string(data.atom(doc.nodes[d])) + IO.XMLSUFFIX));
     }
@@ -64,7 +64,7 @@
     delete(new File[]{new File(results)});
   }
   BaseX.out("Parsing Queries");
-  final Nodes nodes=nodes("//test-case | //ts:test-case",root);
+  final Nodes nodes=nodes("//*:test-case",root);
   for (int t=0; t < nodes.size; t++) {
     if (!parse(new Nodes(nodes.nodes[t],data)))     break;
     if (t % 1000 == 0)     BaseX.out(".");
