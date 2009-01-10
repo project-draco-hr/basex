@@ -1,6 +1,7 @@
 {
   final Iter iter=expr.iter(ctx);
   final FTTokenizer tmp=ctx.ftitem;
+  final FTPos tmp2=ctx.ftpos;
   double d=0;
   Item i;
   ctx.ftitem=ft;
@@ -8,6 +9,11 @@
     ft.init(i.str());
     d=Scoring.and(d,ftexpr.iter(ctx).next().score());
   }
+  if (ctx.ftpos != null) {
+    final IntList[] pos=ctx.ftpos.getPos();
+    if (pos.length > 0 && ctx.item instanceof DBNode)     XQFTVisData.addConvSeqData(pos,((DBNode)(ctx.item)).pre);
+  }
+  ctx.ftpos=tmp2;
   ctx.ftitem=tmp;
   return Bln.get(d).iter();
 }

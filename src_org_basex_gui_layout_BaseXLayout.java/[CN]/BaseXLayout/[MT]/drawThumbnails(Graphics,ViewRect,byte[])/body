@@ -1,23 +1,60 @@
 {
-  final double f=0.25 * GUIProp.fontsize;
-  final int fh=(int)Math.max(1,0.5 * GUIProp.fontsize);
-  final int lh=(int)Math.max(1,0.35 * GUIProp.fontsize);
-  int nl=(int)(s.length * f / r.w);
-  if (nl * fh + (nl - 1) * lh < r.h * 0.8)   drawThumbnailsToken(g,r,s);
- else {
-    final FTTokenizer ftt=new FTTokenizer(s);
-    final int[] c=ftt.countSenPar();
-    nl=(int)((s.length - c[0]) * f / r.w);
-    if (nl * fh + (nl - 1 + c[2]) * lh < r.h) {
-      drawThumbnailsSentence(g,r,s,true);
-      return;
-    }
-    nl=(int)((s.length - c[0] - c[1]) * f / r.w);
-    if (nl * fh + (nl - 1 + c[2]) * lh < r.h) {
-      drawThumbnailsSentence(g,r,s,false);
-      return;
-    }
-    if (r.pos != null)     drawTextinContext(g,r,s);
- else     drawThumbnailsSentence(g,r,s,false);
-  }
+  int al=0;
+  final double ffmax=0.25;
+  final double ffmin=0.14;
+  final double ffhmax=0.5;
+  final double flhmax=0.3;
+  double sw;
+  double ff=ffmax, ffh=ffhmax, flh=flhmax;
+  double fmi=ff * GUIProp.fontsize;
+  int lhmi=(int)Math.max(1,ffh * GUIProp.fontsize);
+  int fhmi=(int)Math.max(1,(flh + ffh) * GUIProp.fontsize);
+  int h=r.h;
+  double f;
+  int fh, lh;
+  while (al < 4) {
+    ff*=0.95;
+    f=ff * GUIProp.fontsize;
+    ffh*=0.95;
+    fh=(int)Math.max(1,ffh * GUIProp.fontsize);
+    flh*=0.95;
+    lh=(int)Math.max(1,(flh + ffh) * GUIProp.fontsize);
+    sw=Math.max(f * 0.5,ffmin * GUIProp.fontsize);
+switch (al) {
+case 0:
+      h=drawThumbnailsToken(g,r,s,f,fh,lh,sw,false);
+    break;
+case 1:
+  h=drawThumbnailsSentence(g,r,s,true,f,fh,lh,sw,false);
+break;
+case 2:
+h=drawThumbnailsSentence(g,r,s,false,f,fh,lh,sw,false);
+}
+if (ff < ffmin) {
+al++;
+fmi=f;
+fhmi=fh;
+lhmi=lh;
+ff=ffmax;
+ffh=ffhmax;
+flh=flhmax;
+}
+ else if (h < r.h) {
+switch (al) {
+case 0:
+drawThumbnailsToken(g,r,s,f,fh,lh,sw,true);
+return;
+case 1:
+drawThumbnailsSentence(g,r,s,true,f,fh,lh,sw,true);
+return;
+case 2:
+drawThumbnailsSentence(g,r,s,false,f,fh,lh,sw,true);
+return;
+}
+}
+ else if (al > 2) {
+drawThumbnailsSentence(g,r,s,false,fmi,fhmi,lhmi,sw,true);
+return;
+}
+}
 }
