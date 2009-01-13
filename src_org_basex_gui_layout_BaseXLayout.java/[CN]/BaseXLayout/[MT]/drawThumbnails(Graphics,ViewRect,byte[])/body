@@ -7,17 +7,18 @@
   double sw;
   double ff=ffmax, ffh=ffhmax, flh=flhmax;
   double fmi=ff * GUIProp.fontsize;
-  int lhmi=(int)Math.max(1,ffh * GUIProp.fontsize);
-  int fhmi=(int)Math.max(1,(flh + ffh) * GUIProp.fontsize);
+  int lhmi=(int)Math.max(3,ffh * GUIProp.fontsize);
+  int fhmi=(int)Math.max(6,(flh + ffh) * GUIProp.fontsize);
   int h=r.h;
-  double f;
+  final double fac=Math.exp(Math.log(s.length) * 0.97) / s.length;
+  double f=ff * GUIProp.fontsize;
   int fh, lh;
   while (al < 4) {
-    ff*=0.95;
+    ff*=fac;
     f=ff * GUIProp.fontsize;
-    ffh*=0.95;
+    ffh*=fac;
     fh=(int)Math.max(1,ffh * GUIProp.fontsize);
-    flh*=0.95;
+    flh*=fac;
     lh=(int)Math.max(1,(flh + ffh) * GUIProp.fontsize);
     sw=Math.max(f * 0.5,ffmin * GUIProp.fontsize);
 switch (al) {
@@ -31,6 +32,10 @@ case 2:
 h=drawThumbnailsSentence(g,r,s,false,f,fh,lh,sw,false);
 }
 if (ff < ffmin) {
+if ((cchars * ffmin * GUIProp.fontsize / r.w) * (fh + 1) > r.h) {
+drawThumbnailsSentenceComp(g,r,s,ffmin * GUIProp.fontsize,fh,true);
+return;
+}
 al++;
 fmi=f;
 fhmi=fh;
@@ -53,8 +58,21 @@ return;
 }
 }
  else if (al > 2) {
-drawThumbnailsSentence(g,r,s,false,fmi,fhmi,lhmi,sw,true);
+f=ffmin * GUIProp.fontsize;
+while (h >= r.h && flh + ffh >= 1) {
+flh*=0.97;
+lhmi=(int)Math.max(1,(flh + ffh) * GUIProp.fontsize);
+h=drawThumbnailsSentence(g,r,s,false,f,fhmi,lhmi,sw,false);
+}
+if (h < r.h) {
+if (lhmi < fhmi) lhmi=fhmi;
+drawThumbnailsSentence(g,r,s,false,f,fhmi,lhmi,sw,true);
+}
+ else {
+drawThumbnailsSentenceComp(g,r,s,f,fhmi,true);
+}
 return;
 }
 }
+drawThumbnailsSentence(g,r,s,false,fmi,fhmi,lhmi,Math.max(f * 0.5,ffmin * GUIProp.fontsize),true);
 }
