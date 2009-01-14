@@ -14,6 +14,7 @@
  else {
     int nn=l.list[ne] - l.list[ns];
     int ni=ns;
+    int start=ns;
     double xx=r.x;
     double yy=r.y;
     double ww=r.w;
@@ -21,24 +22,38 @@
     ArrayList<ViewRect> row=new ArrayList<ViewRect>();
     double height=0;
     while (ni < ne) {
-      height=(l.list[ni + 1] - l.list[ns]) * hh / nn;
+      height=(l.list[ni + 1] - l.list[start]) * hh / nn;
       ArrayList<ViewRect> tmp=new ArrayList<ViewRect>();
       double x=xx;
-      for (int i=ns; i <= ni; i++) {
-        double w=(l.list[i + 1] - l.list[i]) * ww / (l.list[ni + 1] - l.list[ns]);
+      for (int i=start; i <= ni; i++) {
+        double w=(l.list[i + 1] - l.list[i]) * ww / (l.list[ni + 1] - l.list[start]);
         tmp.add(new ViewRect((int)x,(int)yy,(int)w,(int)height,l.list[i],level));
         x+=w;
       }
-      if (aspectRatio(tmp) > aspectRatio(row))       break;
+      if (allRatio(tmp) > allRatio(row)) {
+        for (int i=0; i < row.size(); i++) {
+          IntList newl=new IntList(1);
+          newl.add(row.get(i).pre);
+          calcMap(row.get(i),mainRects,newl,0,1,level);
+        }
+        hh-=row.get(0).h;
+        yy+=row.get(0).h;
+        tmp.clear();
+        row.clear();
+        start=ni;
+        nn=l.list[ne] - l.list[start];
+        if (ne == ni + 1) {
+          row.add(new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,l.list[ni],level));
+          break;
+        }
+      }
       row=tmp;
       ni++;
     }
-    height=row.get(0).h;
     for (int i=0; i < row.size(); i++) {
       IntList newl=new IntList(1);
       newl.add(row.get(i).pre);
       calcMap(row.get(i),mainRects,newl,0,1,level);
     }
-    if (ni < ne)     calcMap(new ViewRect((int)xx,(int)(yy + height),(int)ww,(int)(hh - height)),mainRects,l,ni,ne,level);
   }
 }
