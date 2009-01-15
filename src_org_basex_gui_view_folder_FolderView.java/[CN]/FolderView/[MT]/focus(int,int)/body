@@ -1,0 +1,20 @@
+{
+  if (opened == null)   return false;
+  final FolderIterator it=new FolderIterator(this,startY + 3,getHeight());
+  final Data data=gui.context.data();
+  while (it.more()) {
+    if (y > it.y && y <= it.y + lineH) {
+      Cursor c=CURSORARROW;
+      final int kind=data.kind(it.pre);
+      if (kind == Data.ELEM || kind == Data.DOC) {
+        final int xx=8 + it.level * (lineH >> 2) + lineH;
+        if (x > xx - 20 && x < xx)         c=CURSORHAND;
+      }
+      gui.cursor(c);
+      gui.notify.focus(it.pre,this);
+      repaint();
+      return true;
+    }
+  }
+  return false;
+}

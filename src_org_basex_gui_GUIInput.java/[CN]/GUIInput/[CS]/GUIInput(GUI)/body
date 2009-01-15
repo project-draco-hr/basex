@@ -1,5 +1,6 @@
 {
   super(null);
+  gui=main;
   final Font f=getFont();
   setFont(f.deriveFont((float)f.getSize() + 2));
   box=new BaseXCombo();
@@ -12,7 +13,7 @@
   pop=new ComboPopup(box);
   addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      m.checkKeys(e);
+      main.checkKeys(e);
       final int count=box.getItemCount();
       final int c=e.getKeyCode();
       if (c == KeyEvent.VK_ENTER) {
@@ -23,7 +24,7 @@
           final String txt=getText();
           final StringList sl=new StringList();
           sl.add(txt);
-          final int i=!GUI.context.db() ? 2 : GUIProp.searchmode;
+          final int i=!main.context.db() ? 2 : GUIProp.searchmode;
           final String[] hs=i == 0 ? GUIProp.search : i == 1 ? GUIProp.xpath : GUIProp.commands;
           for (int p=0; p < hs.length && sl.size < 10; p++) {
             if (!hs[p].equals(txt))             sl.add(hs[p]);
@@ -31,7 +32,7 @@
           if (i == 0)           GUIProp.search=sl.finish();
  else           if (i == 1)           GUIProp.xpath=sl.finish();
  else           GUIProp.commands=sl.finish();
-          m.execute();
+          main.execute();
         }
         return;
       }
@@ -64,7 +65,7 @@
       }
       final boolean enter=c == KeyEvent.VK_ENTER;
       if (!enter)       showPopup();
-      if (GUIProp.execrt && !cmdMode())       m.execute();
+      if (GUIProp.execrt && !cmdMode())       main.execute();
     }
   }
 );

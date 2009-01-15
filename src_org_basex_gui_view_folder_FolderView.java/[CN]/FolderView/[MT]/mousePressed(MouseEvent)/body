@@ -1,0 +1,28 @@
+{
+  super.mousePressed(e);
+  if (gui.updating || opened == null)   return;
+  if (!focus(e.getX(),e.getY()))   return;
+  final boolean left=SwingUtilities.isLeftMouseButton(e);
+  final int pre=gui.focused;
+  final Nodes marked=gui.context.marked();
+  if (!left) {
+    if (marked.contains(pre))     gui.notify.mark(0,null);
+  }
+ else   if (getCursor() == CURSORHAND) {
+    opened[pre]^=true;
+    refreshHeight();
+    repaint();
+  }
+ else   if (e.getClickCount() == 2) {
+    gui.notify.context(marked,false,null);
+  }
+ else   if (e.isShiftDown()) {
+    gui.notify.mark(1,null);
+  }
+ else   if (e.isControlDown()) {
+    gui.notify.mark(2,null);
+  }
+ else {
+    if (!marked.contains(pre))     gui.notify.mark(0,null);
+  }
+}

@@ -1,5 +1,5 @@
 {
-  if (updating || painting)   return;
+  if (gui.updating || gui.painting)   return;
   markingChanged=true;
   mouseX=e.getX();
   mouseY=e.getY();
@@ -9,27 +9,27 @@
     rightClick=true;
     return;
   }
-  if (focused == -1) {
-    notifyMark(new Nodes(GUI.context.data()),this);
+  if (gui.focused == -1) {
+    gui.notify.mark(new Nodes(gui.context.data()),this);
     return;
   }
-  final int pre=plotData.findPre(focused);
+  final int pre=plotData.findPre(gui.focused);
   final int[] il=getOverlappingNodes(pre);
   if (e.isShiftDown()) {
-    final Nodes marked=GUI.context.marked();
+    final Nodes marked=gui.context.marked();
     marked.union(il);
-    notifyMark(marked,this);
+    gui.notify.mark(marked,this);
   }
  else   if (e.getClickCount() == 2) {
     rightClick=true;
-    final Nodes marked=new Nodes(GUI.context.data());
+    final Nodes marked=new Nodes(gui.context.data());
     marked.union(il);
-    notifyContext(marked,false,null);
+    gui.notify.context(marked,false,null);
   }
  else {
-    final Nodes marked=new Nodes(GUI.context.data());
+    final Nodes marked=new Nodes(gui.context.data());
     marked.union(il);
-    notifyMark(marked,this);
+    gui.notify.mark(marked,this);
   }
-  nextContext=GUI.context.marked();
+  nextContext=gui.context.marked();
 }

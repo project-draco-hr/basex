@@ -15,14 +15,13 @@
         Item i;
         while ((i=iter.next()) != null) {
           ctx.item=i;
-          i=ctx.iter(pred[0]).ebv();
-          final boolean found=i.n() ? i.dbl() == ctx.pos : i.bool();
+          i=ctx.iter(pred[0]).test(ctx);
           ctx.pos++;
-          if (found) {
+          if (i != null) {
             ctx.item.score(i.score());
-            if (num)             more=false;
             return ctx.item;
           }
+          if (pos != null && !pos.more(ctx))           break;
         }
         if (last) {
           more=false;

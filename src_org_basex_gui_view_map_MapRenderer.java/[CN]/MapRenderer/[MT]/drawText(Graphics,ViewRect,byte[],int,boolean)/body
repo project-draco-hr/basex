@@ -1,0 +1,57 @@
+{
+  final int[] cw=fontWidths(g.getFont());
+  final int fh=(int)(1.2 * GUIProp.fontsize);
+  final int ws=cw[' '];
+  int i=0;
+  int j=m;
+  int xx=r.x;
+  int yy=r.y + fh;
+  int ww=r.w;
+  final Color textc=g.getColor();
+  int count=0;
+  int pp=0;
+  do {
+    int sw=0;
+    int l=i;
+    for (int n=i; n < j; n+=cl(s[n])) {
+      sw+=BaseXLayout.width(g,cw,cp(s,n));
+      if (sw >= ww) {
+        j=Math.max(i + 1,l);
+        ww=r.w;
+        break;
+      }
+      if (s[n] == '\n') {
+        j=n + 1;
+        ww=r.w;
+        break;
+      }
+      if (ws(s[n])) {
+        j=n + 1;
+        ww-=sw;
+        break;
+      }
+      l=n;
+    }
+    if (draw) {
+      if (r.pos != null && pp < r.pos.length && count == r.pos[pp]) {
+        pp++;
+        g.setColor(COLORERROR);
+      }
+ else       g.setColor(textc);
+      g.drawString(string(s,i,j - i),xx,yy);
+      count++;
+    }
+    if (ww < ws)     ww=r.w;
+    if (ww == r.w) {
+      xx=r.x;
+      yy+=fh;
+    }
+ else {
+      xx+=sw;
+    }
+    i=j;
+    j=m;
+  }
+ while (i < j && yy - (draw ? 0 : GUIProp.fontsize) < r.y + r.h);
+  return yy - r.y;
+}

@@ -21,23 +21,18 @@
     }
  else     if (term.startsWith("@")) {
       if (term.length() == 1)       continue;
-      preds+="[basex:containslc(@*, \"" + term.substring(1) + "\")]";
+      preds+="[@* ftcontains \"" + term.substring(1) + "\"]";
       term=term.substring(1);
       if (XMLToken.isName(Token.token(term))) {
         pre+=(r ? "" : ".") + "//@" + term+ " | ";
       }
     }
  else {
-      if (data.meta.ftxindex) {
-        preds+="[text() ftcontains \"" + term + "\"]";
-      }
- else {
-        preds+="[basex:containslc(text(), \"" + term + "\")]";
-      }
+      preds+="[text() ftcontains \"" + term + "\"]";
       if (XMLToken.isName(Token.token(term))) {
         pre+=(r ? "/" : "") + "descendant::" + term+ " | ";
       }
-      pre+="//*[basex:containslc(@name, \"" + term + "\")] | ";
+      pre+="//*[@name ftcontains \"" + term + "\"] | ";
     }
   }
   if (pre.length() == 0 && preds.length() == 0)   return root ? "/" : ".";

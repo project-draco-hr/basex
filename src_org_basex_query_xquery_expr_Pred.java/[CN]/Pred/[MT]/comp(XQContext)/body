@@ -2,8 +2,9 @@
   if (super.comp(ctx) != this)   return Seq.EMPTY;
   root=root.comp(ctx);
   if (pred.length == 0)   return root;
-  final boolean last=pred[0] instanceof Fun && ((Fun)pred[0]).func == FunDef.LAST;
-  final boolean num=pred[0].i() && ((Item)pred[0]).n();
-  if (pred.length > 1 || !last && !num && usesPos())   return this;
-  return new IterPred(root,pred,last,num);
+  final Expr p=pred[0];
+  final Pos pos=p instanceof Pos ? (Pos)p : null;
+  final boolean last=p instanceof Fun && ((Fun)p).func == FunDef.LAST;
+  if (pred.length > 1 || !last && pos == null && usesPos())   return this;
+  return new IterPred(root,pred,pos,last);
 }

@@ -1,10 +1,10 @@
 {
   super.keyPressed(e);
-  if (updating)   return;
+  if (gui.updating)   return;
   if (mainRects == null || e.isControlDown() || e.isAltDown())   return;
   final int key=e.getKeyCode();
   final boolean shift=e.isShiftDown();
-  final Context context=GUI.context;
+  final Context context=gui.context;
   final Data data=context.data();
   final int size=data.meta.size;
   final Nodes current=context.current();
@@ -15,18 +15,18 @@
       pre=rnd.nextInt(size);
     }
  while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre));
-    focused=pre;
-    notifySwitch(new Nodes(focused,data));
+    gui.focused=pre;
+    gui.notify.jump(new Nodes(gui.focused,data));
   }
  else   if (key == KeyEvent.VK_N || key == KeyEvent.VK_B) {
     int pre=(current.nodes[0] + 1) % size;
     while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre))     pre=(pre + 1) % size;
-    notifySwitch(new Nodes(pre,data));
+    gui.notify.jump(new Nodes(pre,data));
   }
  else   if (key == KeyEvent.VK_P || key == KeyEvent.VK_Z) {
     int pre=(current.nodes[0] == 0 ? size : current.nodes[0]) - 1;
     while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre))     pre=(pre == 0 ? size : pre) - 1;
-    notifySwitch(new Nodes(pre,data));
+    gui.notify.jump(new Nodes(pre,data));
   }
  else   if (key == KeyEvent.VK_S && !slide) {
     slide=true;
@@ -42,7 +42,7 @@
             pre=(pre == 0 ? size : pre) - 1;
             while (!ViewData.isLeaf(data,pre))             pre=(pre == 0 ? size : pre) - 1;
           }
-          notifySwitch(new Nodes(pre,data));
+          gui.notify.jump(new Nodes(pre,data));
           Performance.sleep(slideSpeed);
         }
       }

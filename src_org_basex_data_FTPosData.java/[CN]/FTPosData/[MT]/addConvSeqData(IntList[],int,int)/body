@@ -1,0 +1,40 @@
+{
+  if (d.length == 0)   return;
+  int[] pp;
+  int[] p;
+  pp=new int[d[0].size + 1];
+  p=new int[pp.length];
+  pp[0]=pre;
+  final int[] tmp=d[0].finish();
+  System.arraycopy(tmp,0,pp,1,tmp.length);
+  for (int i=0; i < p.length; i++)   p[i]=div;
+  for (int c=1; c < d.length; c++) {
+    int p0=1, p1=0, p2=1;
+    int[] ppn=new int[d[c].size + pp.length];
+    int[] pn=new int[d[c].size + p.length];
+    ppn[0]=pp[0];
+    pn[0]=Math.max(c + div,p[0]);
+    while (p0 < pp.length && p1 < d[c].size) {
+      if (d[c].list[p1] < pp[p0]) {
+        ppn[p2]=d[c].list[p1++];
+        pn[p2++]=c + div;
+      }
+ else {
+        ppn[p2]=pp[p0];
+        pn[p2++]=p[p0++];
+      }
+    }
+    while (p1 < d[c].size) {
+      ppn[p2]=d[c].list[p1++];
+      pn[p2++]=c + div;
+    }
+    while (p0 < pp.length) {
+      ppn[p2]=pp[p0];
+      pn[p2++]=p[p0++];
+    }
+    pp=ppn;
+    p=pn;
+    c++;
+  }
+  add(pp,p);
+}

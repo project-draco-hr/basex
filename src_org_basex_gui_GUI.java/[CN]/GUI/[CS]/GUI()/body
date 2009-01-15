@@ -15,12 +15,12 @@
   control=new BaseXBack();
   control.setLayout(new BorderLayout());
   control.setBorder(0,0,0,1);
-  menu=new GUIMenu();
+  menu=new GUIMenu(this);
   if (GUIProp.showmenu)   setJMenuBar(menu);
   final Font fnt=new Font(GUIProp.font,1,15);
   buttons=new BaseXBack();
   buttons.setLayout(new BorderLayout());
-  toolbar=new GUIToolBar(TOOLBAR);
+  toolbar=new GUIToolBar(TOOLBAR,this);
   buttons.add(toolbar,BorderLayout.WEST);
   hits=new BaseXLabel(" ");
   hits.setFont(fnt);
@@ -96,7 +96,7 @@
     }
   }
 );
-  filter=GUIToolBar.newButton(GUICommands.FILTER);
+  filter=GUIToolBar.newButton(GUICommands.FILTER,this);
   filter.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
       checkKeys(e);
@@ -111,18 +111,19 @@
   nav.add(b,BorderLayout.EAST);
   if (GUIProp.showinput)   control.add(nav,BorderLayout.SOUTH);
   top.add(control,BorderLayout.NORTH);
-  query=new QueryView(null);
-  text=new TextView(Fill.DOWN,TEXTTIT,HELPTEXT);
-  help=new TextView(Fill.DOWN,HELPTIT,null);
-  info=new InfoView(HELPINFO);
+  notify=new ViewNotifier(this);
+  query=new QueryView(notify,null);
+  text=new TextView(notify,Fill.DOWN,TEXTTIT,HELPTEXT);
+  help=new TextView(notify,Fill.DOWN,HELPTIT,null);
+  info=new InfoView(notify,HELPINFO);
   final ViewPanel textpanel=new ViewPanel(text,TEXTVIEW);
   final ViewPanel helppanel=new ViewPanel(help,HELPVIEW);
-  final ViewPanel[][] panels={{textpanel,helppanel},{new ViewPanel(new TreeView(HELPTREE),TREEVIEW),new ViewPanel(new RealView(),REALVIEW),new ViewPanel(new PlotView(null),PLOTVIEW),new ViewPanel(new TableView(HELPTABLE),TABLEVIEW),new ViewPanel(new MapView(HELPMAP),MAPVIEW),new ViewPanel(query,QUERYVIEW),new ViewPanel(info,INFOVIEW),helppanel,textpanel}};
-  views=new ViewContainer(panels);
+  final ViewPanel[][] panels={{textpanel,helppanel},{new ViewPanel(new FolderView(notify,HELPFOLDER),FOLDERVIEW),new ViewPanel(new RealView(notify,null),REALVIEW),new ViewPanel(new PlotView(notify,null),PLOTVIEW),new ViewPanel(new TableView(notify,HELPTABLE),TABLEVIEW),new ViewPanel(new MapView(notify,HELPMAP),MAPVIEW),new ViewPanel(query,QUERYVIEW),new ViewPanel(info,INFOVIEW),helppanel,textpanel}};
+  views=new ViewContainer(this,panels);
   views.setViews(false);
   top.add(views,BorderLayout.CENTER);
   setContentBorder();
-  status=new GUIStatus();
+  status=new GUIStatus(this);
   if (GUIProp.showstatus)   top.add(status,BorderLayout.SOUTH);
   setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
   addWindowListener(new WindowAdapter(){
