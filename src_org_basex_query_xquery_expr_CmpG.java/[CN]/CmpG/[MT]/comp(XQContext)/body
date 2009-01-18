@@ -1,8 +1,14 @@
 {
   super.comp(ctx);
+  for (int e=0; e != expr.length; e++)   expr[e]=expr[e].addText(ctx);
+  if (expr[0].i() && expr[1] instanceof AxisPath) {
+    final Expr tmp=expr[0];
+    expr[0]=expr[1];
+    expr[1]=tmp;
+    cmp=cmp.invert();
+  }
   final Expr e1=expr[0];
   final Expr e2=expr[1];
-  if (e1 instanceof AxisPath)   ((AxisPath)e1).addText(ctx);
   Expr e=this;
   if (e1.i() && e2.i()) {
     e=Bln.get(eval((Item)e1,(Item)e2,cmp.cmp));
@@ -11,7 +17,11 @@
     e=Bln.FALSE;
   }
  else   if (e1 instanceof Fun && ((Fun)e1).func == FunDef.POS) {
-    e=Pos.get(this,cmp,e2);
+    e=Pos.get(this,cmp.cmp,e2);
+  }
+ else   if (standard(true)) {
+    e=CmpR.get(this);
+    if (e == null)     e=this;
   }
   if (e != this)   ctx.compInfo(OPTPRE,this);
   return e;

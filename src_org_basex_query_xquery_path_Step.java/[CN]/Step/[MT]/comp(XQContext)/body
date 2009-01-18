@@ -1,10 +1,16 @@
 {
+  if (!test.comp(ctx))   return Seq.EMPTY;
+  if (ctx.item instanceof DBNode && test.kind == Kind.NAME) {
+    final Data data=((DBNode)ctx.item).data;
+    ctx.leaf=axis.down && data.meta.uptodate && data.ns.size() == 0 && data.tags.stat(data.tagID(((NameTest)test).ln)).leaf;
+  }
   final Expr e=super.comp(ctx);
-  if (e != this || !test.comp(ctx))   return Seq.EMPTY;
+  ctx.leaf=false;
+  if (e != this)   return Seq.EMPTY;
   if (pred.length == 0)   return get(axis,test);
   final Expr p=pred[0];
   final Pos pos=p instanceof Pos ? (Pos)p : null;
   final boolean last=p instanceof Fun && ((Fun)p).func == FunDef.LAST;
-  if (pred.length > 1 || !last && pos == null && usesPos())   return this;
+  if (pred.length > 1 || !last && pos == null && usesPos(ctx))   return this;
   return new IterStep(axis,test,pred,pos,last);
 }

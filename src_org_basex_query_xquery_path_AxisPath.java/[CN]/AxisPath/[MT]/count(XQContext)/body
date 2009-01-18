@@ -1,0 +1,21 @@
+{
+  final Item ci=ctx.item;
+  int res=-1;
+  setRoot(ctx);
+  if (ctx.item instanceof DBNode && ((DBNode)ctx.item).pre == 0) {
+    final Data data=((DBNode)ctx.item).data;
+    if (data.meta.uptodate && data.ns.size() == 0) {
+      HashSet<SkelNode> nodes=new HashSet<SkelNode>();
+      nodes.add(data.skel.root);
+      for (      final Step s : step) {
+        res=-1;
+        nodes=s.count(nodes,data);
+        if (nodes == null)         break;
+        res=0;
+        for (        final SkelNode sn : nodes)         res+=sn.count;
+      }
+    }
+  }
+  ctx.item=ci;
+  return res;
+}
