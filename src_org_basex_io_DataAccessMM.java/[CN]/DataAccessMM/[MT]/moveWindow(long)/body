@@ -1,10 +1,15 @@
 {
-  if ((len - p) < BUFFERSIZE) {
-    mbytebuffer=rwChannel.map(FileChannel.MapMode.READ_WRITE,p,len - p + 1);
-  }
+  try {
+    if ((len - p) < BUFFERSIZE) {
+      mbytebuffer=rwChannel.map(FileChannel.MapMode.READ_WRITE,len - p,BUFFERSIZE);
+      off=len - p - 1;
+    }
  else {
-    mbytebuffer=rwChannel.map(FileChannel.MapMode.READ_WRITE,p,BUFFERSIZE);
+      mbytebuffer=rwChannel.map(FileChannel.MapMode.READ_WRITE,p,BUFFERSIZE);
+      off=p;
+    }
   }
-  off=p - 1;
-  mbytebuffer.position(0);
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
 }

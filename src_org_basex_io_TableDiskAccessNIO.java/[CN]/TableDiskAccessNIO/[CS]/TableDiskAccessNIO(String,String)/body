@@ -1,0 +1,29 @@
+{
+  db=nm;
+  fn=f;
+  final DataInput in=new DataInput(nm,f + 'i');
+  nrBlocks=in.readNum();
+  indexSize=in.readNum();
+  count=in.readNum();
+  firstPres=in.readNums();
+  blocks=in.readNums();
+  in.close();
+  file=new RandomAccessFile(IO.dbfile(nm,f),"rw");
+  fc=file.getChannel();
+  final long len=file.length();
+  long tmplen=len;
+  int i=0;
+  numberofwindows=(int)(len - 1 + BUFFERSIZE) / BUFFERSIZE;
+  mbytebuffer=new MappedByteBuffer[numberofwindows];
+  while (tmplen > BUFFERSIZE) {
+    mbytebuffer[i]=fc.map(FileChannel.MapMode.READ_WRITE,i * BUFFERSIZE,BUFFERSIZE);
+    mbytebuffer[i].force();
+    tmplen=tmplen - BUFFERSIZE;
+    i++;
+  }
+  if (tmplen != 0) {
+    mbytebuffer[i]=fc.map(FileChannel.MapMode.READ_WRITE,0,tmplen);
+    mbytebuffer[i].force();
+  }
+  readBlock(0,0,indexSize > 1 ? firstPres[1] : count);
+}
