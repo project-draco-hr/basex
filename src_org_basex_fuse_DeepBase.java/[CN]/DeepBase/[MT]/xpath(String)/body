@@ -1,26 +1,24 @@
 {
   final StringBuilder qb=new StringBuilder();
   final StringBuilder eb=new StringBuilder();
-  qb.append("/deepfs");
+  qb.append("/deepfuse");
+  if (path.equals("/"))   return qb.toString();
   for (int i=0; i < path.length(); i++) {
     final char c=path.charAt(i);
     if (c == '/') {
-      if (i == 0) {
-        qb.append("/dir/");
+      if (eb.length() != 0) {
+        qb.append("dir[@name = \"" + eb + "\"]");
+        eb.setLength(0);
       }
- else {
-        if (eb.length() != 0) {
-          qb.append("dir[@name = \"" + eb + "\"]");
-          eb.setLength(0);
-        }
-        qb.append(c);
-      }
+      qb.append(c);
     }
  else {
       eb.append(c);
     }
   }
   if (eb.length() != 0)   qb.append("*[@name = \"" + eb + "\"]");
-  final String qu=qb.toString();
-  return qu.endsWith("/") ? qu.substring(0,qu.length() - 1) : qu;
+  String qu=qb.toString();
+  qu=qu.endsWith("/") ? qu.substring(0,qu.length() - 1) : qu;
+  System.err.printf("%25s xpath: %s\n","[DeepBase.xpath]",qu);
+  return qu;
 }

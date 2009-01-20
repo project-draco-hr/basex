@@ -1,0 +1,24 @@
+{
+  try {
+    System.err.printf("%25s path '%s' mode %o\n","[DeepBase.create]",path,mode);
+    if (isDir(mode))     return -1;
+    MemData m=new MemData(2,data.tags,data.atts,data.ns,data.skel);
+    int tagID=data.tags.index(FILE,null,false);
+    int tagID2=data.atts.index(NAME,null,false);
+    m.addElem(tagID,0,1,1,2,false);
+    m.addAtt(tagID2,0,getName(path,mode).getBytes(),1);
+    Nodes pnode=query(xpath(chopFilename(path,mode)));
+    if (pnode.size != 1)     return -1;
+    int ppre=pnode.nodes[0];
+    int pid=data.id(ppre);
+    int ipre=ppre + 2;
+    debug("[DeepBase.create]","ppre " + ppre + " id "+ pid);
+    data.insert(ipre,1,m);
+    data.flush();
+    return data.id(ipre);
+  }
+ catch (  QueryException e) {
+    e.printStackTrace();
+    return -1;
+  }
+}

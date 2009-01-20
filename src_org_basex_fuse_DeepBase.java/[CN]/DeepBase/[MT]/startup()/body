@@ -1,27 +1,22 @@
 {
-  debug("[DeepBase.startup]","");
-  Prop.read();
   try {
+    debug("[DeepBase.startup]","");
+    Prop.read();
     data=Open.open(DBNAME);
     root=new Nodes(0,data);
   }
  catch (  FileNotFoundException e) {
     try {
-      Context ctx=new Context();
-      final Parser p=new Parser(IO.get(DBNAME)){
-        @Override public void parse(        final Builder build){
-        }
-      }
-;
-      ctx.data(CreateDB.xml(p,DBNAME));
-      data=Open.open(DBNAME);
-      root=new Nodes(0,data);
+      data=CreateDB.xml(IO.get("deepfs.xml"),DBNAME);
+      startup();
     }
- catch (    final IOException ex) {
-      e.printStackTrace();
+ catch (    IOException ex) {
+      ex.printStackTrace();
+      System.exit(1);
     }
   }
 catch (  IOException e) {
     e.printStackTrace();
+    System.exit(1);
   }
 }
