@@ -8,9 +8,17 @@
     }
   }
   if (fl.length == 0) {
-    if (where != null)     expr=new If(where,expr,Seq.EMPTY);
     ctx.compInfo(OPTFLWOR);
-    return expr;
+    return where != null ? new If(where,expr,Seq.EMPTY) : expr;
+  }
+  final ForLet f=fl[fl.length - 1];
+  final boolean pos=f instanceof For && ((For)f).pos != null;
+  final boolean score=f instanceof For && ((For)f).score != null;
+  if (where != null && !pos && !score && f instanceof For && f.expr instanceof AxisPath) {
+    ctx.compInfo(OPTWHERE);
+    f.expr=((AxisPath)f.expr).addPred(where.removeVar(f.var));
+    where=null;
+    return comp(ctx);
   }
   return this;
 }

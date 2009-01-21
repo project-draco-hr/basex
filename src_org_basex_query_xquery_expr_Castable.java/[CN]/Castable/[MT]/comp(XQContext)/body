@@ -1,13 +1,7 @@
 {
   super.comp(ctx);
   if (!expr.i())   return this;
-  try {
-    seq.cast(((Item)expr).iter(),this,ctx);
-    ctx.compInfo(OPTTRUE,this);
-    return Bln.TRUE;
-  }
- catch (  final XQException e) {
-    ctx.compInfo(OPTFALSE,this);
-    return Bln.FALSE;
-  }
+  final Bln ok=eval(ctx,((Item)expr).iter());
+  ctx.compInfo(ok == Bln.TRUE ? OPTTRUE : OPTFALSE,this);
+  return ok;
 }
