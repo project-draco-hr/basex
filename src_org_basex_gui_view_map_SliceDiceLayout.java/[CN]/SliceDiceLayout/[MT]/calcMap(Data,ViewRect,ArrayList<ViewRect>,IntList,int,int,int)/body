@@ -14,12 +14,15 @@
  else {
     int nn=ne - ns;
     long parsize=1;
-    final boolean v=(r.w > r.h) ? false : true;
+    int par;
+    par=data.parent(l.list[ns],Data.ELEM);
+    int parchilds;
+    parchilds=l.list[ne] - l.list[ns];
+    final boolean v=(level % 2) == 0 ? true : false;
     double xx=r.x;
     double yy=r.y;
     double ww, hh;
     if (data.fs != null && GUIProp.mapaggr) {
-      int par=data.parent(l.list[ns],Data.ELEM);
       parsize=Token.toLong(data.attValue(par + FSParser.SIZEOFFSET));
       hh=0;
       ww=0;
@@ -38,14 +41,18 @@
       int[] liste=new int[1];
       liste[0]=l.list[i];
       if (data.fs != null && GUIProp.mapaggr) {
+        long size=Token.toLong(data.attValue(data.sizeID,l.list[i]));
+        int childs=l.list[i + 1] - l.list[i];
+        double weight=calcWeight(size,childs,parsize,parchilds,data);
+        if (Double.isNaN(weight))         System.out.println("[" + l.list[i] + "]"+ "("+ size+ ";"+ childs+ "/"+ parsize+ ";"+ parchilds+ ")"+ weight);
         if (v) {
           yy+=hh;
-          hh=(double)Token.toLong(data.attValue(data.sizeID,l.list[i])) * r.h / parsize;
+          hh=weight * r.h;
           ww=r.w;
         }
  else {
           xx+=ww;
-          ww=(double)Token.toLong(data.attValue(data.sizeID,l.list[i])) * r.w / parsize;
+          ww=weight * r.w;
           hh=r.h;
         }
         if (ww > 0 && hh > 0)         calcMap(data,new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
