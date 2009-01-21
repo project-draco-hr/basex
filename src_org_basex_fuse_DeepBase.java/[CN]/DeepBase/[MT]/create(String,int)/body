@@ -1,21 +1,23 @@
 {
   try {
-    System.err.printf("%25s path '%s' mode %o\n","[DeepBase.create]",path,mode);
+    debug("[DeepBase.create]","path " + path,"mode " + Integer.toOctalString(mode));
     if (isDir(mode))     return -1;
     MemData m=new MemData(2,data.tags,data.atts,data.ns,data.skel);
     int tagID=data.tags.index(FILE,null,false);
     int tagID2=data.atts.index(NAME,null,false);
-    m.addElem(tagID,0,1,1,2,false);
+    m.addElem(tagID,0,1,2,2,false);
     m.addAtt(tagID2,0,getName(path,mode).getBytes(),1);
-    Nodes pnode=query(xpath(chopFilename(path,mode)));
-    if (pnode.size != 1)     return -1;
+    Nodes pnode=queryOne(xpath(chopFilename(path,mode)));
     int ppre=pnode.nodes[0];
+    int psize=data.size(ppre,data.kind(ppre));
     int pid=data.id(ppre);
-    int ipre=ppre + 2;
+    int ipre=ppre + psize - 2;
+    int iid=data.id(ipre);
     debug("[DeepBase.create]","ppre " + ppre + " id "+ pid);
     data.insert(ipre,1,m);
     data.flush();
-    return data.id(ipre);
+    debug("[DeepBase.create]","ipre " + ipre + " id "+ iid);
+    return iid;
   }
  catch (  QueryException e) {
     e.printStackTrace();
