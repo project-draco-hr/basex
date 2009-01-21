@@ -1,6 +1,10 @@
 {
   try {
-    final QueryProcessor proc=name.equals(XPATH) ? new XPathProcessor(query) : new XQueryProcessor(query);
+    final XQueryProcessor proc=new XQueryProcessor(query);
+    for (    final String n : ns.keySet()) {
+      final QNm name=new QNm(token(n),Uri.uri(token(ns.get(n))));
+      proc.ctx.ns.add(name);
+    }
     return new BXResourceSet(proc.query(nodes),coll);
   }
  catch (  final QueryException ex) {
