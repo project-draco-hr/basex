@@ -1,6 +1,6 @@
 {
+  String in=input.getText();
   final boolean cmd=GUIProp.searchmode == 2 || !context.db();
-  final String in=input.getText();
   if (cmd || in.startsWith("!")) {
     final int i=cmd ? 0 : 1;
     if (in.length() > i) {
@@ -19,6 +19,14 @@
     }
   }
  else {
-    execute(new XQuery(GUIProp.searchmode == 1 ? in : Find.find(in,context,GUIProp.filterrt)),true);
+    if (GUIProp.searchmode == 1 || in.startsWith("/")) {
+      final Namespaces ns=context.data().ns;
+      final int def=ns.get(Token.EMPTY,0);
+      if (def != 0)       in="declare default element namespace \"" + Token.string(ns.key(def)) + "\"; "+ in;
+    }
+ else {
+      in=Find.find(in,context,GUIProp.filterrt);
+    }
+    execute(new XQuery(in),true);
   }
 }

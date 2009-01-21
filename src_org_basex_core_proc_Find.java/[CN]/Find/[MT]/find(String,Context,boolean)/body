@@ -10,6 +10,7 @@
   String preds="";
   final String tag="*";
   for (  String term : terms) {
+    final byte[] token=Token.token(term);
     if (term.startsWith("@=")) {
       preds+="[@* = \"" + term.substring(2) + "\"]";
     }
@@ -23,14 +24,14 @@
       if (term.length() == 1)       continue;
       preds+="[@* ftcontains \"" + term.substring(1) + "\"]";
       term=term.substring(1);
-      if (XMLToken.isName(Token.token(term))) {
+      if (XMLToken.isName(token)) {
         pre+=(r ? "" : ".") + "//@" + term+ " | ";
       }
     }
  else {
       preds+="[text() ftcontains \"" + term + "\"]";
-      if (XMLToken.isName(Token.token(term))) {
-        pre+=(r ? "/" : "") + "descendant::" + term+ " | ";
+      if (XMLToken.isName(token) && data.tagID(token) != 0) {
+        pre+=(r ? "/" : "") + "descendant::*:" + term+ " | ";
       }
       pre+="//*[@name ftcontains \"" + term + "\"] | ";
     }
