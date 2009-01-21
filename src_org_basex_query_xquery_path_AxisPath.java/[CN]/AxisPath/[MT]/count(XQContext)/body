@@ -2,14 +2,14 @@
   final Item ci=ctx.item;
   int res=-1;
   setRoot(ctx);
-  if (ctx.item instanceof DBNode && ((DBNode)ctx.item).pre == 0) {
-    final Data data=((DBNode)ctx.item).data;
-    if (data.meta.uptodate && data.ns.size() == 0) {
+  final DBNode db=ctx.dbroot();
+  if (db != null) {
+    if (db.data.meta.uptodate && db.data.ns.size() == 0) {
       HashSet<SkelNode> nodes=new HashSet<SkelNode>();
-      nodes.add(data.skel.root);
+      nodes.add(db.data.skel.root);
       for (      final Step s : step) {
         res=-1;
-        nodes=s.count(nodes,data);
+        nodes=s.count(nodes,db.data);
         if (nodes == null)         break;
         res=0;
         for (        final SkelNode sn : nodes)         res+=sn.count;
