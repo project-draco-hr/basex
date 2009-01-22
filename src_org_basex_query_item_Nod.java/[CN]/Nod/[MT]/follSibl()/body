@@ -1,0 +1,28 @@
+{
+  return new NodeIter(){
+    /** 
+ * Iterator. 
+ */
+    private NodeIter it;
+    /** 
+ * First call. 
+ */
+    private boolean more;
+    @Override public Nod next() throws QueryException {
+      if (!more) {
+        final Nod r=parent();
+        if (r == null) {
+          it=NodeIter.NONE;
+        }
+ else {
+          it=r.child();
+          Nod n;
+          while ((n=it.next()) != null && !n.is(Nod.this))           ;
+        }
+        more=true;
+      }
+      return it.next();
+    }
+  }
+;
+}

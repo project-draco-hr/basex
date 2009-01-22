@@ -1,0 +1,21 @@
+{
+  final int id=id(name);
+  if (id != 0) {
+    try {
+      final FunDef fl=funcs[id];
+      if (!eq(fl.uri,uri))       return null;
+      final Fun f=fl.func.newInstance();
+      f.args=args;
+      f.func=fl;
+      if (args.length < fl.min || fl.max >= fl.min && args.length > fl.max)       Err.or(XPARGS,fl);
+      return f;
+    }
+ catch (    final QueryException ex) {
+      throw ex;
+    }
+catch (    final Exception ex) {
+      BaseX.notexpected("Can't run " + string(name));
+    }
+  }
+  return null;
+}

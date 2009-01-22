@@ -6,19 +6,19 @@
   out.println("Content-Type: text/html; charset=utf-8\n");
   out.println(DOCTYPE);
   try {
-    XQueryProcessor xq=null;
+    QueryProcessor xq=null;
     if (cache) {
       final String key=req.file + "/" + req.file.date();
       xq=map.get(key);
       if (xq == null) {
         final String query=Token.string(req.file.content());
-        xq=new XQueryProcessor(query,req.file);
+        xq=new QueryProcessor(query,req.file);
         map.put(key,xq);
       }
     }
  else {
       final String query=Token.string(req.file.content());
-      xq=new XQueryProcessor(query,req.file);
+      xq=new QueryProcessor(query,req.file);
     }
     for (    final String[] arg : req.args) {
       final Var v=new Var(new QNm(Token.token(arg[0])));
@@ -31,7 +31,7 @@
     if (ex instanceof IOException) {
       out.println(SERVERERR);
     }
- else     if (ex instanceof XQException) {
+ else     if (ex instanceof QueryException) {
       out.println(HEADER + "<pre><font color='red'>" + ex.getMessage()+ "</font></pre>"+ FOOTER);
     }
  else {

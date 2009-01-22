@@ -1,0 +1,37 @@
+{
+  return new Iter(){
+    boolean more=true;
+    Iter iter;
+    Item ci;
+    int cp;
+    @Override public Item next() throws QueryException {
+      if (more) {
+        if (iter == null) {
+          iter=ctx.iter(root);
+          ci=ctx.item;
+          cp=ctx.pos;
+          ctx.pos=1;
+        }
+        Item i;
+        while ((i=iter.next()) != null) {
+          ctx.item=i;
+          i=ctx.iter(pred[0]).test(ctx);
+          ctx.pos++;
+          if (i != null) {
+            ctx.item.score(i.score());
+            return ctx.item;
+          }
+          if (pos != null && !pos.more(ctx))           break;
+        }
+        if (last) {
+          more=false;
+          return ctx.item;
+        }
+      }
+      ctx.item=ci;
+      ctx.pos=cp;
+      return null;
+    }
+  }
+;
+}

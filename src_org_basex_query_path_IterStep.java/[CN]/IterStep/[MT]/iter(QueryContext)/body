@@ -1,0 +1,54 @@
+{
+  return new NodeIter(){
+    final Item ci=ctx.item;
+    final int cp=ctx.pos;
+    boolean more=true;
+    NodeIter ir;
+    Iter iter;
+    @Override public Nod next() throws QueryException {
+      if (more) {
+        if (iter == null) {
+          iter=checkCtx(ctx);
+          ctx.pos=1;
+        }
+        Nod temp=null;
+        while (true) {
+          if (ir == null) {
+            final Item i=iter.next();
+            if (i == null) {
+              ctx.item=ci;
+              ctx.pos=cp;
+              if (temp != null) {
+                more=false;
+                return temp;
+              }
+              return null;
+            }
+            if (!i.node())             Err.or(NODESPATH,IterStep.this,i.type);
+            ir=axis.init((Nod)i);
+          }
+          final Nod nod=ir.next();
+          if (nod != null) {
+            if (test.eval(nod)) {
+              ctx.item=nod;
+              final Item i=ctx.iter(pred[0]).test(ctx);
+              ctx.pos++;
+              if (i != null) {
+                nod.score(i.score());
+                ctx.item=ci;
+                return nod.finish();
+              }
+              if (pos != null && !pos.more(ctx))               ir=null;
+              if (last)               temp=nod.finish();
+            }
+          }
+ else {
+            ir=null;
+          }
+        }
+      }
+      return null;
+    }
+  }
+;
+}
