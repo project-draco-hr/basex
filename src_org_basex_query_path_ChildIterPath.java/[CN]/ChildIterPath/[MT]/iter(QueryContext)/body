@@ -3,38 +3,49 @@
     final Item c=ctx.item;
     final int cs=ctx.size;
     final int cp=ctx.pos;
-    boolean firstTime=true;
-    Iter iter;
-    int stepCount=0;
-    Item it;
+    private Iter[] iter;
+    private Iter ir;
+    private Item item;
+    private int p;
     @Override public Item next() throws QueryException {
+      if (iter == null) {
+        item=root != null ? ctx.iter(root).finish() : ctx.item;
+        ctx.item=item;
+        iter=new Iter[step.length];
+        iter[0]=ctx.iter(step[0]);
+        ctx.size=item.size();
+        ctx.pos=1;
+      }
       while (true) {
-        if (firstTime) {
-          it=root != null ? ctx.iter(root).finish() : ctx.item;
-          ctx.item=it;
-          firstTime=false;
+        if (ir != null) {
+          final Item i=ir.next();
+          if (i != null) {
+            if (!i.node())             Err.or(NODESPATH,this,i.type);
+            ctx.item=i;
+            ctx.pos++;
+            return i;
+          }
+          ir=null;
         }
-        if (iter == null) {
-          iter=ctx.iter(step[stepCount]);
-          ctx.size=it.size();
-          ctx.pos=1;
-        }
-        final Item i=iter.next();
-        if (i == null) {
-          if (stepCount == step.length - 1) {
+ else {
+          while ((item=iter[p].next()) != null) {
+            if (p + 1 < step.length) {
+              p++;
+              ctx.pos=1;
+              ctx.item=item;
+              iter[p]=ctx.iter(step[p]);
+            }
+ else {
+              ir=iter[p];
+              break;
+            }
+          }
+          if (ir == null && p-- == 0) {
             ctx.item=c;
             ctx.size=cs;
             ctx.pos=cp;
             return null;
           }
-          stepCount++;
-          iter=null;
-        }
- else {
-          if (!i.node())           Err.or(NODESPATH,this,i.type);
-          ctx.item=i;
-          ctx.pos++;
-          return i;
         }
       }
     }
