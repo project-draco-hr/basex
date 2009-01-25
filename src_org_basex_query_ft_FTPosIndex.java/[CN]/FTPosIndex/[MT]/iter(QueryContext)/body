@@ -1,0 +1,40 @@
+{
+  final FTPos tmp=ctx.ftpos;
+  return new FTNodeIter(){
+    @Override public FTNodeItem next() throws QueryException {
+      ctx.ftpos=pos;
+      pos.init(ctx.ftitem);
+      FTNodeItem it=expr[0].iter(ctx).next();
+      if (ctx.ftpos != null) {
+        if (it.ftn.size > 0) {
+          init(it);
+          while (!pos.filter(ctx)) {
+            it=expr[0].iter(ctx).next();
+            if (it.ftn.size == 0) {
+              ctx.ftpos=tmp;
+              return it;
+            }
+            init(it);
+          }
+        }
+      }
+      final double d=checkDbl(ctx.iter(pos.weight));
+      if (d < 0 || d > 1000)       Err.or(FTWEIGHT,d);
+      if (d != -1)       it.score(it.score() * d);
+      ctx.ftpos=tmp;
+      return it;
+    }
+    /** 
+ * Init FTPos for next seqEval with index use.
+ * @param it current FTNode 
+ */
+    void init(    final FTNodeItem it){
+      pos.setPos(it.ftn.convertPos(),it.ftn.p.list[0]);
+      if (it.ftn.getToken() != null) {
+        pos.ft.init(it.data.text(it.ftn.getPre()));
+        pos.term=pos.ft.getTokenList();
+      }
+    }
+  }
+;
+}

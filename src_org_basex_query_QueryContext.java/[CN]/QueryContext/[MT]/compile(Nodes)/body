@@ -1,16 +1,22 @@
 {
   try {
     if (nodes != null) {
-      rootDocs=nodes.size;
-      docs=new DBNode[rootDocs];
+      final Data data=nodes.data;
+      docs=new DBNode[nodes.size];
       for (int d=0; d < docs.length; d++) {
-        docs[d]=new DBNode(nodes.data,nodes.nodes[d]);
+        int p=nodes.nodes[d];
+        if (data.kind(p) == Data.DOC)         docs[rootDocs++]=new DBNode(data,p);
       }
-      item=Seq.get(docs,docs.length);
+      docs=Array.finish(docs,rootDocs);
+      final SeqIter si=new SeqIter();
+      for (int d=0; d < nodes.size; d++) {
+        si.add(new DBNode(data,nodes.nodes[d]));
+      }
+      item=si.finish();
       final NodIter col=new NodIter();
       for (      final DBNode doc : docs)       col.add(doc);
       collect=Array.add(collect,col);
-      collName=Array.add(collName,token(nodes.data.meta.dbname));
+      collName=Array.add(collName,token(data.meta.dbname));
     }
     inf=Prop.allInfo;
     if (inf)     compInfo(QUERYCOMP);

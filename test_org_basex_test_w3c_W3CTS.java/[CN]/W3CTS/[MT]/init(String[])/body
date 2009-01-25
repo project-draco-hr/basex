@@ -31,8 +31,6 @@
   final String dat=sdf.format(Calendar.getInstance().getTime());
   final Performance perf=new Performance();
   final Context context=new Context();
-  Prop.xqformat=false;
-  Prop.mainmem=true;
   new Check(path + input).execute(context,null);
   data=context.data();
   final Nodes root=new Nodes(0,data);
@@ -40,14 +38,14 @@
   BaseX.outln("\nCaching Sources...");
   for (  final int s : nodes("//*:source",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
-    final String source=(path + text("@FileName",srcRoot)).replace('\\','/');
-    srcFiles.put(text("@ID",srcRoot),source);
+    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
+    srcs.put(text("@ID",srcRoot),val);
   }
   BaseX.outln("Caching Modules...");
   for (  final int s : nodes("//*:module",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
-    final String module=(path + text("@FileName",srcRoot)).replace('\\','/');
-    modules.put(text("@ID",srcRoot),module);
+    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
+    mods.put(text("@ID",srcRoot),val);
   }
   BaseX.outln("Caching Collections...");
   for (  final int c : nodes("//*:collection",root).nodes) {
@@ -59,6 +57,12 @@
       dl.add(token(sources + string(data.atom(doc.nodes[d])) + IO.XMLSUFFIX));
     }
     colls.put(cname,dl.finish());
+  }
+  BaseX.outln("Caching Stopwords...");
+  for (  final int s : nodes("//*:stopwords",root).nodes) {
+    final Nodes srcRoot=new Nodes(s,data);
+    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
+    stop.put(text("@uri",srcRoot),val);
   }
   if (reporting) {
     BaseX.outln("Delete old results...");
