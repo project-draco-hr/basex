@@ -1,14 +1,9 @@
 {
-  ic.io&=occ == null && query instanceof Str;
+  final MetaData md=ic.data.meta;
+  final FTOpt fto=ctx.ftopt;
+  ic.io&=occ == null && word != null && md.ftcs == fto.is(FTOpt.CS) && md.ftdc == fto.is(FTOpt.DC) && md.ftst == fto.is(FTOpt.ST) && fto.sw == null && (!fto.is(FTOpt.WC) || !md.ftfz);
   if (!ic.io)   return;
-  tok=((Str)query).str();
-  final FTTokenizer sb=ctx.ftopt.sb;
-  sb.text=tok;
-  sb.lc=ctx.ftopt.is(FTOpt.LC);
-  sb.uc=ctx.ftopt.is(FTOpt.UC);
-  sb.fz=ctx.ftopt.is(FTOpt.FZ);
-  sb.wc=ctx.ftopt.is(FTOpt.WC);
-  sb.cs=ctx.ftopt.is(FTOpt.CS);
-  while (ic.is != 0 && sb.more())   ic.is=Math.min(ic.is,ic.data.nrIDs(sb));
+  final FTTokenizer ft=new FTTokenizer(word,fto);
+  while (ic.is != 0 && ft.more())   ic.is=Math.min(ic.is,ic.data.nrIDs(ft));
   ic.iu=true;
 }

@@ -3,11 +3,10 @@
   ctx.ftpos=this;
   init(ctx.ftitem);
   final Item it=expr[0].iter(ctx).next();
+  ctx.ftpos=tmp;
   if (tmp != null) {
     final int os=tmp.term.size;
-    for (int i=0; i < term.size; i++) {
-      tmp.term.add(term.list[i]);
-    }
+    for (int i=0; i < term.size; i++)     tmp.term.add(term.list[i]);
     final IntList[] il=new IntList[term.size + os];
     System.arraycopy(pos,0,il,0,term.size);
     System.arraycopy(tmp.pos,0,il,term.size,os);
@@ -17,10 +16,9 @@
  else {
     ctx.ftd=pos;
   }
-  ctx.ftpos=tmp;
   final double s=it.score();
   if (s == 0 || !filter(ctx))   return score(0);
-  final double d=checkDbl(ctx.iter(weight));
+  final double d=weight != null ? checkDbl(ctx.iter(weight)) : 1;
   if (d < 0 || d > 1000)   Err.or(FTWEIGHT,d);
   return score(s * d);
 }

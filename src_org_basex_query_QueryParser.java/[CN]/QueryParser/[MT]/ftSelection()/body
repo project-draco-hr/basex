@@ -1,5 +1,6 @@
 {
-  final FTPos sel=new FTPos(ftOr());
+  final FTExpr expr=ftOr();
+  final FTPos sel=new FTPos(expr);
   while (true) {
     if (consumeWS(ORDERED)) {
       sel.ordered=true;
@@ -33,6 +34,6 @@
  else       Err.or(INCOMPLETE);
     }
   }
-  sel.weight=consumeWS(WEIGHT) ? range() : Dbl.ONE;
-  return sel;
+  if (consumeWS(WEIGHT))   sel.weight=range();
+  return sel.standard() ? expr : sel;
 }
