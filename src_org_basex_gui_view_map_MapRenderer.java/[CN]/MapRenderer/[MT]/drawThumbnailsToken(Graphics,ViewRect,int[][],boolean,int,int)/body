@@ -1,0 +1,80 @@
+{
+  final double xx=r.x;
+  final double ww=r.w;
+  final int ys=r.y + 3;
+  int yy=ys;
+  int wl=0;
+  int ll=0;
+  final Color textc=draw ? GUIConstants.COLORS[6] : null;
+  int count=0;
+  int pp=0;
+  int sl=0, pl=0;
+  int psl=0, ppl=0;
+  cchars=0;
+  ttcol=new IntList();
+  tl=new TokenList();
+  int ml=0;
+  for (int i=0; i < data[0].length; i++) {
+    wl=(int)(data[0][i] * r.thumbf);
+    sl+=data[0][i];
+    pl+=data[0][i];
+    cchars+=data[0][i];
+    if (ll + wl + r.thumbf * ((psl < data[1].length && pl == data[1][psl]) ? 1 : 0) >= ww) {
+      yy+=r.thumblh;
+      ll=0;
+      if (wl >= ww)       return r.h + 3;
+    }
+    if (draw) {
+      if (r.pos != null && pp < r.pos.length && count == r.pos[pp]) {
+        g.setColor(thumbnailcolor[r.poi[pp]]);
+        pp++;
+      }
+ else       g.setColor(textc);
+      g.fillRect((int)(xx + ll),yy,wl,r.thumbfh);
+    }
+    if (x > 0 && y > 0 && (inRect((int)(xx + ll),yy,wl,r.thumbfh,x,y) || ml > 0)) {
+      ml=ml == 0 ? Math.max((int)(ww - ll) / GUIProp.fontsize + 2,data[0][i] + 2) : ml;
+      final byte[] tok=new byte[data[0][i] + 2 < ml ? data[0][i] : ml];
+      int k=0;
+      for (; k < tok.length - (data[0][i] + 2 < ml ? 0 : 2); k++)       tok[k]=(byte)data[3][cchars - data[0][i] + k];
+      if (r.pos != null) {
+        while (pp < r.pos.length && count > r.pos[pp])         pp++;
+        if (pp < r.pos.length && count == r.pos[pp]) {
+          ttcol.add(r.poi[pp]);
+          pp++;
+        }
+ else {
+          ttcol.add(-1);
+        }
+      }
+ else       ttcol.add(-1);
+      if (k < tok.length) {
+        tok[k]='.';
+        tok[k + 1]='.';
+        tl.add(tok);
+        return yy - r.y - 3;
+      }
+      tl.add(tok);
+      ml-=tok.length + 1;
+    }
+    ll+=wl;
+    count++;
+    if (draw && psl < data[1].length && sl == data[1][psl]) {
+      g.setColor(Color.black);
+      g.fillRect((int)(xx + ll),yy,(int)r.thumbf,r.thumbfh);
+      ll+=r.thumbf;
+      g.setColor(textc);
+      psl++;
+      sl=0;
+    }
+    ll+=r.thumbf;
+    wl=0;
+    if (ppl < data[2].length && pl == data[2][ppl]) {
+      yy+=r.thumblh;
+      ll=0;
+      ppl++;
+      pl=0;
+    }
+  }
+  return yy - r.y + 3;
+}

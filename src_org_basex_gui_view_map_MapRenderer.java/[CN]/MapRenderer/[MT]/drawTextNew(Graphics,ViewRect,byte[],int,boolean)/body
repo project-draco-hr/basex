@@ -25,7 +25,7 @@
       ll=0;
       if (yy >= r.y + r.h)       return yy - r.y;
     }
-    final byte[] tok=ftt.get();
+    byte[] tok=ftt.get();
     int wl=0;
     for (int n=0; n < tok.length; n+=cl(tok[n]))     wl+=BaseXLayout.width(g,cw,cp(tok,n));
     if (ll + wl + we >= ww) {
@@ -33,6 +33,28 @@
       yy+=fh;
       ll=0;
       if (yy >= r.y + r.h)       return yy - r.y;
+      if (draw && wl + we >= ww) {
+        int twl=0;
+        twl=2 * BaseXLayout.width(g,cw,'.');
+        if (we + twl < ww) {
+          int l, n=0;
+          for (; n < tok.length; n+=cl(tok[n])) {
+            l=BaseXLayout.width(g,cw,cp(tok,n));
+            if (twl + l + we >= ww)             break;
+            twl+=l;
+          }
+          final byte[] ntok=new byte[n + 2];
+          System.arraycopy(tok,0,ntok,0,n);
+          ntok[n]='.';
+          ntok[n + 1]='.';
+          tok=ntok;
+          wl=twl;
+        }
+ else {
+          tok=new byte[0];
+          wl=0;
+        }
+      }
     }
     if (draw) {
       if (r.pos != null && pp < r.pos.length && count == r.pos[pp]) {
