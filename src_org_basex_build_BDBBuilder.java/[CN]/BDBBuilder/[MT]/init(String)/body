@@ -1,0 +1,27 @@
+{
+  meta=new MetaData(db);
+  meta.file=parser.io;
+  meta.filesize=meta.file.length();
+  meta.time=meta.file.date();
+  DropDB.drop(db);
+  IO.dbpath(db).mkdirs();
+  int bs=IO.BLOCKSIZE;
+  while (bs < meta.filesize && bs < (1 << 22))   bs<<=1;
+  EnvironmentConfig envConfig=new EnvironmentConfig();
+  StoreConfig storeConfig=new StoreConfig();
+  envConfig.setAllowCreate(true);
+  storeConfig.setAllowCreate(true);
+  envConfig.setTransactional(false);
+  storeConfig.setDeferredWrite(false);
+  try {
+    dbEnv=new Environment(IO.dbpath(db),envConfig);
+    store=new EntityStore(dbEnv,"EntityStore",storeConfig);
+    nodeByPre=store.getPrimaryIndex(Integer.class,BDBNode.class);
+  }
+ catch (  DatabaseException e) {
+    throw new IOException(e);
+  }
+  xout=new DataOutput(db,DATATXT,bs);
+  vout=new DataOutput(db,DATAATV,bs);
+  return this;
+}

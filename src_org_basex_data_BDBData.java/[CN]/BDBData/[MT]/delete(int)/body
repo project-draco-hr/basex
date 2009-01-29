@@ -1,0 +1,32 @@
+{
+  final BDBNode node;
+  try {
+    node=nodeByPre.get(pre);
+    int kind=node.getKind();
+    final int s=size(pre,kind);
+    BDBNode par;
+    if (kind == ATTR) {
+      par=nodeByPre.get(parent(pre,ATTR));
+      par.setNumAtts(par.getNumAtts() - 1);
+      par.setSize(par.getSize() - 1);
+      kind=par.getKind();
+    }
+ else {
+      par=node;
+    }
+    while (par.getId() > 0 && kind != DOC) {
+      par=nodeByPre.get(parent(par.getId(),kind));
+      kind=par.getKind();
+      if (kind == ELEM || kind == DOC)       par.setSize(par.getSize() - 1);
+    }
+    nodeByPre.delete(pre);
+    meta.size-=s;
+    if (meta.size == 0) {
+      meta.size=1;
+    }
+  }
+ catch (  DatabaseException e) {
+    e.printStackTrace();
+    return;
+  }
+}
