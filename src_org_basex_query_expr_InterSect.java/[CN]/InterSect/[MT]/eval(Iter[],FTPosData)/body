@@ -1,0 +1,33 @@
+{
+  NodIter seq=new NodIter(false);
+  Item it;
+  while ((it=iter[0].next()) != null) {
+    if (!it.node())     Err.nodes(this);
+    seq.add((Nod)it);
+  }
+  for (int e=1; e != expr.length; e++) {
+    final NodIter res=new NodIter(false);
+    final Iter ir=iter[e];
+    while ((it=ir.next()) != null) {
+      if (!it.node())       Err.nodes(this);
+      final Nod node=(Nod)it;
+      for (int s=0; s < seq.size(); s++) {
+        if (seq.list[s].is(node)) {
+          res.add(node);
+          break;
+        }
+      }
+    }
+    seq=res;
+  }
+  if (ftd != null) {
+    final IntList il=new IntList();
+    for (int i=0; i < seq.size(); i++) {
+      it=seq.list[i];
+      if (it instanceof DBNode)       il.add(((DBNode)it).pre + 1);
+    }
+    if (il.size == 0)     ftd.init();
+ else     ftd.keep(il.finish());
+  }
+  return seq;
+}

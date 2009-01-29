@@ -1,12 +1,9 @@
 {
-  final NodIter ni=new NodIter(false);
-  for (  final Expr e : expr) {
-    final Iter iter=ctx.iter(e);
-    Item it;
-    while ((it=iter.next()) != null) {
-      if (!it.node())       Err.nodes(this);
-      ni.add((Nod)it);
-    }
+  final Iter[] iter=new Iter[expr.length];
+  boolean order=true;
+  for (int e=0; e != expr.length; e++) {
+    iter[e]=ctx.iter(expr[e]);
+    order&=iter[e].ordered();
   }
-  return ni;
+  return order ? iter(iter) : eval(iter);
 }
