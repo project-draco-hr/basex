@@ -69,45 +69,54 @@
 switch (focusedRect.thumbal) {
 case 0:
         MapRenderer.drawThumbnailsToken(g,focusedRect,d,false,mouseX,mouseY);
-      MapRenderer.drawToolTip(g,mouseX,mouseY);
-  }
-  focusedRect.x-=3;
-  focusedRect.w+=3;
+      break;
+case 1:
+    MapRenderer.drawThumbnailsSentenceToolTip(focusedRect,d,true,focusedRect.thumbf,mouseX,mouseY);
+  break;
+case 2:
+MapRenderer.drawThumbnailsSentenceToolTip(focusedRect,d,false,focusedRect.thumbf,mouseX,mouseY);
+break;
+default :
+MapRenderer.drawThumbnailsSentenceToolTip(focusedRect,d,false,Math.max(1.5,focusedRect.thumbf),mouseX,mouseY);
+}
+MapRenderer.drawToolTip(getGraphics(),mouseX,mouseY,focusedRect);
+focusedRect.x-=3;
+focusedRect.w+=3;
 }
 if (GUIProp.mapinteraction == 1) {
-  int myx, myy;
-  if (mouseX - GUIProp.lenswidth < 0)   myx=0;
- else   if (mouseX + GUIProp.lenswidth > getWidth())   myx=getWidth() - (GUIProp.lenswidth << 1);
- else   myx=mouseX - GUIProp.lenswidth;
-  if (mouseY - GUIProp.lensheight < 0)   myy=0;
- else   if (mouseY + GUIProp.lensheight > getHeight())   myy=getHeight() - (GUIProp.lensheight << 1);
- else   myy=mouseY - GUIProp.lensheight;
-  ViewRect rectToZoom=new ViewRect(myx + GUIProp.lenswidth - GUIProp.lensareawidth,myy + GUIProp.lensheight - GUIProp.lensareaheight,GUIProp.lensareawidth << 1,GUIProp.lensareaheight << 1);
-  g.setColor(Color.red);
-  g.drawRect(rectToZoom.x,rectToZoom.y,rectToZoom.w,rectToZoom.h);
-  int np=0;
-  final IntList il=new IntList();
-  for (int r=0, rl=mainRects.size(); r < rl; r++) {
-    final ViewRect rect=mainRects.get(r);
-    if (mainRects.get(r).pre < np)     continue;
-    if (rectToZoom.contains(rect)) {
-      il.add(rect.pre);
-      np=rect.pre + data.size(rect.pre,data.kind(rect.pre));
-    }
-  }
-  g.setColor(Color.black);
-  g.drawRect(myx,myy,GUIProp.lenswidth << 1,GUIProp.lensheight << 1);
-  w=GUIProp.lenswidth << 1;
-  h=GUIProp.lensheight << 1;
-  final ViewRect rect=new ViewRect(0,0,w,h,0,0);
-  ArrayList<ViewRect> lensRects=new ArrayList<ViewRect>();
-  final Nodes nodes=new Nodes(gui.focused,data);
-  BufferedImage bi=new BufferedImage(w,h,BufferedImage.TYPE_INT_BGR);
-  calc(rect,lensRects,nodes,bi);
-  final int ac=AlphaComposite.SRC_OVER;
-  ((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,1.0f));
-  drawMap(bi,lensRects);
-  g.drawImage(bi,myx,myy,this);
+int myx, myy;
+if (mouseX - GUIProp.lenswidth < 0) myx=0;
+ else if (mouseX + GUIProp.lenswidth > getWidth()) myx=getWidth() - (GUIProp.lenswidth << 1);
+ else myx=mouseX - GUIProp.lenswidth;
+if (mouseY - GUIProp.lensheight < 0) myy=0;
+ else if (mouseY + GUIProp.lensheight > getHeight()) myy=getHeight() - (GUIProp.lensheight << 1);
+ else myy=mouseY - GUIProp.lensheight;
+ViewRect rectToZoom=new ViewRect(myx + GUIProp.lenswidth - GUIProp.lensareawidth,myy + GUIProp.lensheight - GUIProp.lensareaheight,GUIProp.lensareawidth << 1,GUIProp.lensareaheight << 1);
+g.setColor(Color.red);
+g.drawRect(rectToZoom.x,rectToZoom.y,rectToZoom.w,rectToZoom.h);
+int np=0;
+final IntList il=new IntList();
+for (int r=0, rl=mainRects.size(); r < rl; r++) {
+final ViewRect rect=mainRects.get(r);
+if (mainRects.get(r).pre < np) continue;
+if (rectToZoom.contains(rect)) {
+il.add(rect.pre);
+np=rect.pre + data.size(rect.pre,data.kind(rect.pre));
+}
+}
+g.setColor(Color.black);
+g.drawRect(myx,myy,GUIProp.lenswidth << 1,GUIProp.lensheight << 1);
+w=GUIProp.lenswidth << 1;
+h=GUIProp.lensheight << 1;
+final ViewRect rect=new ViewRect(0,0,w,h,0,0);
+ArrayList<ViewRect> lensRects=new ArrayList<ViewRect>();
+final Nodes nodes=new Nodes(gui.focused,data);
+BufferedImage bi=new BufferedImage(w,h,BufferedImage.TYPE_INT_BGR);
+calc(rect,lensRects,nodes,bi);
+final int ac=AlphaComposite.SRC_OVER;
+((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,1.0f));
+drawMap(bi,lensRects);
+g.drawImage(bi,myx,myy,this);
 }
 }
 gui.painting=false;

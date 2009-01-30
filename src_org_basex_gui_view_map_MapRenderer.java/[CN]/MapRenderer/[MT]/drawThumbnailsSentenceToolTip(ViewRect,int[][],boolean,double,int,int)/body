@@ -1,0 +1,75 @@
+{
+  final double ww=r.w;
+  int yy=r.y + 3;
+  int wl=0;
+  int ll=0;
+  int psl=0, ppl=0, pl=0, sl=0, cc=0;
+  int pp=0;
+  tl=new TokenList();
+  ttcol=new IntList();
+  boolean ir;
+  for (int i=0; i < data[0].length; i++) {
+    ir=false;
+    wl=(int)(data[0][i] * r.thumbf);
+    pl+=data[0][i];
+    sl+=data[0][i];
+    cc+=data[0][i];
+    if (ll + wl >= ww) {
+      ir=inRect(r.x + ll,yy,wl - ll,r.thumbfh,x,y);
+      ll=wl - (int)(ww - ll);
+      yy+=r.thumblh;
+      ir|=inRect(r.x,yy,ll,r.thumbfh,x,y);
+    }
+ else {
+      ir|=inRect(r.x + ll,yy,wl,r.thumbfh,x,y);
+      ll+=wl;
+    }
+    if (ir) {
+      final int ttl=getTooltipLength(r.w);
+      int c=0, j=0;
+      cc=cc - data[0][i];
+      while (c < ttl && i + j < data[0].length) {
+        final byte[] tok=new byte[data[0][i + j]];
+        int k=0;
+        for (; k < tok.length && c++ < ttl; k++)         tok[k]=(byte)data[3][cc + k];
+        cc+=k;
+        if (k < tok.length) {
+          tok[k]='.';
+          tok[k + 1 < tok.length ? k + 1 : k - 1]='.';
+          tl.add(Array.finish(tok,k + 2));
+        }
+ else         tl.add(tok);
+        if (r.pos != null) {
+          while (pp < r.pos.length && i + j > r.pos[pp])           pp++;
+          if (pp < r.pos.length && i + j == r.pos[pp]) {
+            ttcol.add(r.poi[pp]);
+            pp++;
+          }
+ else           ttcol.add(-1);
+        }
+ else         ttcol.add(-1);
+        c++;
+        j++;
+      }
+      return;
+    }
+    if (psl < data[1].length && data[1][psl] == sl) {
+      if (ll + sw >= ww) {
+        yy+=r.thumblh;
+        ll=0;
+      }
+      ll+=sw;
+      sl=0;
+      psl++;
+    }
+    if (ppl < data[2].length && data[2][ppl] == pl) {
+      pl=0;
+      ppl++;
+      if (sen) {
+        yy+=r.thumblh;
+        wl=0;
+        ll=0;
+      }
+    }
+  }
+}
