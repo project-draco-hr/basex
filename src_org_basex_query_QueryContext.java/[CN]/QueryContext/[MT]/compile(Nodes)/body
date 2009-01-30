@@ -1,16 +1,21 @@
 {
   try {
-    if (nodes != null) {
+    final int s=nodes != null ? nodes.size : 0;
+    docs=new DBNode[s];
+    if (s != 0) {
       final Data data=nodes.data;
-      docs=new DBNode[nodes.size];
       for (int d=0; d < docs.length; d++) {
         final int p=nodes.nodes[d];
         if (data.kind(p) == Data.DOC)         docs[rootDocs++]=new DBNode(data,p);
       }
+      if (rootDocs == 0)       docs[rootDocs++]=new DBNode(data,0);
       docs=Array.finish(docs,rootDocs);
       final SeqIter si=new SeqIter();
-      for (int d=0; d < nodes.size; d++) {
-        si.add(new DBNode(data,nodes.nodes[d]));
+      if (root instanceof AxisPath && ((AxisPath)root).root instanceof Root) {
+        for (        final DBNode d : docs)         si.add(d);
+      }
+ else {
+        for (int d=0; d < s; d++)         si.add(new DBNode(data,nodes.nodes[d]));
       }
       item=si.finish();
       final NodIter col=new NodIter();
