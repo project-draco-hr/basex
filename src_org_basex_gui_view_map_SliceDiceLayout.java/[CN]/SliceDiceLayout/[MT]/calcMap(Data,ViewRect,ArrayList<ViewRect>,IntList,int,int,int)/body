@@ -8,60 +8,31 @@
       splitUniformly(data,r,mainRects,l,ns,ne,level,v);
     }
  else {
-      int nn=ne - ns;
-      long parsize=1;
-      int par;
-      par=data.parent(l.list[ns],data.kind(l.list[ns]));
+      int par=data.parent(l.list[ns],data.kind(l.list[ns]));
+      ;
+      long parsize=data.fs != null ? Token.toLong(data.attValue(data.sizeID,par)) : 0;
       int parchilds=l.list[ne] - l.list[ns];
       double xx=r.x;
       double yy=r.y;
-      double ww, hh;
-      if (data.fs != null && GUIProp.mapaggr) {
-        parsize=data.fs != null ? Token.toLong(data.attValue(data.sizeID,par)) : 0;
-        hh=0;
-        ww=0;
-      }
- else {
-        if (v) {
-          ww=r.w;
-          hh=(double)r.h / nn;
-        }
- else {
-          ww=(double)r.w / nn;
-          hh=r.h;
-        }
-      }
+      double ww=0;
+      double hh=0;
       for (int i=0; i < l.size - 1; i++) {
         int[] liste=new int[1];
         liste[0]=l.list[i];
-        if (data.fs != null && GUIProp.mapaggr) {
-          long size=data.fs != null ? Token.toLong(data.attValue(data.sizeID,l.list[i])) : 0;
-          int childs=l.list[i + 1] - l.list[i];
-          double weight=calcWeight(size,childs,parsize,parchilds,data);
-          if (v) {
-            yy+=hh;
-            hh=weight * r.h;
-            ww=r.w;
-          }
- else {
-            xx+=ww;
-            ww=weight * r.w;
-            hh=r.h;
-          }
-          if (ww > 0 && hh > 0)           calcMap(data,new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
+        long size=data.fs != null ? Token.toLong(data.attValue(data.sizeID,l.list[i])) : 0;
+        int childs=l.list[i + 1] - l.list[i];
+        double weight=calcWeight(size,childs,parsize,parchilds,data);
+        if (v) {
+          yy+=hh;
+          hh=weight * r.h;
+          ww=r.w;
         }
  else {
-          if (ww > 0 && hh > 0) {
-            if (v) {
-              calcMap(data,new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
-              yy+=hh;
-            }
- else {
-              calcMap(data,new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
-              xx+=ww;
-            }
-          }
+          xx+=ww;
+          ww=weight * r.w;
+          hh=r.h;
         }
+        if (ww > 0 && hh > 0)         calcMap(data,new ViewRect((int)xx,(int)yy,(int)ww,(int)hh,0,r.level),mainRects,new IntList(liste),0,1,level);
       }
     }
   }
