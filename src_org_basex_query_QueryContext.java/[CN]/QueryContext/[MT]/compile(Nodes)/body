@@ -1,15 +1,15 @@
 {
   try {
     final int s=nodes != null ? nodes.size : 0;
-    docs=new DBNode[s];
     if (s != 0) {
       final Data data=nodes.data;
-      for (int d=0; d < docs.length; d++) {
+      docs=new DBNode[s];
+      for (int d=0; d < s; d++) {
         final int p=nodes.nodes[d];
         if (data.kind(p) == Data.DOC)         docs[rootDocs++]=new DBNode(data,p);
       }
       if (rootDocs == 0)       docs[rootDocs++]=new DBNode(data,0);
-      docs=Array.finish(docs,rootDocs);
+      if (rootDocs != docs.length)       docs=Array.finish(docs,rootDocs);
       final SeqIter si=new SeqIter();
       if (root instanceof AxisPath && ((AxisPath)root).root instanceof Root) {
         for (        final DBNode d : docs)         si.add(d);
@@ -18,10 +18,9 @@
         for (int d=0; d < s; d++)         si.add(new DBNode(data,nodes.nodes[d]));
       }
       item=si.finish();
-      final NodIter col=new NodIter();
-      for (      final DBNode doc : docs)       col.add(doc);
-      collect=Array.add(collect,col);
-      collName=Array.add(collName,token(data.meta.dbname));
+      final NodIter ni=new NodIter();
+      for (      final DBNode d : docs)       ni.add(d);
+      addColl(ni,token(data.meta.dbname));
     }
     inf=Prop.allInfo;
     if (inf)     compInfo(QUERYCOMP);
