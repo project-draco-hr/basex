@@ -1,5 +1,18 @@
 {
-  final SeqIter seq=new SeqIter();
-  for (  final Expr e : expr)   seq.add(ctx.iter(e));
-  return seq;
+  return new Iter(){
+    Iter ir=null;
+    int e=0;
+    @Override public Item next() throws QueryException {
+      while (true) {
+        if (ir == null) {
+          if (e == expr.length)           return null;
+          ir=ctx.iter(expr[e++]);
+        }
+        final Item it=ir.next();
+        if (it != null)         return it;
+        ir=null;
+      }
+    }
+  }
+;
 }
