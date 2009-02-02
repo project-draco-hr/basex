@@ -1,0 +1,124 @@
+{
+  final double ww=r.w;
+  int yy=r.y + 3;
+  int wl=0;
+  int ll=0;
+  ul=-1;
+  int psl=0, ppl=0, pl=0, sl=0, cc=0;
+  int pp=0;
+  tl=new TokenList();
+  ttcol=new IntList();
+  boolean ir;
+  for (int i=0; i < data[0].length; i++) {
+    ir=false;
+    wl=(int)(data[0][i] * r.thumbf);
+    pl+=data[0][i];
+    sl+=data[0][i];
+    cc+=data[0][i];
+    if (ll + wl >= ww) {
+      ir=inRect(r.x + ll,yy,wl - ll,r.thumbfh,x,y);
+      ll=wl - (int)(ww - ll);
+      yy+=r.thumblh;
+      ir|=inRect(r.x,yy,ll,r.thumbfh,x,y);
+    }
+ else {
+      ir|=inRect(r.x + ll,yy,wl,r.thumbfh,x,y);
+      ll+=wl;
+    }
+    if (ir) {
+      final int si=i;
+      final int[] cw=fontWidths(g.getFont());
+      final int sp=BaseXLayout.width(g,cw,' ');
+      final int sd=BaseXLayout.width(g,cw,'.');
+      while (r.pos != null && pp < r.pos.length && i > r.pos[pp])       pp++;
+      final int pps=pp;
+      ll=sd * 2 + sp;
+      int l=0;
+      byte[] tok;
+      int p=cc >= data[0][i] ? cc - data[0][i] : 0;
+      while (p > -1 && i > -1) {
+        tok=new byte[data[0][i]];
+        for (int k=0; k < tok.length; k++) {
+          tok[k]=(byte)data[3][p + k];
+        }
+        l=0;
+        for (int n=0; n < tok.length; n+=cl(tok[n]))         l+=BaseXLayout.width(g,cw,cp(tok,n));
+        if (si > i && ll + l + sp >= w / 2)         break;
+        ll+=l + sp;
+        tl.add(tok);
+        if (r.pos != null) {
+          while (pp < r.pos.length && pp > -1 && i < r.pos[pp])           pp--;
+          if (pp < r.pos.length && pp > -1 && i == r.pos[pp]) {
+            ttcol.add(r.poi[pp]);
+            pp++;
+          }
+ else           ttcol.add(-1);
+        }
+ else         ttcol.add(-1);
+        if (i == 0)         break;
+        p-=data[0][i - 1];
+        i--;
+      }
+      tl.add(new byte[]{'.','.'});
+      ttcol.add(-1);
+      i=si + 1;
+      p=cc;
+      final byte[][] toks=tl.finish();
+      final int[] tc=ttcol.finish();
+      tl=new TokenList();
+      ttcol=new IntList();
+      for (int j=toks.length - 1; j > -1; j--) {
+        tl.add(toks[j]);
+        ttcol.add(tc[j]);
+      }
+      ul=tl.size - 1;
+      ll=0;
+      pp=pps;
+      while (p < data[3].length && i < data[0].length) {
+        tok=new byte[data[0][i]];
+        l=0;
+        for (int k=0; k < tok.length; k++) {
+          tok[k]=(byte)data[3][p + k];
+        }
+        for (int n=0; n < tok.length; n+=cl(tok[n]))         l+=BaseXLayout.width(g,cw,cp(tok,n));
+        if (ll + l + sp+ 2 * sd >= w / 2)         break;
+        ll+=l + sp;
+        tl.add(tok);
+        pp=0;
+        if (r.pos != null) {
+          while (pp < r.pos.length && i > r.pos[pp])           pp++;
+          if (pp < r.pos.length && i == r.pos[pp]) {
+            ttcol.add(r.poi[pp]);
+            pp++;
+          }
+ else           ttcol.add(-1);
+        }
+ else         ttcol.add(-1);
+        p+=tok.length;
+        i++;
+      }
+      tl.add(new byte[]{'.','.'});
+      ttcol.add(-1);
+      return;
+    }
+    if (psl < data[1].length && data[1][psl] == sl) {
+      if (ll + sw >= ww) {
+        yy+=r.thumblh;
+        ll=0;
+      }
+      ll+=sw;
+      sl=0;
+      psl++;
+    }
+    if (ppl < data[2].length && data[2][ppl] == pl) {
+      pl=0;
+      ppl++;
+      if (sen) {
+        yy+=r.thumblh;
+        wl=0;
+        ll=0;
+        System.out.println("n");
+      }
+    }
+  }
+}
