@@ -1,0 +1,72 @@
+{
+  final Expr e=args[0];
+switch (func) {
+case CODESTR:
+    return cp2str(e.iter(ctx));
+case COMPARE:
+  if (args.length == 3)   checkColl(args[2],ctx);
+Item it1=e.atomic(ctx);
+Item it2=args[1].atomic(ctx);
+if (it1 == null || it2 == null) return null;
+final int d=diff(checkStr(it1),checkStr(it2));
+return Itr.get(Math.max(-1,Math.min(1,d)));
+case CODEPNT:
+it1=e.atomic(ctx);
+it2=args[1].atomic(ctx);
+if (it1 == null || it2 == null) return null;
+return Bln.get(eq(checkStr(it1),checkStr(it2)));
+case STRJOIN:
+return strjoin(ctx);
+case SUBSTR:
+return substr(ctx);
+case NORMUNI:
+return normuni(ctx);
+case UPPER:
+return Str.get(uc(checkStr(e,ctx)));
+case LOWER:
+return Str.get(lc(checkStr(e,ctx)));
+case TRANS:
+return trans(ctx);
+case ENCURI:
+return Str.get(uri(checkStr(e,ctx),false));
+case IRIURI:
+return Str.get(uri(checkStr(e,ctx),true));
+case ESCURI:
+return Str.get(esc(checkStr(e,ctx)));
+case CONCAT:
+final TokenBuilder tb=new TokenBuilder();
+for (final Expr a : args) {
+final Item it=a.atomic(ctx);
+if (it != null) tb.add(it.str());
+}
+return Str.get(tb.finish());
+case CONTAINS:
+if (args.length == 3) checkColl(args[2],ctx);
+Item it=args[1].atomic(ctx);
+if (it == null) return Bln.TRUE;
+return Bln.get(contains(checkStr(e,ctx),checkStr(it)));
+case STARTS:
+if (args.length == 3) checkColl(args[2],ctx);
+it=args[1].atomic(ctx);
+if (it == null) return Bln.TRUE;
+return Bln.get(startsWith(checkStr(e,ctx),checkStr(it)));
+case ENDS:
+if (args.length == 3) checkColl(args[2],ctx);
+it=args[1].atomic(ctx);
+if (it == null) return Bln.TRUE;
+return Bln.get(endsWith(checkStr(e,ctx),checkStr(it)));
+case SUBAFTER:
+if (args.length == 3) checkColl(args[2],ctx);
+final byte[] str=checkStr(e,ctx);
+final byte[] sa=checkStr(args[1],ctx);
+int pa=indexOf(str,sa);
+return pa != -1 ? Str.get(substring(str,pa + sa.length)) : Str.ZERO;
+case SUBBEFORE:
+if (args.length == 3) checkColl(args[2],ctx);
+final byte[] sb=checkStr(e,ctx);
+final int pb=indexOf(sb,checkStr(args[1],ctx));
+return pb > 0 ? Str.get(substring(sb,0,pb)) : Str.ZERO;
+default :
+return super.atomic(ctx);
+}
+}

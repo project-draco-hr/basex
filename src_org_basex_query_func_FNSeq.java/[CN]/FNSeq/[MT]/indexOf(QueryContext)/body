@@ -1,0 +1,18 @@
+{
+  final Item it=args[1].atomic(ctx);
+  if (it == null)   Err.empty(this);
+  if (args.length == 3)   checkColl(args[2],ctx);
+  return new Iter(){
+    final Iter iter=args[0].iter(ctx);
+    int c=0;
+    @Override public Item next() throws QueryException {
+      while (true) {
+        final Item i=iter.next();
+        if (i == null)         return null;
+        c++;
+        if (CmpV.valCheck(i,it) && CmpV.Comp.EQ.e(i,it))         return Itr.get(c);
+      }
+    }
+  }
+;
+}

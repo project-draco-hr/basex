@@ -1,35 +1,33 @@
 {
-  final Item it=args.length != 0 && args[0].i() ? (Item)args[0] : null;
-  final boolean e=args.length != 0 && args[0].e();
+  final boolean i=args.length == 1 && args[0].i();
+  final boolean e=args.length == 1 && args[0].e();
 switch (func) {
-case TRUE:
-    return Bln.TRUE;
 case FALSE:
-  return Bln.FALSE;
+case TRUE:
+    return atomic(ctx);
 case EMPTY:
-return it != null ? Bln.FALSE : e ? Bln.TRUE : this;
 case EXISTS:
-return it != null ? Bln.TRUE : e ? Bln.FALSE : this;
 case BOOL:
-return it != null ? Bln.get(it.bool()) : e ? Bln.FALSE : this;
+  return i ? atomic(ctx) : this;
 case NOT:
-if (it != null) return Bln.get(!it.bool());
+if (i) return atomic(ctx);
 if (args[0] instanceof Fun) {
 final Fun fs=(Fun)args[0];
 if (fs.func == FunDef.EMPTY) {
-final Fun f=new FNSimple();
-f.args=fs.args;
-f.func=FunDef.EXISTS;
-return f;
+  args=fs.args;
+  func=FunDef.EXISTS;
+}
+ else if (fs.func == FunDef.EXISTS) {
+  args=fs.args;
+  func=FunDef.EMPTY;
 }
 }
 return this;
 case ZEROONE:
-return e || it != null ? args[0] : this;
+return e || i || args[0].returned(ctx).single ? args[0] : this;
 case EXONE:
-return it != null ? it : this;
 case ONEMORE:
-return it != null ? it : this;
+return i || args[0].returned(ctx).single ? args[0] : this;
 case UNORDER:
 return args[0];
 default :
