@@ -1,15 +1,7 @@
 {
   final int s=consume('/') ? consume('/') ? 2 : 1 : 0;
-  final Expr ex=step();
+  final Expr ex=step(s);
   if (ex == null) {
-    if (s == 1) {
-      absPather("root");
-      checkStep(Axis.CHILD,test(false));
-    }
- else     if (s == 2) {
-      absPather("root");
-      checkStep(Axis.DESC,test(false));
-    }
     if (s > 1)     error(PATHMISS);
     return s == 0 ? null : new Root();
   }
@@ -23,7 +15,7 @@
   if (slash) {
     do {
       if (consume('/'))       list=add(list,descOrSelf());
-      final Expr st=check(step(),PATHMISS);
+      final Expr st=check(step(0),PATHMISS);
       if (!(st instanceof org.basex.query.expr.Context))       list=add(list,st);
     }
  while (consume('/'));
