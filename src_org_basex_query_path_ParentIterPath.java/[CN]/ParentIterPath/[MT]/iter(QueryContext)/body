@@ -1,0 +1,33 @@
+{
+  return new Iter(){
+    @Override public Item next() throws QueryException {
+      final Item c=ctx.item;
+      final long cs=ctx.size;
+      final long cp=ctx.pos;
+      if (ctx.item != null) {
+        ctx.pos=0;
+        ctx.size=1;
+        int j=0;
+        for (; j < step.length; j++) {
+          final Item par=ctx.iter(step[j]).next();
+          if (par == null)           break;
+          if (!par.node())           Err.or(NODESPATH,this,par.type);
+          ctx.item=par;
+        }
+        if (j == step.length) {
+          ctx.pos=0;
+          ctx.size=1;
+          return ctx.item;
+        }
+      }
+      ctx.item=c;
+      ctx.size=cs;
+      ctx.pos=cp;
+      return null;
+    }
+    @Override public boolean ordered(){
+      return true;
+    }
+  }
+;
+}
