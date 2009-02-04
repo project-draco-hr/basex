@@ -1,5 +1,5 @@
 {
-  if (skipWS())   Err.or(NOTAGNAME);
+  if (skipWS())   error(NOTAGNAME);
   final QNm open=new QNm(qName(NOTAGNAME));
   consumeWSS();
   Expr[] cont={};
@@ -12,7 +12,7 @@
     check('=');
     consumeWSS();
     final char delim=consume();
-    if (!quote(delim))     Err.or(NOQUOTE,found());
+    if (!quote(delim))     error(NOQUOTE,found());
     final TokenBuilder tb=new TokenBuilder();
     boolean simple=true;
     do {
@@ -41,7 +41,7 @@
           tb.add('}');
         }
  else         if (c == '<' || c == 0) {
-          Err.or(NOQUOTE,found());
+          error(NOQUOTE,found());
         }
  else         if (c == 0x0A || c == 0x09) {
           qp++;
@@ -57,15 +57,15 @@
  while (true);
     if (tb.size != 0)     attv=add(attv,Str.get(tb.finish()));
     if (eq(atn,XMLNS)) {
-      if (!simple)       Err.or(NSCONS);
+      if (!simple)       error(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).str();
       if (!open.ns())       open.uri=Uri.uri(v);
       addNS(ns,atn,v);
     }
  else     if (startsWith(atn,XMLNS)) {
-      if (!simple)       Err.or(NSCONS);
+      if (!simple)       error(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).str();
-      if (v.length == 0)       Err.or(NSEMPTYURI);
+      if (v.length == 0)       error(NSEMPTYURI);
       ctx.ns.add(new QNm(atn,Uri.uri(v)));
       addNS(ns,atn,v);
     }
@@ -85,11 +85,11 @@
       cont=add(cont,e);
     }
     qp+=2;
-    if (skipWS())     Err.or(NOTAGNAME);
+    if (skipWS())     error(NOTAGNAME);
     final byte[] close=qName(NOTAGNAME);
     consumeWSS();
     check('>');
-    if (!eq(open.str(),close))     Err.or(TAGWRONG,open.str(),close);
+    if (!eq(open.str(),close))     error(TAGWRONG,open.str(),close);
   }
   ctx.ns.size(s);
   return new CElem(open,cont,ns);

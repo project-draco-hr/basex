@@ -8,13 +8,13 @@
     name=new QNm();
   }
   final byte[] uri=stringLiteral();
-  if (uri.length == 0)   Err.or(NSMODURI);
+  if (uri.length == 0)   error(NSMODURI);
   name.uri=Uri.uri(uri);
   ctx.ns.add(name);
   final TokenList fl=new TokenList();
   if (consumeWS(AT))   do   fl.add(stringLiteral());
  while (consumeWS(COMMA));
-  if (modLoaded.contains(uri))   Err.or(DUPLMODULE,name.uri);
+  if (modLoaded.contains(uri))   error(DUPLMODULE,name.uri);
   try {
     if (fl.size == 0) {
       boolean found=false;
@@ -25,7 +25,7 @@
           found=true;
         }
       }
-      if (!found)       Err.or(NOMODULE,uri);
+      if (!found)       error(NOMODULE,uri);
     }
     for (int n=0; n < fl.size; n++) {
       module(string(fl.list[n]),name.uri);
@@ -33,6 +33,6 @@
     }
   }
  catch (  final StackOverflowError ex) {
-    Err.or(CIRCMODULE);
+    error(CIRCMODULE);
   }
 }

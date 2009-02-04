@@ -1,8 +1,8 @@
 {
   final QNm name=new QNm(qName(DECLFUNC));
   name.uri=Uri.uri(name.ns() ? ctx.ns.uri(name.pre()) : ctx.nsFunc);
-  if (name.pre().length == 0 && Type.find(name,true) != null)   Err.or(FUNCRES,name);
-  if (module != null && !name.uri.eq(module.uri))   Err.or(MODNS,name);
+  if (name.pre().length == 0 && Type.find(name,true) != null)   error(FUNCRES,name);
+  if (module != null && !name.uri.eq(module.uri))   error(MODNS,name);
   check(PAR1);
   skipWS();
   Var[] args={};
@@ -12,7 +12,7 @@
     final SeqType argType=consumeWS(AS) ? sequenceType() : null;
     final Var var=new Var(arg,true,argType);
     ctx.vars.add(var);
-    for (    final Var v : args)     if (v.name.eq(arg))     Err.or(FUNCDUPL,arg);
+    for (    final Var v : args)     if (v.name.eq(arg))     error(FUNCDUPL,arg);
     args=Array.add(args,var);
     if (!consume(','))     break;
     skipWS();
