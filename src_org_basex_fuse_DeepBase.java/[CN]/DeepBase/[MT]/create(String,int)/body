@@ -1,23 +1,8 @@
 {
   try {
-    debug("[DeepBase.create]","path " + path,"mode " + Integer.toOctalString(mode));
-    if (isDir(mode))     return -1;
-    MemData m=new MemData(2,data.tags,data.atts,data.ns,data.skel);
-    int tagID=data.tags.index(FILE,null,false);
-    int tagID2=data.atts.index(NAME,null,false);
-    m.addElem(tagID,0,1,2,2,false);
-    m.addAtt(tagID2,0,getName(path,mode).getBytes(),1);
-    Nodes pnode=queryOne(pn2xp(chopFilename(path,mode)));
-    int ppre=pnode.nodes[0];
-    int pid=data.id(ppre);
-    int ipre=ppre + 2;
-    debug("[DeepBase.create]","ppre " + ppre + " id "+ pid);
-    data.insert(ipre,1,m);
-    data.flush();
-    data.meta.update();
-    int iid=data.id(ipre);
-    debug("[DeepBase.create]","ipre " + ipre + " id "+ iid);
-    return iid;
+    if (!isFile(mode))     return -1;
+    int pre=insert(path,mode);
+    return (pre == -1) ? -1 : data.id(pre);
   }
  catch (  QueryException e) {
     e.printStackTrace();
