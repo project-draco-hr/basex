@@ -2,6 +2,7 @@
   final Iter iter=checkCtx(ctx).iter();
   return new NodeIter(){
     NodeIter ir;
+    Nod nod;
     @Override public Nod next() throws QueryException {
       while (true) {
         if (ir == null) {
@@ -11,8 +12,13 @@
           ir=axis.init((Nod)it);
         }
         final Nod n=ir.next();
-        if (n == null)         ir=null;
- else         if (test.eval(n))         return n.finish();
+        if (n == null) {
+          ir=null;
+        }
+ else         if ((nod == null || !n.is(nod)) && test.eval(n)) {
+          nod=n.finish();
+          return nod;
+        }
       }
     }
   }
