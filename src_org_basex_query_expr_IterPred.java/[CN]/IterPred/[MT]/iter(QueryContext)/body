@@ -1,10 +1,11 @@
 {
   return new Iter(){
-    boolean more=true;
+    boolean finish;
     boolean fast;
     Iter iter;
     long p;
     @Override public Item next() throws QueryException {
+      if (finish)       return null;
       if (iter == null) {
         iter=ctx.iter(root);
         p=1;
@@ -22,25 +23,23 @@
       final Item ci=ctx.item;
       final long cp=ctx.pos;
       Item it=null;
-      if (more) {
-        if (fast) {
-          it=iter.get(p++ - 1);
-          ctx.pos=p;
-        }
- else {
-          while ((it=iter.next()) != null) {
-            ctx.item=it;
-            ctx.pos=p++;
-            final Item i=pred[0].test(ctx);
-            if (i != null) {
-              it.score(i.score());
-              break;
-            }
-          }
-          if (last)           it=ctx.item;
-        }
+      if (fast) {
+        it=iter.get(p - 1);
+        ctx.pos=p++;
       }
-      more&=!last && (pos == null || pos.more(ctx));
+ else {
+        while ((it=iter.next()) != null) {
+          ctx.item=it;
+          ctx.pos=p++;
+          final Item i=pred[0].test(ctx);
+          if (i != null) {
+            it.score(i.score());
+            break;
+          }
+        }
+        if (last)         it=ctx.item;
+      }
+      finish=last || pos != null && pos.last(ctx);
       ctx.item=ci;
       ctx.pos=cp;
       return it;
