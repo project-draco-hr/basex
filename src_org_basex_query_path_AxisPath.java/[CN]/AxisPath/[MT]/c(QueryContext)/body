@@ -6,24 +6,23 @@
   }
   mergeDesc(ctx);
   boolean preds=false;
+  boolean pos=false;
   for (  final Step s : step) {
     if (s.pred.length != 0) {
       preds=true;
-      if (s.countVar(null) != 0) {
-        cache=false;
-        return this;
+      if (s.usesPos(ctx)) {
+        if (s.countVar(null) != 0)         return this;
+        pos=true;
       }
     }
   }
   cache=root != null && root.countVar(null) == 0;
   final Data data=ctx.data();
-  if (data != null && ctx.item.type == Type.DOC) {
+  if (!pos && data != null && ctx.item.type == Type.DOC) {
     Expr e=index(ctx,data);
     if (e != this)     return e;
-    if (!preds) {
-      e=children(ctx,data);
-      if (e != this)       return e;
-    }
+    e=children(ctx,data);
+    if (e != this)     return e;
   }
-  return iterator(preds);
+  return iterator(preds,ctx);
 }

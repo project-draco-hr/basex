@@ -1,27 +1,22 @@
 {
-  if (!data.meta.uptodate || data.ns.size() != 0 || step.length != 1 || step[0].axis != Axis.DESC || step[0].test.kind != Kind.NAME)   return this;
-  final ArrayList<SkelNode> n=new ArrayList<SkelNode>();
-  n.add(data.skel.root);
-  final int name=data.tagID(step[0].test.name.ln());
-  int c=0;
-  SkelNode node=null;
-  for (  final SkelNode sn : data.skel.desc(n,0,Data.DOC,true)) {
-    if (sn.kind == Data.ELEM && name == sn.name) {
-      node=sn;
-      c++;
-    }
-  }
-  if (c == 1) {
+  for (int i=0; i < step.length; i++) {
+    if (step[i].axis != Axis.DESC)     continue;
+    SkelNode node=node(data,i);
+    if (node == null)     continue;
+    ctx.compInfo(OPTCHILD,step[i]);
     final TokenList tl=new TokenList();
     while (node.par != null) {
       tl.add(data.tags.key(node.name));
       node=node.par;
     }
-    final Step[] steps=new Step[tl.size];
-    for (int t=0; t < tl.size; t++)     steps[t]=Step.get(Axis.CHILD,new NameTest(new QNm(tl.list[tl.size - t - 1]),Kind.NAME,false));
-    final AxisPath path=get(root,steps);
-    ctx.compInfo(OPTCHILD,this);
-    return path;
+    int ts=tl.size;
+    final Step[] steps=new Step[ts + step.length - i - 1];
+    for (int t=0; t < ts - 1; t++) {
+      steps[t]=Step.get(Axis.CHILD,new NameTest(new QNm(tl.list[ts - t - 1]),Kind.NAME,false));
+    }
+    steps[ts - 1]=Step.get(Axis.CHILD,new NameTest(new QNm(tl.list[0]),Kind.NAME,false),step[i].pred);
+    while (++i < step.length)     steps[ts++]=step[i];
+    return get(root,steps).children(ctx,data);
   }
   return this;
 }
