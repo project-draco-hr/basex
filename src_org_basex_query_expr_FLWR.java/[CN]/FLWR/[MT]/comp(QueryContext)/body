@@ -9,10 +9,21 @@
   }
   if (fl.length == 0) {
     ctx.compInfo(OPTFLWOR);
-    return where != null ? new If(where,expr,Seq.EMPTY) : expr;
+    return where != null ? new If(where,ret,Seq.EMPTY) : ret;
   }
-  if (where == null && fl.length == 1 && expr instanceof VarCall) {
-    final Var v=((VarCall)expr).var;
+  if (where != null && fl[fl.length - 1] instanceof For) {
+    final For f=(For)fl[fl.length - 1];
+    if (f.pos == null && f.score == null && f.expr instanceof AxisPath) {
+      if (!where.returned(ctx).num) {
+        ctx.compInfo(OPTWHERE);
+        f.expr=((AxisPath)f.expr).addPred(where.remove(f.var));
+        where=null;
+        return comp(ctx);
+      }
+    }
+  }
+  if (where == null && fl.length == 1 && ret instanceof VarCall) {
+    final Var v=((VarCall)ret).var;
     if (v.type == null && fl[0].var.eq(v)) {
       ctx.compInfo(OPTFLWOR);
       return fl[0].expr.comp(ctx);
