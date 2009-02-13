@@ -1,8 +1,9 @@
 {
   final int s=consume('/') ? consume('/') ? 2 : 1 : 0;
-  final Expr ex=step(s);
+  final Expr ex=step(false,false,false);
   if (ex == null) {
-    absPath(s,null,null);
+    if (s == 1)     absPath(true,false,true,null,null);
+    if (s == 2)     absPath(true,true,true,null,null);
     if (s > 1)     error(PATHMISS);
     return s == 0 ? null : new Root();
   }
@@ -15,8 +16,12 @@
   if (root != ex)   list=add(list,ex);
   if (slash) {
     do {
-      if (consume('/'))       list=add(list,descOrSelf());
-      final Expr st=check(step(s),PATHMISS);
+      boolean desc=false;
+      if (consume('/')) {
+        list=add(list,descOrSelf());
+        desc=true;
+      }
+      final Expr st=check(step(false,desc,true),PATHMISS);
       if (!(st instanceof Context))       list=add(list,st);
     }
  while (consume('/'));
