@@ -15,15 +15,15 @@
     pl+=data[0][i];
     sl+=data[0][i];
     cc+=data[0][i];
-    if (ll + wl >= ww) {
+    if (ll + wl + (ds ? +r.thumbf : 0) >= ww) {
       ir=inRect(r.x + ll,yy,wl - ll,r.thumbfh,x,y);
-      ll=wl - (int)(ww - ll);
+      ll=wl - (int)(ww - ll) + (ds ? +(int)r.thumbf : 0);
       yy+=r.thumblh;
       ir|=inRect(r.x,yy,ll,r.thumbfh,x,y);
     }
  else {
       ir|=inRect(r.x + ll,yy,wl,r.thumbfh,x,y);
-      ll+=wl;
+      ll+=wl + (ds ? +r.thumbf : 0);
     }
     if (ir) {
       final int si=i;
@@ -32,14 +32,27 @@
       final int sd=BaseXLayout.width(g,cw,'.');
       while (r.pos != null && pp < r.pos.length && i > r.pos[pp])       pp++;
       final int pps=pp;
+      final int bpsl=psl;
+      final int bsl=sl;
       ll=sd * 2 + sp;
       int l=0;
       byte[] tok;
       int p=cc >= data[0][i] ? cc - data[0][i] : 0;
       while (p > -1 && i > -1) {
-        tok=new byte[data[0][i]];
-        for (int k=0; k < tok.length; k++) {
+        boolean apm=psl < data[1].length && data[1][psl] == sl;
+        tok=new byte[data[0][i] + (apm ? 1 : 0)];
+        for (int k=0; k < tok.length - (apm ? 1 : 0); k++) {
           tok[k]=(byte)data[3][p + k];
+        }
+        if (apm) {
+          tok[tok.length - 1]=(byte)data[4][psl];
+          sl+=1;
+        }
+        sl-=tok.length;
+        if (sl == 0) {
+          psl--;
+          if (psl == -1)           psl=data[1].length;
+ else           sl=data[1][psl];
         }
         l=0;
         for (int n=0; n < tok.length; n+=cl(tok[n]))         l+=BaseXLayout.width(g,cw,cp(tok,n));
@@ -74,12 +87,25 @@
       ul=tl.size - 1;
       ll=0;
       pp=pps;
+      sl=bsl;
+      psl=bpsl;
       while (p < data[3].length && i < data[0].length) {
-        tok=new byte[data[0][i]];
+        boolean apm=false;
+        if (psl < data[1].length && data[1][psl] == sl) {
+          apm=true;
+          sl=0;
+          psl++;
+        }
+        tok=new byte[data[0][i] + (apm ? 1 : 0)];
         l=0;
-        for (int k=0; k < tok.length; k++) {
+        for (int k=0; k < tok.length - (apm ? 1 : 0); k++) {
           tok[k]=(byte)data[3][p + k];
         }
+        if (apm) {
+          tok[tok.length - 1]=(byte)data[4][psl];
+          sl+=1;
+        }
+        sl+=tok.length;
         for (int n=0; n < tok.length; n+=cl(tok[n]))         l+=BaseXLayout.width(g,cw,cp(tok,n));
         if (ll + l + sp+ 2 * sd >= w / 2)         break;
         ll+=l + sp;
@@ -94,7 +120,7 @@
  else           ttcol.add(-1);
         }
  else         ttcol.add(-1);
-        p+=tok.length;
+        p+=tok.length - (apm ? 1 : 0);
         i++;
       }
       tl.add(new byte[]{'.','.'});
