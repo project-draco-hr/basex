@@ -1,0 +1,129 @@
+{
+  if (ne - ns <= 1) {
+    putRect(data,r,mainRects,l,ns,level);
+  }
+ else {
+    if (level == 0) {
+      splitUniformly(data,r,mainRects,l,ns,ne,level,r.w > r.h);
+    }
+ else {
+      l.initChilds(data);
+      int nn=0;
+      for (int i=0; i <= ne; i++) {
+        nn+=l.nrchilds[i];
+      }
+      long parsize=data.fs != null ? addSizes(l,ns,ne,data) : 0;
+      int ni=ns;
+      l.initWeights(parsize,nn,data);
+      l.sort();
+      int start=ns;
+      final boolean v=r.w < r.h;
+      double xx=r.x;
+      double yy=r.y;
+      double ww=r.w;
+      double hh=r.h;
+      if (v) {
+        ArrayList<MapRect> row=new ArrayList<MapRect>();
+        double height=0;
+        while (ni < ne) {
+          long size=0;
+          for (int i=start; i <= ni; i++) {
+            size+=l.sizes[i];
+          }
+          int childs=0;
+          for (int i=start; i <= ni; i++) {
+            childs+=l.nrchilds[i];
+          }
+          double weight=calcWeight(size,childs,parsize,nn,data);
+          height=weight * hh;
+          ArrayList<MapRect> tmp=new ArrayList<MapRect>();
+          double x=xx;
+          for (int i=start; i <= ni; i++) {
+            double w=i == ni ? xx + ww - x : calcWeight(l.sizes[i],l.nrchilds[i],size,childs,data) * ww;
+            tmp.add(new MapRect((int)x,(int)yy,(int)w,(int)height,l.list[i],level));
+            x+=(int)w;
+          }
+          if (lineRatio(tmp) > lineRatio(row)) {
+            for (int i=0; i < row.size(); i++) {
+              MapList newl=new MapList(1);
+              newl.add(row.get(i).pre);
+              calcMap(data,row.get(i),mainRects,newl,0,1,level);
+            }
+            hh-=row.get(0).h;
+            yy+=row.get(0).h;
+            tmp.clear();
+            row.clear();
+            start=ni;
+            nn=0;
+            for (int i=start; i <= ne; i++) {
+              nn+=l.nrchilds[i];
+            }
+            parsize=data.fs != null ? addSizes(l,start,ne,data) : 0;
+            if (ne == ni + 1) {
+              row.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,l.list[ni],level));
+              break;
+            }
+          }
+          row=tmp;
+          ni++;
+        }
+        for (int i=0; i < row.size(); i++) {
+          MapList newl=new MapList(1);
+          newl.add(row.get(i).pre);
+          calcMap(data,row.get(i),mainRects,newl,0,1,level);
+        }
+      }
+ else {
+        ArrayList<MapRect> row=new ArrayList<MapRect>();
+        double width=0;
+        while (ni < ne) {
+          long size=0;
+          for (int i=start; i <= ni; i++) {
+            size+=l.sizes[i];
+          }
+          int childs=0;
+          for (int i=start; i <= ni; i++) {
+            childs+=l.nrchilds[i];
+          }
+          double weight=calcWeight(size,childs,parsize,nn,data);
+          width=weight * ww;
+          ArrayList<MapRect> tmp=new ArrayList<MapRect>();
+          double y=yy;
+          for (int i=start; i <= ni; i++) {
+            double h=i == ni ? yy + hh - y : calcWeight(l.sizes[i],l.nrchilds[i],size,childs,data) * hh;
+            tmp.add(new MapRect((int)xx,(int)y,(int)width,(int)h,l.list[i],level));
+            y+=(int)h;
+          }
+          if (lineRatio(tmp) > lineRatio(row)) {
+            for (int i=0; i < row.size(); i++) {
+              MapList newl=new MapList(1);
+              newl.add(row.get(i).pre);
+              calcMap(data,row.get(i),mainRects,newl,0,1,level);
+            }
+            ww-=row.get(0).w;
+            xx+=row.get(0).w;
+            tmp.clear();
+            row.clear();
+            start=ni;
+            nn=0;
+            for (int i=start; i <= ne; i++) {
+              nn+=l.nrchilds[i];
+            }
+            parsize=data.fs != null ? addSizes(l,start,ne,data) : 0;
+            if (ne == ni + 1) {
+              row.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,l.list[ni],level));
+              break;
+            }
+          }
+          row=tmp;
+          ni++;
+        }
+        for (int i=0; i < row.size(); i++) {
+          MapList newl=new MapList(1);
+          newl.add(row.get(i).pre);
+          calcMap(data,row.get(i),mainRects,newl,0,1,level);
+        }
+      }
+    }
+  }
+}
