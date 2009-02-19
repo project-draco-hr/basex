@@ -2,12 +2,26 @@
   final String dname=basename(path);
   byte[] elem;
   if (isDir(mode))   elem=DIR;
- else   if (isFile(mode))   elem=FILE;
- else   elem="unknown".getBytes();
+ else   if (isFile(mode)) {
+    elem=FILE;
+    try {
+      MemBuilder mb=new MemBuilder();
+      mb.init(new MemData(64,data.tags,data.atts,data.ns,data.skel));
+      Prop.fscont=true;
+      Prop.fsmeta=true;
+      FSParser p=new FSParser(path);
+      mb.build(p,"tmp_memdata4file");
+      return mb.finish();
+    }
+ catch (    IOException e) {
+      e.printStackTrace();
+    }
+  }
+ else   elem=Token.token("unknown");
   MemData m=new MemData(2,data.tags,data.atts,data.ns,data.skel);
   int tagID=data.tags.index(elem,null,false);
   int attID=data.atts.index(NAME,null,false);
   m.addElem(tagID,0,1,2,2,false);
-  m.addAtt(attID,0,dname.getBytes(),1);
+  m.addAtt(attID,0,Token.token(dname),1);
   return m;
 }
