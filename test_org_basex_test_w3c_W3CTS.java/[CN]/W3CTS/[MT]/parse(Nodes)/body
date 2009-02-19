@@ -20,7 +20,7 @@
     final CachedOutput out=new CachedOutput();
     final QueryProcessor xq=new QueryProcessor(in,file);
     Nodes cont=nodes("*:contextItem",root);
-    if (cont.size != 0)     new Check(sources + string(data.atom(cont.nodes[0])) + IO.XMLSUFFIX).execute(context,out);
+    if (cont.size() != 0)     new Check(sources + string(data.atom(cont.nodes[0])) + IO.XMLSUFFIX).execute(context,out);
     final QueryContext ctx=xq.ctx;
     ctx.stop=stop;
     files.add(file(nodes("*:input-file",root),nodes("*:input-file/@variable",root),ctx));
@@ -59,7 +59,7 @@ catch (  final Error ex) {
   final Nodes outFiles=nodes("*:output-file/text()",root);
   final Nodes cmpFiles=nodes("*:output-file/@compare",root);
   final StringBuilder tb=new StringBuilder();
-  for (int o=0; o < outFiles.size; o++) {
+  for (int o=0; o < outFiles.size(); o++) {
     if (o != 0)     tb.append(DELIM);
     final String resFile=string(data.atom(outFiles.nodes[o]));
     final IO exp=IO.get(expected + pth + resFile);
@@ -84,7 +84,7 @@ catch (  final Error ex) {
     logFile.append("\" result='");
   }
   boolean rightCode=false;
-  if (error != null && (outFiles.size == 0 || expError.length() != 0)) {
+  if (error != null && (outFiles.size() == 0 || expError.length() != 0)) {
     expError=error(pth + outname,expError);
     final String code=error.substring(0,Math.min(8,error.length()));
     for (    final String er : SLASH.split(expError)) {
@@ -116,7 +116,7 @@ catch (  final Error ex) {
     }
     if (s == split.length && !inspect) {
       if (print) {
-        if (outFiles.size == 0)         result=error(pth + outname,expError);
+        if (outFiles.size() == 0)         result=error(pth + outname,expError);
         logErr.append(logStr);
         logErr.append("[" + testid + " ] ");
         logErr.append(chop(result));
@@ -149,7 +149,7 @@ catch (  final Error ex) {
     }
   }
  else {
-    if (outFiles.size == 0 || expError.length() != 0) {
+    if (outFiles.size() == 0 || expError.length() != 0) {
       if (print) {
         logOK2.append(logStr);
         logOK2.append("[" + testid + " ] ");
