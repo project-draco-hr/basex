@@ -1,0 +1,24 @@
+{
+  final Data data=ctx.data();
+  if (data == null)   Err.or(XPNOCTX,this);
+  final IndexContext ic=new IndexContext(data,null,true);
+  final String type=string(checkStr(expr[1],ctx)).toLowerCase();
+  final byte[] word=checkStr(expr[0],ctx);
+  if (type.equals(FULLTEXT)) {
+    if (!data.meta.ftxindex)     Err.or(NOIDX,FULLTEXT);
+    return new FTIndexAccess(new FTIndex(data,word),new FTTokenizer(word),ic).iter(ctx);
+  }
+  IndexToken it=null;
+  if (type.equals(TEXT)) {
+    it=new ValuesToken(true,word);
+    if (!data.meta.txtindex)     Err.or(NOIDX,TEXT);
+  }
+ else   if (type.equals(ATTRIBUTE)) {
+    it=new ValuesToken(false,word);
+    if (!data.meta.atvindex)     Err.or(NOIDX,ATTRIBUTE);
+  }
+ else {
+    Err.or(WHICHIDX,type);
+  }
+  return new IndexAccess(it,ic).iter(ctx);
+}
