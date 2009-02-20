@@ -5,7 +5,6 @@
     boolean finish;
     NodeIter ir;
     Iter iter;
-    Nod prev;
     @Override public Nod next() throws QueryException {
       if (finish)       return null;
       if (iter == null) {
@@ -22,15 +21,14 @@
         }
         final Nod nod=ir.next();
         if (nod != null) {
-          if ((prev == null || !nod.is(prev)) && test.eval(nod)) {
+          if (test.eval(nod)) {
             ctx.item=nod;
             ctx.pos++;
             final Item i=pred[0].test(ctx);
             if (i != null) {
               nod.score(i.score());
               if (pos != null && pos.last(ctx))               ir=null;
-              prev=nod.finish();
-              return prev;
+              return nod.finish();
             }
             if (last)             temp=nod.finish();
           }
