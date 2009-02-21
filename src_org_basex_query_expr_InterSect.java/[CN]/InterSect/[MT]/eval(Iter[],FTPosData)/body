@@ -24,7 +24,16 @@
     final IntList il=new IntList();
     for (int i=0; i < seq.size(); i++) {
       it=seq.list[i];
-      if (it instanceof DBNode)       il.add(((DBNode)it).pre + 1);
+      if (it instanceof DBNode) {
+        NodeMore ci=((DBNode)it).child();
+        while (ci.more()) {
+          Item child=ci.next();
+          if (child instanceof DBNode) {
+            final DBNode dbn=(DBNode)child;
+            if (dbn.type == Type.TXT)             il.add(dbn.pre);
+          }
+        }
+      }
     }
     if (il.size == 0)     ftd.init();
  else     ftd.keep(il.finish());
