@@ -1,6 +1,18 @@
 {
   if (db == null)   return new MemBuilder().build(p,"");
-  final DiskBuilder builder=new DiskBuilder();
+  final Builder builder;
+  if (Prop.usebdb) {
+    try {
+      final Class<?> cls=Class.forName("org.basex.build.BDBBuilder");
+      builder=(Builder)cls.newInstance();
+    }
+ catch (    final Exception e) {
+      throw new IOException(e);
+    }
+  }
+ else {
+    builder=new DiskBuilder();
+  }
   try {
     final Data data=builder.build(p,db);
     if (data.meta.txtindex)     data.setIndex(IndexToken.Type.TXT,new ValueBuilder(true).build(data));
