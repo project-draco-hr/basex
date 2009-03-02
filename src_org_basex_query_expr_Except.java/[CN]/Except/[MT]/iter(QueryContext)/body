@@ -1,20 +1,5 @@
 {
-  final NodIter ni=new NodIter(true);
-  Iter iter=ctx.iter(expr[0]);
-  Item it;
-  while ((it=iter.next()) != null) {
-    if (!(it.node()))     Err.nodes(this);
-    ni.add((Nod)it);
-  }
-  for (int e=1; e != expr.length; e++) {
-    iter=ctx.iter(expr[e]);
-    while ((it=iter.next()) != null) {
-      if (!(it.node()))       Err.nodes(this);
-      final Nod node=(Nod)it;
-      for (int s=0; s < ni.size; s++) {
-        if (ni.list[s].is(node))         ni.delete(s--);
-      }
-    }
-  }
-  return ni;
+  final Iter[] iter=new Iter[expr.length];
+  for (int e=0; e != expr.length; e++)   iter[e]=ctx.iter(expr[e]);
+  return eval(iter);
 }
