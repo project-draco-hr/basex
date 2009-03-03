@@ -20,7 +20,13 @@
     ctx.compInfo(OPTPRE,this);
   }
  else   if (e1 instanceof Fun && ((Fun)e1).func == FunDef.POS) {
-    e=Pos.get(this,cmp.cmp,e2);
+    if (e2 instanceof Range) {
+      final long[] rng=((Range)e2).range(null);
+      if (rng != null)       e=Pos.get(rng[0],rng[1]);
+    }
+ else {
+      e=Pos.get(this,cmp.cmp,e2);
+    }
     if (e != this)     ctx.compInfo(OPTWRITE,this);
   }
  else   if (standard(true)) {
