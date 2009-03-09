@@ -67,19 +67,8 @@
           String fn=string(stringLiteral());
           if (ctx.stop != null)           fn=ctx.stop.get(fn);
           IO fl=IO.get(fn);
-          if (!fl.exists() && ctx.file != null) {
-            fl=file.merge(fl);
-            if (!fl.exists())             error(NOSTOPFILE,fl);
-          }
-          try {
-            for (            final byte[] sl : split(norm(fl.content()),' ')) {
-              if (except)               opt.sw.delete(sl);
- else               if (!union || opt.sw.id(sl) == 0)               opt.sw.add(sl);
-            }
-          }
- catch (          final IOException ex) {
-            error(NOSTOPFILE,fl);
-          }
+          if (!fl.exists() && ctx.file != null)           fl=file.merge(fl);
+          if (!ctx.ftopt.stopwords(fl,union,except))           error(NOSTOPFILE,fl);
         }
  else         if (!union && !except) {
           error(FTSTOP);

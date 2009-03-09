@@ -1,17 +1,19 @@
 {
   if (pragma()) {
+    while (pragma())     ;
     check(BRACE1);
-    final FTExpr e=ftSelection();
+    final FTExpr e=ftSelection(true);
     check(BRACE2);
     return e;
   }
   if (consumeWS(PAR1)) {
-    final FTExpr e=ftSelection();
+    final FTExpr e=ftSelection(false);
     check(PAR2);
     return e;
   }
   skipWS();
-  final Expr e=quote(curr()) ? Str.get(stringLiteral()) : enclosed(NOENCLEXPR);
+  final Expr e=curr('{') ? enclosed(NOENCLEXPR) : quote(curr()) ? Str.get(stringLiteral()) : null;
+  if (e == null)   error(prg ? NOPRAGMA : NOENCLEXPR);
   FTMode mode=FTMode.ANY;
   if (consumeWS(ALL)) {
     mode=consumeWS(WORDS) ? FTMode.ALLWORDS : FTMode.ALL;

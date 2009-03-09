@@ -3,8 +3,8 @@
   final String outname=text("@name",root);
   String inname=text("*:query/@name",root);
   if (inname == null)   inname=outname;
-  if (verbose)   BaseX.outln(inname);
   if (single != null && !outname.startsWith(single))   return true;
+  if (verbose)   BaseX.outln("- " + inname);
   final IO file=IO.get(queries + pth + inname+ ".xq");
   if (!file.exists()) {
     BaseX.errln("Not found: " + file);
@@ -27,6 +27,10 @@
     files.add(file(nodes("*:input-URI",root),nodes("*:input-URI/@variable",root),ctx));
     files.add(file(nodes("*:defaultCollection",root),null,ctx));
     var(nodes("*:input-query/@name",root),nodes("*:input-query/@variable",root),pth,ctx);
+    String fn=stop2.get(text("*:aux-URI[@role = 'stopwords']",root));
+    if (fn != null)     ctx.ftopt.stopwords(IO.get(fn),false,false);
+    fn=stem.get(text("*:aux-URI[@role = 'stemming-dictionary']",root));
+    if (fn != null)     ctx.ftopt.stemming(IO.get(fn));
     for (    final int p : nodes("*:module",root).nodes) {
       final String ns=text("@namespace",new Nodes(p,data));
       final String f=mods.get(string(data.atom(p))) + ".xq";

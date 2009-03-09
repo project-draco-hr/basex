@@ -1,28 +1,29 @@
 {
-  if (sub.length == 0)   return 0;
+  if (q.length == 0)   return 0;
   tk.st=is(ST);
   tk.dc=is(DC);
   tk.cs=is(CS);
+  tk.sd=sd;
   tk.init();
   if (is(FZ) && ls == null)   ls=new Levenshtein();
-  sb.init(sub);
-  sb.st=tk.st;
-  sb.dc=tk.dc;
-  sb.cs=tk.cs;
-  sb.uc=is(UC);
-  sb.lc=is(LC);
-  sb.wc=is(WC);
-  sb.fz=is(FZ);
+  qu.init(q);
+  qu.st=tk.st;
+  qu.sd=tk.sd;
+  qu.dc=tk.dc;
+  qu.cs=tk.cs;
+  qu.uc=is(UC);
+  qu.lc=is(LC);
+  qu.wc=is(WC);
+  qu.fz=is(FZ);
   IntList il=null;
   while (tk.more()) {
     final int tp=tk.p;
+    final int tpos=tk.pos;
     byte[] t=tk.get();
     boolean f=true;
     boolean c=false;
-    sb.init();
-    final int tpos=tk.pos;
-    while (f && sb.more()) {
-      final byte[] s=sb.get();
+    qu.init();
+    while (f && qu.more()) {
       if (c) {
         tk.more();
         t=tk.get();
@@ -30,21 +31,17 @@
  else {
         c=true;
       }
-      if (sw != null) {
-        final boolean s1=sw.id(s) != 0;
-        final boolean s2=sw.id(t) != 0;
-        f=!(s1 ^ s2);
-        if (s1 || s2)         continue;
-      }
-      f=sb.fz ? ls.similar(t,s) : sb.wc ? string(t).matches(string(s)) : eq(t,s);
+      final byte[] s=qu.get();
+      if (sw != null && sw.id(s) != 0)       continue;
+      f=qu.fz ? ls.similar(t,s) : qu.wc ? string(t).matches(string(s)) : eq(t,s);
     }
     if (f) {
       if (il == null)       il=new IntList();
-      for (int i=0; i < sb.pos; i++)       il.add(tpos + i);
+      for (int i=0; i < qu.pos; i++)       il.add(tpos + i);
     }
     tk.p=tp;
   }
   if (il == null)   return 0;
-  pos.add(sub,il);
+  pos.add(q,il);
   return il.size;
 }
