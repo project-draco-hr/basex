@@ -1,25 +1,28 @@
 {
-  ArrayList<MapRect> rects=new ArrayList<MapRect>();
-  double weight=0;
-  int ni=ns;
-  weight=0;
-  for (; ni < ne - 1; ni++) {
-    if (weight >= sumweight / 2)     break;
-    weight+=w[ni];
-  }
-  int xx=r.x;
-  int yy=r.y;
-  int ww=!(r.w > r.h) ? r.w : (int)(r.w * 1 / sumweight * weight);
-  int hh=r.w > r.h ? r.h : (int)(r.h * 1 / sumweight * weight);
-  if (ww > 0 && hh > 0)   rects.addAll(calcMap(new MapRect(xx,yy,ww,hh,0,r.level),l,w,ns,ni,level,weight));
-  if (r.w > r.h) {
-    xx+=ww;
-    ww=r.w - ww;
+  if (ne - ns == 1) {
+    ArrayList<MapRect> rects=new ArrayList<MapRect>();
+    rects.add(new MapRect(r,l.list[ns],level));
+    return rects;
   }
  else {
-    yy+=hh;
-    hh=r.h - hh;
+    ArrayList<MapRect> rects=new ArrayList<MapRect>();
+    double weight=0.5;
+    int ni=ns;
+    ni=ne - 1;
+    int xx=r.x;
+    int yy=r.y;
+    int ww=!(r.w > r.h) ? r.w : (int)(r.w * 1 / sumweight * weight);
+    int hh=r.w > r.h ? r.h : (int)(r.h * 1 / sumweight * weight);
+    if (ww > 0 && hh > 0)     rects.addAll(calcMap(new MapRect(xx,yy,ww,hh,0,r.level),l,w,ns,ni,level,weight));
+    if (r.w > r.h) {
+      xx+=ww;
+      ww=r.w - ww;
+    }
+ else {
+      yy+=hh;
+      hh=r.h - hh;
+    }
+    if (ww > 0 && hh > 0)     rects.addAll(calcMap(new MapRect(xx,yy,ww,hh,0,r.level),l,w,ni,ne,level,sumweight - weight));
+    return rects;
   }
-  if (ww > 0 && hh > 0)   rects.addAll(calcMap(new MapRect(xx,yy,ww,hh,0,r.level),l,w,ni,ne,level,sumweight - weight));
-  return new ArrayList<MapRect>();
 }
