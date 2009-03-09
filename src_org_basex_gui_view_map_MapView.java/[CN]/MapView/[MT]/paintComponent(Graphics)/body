@@ -19,14 +19,14 @@
  else {
     drawImage(g,mainMap,zoomStep);
   }
-  if (focusedRect == null || mainRects.size() == 1 && focusedRect == mainRects.get(0)) {
+  if (focused == null || mainRects.size() == 1 && focused == mainRects.get(0)) {
     gui.painting=false;
     return;
   }
-  if (GUIProp.maplayout == 0) {
+  if (GUIProp.mapoffsets == 0) {
     g.setColor(COLORS[32]);
     int pre=mainRects.size();
-    int par=ViewData.parent(data,focusedRect.pre);
+    int par=ViewData.parent(data,focused.pre);
     while (--pre >= 0) {
       final MapRect rect=mainRects.get(pre);
       if (rect.pre == par) {
@@ -46,42 +46,46 @@
     g.drawRect(selBox.x - 1,selBox.y - 1,selBox.w + 2,selBox.h + 2);
   }
  else {
-    final int x=focusedRect.x;
-    final int y=focusedRect.y;
-    int w=focusedRect.w;
-    int h=focusedRect.h;
+    final int x=focused.x;
+    final int y=focused.y;
+    int w=focused.w;
+    int h=focused.h;
     g.setColor(color6);
     g.drawRect(x,y,w,h);
     g.drawRect(x + 1,y + 1,w - 2,h - 2);
-    if (data.kind(focusedRect.pre) == Data.ELEM) {
+    if (data.kind(focused.pre) == Data.ELEM) {
       g.setFont(font);
-      String tt=Token.string(ViewData.tag(data,focusedRect.pre));
+      String tt=Token.string(ViewData.tag(data,focused.pre));
       if (tt.length() > 32)       tt=tt.substring(0,30) + DOTS;
-      BaseXLayout.drawTooltip(g,tt,x,y,getWidth(),focusedRect.level + 5);
+      BaseXLayout.drawTooltip(g,tt,x,y,getWidth(),focused.level + 5);
     }
-    if (focusedRect.thumb) {
-      final byte[] text=ViewData.content(gui.context.data(),focusedRect.pre,false);
+    if (focused.thumb) {
+      final byte[] text=ViewData.content(data,focused.pre,false);
       final FTTokenizer ftt=new FTTokenizer(text);
       final int[][] d=ftt.getInfo();
-      focusedRect.x+=3;
-      focusedRect.w-=3;
+      focused.x+=3;
+      focused.w-=3;
       g.setColor(Color.black);
-switch (focusedRect.thumbal) {
+      boolean sen=false;
+      boolean spc=false;
+      double sw=focused.thumbf;
+switch (focused.thumbal) {
 case 0:
-        MapRenderer.calcThumbnailsToolTip(focusedRect,d,true,focusedRect.thumbf,mouseX,mouseY,getWidth(),g,true);
-      break;
+        sen=true;
+      spc=true;
+    break;
 case 1:
-    MapRenderer.calcThumbnailsToolTip(focusedRect,d,true,focusedRect.thumbf,mouseX,mouseY,getWidth(),g,false);
-  break;
+  sen=true;
+break;
 case 2:
-MapRenderer.calcThumbnailsToolTip(focusedRect,d,false,focusedRect.thumbf,mouseX,mouseY,getWidth(),g,false);
 break;
 default :
-MapRenderer.calcThumbnailsToolTip(focusedRect,d,false,Math.max(1.5,focusedRect.thumbf),mouseX,mouseY,getWidth(),g,false);
+sw=Math.max(1.5,focused.thumbf);
 }
-MapRenderer.drawToolTip(g,mouseX,mouseY,getX(),getY(),getHeight(),getWidth(),focusedRect.acol);
-focusedRect.x-=3;
-focusedRect.w+=3;
+MapRenderer.calcThumbnailsToolTip(focused,d,sen,sw,mouseX,mouseY,getWidth(),g,spc);
+MapRenderer.drawToolTip(g,mouseX,mouseY,getX(),getY(),getHeight(),getWidth(),focused.acol);
+focused.x-=3;
+focused.w+=3;
 }
 if (GUIProp.mapinteraction == 1) {
 int myx, myy;

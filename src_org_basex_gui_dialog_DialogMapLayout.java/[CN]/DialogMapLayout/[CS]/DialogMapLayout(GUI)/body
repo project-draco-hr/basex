@@ -1,27 +1,16 @@
 {
   super(main,MAPLAYOUTTITLE,false);
   final BaseXBack p=new BaseXBack();
-  p.setLayout(new TableLayout(4,1,0,5));
-  choice=new BaseXListChooser(this,MAPLAYOUTCHOICE,HELPMAPLAYOUT);
-  choice.setSize(210,110);
-  choice.setIndex(GUIProp.maplayout);
-  p.add(choice);
-  final BaseXBack tmpback=new BaseXBack();
-  tmpback.setLayout(new TableLayout(1,2,3,5));
-  final BaseXLabel label=new BaseXLabel(MAPPROPALGO);
-  tmpback.add(label);
-  propalgo=new BaseXCombo(new String[]{"SplitLayout","SliceAndDice Layout","SquarifiedLayout","StripLayout"},HELPMODE,false,this);
-  propalgo.setSelectedIndex(GUIProp.mapalgo);
-  propalgo.addActionListener(new ActionListener(){
-    public void actionPerformed(    final ActionEvent e){
-      final int s=propalgo.getSelectedIndex();
-      if (s == GUIProp.mapalgo || !propalgo.isEnabled())       return;
-      action(null);
-    }
-  }
-);
-  tmpback.add(propalgo);
-  p.add(tmpback);
+  p.setLayout(new TableLayout(4,1,0,8));
+  algo=new BaseXListChooser(this,MAPALGO,HELPMAPLAYOUT);
+  p.add(algo);
+  border=new BaseXCombo(MAPOFFSETS,null,this);
+  final BaseXBack tmp=new BaseXBack();
+  tmp.setLayout(new TableLayout(1,2,3,5));
+  tmp.add(new BaseXLabel(MAPOFF));
+  tmp.add(border);
+  p.add(tmp);
+  algo.setSize(tmp.getPreferredSize().width,70);
   sizeLabel=new BaseXLabel(MAPSIZE);
   sizeSlider=new BaseXSlider(gui,0,100,GUIProp.sizep,HELPMAPSIZE,this);
   BaseXLayout.setWidth(sizeSlider,p.getPreferredSize().width);
@@ -34,5 +23,6 @@
   if (!fs)   p.add(atts);
   set(p,BorderLayout.CENTER);
   finish(GUIProp.maplayoutloc);
-  action(null);
+  algo.setIndex(GUIProp.mapalgo);
+  border.setSelectedIndex(GUIProp.mapoffsets);
 }
