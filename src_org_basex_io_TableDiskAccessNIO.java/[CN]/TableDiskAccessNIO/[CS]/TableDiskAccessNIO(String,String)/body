@@ -10,20 +10,13 @@
   in.close();
   file=new RandomAccessFile(IO.dbfile(nm,f),"rw");
   fc=file.getChannel();
-  final long len=file.length();
-  long tmplen=len;
-  int i=0;
-  numberofwindows=(int)(len - 1 + BUFFERSIZE) / BUFFERSIZE;
-  mbytebuffer=new MappedByteBuffer[numberofwindows];
-  while (tmplen > BUFFERSIZE) {
-    mbytebuffer[i]=fc.map(FileChannel.MapMode.READ_WRITE,i * BUFFERSIZE,BUFFERSIZE);
-    mbytebuffer[i].force();
-    tmplen=tmplen - BUFFERSIZE;
-    i++;
+  len=file.length();
+  if (len <= BUFFERSIZE) {
+    mbytebuffer=fc.map(FileChannel.MapMode.READ_WRITE,0,len);
   }
-  if (tmplen != 0) {
-    mbytebuffer[i]=fc.map(FileChannel.MapMode.READ_WRITE,0,tmplen);
-    mbytebuffer[i].force();
+ else {
+    mbytebuffer=fc.map(FileChannel.MapMode.READ_WRITE,0,BUFFERSIZE);
   }
+  currentMapping=0;
   readBlock(0,0,indexSize > 1 ? firstPres[1] : count);
 }

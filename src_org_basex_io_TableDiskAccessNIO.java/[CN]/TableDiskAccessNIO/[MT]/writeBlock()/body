@@ -1,8 +1,11 @@
 {
-  if (!dirty)   return;
-  final int selector=numberofwindows / block;
-  final int offset=numberofwindows % block;
-  mbytebuffer[selector].position(offset * IO.BLOCKSIZE);
-  mbytebuffer[selector].put(buffer);
-  dirty=false;
+  try {
+    if (!dirty)     return;
+    file.seek((long)block * IO.BLOCKSIZE);
+    file.write(buffer);
+    dirty=false;
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
 }

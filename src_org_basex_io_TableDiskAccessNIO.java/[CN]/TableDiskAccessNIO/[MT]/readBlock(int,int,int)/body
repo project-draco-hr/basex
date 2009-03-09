@@ -1,10 +1,17 @@
 {
   final int b=blocks[ind];
-  final int selector=numberofwindows / b;
-  final int offset=numberofwindows % b;
+  final int requestedMapping=b / MULTI;
+  final int offset=b % MULTI;
   writeBlock();
-  mbytebuffer[selector].position(offset * IO.BLOCKSIZE);
-  mbytebuffer[selector].get(buffer);
+  if (requestedMapping == currentMapping) {
+    mbytebuffer.position(offset * IO.BLOCKSIZE);
+    mbytebuffer.get(buffer);
+  }
+ else {
+    moveWindow(requestedMapping);
+    mbytebuffer.position(offset * IO.BLOCKSIZE);
+    mbytebuffer.get(buffer);
+  }
   block=b;
   index=ind;
   firstPre=first;
