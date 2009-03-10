@@ -12,7 +12,7 @@
   double sumweight=1;
   while (ni < ne) {
     weight+=l.weights[ni];
-    height=weight * r.h;
+    height=weight / sumweight * hh;
     ArrayList<MapRect> tmp=new ArrayList<MapRect>();
     double x=xx;
     for (int i=start; i <= ni; i++) {
@@ -20,14 +20,14 @@
       tmp.add(new MapRect((int)x,(int)yy,(int)w,(int)height,l.list[i],level));
       x+=(int)w;
     }
-    if (lineRatio(tmp) >= lineRatio(row)) {
+    if (lineRatio(tmp) > lineRatio(row)) {
       rects.addAll(row);
       hh-=row.get(0).h;
       yy+=row.get(0).h;
       tmp.clear();
       row.clear();
       start=ni;
-      sumweight=sumweight - weight;
+      sumweight-=weight - l.weights[ni];
       weight=0;
       if (ne == ni + 1) {
         row.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,l.list[ni],level));
@@ -39,6 +39,7 @@
       ni++;
     }
   }
+  for (  MapRect rect : row)   rect.h=(int)hh;
   rects.addAll(row);
   return rects;
 }
