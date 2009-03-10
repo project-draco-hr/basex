@@ -9,9 +9,10 @@
   ArrayList<MapRect> row=new ArrayList<MapRect>();
   double height=0;
   double weight=0;
+  double sumweight=1;
   while (ni < ne) {
     weight+=l.weights[ni];
-    height=weight * hh;
+    height=weight * r.h;
     ArrayList<MapRect> tmp=new ArrayList<MapRect>();
     double x=xx;
     for (int i=start; i <= ni; i++) {
@@ -19,23 +20,25 @@
       tmp.add(new MapRect((int)x,(int)yy,(int)w,(int)height,l.list[i],level));
       x+=(int)w;
     }
-    double tmpratio=lineRatio(tmp);
-    if (tmpratio > lineRatio(row)) {
+    if (lineRatio(tmp) >= lineRatio(row)) {
+      rects.addAll(row);
       hh-=row.get(0).h;
       yy+=row.get(0).h;
-      rects.addAll(row);
       tmp.clear();
       row.clear();
-      ni--;
       start=ni;
+      sumweight=sumweight - weight;
       weight=0;
+      if (ne == ni + 1) {
+        row.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,l.list[ni],level));
+        break;
+      }
     }
-    if (ne == ni + 1) {
-      rects.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,l.list[ni],level));
-      break;
+ else {
+      row=tmp;
+      ni++;
     }
-    row=tmp;
-    ni++;
   }
+  rects.addAll(row);
   return rects;
 }
