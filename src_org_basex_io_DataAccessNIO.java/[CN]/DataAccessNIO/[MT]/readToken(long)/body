@@ -2,20 +2,14 @@
   cursor(p);
   int l=readNum();
   final byte[] b=new byte[l];
-  int tmp=mbytebuffer.remaining();
-  if (l > tmp) {
-    int ll=0;
-    while (ll < l) {
-      if (tmp >= l - ll) {
-        mbytebuffer.get(b,ll,l - ll);
-        ll=l;
+  if (l > mbytebuffer.remaining()) {
+    for (int i=0; i < l; i++) {
+      try {
+        b[i]=mbytebuffer.get();
       }
- else {
-        mbytebuffer.get(b,ll,tmp);
-        ll+=tmp;
+ catch (      BufferUnderflowException e) {
         moveWindow(off + BUFFERSIZE);
       }
-      tmp=mbytebuffer.remaining();
     }
   }
  else {
