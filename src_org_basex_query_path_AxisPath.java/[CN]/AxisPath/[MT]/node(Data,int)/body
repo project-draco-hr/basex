@@ -1,21 +1,20 @@
 {
   if (!data.meta.uptodate || data.ns.size() != 0)   return null;
-  SkelNode node=data.skel.root;
+  ArrayList<SkelNode> in=new ArrayList<SkelNode>();
+  in.add(data.skel.root);
   for (int s=0; s <= l; s++) {
     final boolean desc=step[s].axis == Axis.DESC;
     if (!desc && step[s].axis != Axis.CHILD || step[s].test.kind != Kind.NAME)     return null;
     final int name=data.tagID(step[s].test.name.ln());
-    final ArrayList<SkelNode> n=new ArrayList<SkelNode>();
-    n.add(node);
-    boolean found=false;
-    for (    final SkelNode sn : data.skel.desc(n,0,Data.DOC,desc)) {
+    final ArrayList<SkelNode> out=new ArrayList<SkelNode>();
+    for (    final SkelNode sn : data.skel.desc(in,0,Data.DOC,desc)) {
       if (sn.kind == Data.ELEM && name == sn.name) {
-        if (found)         return null;
-        found=true;
-        node=sn;
+        if (out.size() != 0 && out.get(0).countParents() != sn.countParents())         return null;
+        out.add(sn);
       }
     }
-    if (!found)     return null;
+    if (out.size() == 0)     return null;
+    in=out;
   }
-  return node;
+  return in;
 }

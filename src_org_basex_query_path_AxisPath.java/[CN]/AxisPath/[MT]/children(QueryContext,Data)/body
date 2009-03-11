@@ -1,13 +1,26 @@
 {
   for (int i=0; i < step.length; i++) {
     if (step[i].axis != Axis.DESC)     continue;
-    SkelNode node=node(data,i);
-    if (node == null)     continue;
+    ArrayList<SkelNode> nodes=node(data,i);
+    if (nodes == null)     continue;
     ctx.compInfo(OPTCHILD,step[i]);
     final TokenList tl=new TokenList();
-    while (node.par != null) {
-      tl.add(data.tags.key(node.name));
-      node=node.par;
+    ArrayList<SkelNode> temp=new ArrayList<SkelNode>();
+    while (nodes.size() != 0) {
+      SkelNode rootNode=nodes.get(0);
+      temp.add(rootNode.par);
+      boolean same=true;
+      for (int j=1; j < nodes.size(); j++) {
+        SkelNode node=nodes.get(j);
+        temp.add(node.par);
+        if (rootNode.name != node.name)         same=false;
+        if (j == nodes.size() - 1) {
+          nodes=temp;
+          temp=null;
+          if (same)           tl.add(data.tags.key(node.name));
+ else           tl.add(null);
+        }
+      }
     }
     int ts=tl.size;
     final Step[] steps=new Step[ts + step.length - i - 1];
