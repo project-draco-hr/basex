@@ -65,7 +65,6 @@
       final int[][] d=ftt.getInfo();
       focused.x+=3;
       focused.w-=3;
-      g.setColor(Color.black);
       boolean sen=false;
       boolean spc=false;
       double sw=focused.thumbf;
@@ -82,45 +81,10 @@ break;
 default :
 sw=Math.max(1.5,focused.thumbf);
 }
-MapRenderer.calcThumbnailsToolTip(focused,d,sen,sw,mouseX,mouseY,getWidth(),g,spc);
+MapRenderer.drawThumbnailsToolTip(focused,d,sen,sw,mouseX,mouseY,getWidth(),g,spc);
 MapRenderer.drawToolTip(g,mouseX,mouseY,getX(),getY(),getHeight(),getWidth(),focused.acol);
 focused.x-=3;
 focused.w+=3;
-}
-if (GUIProp.mapinteraction == 1) {
-int myx, myy;
-if (mouseX - GUIProp.lenswidth < 0) myx=0;
- else if (mouseX + GUIProp.lenswidth > getWidth()) myx=getWidth() - (GUIProp.lenswidth << 1);
- else myx=mouseX - GUIProp.lenswidth;
-if (mouseY - GUIProp.lensheight < 0) myy=0;
- else if (mouseY + GUIProp.lensheight > getHeight()) myy=getHeight() - (GUIProp.lensheight << 1);
- else myy=mouseY - GUIProp.lensheight;
-final MapRect rectToZoom=new MapRect(myx + GUIProp.lenswidth - GUIProp.lensareawidth,myy + GUIProp.lensheight - GUIProp.lensareaheight,GUIProp.lensareawidth << 1,GUIProp.lensareaheight << 1);
-g.setColor(Color.red);
-g.drawRect(rectToZoom.x,rectToZoom.y,rectToZoom.w,rectToZoom.h);
-int np=0;
-final IntList il=new IntList();
-for (int r=0, rl=mainRects.size(); r < rl; r++) {
-final MapRect rect=mainRects.get(r);
-if (mainRects.get(r).pre < np) continue;
-if (rectToZoom.contains(rect)) {
-il.add(rect.pre);
-np=rect.pre + data.size(rect.pre,data.kind(rect.pre));
-}
-}
-g.setColor(Color.black);
-g.drawRect(myx,myy,GUIProp.lenswidth << 1,GUIProp.lensheight << 1);
-w=GUIProp.lenswidth << 1;
-h=GUIProp.lensheight << 1;
-final MapRect rect=new MapRect(0,0,w,h,0,0);
-final ArrayList<MapRect> lensRects=new ArrayList<MapRect>();
-final Nodes nodes=new Nodes(gui.focused,data);
-final BufferedImage bi=new BufferedImage(w,h,BufferedImage.TYPE_INT_BGR);
-calc(rect,lensRects,nodes,bi);
-final int ac=AlphaComposite.SRC_OVER;
-((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,1.0f));
-drawMap(bi,lensRects);
-g.drawImage(bi,myx,myy,this);
 }
 }
 gui.painting=false;
