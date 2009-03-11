@@ -4,21 +4,16 @@
     putRect(r,level);
   }
  else {
-    l.initChildren(data);
-    int nn=0;
-    for (int i=0; i <= ne; i++) {
-      nn+=l.nrchildren[i];
-    }
-    long parsize=data.fs != null ? addSizes(l,ns,ne) : 0;
-    l.initWeights(parsize,nn,data);
+    ArrayList<MapRect> rects;
     if (level == 0) {
-      rectangles.addAll(new SplitAlgo().calcMap(r,l,l.weights,ns,ne,level));
+      rects=splitUniformly(r,l,ns,ne);
     }
  else {
-      ArrayList<MapRect> rects=algo.calcMap(r,l,l.weights,ns,ne,level);
-      for (      MapRect rect : rects) {
-        putRect(rect,rect.level);
-      }
+      int nn=l.list[ne] - l.list[ns];
+      long parsize=data.fs != null ? addSizes(l,ns,ne) : 0;
+      l.initWeights(parsize,nn,data);
+      rects=algo.calcMap(r,l,l.weights,ns,ne,level);
     }
+    for (    MapRect rect : rects)     putRect(rect,rect.level);
   }
 }
