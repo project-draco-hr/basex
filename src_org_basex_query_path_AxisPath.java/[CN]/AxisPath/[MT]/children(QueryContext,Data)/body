@@ -1,0 +1,31 @@
+{
+  for (int i=0; i < step.length; i++) {
+    if (step[i].axis != Axis.DESC)     continue;
+    ArrayList<PathNode> nodes=pathNodes(data,i);
+    if (nodes == null)     continue;
+    ctx.compInfo(OPTCHILD,step[i]);
+    final TokenList tl=new TokenList();
+    while (nodes.get(0).par != null) {
+      final ArrayList<PathNode> temp=new ArrayList<PathNode>();
+      byte[] tag=data.tags.key(nodes.get(0).name);
+      for (int j=0; j < nodes.size(); j++) {
+        final PathNode sn=nodes.get(j);
+        if (nodes.get(0).name != sn.name)         tag=null;
+        temp.add(sn.par);
+      }
+      tl.add(tag);
+      nodes=temp;
+    }
+    int ts=tl.size;
+    final Step[] steps=new Step[ts + step.length - i - 1];
+    for (int t=0; t <= ts - 1; t++) {
+      final Expr[] preds=t == ts - 1 ? step[i].pred : new Expr[]{};
+      final byte[] n=tl.list[ts - t - 1];
+      final NameTest nt=n == null ? new NameTest(false) : new NameTest(new QNm(n),Kind.NAME,false);
+      steps[t]=Step.get(Axis.CHILD,nt,preds);
+    }
+    while (++i < step.length)     steps[ts++]=step[i];
+    return get(root,steps).children(ctx,data);
+  }
+  return this;
+}

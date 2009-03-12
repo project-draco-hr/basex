@@ -1,0 +1,20 @@
+{
+  if (!data.meta.uptodate || data.ns.size() != 0)   return null;
+  ArrayList<PathNode> in=new ArrayList<PathNode>();
+  in.add(data.path.root);
+  for (int s=0; s <= l; s++) {
+    final boolean desc=step[s].axis == Axis.DESC;
+    if (!desc && step[s].axis != Axis.CHILD || step[s].test.kind != Kind.NAME)     return null;
+    final int name=data.tagID(step[s].test.name.ln());
+    final ArrayList<PathNode> out=new ArrayList<PathNode>();
+    for (    final PathNode sn : data.path.desc(in,0,Data.DOC,desc)) {
+      if (sn.kind == Data.ELEM && name == sn.name) {
+        if (out.size() != 0 && out.get(0).level() != sn.level())         return null;
+        out.add(sn);
+      }
+    }
+    if (out.size() == 0)     return null;
+    in=out;
+  }
+  return in;
+}
