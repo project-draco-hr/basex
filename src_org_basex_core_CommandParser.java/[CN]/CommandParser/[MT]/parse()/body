@@ -1,30 +1,9 @@
 {
   Process[] list=new Process[0];
   if (!more())   return list;
-  boolean fsmode=Prop.fsmode;
   while (true) {
-    Cmd cmd=null;
-    Process proc;
-    if (fsmode) {
-      cmd=Cmd.BASH;
-      CmdFS fs=CmdFS.EXT;
-      String args=name(null);
-      try {
-        fs=Enum.valueOf(CmdFS.class,args.toUpperCase());
-        if (fs == Commands.CmdFS.EXIT)         fsmode=false;
-        args="";
-      }
- catch (      final Exception ex) {
-        args+=" ";
-      }
-      final String a=string(null);
-      proc=new Fs(fs.name(),a == null ? args : args + a);
-    }
- else {
-      cmd=consume(Cmd.class,null);
-      proc=parse(cmd);
-      if (proc instanceof Fs)       fsmode=true;
-    }
+    Cmd cmd=consume(Cmd.class,null);
+    Process proc=parse(cmd);
     list=Array.add(list,proc);
     consumeWS();
     if (!more())     return list;
