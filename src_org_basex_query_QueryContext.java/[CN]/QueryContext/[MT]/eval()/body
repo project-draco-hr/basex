@@ -1,0 +1,28 @@
+{
+  final Iter it=iter();
+  final SeqIter ir=new SeqIter(this);
+  Item i;
+  if (nodes != null) {
+    final Data data=nodes.data;
+    final IntList pre=new IntList();
+    while ((i=it.next()) != null) {
+      checkStop();
+      if (!(i instanceof DBNode))       break;
+      final DBNode n=(DBNode)i;
+      if (n.data != data)       break;
+      pre.add(((DBNode)i).pre);
+    }
+    if (i == null) {
+      final Nodes n=new Nodes(pre.finish(),data);
+      n.ftpos=ftdata;
+      return n;
+    }
+    for (int p=0; p < pre.size; p++)     ir.add(new DBNode(data,pre.list[p]));
+    ir.add(i);
+  }
+  while ((i=it.next()) != null) {
+    checkStop();
+    ir.add(i);
+  }
+  return ir;
+}

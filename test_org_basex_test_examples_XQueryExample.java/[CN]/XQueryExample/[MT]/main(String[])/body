@@ -1,14 +1,21 @@
 {
-  System.out.println("First example:");
   ConsoleOutput out=new ConsoleOutput(System.out);
+  out.println("=== First example ===");
   Context context=new Context();
   new XQuery(QUERY).execute(context,out);
   out.println();
-  out.close();
-  System.out.println("Second example:");
-  QueryProcessor xquery=new QueryProcessor(QUERY);
-  Result result=xquery.query(null);
-  result.serialize(new XMLSerializer(out));
+  out.println("=== Second example ====");
+  XMLSerializer xml=new XMLSerializer(out);
+  QueryProcessor proc1=new QueryProcessor(QUERY);
+  Result result=proc1.query();
+  result.serialize(xml);
+  out.println();
+  out.println("=== Third example ===");
+  QueryProcessor proc2=new QueryProcessor(QUERY);
+  Iter iter=proc2.iter();
+  for (  final Item item : iter) {
+    item.serialize(xml);
+  }
   out.println();
   out.close();
 }

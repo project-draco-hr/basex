@@ -1,3 +1,19 @@
 {
-  return path(pre,0,true);
+  int p=pre;
+  int k=data.kind(p);
+  final IntList il=new IntList();
+  while (p >= 0 && k != Data.DOC) {
+    il.add(p);
+    p=data.parent(p,k);
+    k=data.kind(p);
+  }
+  final TokenBuilder tb=new TokenBuilder();
+  final int s=il.size;
+  for (int i=s - 2; i >= 0; i--) {
+    final byte[] node=replace(name(il.list[i]),'\\','/');
+    tb.add(node);
+    if (!endsWith(node,'/'))     tb.add('/');
+  }
+  final byte[] node=tb.finish();
+  return endsWith(node,'/') ? substring(node,0,node.length - 1) : node;
 }

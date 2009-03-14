@@ -1,0 +1,38 @@
+{
+  if (nodes != null && nodes.ftpos != null)   ftdata=new FTPosData();
+  try {
+    final int s=nodes != null ? nodes.size() : 0;
+    if (s != 0) {
+      final Data data=nodes.data;
+      docs=new DBNode[s];
+      for (int d=0; d < s; d++) {
+        final int p=nodes.nodes[d];
+        if (data.kind(p) == Data.DOC)         docs[rootDocs++]=new DBNode(data,p);
+      }
+      if (rootDocs == 0)       docs[rootDocs++]=new DBNode(data,0);
+      if (rootDocs != docs.length)       docs=Array.finish(docs,rootDocs);
+      final SeqIter si=new SeqIter();
+      if (root instanceof AxisPath && ((AxisPath)root).root instanceof Root) {
+        for (        final DBNode d : docs)         si.add(d);
+      }
+ else {
+        for (int d=0; d < s; d++)         si.add(new DBNode(data,nodes.nodes[d]));
+      }
+      item=si.finish();
+      final NodIter ni=new NodIter();
+      for (      final DBNode d : docs)       ni.add(d);
+      addColl(ni,token(data.meta.dbname));
+    }
+    inf=Prop.allInfo;
+    if (inf)     compInfo(QUERYCOMP);
+    fun.comp(this);
+    vars.comp(this);
+    root=root.comp(this);
+    if (inf)     compInfo(QUERYRESULT + "%",root);
+    evalTime=System.nanoTime();
+  }
+ catch (  final StackOverflowError e) {
+    if (Prop.debug)     e.printStackTrace();
+    Err.or(XPSTACK);
+  }
+}
