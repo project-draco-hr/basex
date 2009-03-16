@@ -1,0 +1,112 @@
+{
+  super(man,null);
+  setLayout(new BorderLayout());
+  setBorder(5,5,5,5);
+  final BaseXBack panel=new BaseXBack(Fill.NONE);
+  panel.setLayout(new BorderLayout());
+  Box box=new Box(BoxLayout.X_AXIS);
+  xLog=new BaseXCheckBox(PLOTLOG,null,false,null);
+  xLog.setSelected(GUIProp.plotxlog);
+  xLog.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      GUIProp.plotxlog^=true;
+      refreshUpdate();
+    }
+  }
+);
+  dots=new BaseXSlider(gui,new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      GUIProp.plotdots=dots.value();
+      refreshLayout();
+    }
+  }
+,-10,10,GUIProp.plotdots);
+  BaseXLayout.setWidth(dots,40);
+  yLog=new BaseXCheckBox(PLOTLOG,null,false,null);
+  yLog.setSelected(GUIProp.plotylog);
+  yLog.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      GUIProp.plotylog^=true;
+      refreshUpdate();
+    }
+  }
+);
+  box.add(yLog);
+  box.add(Box.createHorizontalGlue());
+  box.add(dots);
+  box.add(Box.createHorizontalGlue());
+  box.add(xLog);
+  panel.add(box,BorderLayout.NORTH);
+  box=new Box(BoxLayout.X_AXIS);
+  xCombo=new BaseXCombo();
+  xCombo.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      if (plotData.xAxis.setAxis((String)xCombo.getSelectedItem())) {
+        plotChanged=true;
+        markingChanged=true;
+        repaint();
+      }
+    }
+  }
+);
+  yCombo=new BaseXCombo();
+  yCombo.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      if (plotData.yAxis.setAxis((String)yCombo.getSelectedItem())) {
+        plotChanged=true;
+        markingChanged=true;
+        repaint();
+      }
+    }
+  }
+);
+  itemCombo=new BaseXCombo();
+  itemCombo.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      final String item=(String)itemCombo.getSelectedItem();
+      if (plotData.setItem(item)) {
+        plotChanged=true;
+        markingChanged=true;
+        final String[] keys=plotData.getCategories(token(item)).finishString();
+        xCombo.setModel(new DefaultComboBoxModel(keys));
+        yCombo.setModel(new DefaultComboBoxModel(keys));
+        if (keys.length > 0) {
+          int y=0;
+          for (int k=0; k < keys.length; k++) {
+            if (keys[k].endsWith(DataText.S_SIZE)) {
+              y=k;
+              break;
+            }
+          }
+          int x=y == 0 ? Math.min(1,keys.length) : 0;
+          for (int k=0; k < keys.length; k++) {
+            if (keys[k].endsWith(DataText.S_NAME)) {
+              x=k;
+              break;
+            }
+          }
+          xCombo.setSelectedIndex(x);
+          yCombo.setSelectedIndex(y);
+        }
+      }
+      drawSubNodes=true;
+      markingChanged=true;
+      repaint();
+    }
+  }
+);
+  box.add(yCombo);
+  box.add(Box.createHorizontalStrut(3));
+  box.add(new JLabel("Y"));
+  box.add(Box.createHorizontalGlue());
+  box.add(itemCombo);
+  box.add(Box.createHorizontalGlue());
+  box.add(new JLabel("X"));
+  box.add(Box.createHorizontalStrut(3));
+  box.add(xCombo);
+  panel.add(box,BorderLayout.SOUTH);
+  add(panel,BorderLayout.SOUTH);
+  new BaseXPopup(this,POPUP);
+  selectionBox=new ViewRect();
+  refreshLayout();
+}

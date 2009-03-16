@@ -1,9 +1,12 @@
 {
+  checkInit();
   final int s=consume('/') ? consume('/') ? 2 : 1 : 0;
-  final Expr ex=step(s);
+  if (s > 0)   checkAxis(s == 2 ? Axis.DESC : Axis.CHILD);
+  qm=qp;
+  final Expr ex=step();
   if (ex == null) {
-    if (s > 1)     error(PATHMISS);
-    return s == 0 ? null : new Root();
+    if (s == 2)     error(PATHMISS);
+    return s == 1 ? new Root() : null;
   }
   final boolean slash=consume('/');
   final boolean step=ex instanceof Step;
@@ -14,15 +17,12 @@
   if (root != ex)   list=add(list,ex);
   if (slash) {
     do {
-      int tmp;
-      if (consume('/')) {
-        tmp=20;
-        list=add(list,descOrSelf());
-      }
- else {
-        tmp=10;
-      }
-      final Expr st=check(step(tmp),PATHMISS);
+      final boolean desc=consume('/');
+      qm=qp;
+      if (desc)       list=add(list,descOrSelf());
+      checkAxis(desc ? Axis.DESC : Axis.CHILD);
+      final Expr st=step();
+      if (st == null)       error(PATHMISS);
       if (!(st instanceof Context))       list=add(list,st);
     }
  while (consume('/'));

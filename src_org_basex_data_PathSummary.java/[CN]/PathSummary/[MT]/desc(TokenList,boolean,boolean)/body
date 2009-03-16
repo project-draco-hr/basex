@@ -1,20 +1,24 @@
 {
-  if (root == null)   return new TokenList();
-  ArrayList<PathNode> n=new ArrayList<PathNode>();
-  n.add(root);
-  n=desc(n,0,Data.DOC,true);
+  final ArrayList<PathNode> list=desc(root(),true);
   for (  final byte[] i : in) {
     final boolean att=startsWith(i,'@');
     final byte kind=att ? Data.ATTR : Data.ELEM;
     final int id=att ? data.attNameID(substring(i,1)) : data.tagID(i);
-    n=desc(n,id,kind,d);
+    final ArrayList<PathNode> out=new ArrayList<PathNode>();
+    for (    final PathNode n : list) {
+      if (id != 0 && (n.name != id || n.kind != kind))       continue;
+      for (      final PathNode c : n.ch) {
+        if (d)         c.addDesc(out);
+ else         out.add(c);
+      }
+    }
   }
-  final double[] tmp=new double[n.size()];
-  for (int i=0; i < n.size(); i++)   tmp[i]=n.get(i).count;
+  final double[] tmp=new double[list.size()];
+  for (int i=0; i < list.size(); i++)   tmp[i]=list.get(i).count;
   final int[] occ=Array.createOrder(tmp,false);
   final TokenList out=new TokenList();
-  for (int i=0; i < n.size(); i++) {
-    final PathNode r=n.get(o ? occ[i] : i);
+  for (int i=0; i < list.size(); i++) {
+    final PathNode r=list.get(o ? occ[i] : i);
     final byte[] name=r.token(data);
     if (name.length != 0 && !out.contains(name) && !contains(name,'(')) {
       out.add(name);

@@ -115,12 +115,10 @@
   top.add(control,BorderLayout.NORTH);
   notify=new ViewNotifier(this);
   query=new QueryView(notify,null);
-  text=new TextView(notify,Fill.DOWN,TEXTTIT,HELPTEXT);
-  help=new TextView(notify,Fill.DOWN,HELPTIT,null);
+  text=new TextView(notify);
   info=new InfoView(notify,HELPINFO);
   final ViewPanel textpanel=new ViewPanel(text,TEXTVIEW);
-  final ViewPanel helppanel=new ViewPanel(help,HELPVIEW);
-  final ViewPanel[][] panels={{textpanel,helppanel},{new ViewPanel(new FolderView(notify,HELPFOLDER),FOLDERVIEW),new ViewPanel(new PlotView(notify,null),PLOTVIEW),new ViewPanel(new TableView(notify,HELPTABLE),TABLEVIEW),new ViewPanel(new MapView(notify,HELPMAP),MAPVIEW),new ViewPanel(query,QUERYVIEW),new ViewPanel(info,INFOVIEW),helppanel,textpanel}};
+  final ViewPanel[][] panels={{textpanel},{new ViewPanel(new FolderView(notify),FOLDERVIEW),new ViewPanel(new PlotView(notify),PLOTVIEW),new ViewPanel(new TableView(notify),TABLEVIEW),new ViewPanel(new MapView(notify),MAPVIEW),new ViewPanel(query,QUERYVIEW),new ViewPanel(info,INFOVIEW),textpanel}};
   views=new ViewContainer(this,panels);
   views.setViews(false);
   top.add(views,BorderLayout.CENTER);
@@ -128,23 +126,15 @@
   status=new GUIStatus(this);
   if (GUIProp.showstatus)   top.add(status,BorderLayout.SOUTH);
   setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-  addWindowListener(new WindowAdapter(){
-    @Override public void windowClosing(    final WindowEvent e){
-      dispose();
-    }
-  }
-);
   add(top);
   setVisible(true);
   views.updateViews();
   refreshControls();
-  Prop.xqerrcode=false;
-  Prop.chop=true;
-  input.requestFocusInWindow();
   new Action(){
     public void run(){
       views.run();
     }
   }
 .execute();
+  input.requestFocusInWindow();
 }
