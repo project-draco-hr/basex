@@ -1,5 +1,5 @@
 {
-  if (is instanceof ZipInputStream || path.endsWith(ZIPSUFFIX) || path.endsWith(DOCXSUFFIX)) {
+  if (is instanceof ZipInputStream || zip()) {
     if (is == null) {
       is=new ZipInputStream(new FileInputStream(file)){
         @Override public void close() throws IOException {
@@ -13,9 +13,9 @@
       if (zip == null)       break;
       len=zip.getSize();
       path=zip.getName();
-      String filter=Prop.createfilter.replaceAll("\\*",".*");
-      if (!filter.contains("."))       filter=".*" + filter + ".*";
-      if (path.matches(filter) && !zip.isDirectory())       return true;
+      System.out.println(zip.getCompressedSize() + ": " + path);
+      System.out.println(zip.getSize() + ": " + path);
+      if (len > 0 && path.toLowerCase().endsWith(XMLSUFFIX) && !zip.isDirectory())       return true;
     }
     is.close();
     is=null;
