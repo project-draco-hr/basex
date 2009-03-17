@@ -2,26 +2,22 @@
   final double ffmax=0.25;
   final double ffmin=0.14;
   final double ffhmax=0.5;
-  final double ffhmin=0.28;
   final double flhmax=0.3;
-  final double flhmin=0.168;
   double ff=ffmax, ffh=ffhmax, flh=flhmax;
-  double fftmin=ffmin, fftmax=ffmax, ffhtmin=ffhmin, ffhtmax=ffhmax, flhtmin=flhmin, flhtmax=flhmax;
-  double bff=ffmax, bffh=ffhmax, bflh=flhmax;
   byte lhmi=(byte)Math.max(3,ffh * GUIProp.fontsize);
   byte fhmi=(byte)Math.max(6,(flh + ffh) * GUIProp.fontsize);
   int h=r.h;
+  final double fac=Math.exp(Math.log(s.length) * 0.97) / s.length;
   r.thumbf=ff * GUIProp.fontsize;
   r.thumbal=0;
   FTTokenizer ftt=new FTTokenizer(s);
   final int[][] data=ftt.getInfo();
-  boolean l=false;
-  while (r.thumbal < 3) {
-    ff=round((fftmax + fftmin) / 2.0);
+  while (r.thumbal < 4) {
+    ff*=fac;
     r.thumbf=ff * GUIProp.fontsize;
-    ffh=round((ffhtmax + ffhtmin) / 2.0);
+    ffh*=fac;
     r.thumbfh=(byte)Math.max(1,ffh * GUIProp.fontsize);
-    flh=round((flhtmax + flhtmin) / 2.0);
+    flh*=fac * fac;
     r.thumblh=(byte)Math.max(1,(flh + ffh) * GUIProp.fontsize);
 switch (r.thumbal) {
 case 0:
@@ -34,11 +30,16 @@ case 2:
 h=drawThumbnailsSentence(g,r,data,false,r.thumbf,false);
 break;
 }
-if (h >= r.h || ge(ff,ffmax) || ge(ffh,ffhmax) || ge(flh,flhmax)) {
-if (l) {
-r.thumbf=bff * GUIProp.fontsize;
-r.thumbfh=(byte)Math.max(1,bffh * GUIProp.fontsize);
-r.thumblh=(byte)Math.max(1,(bflh + bffh) * GUIProp.fontsize);
+if (ff < ffmin) {
+r.thumbal++;
+fhmi=r.thumbfh;
+lhmi=r.thumblh;
+ff=ffmax;
+ffh=ffhmax;
+flh=flhmax;
+}
+ else if (h < r.h) {
+r.thumbal=r.thumbal;
 switch (r.thumbal) {
 case 0:
 drawThumbnailsToken(g,r,data,true,0,0);
@@ -51,34 +52,7 @@ drawThumbnailsSentence(g,r,data,false,r.thumbf,true);
 return;
 }
 }
- else {
-if (le(ff,ffmin) || le(ffh,ffhmin) || le(flh,flhmin)) {
-r.thumbal++;
-fhmi=r.thumbfh;
-lhmi=r.thumblh;
-fftmin=ffmin;
-fftmax=ffmax;
-ffhtmin=ffhmin;
-ffhtmax=ffhmax;
-flhtmin=flhmin;
-flhtmax=flhmax;
-}
- else {
-fftmax=ff;
-ffhtmax=ffh;
-flhtmax=flh;
-}
-}
-}
- else {
-l=true;
-bff=ff;
-bffh=ffh;
-bflh=flh;
-fftmin=ff;
-ffhtmin=ffh;
-flhtmin=flh;
-}
+ else r.thumbal++;
 }
 int sum=data[2][0];
 for (int i=1; i < data[2].length; i++) sum+=data[2][i];
@@ -88,5 +62,5 @@ r.thumbf=fnew;
 r.thumbfh=fhmi;
 r.thumblh=lhmi;
 h=drawThumbnailsSentence(g,r,data,false,Math.max(1.5,fnew),false);
-drawThumbnailsSentence(g,r,data,false,Math.max(1.5,fnew),true);
+if (h < r.h) drawThumbnailsSentence(g,r,data,false,Math.max(1.5,fnew),true);
 }
