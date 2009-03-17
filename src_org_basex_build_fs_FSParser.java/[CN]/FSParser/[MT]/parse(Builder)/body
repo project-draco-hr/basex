@@ -2,19 +2,20 @@
   builder=build;
   builder.encoding(Prop.ENCODING);
   backingroot=backingroot + "/" + io.name();
-  if (!new File(backingroot).mkdir())   throw new IOException(BACKINGEXISTS + backingroot);
+  File bs=new File(backingroot);
+  if (!bs.mkdirs())   if (bs.exists())   if (!FSUtils.deleteDir(bs) || !bs.mkdirs())   throw new IOException(BACKINGEXISTS + backingroot);
   builder.startDoc(token(io.name()));
   if (singlemode) {
     file(new File(io.path()).getCanonicalFile());
   }
  else {
-    builder.startElem(DEEPFS,atts.reset());
+    atts.add(MOUNTPOINT,token(backingroot));
+    atts.add(BACKINGSTORE,token(backingroot));
+    builder.startElem(DEEPFS,atts);
     for (    final File f : root ? File.listRoots() : new File[]{new File(io.path()).getCanonicalFile()}) {
       importroot=f.getAbsolutePath().length();
-      preStack[0]=builder.startElem(DIR,atts(f,true));
       sizeStack[0]=0;
       parse(f);
-      builder.endElem(DIR);
       builder.setAttValue(preStack[0] + SIZEOFFSET,token(sizeStack[0]));
     }
     builder.endElem(DEEPFS);
