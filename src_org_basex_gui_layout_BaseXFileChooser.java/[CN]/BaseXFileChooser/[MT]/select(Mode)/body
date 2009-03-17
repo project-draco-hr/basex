@@ -1,35 +1,34 @@
 {
-  mode=type;
   if (fd != null) {
-    if (type == Mode.OPENDIR)     fd.setFile(" ");
-    fd.setMode(type == Mode.SAVE ? FileDialog.SAVE : FileDialog.LOAD);
+    if (mode == Mode.FDOPEN)     fd.setFile(" ");
+    fd.setMode(mode == Mode.FSAVE || mode == Mode.DSAVE ? FileDialog.SAVE : FileDialog.LOAD);
     fd.setVisible(true);
-    return fd.getFile() != null;
+    if (fd.getFile() == null)     return null;
+    final String dir=fd.getDirectory();
+    return IO.get(mode == Mode.DOPEN || mode == Mode.DSAVE ? dir : dir + "/" + fd.getFile());
   }
   int state=0;
-switch (type) {
-case OPEN:
+switch (mode) {
+case FOPEN:
     state=fc.showOpenDialog(gui);
   break;
-case OPENDIR:
+case FDOPEN:
 fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 state=fc.showOpenDialog(gui);
 break;
-case SAVE:
+case DOPEN:
+fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+state=fc.showDialog(gui,null);
+break;
+case FSAVE:
 state=fc.showSaveDialog(gui);
 break;
-case DIR:
+case DSAVE:
 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 state=fc.showDialog(gui,null);
 break;
 }
-if (state != JFileChooser.APPROVE_OPTION) return false;
-if (mode == Mode.SAVE) {
-final IO file=getFile();
-if (mode == Mode.SAVE && file.exists()) {
-final int i=JOptionPane.showConfirmDialog(gui,BaseX.info(FILEREPLACE,file.name()),DIALOGINFO,JOptionPane.YES_NO_OPTION);
-if (i == JOptionPane.NO_OPTION) return false;
-}
-}
-return true;
+if (state != JFileChooser.APPROVE_OPTION) return null;
+final IO io=IO.get(fc.getSelectedFile().getPath());
+return io.exists() || mode != Mode.FSAVE || Dialog.confirm(gui,BaseX.info(FILEREPLACE,io.name())) ? io : null;
 }
