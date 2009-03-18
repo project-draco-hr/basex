@@ -117,14 +117,12 @@
   long s=0;
   final byte[] path=ViewData.path(data,pre);
   byte[] fileBuf=null;
-  boolean fit=false;
   try {
     boolean binary=GUIFS.mime(name) == GUIFS.Type.IMAGE;
     if (!binary) {
       s=Math.max(0,rect.h * rect.w / o * 4 / mfwidth['A']);
       final File f=new File(string(path));
       s=Math.min(s,f.length());
-      fit=f.length() <= s;
       fileBuf=new byte[(int)s];
       BufferInput.read(f,fileBuf);
       int n=0;
@@ -148,10 +146,10 @@
     System.arraycopy(fileBuf,0,tmp,0,(int)s);
     fileBuf=tmp;
   }
-  if (fit) {
+  final int h=MapRenderer.drawText(g,rect,fileBuf,false);
+  if (h < rect.h) {
     final int p=BaseXLayout.centerPos(g,fileBuf,rect.w);
     if (p != -1)     rect.x+=p;
-    final int h=MapRenderer.drawText(g,rect,fileBuf,false);
     rect.y+=(rect.h - h) / 2 - 1;
     final Color c=g.getColor();
     final Font f=g.getFont();
