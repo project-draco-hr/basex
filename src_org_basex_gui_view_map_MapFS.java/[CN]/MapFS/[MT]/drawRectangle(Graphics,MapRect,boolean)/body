@@ -117,12 +117,14 @@
   long s=0;
   final byte[] path=ViewData.path(data,pre);
   byte[] fileBuf=null;
+  boolean fit=false;
   try {
     boolean binary=GUIFS.mime(name) == GUIFS.Type.IMAGE;
     if (!binary) {
       s=Math.max(0,rect.h * rect.w / o * 4 / mfwidth['A']);
       final File f=new File(string(path));
       s=Math.min(s,f.length());
+      fit=f.length() <= s;
       fileBuf=new byte[(int)s];
       BufferInput.read(f,fileBuf);
       int n=0;
@@ -141,6 +143,7 @@
     return true;
   }
   g.setFont(mfont);
-  MapRenderer.drawText(g,rect,fileBuf,(int)s,true);
+  if (fit)   MapRenderer.drawText(g,rect,fileBuf,(int)s,true);
+ else   MapRenderer.drawThumbnails(g,rect,fileBuf);
   return false;
 }
