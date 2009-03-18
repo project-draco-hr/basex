@@ -1,39 +1,31 @@
 {
-  int l=0;
+  int max=0;
+  for (int i=0; i < size; i++)   for (int j=0; j < pos[i].size; j++)   max=pos[i].list[j] > max ? pos[i].list[j] : max;
+  final int[] c=new int[max + 1];
+  final int[] p=new int[max + 1];
+  c[0]=-1;
+  for (int i=0; i < p.length; i++)   p[i]=-1;
+  for (int i=0; i < size; i++)   for (int j=0; j < pos[i].size; j++) {
+    c[pos[i].list[j]]=pos[i].list[j];
+    if (p[pos[i].list[j]] == -1)     p[pos[i].list[j]]=i;
+  }
   if (start || content) {
-    for (int i=0; i < size; i++) {
-      boolean o=false;
-      final int ts=pos[i].size;
-      for (int j=0; j < (ordered ? Math.min(1,ts) : ts); j++) {
-        if (pos[i].list[j] == l) {
-          l+=new FTTokenizer(term.list[i]).count();
-          o=true;
-        }
-        if (ordered && !content)         break;
-      }
-      if (!o)       return false;
+    int[] l=new int[Math.min(p.length,size)];
+    for (int i=0; i < l.length; i++)     if (p[i] > -1)     l[p[i]]=-1;
+    for (int i=0; i < l.length; i++)     if (l[i] != -1)     return false;
+    if (content) {
+      if (l.length == ft.count())       return true;
+ else       return l.length == size;
     }
   }
-  if (content && l != ft.count())   return false;
-  if (end) {
-    final int c=ft.count();
-    for (int i=0; i < size; i++) {
-      l+=new FTTokenizer(term.list[i]).count();
+ else   if (end) {
+    int count=ft.count() - 1;
+    int[] l=new int[count + 1];
+    for (int i=c.length - 1; i > -1; i--)     if (count == c[i]) {
+      l[count]=-1;
+      count--;
     }
-    l=pos.length == 1 ? 1 : l;
-    for (int i=0; i < size; i++) {
-      boolean o=false;
-      final int ts=pos[i].size;
-      for (int j=ordered ? Math.max(0,ts - 1) : 0; j < ts; j++) {
-        if (l + pos[i].list[j] == c) {
-          o=true;
-          break;
-        }
-        if (ordered)         break;
-      }
-      if (!o)       return false;
-      if (o)       break;
-    }
+    for (int i=1; i <= Math.min(max,size); i++)     if (l[l.length - i] != -1)     return false;
   }
   return true;
 }
