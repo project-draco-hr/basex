@@ -4,21 +4,9 @@
   long[] sizes=new long[list.length];
   int sizeP=GUIProp.mapweight;
   if (GUIProp.mapweight == 0 || data.fs == null || GUIProp.filecont) {
-    boolean usetextlen=false;
-    long len=0;
-    if (usetextlen) {
-      for (int i=0; i < size - 1; i++) {
-        len+=Token.string(ViewData.content(data,list[i],false)).length();
-      }
-    }
-    for (int i=0; i < size - 1; i++) {
-      nrchildren[i]=list[i + 1] - list[i];
-      if (usetextlen) {
-        weight[i]=0.5d * Token.string(ViewData.content(data,list[i],false)).length() / len + 0.5d * nrchildren[i] / parchildren;
-      }
- else {
-        weight[i]=nrchildren[i] * 1d / parchildren;
-      }
+    for (int i=0; i < size; i++) {
+      nrchildren[i]=data.size(list[i],data.kind(list[i]));
+      weight[i]=nrchildren[i] * 1d / parchildren;
     }
   }
  else   if (0 < GUIProp.mapweight && GUIProp.mapweight < 100 && data.fs != null) {
