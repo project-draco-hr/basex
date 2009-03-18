@@ -7,33 +7,22 @@
   for (int pre=0; pre < size; pre++) {
     final int kind=data.kind(pre);
     par=data.parent(pre,kind);
+    int ll=l;
     while (l > 0 && parStack[l - 1] > par) {
       textLen[parStack[l - 1]]+=textLen[parStack[l]];
       --l;
     }
+    if (ll != l)     textLen[parStack[l - 1]]+=textLen[parStack[l]];
     parStack[l]=pre;
     if (kind == Data.TEXT || kind == Data.COMM || kind == Data.PI) {
       textLen[pre]=data.textLen(pre);
     }
+ else     if (kind == Data.ATTR) {
+      textLen[pre]=data.attLen(pre);
+    }
  else     if (kind == Data.ELEM || kind == Data.DOC) {
-      textLen[pre]=0;
       l++;
     }
-    System.out.print("\n\n" + pre + ".PAR: ");
-    for (int i=0; i < l; i++) {
-      System.out.print(parStack[i] + " ");
-    }
-    System.out.print("\n  LEN: ");
-    for (int i=0; i < size; i++) {
-      System.out.print(textLen[i] + " ");
-    }
   }
-  while (l > 0) {
-    textLen[parStack[l - 1]]+=textLen[parStack[l]];
-    l--;
-  }
-  System.out.println();
-  for (int i=0; i < size; i++) {
-    System.out.println(i + ";" + textLen[i]);
-  }
+  while (--l >= 0)   textLen[parStack[l]]+=textLen[parStack[l + 1]];
 }
