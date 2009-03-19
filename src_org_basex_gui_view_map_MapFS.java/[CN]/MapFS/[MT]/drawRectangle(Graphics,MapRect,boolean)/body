@@ -146,6 +146,22 @@
     System.arraycopy(fileBuf,0,tmp,0,(int)s);
     fileBuf=tmp;
   }
+  final int size=data.size(pre,Data.ELEM);
+  int[][] ftd=null;
+  for (int i=size - 1; i > -1; i--)   if (data.kind(pre + i) == Data.ELEM && Token.eq(data.tag(pre + i),"content".getBytes())) {
+    ftd=view.gui.context.marked().ftpos.get(pre + i + 1);
+    break;
+  }
+  if (ftd != null) {
+    rect.pos=ftd[0];
+    rect.poi=ftd[1];
+    rect.acol=view.gui.context.marked().ftpos.col.finish();
+  }
+ else {
+    rect.pos=null;
+    rect.poi=null;
+    rect.acol=null;
+  }
   final int h=MapRenderer.drawText(g,rect,fileBuf,false);
   if (h < rect.h) {
     final int p=BaseXLayout.centerPos(g,fileBuf,rect.w);
@@ -159,6 +175,10 @@
     g.setColor(c);
     g.setFont(f);
   }
- else   MapRenderer.drawThumbnails(g,rect,fileBuf);
+ else {
+    rect.thumb=true;
+    rect.fs=true;
+    MapRenderer.drawThumbnails(g,rect,fileBuf);
+  }
   return false;
 }
