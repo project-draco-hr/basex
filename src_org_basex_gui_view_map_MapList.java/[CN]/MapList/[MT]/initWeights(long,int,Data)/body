@@ -1,24 +1,31 @@
 {
-  weight=new double[list.length];
-  int[] nrchildren=new int[list.length];
-  long[] sizes=new long[list.length];
+  weight=new double[size];
+  int[] nrchildren=new int[size];
+  long[] sizes=new long[size];
   int sizeP=GUIProp.mapweight;
+  if (size == 1) {
+    initWeights();
+    return;
+  }
   if (GUIProp.mapweight == 0 || data.fs == null || !GUIProp.mapfs) {
-    for (int i=0; i < size - 1; i++) {
-      nrchildren[i]=data.size(list[i],data.kind(list[i]));
-      weight[i]=nrchildren[i] * 1d / parchildren;
-    }
+    initWeights(parchildren,data);
   }
  else   if (0 < GUIProp.mapweight && GUIProp.mapweight < 100 && data.fs != null) {
-    for (int i=0; i < size - 1; i++) {
-      sizes[i]=data.fs != null ? Token.toLong(data.attValue(data.sizeID,list[i])) : 0;
-      nrchildren[i]=list[i + 1] - list[i];
+    for (int i=0; i < size; i++) {
+      if (data.attValue(data.sizeID,list[i]) != null)       sizes[i]=Token.toLong(data.attValue(data.sizeID,list[i]));
+ else {
+        sizes[i]=0;
+      }
+      nrchildren[i]=data.size(list[i],data.kind(list[i]));
       weight[i]=sizeP / 100d * sizes[i] / parsize + (1 - sizeP / 100d) * nrchildren[i] / parchildren;
     }
   }
  else   if (GUIProp.mapweight == 100 && data.fs != null) {
-    for (int i=0; i < size - 1; i++) {
-      sizes[i]=data.fs != null ? Token.toLong(data.attValue(data.sizeID,list[i])) : 0;
+    for (int i=0; i < size; i++) {
+      if (data.attValue(data.sizeID,list[i]) != null)       sizes[i]=Token.toLong(data.attValue(data.sizeID,list[i]));
+ else {
+        sizes[i]=0;
+      }
       weight[i]=sizes[i] * 1d / parsize;
     }
   }
