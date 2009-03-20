@@ -29,7 +29,7 @@
     }
   }
   final boolean full=!isImage && rect.w >= GUIProp.fontsize * 12 && rect.h >= GUIProp.fontsize * 8 || rect.w == view.getWidth() && rect.h == view.getHeight();
-  final int fullsize=!GUIProp.filecont && full && file ? 1 : 0;
+  final int fullsize=full && file ? 1 : 0;
   final int off=(16 << fullsize) + fullsize * 8;
   final byte[] text=tag ? name : data.text(pre);
   g.setFont(tag ? fullsize == 1 ? lfont : font : mfont);
@@ -122,7 +122,7 @@
     if (!binary) {
       s=Math.max(0,rect.h * rect.w / o * 4 / mfwidth['A']);
       final File f=new File(string(path));
-      s=f.length();
+      s=Math.min(s,f.length());
       fileBuf=new byte[(int)s];
       BufferInput.read(f,fileBuf);
       int n=0;
