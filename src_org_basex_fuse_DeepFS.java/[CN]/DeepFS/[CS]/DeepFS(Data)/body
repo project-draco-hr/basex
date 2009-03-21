@@ -1,0 +1,44 @@
+{
+  data=d;
+  dirID=d.tags.id(DataText.DIR);
+  fileID=d.tags.id(DataText.FILE);
+  unknownID=d.tags.id(DataText.UNKNOWN);
+  suffID=d.atts.id(DataText.SUFFIX);
+  timeID=d.atts.id(DataText.MTIME);
+  modeID=d.atts.id(DataText.MODE);
+  backingstoreID=d.atts.id(DataText.BACKINGSTORE);
+  mountpointID=d.atts.id(DataText.MOUNTPOINT);
+  if (Prop.fuse) {
+    final File mp=new File(Prop.mountpoint);
+    final File bp=new File(Prop.backingpath);
+    if (Prop.mountpoint.compareTo(d.meta.mount) != 0) {
+      if (Prop.edbt) {
+        BaseX.errln("Prop.mountpoint and d.meta.mount differ",Prop.mountpoint," ",d.meta.mount);
+      }
+    }
+    if (!mp.exists()) {
+      if (Prop.edbt) {
+        BaseX.errln("[DataFS:95] Mountpoint does not exist  : " + Prop.mountpoint);
+        BaseX.errln("[DataFS:97] Trying to create mountpoint: " + Prop.mountpoint);
+      }
+      if (!mp.mkdirs()) {
+        if (mp.exists()) {
+          if (!FSUtils.deleteDir(mp) || !mp.mkdirs()) {
+            System.err.println(FSText.MOUNTPOINTEXISTS + Prop.mountpoint);
+            return;
+          }
+        }
+      }
+    }
+    if (!bp.exists()) {
+      if (Prop.edbt) {
+        BaseX.errln("[DataFS:93] Backingpath does not exist. " + Prop.backingpath);
+      }
+      return;
+    }
+    if (Prop.edbt) {
+      BaseX.errln("[DataFS] Trying to mount DeepFS on " + d.meta.mount);
+    }
+    nativeMount(d.meta.mount,d.meta.backing,d.meta.dbname);
+  }
+}

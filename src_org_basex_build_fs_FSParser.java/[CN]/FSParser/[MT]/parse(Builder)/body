@@ -1,7 +1,7 @@
 {
   builder=build;
   builder.encoding(Prop.ENCODING);
-  backingroot=backingroot + "/" + io.name();
+  backingroot=Prop.backingpath + "/" + io.name();
   File bs=new File(backingroot);
   if (!bs.mkdirs())   if (bs.exists())   if (!FSUtils.deleteDir(bs) || !bs.mkdirs())   throw new IOException(BACKINGEXISTS + backingroot);
   builder.startDoc(token(io.name()));
@@ -9,11 +9,13 @@
     file(new File(io.path()).getCanonicalFile());
   }
  else {
-    atts.add(MOUNTPOINT,token(backingroot));
+    atts.reset();
+    atts.add(MOUNTPOINT,token(Prop.mountpoint));
+    atts.add(SIZE,token("0"));
     atts.add(BACKINGSTORE,token(backingroot));
     builder.startElem(DEEPFS,atts);
     for (    final File f : root ? File.listRoots() : new File[]{new File(io.path()).getCanonicalFile()}) {
-      importroot=f.getAbsolutePath().length();
+      importRootLength=f.getAbsolutePath().length();
       sizeStack[0]=0;
       parse(f);
       builder.setAttValue(preStack[0] + SIZEOFFSET,token(sizeStack[0]));
