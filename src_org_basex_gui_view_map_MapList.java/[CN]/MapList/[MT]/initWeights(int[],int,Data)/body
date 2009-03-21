@@ -1,13 +1,22 @@
 {
   weight=new double[size];
-  int[] nrchildren=new int[size];
-  int textSum=0;
-  for (int i=0; i < size; i++) {
-    textSum+=textLen[list[i]];
+  if (GUIProp.mapweight == 0) {
+    for (int i=0; i < size; i++) {
+      weight[i]=(double)ViewData.size(data,list[i]) / nchildren;
+    }
+    return;
   }
-  for (int i=0; i < size; i++) {
-    nrchildren[i]=data.size(list[i],data.kind(list[i]));
-    if (nrchildren[i] < 0)     System.out.println(nrchildren[i]);
-    weight[i]=GUIProp.mapweight / 100d * textLen[list[i]] / textSum + (1 - GUIProp.mapweight / 100d) * nrchildren[i] / children;
+  final double sizeP=GUIProp.mapweight / 100d;
+  long sum=0;
+  for (int i=0; i < size; i++)   sum+=weight(textLen,data,i);
+  if (sizeP < 1) {
+    for (int i=0; i < size; i++) {
+      weight[i]=sizeP * weight(textLen,data,i) / sum + (1 - sizeP) * ViewData.size(data,list[i]) / nchildren;
+    }
+  }
+ else {
+    for (int i=0; i < size; i++) {
+      weight[i]=weight(textLen,data,i) / sum;
+    }
   }
 }

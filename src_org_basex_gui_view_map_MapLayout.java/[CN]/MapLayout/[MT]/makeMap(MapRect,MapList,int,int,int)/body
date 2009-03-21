@@ -4,35 +4,20 @@
     putRect(r,level);
   }
  else {
-    final long parsize=data.fs != null ? addSizes(l) : 0;
-    int nn;
-    ArrayList<MapRect> rects;
+    int nn=0;
     if (level == 0) {
-      nn=0;
-      for (int i=0; i < l.size; i++) {
-        nn+=data.size(l.list[i],data.kind(l.list[i]));
-      }
-      if (GUIProp.mapsimple) {
-        l.initWeights();
-      }
- else       if (GUIProp.usetextlength && data.fs == null) {
-        l.initWeights(textLen,nn,data);
-      }
- else       l.initWeights(parsize,nn,data);
-      final MapAlgo tmp=new SplitAlgo();
-      rects=tmp.calcMap(r,l,l.weight,0,l.size - 1,level);
+      for (int i=0; i < l.size; i++)       nn+=ViewData.size(data,l.list[i]);
     }
  else {
-      nn=l.list[ne] - l.list[ns] + data.size(l.list[ne],data.kind(l.list[ne]));
-      if (GUIProp.mapsimple) {
-        l.initWeights();
-      }
- else       if (GUIProp.usetextlength && data.fs == null) {
-        l.initWeights(textLen,nn,data);
-      }
- else       l.initWeights(parsize,nn,data);
-      rects=algo.calcMap(r,l,l.weight,ns,ne,level);
+      nn=l.list[ne] - l.list[ns] + ViewData.size(data,l.list[ne]);
     }
+    if (GUIProp.mapsimple) {
+      l.initWeights();
+    }
+ else {
+      l.initWeights(textLen,nn,data);
+    }
+    final ArrayList<MapRect> rects=algo.calcMap(r,l,ns,ne,level);
     for (    final MapRect rect : rects)     putRect(rect,rect.level);
   }
 }

@@ -6,6 +6,7 @@
   final Data data=context.data();
   final Nodes current=context.current();
   final int kind=data.kind(pre);
+  rect.thumb=false;
   if (kind == Data.ELEM || kind == Data.DOC) {
     final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size() == 1 && pre != 0 && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(data,pre);
     g.setColor(Color.black);
@@ -22,6 +23,8 @@
       rect.x+=p;
       rect.y+=(rect.h - h) / 2 - 1;
       MapRenderer.drawText(g,rect,text);
+      rect.x-=p;
+      rect.y-=(rect.h - h) / 2 - 1;
     }
  else {
       if (MapRenderer.calcHeight(g,rect,text) < rect.h) {
@@ -29,9 +32,10 @@
       }
  else {
         MapRenderer.drawThumbnails(g,rect,text);
-        return true;
+        rect.thumb=true;
       }
     }
   }
-  return false;
+  rect.x-=3;
+  rect.w+=3;
 }
