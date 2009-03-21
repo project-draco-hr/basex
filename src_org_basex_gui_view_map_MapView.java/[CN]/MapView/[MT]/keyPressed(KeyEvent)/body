@@ -8,46 +8,28 @@
   final Data data=context.data();
   final int size=data.meta.size;
   final Nodes current=context.current();
+  int pre=current.nodes[0];
   if (key == KeyEvent.VK_R) {
     final Random rnd=new Random();
-    int pre=0;
     do {
       pre=rnd.nextInt(size);
     }
  while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre));
-    gui.focused=pre;
-    gui.notify.jump(new Nodes(gui.focused,data));
-  }
- else   if (key == KeyEvent.VK_N || key == KeyEvent.VK_B) {
-    int pre=(current.nodes[0] + 1) % size;
-    while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre))     pre=(pre + 1) % size;
     gui.notify.jump(new Nodes(pre,data));
   }
- else   if (key == KeyEvent.VK_P || key == KeyEvent.VK_Z) {
-    int pre=(current.nodes[0] == 0 ? size : current.nodes[0]) - 1;
-    while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre))     pre=(pre == 0 ? size : pre) - 1;
-    gui.notify.jump(new Nodes(pre,data));
-  }
- else   if (key == KeyEvent.VK_S && !slide) {
-    slide=true;
-    new Thread(){
-      @Override public void run(){
-        while (slide) {
-          int pre=context.current().nodes[0];
-          if (slideForward) {
-            pre=(pre + 1) % size;
-            while (!ViewData.isLeaf(data,pre))             pre=(pre + 1) % size;
-          }
- else {
-            pre=(pre == 0 ? size : pre) - 1;
-            while (!ViewData.isLeaf(data,pre))             pre=(pre == 0 ? size : pre) - 1;
-          }
-          gui.notify.jump(new Nodes(pre,data));
-          Performance.sleep(slideSpeed);
-        }
-      }
+ else   if (key == KeyEvent.VK_N) {
+    do {
+      pre=(pre + 1) % size;
     }
-.start();
+ while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre));
+    gui.notify.jump(new Nodes(pre,data));
+  }
+ else   if (key == KeyEvent.VK_P) {
+    do {
+      pre=(pre == 0 ? size : pre) - 1;
+    }
+ while (data.kind(pre) != Data.ELEM || !ViewData.isLeaf(data,pre));
+    gui.notify.jump(new Nodes(pre,data));
   }
   final boolean cursor=key == KeyEvent.VK_UP || key == KeyEvent.VK_DOWN || key == KeyEvent.VK_LEFT || key == KeyEvent.VK_RIGHT;
   if (!cursor)   return;

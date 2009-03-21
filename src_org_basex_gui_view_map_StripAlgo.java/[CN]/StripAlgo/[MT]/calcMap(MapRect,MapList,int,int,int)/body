@@ -1,12 +1,12 @@
 {
-  final ArrayList<MapRect> rects=new ArrayList<MapRect>();
+  final MapRects rects=new MapRects();
   int ni=ns;
   int start=ns;
   final double xx=r.x;
   double yy=r.y;
   final double ww=r.w;
   double hh=r.h;
-  ArrayList<MapRect> row=new ArrayList<MapRect>();
+  MapRects row=new MapRects();
   int height=0;
   double weight=0;
   double sumweight=1;
@@ -14,7 +14,7 @@
     weight+=ml.weight[ni];
     height=(int)(weight / sumweight * hh);
     height=height > 0 ? height : 1;
-    final ArrayList<MapRect> tmp=new ArrayList<MapRect>();
+    final MapRects tmp=new MapRects();
     double x=xx;
     for (int i=start; i <= ni; i++) {
       int w=i == ni ? (int)(xx + ww - x) : (int)(ml.weight[i] / weight * ww);
@@ -23,11 +23,11 @@
       x+=w;
     }
     if (lineRatio(tmp) > lineRatio(row)) {
-      rects.addAll(row);
+      rects.add(row);
       hh-=row.get(0).h;
       yy+=row.get(0).h;
-      tmp.clear();
-      row.clear();
+      tmp.reset();
+      row.reset();
       start=ni;
       sumweight-=weight - ml.weight[ni];
       weight=0;
@@ -42,6 +42,6 @@
     }
   }
   for (  final MapRect rect : row)   rect.h=(int)hh;
-  rects.addAll(row);
+  rects.add(row);
   return rects;
 }
