@@ -1,13 +1,10 @@
 {
-  final int h=getHeight();
-  final int w=getWidth();
   g.setColor(back);
   final int sz=sizeFactor();
   final int pWidth=plotWidth - sz;
   final int pHeight=plotHeight - sz;
   final PlotAxis axis=drawX ? plotData.xAxis : plotData.yAxis;
   if (drawX) {
-    g.drawLine(MARGIN[1],h - MARGIN[2],w - MARGIN[3],h - MARGIN[2]);
     if (plotChanged) {
       axis.calcCaption(pWidth);
       final Kind kind=plotData.xAxis.type;
@@ -15,7 +12,6 @@
     }
   }
  else {
-    g.drawLine(MARGIN[1],MARGIN[0],MARGIN[1],getHeight() - MARGIN[2]);
     if (plotChanged) {
       axis.calcCaption(pHeight);
       final Kind kind=plotData.yAxis.type;
@@ -64,8 +60,8 @@
   }
  else {
     final boolean noRange=axis.max - axis.min == 0;
-    drawCaptionAndGrid(g,drawX,"",0);
-    drawCaptionAndGrid(g,drawX,"",1);
+    drawIntermediateGridLine(g,drawX,0,null);
+    drawIntermediateGridLine(g,drawX,1,null);
     if (nrCaptions == 0)     return;
     if (noRange) {
       drawCaptionAndGrid(g,drawX,formatString(axis.min,drawX),.5d);
@@ -73,41 +69,49 @@
     }
     int c=0;
     if (axis.log) {
-      int l=(int)(Math.log10(Math.abs(axis.min)));
-      l=l > 0 ? l : 1;
-      double a=axis.min;
+      int l=0;
+      double a=0;
       double b=0;
-      final boolean neg=axis.min < 0;
-      if (neg) {
-        b=(int)(-1 * Math.pow(10,l));
-        while (adequateDistance(drawX,b,axis.max) && b > axis.min) {
-          if (adequateDistance(drawX,a,b) && b < axis.max)           drawCaptionAndGrid(g,drawX,formatString(b,drawX),axis.calcPosition(b));
-          a=b;
-          l--;
-          if (l == 0) {
-            b=0;
-            if (axis.max > 0 && adequateDistance(drawX,a,b))             drawCaptionAndGrid(g,drawX,formatString(b,drawX),axis.calcPosition(b));
-            break;
+      if (axis.min < 0) {
+        l=0;
+        a=-1;
+        while (a >= axis.min) {
+          if (a <= axis.max)           drawCaptionAndGrid(g,drawX,formatString(a,drawX),axis.calcPosition(a));
+          final int lim=(int)(-1 * Math.pow(10,l + 1));
+          double last=a;
+          b=2 * a;
+          while (b > lim && b >= axis.min) {
+            if (adequateDistance(drawX,last,b) && adequateDistance(drawX,lim,b)) {
+              drawIntermediateGridLine(g,drawX,axis.calcPosition(b),formatString(b,drawX));
+              last=b;
+            }
+            b+=a;
           }
-          b=(int)(-1 * Math.pow(10,l));
+          l++;
+          a=-1 * (Math.pow(10,l));
         }
       }
-      if (neg) {
-        a=0;
-        l++;
-      }
- else {
-        a=axis.min;
-        l=(int)(Math.log10(Math.abs(axis.min)));
-        l=l > 0 ? l : 0;
-      }
-      b=(int)(Math.pow(10,l));
-      b=b > 0 ? b : 0;
-      while (adequateDistance(drawX,b,axis.max) && b < axis.max) {
-        if (adequateDistance(drawX,a,b) && b > axis.min)         drawCaptionAndGrid(g,drawX,formatString(b,drawX),axis.calcPosition(b));
-        a=b;
-        l++;
-        b=(int)(Math.pow(10,l));
+      if (0 >= axis.min && 0 <= axis.max)       drawCaptionAndGrid(g,drawX,formatString(0,drawX),axis.calcPosition(0));
+      if (axis.max > 0) {
+        l=0;
+        a=1;
+        while (a <= axis.max) {
+          if (a >= axis.min) {
+            drawCaptionAndGrid(g,drawX,formatString(a,drawX),axis.calcPosition(a));
+            final int lim=(int)Math.pow(10,l + 1);
+            double last=a;
+            b=2 * a;
+            while (b < lim && b <= axis.max) {
+              if (adequateDistance(drawX,last,b) && adequateDistance(drawX,lim,b)) {
+                drawIntermediateGridLine(g,drawX,axis.calcPosition(b),formatString(b,drawX));
+                last=b;
+              }
+              b+=a;
+            }
+          }
+          l++;
+          a=Math.pow(10,l);
+        }
       }
     }
  else {

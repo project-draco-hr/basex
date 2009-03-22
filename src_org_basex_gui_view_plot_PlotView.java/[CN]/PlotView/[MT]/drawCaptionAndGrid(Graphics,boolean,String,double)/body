@@ -1,28 +1,23 @@
 {
+  String cap=caption;
+  if (cap.length() > 10)   cap=cap.substring(0,9) + "..";
   final int pos=calcCoordinate(drawX,d);
   final int h=getHeight();
   final int w=getWidth();
   final int textH=g.getFontMetrics().getHeight();
   final int fs=GUIProp.fontsize;
-  String cap=caption;
-  if (cap.length() > 10)   cap=cap.substring(0,9) + "..";
   final int imgW=BaseXLayout.width(g,cap) + fs;
-  final int imgH=160;
-  final BufferedImage img=new BufferedImage(imgW,imgH,Transparency.BITMASK);
-  final Graphics2D g2d=img.createGraphics();
-  g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-  g2d.rotate(ROTATE,imgW,0 + textH);
-  g2d.setFont(font);
-  g2d.setColor(Color.black);
-  g2d.drawString(cap,fs,fs);
+  final BufferedImage img=createCaptionImage(g,cap,false,imgW);
   g.setColor(back);
   if (drawX) {
     final int y=h - MARGIN[2];
-    g.drawImage(img,pos - imgW + textH - fs,y,this);
+    g.drawImage(img,pos - imgW + textH - fs + 3,y,this);
     g.drawLine(pos,MARGIN[0],pos,y + fs / 2);
+    g.drawLine(pos - 1,MARGIN[0],pos - 1,y + fs / 2);
   }
  else {
     g.drawImage(img,MARGIN[1] - imgW - fs / 2,pos - fs,this);
     g.drawLine(MARGIN[1] - fs / 2,pos,w - MARGIN[3],pos);
+    g.drawLine(MARGIN[1] - fs / 2,pos + 1,w - MARGIN[3],pos + 1);
   }
 }
