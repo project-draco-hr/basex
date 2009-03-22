@@ -2,16 +2,17 @@
   builder=build;
   builder.encoding(Prop.ENCODING);
   backingroot=Prop.backingpath + "/" + io.name();
-  File bs=new File(backingroot);
-  if (!bs.mkdirs())   if (bs.exists())   if (!FSUtils.deleteDir(bs) || !bs.mkdirs())   throw new IOException(BACKINGEXISTS + backingroot);
+  final File bs=new File(backingroot);
+  if (wbacking && (!deleteDir(bs) || !bs.mkdirs()))   throw new IOException(BACKINGEXISTS + backingroot);
   builder.startDoc(token(io.name()));
   if (singlemode) {
     file(new File(io.path()).getCanonicalFile());
   }
  else {
     atts.reset();
-    atts.add(MOUNTPOINT,token(Prop.mountpoint));
+    atts.add(NAME,token(io.path()));
     atts.add(SIZE,token("0"));
+    atts.add(MOUNTPOINT,token(Prop.mountpoint));
     atts.add(BACKINGSTORE,token(backingroot));
     builder.startElem(DEEPFS,atts);
     for (    final File f : root ? File.listRoots() : new File[]{new File(io.path()).getCanonicalFile()}) {
