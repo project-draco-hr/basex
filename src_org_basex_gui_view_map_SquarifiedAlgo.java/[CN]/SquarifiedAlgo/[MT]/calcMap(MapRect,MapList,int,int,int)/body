@@ -12,6 +12,8 @@
   int width=0;
   double weight=0;
   double sumweight=1;
+  double tmpratio;
+  double rowratio=Double.MAX_VALUE;
   while (ni <= ne) {
     if (ww < hh) {
       weight+=ml.weight[ni];
@@ -25,8 +27,10 @@
         if (x + w <= xx + ww)         tmp.add(new MapRect((int)x,(int)yy,w,height,ml.list[i],l));
         x+=w;
       }
-      if (lineRatio(tmp) > lineRatio(row)) {
+      tmpratio=lineRatio(tmp);
+      if (tmpratio > lineRatio(row)) {
         rects.add(row);
+        rowratio=Double.MAX_VALUE;
         hh-=row.get(0).h;
         yy+=row.get(0).h;
         tmp.reset();
@@ -41,6 +45,7 @@
       }
  else {
         row=tmp;
+        rowratio=tmpratio;
         ni++;
       }
     }
@@ -56,8 +61,10 @@
         if (y + h <= yy + hh)         tmp.add(new MapRect((int)xx,(int)y,width,h,ml.list[i],l));
         y+=h;
       }
-      if (lineRatio(tmp) > lineRatio(row)) {
+      tmpratio=lineRatio(tmp);
+      if (tmpratio > rowratio) {
         rects.add(row);
+        rowratio=Double.MAX_VALUE;
         ww-=row.get(0).w;
         xx+=row.get(0).w;
         tmp.reset();
@@ -72,6 +79,7 @@
       }
  else {
         row=tmp;
+        rowratio=tmpratio;
         ni++;
       }
     }

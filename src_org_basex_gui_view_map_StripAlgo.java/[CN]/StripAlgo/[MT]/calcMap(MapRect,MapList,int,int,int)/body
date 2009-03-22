@@ -10,6 +10,8 @@
   int height=0;
   double weight=0;
   double sumweight=1;
+  double tmpratio=0;
+  double rowratio=Double.MAX_VALUE;
   while (ni <= ne) {
     weight+=ml.weight[ni];
     height=(int)(weight / sumweight * hh);
@@ -22,8 +24,10 @@
       if (x + w <= xx + ww)       tmp.add(new MapRect((int)x,(int)yy,w,height,ml.list[i],l));
       x+=w;
     }
-    if (lineRatio(tmp) > lineRatio(row)) {
+    tmpratio=lineRatio(tmp);
+    if (tmpratio > rowratio) {
       rects.add(row);
+      rowratio=Double.MAX_VALUE;
       hh-=row.get(0).h;
       yy+=row.get(0).h;
       tmp.reset();
@@ -38,6 +42,7 @@
     }
  else {
       row=tmp;
+      rowratio=tmpratio;
       ni++;
     }
   }
