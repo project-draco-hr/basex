@@ -1,6 +1,6 @@
 {
   int k=kind(pre);
-  final int s=size(pre,k);
+  int s=size(pre,k);
   int par=pre;
   if (k == ATTR) {
     par=parent(par,ATTR);
@@ -13,11 +13,17 @@
     k=kind(par);
     size(par,k,size(par,k) - s);
   }
-  table.delete(pre,s);
-  meta.size-=s;
-  if (meta.size == 0) {
-    meta.size=1;
-    size(0,DOC);
+  int p=pre;
+  boolean empty=p == 0 && s == meta.size;
+  if (empty) {
+    p++;
+    s=size(p,kind(p));
   }
-  updateDist(pre,-s);
+  table.delete(p,s);
+  meta.size-=s;
+  updateDist(p,-s);
+  if (empty) {
+    size(0,DOC,1);
+    update(0,Token.EMPTY,true);
+  }
 }
