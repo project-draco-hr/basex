@@ -5,16 +5,22 @@
   BaseXLayout.enable(maxsize,cont.isSelected());
   final String nm=dbname.getText().trim();
   ok=nm.length() != 0;
-  if (ok)   GUIProp.importfsname=nm;
+  if (ok)   GUIProp.guifsdbname=nm;
   boolean exists=all.isSelected();
   if (!exists) {
     final String p=path.getText().trim();
     ;
     final IO file=IO.get(p);
     exists=p.length() != 0 && file.exists();
-    if (exists)     GUIProp.fspath=path.getText();
+    if (exists)     GUIProp.guifsimportpath=path.getText();
   }
   ok&=exists;
+  if (Prop.fuse) {
+    boolean backdir=new File(backing.getText().trim()).isDirectory();
+    ok&=backdir;
+    boolean mountdir=new File(mountpoint.getText().trim()).isDirectory();
+    ok&=mountdir;
+  }
   String inf=!exists ? PATHWHICH : !ok ? DBWHICH : " ";
   ImageIcon img=null;
   if (ok) {

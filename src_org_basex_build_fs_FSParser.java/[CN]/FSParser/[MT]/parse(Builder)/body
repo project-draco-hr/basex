@@ -1,21 +1,30 @@
 {
   builder=build;
   builder.encoding(Prop.ENCODING);
-  backingroot=Prop.backingpath + Prop.SEP + io.name();
-  final File bs=new File(backingroot);
-  if (wbacking && (!deleteDir(bs) || !bs.mkdirs()))   throw new IOException(BACKINGEXISTS + backingroot);
+  builder.meta.backingpath=mybackingpath;
+  builder.meta.mountpoint=mountpoint;
+  if (Prop.fuse) {
+    File bs=new File(mybackingpath);
+    if (!bs.mkdirs() && bs.exists())     throw new IOException(BACKINGEXISTS + mybackingpath);
+  }
   builder.startDoc(token(io.name()));
   if (singlemode) {
     file(new File(io.path()).getCanonicalFile());
   }
  else {
     atts.reset();
-    atts.add(NAME,token(io.path()));
-    atts.add(SIZE,token("0"));
-    atts.add(MOUNTPOINT,token(Prop.mountpoint));
-    atts.add(BACKINGSTORE,token(backingroot));
+    if (Prop.fuse) {
+      atts.add(MOUNTPOINT,token(mountpoint));
+      atts.add(SIZE,Token.EMPTY);
+      atts.add(BACKINGSTORE,token(mybackingpath));
+    }
+ else {
+      atts.add(MOUNTPOINT,NOTMOUNTED);
+      atts.add(SIZE,Token.EMPTY);
+      atts.add(BACKINGSTORE,token(fsimportpath));
+    }
     builder.startElem(DEEPFS,atts);
-    for (    final File f : root ? File.listRoots() : new File[]{new File(io.path()).getCanonicalFile()}) {
+    for (    final File f : root ? File.listRoots() : new File[]{new File(fsimportpath).getCanonicalFile()}) {
       importRootLength=f.getAbsolutePath().length();
       sizeStack[0]=0;
       parse(f);

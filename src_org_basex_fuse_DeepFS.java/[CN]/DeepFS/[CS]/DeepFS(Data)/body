@@ -1,52 +1,29 @@
 {
   data=d;
-  dirID=d.tags.id(DataText.DIR);
-  fileID=d.tags.id(DataText.FILE);
-  unknownID=d.tags.id(DataText.UNKNOWN);
-  suffID=d.atts.id(DataText.SUFFIX);
-  timeID=d.atts.id(DataText.MTIME);
-  modeID=d.atts.id(DataText.MODE);
-  backingstoreID=d.atts.id(DataText.BACKINGSTORE);
-  mountpointID=d.atts.id(DataText.MOUNTPOINT);
+  final String mountpoint=d.meta.mountpoint;
+  final String backingpath=d.meta.backingpath;
+  initNames();
   if (Prop.fuse) {
-    final File mp=new File(Prop.mountpoint);
-    final File bp=new File(Prop.backingpath + Prop.SEP + d.meta.dbname);
-    if (Prop.mountpoint.compareTo(d.meta.mount) != 0) {
-      if (Prop.edbt) {
-        BaseX.errln("[DataFS:118] Prop.mountpoint and d.meta.mount differ",Prop.mountpoint," ",d.meta.mount);
-      }
-    }
+    final File mp=new File(mountpoint);
+    final File bp=new File(backingpath);
+    final String method="[BaseX_mount] ";
     if (!mp.exists()) {
-      if (Prop.edbt) {
-        BaseX.errln("[DataFS:95] Mountpoint does not exist  : " + Prop.mountpoint);
-        BaseX.errln("[DataFS:97] Trying to create mountpoint: " + Prop.mountpoint);
-      }
+      if (Prop.edbt)       BaseX.errln(method + "Mountpoint does not exist. " + "Trying to create it: "+ mountpoint);
       if (!mp.mkdirs()) {
-        if (mp.exists()) {
-          if (!FSParser.deleteDir(mp) || !mp.mkdirs()) {
-            BaseX.errln(FSText.MOUNTPOINTEXISTS + mp.toString());
-            return;
-          }
-        }
+        BaseX.errln(FSText.NOMOUNTPOINT + mp.toString());
+        return;
       }
     }
     if (!bp.exists()) {
-      if (Prop.edbt) {
-        BaseX.errln("[DataFS:142] Backingpath does not exist. " + Prop.backingpath);
-        BaseX.errln("[DataFS:144] Creating backingpath");
-      }
+      if (Prop.edbt)       BaseX.errln(method + "Backingpath does not exist. " + "Trying to create it: "+ backingpath);
       if (!bp.mkdirs()) {
-        if (bp.exists()) {
-          if (!FSParser.deleteDir(bp) || !bp.mkdirs()) {
-            BaseX.errln(FSText.BACKINGEXISTS + bp.toString());
-            return;
-          }
-        }
+        BaseX.errln(FSText.NOBACKINGPATH + bp.toString());
+        return;
       }
     }
     if (Prop.edbt) {
-      BaseX.errln("[DataFS] Trying to mount DeepFS on " + d.meta.mount);
+      BaseX.errln(method + "Trying to mount DeepFS\n" + "\tmountpoint: "+ mountpoint+ "\n"+ "\tbacking   : "+ backingpath);
     }
-    nativeMount(d.meta.mount,d.meta.backing,d.meta.dbname);
+    nativeMount(mountpoint,backingpath);
   }
 }
