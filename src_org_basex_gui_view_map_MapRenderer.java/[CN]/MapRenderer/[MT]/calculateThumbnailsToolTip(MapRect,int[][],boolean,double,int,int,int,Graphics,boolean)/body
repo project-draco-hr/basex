@@ -1,6 +1,6 @@
 {
   if (r.thumbf == 0)   return;
-  final double ww=r.w;
+  final int ww=r.w;
   int yy=r.y + 3;
   int wl=0;
   int ll=0;
@@ -20,19 +20,22 @@
       if (ds) {
         yy+=r.thumblh;
         ll=0;
-        ir=inRect(r.x,yy,wl,r.thumbfh,x,y);
-        ll=wl + (ds ? +(int)r.thumbf : 0);
+        ir=inRect(r.x,yy,ww - ll < wl ? ww - ll : wl,r.thumbfh,x,y);
+        ll+=ww - ll < wl ? ww : wl + r.thumbf;
+        wl=ww - ll < wl ? ww - wl : 0;
       }
  else {
-        ir=inRect(r.x + ll,yy,wl - ll,r.thumbfh,x,y);
-        ll=wl - (int)(ww - ll) + (ds ? +(int)r.thumbf : 0);
+        ir=inRect(r.x + ll,yy,ww - ll < wl ? ww - ll : wl,r.thumbfh,x,y);
+        wl=ww - ll < wl ? wl - (ww - ll) : 0;
+        ll=0;
         yy+=r.thumblh;
       }
-      ir|=inRect(r.x,yy,ll,r.thumbfh,x,y);
+      ir|=inRect(r.x,yy,wl,r.thumbfh,x,y);
+      ll+=wl;
     }
  else {
       ir|=inRect(r.x + ll,yy,wl,r.thumbfh,x,y);
-      ll+=wl + (ds ? +r.thumbf : 0);
+      ll+=wl + (ds ? r.thumbf : 0);
     }
     if (ir) {
       final int si=i;
