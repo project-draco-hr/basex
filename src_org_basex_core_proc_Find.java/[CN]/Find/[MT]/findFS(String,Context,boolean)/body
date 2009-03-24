@@ -46,11 +46,13 @@
     qu=qu.substring(i + 1);
   }
  while (qu.indexOf(' ') > -1);
-  xquery.add(" | ");
-  if (!r)   xquery.add(".");
-  xquery.add("//file");
+  boolean f=true;
   for (  final String t : split(query)) {
-    if (Character.isLetterOrDigit(t.charAt(0)))     xquery.add("[descendant::text() ftcontains \"" + t + "\"]");
+    if (Character.isLetterOrDigit(t.charAt(0))) {
+      if (f)       xquery.add(" | " + (r ? "/" : "") + "descendant-or-self::file");
+      xquery.add("[descendant::text() ftcontains \"" + t + "\"]");
+      f=false;
+    }
   }
   return xquery.toString();
 }

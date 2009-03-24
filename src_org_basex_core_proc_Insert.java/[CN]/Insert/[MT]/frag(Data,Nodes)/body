@@ -5,7 +5,7 @@
   try {
     final IO io=IO.get(args[0]);
     final Parser parser=Prop.intparse || io instanceof IOContent ? new XMLParser(io) : new SAXWrapper(new SAXSource(io.inputSource()));
-    tmp=new MemBuilder().build(parser,"tmp");
+    tmp=new MemBuilder().build(parser,io.dbname());
   }
  catch (  final IOException ex) {
     BaseX.debug(ex);
@@ -14,7 +14,8 @@
   data.meta.update();
   for (int i=nodes.size() - 1; i >= 0; i--) {
     final int par=nodes.nodes[i];
-    data.insert(pre(par,pos,data),par,tmp);
+    final int p=par == 0 ? 0 : pos;
+    data.insert(pre(par,p,data),par,tmp);
   }
   return true;
 }
