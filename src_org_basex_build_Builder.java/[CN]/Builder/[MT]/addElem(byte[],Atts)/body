@@ -5,11 +5,12 @@
   tagStack[level]=tid;
   parStack[level]=meta.size;
   final int pre=meta.size;
-  final boolean n=ns.open(meta.size);
   final int dis=level != 0 ? meta.size - parStack[level - 1] : 1;
   final int al=att.size;
   int tns=ns.get(tag);
   if (tns == 0)   tns=nsStack[level];
+  nsStack[level + 1]=nsStack[level];
+  final boolean n=ns.open(meta.size);
   addElem(tid,tns,dis,al + 1,n);
   for (int a=0; a < al; a++) {
     final byte[] av=att.val[a];
@@ -25,10 +26,6 @@
  else {
       tags.stat(tagStack[level - 1]).leaf=false;
     }
-  }
-  if (open) {
-    if (meta.height < ++level)     meta.height=level;
-    nsStack[level]=nsStack[level - 1];
   }
   if (meta.size != 1)   inDoc=true;
   if (Prop.debug) {
