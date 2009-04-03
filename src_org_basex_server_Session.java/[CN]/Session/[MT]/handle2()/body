@@ -1,14 +1,15 @@
 {
-  System.out.println("Login from Client " + clientId);
+  final OutputStream os=socket.getOutputStream();
   final DataInputStream dis=new DataInputStream(socket.getInputStream());
-  final DataOutputStream dos=new DataOutputStream(socket.getOutputStream());
+  final DataOutputStream dos=new DataOutputStream(os);
+  final PrintOutput out=new PrintOutput(new BufferedOutput(os));
   final int sp=socket.getPort();
   String in;
   while (running) {
     in=dis.readUTF().trim();
     if (in.equals("exit")) {
       System.out.println("Client " + clientId + " has logged out.");
-      running=false;
+      break;
     }
     Process pr=null;
     try {
@@ -20,12 +21,10 @@
 ;
       pr.error(ex.extended());
       core=pr;
-      dos.writeInt(-sp);
+      send(dos,-sp);
     }
     final Process proc=pr;
     if (proc instanceof GetResult || proc instanceof GetInfo) {
-      final OutputStream os=socket.getOutputStream();
-      final PrintOutput out=new PrintOutput(new BufferedOutput(os));
       final Process c=core;
       if (c == null) {
         out.print(BaseX.info(SERVERTIME,Prop.timeout));
@@ -36,13 +35,14 @@
  else       if (proc instanceof GetInfo) {
         c.info(out);
       }
-      out.close();
     }
  else {
       core=proc;
-      dos.writeInt(proc.execute(context) ? sp : -sp);
+      send(dos,proc.execute(context) ? sp : -sp);
     }
   }
+  os.close();
+  out.close();
   dis.close();
   dos.close();
   socket.close();
