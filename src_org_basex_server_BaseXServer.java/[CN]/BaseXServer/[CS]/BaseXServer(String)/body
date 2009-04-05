@@ -1,0 +1,31 @@
+{
+  Prop.server=true;
+  if (!parseArguments(args))   return;
+  new Thread(){
+    @Override public void run(){
+      while (running) {
+        Performance.sleep(2500L);
+        clean();
+      }
+    }
+  }
+.start();
+  try {
+    final ServerSocket server=new ServerSocket(Prop.port);
+    BaseX.outln(SERVERSTART);
+    while (running)     serve(server);
+    context.close();
+  }
+ catch (  final Exception ex) {
+    BaseX.debug(ex);
+    if (ex instanceof BindException) {
+      BaseX.errln(SERVERBIND);
+    }
+ else     if (ex instanceof IOException) {
+      BaseX.errln(SERVERERR);
+    }
+ else {
+      BaseX.errln(ex.getMessage());
+    }
+  }
+}
