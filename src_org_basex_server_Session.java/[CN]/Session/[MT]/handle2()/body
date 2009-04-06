@@ -1,17 +1,17 @@
 {
   DataInputStream dis=new DataInputStream(socket.getInputStream());
+  DataOutputStream dos=new DataOutputStream(socket.getOutputStream());
+  PrintOutput out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
   final int sp=socket.getPort();
-  System.out.println(socket);
   String in;
-  while ((in=dis.readUTF()) != null) {
-    String into=in.trim();
-    if (into.equals("exit")) {
-      System.out.println("Client " + clientId + " has logged out.");
+  while ((in=getMessage(dis).trim()) != null) {
+    if (in.equals("exit")) {
+      BaseX.outln("Client " + clientId + " has logged out.");
       break;
     }
     Process pr=null;
     try {
-      pr=new CommandParser(into).parse()[0];
+      pr=new CommandParser(in).parse()[0];
     }
  catch (    final QueryException ex) {
       pr=new Process(0){
@@ -19,12 +19,12 @@
 ;
       pr.error(ex.extended());
       core=pr;
-      send(-sp);
+      send(-sp,dos);
+      return;
     }
     Process proc=pr;
     if (proc instanceof GetResult || proc instanceof GetInfo) {
       Process c=core;
-      PrintOutput out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
       if (c == null) {
         out.print(BaseX.info(SERVERTIME,Prop.timeout));
       }
@@ -38,9 +38,9 @@
     }
  else {
       core=proc;
-      send(proc.execute(context) ? sp : -sp);
+      send(proc.execute(context) ? sp : -sp,dos);
     }
   }
-  System.out.println("CLOSED");
+  dis.close();
   socket.close();
 }
