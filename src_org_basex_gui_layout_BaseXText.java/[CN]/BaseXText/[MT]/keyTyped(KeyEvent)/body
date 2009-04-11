@@ -1,11 +1,11 @@
 {
   super.keyTyped(e);
   if (!editable)   return;
-  final char ch=e.getKeyChar();
-  final byte[] txt=text.text;
-  boolean down=true;
   final boolean ctrl=(Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() & e.getModifiers()) != 0;
+  final char ch=e.getKeyChar();
   if (!Prop.MAC && e.isAltDown() || e.isActionKey() || ch == KeyEvent.VK_ESCAPE)   return;
+  boolean down=true;
+  final byte[] txt=text.text;
   text.pos(text.cursor());
   if (ch == KeyEvent.VK_BACK_SPACE) {
     if (text.start() == -1) {
@@ -21,13 +21,10 @@
     down=false;
   }
  else   if (ch == KeyEvent.VK_DELETE) {
-    if (text.pos() != text.size) {
-      final boolean ld=Character.isLetterOrDigit(text.curr());
-      text.delete();
-      if (ctrl) {
-        while (text.pos() < text.size && ld == Character.isLetterOrDigit(text.curr()))         text.delete();
-      }
-    }
+    if (text.start() == -1 && text.pos() == text.size())     return;
+    final boolean ld=Character.isLetterOrDigit(text.curr());
+    text.delete();
+    while (ctrl && text.pos() < text.size() && ld == Character.isLetterOrDigit(text.curr()))     text.delete();
   }
  else {
     if (ctrl)     return;
