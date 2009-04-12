@@ -1,17 +1,49 @@
 {
-  PrintWriter pw=new PrintWriter(socket.getOutputStream(),true);
-  BufferedReader is=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-  String in, out;
-  out="You are logged in to the BaseXServer";
-  pw.println(out);
-  while ((in=is.readLine()) != null) {
-    if (in.equals("exit")) {
-      System.out.println("Client " + clientId + " has logged out.");
+  DataInputStream dis=new DataInputStream(socket.getInputStream());
+  DataOutputStream dos=new DataOutputStream(socket.getOutputStream());
+  PrintOutput out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
+  final int sp=socket.getPort();
+  String in;
+  while (running) {
+    in=getMessage(dis).trim();
+    Process pr=null;
+    try {
+      pr=new CommandParser(in).parse()[0];
+    }
+ catch (    final QueryException ex) {
+      pr=new Process(0){
+      }
+;
+      pr.error(ex.extended());
+      core=pr;
+      send(-sp,dos);
+      return;
+    }
+    if (pr instanceof Exit) {
+      send(0,dos);
+      BaseX.outln("Client " + clientId + " has logged out.");
+      running=false;
       break;
     }
-    pw.println("Echo from Server: " + in);
+    Process proc=pr;
+    if (proc instanceof GetResult || proc instanceof GetInfo) {
+      Process c=core;
+      if (c == null) {
+        out.print(BaseX.info(SERVERTIME,Prop.timeout));
+      }
+ else       if (proc instanceof GetResult) {
+        c.output(out);
+      }
+ else       if (proc instanceof GetInfo) {
+        c.info(out);
+        out.write(0);
+      }
+      out.flush();
+    }
+ else {
+      core=proc;
+      send(proc.execute(context) ? sp : -sp,dos);
+    }
   }
-  is.close();
-  pw.close();
-  socket.close();
+  this.interrupt();
 }
