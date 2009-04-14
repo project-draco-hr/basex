@@ -1,0 +1,29 @@
+{
+  byte[][] result=results.get(term);
+  if (result == null) {
+    try {
+      final TokenList tl=new TokenList();
+      for (      final Thes th : thes) {
+        final TokenBuilder tb=new TokenBuilder();
+        tb.add("/*:thesaurus/*:entry[*:term = '");
+        tb.add(term);
+        tb.add("']//*:synonym");
+        if (th.rel.length != 0) {
+          tb.add("[*:relationship = '");
+          tb.add(th.rel);
+          tb.add("']");
+        }
+        tb.add("/*:term");
+        System.out.println(tb);
+        final QueryProcessor qp=new QueryProcessor(tb.toString(),th.root);
+        for (        final Item it : qp.iter())         tl.add(it.str());
+      }
+      result=tl.finish();
+      results.add(term,result);
+    }
+ catch (    final QueryException ex) {
+      BaseX.debug(ex);
+    }
+  }
+  return result;
+}

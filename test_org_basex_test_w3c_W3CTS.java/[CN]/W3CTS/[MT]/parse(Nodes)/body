@@ -13,21 +13,39 @@
   boolean doc=true;
   final TokenBuilder files=new TokenBuilder();
   final CachedOutput out=new CachedOutput();
+  final Context context=new Context();
+  Nodes cont=nodes("*:contextItem",root);
+  if (cont.size() != 0)   new Check(sources + string(data.atom(cont.nodes[0])) + ".xml").execute(context,out);
+  final QueryProcessor xq=new QueryProcessor(in,context.current());
+  final QueryContext ctx=xq.ctx;
+  ctx.stop=stop;
+  ctx.thes=thes;
   try {
-    final Context context=new Context();
-    Nodes cont=nodes("*:contextItem",root);
-    if (cont.size() != 0)     new Check(sources + string(data.atom(cont.nodes[0])) + ".xml").execute(context,out);
-    final QueryProcessor xq=new QueryProcessor(in,context.current());
-    final QueryContext ctx=xq.ctx;
-    ctx.stop=stop;
     files.add(file(nodes("*:input-file",root),nodes("*:input-file/@variable",root),ctx));
     files.add(file(nodes("*:input-URI",root),nodes("*:input-URI/@variable",root),ctx));
     files.add(file(nodes("*:defaultCollection",root),null,ctx));
     var(nodes("*:input-query/@name",root),nodes("*:input-query/@variable",root),pth,ctx);
-    String fn=stop2.get(text("*:aux-URI[@role = 'stopwords']",root));
-    if (fn != null)     ctx.ftopt.stopwords(IO.get(fn),false);
-    fn=stem.get(text("*:aux-URI[@role = 'stemming-dictionary']",root));
-    if (fn != null)     ctx.ftopt.stemming(IO.get(fn));
+    for (    final String s : aux("stopwords",root)) {
+      String fn=stop2.get(s);
+      if (fn != null) {
+        if (ctx.ftopt.sw == null)         ctx.ftopt.sw=new StopWords();
+        ctx.ftopt.sw.read(IO.get(fn),false);
+      }
+    }
+    for (    final String s : aux("stemming-dictionary",root)) {
+      String fn=stem.get(s);
+      if (fn != null) {
+        if (ctx.ftopt.sd == null)         ctx.ftopt.sd=new StemDir();
+        ctx.ftopt.sd.read(IO.get(fn));
+      }
+    }
+    for (    final String s : aux("thesaurus",root)) {
+      String fn=thes2.get(s);
+      if (fn != null) {
+        if (ctx.ftopt.th == null)         ctx.ftopt.th=new Thesaurus();
+        ctx.ftopt.th.read(IO.get(fn));
+      }
+    }
     for (    final int p : nodes("*:module",root).nodes) {
       final String ns=text("@namespace",new Nodes(p,data));
       final String f=mods.get(string(data.atom(p))) + ".xq";
@@ -39,7 +57,6 @@
       doc&=it.type == Type.DOC;
       it.serialize(xml);
     }
-    xq.close();
   }
  catch (  final QueryException ex) {
     error=ex.getMessage();
@@ -125,7 +142,7 @@ catch (  final Error ex) {
         try {
           iter.reset();
           String rin=result.list[s];
-          if (!doc)           rin="<X>" + rin + "</X>";
+          if (!doc || frag)           rin="<X>" + rin + "</X>";
           final Data rdata=CreateDB.xml(IO.get(rin),null);
           final SeqIter si=new SeqIter();
           int pre=doc ? 0 : 2;
@@ -142,7 +159,7 @@ catch (  final Error ex) {
           if (test)           break;
         }
  catch (        final IOException ex) {
-          System.out.println("=> " + inname);
+          ex.printStackTrace();
         }
       }
     }
@@ -214,5 +231,6 @@ catch (  final Error ex) {
     logFile.append("'/>");
     logFile.append(Prop.NL);
   }
+  xq.close();
   return single == null || !outname.equals(single);
 }

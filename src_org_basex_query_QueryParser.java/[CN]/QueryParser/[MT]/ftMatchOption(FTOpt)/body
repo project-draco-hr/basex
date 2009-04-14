@@ -20,6 +20,7 @@
     if (!opt.is(FTOpt.DC))     check(INSENSITIVE);
   }
  else   if (consumeWS(LANGUAGE)) {
+    if (opt.ln != null)     error(FTDUP,LANGUAGE);
     opt.ln=lc(stringLiteral());
     if (!eq(opt.ln,EN))     error(FTLAN,opt.ln);
   }
@@ -35,23 +36,19 @@
       opt.set(FTOpt.ST,with);
     }
  else     if (consumeWS2(THESAURUS)) {
-      opt.set(FTOpt.TS,with);
+      if (opt.th != null)       error(FTDUP,THESAURUS);
+      opt.th=new Thesaurus();
       if (with) {
         final boolean par=consumeWS2(PAR1);
-        if (consumeWS2(AT)) {
-          ftThesaurusID();
-        }
- else {
-          check(DEFAULT);
-        }
-        while (par && consumeWS2(COMMA))         ftThesaurusID();
+        if (!consumeWS2(DEFAULT))         ftThesaurusID(opt.th);
+        while (par && consumeWS2(COMMA))         ftThesaurusID(opt.th);
         if (par)         check(PAR2);
-        error(FTTHES);
       }
     }
  else     if (consumeWS(STOP)) {
       check(WORDS);
-      opt.sw=new Set();
+      if (opt.sw != null)       error(FTDUP,STOP + ' ' + WORDS);
+      opt.sw=new StopWords();
       boolean union=false;
       boolean except=false;
       while (with) {
@@ -69,7 +66,7 @@
           if (ctx.stop != null)           fn=ctx.stop.get(fn);
           IO fl=IO.get(fn);
           if (!fl.exists() && file != null)           fl=file.merge(fl);
-          if (!opt.stopwords(fl,except))           error(NOSTOPFILE,fl);
+          if (!opt.sw.read(fl,except))           error(NOSTOPFILE,fl);
         }
  else         if (!union && !except) {
           error(FTSTOP);
@@ -84,10 +81,12 @@
       check(WORDS);
     }
  else     if (consumeWS2(WILDCARDS)) {
+      if (opt.isSet(FTOpt.WC))       error(FTDUP,WILDCARDS);
       if (opt.is(FTOpt.FZ))       error(FTFZWC);
       opt.set(FTOpt.WC,with);
     }
  else     if (consumeWS2(FUZZY)) {
+      if (opt.isSet(FTOpt.FZ))       error(FTDUP,FUZZY);
       if (opt.is(FTOpt.WC))       error(FTFZWC);
       opt.set(FTOpt.FZ,with);
     }

@@ -7,20 +7,20 @@
   }
   cursor(CURSORWAIT);
   try {
-    if (pr.updating())     updating=true;
     final Performance perf=new Performance();
     final Nodes current=context.current();
     final Data data=context.data();
     proc=pr;
+    updating=pr.updating();
     final boolean ok=pr.execute(context);
-    if (!ok && pr.info().length() == 0) {
+    updating=false;
+    final String inf=pr.info();
+    if (!ok && inf.length() == 0) {
       proc=null;
       return false;
     }
-    if (pr.updating())     updating=false;
     final Result result=pr.result();
     final Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
-    final String inf=pr.info();
     if (ok && pr.printing()) {
       if (!text.isValid() && nodes == null)       GUICommands.SHOWTEXT.execute(this);
       if (GUIProp.showtext) {
@@ -29,9 +29,12 @@
         text.setText(out);
       }
     }
-    final boolean feedback=main || data != null && GUIProp.showquery && query.info(pr instanceof XQuery ? inf : null,ok);
+    boolean feedback=main || data != null && GUIProp.showquery && query.info(pr instanceof XQuery ? inf : null,ok);
     if (!ok) {
-      status.setText(feedback ? STATUSOK : inf);
+      if (!feedback) {
+        if (!text.isValid())         GUICommands.SHOWTEXT.execute(this);
+        text.setText(Token.token(inf));
+      }
       cursor(CURSORARROW,true);
       proc=null;
       return false;
@@ -73,9 +76,8 @@
   }
  catch (  final Exception ex) {
     ex.printStackTrace();
-    String msg=ex.toString();
-    if (msg.length() == 0)     msg=ex.getMessage();
-    Dialog.error(this,BaseX.info(PROCERR,pr,msg));
+    Dialog.error(this,BaseX.info(PROCERR,pr,ex.toString().length() != 0 ? ex.toString() : ex.getMessage()));
+    updating=false;
   }
   cursor(CURSORARROW,true);
   proc=null;
