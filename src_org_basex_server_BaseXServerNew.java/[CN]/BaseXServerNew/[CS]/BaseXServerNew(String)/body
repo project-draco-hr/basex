@@ -2,16 +2,55 @@
   Prop.server=true;
   if (!parseArguments(args))   return;
   try {
-    serverSocket=new ServerSocket(Prop.port);
+    final ServerSocket serverSocket=new ServerSocket(Prop.port);
     BaseX.outln(SERVERSTART);
-    InputListener inputListener=new InputListener();
-    inputListener.start();
-    while (running) {
-      Socket s=serverSocket.accept();
-      lastid++;
-      BaseX.outln("Login from Client " + lastid);
-      new Session(s,lastid,verbose).start();
+    new Thread(){
+      @Override public void run(){
+        while (true) {
+          Socket s;
+          try {
+            s=serverSocket.accept();
+            lastid++;
+            BaseX.outln("Login from Client " + lastid);
+            Session session=new Session(s,lastid,verbose);
+            session.start();
+            sessions.add(session);
+          }
+ catch (          IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
     }
+.start();
+    new Thread(){
+      @Override public void run(){
+        while (true) {
+          try {
+            final InputStreamReader isr=new InputStreamReader(System.in);
+            String temp=new BufferedReader(isr).readLine().trim();
+            if (temp.equals("stop")) {
+              BaseX.outln("Server stopped.");
+              System.exit(0);
+            }
+ else             if (temp.equals("list")) {
+              BaseX.outln("Number of Clients: " + sessions.size());
+              BaseX.outln("List of Clients:");
+              for (int i=0; i < sessions.size(); i++) {
+                BaseX.outln("Client " + sessions.get(i).clientId);
+              }
+            }
+ else {
+              BaseX.outln("No such command");
+            }
+          }
+ catch (          final Exception ex) {
+            BaseX.outln();
+          }
+        }
+      }
+    }
+.start();
   }
  catch (  final Exception ex) {
     BaseX.debug(ex);
@@ -19,13 +58,7 @@
       BaseX.errln(SERVERBIND);
     }
  else     if (ex instanceof IOException) {
-      if (ex instanceof SocketException) {
-        BaseX.outln("Server stopped.");
-        new Exit().execute(null);
-      }
- else {
-        BaseX.errln(SERVERERR);
-      }
+      BaseX.errln(SERVERERR);
     }
  else {
       BaseX.errln(ex.getMessage());

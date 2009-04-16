@@ -4,8 +4,8 @@
   final String ha=addr.getHostAddress();
   final int sp=socket.getPort();
   DataInputStream dis=new DataInputStream(socket.getInputStream());
-  DataOutputStream dos=new DataOutputStream(socket.getOutputStream());
-  PrintOutput out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
+  dos=new DataOutputStream(socket.getOutputStream());
+  out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
   final int port=socket.getPort();
   String in;
   while (running) {
@@ -21,11 +21,11 @@
 ;
       pr.error(ex.extended());
       core=pr;
-      send(-sp,dos);
+      send(-sp);
       return;
     }
     if (pr instanceof Exit) {
-      send(0,dos);
+      send(0);
       running=false;
       break;
     }
@@ -46,7 +46,7 @@
     }
  else {
       core=proc;
-      send(proc.execute(context) ? sp : -sp,dos);
+      send(proc.execute(context) ? sp : -sp);
     }
     if (verbose)     BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
   }
