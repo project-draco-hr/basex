@@ -2,16 +2,16 @@
   Prop.server=true;
   if (!parseArguments(args))   return;
   try {
-    ServerSocket serverSocket=new ServerSocket(Prop.port);
+    serverSocket=new ServerSocket(Prop.port);
     BaseX.outln(SERVERSTART);
+    InputListener inputListener=new InputListener();
+    inputListener.start();
     while (running) {
       Socket s=serverSocket.accept();
       lastid++;
       BaseX.outln("Login from Client " + lastid);
       new Session(s,lastid,verbose).start();
     }
-    serverSocket.close();
-    new Exit().execute(null);
   }
  catch (  final Exception ex) {
     BaseX.debug(ex);
@@ -19,7 +19,13 @@
       BaseX.errln(SERVERBIND);
     }
  else     if (ex instanceof IOException) {
-      BaseX.errln(SERVERERR);
+      if (ex instanceof SocketException) {
+        BaseX.outln("Server stopped.");
+        new Exit().execute(null);
+      }
+ else {
+        BaseX.errln(SERVERERR);
+      }
     }
  else {
       BaseX.errln(ex.getMessage());
