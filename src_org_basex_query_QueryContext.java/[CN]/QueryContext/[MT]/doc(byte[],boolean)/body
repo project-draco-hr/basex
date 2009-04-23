@@ -1,14 +1,14 @@
 {
   if (contains(db,'<') || contains(db,'>'))   Err.or(INVDOC,db);
-  for (  final NodIter ni : collect) {
-    for (int n=0; n < ni.size; n++) {
-      if (eq(db,ni.list[n].base()))       return (DBNode)ni.list[n];
+  for (int c=0; c < colls; c++) {
+    for (int n=0; n < collect[c].size; n++) {
+      if (eq(db,collect[c].list[n].base()))       return (DBNode)collect[c].list[n];
     }
   }
   final String dbname=string(db);
-  for (  final DBNode d : docs)   if (d.data.meta.dbname.equals(dbname))   return d;
+  for (int d=0; d < docs; d++)   if (doc[d].data.meta.dbname.equals(dbname))   return doc[d];
   final IO bxw=IO.get(string(db));
-  for (  final DBNode d : docs)   if (d.data.meta.file.eq(bxw))   return d;
+  for (int d=0; d < docs; d++)   if (doc[d].data.meta.file.eq(bxw))   return doc[d];
   Data data=null;
   String msg=bxw.toString();
   try {
@@ -26,7 +26,7 @@
     }
   }
   if (data == null)   Err.or(coll ? NOCOLL : NODOC,msg);
-  final int dl=docs.length;
-  docs=Array.add(docs,new DBNode(data,0));
-  return docs[dl];
+  if (docs == doc.length)   doc=Array.extend(doc);
+  doc[docs]=new DBNode(data,0);
+  return doc[docs++];
 }

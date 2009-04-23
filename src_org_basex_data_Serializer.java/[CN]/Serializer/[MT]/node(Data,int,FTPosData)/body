@@ -1,15 +1,15 @@
 {
-  final Atts nsp=new Atts();
+  final TokenList nsp=data.ns.size() != 0 ? new TokenList() : null;
   final int[] parent=new int[IO.MAXHEIGHT];
   final byte[][] names=new byte[IO.MAXHEIGHT][];
+  names[0]=dn;
   int l=0;
   int p=pre;
   final int s=pre + data.size(pre,data.kind(p));
-  names[l]=dn;
   while (p < s && !finished()) {
     int k=data.kind(p);
-    final int pa=data.parent(p,k);
-    while (l > 0 && parent[l - 1] >= pa) {
+    final int r=data.parent(p,k);
+    while (l > 0 && parent[l - 1] >= r) {
       closeElement();
       l--;
     }
@@ -40,38 +40,43 @@
  else {
       final byte[] name=data.tag(p);
       openElement(name);
-      final int as=p + data.attSize(p,k);
-      byte[] empty=null;
-      if (data.ns.size() != 0) {
+      byte[] empty=names[l];
+      if (nsp != null) {
         nsp.reset();
         int pp=p;
         do {
-          addNS(data,pp,nsp);
+          final int[] nm=data.ns(pp);
+          for (int n=0; n < nm.length; n+=2) {
+            final byte[] key=data.ns.key(nm[n]);
+            if (!nsp.contains(key)) {
+              final byte[] val=data.ns.key(nm[n + 1]);
+              nsp.add(key);
+              namespace(key,val);
+              if (key.length == 0)               empty=val;
+            }
+          }
           pp=data.parent(pp,k);
           k=data.kind(pp);
         }
- while (tags.size == 1 && l == 0 && k == Data.ELEM);
-        for (int n=0; n < nsp.size; n++) {
-          namespace(nsp.key[n],nsp.val[n]);
-          if (nsp.key[n].length == 0)           empty=nsp.val[n];
+ while (k == Data.ELEM && l == 0 && tags.size == 1);
+        final byte[] key=pre(name);
+        byte[] val=data.ns.key(data.tagNS(p));
+        if (val == null)         val=EMPTY;
+        if (key.length != 0) {
+          if (ns.get(key) == -1)           namespace(key,val);
         }
-        final byte[] pref=pre(name);
-        byte[] uri=data.ns.key(data.tagNS(p));
-        if (uri == null)         uri=EMPTY;
-        if (pref.length != 0) {
-          if (ns.get(pref) == -1)           namespace(pref,uri);
-        }
- else         if (!eq(uri,names[l])) {
-          dn=uri;
-          if (empty == null) {
-            namespace(EMPTY,uri);
-            empty=uri;
-          }
+ else         if (!eq(val,empty)) {
+          namespace(key,val);
+          empty=val;
         }
       }
+ else       if (l == 0 && dn != EMPTY) {
+        namespace(EMPTY,EMPTY);
+      }
+      final int as=p + data.attSize(p,k);
       while (++p != as)       attribute(data.attName(p),data.attValue(p));
-      parent[l++]=pa;
-      names[l]=empty == null ? EMPTY : empty;
+      parent[l++]=r;
+      names[l]=empty;
     }
   }
   while (--l >= 0)   closeElement();

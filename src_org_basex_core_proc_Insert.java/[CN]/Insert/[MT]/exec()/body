@@ -1,18 +1,19 @@
 {
-  final Data data=context.data();
+  final boolean gui=args[args.length - 1] == null;
   final CmdUpdate type=getType();
-  final Nodes nodes=Prop.gui ? context.marked() : query(args[type == CmdUpdate.PI ? 3 : 2],null);
+  final Nodes nodes=gui ? context.marked() : query(args[type == CmdUpdate.PI ? 3 : 2],null);
   if (nodes == null)   return false;
   boolean ok=false;
+  final Data data=context.data();
 switch (type) {
 case ATTRIBUTE:
     ok=attr(data,nodes);
   break;
 case FRAGMENT:
-ok=frag(data,nodes);
+ok=frag(data,nodes,gui);
 break;
 default :
-ok=node(data,nodes);
+ok=node(data,nodes,gui);
 break;
 }
 if (!ok) return false;

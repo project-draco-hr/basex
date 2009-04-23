@@ -1,0 +1,21 @@
+{
+  final int pos=gui ? 0 : Token.toInt(args[1]);
+  if (pos < 0)   return error(POSINVALID,args[1]);
+  Data tmp;
+  try {
+    final IO io=IO.get(args[0]);
+    final Parser parser=Prop.intparse || io instanceof IOContent ? new XMLParser(io) : new SAXWrapper(new SAXSource(io.inputSource()));
+    tmp=new MemBuilder().build(parser,io.dbname());
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    return error(ex.getMessage());
+  }
+  data.meta.update();
+  for (int i=nodes.size() - 1; i >= 0; i--) {
+    final int par=nodes.nodes[i];
+    final int p=par == 0 ? 0 : pos;
+    data.insert(pre(par,p,data),par,tmp);
+  }
+  return true;
+}
