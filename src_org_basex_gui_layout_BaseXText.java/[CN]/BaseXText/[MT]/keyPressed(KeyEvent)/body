@@ -1,11 +1,27 @@
 {
   final int c=e.getKeyCode();
+  final boolean shf=e.isShiftDown();
   final boolean ctrl=(Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() & e.getModifiers()) != 0;
+  if (c == KeyEvent.VK_F3) {
+    find(rend.find(shf,true));
+    return;
+  }
+  if (ctrl && c == KeyEvent.VK_F) {
+    Container cont=this;
+    do {
+      cont=cont.getParent();
+      if (cont instanceof TextView) {
+        ((TextView)cont).find();
+        e.consume();
+      }
+    }
+ while (cont != null);
+    return;
+  }
   if (e.isAltDown() || c == KeyEvent.VK_SHIFT || c == KeyEvent.VK_META || c == KeyEvent.VK_CONTROL || c == KeyEvent.VK_ESCAPE)   return;
   text.pos(text.cursor());
   cursor(true);
   final byte[] txt=text.text;
-  final boolean shf=e.isShiftDown();
   boolean down=true;
   if (!ctrl && !e.isActionKey())   return;
   if (c != KeyEvent.VK_DOWN && c != KeyEvent.VK_UP)   col=-1;
@@ -19,7 +35,7 @@
       copy();
       return;
     }
-    if (editable) {
+    if (undo != null) {
       if (c == 'X') {
         cut();
       }
