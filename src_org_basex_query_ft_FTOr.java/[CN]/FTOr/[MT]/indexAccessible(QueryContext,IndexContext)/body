@@ -5,20 +5,18 @@
   int sum=0;
   for (int i=0; i < expr.length; i++) {
     ic.ftnot=false;
-    expr[i].indexAccessible(ctx,ic);
-    if (!ic.io)     return;
-    if (!ic.ftnot && ic.is > 0) {
-      p.add(i);
-      sum+=ic.is;
-    }
- else     if (ic.ftnot) {
+    if (!expr[i].indexAccessible(ctx,ic))     return false;
+    if (ic.ftnot) {
       if (ic.is > 0)       n.add(i);
  else {
-        ic.iu=false;
         ic.seq=true;
         ic.is=Integer.MAX_VALUE;
-        return;
+        return false;
       }
+    }
+ else     if (ic.is > 0) {
+      p.add(i);
+      sum+=ic.is;
     }
   }
   nex=n.finish();
@@ -34,4 +32,5 @@
  else {
     ic.is=sum > min ? min : sum;
   }
+  return true;
 }
