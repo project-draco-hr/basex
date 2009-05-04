@@ -3,7 +3,12 @@
   if (!IO.dbpath(db).exists() && !db.equals(DataText.S_DEEPFS))   return error(DBNOTFOUND,db);
   context.close();
   try {
-    final Data data=open(db);
+    DBPool pool=new DBPool();
+    Data data=null;
+    if ((data=pool.pin(db)) == null) {
+      data=open(db);
+      pool.add(data);
+    }
     context.data(data);
     if (Prop.info) {
       if (data.meta.oldindex)       info(INDUPDATE + NL);
