@@ -12,7 +12,11 @@
       final Performance pp=new Performance();
       builder=new DiskBuilder();
       progress(builder);
-      final Data data=builder.build(p,db);
+      Data data=null;
+      if ((data=Context.POOL.pin(db)) == null) {
+        data=builder.build(p,db);
+        Context.POOL.add(data);
+      }
       if (Prop.allInfo)       info(CREATETABLE + NL,pp.getTimer());
       builder=null;
       index(data);
