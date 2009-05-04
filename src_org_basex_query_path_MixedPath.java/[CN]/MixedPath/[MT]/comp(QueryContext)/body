@@ -1,7 +1,16 @@
 {
+  super.comp(ctx);
+  if (root instanceof Context)   root=null;
+  final Item ci=ctx.item;
+  ctx.item=root(ctx);
+  Expr e=this;
   for (int i=0; i != step.length; i++) {
     step[i]=step[i].comp(ctx);
-    if (step[i].e())     return step[i];
+    if (step[i].e()) {
+      e=step[i];
+      break;
+    }
   }
-  return super.comp(ctx);
+  ctx.item=ci;
+  return e;
 }
