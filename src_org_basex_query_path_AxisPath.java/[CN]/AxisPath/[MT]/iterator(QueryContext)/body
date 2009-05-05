@@ -1,14 +1,17 @@
 {
-  if (root != null && root.uses(Use.VAR,ctx))   return this;
-  if (step.length == 1 && (step[0].axis.down || step[0].axis == Axis.PARENT)) {
+  if (root != null && root.uses(Use.VAR,ctx)) {
+    return this;
+  }
+  if (step.length == 1 && (step[0].axis.down)) {
     return new SingleIterPath(root,step);
   }
-  boolean children=root != null && !root.duplicates(ctx);
+  boolean children=true;
+  if (root != null)   children&=!root.duplicates(ctx);
   int i;
   for (i=0; i < step.length - 1; i++) {
     children&=step[i].axis == Axis.ATTR || step[i].axis == Axis.CHILD || step[i].axis == Axis.PARENT || step[i].axis == Axis.SELF;
   }
-  children&=step[i].axis.down || step[i].axis == Axis.PARENT;
+  children&=step[i].axis.down;
   if (children) {
     return new SimpleIterPath(root,step);
   }
