@@ -12,16 +12,21 @@
   Data data=null;
   String msg=bxw.toString();
   try {
-    data=Check.check(dbname);
+    data=Prop.web ? Open.open(dbname) : Check.check(dbname);
   }
  catch (  final IOException ex) {
-    msg=ex.getMessage();
-    if (file != null) {
-      try {
-        data=Check.check(file.merge(bxw).path());
-      }
- catch (      final IOException e) {
-        msg=e.getMessage();
+    if (Prop.web) {
+      Err.or(INVDOC,dbname);
+    }
+ else {
+      msg=ex.getMessage();
+      if (file != null) {
+        try {
+          data=Check.check(file.merge(bxw).path());
+        }
+ catch (        final IOException e) {
+          msg=e.getMessage();
+        }
       }
     }
   }
