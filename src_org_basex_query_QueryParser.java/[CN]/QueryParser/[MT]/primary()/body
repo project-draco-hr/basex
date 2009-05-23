@@ -4,7 +4,10 @@
   if (digit(c))   return numericLiteral();
   if (c == '.' && next() != '.') {
     consume('.');
-    return !digit(curr()) ? new Context() : decimalLiteral(new TokenBuilder().add('.'));
+    if (!digit(curr()))     return new Context();
+    tok.reset();
+    tok.add('.');
+    return decimalLiteral();
   }
   if (quote(c))   return new Str(stringLiteral(),true);
   if (c == '$') {

@@ -8,9 +8,8 @@
         tb.ent=true;
       }
  else {
-        final byte[] txt=text(tb);
-        if (txt != null)         return Str.get(txt);
-        return next() == '/' ? null : constructor();
+        final Str txt=text(tb);
+        return txt != null ? txt : next() == '/' ? null : constructor();
       }
     }
  else     if (c == '{') {
@@ -19,8 +18,8 @@
         consume();
       }
  else {
-        final byte[] txt=text(tb);
-        return txt != null ? Str.get(txt) : enclosed(NOENCLEXPR);
+        final Str txt=text(tb);
+        return txt != null ? txt : enclosed(NOENCLEXPR);
       }
     }
  else     if (c == '}') {
@@ -28,11 +27,11 @@
       check('}');
       tb.add('}');
     }
- else     if (c == 0) {
-      error(NOCLOSING,tag);
+ else     if (c != 0) {
+      entity(tb);
     }
  else {
-      entity(tb);
+      error(NOCLOSING,tag);
     }
   }
  while (true);
