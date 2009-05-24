@@ -8,6 +8,14 @@
     where=check(single(),NOWHERE);
     alter=NOWHERE;
   }
+  Grp[] group=null;
+  if (consumeWS(GROUP)) {
+    check(BY);
+    ap=qp;
+    do     group=groupSpec(group);
+ while (consumeWS2(COMMA));
+    if (group != null)     group=Array.add(group,new Grp());
+  }
   Ord[] order=null;
   final boolean stable=consumeWS(STABLE);
   if (stable)   check(EMPTYORDER);
@@ -25,5 +33,5 @@
   }
   final Expr ret=check(single(),NORETURN);
   ctx.vars.reset(s);
-  return order == null ? new FLWR(fl,where,ret) : new FLWOR(fl,where,new Order(order),ret);
+  return order == null && group == null ? new FLWR(fl,where,ret) : new FLWOR(fl,where,order == null ? null : new Order(order),group == null ? null : new Group(group),ret);
 }
