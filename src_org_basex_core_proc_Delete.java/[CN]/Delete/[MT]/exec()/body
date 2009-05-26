@@ -10,24 +10,25 @@
     nodes=query(args[0],null);
   }
   if (nodes == null)   return false;
-  if (nodes.size() == 0)   return true;
-  data.meta.update();
-  final int size=nodes.size();
-  for (int i=size - 1; i >= 0; i--) {
-    final int pre=nodes.nodes[i];
-    if (Prop.fuse) {
-      final String bpath=Token.string(data.fs.path(pre,true));
-      File f=new File(bpath);
-      if (f.isDirectory())       FSUtils.deleteDir(f);
- else       if (f.isFile())       f.delete();
-      data.fs.nativeUnlink(Token.string(data.fs.path(pre,false)));
+  if (nodes.size() != 0) {
+    data.meta.update();
+    final int size=nodes.size();
+    for (int i=size - 1; i >= 0; i--) {
+      final int pre=nodes.nodes[i];
+      if (Prop.fuse) {
+        final String bpath=Token.string(data.fs.path(pre,true));
+        File f=new File(bpath);
+        if (f.isDirectory())         FSUtils.deleteDir(f);
+ else         if (f.isFile())         f.delete();
+        data.fs.nativeUnlink(Token.string(data.fs.path(pre,false)));
+      }
+      data.delete(pre);
     }
-    data.delete(pre);
+    final Nodes curr=context.current();
+    if (gui && curr.size() > 1 || curr.nodes[0] == nodes.nodes[0]) {
+      context.current(new Nodes(0,data));
+    }
+    data.flush();
   }
-  final Nodes curr=context.current();
-  if (gui && curr.size() > 1 || curr.nodes[0] == nodes.nodes[0]) {
-    context.current(new Nodes(0,data));
-  }
-  data.flush();
   return Prop.info ? info(DELETEINFO,nodes.size(),perf.getTimer()) : true;
 }
