@@ -1,41 +1,28 @@
 {
-  if (i1 == EMP)   return i2;
-  if (i2 == EMP)   return i1;
-  return new IndexArrayIterator(1){
-    FTNode[] n=new FTNode[2];
-    FTNode r;
-    int c=-1;
-    @Override public boolean more(){
+  return new IndexArrayIterator(){
+    FTNode r, s;
+    public boolean more(){
+      int c=0;
       while (true) {
-        n[0]=c == 0 || c == -1 ? i1.more() ? i1.nextFTNode() : null : n[0];
-        n[1]=c == 1 || c == -1 ? i2.more() ? i2.nextFTNode() : null : n[1];
-        if (n[0] == null || n[1] == null)         return false;
-        final int dis=n[0].getPre() - n[1].getPre();
-        if (dis < 0) {
-          c=0;
-        }
- else         if (dis > 0) {
-          c=1;
-        }
- else {
-          c=-1;
-          if (n[0].merge(n[1],w)) {
-            n[0].reset();
-            r=n[0];
-            return true;
-          }
+        if (c <= 0)         r=i1.more() ? i1.node() : null;
+        if (c >= 0)         s=i2.more() ? i2.node() : null;
+        if (r == null || s == null)         return false;
+        c=r.getPre() - s.getPre();
+        if (c == 0 && r.union(s,w)) {
+          r.reset();
+          return true;
         }
       }
     }
-    @Override public FTNode nextFTNode(){
+    @Override public FTNode node(){
       return r;
     }
-    @Override public int next(){
+    public int next(){
       return r.getPre();
     }
-    @Override public void setTokenNum(    final int t){
-      i1.setTokenNum(t);
-      i2.setTokenNum(t);
+    @Override public void setTokenNum(    final int tn){
+      i1.setTokenNum(tn);
+      i2.setTokenNum(tn);
     }
     @Override public void setToken(    final Tokenizer[] token){
       i1.setToken(token);

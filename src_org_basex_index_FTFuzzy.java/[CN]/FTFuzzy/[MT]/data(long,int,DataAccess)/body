@@ -1,31 +1,12 @@
 {
   if (s == 0 || p < 0)   return IndexArrayIterator.EMP;
-  if (!d.meta.ftittr) {
-    final int[] r1=new int[s];
-    final int[] r2=new int[s];
-    da.cursor(p);
-    for (int i=0; i < s; i++)     r1[i]=da.readNum();
-    for (int i=0; i < s; i++)     r2[i]=da.readNum();
-    final IntArrayList ia=new IntArrayList(s);
-    int i=0, j;
-    int[] t;
-    while (i < s) {
-      j=i;
-      while (i < s && r1[j] == r1[i])       i++;
-      t=new int[i - j + 1];
-      t[0]=r1[j];
-      System.arraycopy(r2,j,t,1,i - j);
-      ia.add(t);
-    }
-    return new IndexArrayIterator(ia.list,ia.size);
-  }
-  return new IndexArrayIterator(s){
+  return new IndexArrayIterator(){
     boolean f=true;
     int lpre=-1;
     int c=0;
     long pos=p;
     FTNode n=new FTNode();
-    @Override public boolean more(){
+    public boolean more(){
       if (c == s)       return false;
       final IntList il=new IntList();
       int pre;
@@ -45,12 +26,12 @@
       n=new FTNode(il.finish(),1);
       return true;
     }
-    @Override public FTNode nextFTNode(){
+    @Override public FTNode node(){
       n.genPointer(toknum);
       if (tok != null)       n.setToken(tok);
       return n;
     }
-    @Override public int next(){
+    public int next(){
       return n.getPre();
     }
   }
