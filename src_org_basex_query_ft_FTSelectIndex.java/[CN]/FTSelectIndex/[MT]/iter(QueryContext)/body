@@ -1,22 +1,20 @@
 {
   final FTSelect tmp=ctx.ftselect;
-  final FTExpr e=pos.expr[0];
+  final FTExpr e=sel.expr[0];
   return new FTNodeIter(){
     @Override public FTNodeItem next() throws QueryException {
-      ctx.ftselect=pos;
-      pos.init(ctx.ftitem);
+      ctx.ftselect=sel;
+      sel.init(ctx.ftitem);
       FTNodeItem it=e.iter(ctx).next();
-      if (ctx.ftselect != null) {
-        if (it.ftn.size > 0) {
-          init(it);
-          while (!pos.filter(ctx)) {
-            it=e.iter(ctx).next();
-            if (it.ftn.size == 0) {
-              ctx.ftselect=tmp;
-              return it;
-            }
-            init(it);
+      if (ctx.ftselect != null && it.ftn.size > 0) {
+        init(it);
+        while (!sel.filter(ctx)) {
+          it=e.iter(ctx).next();
+          if (it.ftn.size == 0) {
+            ctx.ftselect=tmp;
+            return it;
           }
+          init(it);
         }
       }
       ctx.ftselect=tmp;
@@ -27,10 +25,10 @@
  * @param it current FTNode 
  */
     void init(    final FTNodeItem it){
-      pos.setPos(it.ftn.convertPos(),it.ftn.p.list[0]);
+      sel.setPos(it.ftn.convertPos(),it.ftn.p.list[0]);
       if (it.ftn.getToken() != null) {
-        pos.ft.init(it.data.text(it.ftn.getPre()));
-        pos.term=pos.ft.getTokenList();
+        sel.ft.init(it.data.text(it.ftn.getPre()));
+        sel.term=sel.ft.getTokenList();
       }
     }
   }

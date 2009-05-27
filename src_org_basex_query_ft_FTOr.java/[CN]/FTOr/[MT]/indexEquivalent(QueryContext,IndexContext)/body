@@ -6,12 +6,10 @@
     for (int i=0; i < nex.length; i++) {
       expr[nex[i]]=expr[nex[i]].expr[0];
     }
-    final FTIntersection fta=new FTIntersection(pex,nex,expr);
-    final FTNotIndex ftn=new FTNotIndex(fta);
-    return ftn;
+    return new FTNotIndex(new FTIntersection(pex,nex,expr));
   }
   if (pex.length == 0)   return new FTUnion(nex,true,expr);
- else   if (nex.length == 0)   return new FTUnion(pex,true,expr);
- else   if (pex.length == 1 && nex.length == 0)   return expr[pex[0]];
- else   return new FTUnion(gen(),true,expr);
+  if (nex.length == 0)   return new FTUnion(pex,true,expr);
+  if (pex.length == 1 && nex.length == 0)   return expr[pex[0]];
+  return new FTUnion(gen(),true,expr);
 }

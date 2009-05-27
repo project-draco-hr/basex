@@ -14,14 +14,16 @@
         Nod n=Nod.this;
         Nod p=n.parent();
         while (p != null) {
-          final NodIter tmp=new NodIter();
-          final NodeIter i=p.child();
-          Nod c;
-          while ((c=i.next()) != null && !c.is(n)) {
-            tmp.add(c.finish());
-            addDesc(c.child(),tmp);
+          if (n.type != Type.ATT) {
+            final NodIter tmp=new NodIter();
+            final NodeIter i=p.child();
+            Nod c;
+            while ((c=i.next()) != null && !c.is(n)) {
+              tmp.add(c.finish());
+              addDesc(c.child(),tmp);
+            }
+            for (int t=tmp.size - 1; t >= 0; t--)             it.add(tmp.list[t]);
           }
-          for (int t=tmp.size - 1; t >= 0; t--)           it.add(tmp.list[t]);
           n=p;
           p=p.parent();
         }

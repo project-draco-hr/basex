@@ -37,7 +37,7 @@
       sc[0]='.';
       System.arraycopy(vsn,posw + 2,sc,1,sc.length - 1);
     }
-    d=IndexArrayIterator.merge(wc(0,sc,posw,false),d);
+    d=IndexArrayIterator.union(wc(0,sc,posw,false),d);
     return d;
   }
   if (wildcard == '*') {
@@ -61,7 +61,7 @@
     }
     idata=IndexArrayIterator.EMP;
     wc(resultNode,aw,false,counter[0],0);
-    return IndexArrayIterator.merge(d,idata);
+    return IndexArrayIterator.union(d,idata);
   }
   if (wildcard == '+') {
     final int[] rne=entry(resultNode);
@@ -85,7 +85,7 @@
       if (!hasNextNodes(rne))       return IndexArrayIterator.EMP;
       for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
         nvsn[l]=(byte)rne[t + 1];
-        tmpres=IndexArrayIterator.merge(wc(nvsn,l + 1),tmpres);
+        tmpres=IndexArrayIterator.union(wc(nvsn,l + 1),tmpres);
       }
     }
     return tmpres;
@@ -94,7 +94,7 @@
   if (rne[0] > counter[0] && resultNode > 0) {
     vsn[posw]=(byte)rne[counter[0] + 1];
     final IndexArrayIterator resultData=get(0,vsn);
-    if (resultData.size() != 0 && recCall) {
+    if (resultData.size != 0 && recCall) {
       valuesFound=new byte[]{(byte)rne[counter[0] + 1]};
     }
     return resultData;
@@ -107,7 +107,7 @@
     if (!recCall) {
       for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
         aw[0]=(byte)rne[t + 1];
-        tmpNode=IndexArrayIterator.merge(get(rne[t],aw),tmpNode);
+        tmpNode=IndexArrayIterator.union(get(rne[t],aw),tmpNode);
       }
       return tmpNode;
     }
@@ -115,7 +115,7 @@
     for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
       aw[0]=(byte)rne[t + 1];
       valuesFound[t - rne[0] - 1]=(byte)rne[t + 1];
-      tmpNode=IndexArrayIterator.merge(get(rne[t],aw),tmpNode);
+      tmpNode=IndexArrayIterator.union(get(rne[t],aw),tmpNode);
     }
   }
   return IndexArrayIterator.EMP;
