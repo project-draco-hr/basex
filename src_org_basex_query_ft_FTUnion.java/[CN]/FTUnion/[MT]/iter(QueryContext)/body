@@ -1,7 +1,40 @@
 {
   return new FTNodeIter(){
     @Override public FTNodeItem next() throws QueryException {
-      return FTUnion.this.next(ctx);
+      boolean b=false;
+      for (int i=0; i < cp.size; i++) {
+        final int p=pex[cp.list[i]];
+        mp[p]=expr[p].iter(ctx).next();
+        if (!b)         b=!mp[i].ftn.empty();
+      }
+      cp.reset();
+      if (!b)       for (      final FTNodeItem c : mp)       if (!c.ftn.empty())       break;
+      if (minp == -1) {
+        minp=0;
+        while (minp < mp.length && mp[minp].ftn.empty())         minp++;
+        if (minp < mp.length)         cp.set(minp,0);
+        for (int ip=minp + 1; ip < pex.length; ip++) {
+          if (!mp[ip].ftn.empty()) {
+            final FTNodeItem n1=mp[pex[ip]];
+            final FTNodeItem n2=mp[pex[minp]];
+            if (n1.ftn.pre() < n2.ftn.pre()) {
+              minp=ip;
+              cp.set(ip,0);
+            }
+ else             if (n1.ftn.pre() == n2.ftn.pre()) {
+              cp.add(ip);
+            }
+          }
+        }
+      }
+      minp=-1;
+      final FTNodeItem m=mp[pex[cp.list[0]]];
+      for (int i=1; i < cp.size; i++) {
+        m.union(ctx,mp[pex[cp.list[i]]],0);
+        m.ftn.not=false;
+      }
+      if (m.ftn.empty())       m.ftn.not=not;
+      return m;
     }
   }
 ;
