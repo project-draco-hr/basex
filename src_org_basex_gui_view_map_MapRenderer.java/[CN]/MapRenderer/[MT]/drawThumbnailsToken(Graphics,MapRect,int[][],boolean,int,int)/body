@@ -3,7 +3,7 @@
   final double ww=r.w;
   final int ys=r.y + 3;
   int yy=ys;
-  double wl=0;
+  int wl=0;
   double ll=0;
   double e=0;
   final Color textc=draw ? COLORS[r.level + 4] : null;
@@ -16,8 +16,8 @@
   tl=new TokenList();
   int ml=0;
   for (int i=0; i < data[0].length; i++) {
-    wl=data[0][i] * r.thumbf;
-    e+=wl - (int)wl;
+    wl=(int)(data[0][i] * r.thumbf);
+    e+=data[0][i] * r.thumbf - wl;
     if (e >= 1) {
       wl+=(int)e;
       e-=(int)e;
@@ -25,7 +25,7 @@
     sl+=data[0][i];
     pl+=data[0][i];
     cchars+=data[0][i];
-    if (ll + wl + r.thumbf * (psl < data[1].length && pl == data[1][psl] ? 1 : 0) >= ww) {
+    if (ll + wl + r.thumbsw * ((psl < data[1].length && sl == data[1][psl]) ? 1 : 0) >= ww) {
       yy+=r.thumblh;
       ll=0;
       ml=0;
@@ -33,13 +33,11 @@
     }
     if (draw) {
       if (r.pos != null && pp < r.pos.length && count == r.pos[pp]) {
-        g.setColor(COLORFT);
+        g.setColor(getFTColor(r.poi[pp]));
         pp++;
       }
- else {
-        g.setColor(textc);
-      }
-      g.fillRect((int)(xx + ll),yy,(int)wl,r.thumbfh);
+ else       g.setColor(textc);
+      g.fillRect((int)(xx + ll),yy,wl,r.thumbfh);
     }
     if (x > 0 && y > 0 && (inRect((int)(xx + ll) + 1,yy,wl,r.thumbfh,x,y) || ml > 0)) {
       ul=-1;
@@ -72,10 +70,10 @@
     if (psl < data[1].length && sl == data[1][psl]) {
       if (draw) {
         g.setColor(Color.black);
-        g.fillRect((int)(xx + ll),yy,(int)r.thumbf,r.thumbfh);
+        g.fillRect((int)(xx + ll),yy,(int)r.thumbsw,r.thumbfh);
         g.setColor(textc);
       }
-      ll+=r.thumbf;
+      ll+=r.thumbsw;
       psl++;
       sl=0;
       ml=0;

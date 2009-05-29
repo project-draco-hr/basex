@@ -2,8 +2,9 @@
   if (r.thumbf == 0)   return;
   final int ww=r.w;
   int yy=r.y + 3;
-  double wl=0;
+  int wl=0;
   double ll=0;
+  double error=0;
   ul=-1;
   int psl=0, ppl=0, pl=0, sl=0, cc=0;
   int pp=0;
@@ -12,26 +13,28 @@
   boolean ir;
   for (int i=0; i < data[0].length; i++) {
     ir=false;
-    wl=data[0][i] * r.thumbf;
+    wl=(int)(data[0][i] * r.thumbf);
+    error+=data[0][i] * r.thumbf - wl;
+    if (error >= 1) {
+      wl+=(int)error;
+      error-=(int)error;
+    }
     pl+=data[0][i];
     sl+=data[0][i];
     cc+=data[0][i];
-    if (ll + wl >= ww) {
+    if (ll + wl + (ds && psl < data[1].length && data[1][psl] == sl ? r.thumbsw : 0) >= ww) {
       if (ds) {
         yy+=r.thumblh;
-        ll=0;
-        ir=inRect(r.x,yy,ww - ll < wl ? ww - ll : wl,r.thumbfh,x,y);
-        ll+=ww - ll < wl ? ww : wl + r.thumbf;
-        wl=ww - ll < wl ? ww - wl : 0;
+        ir=inRect(r.x,yy,wl,r.thumbfh,x,y);
+        ll=wl + (psl < data[1].length && data[1][psl] == sl ? r.thumbsw : r.thumbf);
       }
  else {
-        ir=inRect(r.x + ll,yy,ww - ll < wl ? ww - ll : wl,r.thumbfh,x,y);
-        wl=ww - ll < wl ? wl - (ww - ll) : 0;
-        ll=0;
+        ir=inRect(r.x + (int)ll,yy,ww - (int)ll,r.thumbfh,x,y);
         yy+=r.thumblh;
+        wl-=ww - ll;
+        ir=inRect(r.x,yy,wl,r.thumbfh,x,y);
+        ll=wl + (psl < data[1].length && data[1][psl] == sl ? r.thumbsw : r.thumbf);
       }
-      ir|=inRect(r.x,yy,wl,r.thumbfh,x,y);
-      ll+=wl;
     }
  else {
       ir|=inRect(r.x + ll,yy,wl,r.thumbfh,x,y);
@@ -85,8 +88,10 @@
         p-=data[0][i - 1];
         i--;
       }
-      tl.add(new byte[]{'.','.'});
-      ttcol.add(-1);
+      if (i > 0) {
+        tl.add(new byte[]{'.','.'});
+        ttcol.add(-1);
+      }
       i=si + 1;
       p=cc;
       final byte[][] toks=tl.finish();
@@ -135,16 +140,18 @@
         p+=tok.length - (apm ? 1 : 0);
         i++;
       }
-      tl.add(new byte[]{'.','.'});
-      ttcol.add(-1);
+      if (i < data[0].length) {
+        tl.add(new byte[]{'.','.'});
+        ttcol.add(-1);
+      }
       return;
     }
-    if (psl < data[1].length && data[1][psl] == sl) {
-      if (ll + sw >= ww) {
+    if (ds && psl < data[1].length && data[1][psl] == sl) {
+      if (ll + r.thumbsw >= ww) {
         yy+=r.thumblh;
-        ll=0;
+        ll=ll - ww;
       }
-      ll+=(int)sw;
+      ll+=r.thumbsw;
       sl=0;
       psl++;
     }
