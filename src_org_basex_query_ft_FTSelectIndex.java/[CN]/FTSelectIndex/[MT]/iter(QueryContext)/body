@@ -1,16 +1,12 @@
 {
-  final FTSelect tmp=ctx.ftselect;
-  final FTNodeIter ir=sel.expr[0].iter(ctx);
-  return new FTNodeIter(){
-    @Override public FTNode next() throws QueryException {
-      ctx.ftselect=sel;
-      FTNode it;
-      while (!(it=ir.next()).empty() && !ctx.ftselect.standard()) {
-        it.setPos();
-        sel.ft=new Tokenizer(it.data.text(it.fte.pre()));
-        if (sel.filter(ctx,it))         break;
+  final FTIter ir=sel.expr[0].iter(ctx);
+  return new FTIter(){
+    @Override public FTItem next() throws QueryException {
+      FTItem it;
+      while (!(it=ir.next()).empty() && !sel.standard()) {
+        it.convertPos();
+        if (sel.filter(ctx,it,new Tokenizer(it.str())))         break;
       }
-      ctx.ftselect=tmp;
       return it;
     }
   }
