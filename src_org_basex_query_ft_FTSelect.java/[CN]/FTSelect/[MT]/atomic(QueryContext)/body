@@ -1,15 +1,12 @@
 {
   final FTSelect tmp=ctx.ftselect;
   ctx.ftselect=this;
-  init(ctx.fttoken);
+  ft=ctx.fttoken;
   final FTNode it=expr[0].atomic(ctx);
   ctx.ftselect=tmp;
   double s=it.score();
-  if (s != 0 && !filter(ctx))   s=0;
-  if (s != 0) {
-    if (tmp.expr[0] != null)     tmp.addPos(pos,size,term);
-    ctx.ftd=pos;
-  }
+  if (s != 0 && !filter(ctx,it))   s=0;
+  if (s == 0)   it.pos=new IntList[]{};
   it.score(s);
   return it;
 }

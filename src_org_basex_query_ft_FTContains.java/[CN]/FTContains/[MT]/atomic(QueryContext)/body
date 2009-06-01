@@ -2,17 +2,16 @@
   if (div == 0)   div=++ctx.ftcount;
   final Iter iter=expr.iter(ctx);
   final Tokenizer tmp=ctx.fttoken;
-  final IntList[] ftd=ctx.ftd;
   ctx.fttoken=ft;
   double s=0;
   Item it;
   while ((it=iter.next()) != null) {
     ft.init(it.str());
-    final double d=ftexpr.atomic(ctx).score();
+    final FTNode node=ftexpr.atomic(ctx);
+    final double d=node.score();
     s=ctx.score.and(s,d);
-    if (d > 0 && ctx.ftpos != null && ctx.ftd != null && it instanceof DBNode)     ctx.ftpos.add(ctx.ftd,((DBNode)it).pre,div);
+    if (d > 0 && ctx.ftpos != null && node.pos.length != 0 && it instanceof DBNode)     ctx.ftpos.add(node.pos,((DBNode)it).pre,div);
   }
   ctx.fttoken=tmp;
-  ctx.ftd=ftd;
   return Bln.get(s);
 }
