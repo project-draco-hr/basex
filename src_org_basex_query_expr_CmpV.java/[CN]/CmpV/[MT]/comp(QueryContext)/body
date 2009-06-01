@@ -1,7 +1,7 @@
 {
   super.comp(ctx);
   for (int e=0; e != expr.length; e++)   expr[e]=expr[e].addText(ctx);
-  if (expr[0].i() && expr[1] instanceof AxisPath) {
+  if (expr[0].i() && !expr[1].i()) {
     final Expr tmp=expr[0];
     expr[0]=expr[1];
     expr[1]=tmp;
@@ -19,9 +19,27 @@
   if (e != this) {
     ctx.compInfo(OPTPRE,this);
   }
- else   if (e1 instanceof Fun && ((Fun)e1).func == FunDef.POS) {
-    e=Pos.get(this,cmp,e2);
-    if (e != this)     ctx.compInfo(OPTWRITE,this);
+ else   if (e1 instanceof Fun) {
+    final Fun fun=(Fun)expr[0];
+    if (fun.func == FunDef.POS) {
+      e=Pos.get(this,cmp,e2);
+      if (e != this)       ctx.compInfo(OPTWRITE,this);
+    }
+ else     if (fun.func == FunDef.COUNT) {
+      if (e2.i() && ((Item)e2).n() && ((Item)e2).dbl() == 0) {
+        if (cmp == Comp.LT || cmp == Comp.GE) {
+          ctx.compInfo(OPTPRE,this);
+          e=Bln.get(cmp == Comp.GE);
+        }
+ else {
+          final Fun f=new FNSimple();
+          f.expr=fun.expr;
+          f.func=cmp == Comp.EQ || cmp == Comp.LE ? FunDef.EMPTY : FunDef.EXISTS;
+          ctx.compInfo(OPTWRITE,this);
+          e=f;
+        }
+      }
+    }
   }
   return e;
 }

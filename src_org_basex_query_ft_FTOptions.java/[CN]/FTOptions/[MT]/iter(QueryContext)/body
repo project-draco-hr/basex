@@ -1,7 +1,14 @@
 {
-  final FTOpt tmp=ctx.ftopt;
-  ctx.ftopt=opt;
-  final FTNodeIter ir=expr[0].iter(ctx);
-  ctx.ftopt=tmp;
-  return ir;
+  return new FTNodeIter(){
+    FTOpt tmp=ctx.ftopt;
+    FTNodeIter ir;
+    @Override public FTNode next() throws QueryException {
+      ctx.ftopt=opt;
+      if (ir == null)       ir=expr[0].iter(ctx);
+      final FTNode it=ir.next();
+      ctx.ftopt=tmp;
+      return it;
+    }
+  }
+;
 }
