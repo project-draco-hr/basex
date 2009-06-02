@@ -4,12 +4,12 @@
   byte[] bw=null;
   final int currentLength=0;
   int resultNode;
-  IndexArrayIterator d=IndexArrayIterator.EMP;
+  FTIndexIterator d=FTIndexIterator.EMP;
   if (posw > 0) {
     bw=new byte[posw];
     System.arraycopy(vsn,0,bw,0,posw);
     resultNode=wc(cn,bw);
-    if (resultNode == -1)     return IndexArrayIterator.EMP;
+    if (resultNode == -1)     return FTIndexIterator.EMP;
   }
  else {
     resultNode=0;
@@ -37,7 +37,7 @@
       sc[0]='.';
       System.arraycopy(vsn,posw + 2,sc,1,sc.length - 1);
     }
-    d=IndexArrayIterator.union(wc(0,sc,posw,false),d);
+    d=FTIndexIterator.union(wc(0,sc,posw,false),d);
     return d;
   }
   if (wildcard == '*') {
@@ -59,9 +59,9 @@
       d=get(0,searchChar);
       if (bw != null && counter[1] != bw.length)       return d;
     }
-    idata=IndexArrayIterator.EMP;
+    idata=FTIndexIterator.EMP;
     wc(resultNode,aw,false,counter[0],0);
-    return IndexArrayIterator.union(d,idata);
+    return FTIndexIterator.union(d,idata);
   }
   if (wildcard == '+') {
     final int[] rne=entry(resultNode);
@@ -76,16 +76,16 @@
     }
     nvsn[l + 1]='.';
     nvsn[l + 2]='*';
-    IndexArrayIterator tmpres=IndexArrayIterator.EMP;
+    FTIndexIterator tmpres=FTIndexIterator.EMP;
     if (rne[0] > counter[0] && resultNode > 0) {
       nvsn[l]=(byte)rne[counter[0] + 1];
       tmpres=wc(nvsn,l + 1);
     }
  else     if (rne[0] == counter[0] || resultNode == 0) {
-      if (!hasNextNodes(rne))       return IndexArrayIterator.EMP;
+      if (!hasNextNodes(rne))       return FTIndexIterator.EMP;
       for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
         nvsn[l]=(byte)rne[t + 1];
-        tmpres=IndexArrayIterator.union(wc(nvsn,l + 1),tmpres);
+        tmpres=FTIndexIterator.union(wc(nvsn,l + 1),tmpres);
       }
     }
     return tmpres;
@@ -93,21 +93,21 @@
   final int[] rne=entry(resultNode);
   if (rne[0] > counter[0] && resultNode > 0) {
     vsn[posw]=(byte)rne[counter[0] + 1];
-    final IndexArrayIterator resultData=get(0,vsn);
+    final FTIndexIterator resultData=get(0,vsn);
     if (resultData.size != 0 && recCall) {
       valuesFound=new byte[]{(byte)rne[counter[0] + 1]};
     }
     return resultData;
   }
   if (rne[0] == counter[0] || resultNode == 0) {
-    if (!hasNextNodes(rne))     return IndexArrayIterator.EMP;
-    IndexArrayIterator tmpNode=IndexArrayIterator.EMP;
+    if (!hasNextNodes(rne))     return FTIndexIterator.EMP;
+    FTIndexIterator tmpNode=FTIndexIterator.EMP;
     aw=new byte[vsn.length - posw];
     System.arraycopy(vsn,posw + 1,aw,1,aw.length - 1);
     if (!recCall) {
       for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
         aw[0]=(byte)rne[t + 1];
-        tmpNode=IndexArrayIterator.union(get(rne[t],aw),tmpNode);
+        tmpNode=FTIndexIterator.union(get(rne[t],aw),tmpNode);
       }
       return tmpNode;
     }
@@ -115,8 +115,8 @@
     for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
       aw[0]=(byte)rne[t + 1];
       valuesFound[t - rne[0] - 1]=(byte)rne[t + 1];
-      tmpNode=IndexArrayIterator.union(get(rne[t],aw),tmpNode);
+      tmpNode=FTIndexIterator.union(get(rne[t],aw),tmpNode);
     }
   }
-  return IndexArrayIterator.EMP;
+  return FTIndexIterator.EMP;
 }

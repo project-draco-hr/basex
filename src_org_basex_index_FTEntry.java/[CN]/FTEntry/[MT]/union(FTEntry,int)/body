@@ -1,10 +1,15 @@
 {
-  if (not != n.not)   return false;
+  if (not != n.not || pre() != n.pre())   return false;
   boolean mp=morePos();
   boolean nmp=n.morePos();
-  if (!(mp && nmp) || pre() != n.pre())   return false;
+  if (!mp || !nmp) {
+    reset();
+    n.reset();
+    return false;
+  }
   final IntList il=new IntList();
-  final IntList pn=poi != null ? initNewPointer(n.poi) : null;
+  final IntList pn=new IntList();
+  pn.add(Math.max(poi.list[0],n.poi.list[0]));
   il.add(pre());
   while (mp && nmp) {
     final int d=nextPos() - n.nextPos() + w;
@@ -33,12 +38,9 @@
       nmp=n.morePos();
     }
   }
-  pos=new IntList(il.finish());
-  final Tokenizer[] tmp=new Tokenizer[tok.length + n.tok.length];
-  Array.copy(tok,tmp,0);
-  Array.copy(n.tok,tmp,tok.length);
-  tok=tmp;
-  c=0;
-  if (poi != null)   poi=new IntList(pn.finish());
+  pos=il;
+  poi=pn;
+  reset();
+  n.reset();
   return pos.size > 1;
 }
