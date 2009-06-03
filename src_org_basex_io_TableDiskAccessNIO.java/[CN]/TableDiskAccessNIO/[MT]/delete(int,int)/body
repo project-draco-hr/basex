@@ -1,0 +1,33 @@
+{
+  indexdirty=true;
+  cursor(first);
+  int from=first - firstPre;
+  final int last=first + nr - 1;
+  if (last < nextPre) {
+    copy(mbbuffer.get(block),from + nr,mbbuffer.get(block),from,nextPre - last - 1);
+    updatePre(nr);
+    if (nextPre == firstPre) {
+      Array.move(firstPres,index + 1,-1,indexSize - index - 1);
+      Array.move(blocks,index + 1,-1,indexSize - index - 1);
+      indexSize--;
+      readBlock(index,firstPre,index + 2 > indexSize ? count : firstPres[index + 1]);
+    }
+    return;
+  }
+  int unused=0;
+  while (nextPre <= last) {
+    if (from == 0)     unused++;
+    nextBlock();
+    from=0;
+  }
+  if (unused > 0) {
+    Array.move(firstPres,index,-unused,indexSize - index);
+    Array.move(blocks,index,-unused,indexSize - index);
+    indexSize-=unused;
+    index-=unused;
+  }
+  copy(mbbuffer.get(block),last - firstPre + 1,mbbuffer.get(block),0,nextPre - last - 1);
+  firstPres[index]=first;
+  firstPre=first;
+  updatePre(nr);
+}

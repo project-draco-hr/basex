@@ -1,0 +1,16 @@
+{
+  db=nm;
+  fn=f;
+  final DataInput in=new DataInput(nm,f + 'i');
+  nrBlocks=in.readNum();
+  indexSize=in.readNum();
+  count=in.readNum();
+  firstPres=in.readNums();
+  blocks=in.readNums();
+  in.close();
+  mbbuffer=new MappedByteBufferList(blocks.length);
+  file=new RandomAccessFile(IO.dbfile(nm,f),"rw");
+  fc=file.getChannel();
+  tmpblock=ByteBuffer.allocateDirect(IO.BLOCKSIZE);
+  readBlock(0,0,indexSize > 1 ? firstPres[1] : count);
+}
