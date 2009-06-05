@@ -1,7 +1,14 @@
 {
   final MetaData md=ic.data.meta;
   final FTOpt fto=ic.ctx.ftopt;
-  if (word == null || word.length == 0 || occ != null || ic.ctx.ftopt.weight != null || mode != FTMode.ANY && mode != FTMode.ALL && mode != FTMode.PHRASE || md.ftcs != fto.is(FTOpt.CS) || md.ftdc != fto.is(FTOpt.DC) || md.ftst != fto.is(FTOpt.ST) || fto.sw != null || fto.is(FTOpt.WC) && md.ftfz)   return false;
+  if (word == null || occ != null || ic.ctx.ftopt.weight != null || mode != FTMode.ANY && mode != FTMode.ALL && mode != FTMode.PHRASE || md.ftcs != fto.is(FTOpt.CS) || md.ftdc != fto.is(FTOpt.DC) || md.ftst != fto.is(FTOpt.ST) || fto.sw != null)   return false;
+  if (fto.is(FTOpt.WC)) {
+    if (md.ftfz || word[0] == '.')     return false;
+    int d=0;
+    for (    final byte w : word) {
+      if (w == '{' || w == '\\' || w == '.' && ++d > 1)       return false;
+    }
+  }
   final Tokenizer ft=new Tokenizer(word,fto);
   ic.is=0;
   while (ft.more()) {
