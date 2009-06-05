@@ -1,46 +1,29 @@
 {
   if (not != n.not || pre() != n.pre())   return false;
+  final IntList ps=new IntList();
+  final IntList pi=new IntList();
   boolean mp=morePos();
-  boolean nmp=n.morePos();
-  if (!mp || !nmp) {
-    reset();
-    n.reset();
-    return false;
-  }
-  final IntList il=new IntList();
-  final IntList pn=new IntList();
-  pn.add(Math.max(poi.list[0],n.poi.list[0]));
-  il.add(pre());
-  while (mp && nmp) {
-    final int d=nextPos() - n.nextPos() + w;
-    if (d == 0) {
-      add(il,pn);
-      if (w > 0)       n.add(il,pn);
+  boolean np=n.morePos();
+  while (mp || np) {
+    final int d=mp && np ? nextPos() - n.nextPos() + w : mp ? -1 : 1;
+    if (d < 0) {
+      if (w == 0)       add(ps,pi);
       mp=morePos();
-      nmp=n.morePos();
     }
- else     if (d < 0) {
-      if (w == 0)       add(il,pn);
-      mp=morePos();
+ else     if (d > 0) {
+      if (w == 0)       n.add(ps,pi);
+      np=n.morePos();
     }
  else {
-      if (w == 0)       n.add(il,pn);
-      nmp=n.morePos();
-    }
-  }
-  if (w == 0) {
-    while (mp) {
-      add(il,pn);
+      add(ps,pi);
+      if (w > 0)       n.add(ps,pi);
       mp=morePos();
-    }
-    while (nmp) {
-      n.add(il,pn);
-      nmp=n.morePos();
+      np=n.morePos();
     }
   }
-  pos=il;
-  poi=pn;
+  pos=ps;
+  poi=pi;
   reset();
   n.reset();
-  return pos.size > 1;
+  return pos.size > 0;
 }
