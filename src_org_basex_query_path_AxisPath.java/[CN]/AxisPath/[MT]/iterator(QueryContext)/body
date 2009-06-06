@@ -5,13 +5,41 @@
   if (step.length == 1 && (step[0].axis.down)) {
     return new SingleIterPath(root,step);
   }
-  boolean children=root != null && !root.duplicates(ctx);
-  int i;
-  for (i=0; i < step.length - 1; i++) {
-    children&=step[i].axis == Axis.ATTR || step[i].axis == Axis.CHILD || step[i].axis == Axis.PARENT || step[i].axis == Axis.SELF;
+  boolean iter=root != null && !root.duplicates(ctx);
+  if (iter) {
+    int i=0;
+    while (true) {
+      if (step[i].axis == Axis.ATTR || step[i].axis == Axis.PARENT || step[i].axis == Axis.SELF) {
+        i++;
+        if (i == step.length)         break;
+        continue;
+      }
+      if (step[i].axis == Axis.DESC || step[i].axis == Axis.DESCORSELF || step[i].axis == Axis.FOLL || step[i].axis == Axis.PREC) {
+        i++;
+        if (i == step.length)         break;
+ else {
+          iter=false;
+          break;
+        }
+      }
+      if (step[i].axis == Axis.ATTR || step[i].axis == Axis.CHILD || step[i].axis == Axis.FOLLSIBL || step[i].axis == Axis.PRECSIBL || step[i].axis == Axis.SELF) {
+        i++;
+        if (i == step.length)         break;
+        while (step[i].axis == Axis.ATTR || step[i].axis == Axis.CHILD || step[i].axis == Axis.PARENT || step[i].axis == Axis.SELF) {
+          i++;
+          if (i == step.length)           break;
+        }
+        if (i == step.length)         break;
+        iter&=step[i].axis.down;
+      }
+ else {
+        iter=false;
+        break;
+      }
+      break;
+    }
   }
-  children&=step[i].axis.down;
-  if (children) {
+  if (iter) {
     return new SimpleIterPath(root,step);
   }
   return this;
