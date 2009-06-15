@@ -25,25 +25,8 @@
     }
     int nodeKind=data.kind(pre);
     int nodeSize=data.size(pre,nodeKind);
-    int parent=data.parent(pre,nodeKind);
     if (nodeSize > 0)     temp.put(pre,boxMiddle);
     preList.add(pre);
-    while (ratio < 2) {
-      int p=parentList.list[++i];
-      if (p == -1) {
-        continue;
-      }
-      int nK=data.kind(p);
-      int par=data.parent(p,nK);
-      if (par != parent) {
-        --i;
-        break;
-      }
-      int nS=data.size(p,nK);
-      if (nS > 0)       temp.put(p,boxMiddle);
-      preList.add(p);
-      w+=ratio;
-    }
     w=Math.max(2,ratio);
     TreeRect rect=new TreeRect();
     rect.x=(int)x;
@@ -55,14 +38,14 @@
     preList.reset();
     rects.add(rect);
     g.setColor(new Color(colorRect - (level * colorDiff)));
-    g.drawRect((int)x + 1,y,(int)w - 1,h);
+    g.drawRect((int)x + 2,y,(int)w - 2,h);
     if (parentPos != null) {
       final double parentMiddle=parentPos.get(data.parent(pre,nodeKind));
       g.setColor(new Color(colorRect));
       g.drawLine((int)boxMiddle,y - 1,(int)parentMiddle,y - fontHeight + 1);
     }
     g.setColor(new Color(colorNode - (level * colorDiff)));
-    g.fillRect((int)x,y,(int)w,h);
+    g.fillRect((int)x + 1,y,(int)w - 1,h);
     drawTextIntoRectangle(g,nodeKind,pre,(int)boxMiddle,(int)w,y);
     x+=Math.max(ratio,1);
   }
