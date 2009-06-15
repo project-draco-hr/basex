@@ -1,0 +1,70 @@
+{
+  final int h=fontHeight;
+  final int numberOfRoots=gui.context.current().nodes.length;
+  final Data data=gui.context.data();
+  final int size=parentList.size;
+  final HashMap<Integer,Double> temp=new HashMap<Integer,Double>();
+  final int y=1 * level * fontHeight* 2;
+  int screenWidth=getSize().width - 1;
+  final double width=screenWidth / numberOfRoots;
+  double x=(int)(rootNum * width);
+  double ratio=width / size;
+  IntList preList=new IntList();
+  int factor=1;
+  double currRatio=ratio;
+  while (currRatio < 2) {
+    currRatio*=++factor;
+  }
+  for (int i=0; i < size; i++) {
+    double boxMiddle=x + ratio / 2f;
+    double w=ratio;
+    int pre=parentList.list[i];
+    if (pre == -1) {
+      x+=ratio;
+      continue;
+    }
+    int nodeKind=data.kind(pre);
+    int nodeSize=data.size(pre,nodeKind);
+    int parent=data.parent(pre,nodeKind);
+    if (nodeSize > 0)     temp.put(pre,boxMiddle);
+    preList.add(pre);
+    while (ratio < 2) {
+      int p=parentList.list[++i];
+      if (p == -1) {
+        continue;
+      }
+      int nK=data.kind(p);
+      int par=data.parent(p,nK);
+      if (par != parent) {
+        --i;
+        break;
+      }
+      int nS=data.size(p,nK);
+      if (nS > 0)       temp.put(p,boxMiddle);
+      preList.add(p);
+      w+=ratio;
+    }
+    w=Math.max(2,ratio);
+    TreeRect rect=new TreeRect();
+    rect.x=(int)x;
+    rect.y=y;
+    rect.w=(int)w;
+    rect.h=h;
+    rect.pre=pre;
+    rect.multiPres=preList.finish();
+    preList.reset();
+    rects.add(rect);
+    g.setColor(new Color(colorRect - (level * colorDiff)));
+    g.drawRect((int)x + 1,y,(int)w - 1,h);
+    if (parentPos != null) {
+      final double parentMiddle=parentPos.get(data.parent(pre,nodeKind));
+      g.setColor(new Color(colorRect));
+      g.drawLine((int)boxMiddle,y - 1,(int)parentMiddle,y - fontHeight + 1);
+    }
+    g.setColor(new Color(colorNode - (level * colorDiff)));
+    g.fillRect((int)x + 1,y + 1,(int)w - 2,h - 1);
+    drawTextIntoRectangle(g,nodeKind,pre,(int)boxMiddle,(int)w,y);
+    x+=Math.max(ratio,1);
+  }
+  parentPos=temp;
+}
