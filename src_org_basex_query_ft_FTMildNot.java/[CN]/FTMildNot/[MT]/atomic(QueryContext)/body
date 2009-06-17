@@ -2,15 +2,7 @@
   final FTItem item=expr[0].atomic(ctx);
   final FTMatches all=item.all;
   for (int e=1; e < expr.length; e++) {
-    final FTMatches al=expr[e].atomic(ctx).all;
-    for (int a=0; a < all.size; a++) {
-      for (int b=0; b < al.size; b++) {
-        if (!all.match[a].notin(al.match[b])) {
-          all.delete(a--);
-          break;
-        }
-      }
-    }
+    if (!all.mildnot(expr[e].atomic(ctx).all))     break;
   }
   if (all.size == 0)   item.score(0);
   return item;
