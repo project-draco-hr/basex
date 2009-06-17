@@ -1,4 +1,27 @@
 {
   if (gui.updating)   return;
   if (SwingUtilities.isLeftMouseButton(e) && focused != null)   painter.mouse(focused,mouseX,mouseY,true);
+  if (GUIProp.mapinteraction == 1) {
+    final Data data=gui.context.data();
+    int screensize=getWidth() * getHeight();
+    screensize=screensize / 3;
+    tinyw=(int)Math.sqrt(focused.w * screensize / focused.h);
+    tinyh=screensize / tinyw;
+    if (focused.x + focused.w + tinyw < getWidth())     tinyx=focused.x + focused.w;
+ else     if (focused.x - tinyw > 0)     tinyx=focused.x - tinyw;
+ else     tinyx=(getWidth() - tinyw) / 2;
+    if (focused.y - tinyh > 0 && mouseY < focused.y + focused.h / 2)     tinyy=focused.y - tinyh;
+ else     if (focused.y + focused.h + tinyh < getHeight())     tinyy=focused.y + focused.h;
+ else     tinyy=(getHeight() - tinyh) / 2;
+    final MapRect rect=new MapRect(0,0,tinyw,tinyh,0,0);
+    final Nodes nodes=new Nodes(focused.pre,data);
+    tinyMap=new BufferedImage(tinyw,tinyh,BufferedImage.TYPE_INT_BGR);
+    tinyLayout=new MapLayout(nodes.data,textLen);
+    tinyLayout.makeMap(rect,new MapList(nodes.nodes.clone()),0,nodes.size() - 1,0);
+    MapRects rects=new MapRects();
+    rects.add(focused);
+    painter.init(tinyLayout.rectangles.copy());
+    drawMap(tinyMap,tinyLayout.rectangles);
+    repaint();
+  }
 }

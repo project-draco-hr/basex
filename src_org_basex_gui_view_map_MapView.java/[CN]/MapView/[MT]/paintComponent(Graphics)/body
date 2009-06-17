@@ -13,6 +13,8 @@
   final Image img1=in ? zoomMap : mainMap;
   final Image img2=in ? mainMap : zoomMap;
   if (zoomStep > 0) {
+    tinyh=0;
+    tinyw=0;
     drawImage(g,img1,-zoomStep);
     drawImage(g,img2,zoomStep);
   }
@@ -86,6 +88,18 @@ MapRenderer.drawToolTip(g,mouseX,mouseY,getX(),getY(),getHeight(),getWidth());
 focused.x-=3;
 focused.w+=3;
 }
+}
+if (GUIProp.mapinteraction == 1 && tinyMap != null) {
+final int ac=AlphaComposite.SRC_OVER;
+((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,GUIProp.zoomboxalpha / 100.0f));
+g.drawImage(tinyMap,tinyx,tinyy,tinyw,tinyh,this);
+g.setColor(Color.black);
+g.drawRect(tinyx,tinyy,tinyw,tinyh);
+}
+ else if (GUIProp.mapinteraction == 2) {
+g.drawImage(hugeMap,mouseX - fkt * GUIProp.fishw / 2,mouseY - fkt * GUIProp.fishh / 2,mouseX + fkt * GUIProp.fishw / 2,mouseY + fkt * GUIProp.fishh / 2,fkt * (mouseX / 2 - GUIProp.fishw / 2),fkt * (mouseY / 2 - GUIProp.fishh / 2),fkt * (mouseX / 2 + GUIProp.fishw / 2),fkt * (mouseY / 2 + GUIProp.fishh / 2),this);
+g.setColor(Color.black);
+g.drawRect(mouseX - fkt * GUIProp.fishw / 2,mouseY - fkt * GUIProp.fishh / 2,fkt * GUIProp.fishw,fkt * GUIProp.fishh);
 }
 gui.painting=false;
 }
