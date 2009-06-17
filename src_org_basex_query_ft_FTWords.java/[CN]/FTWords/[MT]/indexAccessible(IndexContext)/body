@@ -1,18 +1,19 @@
 {
-  final MetaData md=ic.data.meta;
+  data=ic.data;
+  final MetaData md=data.meta;
   final FTOpt fto=ic.ctx.ftopt;
-  if (word == null || occ != null || ic.ctx.ftopt.weight != null || mode != FTMode.ANY && mode != FTMode.ALL && mode != FTMode.PHRASE || md.ftcs != fto.is(FTOpt.CS) || md.ftdc != fto.is(FTOpt.DC) || md.ftst != fto.is(FTOpt.ST) || fto.sw != null)   return false;
+  if (txt == null || occ != null || ic.ctx.ftopt.weight != null || mode != FTMode.ANY && mode != FTMode.ALL && mode != FTMode.PHRASE || md.ftcs != fto.is(FTOpt.CS) || md.ftdc != fto.is(FTOpt.DC) || md.ftst != fto.is(FTOpt.ST) || fto.sw != null)   return false;
   if (fto.is(FTOpt.WC)) {
-    if (md.ftfz || word[0] == '.')     return false;
+    if (md.ftfz || txt[0] == '.')     return false;
     int d=0;
-    for (    final byte w : word) {
+    for (    final byte w : txt) {
       if (w == '{' || w == '\\' || w == '.' && ++d > 1)       return false;
     }
   }
-  final Tokenizer ft=new Tokenizer(word,fto,fast);
+  final Tokenizer ft=new Tokenizer(txt,fto,fast);
   ic.is=0;
   while (ft.more()) {
-    final double s=ic.data.nrIDs(ft);
+    final double s=data.nrIDs(ft);
     if (s == 0) {
       ic.is=0;
       break;

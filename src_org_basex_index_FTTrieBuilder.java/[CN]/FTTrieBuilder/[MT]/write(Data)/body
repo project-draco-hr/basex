@@ -1,0 +1,70 @@
+{
+  final String db=data.meta.dbname;
+  final DataOutput outb=new DataOutput(db,DATAFTX + 'b');
+  hash.init();
+  while (hash.more()) {
+    final int p=hash.next();
+    final byte[] tok=hash.key();
+    final int ds=hash.ns[p];
+    final long cpre=outb.size();
+    final byte[] vpre=hash.pre[p];
+    final byte[] vpos=hash.pos[p];
+    int lpre=4;
+    int lpos=4;
+    final int pres=Num.size(vpre);
+    final int poss=Num.size(vpos);
+    while (lpre < pres && lpos < poss) {
+      for (int z=0, l=Num.len(vpre,lpre); z < l; z++)       outb.write(vpre[lpre++]);
+      for (int z=0, l=Num.len(vpos,lpos); z < l; z++)       outb.write(vpos[lpos++]);
+    }
+    index.insertSorted(tok,ds,cpre);
+  }
+  hash=null;
+  final byte[][] tokens=index.tokens.list;
+  final int[][] next=index.next.list;
+  final DataOutput outN=new DataOutput(db,DATAFTX + 'a');
+  final DataOutput outS=new DataOutput(db,DATAFTX + 'c');
+  int s=0;
+  if (index.count != 1) {
+    outN.write((byte)1);
+    outN.write((byte)-1);
+    int j=1;
+    for (; j < next[0].length - 2; j++) {
+      outN.writeInt(next[0][j]);
+      outN.write(tokens[next[next[0][j]][0]][0]);
+    }
+    outN.writeInt(next[0][j]);
+    outN.write5(-1);
+    outS.writeInt(s);
+    s+=2L + (next[0].length - 3) * 5L + 9L;
+    final int il=index.next.size;
+    for (int i=1; i < il; i++) {
+      final int lp=next[i][next[i].length - 1] > -1 ? 0 : -1;
+      outN.write((byte)tokens[next[i][0]].length);
+      outN.write(tokens[next[i][0]]);
+      j=1;
+      for (; j < next[i].length - 2 + lp; j++) {
+        outN.writeInt(next[i][j]);
+        outN.write(tokens[next[next[i][j]][0]][0]);
+      }
+      outN.writeInt(next[i][j]);
+      if (next[i][j] == 0 && next[i][j + 1] == 0) {
+        outN.write5(next[i][j + 1]);
+      }
+ else {
+        if (lp == 0) {
+          outN.write5(next[i][j + 1]);
+        }
+ else {
+          outN.write5(toLong(next[i],next[i].length - 2));
+        }
+      }
+      outS.writeInt(s);
+      s+=1L + tokens[next[i][0]].length * 1L + (next[i].length - 3 + lp) * 5L + 9L;
+    }
+  }
+  outS.writeInt(s);
+  outb.close();
+  outN.close();
+  outS.close();
+}
