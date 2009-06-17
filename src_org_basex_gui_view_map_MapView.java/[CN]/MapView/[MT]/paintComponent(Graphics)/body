@@ -89,17 +89,57 @@ focused.x-=3;
 focused.w+=3;
 }
 }
-if (GUIProp.mapinteraction == 1 && tinyMap != null) {
 final int ac=AlphaComposite.SRC_OVER;
 ((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,GUIProp.zoomboxalpha / 100.0f));
+if (GUIProp.mapinteraction == 1 && tinyMap != null) {
 g.drawImage(tinyMap,tinyx,tinyy,tinyw,tinyh,this);
 g.setColor(Color.black);
 g.drawRect(tinyx,tinyy,tinyw,tinyh);
 }
  else if (GUIProp.mapinteraction == 2) {
-g.drawImage(hugeMap,mouseX - fkt * GUIProp.fishw / 2,mouseY - fkt * GUIProp.fishh / 2,mouseX + fkt * GUIProp.fishw / 2,mouseY + fkt * GUIProp.fishh / 2,fkt * (mouseX / 2 - GUIProp.fishw / 2),fkt * (mouseY / 2 - GUIProp.fishh / 2),fkt * (mouseX / 2 + GUIProp.fishw / 2),fkt * (mouseY / 2 + GUIProp.fishh / 2),this);
+int dxstart=mouseX - GUIProp.fishw / 2;
+int dxend=mouseX + GUIProp.fishw / 2;
+if (dxstart < 0) {
+dxstart=0;
+dxend=GUIProp.fishw;
+}
+ else if (dxend > getWidth()) {
+dxend=getWidth();
+dxstart=getWidth() - GUIProp.fishw;
+}
+int dystart=mouseY - GUIProp.fishh / 2;
+int dyend=mouseY + GUIProp.fishh / 2;
+if (dystart < 0) {
+dystart=0;
+dyend=GUIProp.fishh;
+}
+ else if (dyend > getHeight()) {
+dyend=getHeight();
+dystart=getHeight() - GUIProp.fishh;
+}
+int sxstart=fkt * mouseX - GUIProp.fishw / 2;
+int sxend=fkt * mouseX + GUIProp.fishw / 2;
+if (sxstart < 0) {
+sxstart=0;
+sxend=GUIProp.fishw;
+}
+ else if (sxend > hugeMap.getWidth()) {
+sxend=hugeMap.getWidth();
+sxstart=hugeMap.getWidth() - GUIProp.fishw;
+}
+int systart=fkt * mouseY - GUIProp.fishh / 2;
+int syend=fkt * mouseY + GUIProp.fishh / 2;
+if (systart < 0) {
+systart=0;
+syend=GUIProp.fishh;
+}
+ else if (syend > hugeMap.getHeight()) {
+syend=hugeMap.getHeight();
+systart=hugeMap.getHeight() - GUIProp.fishh;
+}
+g.drawImage(hugeMap,dxstart,dystart,dxend,dyend,sxstart,systart,sxend,syend,this);
 g.setColor(Color.black);
-g.drawRect(mouseX - fkt * GUIProp.fishw / 2,mouseY - fkt * GUIProp.fishh / 2,fkt * GUIProp.fishw,fkt * GUIProp.fishh);
+g.drawRect(dxstart,dystart,GUIProp.fishw,GUIProp.fishh);
 }
 gui.painting=false;
 }
