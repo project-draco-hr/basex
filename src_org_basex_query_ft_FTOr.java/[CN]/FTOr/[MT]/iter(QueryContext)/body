@@ -1,50 +1,26 @@
 {
   final FTIter[] ir=new FTIter[expr.length];
-  for (int i=0; i < expr.length; i++)   ir[i]=expr[i].iter(ctx);
+  final FTItem[] it=new FTItem[expr.length];
+  for (int e=0; e < expr.length; e++) {
+    ir[e]=expr[e].iter(ctx);
+    it[e]=ir[e].next();
+  }
   return new FTIter(){
-    /** 
- * Item array. 
- */
-    final FTItem[] it=new FTItem[pex.length];
-    /** 
- * Cache for one of the nodes. 
- */
-    final IntList cp=new IntList(pex);
-    /** 
- * Pointer on the positive expression with the lowest pre-values.
- */
-    int minp=-1;
     @Override public FTItem next() throws QueryException {
-      for (int i=0; i < cp.size; i++) {
-        final int p=pex[cp.list[i]];
-        it[p]=ir[p].next();
+      int p=-1;
+      for (int i=0; i < it.length; i++) {
+        if (it[i] != null && (p == -1 || it[p].pre > it[i].pre))         p=i;
       }
-      cp.reset();
-      if (minp == -1) {
-        minp=0;
-        while (minp < it.length && it[minp] == null)         minp++;
-        if (minp < it.length)         cp.set(minp,0);
-        for (int ip=minp + 1; ip < pex.length; ip++) {
-          if (it[ip] != null) {
-            final FTItem n1=it[pex[ip]];
-            final FTItem n2=it[pex[minp]];
-            final int d=n1.pre - n2.pre;
-            if (d < 0) {
-              minp=ip;
-              cp.set(ip,0);
-            }
- else             if (d == 0) {
-              cp.add(ip);
-            }
-          }
+      if (p == -1)       return null;
+      final FTItem item=it[p];
+      for (int i=0; i < it.length; i++) {
+        if (it[i] != null && p != i && item.pre == it[i].pre) {
+          item.all.or(it[i].all);
+          it[i]=ir[i].next();
         }
       }
-      minp=-1;
-      final FTItem m=it[pex[cp.list[0]]];
-      for (int i=1; i < cp.size; i++) {
-        m.union(ctx,it[pex[cp.list[i]]],0);
-      }
-      return m;
+      it[p]=ir[p].next();
+      return item;
     }
   }
 ;

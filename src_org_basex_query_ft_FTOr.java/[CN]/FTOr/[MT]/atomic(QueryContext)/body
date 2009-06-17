@@ -1,14 +1,9 @@
 {
-  FTItem it=null;
-  for (  final FTExpr e : expr) {
-    final FTItem i=e.atomic(ctx);
-    if (it != null) {
-      it.all.or(i.all);
-      it.score(ctx.score.or(it.score(),i.score()));
-    }
- else {
-      it=i;
-    }
+  final FTItem it=expr[0].atomic(ctx);
+  for (int e=1; e < expr.length; e++) {
+    final FTItem i=expr[e].atomic(ctx);
+    it.all.or(i.all);
+    it.score(ctx.score.or(it.score(),i.score()));
   }
   return it;
 }
