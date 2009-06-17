@@ -1,5 +1,4 @@
 {
-  if (tn == 0)   tn=++ctx.ftoknum;
   final Iter iter=expr.iter(ctx);
   final Tokenizer tmp=ctx.fttoken;
   ctx.fttoken=ft;
@@ -7,11 +6,11 @@
   Item it;
   while ((it=iter.next()) != null) {
     ft.init(it.str());
-    final FTItem node=ftexpr.atomic(ctx);
-    final double d=node.score();
+    final FTItem item=ftexpr.atomic(ctx);
+    final double d=item.score();
     s=ctx.score.and(s,d);
-    if (d > 0 && ctx.ftpos != null && node.pos.length != 0 && it instanceof DBNode) {
-      ctx.ftpos.add(new FTEntry(((DBNode)it).pre,node.pos,tn));
+    if (d > 0 && ctx.ftpos != null && it instanceof DBNode) {
+      ctx.ftpos.add(((DBNode)it).pre,item.all);
     }
   }
   ctx.fttoken=tmp;

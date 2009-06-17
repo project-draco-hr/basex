@@ -1,4 +1,10 @@
 {
-  for (  final FTFilter f : filter)   if (!f.filter(ctx,node,ft))   return false;
-  return true;
+  final FTMatches all=item.all;
+  for (  final FTFilter f : filter) {
+    for (int a=0; a < all.size; a++) {
+      if (!f.filter(ctx,all.match[a],ft))       all.delete(a--);
+    }
+  }
+  if (all.size == 0)   item.score(0);
+  return all.size != 0;
 }

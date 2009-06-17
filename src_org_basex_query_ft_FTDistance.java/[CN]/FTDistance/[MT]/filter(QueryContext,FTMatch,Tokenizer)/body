@@ -1,0 +1,28 @@
+{
+  final long min=checkItr(expr[0],ctx);
+  final long max=checkItr(expr[1],ctx);
+  mtc.sort();
+  final FTMatch match=new FTMatch();
+  FTStringMatch sm=null;
+  FTStringMatch f=null;
+  for (  final FTStringMatch m : mtc) {
+    if (m.not) {
+      match.add(m);
+    }
+ else {
+      if (sm != null) {
+        final int d=pos(m.start,ft) - pos(sm.end,ft) - 1;
+        if (d < min || d > max)         return false;
+      }
+ else {
+        f=m;
+      }
+      sm=m;
+    }
+  }
+  f.end=sm.end;
+  mtc.reset();
+  mtc.add(f);
+  mtc.add(match);
+  return true;
+}

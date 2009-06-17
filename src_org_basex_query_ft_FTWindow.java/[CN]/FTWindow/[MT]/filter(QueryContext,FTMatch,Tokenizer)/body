@@ -1,0 +1,27 @@
+{
+  final long win=checkItr(expr[0],ctx);
+  mtc.sort();
+  int end=0;
+  FTStringMatch f=null;
+  for (  final FTStringMatch m : mtc) {
+    if (!m.not) {
+      if (f == null)       f=m;
+      end=m.end;
+    }
+  }
+  f.end=end;
+  final FTMatch match=new FTMatch();
+  for (  final FTStringMatch m : mtc) {
+    if (m.not) {
+      match.add(m);
+    }
+ else {
+      if (pos(end,ft) - pos(m.start,ft) + 1 > win)       return false;
+      break;
+    }
+  }
+  mtc.reset();
+  mtc.add(f);
+  mtc.add(match);
+  return true;
+}

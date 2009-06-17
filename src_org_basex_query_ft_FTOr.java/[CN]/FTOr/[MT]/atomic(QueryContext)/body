@@ -1,12 +1,14 @@
 {
   FTItem it=null;
-  double d=0;
   for (  final FTExpr e : expr) {
     final FTItem i=e.atomic(ctx);
-    it=i.score() != 0 ? i.union(it) : it;
-    d=ctx.score.or(i.score(),d);
+    if (it != null) {
+      it.all.or(i.all);
+      it.score(ctx.score.or(it.score(),i.score()));
+    }
+ else {
+      it=i;
+    }
   }
-  if (it == null)   it=new FTItem(0);
- else   it.score(d);
   return it;
 }

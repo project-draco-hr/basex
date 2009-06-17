@@ -1,24 +1,25 @@
 {
   return new FTIndexIterator(){
-    FTEntry r, s;
+    FTIndexIterator n, r, s;
     int c;
     @Override public boolean more(){
-      if (c <= 0)       r=i1.more() ? i1.node() : null;
-      if (c >= 0)       s=i2.more() ? i2.node() : null;
+      if (c <= 0)       r=i1.more() ? i1 : null;
+      if (c >= 0)       s=i2.more() ? i2 : null;
       if (r != null && s != null) {
-        c=r.pre - s.pre;
-        r.union(s,0);
+        c=r.next() - s.next();
+        if (c == 0)         r.matches().or(s.matches());
       }
  else {
         c=r != null ? -1 : 1;
       }
-      return node() != null;
+      n=c <= 0 ? r : s;
+      return n != null;
     }
-    @Override public FTEntry node(){
-      return c <= 0 ? r : s;
+    @Override public FTMatches matches(){
+      return n.matches();
     }
     @Override public int next(){
-      return r.pre;
+      return n.next();
     }
     @Override public void setTokenNum(    final byte tn){
       i1.toknum=tn;

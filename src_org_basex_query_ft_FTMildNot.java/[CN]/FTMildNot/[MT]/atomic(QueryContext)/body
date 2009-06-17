@@ -1,14 +1,17 @@
 {
-  FTItem it=expr[0].atomic(ctx);
-  double d=it.score();
-  if (d != 0) {
-    boolean f=false;
-    for (int i=1; i < expr.length; i++) {
-      it=expr[i].atomic(ctx).union(it);
-      f|=it.score() != 0;
+  final FTItem item=expr[0].atomic(ctx);
+  final FTMatches all=item.all;
+  for (int e=1; e < expr.length; e++) {
+    final FTMatches al=expr[e].atomic(ctx).all;
+    for (int a=0; a < all.size; a++) {
+      for (int b=0; b < al.size; b++) {
+        if (!all.match[a].notin(al.match[b])) {
+          all.delete(a--);
+          break;
+        }
+      }
     }
-    if (f && !mildNot(it.pos))     d=0;
   }
-  it.score(d);
-  return it;
+  if (all.size == 0)   item.score(0);
+  return item;
 }

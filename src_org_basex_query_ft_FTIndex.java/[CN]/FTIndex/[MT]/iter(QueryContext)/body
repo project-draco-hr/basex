@@ -6,18 +6,16 @@
     FTIndexIterator iat;
     @Override public FTItem next(){
       if (iat == null) {
-        final Tokenizer ft=new Tokenizer(tok,ctx.ftopt);
-        ft.lp=true;
+        final Tokenizer ft=new Tokenizer(txt,ctx.ftopt,fast);
+        ft.fast&=ft.count() == 1;
         ft.init();
-        int w=0;
         while (ft.more()) {
           final FTIndexIterator it=(FTIndexIterator)data.ids(ft);
-          iat=w == 0 ? it : FTIndexIterator.intersect(iat,it,w);
-          w++;
+          iat=iat == null ? it : FTIndexIterator.intersect(iat,it);
         }
         iat.setTokenNum(++ctx.ftoknum);
       }
-      return new FTItem(iat.more() ? iat.node() : new FTEntry(),data);
+      return iat.more() ? new FTItem(iat.matches(),data,iat.next()) : null;
     }
   }
 ;
