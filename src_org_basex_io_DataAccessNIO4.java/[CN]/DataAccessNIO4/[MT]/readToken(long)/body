@@ -1,0 +1,22 @@
+{
+  cursor(p);
+  int l=readNum();
+  final byte[] b=new byte[l];
+  int ll=IO.BLOCKSIZE - off;
+  if (ll >= l) {
+    System.arraycopy(buffer[c],off,b,0,l);
+  }
+ else {
+    System.arraycopy(buffer[c],off,b,0,ll);
+    l-=ll;
+    while (l > IO.BLOCKSIZE) {
+      nextBlock();
+      System.arraycopy(buffer[c],0,b,ll,IO.BLOCKSIZE);
+      l-=IO.BLOCKSIZE;
+      ll+=IO.BLOCKSIZE;
+    }
+    nextBlock();
+    System.arraycopy(buffer[c],0,b,ll,l);
+  }
+  return b;
+}
