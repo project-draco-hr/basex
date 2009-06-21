@@ -1,6 +1,13 @@
 {
   Prop.server=true;
   if (!parseArguments(args))   return;
+  Runtime.getRuntime().addShutdownHook(new Thread(){
+    @Override public void run(){
+      for (      final Session ss : sessions)       ss.core.stop();
+      Prop.write();
+    }
+  }
+);
   try {
     serverSocket=new ServerSocket(Prop.port);
     BaseX.outln(SERVERSTART);
