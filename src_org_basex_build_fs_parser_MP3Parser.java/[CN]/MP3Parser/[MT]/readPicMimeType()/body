@@ -1,0 +1,26 @@
+{
+  checkRemaining(50);
+  skipEncBytes();
+  StringBuilder sb=new StringBuilder();
+  byte b;
+  while ((b=buf.get()) != 0)   sb.append((char)b);
+  String string=sb.toString();
+  if (!string.startsWith("image/")) {
+    if (string.length() > 0)     string="image/" + string;
+ else {
+      BaseX.debug(file.getAbsolutePath() + " contains an invalid APIC frame.");
+      return null;
+    }
+  }
+  if (string.equalsIgnoreCase(Token.string(MimeType.PNG.get()))) {
+    return MimeType.PNG;
+  }
+ else   if (string.equalsIgnoreCase(Token.string(MimeType.JPG.get())) || string.equalsIgnoreCase("image/jpg")) {
+    return MimeType.JPG;
+  }
+ else   if (string.equalsIgnoreCase(Token.string(MimeType.BMP.get()))) {
+    return MimeType.BMP;
+  }
+ else   BaseX.debug(file.getAbsolutePath() + "has an invalid picture MIME type in APIC frame: " + string);
+  return null;
+}

@@ -1,0 +1,25 @@
+{
+  curr=f;
+  if (!singlemode)   builder.startElem(FILE,atts(f,false));
+  if (f.canRead() && f.isFile() && f.getName().indexOf('.') != -1) {
+    final String name=f.getName();
+    final int dot=name.lastIndexOf('.');
+    final String suffix=name.substring(dot + 1).toLowerCase();
+    AbstractParser parser=parserInstances.get(suffix);
+    if (parser != null && f.length() > 0) {
+      if (Prop.fsmeta) {
+        if (Prop.fscont) {
+          parser.readMetaAndContent(f,builder);
+        }
+ else {
+          parser.readMeta(f,builder);
+        }
+      }
+ else       if (Prop.fscont) {
+        parser.readContent(f,builder);
+      }
+    }
+  }
+  if (!singlemode)   builder.endElem(FILE);
+  sizeStack[lvl]+=f.length();
+}

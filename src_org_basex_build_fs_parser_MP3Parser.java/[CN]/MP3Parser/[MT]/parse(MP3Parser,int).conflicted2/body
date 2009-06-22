@@ -1,0 +1,19 @@
+{
+  int position=obj.getBufPos();
+  MimeType mime=obj.readPicMimeType();
+  if (mime == null)   return;
+  byte[] suffix=mime.getDefaultSuffix();
+  byte[] name=obj.getPicName(suffix);
+  obj.skipPicDescription();
+  byte[] offset=Token.token(obj.getFilePos());
+  byte[] size=Token.token(s - (obj.getBufPos() - position));
+  byte[] mtime=ParserUtil.getMTime(obj.file);
+  obj.startFileEvent(name,suffix,offset,size,mtime);
+  long pos=obj.ch.position() - obj.buf.remaining();
+  obj.ch.position(pos);
+  obj.fsParser.parseMeta(obj.file,Token.string(suffix),obj.ch,Token.toLong(size));
+  obj.endFileEvent();
+  pos+=Token.toLong(size);
+  System.out.println(pos);
+  obj.ch.position(pos);
+}

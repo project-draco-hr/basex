@@ -1,0 +1,18 @@
+{
+  checkRemaining(MINIMAL_FRAME_SIZE);
+  if (buf.get(buf.position()) == 0x00)   return Integer.MAX_VALUE;
+  byte[] frameId=new byte[4];
+  buf.get(frameId);
+  int frameSize=readSynchsafeInt();
+  buf.position(buf.position() + 2);
+  Frame frame;
+  try {
+    frame=Frame.valueOf(Token.string(frameId));
+    frame.parse(this,frameSize);
+    return frameSize;
+  }
+ catch (  IllegalArgumentException e) {
+    skip(frameSize);
+    return -frameSize;
+  }
+}

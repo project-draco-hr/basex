@@ -1,0 +1,17 @@
+{
+  byte[] value=new byte[length];
+  if (checkRemaining(length)) {
+    buf.get(value);
+  }
+ else {
+    int buffered=buf.remaining();
+    int remaining=length - buffered;
+    if (fcLimit < remaining)     throw new EOFException(file.getName());
+    buf.get(value,0,buffered);
+    buf.clear();
+    ByteBuffer buf2=ByteBuffer.wrap(value,buffered,remaining);
+    fcLimit-=ch.read(new ByteBuffer[]{buf2,buf});
+    buf.flip();
+  }
+  return value;
+}

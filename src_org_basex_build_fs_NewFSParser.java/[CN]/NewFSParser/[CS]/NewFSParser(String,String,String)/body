@@ -1,0 +1,26 @@
+{
+  super(IO.get(path));
+  Prop.intparse=true;
+  Prop.entity=false;
+  Prop.dtd=false;
+  root=path.equals("/");
+  fsimportpath=io.path();
+  fsdbname=io.name();
+  backingroot=bs;
+  mountpoint=mp;
+  mybackingpath=backingroot + Prop.SEP + fsdbname;
+  parserInstances=new HashMap<String,AbstractParser>();
+  for (  Map.Entry<String,Class<? extends AbstractParser>> parser : AbstractParser.getAdapters().entrySet()) {
+    try {
+      AbstractParser instance=parser.getValue().newInstance();
+      instance.setFSParser(this);
+      parserInstances.put(parser.getKey(),instance);
+    }
+ catch (    InstantiationException e) {
+      BaseX.debug("Failed to instanciate parser " + parser.getValue().getName());
+    }
+catch (    IllegalAccessException e) {
+      BaseX.debug("Failed to instanciate parser " + parser.getValue().getName());
+    }
+  }
+}
