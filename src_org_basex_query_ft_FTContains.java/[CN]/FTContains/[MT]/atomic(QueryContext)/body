@@ -7,7 +7,11 @@
   while ((it=iter.next()) != null) {
     ft.init(it.str());
     final FTItem item=ftexpr.atomic(ctx);
-    final double d=item.score();
+    double d=0;
+    if (item.all.matches()) {
+      d=item.score();
+      if (d == 0)       d=1;
+    }
     s=ctx.score.and(s,d);
     if (d > 0 && ctx.ftpos != null && it instanceof DBNode) {
       ctx.ftpos.add(((DBNode)it).pre,item.all);

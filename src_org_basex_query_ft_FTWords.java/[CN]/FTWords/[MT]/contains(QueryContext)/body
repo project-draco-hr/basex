@@ -1,6 +1,7 @@
 {
   final FTOpt opt=ctx.ftopt;
-  if (simple)   return opt.contains(txt,ctx.fttoken,all,fast) == 0 ? 0 : txt.length;
+  first=true;
+  if (simple)   return opt.contains(txt,ctx.fttoken,this) == 0 ? 0 : txt.length;
   final Iter iter=ctx.iter(query);
   int len=0;
   int o=0;
@@ -8,7 +9,7 @@
 switch (mode) {
 case ALL:
     while ((it=nextStr(iter)) != null) {
-      final int oc=opt.contains(it,ctx.fttoken,all,fast);
+      final int oc=opt.contains(it,ctx.fttoken,this);
       if (oc == 0)       return 0;
       len+=it.length;
       o+=oc / ctx.ftopt.qu.count();
@@ -17,7 +18,7 @@ case ALL:
 case ALLWORDS:
 while ((it=nextStr(iter)) != null) {
   for (  final byte[] t : Token.split(it,' ')) {
-    final int oc=opt.contains(t,ctx.fttoken,all,fast);
+    final int oc=opt.contains(t,ctx.fttoken,this);
     if (oc == 0)     return 0;
     len+=t.length;
     o+=oc;
@@ -26,16 +27,15 @@ while ((it=nextStr(iter)) != null) {
 break;
 case ANY:
 while ((it=nextStr(iter)) != null) {
-o+=opt.contains(it,ctx.fttoken,all,fast);
+o+=opt.contains(it,ctx.fttoken,this);
 len+=it.length;
 }
 break;
 case ANYWORD:
 while ((it=nextStr(iter)) != null) {
 for (final byte[] t : Token.split(it,' ')) {
-final int oc=opt.contains(t,ctx.fttoken,all,fast);
+o+=opt.contains(t,ctx.fttoken,this);
 len+=t.length;
-o+=oc;
 }
 }
 break;
@@ -45,15 +45,12 @@ while ((it=nextStr(iter)) != null) {
 tb.add(it);
 tb.add(' ');
 }
-o+=opt.contains(tb.finish(),ctx.fttoken,all,fast);
+o+=opt.contains(tb.finish(),ctx.fttoken,this);
 len+=tb.size;
 break;
 }
-long mn=1;
-long mx=Long.MAX_VALUE;
-if (occ != null) {
-mn=checkItr(occ[0],ctx);
-mx=checkItr(occ[1],ctx);
-}
+final long mn=occ != null ? checkItr(occ[0],ctx) : 1;
+final long mx=occ != null ? checkItr(occ[1],ctx) : Long.MAX_VALUE;
+if (o == 0 && mn == 0) all=FTMatches.not(all,0);
 return o < mn || o > mx ? 0 : Math.max(1,len);
 }
