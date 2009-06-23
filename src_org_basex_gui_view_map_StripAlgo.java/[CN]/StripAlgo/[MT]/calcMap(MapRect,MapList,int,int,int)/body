@@ -8,44 +8,85 @@
   double hh=r.h;
   MapRects row=new MapRects();
   int height=0;
+  int width=0;
   double weight=0;
   double sumweight=1;
   double tmpratio;
   double rowratio=Double.MAX_VALUE;
-  while (ni <= ne && xx + ww <= r.x + r.w && yy + hh <= r.y + r.h) {
-    weight+=ml.weight[ni];
-    height=(int)((weight / sumweight) * hh);
-    final MapRects tmp=new MapRects();
-    double x=xx;
-    for (int i=start; i <= ni; i++) {
-      int w=i == ni ? (int)(xx + ww - x) : (int)(ml.weight[i] / weight * ww);
-      if (yy + height <= yy + hh)       tmp.add(new MapRect((int)x,(int)yy,w,height,ml.list[i],l));
- else       break;
-      x+=w;
-    }
-    tmpratio=lineRatio(tmp);
-    if (tmpratio > rowratio) {
-      rects.add(row);
-      rowratio=Double.MAX_VALUE;
-      hh-=row.get(0).h;
-      yy+=row.get(0).h;
-      tmp.reset();
-      row.reset();
-      start=ni;
-      sumweight-=weight - ml.weight[ni];
-      weight=0;
-      if (ne == ni) {
-        row.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,ml.list[ni],l));
-        break;
+  if (GUIProp.striphor) {
+    while (ni <= ne && xx + ww <= r.x + r.w && yy + hh <= r.y + r.h) {
+      weight+=ml.weight[ni];
+      height=(int)((weight / sumweight) * hh);
+      final MapRects tmp=new MapRects();
+      double x=xx;
+      for (int i=start; i <= ni; i++) {
+        int w=i == ni ? (int)(xx + ww - x) : (int)(ml.weight[i] / weight * ww);
+        if (yy + height <= yy + hh)         tmp.add(new MapRect((int)x,(int)yy,w,height,ml.list[i],l));
+ else         break;
+        x+=w;
+      }
+      tmpratio=lineRatio(tmp);
+      if (tmpratio > rowratio) {
+        rects.add(row);
+        rowratio=Double.MAX_VALUE;
+        hh-=row.get(0).h;
+        yy+=row.get(0).h;
+        tmp.reset();
+        row.reset();
+        start=ni;
+        sumweight-=weight - ml.weight[ni];
+        weight=0;
+        if (ne == ni) {
+          row.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,ml.list[ni],l));
+          break;
+        }
+      }
+ else {
+        row=tmp;
+        rowratio=tmpratio;
+        ni++;
       }
     }
- else {
-      row=tmp;
-      rowratio=tmpratio;
-      ni++;
-    }
+    for (    final MapRect rect : row)     rect.h=(int)hh;
+    rects.add(row);
+    return rects;
   }
-  for (  final MapRect rect : row)   rect.h=(int)hh;
-  rects.add(row);
-  return rects;
+ else {
+    while (ni <= ne && xx + ww <= r.x + r.w && yy + hh <= r.y + r.h) {
+      weight+=ml.weight[ni];
+      width=(int)((weight / sumweight) * ww);
+      final MapRects tmp=new MapRects();
+      double y=yy;
+      for (int i=start; i <= ni; i++) {
+        int h=i == ni ? (int)(yy + hh - y) : (int)(ml.weight[i] / weight * hh);
+        if (yy + height <= yy + hh)         tmp.add(new MapRect((int)xx,(int)y,width,h,ml.list[i],l));
+ else         break;
+        y+=h;
+      }
+      tmpratio=lineRatio(tmp);
+      if (tmpratio > rowratio) {
+        rects.add(row);
+        rowratio=Double.MAX_VALUE;
+        ww-=row.get(0).w;
+        xx+=row.get(0).w;
+        tmp.reset();
+        row.reset();
+        start=ni;
+        sumweight-=weight - ml.weight[ni];
+        weight=0;
+        if (ne == ni) {
+          row.add(new MapRect((int)xx,(int)yy,(int)ww,(int)hh,ml.list[ni],l));
+          break;
+        }
+      }
+ else {
+        row=tmp;
+        rowratio=tmpratio;
+        ni++;
+      }
+    }
+    for (    final MapRect rect : row)     rect.w=(int)ww;
+    rects.add(row);
+    return rects;
+  }
 }
