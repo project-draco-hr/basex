@@ -1,11 +1,19 @@
 {
   if (painter == null)   return;
   final int w=getWidth(), h=getHeight();
-  if (GUIProp.mapinteraction == 2) {
-    final MapRect hrect=new MapRect(0,0,fkt * w,fkt * h,0,0);
-    calc(hrect,gui.context.current(),hugeMap);
+  if (GUIProp.mapinteraction) {
+    final MapRect rect=new MapRect(0,0,w,h,0,0);
+    calc(rect,gui.context.current(),mainMap);
+    MapRects hugeRects=new MapRects();
+    for (    MapRect r : mainRects) {
+      hugeRects.add(new MapRect(fkt * r.x,fkt * r.y,fkt * r.w,fkt * r.h,r.pre,r.level));
+    }
+    painter.init(hugeRects);
+    drawMap(hugeMap,hugeRects,fkt);
   }
-  final MapRect rect=new MapRect(0,0,w,h,0,0);
-  calc(rect,gui.context.current(),mainMap);
+ else {
+    final MapRect rect=new MapRect(0,0,w,h,0,0);
+    calc(rect,gui.context.current(),mainMap);
+  }
   repaint();
 }
