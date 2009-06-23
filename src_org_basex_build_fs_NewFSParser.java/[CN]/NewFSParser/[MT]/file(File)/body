@@ -1,22 +1,24 @@
 {
   curr=f;
   if (!singlemode)   builder.startElem(FILE,atts(f,false));
-  if (f.canRead() && f.isFile() && f.getName().indexOf('.') != -1) {
+  if ((Prop.fsmeta || Prop.fscont) && f.canRead() && f.isFile()&& f.getName().indexOf('.') != -1) {
     final String name=f.getName();
     final int dot=name.lastIndexOf('.');
     final String suffix=name.substring(dot + 1).toLowerCase();
-    AbstractParser parser=parserInstances.get(suffix);
-    if (parser != null && f.length() > 0) {
-      if (Prop.fsmeta) {
-        if (Prop.fscont) {
-          parser.readMetaAndContent(f,builder);
+    if (f.length() > 0) {
+      AbstractParser parser=parserInstances.get(suffix);
+      if (parser != null) {
+        FileChannel fc=new RandomAccessFile(f,"r").getChannel();
+        try {
+          parse0(parser,fc,fc.size());
         }
- else {
-          parser.readMeta(f,builder);
+  finally {
+          try {
+            if (fc != null)             fc.close();
+          }
+ catch (          IOException e1) {
+          }
         }
-      }
- else       if (Prop.fscont) {
-        parser.readContent(f,builder);
       }
     }
   }

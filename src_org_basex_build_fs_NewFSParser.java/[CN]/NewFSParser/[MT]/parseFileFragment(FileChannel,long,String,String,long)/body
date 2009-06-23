@@ -1,0 +1,20 @@
+{
+  if (Prop.fsmeta || Prop.fscont) {
+    AbstractParser parser=parserInstances.get(suffix);
+    if (parser == null)     return;
+    atts.reset();
+    if (name != null) {
+      StringBuilder sb=new StringBuilder(name.length() + suffix.length() + 1);
+      sb.append(name).append('.').append(suffix);
+      atts.add(DataText.NAME,Token.token(sb.toString()));
+    }
+    if (suffix != null)     atts.add(DataText.SUFFIX,Token.token(suffix));
+    atts.add(DataText.OFFSET,Token.token(offset));
+    atts.add(DataText.SIZE,Token.token(limit));
+    atts.add(DataText.MTIME,ParserUtil.getMTime(curr));
+    builder.startElem(DataText.FILE,atts);
+    fc.position(offset);
+    parse0(parser,fc,limit);
+    builder.endElem(DataText.FILE);
+  }
+}

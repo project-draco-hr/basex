@@ -1,3 +1,20 @@
 {
-  obj.metaEvent(Element.TRACK,DataType.INTEGER,Definition.NONE,null,obj.readTrack(size));
+  int position=obj.getBufPos();
+  String suffix=obj.readPicSuffix();
+  if (suffix == null) {
+    obj.skip(s - (obj.getBufPos() - position));
+    return;
+  }
+  obj.skipPicDescription();
+  String name=obj.getPicName();
+  int size=s - (obj.getBufPos() - position);
+  long offset=obj.getFilePos();
+  try {
+    obj.fsparser.parseFileFragment(obj.ch,size,name,suffix,offset);
+  }
+ catch (  IOException e) {
+    BaseX.debug("Failed to parse APIC frame (%).",e.getMessage());
+  }
+  obj.ch.position(offset);
+  obj.skip(size);
 }
