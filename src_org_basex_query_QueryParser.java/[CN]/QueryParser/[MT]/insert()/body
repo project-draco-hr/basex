@@ -1,0 +1,29 @@
+{
+  final int p=qp;
+  if (!consumeWS(INSERT))   return null;
+  if (!consumeWS(NODE) && !consumeWS(NODES)) {
+    qp=p;
+    return null;
+  }
+  final Expr s=check(single(),INCOMPLETE);
+  boolean in=false;
+  boolean af=false;
+  boolean be=false;
+  boolean as=false;
+  boolean last=false;
+  if (consumeWS(AS)) {
+    as=true;
+    if (!consumeWS(FIRST)) {
+      check(LAST);
+      last=true;
+    }
+    check(INTO);
+  }
+  if (consumeWS(INTO))   in=true;
+  if (consumeWS(AFTER))   af=true;
+  if (consumeWS(BEFORE))   be=true;
+  if (!(in ^ af ^ be))   error(INCOMPLETE);
+  final Expr trg=check(single(),INCOMPLETE);
+  error(UPIMPL);
+  return new Insert(s,as,last,in,af,trg);
+}
