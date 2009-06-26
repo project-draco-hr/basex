@@ -2,27 +2,17 @@
   String err=null;
   Builder builder=null;
   try {
-    if (Prop.onthefly) {
-      if (Context.POOL.check(db) >= 1)       return error(DBINUSE);
-      builder=new MemBuilder();
-      progress(builder);
-      final Data data=builder.build(p,db);
-      context.data(data);
-      Context.POOL.add(data);
-    }
- else {
-      if (Context.POOL.check(db) >= 1)       return error(DBINUSE);
-      context.close();
-      final Performance pp=new Performance();
-      builder=new DiskBuilder();
-      progress(builder);
-      final Data data=builder.build(p,db);
-      if (Prop.allInfo)       info(CREATETABLE + NL,pp.getTimer());
-      builder=null;
-      index(data);
-      context.data(data);
-      Context.POOL.add(data);
-    }
+    context.close();
+    if (Context.POOL.check(db) >= 1)     return error(DBINUSE);
+    final Performance pp=new Performance();
+    builder=Prop.onthefly ? new MemBuilder() : new DiskBuilder();
+    progress(builder);
+    final Data data=builder.build(p,db);
+    if (Prop.allInfo)     info(CREATETABLE + NL,pp.getTimer());
+    builder=null;
+    index(data);
+    context.data(data);
+    Context.POOL.add(data);
     return Prop.info ? info(DBCREATED,db,perf.getTimer()) : true;
   }
  catch (  final FileNotFoundException ex) {
