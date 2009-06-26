@@ -1,16 +1,14 @@
 {
-  int bufSize=fcLimit < Metadata.DEFAULT_BUFFER_SIZE ? (int)fcLimit : Metadata.DEFAULT_BUFFER_SIZE;
-  buf=ByteBuffer.allocateDirect(bufSize);
-  buf.position(buf.limit());
   int size=readID3v2Header();
-  int remainingFrames=Frame.values().length;
-  while (size > MINIMAL_FRAME_SIZE) {
-    if (remainingFrames == 0)     break;
+  while (size >= MINIMAL_FRAME_SIZE) {
     int res=readID3v2Frame();
     if (res > 0) {
       size-=res;
-      remainingFrames--;
     }
- else     size+=res;
+ else {
+      size+=res;
+      if (size < MINIMAL_FRAME_SIZE)       break;
+      bfc.skip(-res);
+    }
   }
 }
