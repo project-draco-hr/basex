@@ -16,12 +16,14 @@
   }
  catch (  XQException e) {
   }
+  boolean failed=false;
   try {
-    xqc.createItemFromNode(document,xqc.createCommentType());
-    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+    XQItem xqitem=xqc.createItemFromNode(document,xqc.createCommentType());
+    if (xqitem.getItemType().getItemKind() != XQItemType.XQITEMKIND_COMMENT)     failed=true;
   }
  catch (  XQException e) {
   }
+  if (failed)   fail("A-XQDF-1.3: The conversion is subject to the following constraints. Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");
   XQItem xqi=null;
   try {
     xqi=xqc.createItemFromNode(document,null);
@@ -29,5 +31,6 @@
  catch (  XQException e) {
     fail("A-XQDF-1.5: createItemFromNode() failed with message: " + e.getMessage());
   }
-  assertEquals("A-XQDF-1.5: Successful createItemFromXXX.","<e>Hello world!</e>",xqi.getItemAsString(null));
+  String result=xqi.getItemAsString(null);
+  assertTrue("A-XQDF-1.5: Expects serialized result contains '<e>Hello world!</e>', but it is '" + result + "'",result.indexOf("<e>Hello world!</e>") != -1);
 }

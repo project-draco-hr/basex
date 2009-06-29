@@ -13,12 +13,14 @@
   }
  catch (  XQException e) {
   }
+  boolean failed=false;
   try {
-    xqc.createItemFromObject("Hello world!",xqc.createCommentType());
-    fail("A-XQDF-1.3: An invalid type of the value to be bound must fail.");
+    XQItem xqitem=xqc.createItemFromObject("Hello world!",xqc.createCommentType());
+    if (xqitem.getItemType().getItemKind() != XQItemType.XQITEMKIND_COMMENT)     failed=true;
   }
  catch (  XQException e) {
   }
+  if (failed)   fail("A-XQDF-1.3: The conversion is subject to the following constraints. Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");
   try {
     xqc.createItemFromObject("123",xqc.createAtomicType(XQItemType.XQBASETYPE_NCNAME));
     fail("A-XQDF-1.4: The conversion of the value to an XDM instance must fail.");
@@ -32,7 +34,7 @@
  catch (  XQException e) {
     fail("A-XQDF-1.5: createItemFromObject() failed with message: " + e.getMessage());
   }
-  assertEquals("A-XQDF-1.5: Successful bindXXX.","Hello world!",xqi.getItemAsString(null));
+  assertEquals("A-XQDF-1.5: Successful bindXXX.","Hello world!",xqi.getAtomicValue());
   try {
     xqi=xqc.createItemFromObject("Hello",xqc.createAtomicType(XQItemType.XQBASETYPE_NCNAME));
   }

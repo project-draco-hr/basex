@@ -16,12 +16,18 @@
  catch (  XQException e) {
   }
   xqpe.close();
+  boolean bindFailed=false;
   xqpe=xqc.prepareExpression("declare variable $v external; $v");
   try {
     xqpe.bindInt(new QName("v"),1,xqc.createCommentType());
-    fail("A-XQDC-1.3: An invalid type of the value to be bound must fail.");
   }
  catch (  XQException e) {
+    bindFailed=true;
+  }
+  if (!bindFailed) {
+    XQSequence xqs=xqpe.executeQuery();
+    xqs.next();
+    if (xqs.getItemType().getItemKind() != XQItemType.XQITEMKIND_COMMENT)     fail("A-XQDC-1.3: The conversion is subject to the following constraints. Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");
   }
   xqpe.close();
   xqpe=xqc.prepareExpression("declare variable $v external; $v");
@@ -57,7 +63,9 @@
  catch (  XQException e) {
     fail("A-XQDC-1.7: bindInt() failed with message: " + e.getMessage());
   }
-  assertEquals("A-XQDC-1.7: Successful bindXXX.","1",xqpe.executeQuery().getSequenceAsString(null));
+  XQSequence xqs=xqpe.executeQuery();
+  xqs.next();
+  assertEquals("A-XQDC-1.7: Successful bindXXX.","1",xqs.getAtomicValue());
   xqpe.close();
   xqpe=xqc.prepareExpression("declare variable $v external; $v");
   try {
@@ -66,7 +74,7 @@
  catch (  XQException e) {
     fail("A-XQDC-1.7: bindInt() failed with message: " + e.getMessage());
   }
-  XQSequence xqs=xqpe.executeQuery();
+  xqs=xqpe.executeQuery();
   xqs.next();
   assertEquals("A-XQDC-1.7: Successful bindXXX.",XQItemType.XQITEMKIND_ATOMIC,xqs.getItemType().getItemKind());
   assertEquals("A-XQDC-1.7: Successful bindXXX.",XQItemType.XQBASETYPE_INTEGER,xqs.getItemType().getBaseType());

@@ -6,23 +6,33 @@
   xqs=xqpe.executeQuery();
   try {
     xqdf.createSequence(xqs);
-    fail("A-XQDF-1.1: createItem() throws an XQException when the data factory is in closed state.");
+    fail("A-XQDF-1.1: createSequence() throws an XQException when the data factory is in closed state.");
   }
  catch (  XQException e) {
   }
+  xqs.close();
   try {
-    xqdf.createSequence((XQSequence)null);
+    xqc.createSequence((XQSequence)null);
     fail("A-XQDF-1.2: null argument is invalid and throws an XQException.");
   }
  catch (  XQException e) {
   }
   XQSequence xqsresult=null;
+  xqs=xqpe.executeQuery();
   try {
     xqsresult=xqc.createSequence(xqs);
   }
  catch (  XQException e) {
     fail("A-XQDF-1.5: createSequence() failed with message: " + e.getMessage());
   }
-  assertEquals("A-XQDF-1.5: Successful createSequence.","Hello world!",xqsresult.getSequenceAsString(null));
+  String result=xqsresult.getSequenceAsString(null);
+  assertTrue("A-XQDF-1.5: Expects serialized result contains 'Hello world!', but it is '" + result + "'",result.indexOf("Hello world!") != -1);
+  xqs.close();
+  try {
+    xqc.createSequence(xqs);
+    fail("A-XQDF-1.6: Passing a closed XQItem or XQSequence object as argument msut result in an XQException.");
+  }
+ catch (  XQException e) {
+  }
   xqpe.close();
 }

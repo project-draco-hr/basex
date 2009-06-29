@@ -41,6 +41,17 @@
  catch (  XQException e) {
     fail("A-XQDC-1.7: bindItem() failed with message: " + e.getMessage());
   }
-  assertEquals("A-XQDC-1.7: Successful bindXXX.","Hello world!",xqpe.executeQuery().getSequenceAsString(null));
+  XQSequence xqs=xqpe.executeQuery();
+  xqs.next();
+  assertEquals("A-XQDC-1.7: Successful bindXXX.","Hello world!",xqs.getAtomicValue());
+  xqpe.close();
+  xqi.close();
+  xqpe=xqc.prepareExpression("declare variable $v as xs:decimal external; $v");
+  try {
+    xqpe.bindItem(new QName("v"),xqi);
+    fail("A-XQDC-1.8: Passing a closed XQItem or XQSequence object as argument must result in an XQException.");
+  }
+ catch (  XQException e) {
+  }
   xqpe.close();
 }
