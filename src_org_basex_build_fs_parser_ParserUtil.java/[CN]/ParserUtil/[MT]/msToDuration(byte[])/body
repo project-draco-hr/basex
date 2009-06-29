@@ -1,17 +1,42 @@
 {
-  if (milliseconds == null)   return null;
+  if (Token.ws(milliseconds))   return Token.EMPTY;
   int len=milliseconds.length;
+  byte[] value;
   if (len < 4) {
-    return Token.EMPTY;
+    value=new byte[]{'P','T','0','.','0','0','0','S'};
+    int offset=7 - len;
+    for (int i=0; i < len; i++) {
+      if (milliseconds[i] < '0' || milliseconds[i] > '9') {
+        BaseX.debug("ParserUtil: Invalid duration: %",Token.string(milliseconds));
+        return Token.EMPTY;
+      }
+      value[i + offset]=milliseconds[i];
+    }
   }
-  int newLen=len + 4;
-  byte[] value=new byte[newLen];
-  value[0]='P';
-  value[1]='T';
-  int secLen=len - 3;
-  System.arraycopy(milliseconds,0,value,2,secLen);
-  value[2 + secLen]='.';
-  System.arraycopy(milliseconds,secLen,value,3 + secLen,3);
-  value[newLen - 1]='S';
+ else {
+    int newLen=len + 4;
+    value=new byte[newLen];
+    int pos=0;
+    value[pos++]='P';
+    value[pos++]='T';
+    int secLen=len - 3;
+    int i=0;
+    for (; i < secLen; i++) {
+      if (milliseconds[i] < '0' || milliseconds[i] > '9') {
+        BaseX.debug("ParserUtil: Invalid duration: %",Token.string(milliseconds));
+        return Token.EMPTY;
+      }
+      value[pos++]=milliseconds[i];
+    }
+    value[pos++]='.';
+    for (; i < len; i++) {
+      if (milliseconds[i] < '0' || milliseconds[i] > '9') {
+        BaseX.debug("ParserUtil: Invalid duration: %",Token.string(milliseconds));
+        return Token.EMPTY;
+      }
+      value[pos++]=milliseconds[i];
+    }
+    value[pos]='S';
+  }
   return value;
 }
