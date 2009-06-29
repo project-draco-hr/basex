@@ -3,7 +3,24 @@
   super.mouseMoved(e);
   mouseX=e.getX();
   mouseY=e.getY();
-  if (focus()) {
+  if (GUIProp.mapinteraction && GUIProp.mapdist && e.isControlDown()) {
+    Graphics g=mainMap.getGraphics();
+    g.setColor(Color.black);
+    g.fillRect(0,0,getWidth(),getHeight());
+    MapRects distRects=new MapRects();
+    for (    MapRect r : mainRects) {
+      int x=(int)(r.x + 100 * Math.tanh(0.2 * (r.x - mouseX)));
+      int w=(int)(r.x + r.w + 100 * Math.tanh(0.2 * (r.x + r.w - mouseX)) - x);
+      int y=(int)(r.y + 100 * Math.tanh(0.2 * (r.y - mouseY)));
+      int h=(int)(r.y + r.h + 100 * Math.tanh(0.2 * (r.y + r.h - mouseY)) - y);
+      distRects.add(new MapRect(x,y,w,h,r.pre,r.level));
+    }
+    mainMap.flush();
+    painter.init(distRects);
+    drawMap(mainMap,distRects,1);
+    repaint();
+  }
+ else   if (focus()) {
     if (!(mouseX > tinyx && mouseX < tinyx + tinyw && mouseY > tinyy && mouseY < tinyy + tinyh)) {
       thumbMap=false;
     }

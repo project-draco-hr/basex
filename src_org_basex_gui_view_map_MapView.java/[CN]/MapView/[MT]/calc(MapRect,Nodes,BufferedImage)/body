@@ -1,14 +1,17 @@
 {
   final Performance p=new Performance();
-  initLen();
-  layout=new MapLayout(nodes.data,textLen);
-  layout.makeMap(rect,new MapList(nodes.nodes.clone()),0,nodes.size() - 1,0);
-  mainRects=layout.rectangles.copy();
+  for (int i=0; i < 1; i++) {
+    initLen();
+    layout=new MapLayout(nodes.data,textLen);
+    layout.makeMap(rect,new MapList(nodes.nodes.clone()),0,nodes.size() - 1,0);
+    mainRects=layout.rectangles.copy();
+  }
+  if (GUIProp.mapinfo) {
+    double aar=0;
+    if (!GUIProp.perfinfo)     aar=MapLayout.aar(mainRects);
+    mapInfo.setValues(mainRects.size,rect,aar,p.getTimer(1),layout.algo.getName());
+  }
   painter.init(mainRects);
   drawMap(map,mainRects,1f);
   focus();
-  if (GUIProp.mapinfo && !GUIProp.perfinfo) {
-    final double aar=MapLayout.aar(mainRects);
-    mapInfo.setValues(mainRects.size,rect,aar,p.getTimer(),layout.algo.getName());
-  }
 }
