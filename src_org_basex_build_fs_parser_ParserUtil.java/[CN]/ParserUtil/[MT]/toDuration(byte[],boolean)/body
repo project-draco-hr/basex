@@ -1,0 +1,21 @@
+{
+  int len=value.length;
+  byte[] a=new byte[len];
+  int secPos=-1;
+  int pos=0;
+  for (int i=0; i < len; i++) {
+    byte b=value[i];
+    if (b == 0)     continue;
+    if (b < '0' || b > '9') {
+      if (b != ':')       return error(value);
+      if (secPos != -1)       return error(value);
+      secPos=i;
+    }
+ else {
+      a[pos++]=b;
+    }
+  }
+  if (pos == 0)   return Token.EMPTY;
+  if (secPos == -1)   return milliseconds ? msToDuration(a,pos) : secToDuration(a,pos);
+  return minSecToDuration(a,secPos,pos);
+}

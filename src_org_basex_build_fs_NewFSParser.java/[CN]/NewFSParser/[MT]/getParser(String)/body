@@ -1,0 +1,19 @@
+{
+  AbstractParser instance=parserInstances.get(suffix);
+  if (instance == null) {
+    Class<? extends AbstractParser> clazz=REGISTRY.get(suffix);
+    if (clazz == null)     return null;
+    try {
+      instance=clazz.newInstance();
+      BaseX.debug("Successfully instanciated " + clazz.getSimpleName());
+    }
+ catch (    InstantiationException e) {
+      BaseX.debug("Failed to load parser for suffix " + suffix + " (%)",e.getMessage());
+    }
+catch (    IllegalAccessException e) {
+      BaseX.debug("Failed to load parser for suffix " + suffix + " (%)",e.getMessage());
+    }
+    parserInstances.put(suffix,instance);
+  }
+  return instance;
+}

@@ -1,0 +1,37 @@
+{
+  Matcher matcher;
+  ArrayList<Class<?>> foundClasses=new ArrayList<Class<?>>();
+  ArrayList<File> subClasses=new ArrayList<File>();
+  ArrayList<File> subSubClasses=new ArrayList<File>();
+  for (  File f : directory.listFiles()) {
+    String fileName=f.getName();
+    fileName=fileName.substring(0,fileName.length() - 6);
+    matcher=fileNamePattern.matcher(fileName);
+    if (matcher.matches()) {
+      if (fileName.contains("$")) {
+        if (fileName.indexOf('$') != fileName.lastIndexOf('$')) {
+          subSubClasses.add(f);
+          continue;
+        }
+        subClasses.add(f);
+        continue;
+      }
+      Class<?> c=load(f);
+      foundClasses.add(c);
+    }
+  }
+  for (  File f : subClasses)   load(f);
+  for (  File f : subSubClasses)   load(f);
+  int counter=0;
+  for (  Class<?> c : foundClasses) {
+    try {
+      Class.forName(c.getName(),true,INSTANCE);
+      counter++;
+    }
+ catch (    ClassNotFoundException e) {
+      BaseX.errln("Failed to load class (%)",e.getMessage());
+      break;
+    }
+  }
+  return foundClasses.subList(0,counter).toArray(new String[counter]);
+}

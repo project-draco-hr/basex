@@ -1,0 +1,26 @@
+{
+  String pkgName=pkg.getName();
+  String pkgPath=pkgName.replace('.','/');
+  Matcher matcher;
+  ClassLoader cl=Thread.currentThread().getContextClassLoader();
+  URL pkgUrl=cl.getResource(pkgPath);
+  File packageDir=new File(pkgUrl.getPath());
+  ArrayList<String> loadedClasses=new ArrayList<String>();
+  for (  File f : packageDir.listFiles()) {
+    String fileName=f.getName();
+    fileName=fileName.substring(0,fileName.length() - 6);
+    matcher=fileNamePattern.matcher(fileName);
+    if (matcher.matches()) {
+      String clazz=pkgName + "." + fileName;
+      try {
+        Class.forName(clazz);
+      }
+ catch (      ClassNotFoundException e) {
+        BaseX.errln("Failed to load class (%)",e.getMessage());
+        break;
+      }
+      loadedClasses.add(clazz);
+    }
+  }
+  return loadedClasses.toArray(new String[loadedClasses.size()]);
+}

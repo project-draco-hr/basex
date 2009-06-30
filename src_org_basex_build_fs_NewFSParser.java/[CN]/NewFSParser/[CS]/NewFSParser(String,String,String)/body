@@ -9,24 +9,12 @@
   backingroot=bs;
   mountpoint=mp;
   mybackingpath=backingroot + Prop.SEP + fsdbname;
+  int size=(int)Math.ceil(REGISTRY.size() / 0.75f);
+  parserInstances=new HashMap<String,AbstractParser>(size);
   if (Prop.fsmeta || Prop.fscont) {
-    parserInstances=new HashMap<String,AbstractParser>();
-    for (    Map.Entry<String,Class<? extends AbstractParser>> parser : AbstractParser.getAdapters().entrySet()) {
-      try {
-        AbstractParser instance=parser.getValue().newInstance();
-        parserInstances.put(parser.getKey(),instance);
-      }
- catch (      InstantiationException e) {
-        BaseX.debug("Failed to instanciate parser " + parser.getValue().getName());
-      }
-catch (      IllegalAccessException e) {
-        BaseX.debug("Failed to instanciate parser " + parser.getValue().getName());
-      }
-    }
     buffer=ByteBuffer.allocateDirect(BufferedFileChannel.DEFAULT_BUFFER_SIZE);
   }
  else {
-    parserInstances=null;
     buffer=null;
   }
 }
