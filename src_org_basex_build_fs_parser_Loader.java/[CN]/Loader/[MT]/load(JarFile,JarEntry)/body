@@ -1,0 +1,14 @@
+{
+  long len=je.getSize();
+  if (len > Integer.MAX_VALUE)   throw new IOException("Class file too long to load.");
+  if (len == -1)   throw new IOException("Unknown class file size.");
+  InputStream in=jar.getInputStream(je);
+  byte[] buf=new byte[(int)len];
+  int pos=0;
+  while (len - pos > 0) {
+    int read=in.read(buf,pos,(int)len - pos);
+    if (read == -1)     break;
+    pos+=read;
+  }
+  return INSTANCE.defineClass(null,buf,0,buf.length);
+}

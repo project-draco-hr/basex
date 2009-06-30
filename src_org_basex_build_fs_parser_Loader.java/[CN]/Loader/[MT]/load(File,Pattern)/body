@@ -22,16 +22,10 @@
   }
   for (  File f : subClasses)   load(f);
   for (  File f : subSubClasses)   load(f);
-  int counter=0;
-  for (  Class<?> c : foundClasses) {
-    try {
-      Class.forName(c.getName(),true,INSTANCE);
-      counter++;
-    }
- catch (    ClassNotFoundException e) {
-      BaseX.errln("Failed to load class (%)",e.getMessage());
-      break;
-    }
+  int counter=initializeClasses(foundClasses);
+  String[] classNames=new String[counter];
+  for (int i=0; i < counter; i++) {
+    classNames[i]=foundClasses.get(i).getName();
   }
-  return foundClasses.subList(0,counter).toArray(new String[counter]);
+  return classNames;
 }
