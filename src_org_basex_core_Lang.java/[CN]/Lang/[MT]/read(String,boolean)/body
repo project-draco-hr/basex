@@ -2,32 +2,30 @@
   try {
     if (DISALLOW)     throw new Error("Language file was accessed.");
     if (chk)     check=new HashMap<String,Boolean>();
-    final String path="lang/" + lang + ".lang";
+    final String path=SUFFIX + "/" + lang+ "."+ SUFFIX;
     final URL url=BaseX.class.getResource(path);
-    if (url != null) {
-      final InputStream is=(InputStream)url.getContent();
-      final InputStreamReader isr=new InputStreamReader(is,Token.UTF8);
-      final BufferedReader br=new BufferedReader(isr);
+    if (url == null) {
+      BaseX.errln("%." + SUFFIX + " not found.",lang);
+    }
+ else {
+      final BufferedReader br=new BufferedReader(new InputStreamReader((InputStream)url.getContent(),Token.UTF8));
       String line;
       while ((line=br.readLine()) != null) {
-        final int i=line.indexOf("=");
+        final int i=line.indexOf('=');
         if (i == -1 || line.startsWith("#"))         continue;
         final String key=line.substring(0,i);
         String val=line.substring(i + 1);
         if (val.contains("\\n"))         val=val.replaceAll("\\\\n","\n");
         if (Prop.langkeys)         val=val + " {" + key+ "}";
-        if (texts.get(key) != null) {
-          if (chk)           BaseX.errln("%.lang: '%' assigned twice",lang,key);
-        }
- else {
+        if (texts.get(key) == null) {
           texts.put(key,val);
+        }
+ else         if (chk) {
+          BaseX.errln("%." + SUFFIX + ": '%' assigned twice",lang,key);
         }
         if (chk)         check.put(key,true);
       }
       br.close();
-    }
- else {
-      BaseX.errln("%.lang not found.",lang);
     }
   }
  catch (  final IOException ex) {
