@@ -3,29 +3,34 @@
   ArrayList<Class<?>> foundClasses=new ArrayList<Class<?>>();
   ArrayList<File> subClasses=new ArrayList<File>();
   ArrayList<File> subSubClasses=new ArrayList<File>();
-  for (  File f : directory.listFiles()) {
-    String fileName=f.getName();
-    fileName=fileName.substring(0,fileName.length() - 6);
-    matcher=fileNamePattern.matcher(fileName);
-    if (matcher.matches()) {
-      if (fileName.contains("$")) {
-        if (fileName.indexOf('$') != fileName.lastIndexOf('$')) {
-          subSubClasses.add(f);
+  try {
+    if (!directory.isDirectory())     throw new IllegalArgumentException("Is not a directory.");
+    for (    File f : directory.listFiles()) {
+      String fileName=f.getName();
+      fileName=fileName.substring(0,fileName.length() - 6);
+      matcher=fileNamePattern.matcher(fileName);
+      if (matcher.matches()) {
+        if (fileName.contains("$")) {
+          if (fileName.indexOf('$') != fileName.lastIndexOf('$')) {
+            subSubClasses.add(f);
+            continue;
+          }
+          subClasses.add(f);
           continue;
         }
-        subClasses.add(f);
-        continue;
+        Class<?> c=load(f);
+        foundClasses.add(c);
       }
-      Class<?> c=load(f);
-      foundClasses.add(c);
     }
+    for (    File f : subClasses)     load(f);
+    for (    File f : subSubClasses)     load(f);
   }
-  for (  File f : subClasses)   load(f);
-  for (  File f : subSubClasses)   load(f);
+ catch (  IOException e) {
+    throw e;
+  }
+catch (  Throwable t) {
+    BaseX.errln("Failed to load class (%)",t.getMessage());
+  }
   int counter=initializeClasses(foundClasses);
-  String[] classNames=new String[counter];
-  for (int i=0; i < counter; i++) {
-    classNames[i]=foundClasses.get(i).getName();
-  }
-  return classNames;
+  return foundClasses.subList(0,counter).toArray(new Class<?>[counter]);
 }

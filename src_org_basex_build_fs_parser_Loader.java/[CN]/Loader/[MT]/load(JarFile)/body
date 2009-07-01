@@ -3,30 +3,34 @@
   ArrayList<Class<?>> foundClasses=new ArrayList<Class<?>>();
   ArrayList<JarEntry> subClasses=new ArrayList<JarEntry>();
   ArrayList<JarEntry> subSubClasses=new ArrayList<JarEntry>();
-  while (e.hasMoreElements()) {
-    JarEntry entry=e.nextElement();
-    String name=entry.getName();
-    if (entry.isDirectory() || name.endsWith("MANIFEST.MF")) {
-      continue;
-    }
-    if (name.contains("$")) {
-      if (name.indexOf("$") != name.lastIndexOf("$")) {
-        subSubClasses.add(entry);
+  try {
+    while (e.hasMoreElements()) {
+      JarEntry entry=e.nextElement();
+      String name=entry.getName();
+      if (entry.isDirectory() || name.endsWith("MANIFEST.MF")) {
         continue;
       }
-      subClasses.add(entry);
-      continue;
+      if (name.contains("$")) {
+        if (name.indexOf("$") != name.lastIndexOf("$")) {
+          subSubClasses.add(entry);
+          continue;
+        }
+        subClasses.add(entry);
+        continue;
+      }
+      Class<?> c=load(jar,entry);
+      foundClasses.add(c);
     }
-    Class<?> c=load(jar,entry);
-    foundClasses.add(c);
+    for (    JarEntry entry : subClasses)     load(jar,entry);
+    for (    JarEntry entry : subSubClasses)     load(jar,entry);
   }
-  for (  JarEntry entry : subClasses)   load(jar,entry);
-  for (  JarEntry entry : subSubClasses)   load(jar,entry);
+ catch (  IOException ex) {
+    throw ex;
+  }
+catch (  Throwable t) {
+    BaseX.errln("Failed to load class (%)",t.getMessage());
+  }
   int counter=initializeClasses(foundClasses);
   jar.close();
-  String[] classNames=new String[counter];
-  for (int i=0; i < counter; i++) {
-    classNames[i]=foundClasses.get(i).getName();
-  }
-  return classNames;
+  return foundClasses.subList(0,counter).toArray(new Class<?>[counter]);
 }
