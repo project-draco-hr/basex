@@ -1,22 +1,20 @@
 {
-  indexdirty=true;
+  dirty=true;
   cursor(first);
   int from=first - firstPre;
-  final int last=first + nr - 1;
-  if (last < nextPre) {
-    dirty=true;
-    copy(buffer,from + nr,buffer,from,nextPre - last - 1);
+  final int last=first + nr;
+  if (last - 1 < nextPre) {
+    copy(bf.buf,from + nr,bf.buf,from,nextPre - last);
     updatePre(nr);
     if (nextPre == firstPre) {
       Array.move(firstPres,index + 1,-1,indexSize - index - 1);
       Array.move(blocks,index + 1,-1,indexSize - index - 1);
-      indexSize--;
-      readBlock(index,firstPre,index + 2 > indexSize ? count : firstPres[index + 1]);
+      readBlock(index,firstPre,index + 2 > --indexSize ? count : firstPres[index + 1]);
     }
     return;
   }
   int unused=0;
-  while (nextPre <= last) {
+  while (nextPre < last) {
     if (from == 0)     unused++;
     nextBlock();
     from=0;
@@ -27,8 +25,7 @@
     indexSize-=unused;
     index-=unused;
   }
-  dirty=true;
-  copy(buffer,last - firstPre + 1,buffer,0,nextPre - last - 1);
+  copy(bf.buf,last - firstPre,bf.buf,0,nextPre - last);
   firstPres[index]=first;
   firstPre=first;
   updatePre(nr);

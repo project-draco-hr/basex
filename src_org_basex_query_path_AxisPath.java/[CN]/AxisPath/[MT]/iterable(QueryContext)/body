@@ -1,0 +1,26 @@
+{
+  if (root == null || root.uses(Use.VAR,ctx) || root.duplicates(ctx)) {
+    return false;
+  }
+  int i=0;
+  while (true) {
+    final Step s=step[i];
+    if (s.axis == Axis.ATTR || s.axis == Axis.PARENT || s.axis == Axis.SELF) {
+      if (++i == step.length)       return true;
+      continue;
+    }
+    if (s.axis == Axis.DESC || s.axis == Axis.DESCORSELF || s.axis == Axis.FOLL || s.axis == Axis.PREC) {
+      return ++i == step.length;
+    }
+    if (s.axis == Axis.CHILD || s.axis == Axis.FOLLSIBL || s.axis == Axis.PRECSIBL) {
+      if (++i == step.length)       return true;
+      while (step[i].axis == Axis.ATTR || step[i].axis == Axis.CHILD || step[i].axis == Axis.PARENT || step[i].axis == Axis.SELF) {
+        if (++i == step.length)         return true;
+      }
+      return i + 1 == step.length && (step[i].axis == Axis.DESC || step[i].axis == Axis.DESCORSELF);
+    }
+ else {
+      return false;
+    }
+  }
+}

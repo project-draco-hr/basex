@@ -1,15 +1,19 @@
 {
-  try {
-    final int b=blocks[ind];
-    writeBlock();
-    file.seek((long)b * IO.BLOCKSIZE);
-    file.read(buffer);
-    block=b;
-    index=ind;
-    firstPre=first;
-    nextPre=next;
-  }
- catch (  final IOException ex) {
-    ex.printStackTrace();
+  index=ind;
+  firstPre=first;
+  nextPre=next;
+  final int b=blocks[ind];
+  final boolean ch=bm.cursor(b);
+  bf=bm.curr();
+  if (ch) {
+    try {
+      if (bf.dirty)       writeBlock(bf);
+      bf.pos=b;
+      file.seek(bf.pos * IO.BLOCKSIZE);
+      file.read(bf.buf);
+    }
+ catch (    final IOException ex) {
+      ex.printStackTrace();
+    }
   }
 }

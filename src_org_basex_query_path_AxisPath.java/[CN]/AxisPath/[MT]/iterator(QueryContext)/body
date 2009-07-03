@@ -1,28 +1,3 @@
 {
-  if (root != null && root.uses(Use.VAR,ctx))   return this;
-  if (root == null || root.duplicates(ctx))   return this;
-  int i=0;
-  while (true) {
-    if (step[i].axis == Axis.ATTR || step[i].axis == Axis.PARENT || step[i].axis == Axis.SELF) {
-      if (++i == step.length)       break;
-      continue;
-    }
-    if (step[i].axis == Axis.DESC || step[i].axis == Axis.DESCORSELF || step[i].axis == Axis.FOLL || step[i].axis == Axis.PREC) {
-      if (++i == step.length)       break;
-      return this;
-    }
-    if (step[i].axis == Axis.CHILD || step[i].axis == Axis.FOLLSIBL || step[i].axis == Axis.PRECSIBL) {
-      if (++i == step.length)       break;
-      while (step[i].axis == Axis.ATTR || step[i].axis == Axis.CHILD || step[i].axis == Axis.PARENT || step[i].axis == Axis.SELF) {
-        if (++i == step.length)         break;
-      }
-      if (i == step.length)       break;
-      if (!step[i].axis.down)       return this;
-    }
- else {
-      return this;
-    }
-    break;
-  }
-  return new IterPath(root,step);
+  return iterable(ctx) ? new IterPath(root,step) : this;
 }
