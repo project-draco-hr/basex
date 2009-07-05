@@ -1,13 +1,21 @@
 {
+  final Expr e=expr[0];
 switch (func) {
-case CONTAINS:
-    final byte[] i=expr[1].i() ? checkStr((Item)expr[1]) : null;
-  if (expr[1].e() || i != null && i.length == 0)   return Bln.TRUE;
-if (expr[0].e() && i != null && i.length != 0) return Bln.FALSE;
-return this;
+case UPPER:
+    return e.i() ? Str.get(uc(checkStr(e,ctx))) : this;
+case LOWER:
+  return e.i() ? Str.get(lc(checkStr(e,ctx))) : this;
 case CONCAT:
 for (final Expr a : expr) if (!a.i()) return this;
 return concat(ctx);
+case CONTAINS:
+if (expr.length == 2) {
+final byte[] i=expr[1].i() ? checkStr((Item)expr[1]) : null;
+if (expr[1].e() || i != null && i.length == 0) return Bln.TRUE;
+if (e.e() && i != null && i.length != 0) return Bln.FALSE;
+if (e.i() && expr[1].i()) return Bln.get(contains(checkStr(e,ctx),checkStr((Item)expr[1])));
+}
+return this;
 default :
 return this;
 }

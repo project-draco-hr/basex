@@ -6,11 +6,16 @@
   final Data data=gui.context.data();
   final MetaData meta=data.meta;
   final BaseXLabel doc=new BaseXLabel(meta.dbname);
-  doc.setFont(new Font(GUIProp.font,0,18));
+  doc.setFont(getFont().deriveFont(18f));
   doc.setBorder(0,0,5,0);
   tab1.add(doc,BorderLayout.NORTH);
-  final BaseXText text=text(InfoDB.db(meta,false,false));
-  BaseXLayout.setHeight(text,280);
+  final TokenBuilder info=InfoDB.db(meta,true,false);
+  if (data.ns.size() != 0) {
+    info.high().add(NL + INFONS + NL).norm().add(data.ns.info());
+  }
+  final BaseXText text=text(info.finish());
+  text.setFont(getFont());
+  BaseXLayout.setHeight(text,350);
   tab1.add(text,BorderLayout.CENTER);
   final BaseXBack tab2=new BaseXBack();
   tab2.setLayout(new GridLayout(2,1,0,8));
@@ -56,8 +61,7 @@
     p.add(text(data.info(Type.FTX)),BorderLayout.CENTER);
   }
   tab4.add(p);
-  final JTabbedPane tabs=new JTabbedPane();
-  BaseXLayout.addDefaultKeys(tabs,this);
+  final BaseXTabs tabs=new BaseXTabs(this);
   tabs.addTab(GENERALINFO,tab1);
   tabs.addTab(NAMESINFO,tab2);
   tabs.addTab(INDEXINFO,tab3);

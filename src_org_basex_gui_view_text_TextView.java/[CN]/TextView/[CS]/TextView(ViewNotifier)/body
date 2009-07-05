@@ -1,48 +1,27 @@
 {
-  super(man,HELPTEXT);
+  super(HELPTEXT,man);
   setLayout(new BorderLayout(0,4));
-  setBorder(4,8,8,8);
+  setBorder(6,8,8,8);
   setFocusable(false);
-  area=new BaseXText(gui,HELPTEXT,false);
-  add(area,BorderLayout.CENTER);
-  header=new BaseXLabel(TEXTTIT,true);
+  header=new BaseXLabel(TEXTTIT,true,false);
+  final BaseXBack back=new BaseXBack(Fill.NONE);
+  back.setLayout(new BorderLayout());
+  back.add(header,BorderLayout.CENTER);
   final BaseXButton export=GUIToolBar.newButton(GUICommands.SAVE,gui);
   final BaseXButton root=GUIToolBar.newButton(GUICommands.HOME,gui);
-  search=new BaseXTextField(null);
-  final Font f=getFont();
-  search.setFont(f.deriveFont((float)f.getSize() + 2));
-  search.addKeyListener(new KeyAdapter(){
-    @Override public void keyPressed(    final KeyEvent e){
-      final int co=e.getKeyCode();
-      if (co == KeyEvent.VK_ESCAPE) {
-        area.requestFocusInWindow();
-      }
- else       if (co == KeyEvent.VK_ENTER || co == KeyEvent.VK_F3) {
-        area.find(search.getText(),e.isShiftDown());
-      }
-      if ((Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() & e.getModifiers()) != 0 && co == KeyEvent.VK_F)       e.consume();
-    }
-    @Override public void keyReleased(    final KeyEvent e){
-      final char ch=e.getKeyChar();
-      if (ch != KeyEvent.VK_ENTER && Character.isDefined(ch))       area.find(search.getText(),false);
-    }
-  }
-);
-  BaseXLayout.setWidth(search,120);
-  BaseXLayout.setHeight(search,(int)export.getPreferredSize().getHeight());
-  final BaseXBack back=new BaseXBack();
-  back.setMode(Fill.NONE);
-  back.setLayout(new BorderLayout());
-  back.add(header,BorderLayout.WEST);
-  final BaseXBack sp=new BaseXBack();
-  sp.setMode(Fill.NONE);
+  find=new BaseXTextField(null,gui);
+  BaseXLayout.setHeight(find,(int)root.getPreferredSize().getHeight());
+  final BaseXBack sp=new BaseXBack(Fill.NONE);
   sp.setLayout(new TableLayout(1,5));
-  sp.add(search);
+  sp.add(find);
   sp.add(Box.createHorizontalStrut(5));
   sp.add(root);
   sp.add(Box.createHorizontalStrut(1));
   sp.add(export);
   back.add(sp,BorderLayout.EAST);
   add(back,BorderLayout.NORTH);
+  area=new BaseXText(HELPTEXT,false,gui);
+  area.addSearch(find);
+  add(area,BorderLayout.CENTER);
   refreshLayout();
 }

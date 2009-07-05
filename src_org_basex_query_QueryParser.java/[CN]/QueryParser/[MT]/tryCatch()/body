@@ -16,28 +16,21 @@
       }
     }
  while (consume(PIPE));
-    Var var1=null;
-    Var var2=null;
-    Var var3=null;
+    Var[] var={};
     final int s=ctx.vars.size();
     if (consumeWS2(PAR1)) {
-      var1=new Var(varName());
-      ctx.vars.add(var1);
+      var=addVar(var);
       if (consumeWS2(COMMA)) {
-        var2=new Var(varName());
-        if (var1.name.eq(var2.name))         error(VARDEFINED,var2);
-        ctx.vars.add(var2);
+        var=addVar(var);
         if (consumeWS2(COMMA)) {
-          var3=new Var(varName());
-          if (var1.name.eq(var3.name) || var2.name.eq(var3.name))           error(VARDEFINED,var3);
-          ctx.vars.add(var3);
+          var=addVar(var);
         }
       }
       check(PAR2);
     }
     final Expr ex=enclosed(NOENCLEXPR);
     ctx.vars.reset(s);
-    ct=Array.add(ct,new Catch(ex,codes,var1,var2,var3));
+    ct=Array.add(ct,new Catch(ex,codes,var));
   }
  while (consume(CATCH));
   return new Try(tr,ct);

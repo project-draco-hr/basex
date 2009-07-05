@@ -1,0 +1,95 @@
+{
+  super(HELPXQUERY,man);
+  setLayout(new BorderLayout());
+  setBorder(6,8,8,8);
+  setFocusable(false);
+  header=new BaseXLabel(XQUERYTIT,true,false);
+  final BaseXBack back=new BaseXBack(Fill.NONE);
+  back.setLayout(new BorderLayout());
+  back.add(header,BorderLayout.CENTER);
+  final BaseXButton open=GUIToolBar.newButton(GUICommands.XQOPEN,gui);
+  final BaseXButton save=GUIToolBar.newButton(GUICommands.XQSAVE,gui);
+  final BaseXTextField find=new BaseXTextField(null,gui);
+  BaseXLayout.setHeight(find,(int)open.getPreferredSize().getHeight());
+  final BaseXButton hist=new BaseXButton(GUI.icon("cmd-hist"),HELPRECENT,gui);
+  hist.trim();
+  hist.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      final JPopupMenu popup=new JPopupMenu("History");
+      final ActionListener al=new ActionListener(){
+        public void actionPerformed(        final ActionEvent ac){
+          setQuery(IO.get(ac.getActionCommand()));
+        }
+      }
+;
+      final String[] hs=GUIProp.queries;
+      for (      final String en : hs) {
+        final JMenuItem jmi=new JMenuItem(en);
+        jmi.addActionListener(al);
+        popup.add(jmi);
+      }
+      popup.show(hist,0,hist.getHeight());
+    }
+  }
+);
+  BaseXBack sp=new BaseXBack(Fill.NONE);
+  sp.setLayout(new TableLayout(1,7));
+  sp.add(find);
+  sp.add(Box.createHorizontalStrut(5));
+  sp.add(open);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(save);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(hist);
+  back.add(sp,BorderLayout.EAST);
+  add(back,BorderLayout.NORTH);
+  text=new XQueryText(this);
+  add(text,BorderLayout.CENTER);
+  text.addSearch(find);
+  south=new BaseXBack(Fill.NONE);
+  south.setLayout(new BorderLayout());
+  info=new BaseXLabel(" ");
+  info.setCursor(GUIConstants.CURSORHAND);
+  info.addMouseListener(new MouseAdapter(){
+    @Override public void mouseClicked(    final MouseEvent e){
+      if (info.getName() == null)       return;
+      text.setCaret(Integer.parseInt(info.getName()));
+      text.requestFocusInWindow();
+    }
+  }
+);
+  south.add(info,BorderLayout.CENTER);
+  BaseXLayout.enable(info,false);
+  stop=new BaseXButton(GUI.icon("cmd-stop"),HELPSTOP,gui);
+  stop.trim();
+  stop.addKeyListener(this);
+  stop.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      BaseXLayout.enable(stop,false);
+      gui.stop();
+    }
+  }
+);
+  BaseXLayout.enable(stop,false);
+  go=new BaseXButton(GUI.icon("cmd-go"),HELPGO,gui);
+  go.trim();
+  go.addKeyListener(this);
+  go.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      text.query(true);
+    }
+  }
+);
+  filter=GUIToolBar.newButton(GUICommands.FILTER,gui);
+  filter.addKeyListener(this);
+  sp=new BaseXBack(Fill.NONE);
+  sp.setLayout(new TableLayout(1,5));
+  sp.add(stop);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(go);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(filter);
+  south.add(sp,BorderLayout.EAST);
+  add(south,BorderLayout.SOUTH);
+  refreshLayout();
+}

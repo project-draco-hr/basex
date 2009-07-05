@@ -1,0 +1,36 @@
+{
+  super(help,win);
+  setFocusable(true);
+  BaseXLayout.addInteraction(this,help,win);
+  addMouseMotionListener(this);
+  addMouseWheelListener(this);
+  addComponentListener(this);
+  addMouseListener(this);
+  addKeyListener(this);
+  addFocusListener(new FocusAdapter(){
+    @Override public void focusGained(    final FocusEvent e){
+      if (isEnabled())       cursor(true);
+    }
+    @Override public void focusLost(    final FocusEvent e){
+      cursor(false);
+      rend.cursor(false);
+      rend.repaint();
+    }
+  }
+);
+  setLayout(new BorderLayout(4,0));
+  scroll=new BaseXBar(this);
+  rend=new BaseXTextRenderer(text,scroll);
+  add(rend,BorderLayout.CENTER);
+  add(scroll,BorderLayout.EAST);
+  if (edit) {
+    setBackground(Color.white);
+    setBorder(new MatteBorder(1,1,1,1,GUIConstants.COLORS[6]));
+    setMode(Fill.PLAIN);
+    undo=new Undo();
+  }
+ else {
+    setMode(Fill.NONE);
+  }
+  popup=new BaseXPopup(this,edit ? new GUICommand[]{new UndoCmd(),new RedoCmd(),null,new CutCmd(),new CopyCmd(),new PasteCmd(),new DelCmd(),null,new AllCmd()} : new GUICommand[]{new CopyCmd(),null,new AllCmd()});
+}

@@ -1,0 +1,26 @@
+{
+  final Font f=getFont();
+  setFont(f.deriveFont((float)f.getSize() + 2));
+  BaseXLayout.setWidth(this,80);
+  addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      final String text=getText();
+      final int co=e.getKeyCode();
+      final boolean enter=co == KeyEvent.VK_ENTER;
+      if (co == KeyEvent.VK_ESCAPE || enter && text.length() == 0) {
+        area.requestFocusInWindow();
+      }
+ else       if (enter || co == KeyEvent.VK_F3) {
+        area.find(text,e.isShiftDown());
+      }
+    }
+    @Override public void keyReleased(    final KeyEvent e){
+      final String text=getText();
+      final char ch=e.getKeyChar();
+      if (ch != KeyEvent.VK_ENTER && Character.isDefined(ch))       area.find(text,false);
+      repaint();
+    }
+  }
+);
+  repaint();
+}

@@ -2,20 +2,12 @@
   final int c=e.getKeyCode();
   final boolean shf=e.isShiftDown();
   final boolean ctrl=(Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() & e.getModifiers()) != 0;
-  if (c == KeyEvent.VK_F3) {
-    find(rend.find(shf,true));
+  if (ctrl && c == KeyEvent.VK_F) {
+    if (find != null)     find.requestFocusInWindow();
     return;
   }
-  if (ctrl && c == KeyEvent.VK_F) {
-    Container cont=this;
-    do {
-      cont=cont.getParent();
-      if (cont instanceof TextView) {
-        ((TextView)cont).find();
-        e.consume();
-      }
-    }
- while (cont != null);
+  if (c == KeyEvent.VK_F3) {
+    find(rend.find(shf,true));
     return;
   }
   if (e.isAltDown() || c == KeyEvent.VK_SHIFT || c == KeyEvent.VK_META || c == KeyEvent.VK_CONTROL || c == KeyEvent.VK_ESCAPE)   return;
@@ -55,8 +47,8 @@
   final int h=getHeight();
   if (c == KeyEvent.VK_RIGHT) {
     if (ctrl) {
-      final boolean ch=Character.isLetterOrDigit(text.next(shf));
-      while (text.pos() < text.size() && ch == Character.isLetterOrDigit(text.curr()))       text.next(shf);
+      final boolean ch=ftChar(text.next(shf));
+      while (text.pos() < text.size() && ch == ftChar(text.curr()))       text.next(shf);
     }
  else {
       text.next(shf);
@@ -64,8 +56,8 @@
   }
  else   if (c == KeyEvent.VK_LEFT) {
     if (ctrl) {
-      final boolean ch=Character.isLetterOrDigit(text.prev(shf));
-      while (text.pos() > 0 && ch == Character.isLetterOrDigit(text.prev(shf)))       ;
+      final boolean ch=ftChar(text.prev(shf));
+      while (text.pos() > 0 && ch == ftChar(text.prev(shf)))       ;
       if (text.pos() != 0)       text.next(shf);
     }
  else {

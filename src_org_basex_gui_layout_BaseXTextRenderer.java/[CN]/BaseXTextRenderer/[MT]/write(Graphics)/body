@@ -1,11 +1,11 @@
 {
-  final int ch=word.charAt(0);
   if (high) {
     high=false;
   }
  else {
-    col=isEnabled() ? syntax.getColor(word) : Color.gray;
+    col=isEnabled() ? syntax.getColor(text) : Color.gray;
   }
+  final int ch=text.curr();
   if (y > 0 && y < h) {
     if (ch >= 0x10 && ch < 0x20) {
       final int c=ch - 0x10;
@@ -19,8 +19,8 @@
     int xx=x;
     if (text.markStart()) {
       final int p=text.pos();
-      for (int c=0; c < word.length(); c++) {
-        final int cw=charW(g,word.charAt(c));
+      while (text.more()) {
+        final int cw=charW(g,text.curr());
         if (text.marked()) {
           g.setColor(GUIConstants.COLORS[3]);
           g.fillRect(xx,y - fontH + 4,cw,fontH);
@@ -35,25 +35,27 @@
       for (int c=0; c < search.length(); c++) {
         cw+=charW(g,search.charAt(c));
       }
-      g.setColor(GUIConstants.COLORS[text.cursor() == text.pos() ? 7 : 3]);
+      g.setColor(GUIConstants.COLORS[text.cursor() == text.pos() ? 5 : 2]);
       g.fillRect(x,y - fontH + 4,cw,fontH);
     }
     if (ch > ' ') {
       g.setColor(col);
-      g.drawString(word,x,y);
+      g.drawString(text.nextWord(),x,y);
     }
  else     if (ch < 0x04) {
       g.setFont(font);
     }
     if (cursor && text.edited()) {
       xx=x;
-      for (int c=0; c < word.length(); c++) {
-        if (text.cursor() == text.pos() + c) {
+      int p=text.pos();
+      while (text.more()) {
+        if (text.cursor() == text.pos()) {
           cursor(g,xx);
           break;
         }
-        xx+=charW(g,word.charAt(c));
+        xx+=charW(g,text.next());
       }
+      text.pos(p);
     }
   }
   next();
