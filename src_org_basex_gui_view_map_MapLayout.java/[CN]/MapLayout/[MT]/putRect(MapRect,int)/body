@@ -3,13 +3,15 @@
   final int y=r.y + layout.y;
   final int w=r.w - layout.w;
   final int h=r.h - layout.h;
-  if ((w < off && h < off) || w < 1 || h < 1 || GUIProp.mapfs && ViewData.isLeaf(data,r.pre)) {
+  if ((w < off && h < off) || w <= 2 || h <= 2 || GUIProp.mapfs && ViewData.isLeaf(data,r.pre)) {
     r.isLeaf=true;
     rectangles.add(r);
     return;
   }
-  r.isLeaf=false;
   rectangles.add(r);
   final MapList ch=children(r.pre);
-  if (ch.size != 0)   makeMap(new MapRect(x,y,w,h,r.pre,r.level + 1),ch,0,ch.size - 1,level + 1);
+  if (ch.size != 0) {
+    r.isLeaf=false;
+    makeMap(new MapRect(x,y,w,h,r.pre,r.level + 1),ch,0,ch.size - 1,level + 1);
+  }
 }
