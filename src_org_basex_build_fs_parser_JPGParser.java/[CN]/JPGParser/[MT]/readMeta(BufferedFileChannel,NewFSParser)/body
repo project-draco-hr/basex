@@ -1,0 +1,31 @@
+{
+  bfc=f;
+  fsparser=fsParser;
+  bfc.buffer(6);
+  if (bfc.get() != 0xFF || bfc.get() != 0xD8) {
+    if (NewFSParser.VERBOSE)     BaseX.debug("JPGParser: Not a jpg file (%).",bfc.getFileName());
+    return;
+  }
+  while (bfc.get() == 0xFF) {
+    int b=bfc.get();
+    int size=readSize();
+switch (b) {
+case 0xE0:
+      readJFIF(size);
+    break;
+case 0xE1:
+  readExif(size);
+break;
+case 0xFE:
+readComment(size);
+break;
+default :
+if (b >= 0xC0 && b <= 0xC3) {
+readDimensions();
+return;
+}
+bfc.skip(size);
+}
+bfc.buffer(4);
+}
+}

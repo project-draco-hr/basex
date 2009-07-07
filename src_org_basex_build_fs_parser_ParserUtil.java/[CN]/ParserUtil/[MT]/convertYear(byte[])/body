@@ -1,14 +1,14 @@
 {
-  if (year.length != 4)   return Token.EMPTY;
-  for (int i=0; i < 4; i++) {
-    if (year[i] < '0' || year[i] > '9') {
-      BaseX.debug("Invalid date value: %",year);
+  int count=0;
+  byte[] value={0,0,0,0,'-','-'};
+  for (int i=0, max=year.length; i < max && count < 4; i++) {
+    if (Token.digit(year[i]))     value[count++]=year[i];
+ else     if (year[i] != 0) {
       return Token.EMPTY;
     }
   }
-  byte[] y=new byte[6];
-  System.arraycopy(year,0,y,0,4);
-  y[4]='-';
-  y[5]='-';
-  return y;
+  if (count < 4) {
+    return Token.EMPTY;
+  }
+  return value;
 }

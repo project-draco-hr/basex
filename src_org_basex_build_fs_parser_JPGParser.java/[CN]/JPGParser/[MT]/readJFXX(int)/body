@@ -1,0 +1,35 @@
+{
+  long pos=bfc.position();
+  if (!checkNextBytes(HEADER_JFXX)) {
+    bfc.position(pos + size);
+    return;
+  }
+  int s=size - HEADER_JFXX.length - 1;
+  int width=0;
+  int height=0;
+switch (bfc.get()) {
+case 0x10:
+    fsparser.fileStartEvent("Thumbnail","jpg",Type.IMAGE,MimeType.JPG,bfc.absolutePosition(),s);
+  break;
+case 0x11:
+width=bfc.get();
+height=bfc.get();
+s-=2;
+fsparser.fileStartEvent("Thumbnail",null,Type.IMAGE,MimeType.UNKNOWN,bfc.absolutePosition(),s);
+fsparser.metaEvent(Element.DESCRIPTION,DataType.STRING,Definition.NONE,null,Token.token("Thumbnail coded using 1 byte/pixel."));
+break;
+case 0x13:
+width=bfc.get();
+height=bfc.get();
+s-=2;
+fsparser.fileStartEvent("Thumbnail",null,Type.IMAGE,MimeType.UNKNOWN,bfc.absolutePosition(),s);
+fsparser.metaEvent(Element.DESCRIPTION,DataType.STRING,Definition.NONE,null,Token.token("Thumbnail coded using 3 bytes/pixel."));
+break;
+default :
+BaseX.debug("JPGParser: Illegal or unsupported JFIF header (%)",bfc.getFileName());
+}
+fsparser.metaEvent(Element.WIDTH,DataType.INTEGER,Definition.PIXEL,null,Token.token(width));
+fsparser.metaEvent(Element.HEIGHT,DataType.INTEGER,Definition.PIXEL,null,Token.token(height));
+fsparser.fileEndEvent();
+bfc.skip(s);
+}
