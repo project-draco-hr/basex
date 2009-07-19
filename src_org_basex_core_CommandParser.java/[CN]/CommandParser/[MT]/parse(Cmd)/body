@@ -5,12 +5,14 @@ switch (consume(CmdCreate.class,cmd)) {
 case DATABASE:
 case DB:
 case XML:
-      return new CreateDB(path(cmd),name(null));
+      final String fn=path(cmd);
+    final String db=name(null);
+  return new CreateDB(fn,db == null ? fn : db);
 case MAB:
 case MAB2:
-    return new CreateMAB(path(cmd),name(null));
+return new CreateMAB(path(cmd),name(null));
 case FS:
-  if (!Prop.fuse)   return new CreateFS(path(cmd),name(cmd));
+if (!Prop.fuse) return new CreateFS(path(cmd),name(cmd));
 return new CreateFS(path(cmd),name(cmd),path(cmd),path(cmd));
 case INDEX:
 return new CreateIndex(consume(CmdIndex.class,cmd));
@@ -34,8 +36,6 @@ if (arg1 == null) arg1=xquery(null);
 return new InfoTable(arg1,arg2);
 }
 break;
-case CHECK:
-return new Check(name(cmd));
 case CLOSE:
 return new Close();
 case LIST:
@@ -44,7 +44,7 @@ case DROP:
 switch (consume(CmdDrop.class,cmd)) {
 case DATABASE:
 case DB:
-return new DropDB(name(null));
+return new DropDB(name(cmd));
 case INDEX:
 return new DropIndex(consume(CmdIndex.class,cmd));
 }
@@ -57,6 +57,8 @@ case XQUERY:
 return new XQuery(xquery(cmd));
 case XQUERYMV:
 return new XQueryMV(number(cmd),number(cmd),xquery(cmd));
+case RUN:
+return new Run(path(cmd));
 case FIND:
 return new Find(string(cmd));
 case CS:

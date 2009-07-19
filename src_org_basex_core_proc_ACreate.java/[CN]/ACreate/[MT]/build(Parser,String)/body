@@ -3,9 +3,10 @@
   Builder builder=null;
   try {
     context.close();
-    if (context.checkPool(db) >= 1)     return error(DBINUSE);
+    final boolean mem=db == null || Prop.mainmem;
+    if (!mem && context.pinned(db))     return error(DBINUSE);
     final Performance pp=new Performance();
-    builder=Prop.mainmem ? new MemBuilder() : new DiskBuilder();
+    builder=mem ? new MemBuilder() : new DiskBuilder();
     progress(builder);
     final Data data=builder.build(p,db);
     if (Prop.allInfo)     info(CREATETABLE + NL,pp.getTimer());
@@ -28,7 +29,7 @@ catch (  final IOException ex) {
     err=BaseX.info(msg != null ? msg : args[0]);
   }
 catch (  final Exception ex) {
-    BaseX.debug(ex);
+    BaseX.errln(ex);
     err=BaseX.info(CREATEERR,args[0]);
   }
   try {

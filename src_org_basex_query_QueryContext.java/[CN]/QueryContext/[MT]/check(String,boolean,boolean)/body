@@ -1,6 +1,8 @@
 {
   try {
-    return Check.check(path);
+    final IO f=IO.get(path);
+    final String db=f.dbname();
+    return MetaData.found(path,db) ? new DiskData(db) : CreateDB.xml(f,db);
   }
  catch (  final IOException ex) {
     if (err)     Err.or(coll ? NOCOLL : NODOC,ex.getMessage());

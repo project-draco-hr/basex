@@ -1,10 +1,11 @@
 {
   final boolean gui=args[args.length - 1] == null;
+  final Data data=context.data();
+  if (data.ns.size() != 0)   return error(UPDATENS);
   final CmdUpdate type=getType();
   final Nodes nodes=gui ? context.marked() : query(args[type == CmdUpdate.PI ? 3 : 2],null);
   if (nodes == null)   return false;
   boolean ok=false;
-  final Data data=context.data();
 switch (type) {
 case ATTRIBUTE:
     ok=attr(data,nodes);
@@ -18,5 +19,6 @@ break;
 }
 if (!ok) return false;
 data.flush();
+context.update();
 return Prop.info ? info(INSERTINFO,nodes.size(),perf.getTimer()) : true;
 }

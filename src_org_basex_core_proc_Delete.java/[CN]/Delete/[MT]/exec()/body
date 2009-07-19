@@ -1,5 +1,6 @@
 {
   final Data data=context.data();
+  if (data.ns.size() != 0)   return error(UPDATENS);
   final boolean gui=args.length == 0;
   Nodes nodes;
   if (gui) {
@@ -14,13 +15,7 @@
     final int size=nodes.size();
     for (int i=size - 1; i >= 0; i--) {
       final int pre=nodes.nodes[i];
-      if (Prop.fuse) {
-        final String bpath=Token.string(data.fs.path(pre,true));
-        final File f=new File(bpath);
-        if (f.isDirectory())         deleteDir(f);
- else         if (f.isFile())         f.delete();
-        data.fs.nativeUnlink(Token.string(data.fs.path(pre,false)));
-      }
+      if (data.fs != null)       data.fs.delete(pre);
       data.delete(pre);
     }
     final Nodes curr=context.current();
@@ -29,5 +24,6 @@
     }
     data.flush();
   }
+  context.update();
   return Prop.info ? info(DELETEINFO,nodes.size(),perf.getTimer()) : true;
 }
