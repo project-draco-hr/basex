@@ -3,7 +3,7 @@
   Builder builder=null;
   try {
     context.close();
-    if (Context.POOL.check(db) >= 1)     return error(DBINUSE);
+    if (context.checkPool(db) >= 1)     return error(DBINUSE);
     final Performance pp=new Performance();
     builder=Prop.mainmem ? new MemBuilder() : new DiskBuilder();
     progress(builder);
@@ -12,7 +12,7 @@
     builder=null;
     index(data);
     context.data(data);
-    Context.POOL.add(data);
+    context.addToPool(data);
     return Prop.info ? info(DBCREATED,db,perf.getTimer()) : true;
   }
  catch (  final FileNotFoundException ex) {
