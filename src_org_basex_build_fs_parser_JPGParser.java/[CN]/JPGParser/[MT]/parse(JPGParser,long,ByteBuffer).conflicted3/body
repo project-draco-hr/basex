@@ -1,16 +1,7 @@
 {
   int type=buf.getShort();
-  byte[] value=null;
-  if (buf.getInt() == 1) {
-    if (type == IFD_TYPE_LONG) {
-      value=Token.token((long)buf.getInt() & 0xFFFFFFFF);
-    }
- else     if (type == IFD_TYPE_SHORT) {
-      value=Token.token(buf.getShort() & 0xFFFF);
-    }
+  if ((type == IFD_TYPE_LONG || type == IFD_TYPE_SHORT) && buf.getInt() == 1) {
+    obj.fsparser.metaEvent(Element.HEIGHT,DataType.INTEGER,Definition.PIXEL,null,Token.token((long)buf.getInt() & 0xFFFFFFFF));
   }
-  if (value != null) {
-    obj.fsparser.metaEvent(Element.WIDTH,DataType.INTEGER,Definition.PIXEL,null,value);
-  }
- else   error(obj,"Exif Image Width (0xA002)");
+ else   error(obj,"Exif Image Height (0xA003)");
 }

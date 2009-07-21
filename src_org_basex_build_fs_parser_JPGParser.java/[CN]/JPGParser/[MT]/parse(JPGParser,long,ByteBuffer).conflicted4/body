@@ -1,10 +1,7 @@
 {
-  if (buf.getShort() == IFD_TYPE_ASCII && buf.getInt() == 20) {
-    obj.bfc.position(ifdOff + buf.getInt());
-    obj.bfc.buffer(20);
-    byte[] data=new byte[20];
-    obj.bfc.get(data);
-    obj.fsparser.metaEvent(Element.DATE,DataType.DATETIME,Definition.CREATE_TIME,null,ParserUtil.convertDateTime(data));
+  int type=buf.getShort();
+  if ((type == IFD_TYPE_LONG || type == IFD_TYPE_SHORT) && buf.getInt() == 1) {
+    obj.fsparser.metaEvent(Element.WIDTH,DataType.INTEGER,Definition.PIXEL,null,Token.token((long)buf.getInt() & 0xFFFFFFFF));
   }
- else   error(obj,"DateTime (0x0132)");
+ else   error(obj,"Image width (0x0100)");
 }
