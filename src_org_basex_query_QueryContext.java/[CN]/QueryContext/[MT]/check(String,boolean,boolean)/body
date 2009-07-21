@@ -2,7 +2,11 @@
   try {
     final IO f=IO.get(path);
     final String db=f.dbname();
-    return MetaData.found(path,db) ? new DiskData(db) : CreateDB.xml(f,db);
+    Data d=Context.POOL.pin(db);
+    if (d != null)     return d;
+    d=MetaData.found(path,db) ? new DiskData(db) : CreateDB.xml(f,db);
+    Context.POOL.add(d);
+    return d;
   }
  catch (  final IOException ex) {
     if (err)     Err.or(coll ? NOCOLL : NODOC,ex.getMessage());
