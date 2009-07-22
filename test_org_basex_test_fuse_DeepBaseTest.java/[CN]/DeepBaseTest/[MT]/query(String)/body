@@ -2,17 +2,17 @@
   try {
     Nodes n=new Nodes(0,dbfs.data);
     n=new QueryProcessor(query,n).queryNodes();
-    PrintOutput out=new PrintOutput(TESTFILE);
-    n.serialize(new XMLSerializer(out));
-    out.flush();
-    FileInputStream f=new FileInputStream(TESTFILE);
-    StringBuilder sb=new StringBuilder();
-    byte[] b=new byte[IO.BLOCKSIZE];
+    final XMLSerializer xml=new XMLSerializer(new PrintOutput(TESTFILE));
+    n.serialize(xml);
+    xml.close();
+    final FileInputStream f=new FileInputStream(TESTFILE);
+    final StringBuilder sb=new StringBuilder();
+    final byte[] b=new byte[IO.BLOCKSIZE];
     while (f.read(b) != -1)     sb.append(new String(b));
     System.err.println(sb.toString());
     return sb.toString();
   }
- catch (  Exception e) {
+ catch (  final Exception e) {
     e.printStackTrace();
     return "";
   }

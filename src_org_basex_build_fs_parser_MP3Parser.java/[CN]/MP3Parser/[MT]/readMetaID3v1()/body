@@ -1,23 +1,23 @@
 {
-  byte[] array=new byte[30];
+  final byte[] array=new byte[30];
   bfc.get(array,0,30);
-  if (!Token.ws(array))   fsparser.metaEvent(Element.TITLE,DataType.STRING,Definition.NONE,null,array);
+  if (!ws(array))   fsparser.metaEvent(Element.TITLE,DataType.STRING,Definition.NONE,null,array);
   bfc.get(array,0,30);
-  if (!Token.ws(array))   fsparser.metaEvent(Element.CREATOR,DataType.STRING,Definition.ARTIST,null,array);
+  if (!ws(array))   fsparser.metaEvent(Element.CREATOR,DataType.STRING,Definition.ARTIST,null,array);
   bfc.get(array,0,30);
-  if (!Token.ws(array))   fsparser.metaEvent(Element.ALBUM,DataType.STRING,Definition.NONE,null,array);
-  byte[] a2=new byte[4];
+  if (!ws(array))   fsparser.metaEvent(Element.ALBUM,DataType.STRING,Definition.NONE,null,array);
+  final byte[] a2=new byte[4];
   bfc.get(a2,0,4);
-  if (!Token.ws(array))   fsparser.metaEvent(Element.DATE,DataType.YEAR,Definition.RELEASE_TIME,null,ParserUtil.convertYear(a2));
+  if (!ws(array))   fsparser.metaEvent(Element.DATE,DataType.YEAR,Definition.RELEASE_TIME,null,ParserUtil.convertYear(a2));
   bfc.get(array,0,30);
   if (array[28] == 0) {
     if (array[29] != 0) {
-      fsparser.metaEvent(Element.TRACK,DataType.INTEGER,Definition.NONE,null,Token.token(array[29]));
+      fsparser.metaEvent(Element.TRACK,DataType.INTEGER,Definition.NONE,null,token(array[29]));
       array[29]=0;
     }
   }
-  if (!Token.ws(array))   fsparser.metaEvent(Element.COMMENT,DataType.STRING,Definition.NONE,null,array);
-  int genreId=bfc.get() & 0xFF;
+  if (!ws(array))   fsparser.metaEvent(Element.COMMENT,DataType.STRING,Definition.NONE,null,array);
+  final int genreId=bfc.get() & 0xFF;
   if (genreId != 0) {
     fsparser.metaEvent(Element.GENRE,DataType.STRING,Definition.NONE,null,getGenre(genreId));
   }

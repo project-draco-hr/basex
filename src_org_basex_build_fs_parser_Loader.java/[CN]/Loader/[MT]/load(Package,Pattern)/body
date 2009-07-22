@@ -1,37 +1,37 @@
 {
-  ArrayList<Class<?>> loadedClasses=new ArrayList<Class<?>>();
+  final ArrayList<Class<?>> loadedClasses=new ArrayList<Class<?>>();
   try {
-    String pkgName=pkg.getName();
+    final String pkgName=pkg.getName();
     String pkgPath=pkgName.replace('.','/');
     if (!pkgPath.startsWith("/"))     pkgPath="/" + pkgPath;
     Matcher matcher;
-    URL pkgUrl=Loader.class.getResource(pkgPath);
+    final URL pkgUrl=Loader.class.getResource(pkgPath);
     if (pkgUrl == null)     return new Class<?>[0];
-    File packageDir=new File(pkgUrl.getFile());
+    final File packageDir=new File(pkgUrl.getFile());
     if (packageDir.exists()) {
-      for (      File f : packageDir.listFiles()) {
+      for (      final File f : packageDir.listFiles()) {
         String fileName=f.getName();
         if (!fileName.endsWith(".class"))         continue;
         fileName=fileName.substring(0,fileName.length() - 6);
         matcher=fileNamePattern.matcher(fileName);
         if (matcher.matches()) {
-          String clazz=pkgName + "." + fileName;
+          final String clazz=pkgName + "." + fileName;
           loadedClasses.add(Class.forName(clazz));
         }
       }
     }
  else {
-      JarURLConnection conn=(JarURLConnection)pkgUrl.openConnection();
-      JarFile jfile=conn.getJarFile();
-      String starts=conn.getEntryName();
-      Enumeration<JarEntry> e=jfile.entries();
+      final JarURLConnection conn=(JarURLConnection)pkgUrl.openConnection();
+      final JarFile jfile=conn.getJarFile();
+      final String starts=conn.getEntryName();
+      final Enumeration<JarEntry> e=jfile.entries();
       while (e.hasMoreElements()) {
-        JarEntry entry=e.nextElement();
-        String name=entry.getName();
+        final JarEntry entry=e.nextElement();
+        final String name=entry.getName();
         if (name.startsWith(starts) && name.lastIndexOf('/') <= starts.length() && name.endsWith(".class")) {
           String classname=name.substring(0,name.length() - 6);
-          int i=classname.lastIndexOf('/') + 1;
-          String shortName=classname.substring(i);
+          final int i=classname.lastIndexOf('/') + 1;
+          final String shortName=classname.substring(i);
           matcher=fileNamePattern.matcher(shortName);
           if (matcher.matches()) {
             if (classname.startsWith("/"))             classname=classname.substring(1);
@@ -42,10 +42,10 @@
       }
     }
   }
- catch (  IOException e) {
+ catch (  final IOException e) {
     throw e;
   }
-catch (  Throwable t) {
+catch (  final Throwable t) {
     BaseX.errln("Failed to load class (%)",t.getMessage());
   }
   return loadedClasses.toArray(new Class<?>[loadedClasses.size()]);

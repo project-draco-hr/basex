@@ -5,30 +5,30 @@
   final int size=parentList.size;
   final HashMap<Integer,Double> temp=new HashMap<Integer,Double>();
   final int y=1 * level * fontHeight* 2;
-  int screenWidth=getSize().width - 1;
+  final int screenWidth=getSize().width - 1;
   final double width=screenWidth / numberOfRoots;
   double x=(int)(rootNum * width);
-  double ratio=width / size;
-  IntList preList=new IntList();
+  final double ratio=width / size;
+  final IntList preList=new IntList();
   int factor=1;
   double currRatio=ratio;
   while (currRatio < 2) {
     currRatio*=++factor;
   }
   for (int i=0; i < size; i++) {
-    double boxMiddle=x + ratio / 2f;
+    final double boxMiddle=x + ratio / 2f;
     double w=ratio;
-    int pre=parentList.list[i];
+    final int pre=parentList.list[i];
     if (pre == -1) {
       x+=ratio;
       continue;
     }
-    int nodeKind=data.kind(pre);
-    int nodeSize=data.size(pre,nodeKind);
+    final int nodeKind=data.kind(pre);
+    final int nodeSize=data.size(pre,nodeKind);
     if (nodeSize > 0)     temp.put(pre,boxMiddle);
     preList.add(pre);
     w=Math.max(2,ratio);
-    TreeRect rect=new TreeRect();
+    final TreeRect rect=new TreeRect();
     rect.x=(int)x;
     rect.y=y;
     rect.w=(int)w;
@@ -37,14 +37,14 @@
     rect.multiPres=preList.finish();
     preList.reset();
     rects.add(rect);
-    g.setColor(new Color(colorRect - ((level < 11 ? level : 11) * colorDiff)));
+    g.setColor(new Color(colorRect - (level < 11 ? level : 11) * colorDiff));
     g.drawRect((int)x + 2,y,(int)w - 2,h);
     if (parentPos != null) {
       final double parentMiddle=parentPos.get(data.parent(pre,nodeKind));
       g.setColor(new Color(colorRect));
       g.drawLine((int)boxMiddle,y - 1,(int)parentMiddle,y - fontHeight + 1);
     }
-    g.setColor(new Color(colorNode - ((level < 11 ? level : 11) * colorDiff)));
+    g.setColor(new Color(colorNode - (level < 11 ? level : 11) * colorDiff));
     g.fillRect((int)x + 1,y,(int)w - 1,h);
     drawTextIntoRectangle(g,nodeKind,pre,(int)boxMiddle,(int)w,y);
     x+=Math.max(ratio,1);

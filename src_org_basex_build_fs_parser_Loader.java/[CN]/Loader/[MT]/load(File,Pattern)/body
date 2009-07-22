@@ -1,11 +1,11 @@
 {
   Matcher matcher;
-  ArrayList<Class<?>> foundClasses=new ArrayList<Class<?>>();
-  ArrayList<File> subClasses=new ArrayList<File>();
-  ArrayList<File> subSubClasses=new ArrayList<File>();
+  final ArrayList<Class<?>> foundClasses=new ArrayList<Class<?>>();
+  final ArrayList<File> subClasses=new ArrayList<File>();
+  final ArrayList<File> subSubClasses=new ArrayList<File>();
   try {
     if (!directory.isDirectory())     throw new IllegalArgumentException("Is not a directory.");
-    for (    File f : directory.listFiles()) {
+    for (    final File f : directory.listFiles()) {
       String fileName=f.getName();
       fileName=fileName.substring(0,fileName.length() - 6);
       matcher=fileNamePattern.matcher(fileName);
@@ -18,19 +18,19 @@
           subClasses.add(f);
           continue;
         }
-        Class<?> c=load(f);
+        final Class<?> c=load(f);
         foundClasses.add(c);
       }
     }
-    for (    File f : subClasses)     load(f);
-    for (    File f : subSubClasses)     load(f);
+    for (    final File f : subClasses)     load(f);
+    for (    final File f : subSubClasses)     load(f);
   }
- catch (  IOException e) {
+ catch (  final IOException e) {
     throw e;
   }
-catch (  Throwable t) {
+catch (  final Throwable t) {
     BaseX.errln("Failed to load class (%)",t.getMessage());
   }
-  int counter=initializeClasses(foundClasses);
+  final int counter=initializeClasses(foundClasses);
   return foundClasses.subList(0,counter).toArray(new Class<?>[counter]);
 }

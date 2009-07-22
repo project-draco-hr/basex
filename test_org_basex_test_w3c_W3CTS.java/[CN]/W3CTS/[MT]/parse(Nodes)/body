@@ -13,7 +13,7 @@
   final TokenBuilder files=new TokenBuilder();
   final CachedOutput out=new CachedOutput();
   final Context context=new Context();
-  Nodes cont=nodes("*:contextItem",root);
+  final Nodes cont=nodes("*:contextItem",root);
   if (cont.size() != 0)   new CreateDB(sources + string(data.atom(cont.nodes[0])) + ".xml").execute(context,out);
   final QueryProcessor xq=new QueryProcessor(in,context.current());
   final QueryContext qctx=xq.ctx;
@@ -25,21 +25,21 @@
     files.add(file(nodes("*:defaultCollection",root),null,qctx));
     var(nodes("*:input-query/@name",root),nodes("*:input-query/@variable",root),pth,qctx);
     for (    final String s : aux("stopwords",root)) {
-      String fn=stop2.get(s);
+      final String fn=stop2.get(s);
       if (fn != null) {
         if (qctx.ftopt.sw == null)         qctx.ftopt.sw=new StopWords();
         qctx.ftopt.sw.read(IO.get(fn),false);
       }
     }
     for (    final String s : aux("stemming-dictionary",root)) {
-      String fn=stem.get(s);
+      final String fn=stem.get(s);
       if (fn != null) {
         if (qctx.ftopt.sd == null)         qctx.ftopt.sd=new StemDir();
         qctx.ftopt.sd.read(IO.get(fn));
       }
     }
     for (    final String s : aux("thesaurus",root)) {
-      String fn=thes2.get(s);
+      final String fn=thes2.get(s);
       if (fn != null) {
         if (qctx.ftopt.th == null)         qctx.ftopt.th=new ThesQuery();
         qctx.ftopt.th.add(new Thesaurus(IO.get(fn)));
@@ -57,6 +57,7 @@
       doc&=it.type == Type.DOC;
       it.serialize(xml);
     }
+    xml.close();
   }
  catch (  final QueryException ex) {
     error=ex.getMessage();
@@ -82,7 +83,7 @@ catch (  final Error ex) {
   final Nodes cmpFiles=nodes("*:output-file/@compare",root);
   boolean xml=false;
   boolean frag=false;
-  StringList result=new StringList();
+  final StringList result=new StringList();
   for (int o=0; o < outFiles.size(); o++) {
     final String resFile=string(data.atom(outFiles.nodes[o]));
     final IO exp=IO.get(expected + pth + resFile);
@@ -150,7 +151,7 @@ catch (  final Error ex) {
           final Data rdata=ctx.data();
           final SeqIter si=new SeqIter();
           int pre=doc ? 0 : 2;
-          int size=rdata.meta.size;
+          final int size=rdata.meta.size;
           while (pre < size) {
             final int k=rdata.kind(pre);
             if (k != Data.TEXT || !ws(rdata.atom(pre))) {
