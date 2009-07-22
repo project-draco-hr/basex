@@ -1,6 +1,10 @@
 {
-  if (buf.getShort() == IFD_TYPE_ASCII) {
-    obj.fsparser.metaEvent(Element.DESCRIPTION,DataType.STRING,Definition.NONE,null,obj.readAscii(buf,ifdOff));
+  if (buf.getShort() == IFD_TYPE_ASCII && buf.getInt() == 20) {
+    obj.bfc.position(ifdOff + buf.getInt());
+    obj.bfc.buffer(20);
+    final byte[] data=new byte[20];
+    obj.bfc.get(data);
+    obj.fsparser.metaEvent(Element.DATE,DataType.DATETIME,Definition.CREATE_TIME,null,ParserUtil.convertDateTime(data));
   }
- else   error(obj,"Image description (0x010E)");
+ else   error(obj,"DateTime (0x0132)");
 }

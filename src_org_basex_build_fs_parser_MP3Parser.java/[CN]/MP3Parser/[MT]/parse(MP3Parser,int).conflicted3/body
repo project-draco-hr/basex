@@ -1,22 +1,15 @@
 {
-  final long position=obj.bfc.position();
-  String suffix=obj.readPicSuffix();
-  final String name=obj.getPicName();
-  obj.skipPicDescription();
-  if (suffix == null) {
-    if (obj.fsparser.isParseable(obj.bfc,"png"))     suffix="png";
- else     if (obj.fsparser.isParseable(obj.bfc,"jpg"))     suffix="jpg";
- else {
-      BaseX.debug("MP3Parser: Illegal or unsupported picture MIME type (%).",obj.bfc.getFileName());
-      obj.bfc.skip(s - (obj.bfc.position() - position));
-      return;
+  final String encoding=obj.readEncoding();
+  byte[] lang=obj.readText(3,"");
+  for (  final byte b : lang) {
+    if (ws(b) || b == 0) {
+      lang=EMPTY;
+      break;
     }
   }
-  final int size=s - (int)(obj.bfc.position() - position);
-  try {
-    obj.fsparser.parseFileFragment(obj.bfc.subChannel(size),name,suffix);
-  }
- catch (  final IOException e) {
-    if (NewFSParser.VERBOSE)     BaseX.debug("MP3Parser: Failed to parse APIC frame (%).",e.getMessage() == null ? obj.bfc.getFileName() : e.getMessage());
-  }
+  int pos=4;
+  while (obj.bfc.get() != 0 && ++pos < size)   ;
+  if (pos >= size)   return;
+  if (ws(lang) || lang[0] == 'X')   lang=null;
+  obj.fsparser.metaEvent(Element.COMMENT,DataType.STRING,Definition.NONE,lang,obj.readText(size - pos,encoding));
 }

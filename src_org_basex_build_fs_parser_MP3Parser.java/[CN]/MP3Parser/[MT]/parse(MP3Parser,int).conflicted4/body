@@ -1,3 +1,22 @@
 {
-  obj.fsparser.metaEvent(Element.ALBUM,DataType.STRING,Definition.NONE,null,obj.readText(size));
+  final long position=obj.bfc.position();
+  String suffix=obj.readPicSuffix();
+  final String name=obj.getPicName();
+  obj.skipPicDescription();
+  if (suffix == null) {
+    if (obj.fsparser.isParseable(obj.bfc,"png"))     suffix="png";
+ else     if (obj.fsparser.isParseable(obj.bfc,"jpg"))     suffix="jpg";
+ else {
+      BaseX.debug("MP3Parser: Illegal or unsupported picture MIME type (%).",obj.bfc.getFileName());
+      obj.bfc.skip(s - (obj.bfc.position() - position));
+      return;
+    }
+  }
+  final int size=s - (int)(obj.bfc.position() - position);
+  try {
+    obj.fsparser.parseFileFragment(obj.bfc.subChannel(size),name,suffix);
+  }
+ catch (  final IOException e) {
+    if (NewFSParser.VERBOSE)     BaseX.debug("MP3Parser: Failed to parse APIC frame (%).",e.getMessage() == null ? obj.bfc.getFileName() : e.getMessage());
+  }
 }
