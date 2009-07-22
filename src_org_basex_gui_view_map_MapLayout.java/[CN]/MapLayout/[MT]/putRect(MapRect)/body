@@ -1,0 +1,17 @@
+{
+  final int x=r.x + layout.x;
+  final int y=r.y + layout.y;
+  final int w=r.w - layout.w;
+  final int h=r.h - layout.h;
+  if (w < off && h < off || w <= 2 || h <= 2 || GUIProp.mapfs && ViewData.isLeaf(data,r.pre)) {
+    r.isLeaf=true;
+    rectangles.add(r);
+    return;
+  }
+  rectangles.add(r);
+  final MapList ch=children(r.pre);
+  if (ch.size != 0) {
+    r.isLeaf=false;
+    makeMap(new MapRect(x,y,w,h,r.pre,r.level + 1),ch,0,ch.size - 1);
+  }
+}

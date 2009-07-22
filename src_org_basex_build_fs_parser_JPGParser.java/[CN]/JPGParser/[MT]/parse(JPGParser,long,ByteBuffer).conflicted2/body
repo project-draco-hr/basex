@@ -1,6 +1,16 @@
 {
-  if (buf.getShort() == IFD_TYPE_ASCII) {
-    obj.fsparser.metaEvent(Element.CREATOR,DataType.STRING,Definition.NONE,null,obj.readAscii(buf,ifdOff));
+  final int type=buf.getShort();
+  byte[] value=null;
+  if (buf.getInt() == 1) {
+    if (type == IFD_TYPE_LONG) {
+      value=token((long)buf.getInt() & 0xFFFFFFFF);
+    }
+ else     if (type == IFD_TYPE_SHORT) {
+      value=token(buf.getShort() & 0xFFFF);
+    }
   }
- else   error(obj,"Creator (0x013B)");
+  if (value != null) {
+    obj.fsparser.metaEvent(Element.WIDTH,DataType.INTEGER,Definition.PIXEL,null,value);
+  }
+ else   error(obj,"Exif Image Width (0xA002)");
 }
