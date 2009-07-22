@@ -1,15 +1,15 @@
 {
-  try {
-    final IO f=IO.get(path);
-    final String db=f.dbname();
-    Data d=Context.POOL.pin(db);
-    if (d != null)     return d;
-    d=MetaData.found(path,db) ? new DiskData(db) : CreateDB.xml(f,db);
-    Context.POOL.add(d);
-    return d;
+  final IO f=IO.get(path);
+  final String db=f.dbname();
+  Data d=Context.POOL.pin(db);
+  if (d == null) {
+    try {
+      d=MetaData.found(path,db) ? new DiskData(db) : CreateDB.xml(f,db);
+      Context.POOL.add(d);
+    }
+ catch (    final IOException ex) {
+      if (err)       Err.or(coll ? NOCOLL : NODOC,ex.getMessage());
+    }
   }
- catch (  final IOException ex) {
-    if (err)     Err.or(coll ? NOCOLL : NODOC,ex.getMessage());
-    return null;
-  }
+  return d;
 }
