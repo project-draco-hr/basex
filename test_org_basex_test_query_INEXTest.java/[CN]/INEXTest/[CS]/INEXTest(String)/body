@@ -1,7 +1,8 @@
 {
   new Open(db).execute(context,null);
   BufferedWriter out=new BufferedWriter(new FileWriter(new File("INEX/INEX1.log")));
-  BufferedWriter sub=new BufferedWriter(new FileWriter(new File("INEX/sub")));
+  PrintOutput sub=new PrintOutput("INEX/sub.xml");
+  XMLSerializer xml=new XMLSerializer(sub,false,true);
   final File file=new File("INEX/co1.que");
   if (!file.exists()) {
     System.out.println("Could not read \"" + file.getAbsolutePath() + "\"");
@@ -10,40 +11,12 @@
   Prop.serialize=true;
   Prop.info=true;
   if (s) {
-    sub.write("<efficiency-submission ");
-    sub.write("participant-id=\"1111111\" ");
-    sub.write("run-id=\"1111111\" ");
-    sub.write("taks=\"" + task[0] + "\" ");
-    sub.write("type=\"" + type[0] + "\" ");
-    sub.write("query=\"automatic\" ");
-    sub.write("sequential=\"yes\"");
-    sub.write(">");
-    sub.newLine();
-    sub.write("<topic-fields ");
-    sub.write("co_title=" + "\"no\" ");
-    sub.write("cas_title=" + "\"no\" ");
-    sub.write("xpath_title=" + "\"yes\" ");
-    sub.write("text_predicates=" + "\"no\" ");
-    sub.write("description=" + "\"no\" ");
-    sub.write("narrative=" + "\"no\" ");
-    sub.write("/>");
-    sub.newLine();
-    sub.write("<general_description>");
-    sub.newLine();
-    sub.write("</general_description>");
-    sub.newLine();
-    sub.write("<ranking_description>");
-    sub.newLine();
-    sub.write("</ranking_description>");
-    sub.newLine();
-    sub.write("<indexing_description>");
-    sub.newLine();
-    sub.write("</indexing_description>");
-    sub.newLine();
-    sub.write("<caching_description>");
-    sub.newLine();
-    sub.write("</caching_description>");
-    sub.newLine();
+    xml.openElement(token("efficiency-submission"),token("participant-id"),token("1111111"),token("run-id"),token("1111111"),token("taks"),token(task[0]),token("type"),token(type[0]),token("query"),token("automatic"),token("sequential"),token("yes"));
+    xml.emptyElement(token("topic-fields"),token("co_title"),token("no"),token("cas_title"),token("no"),token("xpath_title"),token("yes"),token("text_predicates"),token("no"),token("description"),token("no"),token("narrative"),token("no"));
+    xml.emptyElement(token("general_description"));
+    xml.emptyElement(token("ranking_description"));
+    xml.emptyElement(token("indexing_description"));
+    xml.emptyElement(token("caching_description"));
   }
   final FileInputStream fis=new FileInputStream(file);
   final InputStreamReader isr=new InputStreamReader(fis,"UTF8");
@@ -57,6 +30,7 @@
     s1=line.indexOf('"',s0 + 1);
     s0=line.indexOf('/',s1);
     String q=line.substring(s0);
+    q=q.replaceAll("\\. ",".//text() ");
     q=xqm + "for $i score $s in " + q+ " return (basex:sum-path($i), $s)";
     final Process proc=new XQuery(q);
     if (!proc.execute(context)) {
@@ -67,17 +41,14 @@
       final String info=proc.info();
       int i=info.indexOf("Total Time: ");
       int j=info.indexOf(" ms",i);
+      System.out.println(info);
       String time=info.substring(i + "Total Time: ".length() + 2,j);
       if (s) {
-        sub.write("<topic ");
-        sub.write("topic-id=\"" + tid + "\" ");
-        sub.write("total_time_ms=\"" + time + "\" ");
-        sub.write(">");
-        sub.newLine();
-        sub.write("<result>");
-        sub.newLine();
-        sub.write("<file>" + file + "</file>");
-        sub.newLine();
+        xml.openElement(token("topic"),token("topic-id"),token(tid),token("total_time_ms"),token(time));
+        xml.openElement(token("result"));
+        xml.openElement(token("file"));
+        xml.text(token(file.toString()));
+        xml.closeElement();
         Result val=proc.result();
         if (val instanceof SeqIter) {
           SeqIter itr=(SeqIter)val;
@@ -86,31 +57,30 @@
           int r=1;
           while ((a=itr.next()) != null) {
             if (a instanceof Str) {
-              sub.write("<path>" + a + "</path>");
-              sub.newLine();
-              sub.write("<rank>" + r++ + "</rank>");
-              sub.newLine();
+              xml.openElement(token("path"));
+              xml.text(a.str());
+              xml.closeElement();
+              xml.openElement(token("rank"));
+              xml.text(token(r++));
+              xml.closeElement();
             }
  else             if (a instanceof Dbl) {
-              sub.write("<rsv>" + ((Dbl)a).dbl() + "</rsv>");
-              sub.newLine();
+              xml.openElement(token("rsv"));
+              xml.text(a.str());
+              xml.closeElement();
             }
           }
         }
-        sub.write("</result>");
-        sub.newLine();
-        sub.write("</topic>");
-        sub.newLine();
+        xml.closeElement();
+        xml.closeElement();
       }
     }
     if (++curr >= STOPAFTER)     break;
   }
-  out.flush();
-  out.close();
   br.close();
   if (s) {
-    sub.write("</efficiency-submission>");
-    sub.flush();
-    sub.close();
+    xml.closeElement();
   }
+  out.close();
+  xml.close();
 }
