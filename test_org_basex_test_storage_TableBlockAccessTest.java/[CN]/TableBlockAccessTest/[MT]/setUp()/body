@@ -1,8 +1,10 @@
 {
   try {
     final XMLParser parser=new XMLParser(IO.get(TESTFILE));
-    size=new DiskBuilder().build(parser,DBNAME).meta.size;
-    tba=new TableDiskAccess(DBNAME,DATATBL);
+    final Data data=new DiskBuilder().build(parser,dbname);
+    size=data.meta.size;
+    data.close();
+    tba=new TableDiskAccess(dbname,DATATBL);
   }
  catch (  final Exception ex) {
     ex.printStackTrace();
@@ -12,7 +14,7 @@
   for (int i=0; i < bytecount; i++) {
     storage[i]=(byte)tba.read1(i >> IO.NODEPOWER,i % (1 << IO.NODEPOWER));
   }
-  maxEntriesPerBlock=IO.BLOCKSIZE >>> IO.NODEPOWER;
-  blocks=(int)Math.ceil(size / Math.floor(maxEntriesPerBlock * IO.BLOCKFILL));
-  nodesPerBlock=(int)(maxEntriesPerBlock * IO.BLOCKFILL);
+  entries=IO.BLOCKSIZE >>> IO.NODEPOWER;
+  blocks=(int)Math.ceil(size / Math.floor(entries * IO.BLOCKFILL));
+  nodesPerBlock=(int)(entries * IO.BLOCKFILL);
 }
