@@ -1,18 +1,17 @@
 {
   final Step s=indexStep(expr[0]);
   if (s == null || cmp != Comp.EQ || !(expr[1].i() || expr[1] instanceof Seq))   return false;
-  final boolean text=ic.data.meta.txtindex && s.test.type == Type.TXT;
+  final boolean text=ic.data.meta.txtindex && s.test.type == org.basex.query.item.Type.TXT;
   final boolean attr=!text && ic.data.meta.atvindex && s.simple(Axis.ATTR,true);
   if (!text && !attr)   return false;
   final Iter ir=expr[1].iter(ic.ctx);
-  Item i;
-  while ((i=ir.next()) != null) {
-    if (!(i instanceof Str))     return false;
-    final byte[] str=i.str();
-    if (str.length > Token.MAXLEN)     return false;
-    final ValuesToken vt=new ValuesToken(text,i.str());
-    ic.is=Math.min(ic.data.nrIDs(vt),ic.is);
-    index=Array.add(index,vt);
+  Item it;
+  while ((it=ir.next()) != null) {
+    final boolean str=it instanceof Str;
+    if (!str || it.str().length > Token.MAXLEN)     return false;
+    final Type type=text ? Type.TXT : Type.ATV;
+    ic.is=Math.max(ic.is,!str ? ic.data.meta.size / 10 : ic.data.nrIDs(new ValuesToken(type,it.str())));
+    iacc=Array.add(iacc,new IndexAccess(it,type,ic));
   }
   return true;
 }
