@@ -1,0 +1,127 @@
+{
+  byte[] text=new byte[]{'/','t','e','x','t','(',')'};
+  byte[] b=str.getBytes();
+  int bs=-1, st=-1, c=-1;
+  boolean f=false;
+  TokenList tl=new TokenList();
+  byte[] path=null;
+  for (int i=0; i < b.length; i++) {
+    if (b[i] == '.' && i + 1 < b.length) {
+      if (b[i + 1] != '/') {
+        final byte[] bn=new byte[b.length + 1 + text.length];
+        System.arraycopy(b,0,bn,0,i + 1);
+        bn[i + 1]='/';
+        System.arraycopy(text,0,bn,i + 2,text.length);
+        System.out.println(new String(bn));
+        System.arraycopy(b,i + 1,bn,i + 2 + text.length,b.length - i - 1);
+        b=bn;
+      }
+ else {
+        i++;
+        while (i < b.length && b[i] != ' ')         i++;
+        final byte[] bn=new byte[b.length + text.length];
+        System.arraycopy(b,0,bn,0,i);
+        System.arraycopy(text,0,bn,i,text.length);
+        System.arraycopy(b,i,bn,i + text.length,b.length - i);
+        b=bn;
+      }
+    }
+ else     if (b[i] == '[') {
+      bs=i;
+    }
+ else     if (bs > -1) {
+      if (b[i] == '(') {
+        st=i + 1;
+        if (path == null) {
+          path=new byte[i - bs - 1];
+          System.arraycopy(b,bs + 1,path,0,path.length);
+        }
+      }
+ else       if (st > -1) {
+        if (b[i] == '|' || f && b[i] == ')') {
+          byte[] tok=new byte[i - st + text.length];
+          System.arraycopy(b,st,tok,0,i - st);
+          System.arraycopy(text,0,tok,i - st,text.length);
+          tl.add(tok);
+          st=i + 1;
+          f=true;
+          if (b[i] == ')') {
+            st=-1;
+            f=false;
+            c=i + 1;
+          }
+        }
+      }
+      if (b[i] == ']' && tl.size > 0) {
+        byte[][] n=new byte[tl.size][];
+        int l;
+        int size=0;
+        for (int j=0; j < n.length; j++)         size+=path.length + tl.list[j].length + 1+ i - c + ((j + 1 < n.length) ? 4 : 0);
+        final byte[] bn=new byte[bs + 2 + size+ b.length - i];
+        System.arraycopy(b,0,bn,0,bs + 1);
+        int os=bs + 1;
+        for (int j=0; j < n.length; j++) {
+          final int tokl=tl.list[j].length;
+          l=tokl + 1 + i - c;
+          n[j]=new byte[l];
+          System.arraycopy(tl.list[j],0,n[j],0,tokl);
+          n[j][tokl]=' ';
+          System.arraycopy(b,c,n[j],tokl + 1,i - c);
+          System.arraycopy(path,0,bn,os,path.length);
+          os+=path.length;
+          System.arraycopy(n[j],0,bn,os,l);
+          os+=l;
+          if (j + 1 < n.length) {
+            System.arraycopy(new byte[]{' ','o','r',' '},0,bn,os,4);
+            os+=4;
+          }
+        }
+        System.arraycopy(b,i,bn,os,b.length - i);
+        i=bn.length - (b.length - i);
+        b=bn;
+        tl=new TokenList();
+      }
+    }
+ else     if (b[i] == '/' && i + 1 < b.length && i + 2 < b.length && b[i + 1] == '/' && b[i + 2] == '(') {
+      i+=3;
+      final int j=i - 1;
+      int s=i;
+      while (i < b.length && b[i] != ')') {
+        if (b[i] == '|') {
+          final byte[] tok=new byte[i - s];
+          System.arraycopy(b,s,tok,0,tok.length);
+          tl.add(tok);
+          s=i + 1;
+        }
+        i++;
+      }
+      if (tl.size > 0) {
+        final byte[] tok=new byte[i - s];
+        System.arraycopy(b,s,tok,0,tok.length);
+        tl.add(tok);
+      }
+      int size=0;
+      for (int k=0; k < tl.size; k++) {
+        size+=j + s + tl.list[k].length+ b.length - i + ((k < tl.size - 1) ? 3 : 0);
+      }
+      final byte[] bn=new byte[size];
+      int off=0;
+      for (int k=0; k < tl.size; k++) {
+        System.arraycopy(b,0,bn,off,j);
+        off+=j;
+        System.arraycopy(tl.list[k],0,bn,off,tl.list[k].length);
+        off+=tl.list[k].length;
+        System.arraycopy(b,i + 1,bn,off,b.length - i - 1);
+        off+=b.length - i - 1;
+        if (k < tl.size - 1) {
+          System.arraycopy(new byte[]{' ','o','r',' '},0,bn,off,4);
+          off+=4;
+        }
+        System.out.println(new String(bn));
+      }
+      b=bn;
+      i++;
+    }
+  }
+  return new String(b);
+}
