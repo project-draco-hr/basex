@@ -6,7 +6,6 @@
   final Data data=context.data();
   final Nodes current=context.current();
   final int kind=data.kind(pre);
-  rect.thumb=false;
   if (kind == Data.ELEM || kind == Data.DOC) {
     final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size() == 1 && pre != 0 && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(data,pre);
     g.setColor(Color.black);
@@ -17,25 +16,15 @@
     g.setColor(COLORS[Math.min(255,rect.level * 2 + 8)]);
     g.setFont(mfont);
     final byte[] text=ViewData.content(data,pre,false);
-    final int p=BaseXLayout.centerPos(g,text,rect.w);
-    if (p != -1) {
-      final int h=MapRenderer.drawText(g,rect,text,false);
-      rect.x+=p;
-      rect.y+=(rect.h - h) / 2 - 1;
-      MapRenderer.drawText(g,rect,text);
-      rect.x-=p;
-      rect.y-=(rect.h - h) / 2 - 1;
+    rect.thumb=MapRenderer.calcHeight(g,rect,text) >= rect.h;
+    if (rect.thumb) {
+      MapRenderer.drawThumbnails(g,rect,text);
     }
  else {
-      if (MapRenderer.calcHeight(g,rect,text) < rect.h) {
-        MapRenderer.drawText(g,rect,text);
-      }
- else {
-        MapRenderer.drawThumbnails(g,rect,text);
-        rect.thumb=true;
-      }
+      MapRenderer.drawText(g,rect,text);
     }
   }
   rect.x-=3;
   rect.w+=3;
+  return true;
 }

@@ -64,81 +64,69 @@
       BaseXLayout.drawTooltip(g,tt,x,y,getWidth(),focused.level + 5);
     }
     if (focused != null && focused.thumb) {
-      final int pre=focused.pre;
-      final byte[] text=ViewData.content(data,pre,false);
-      final int[][] d=Tokenizer.getInfo(text);
       focused.x+=3;
       focused.w-=3;
-      boolean sen=false;
-      boolean spc=false;
-switch (focused.thumbal) {
-case 0:
-        sen=true;
-      spc=true;
-    break;
-case 1:
-  sen=true;
-break;
-case 2:
-break;
-}
-MapRenderer.calculateThumbnailsToolTip(focused,d,sen,mouseX,mouseY,getWidth(),g,spc);
-MapRenderer.drawToolTip(g,mouseX,mouseY,getX(),getY(),getHeight(),getWidth());
-focused.x-=3;
-focused.w+=3;
-}
-}
-final int ac=AlphaComposite.SRC_OVER;
-((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,GUIProp.zoomboxalpha / 100.0f));
-if (GUIProp.mapinteraction && thumbMap) {
-g.drawImage(tinyMap,tinyx,tinyy,tinyw,tinyh,this);
-g.setColor(Color.black);
-g.drawRect(tinyx,tinyy,tinyw,tinyh);
-}
- else if (GUIProp.mapinteraction && constMag) {
-int dxstart=mouseX - GUIProp.fishw / 2;
-int dxend=mouseX + GUIProp.fishw / 2;
-if (dxstart < 0) {
-dxstart=0;
-dxend=GUIProp.fishw;
-}
- else if (dxend > getWidth()) {
-dxend=getWidth();
-dxstart=getWidth() - GUIProp.fishw;
-}
-int dystart=mouseY - GUIProp.fishh / 2;
-int dyend=mouseY + GUIProp.fishh / 2;
-if (dystart < 0) {
-dystart=0;
-dyend=GUIProp.fishh;
-}
- else if (dyend > getHeight()) {
-dyend=getHeight();
-dystart=getHeight() - GUIProp.fishh;
-}
-int sxstart=fkt * mouseX - GUIProp.fishw / 2;
-int sxend=fkt * mouseX + GUIProp.fishw / 2;
-if (sxstart < 0) {
-sxstart=0;
-sxend=GUIProp.fishw;
-}
- else if (sxend > hugeMap.getWidth()) {
-sxend=hugeMap.getWidth();
-sxstart=hugeMap.getWidth() - GUIProp.fishw;
-}
-int systart=fkt * mouseY - GUIProp.fishh / 2;
-int syend=fkt * mouseY + GUIProp.fishh / 2;
-if (systart < 0) {
-systart=0;
-syend=GUIProp.fishh;
-}
- else if (syend > hugeMap.getHeight()) {
-syend=hugeMap.getHeight();
-systart=hugeMap.getHeight() - GUIProp.fishh;
-}
-g.drawImage(hugeMap,dxstart,dystart,dxend,dyend,sxstart,systart,sxend,syend,this);
-g.setColor(Color.black);
-g.drawRect(dxstart,dystart,GUIProp.fishw,GUIProp.fishh);
-}
-gui.painting=false;
+      final boolean sen=focused.thumbal < 2;
+      final boolean spc=focused.thumbal < 1;
+      final byte[] text=ViewData.content(data,focused.pre,false);
+      final TokenList tl=MapRenderer.calculateThumbnailsToolTip(focused,Tokenizer.getInfo(text),sen,mouseX,mouseY,getWidth(),g,spc);
+      final MapRect mr=new MapRect(getX(),getY(),getWidth(),getHeight());
+      MapRenderer.drawToolTip(g,mouseX,mouseY,mr,tl);
+      focused.x-=3;
+      focused.w+=3;
+    }
+  }
+  final int ac=AlphaComposite.SRC_OVER;
+  ((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,GUIProp.zoomboxalpha / 100.0f));
+  if (GUIProp.mapinteraction && thumbMap) {
+    g.drawImage(tinyMap,tinyx,tinyy,tinyw,tinyh,this);
+    g.setColor(Color.black);
+    g.drawRect(tinyx,tinyy,tinyw,tinyh);
+  }
+ else   if (GUIProp.mapinteraction && constMag) {
+    int dxstart=mouseX - GUIProp.fishw / 2;
+    int dxend=mouseX + GUIProp.fishw / 2;
+    if (dxstart < 0) {
+      dxstart=0;
+      dxend=GUIProp.fishw;
+    }
+ else     if (dxend > getWidth()) {
+      dxend=getWidth();
+      dxstart=getWidth() - GUIProp.fishw;
+    }
+    int dystart=mouseY - GUIProp.fishh / 2;
+    int dyend=mouseY + GUIProp.fishh / 2;
+    if (dystart < 0) {
+      dystart=0;
+      dyend=GUIProp.fishh;
+    }
+ else     if (dyend > getHeight()) {
+      dyend=getHeight();
+      dystart=getHeight() - GUIProp.fishh;
+    }
+    int sxstart=fkt * mouseX - GUIProp.fishw / 2;
+    int sxend=fkt * mouseX + GUIProp.fishw / 2;
+    if (sxstart < 0) {
+      sxstart=0;
+      sxend=GUIProp.fishw;
+    }
+ else     if (sxend > hugeMap.getWidth()) {
+      sxend=hugeMap.getWidth();
+      sxstart=hugeMap.getWidth() - GUIProp.fishw;
+    }
+    int systart=fkt * mouseY - GUIProp.fishh / 2;
+    int syend=fkt * mouseY + GUIProp.fishh / 2;
+    if (systart < 0) {
+      systart=0;
+      syend=GUIProp.fishh;
+    }
+ else     if (syend > hugeMap.getHeight()) {
+      syend=hugeMap.getHeight();
+      systart=hugeMap.getHeight() - GUIProp.fishh;
+    }
+    g.drawImage(hugeMap,dxstart,dystart,dxend,dyend,sxstart,systart,sxend,syend,this);
+    g.setColor(Color.black);
+    g.drawRect(dxstart,dystart,GUIProp.fishw,GUIProp.fishh);
+  }
+  gui.painting=false;
 }
