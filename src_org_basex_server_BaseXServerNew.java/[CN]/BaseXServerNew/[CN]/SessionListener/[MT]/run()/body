@@ -1,13 +1,17 @@
 {
-  while (thread != null) {
+  while (running) {
     try {
       final Socket s=serverSocket.accept();
-      final Session session=new Session(s,++lastid,verbose,bx);
-      session.start();
-      sessions.add(session);
+      if (!running) {
+        close();
+      }
+ else {
+        final Session session=new Session(s,++lastid,verbose,bx);
+        session.start();
+        sessions.add(session);
+      }
     }
  catch (    final IOException e) {
-      if (e instanceof SocketException)       return;
       e.printStackTrace();
     }
   }
