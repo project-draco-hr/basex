@@ -1,11 +1,18 @@
 {
   final IO f=IO.get(path);
-  final String db=f.dbname();
-  Data d=Context.POOL.pin(db);
+  final String name=f.dbname();
+  if (context == null) {
+    try {
+      return MetaData.found(path,name) ? Open.open(context,name) : CreateDB.xml(context,f,name);
+    }
+ catch (    final IOException ex) {
+      if (err)       Err.or(coll ? NOCOLL : NODOC,ex.getMessage());
+    }
+  }
+  Data d=context.pin(name);
   if (d == null) {
     try {
-      d=MetaData.found(path,db) ? new DiskData(db) : CreateDB.xml(f,db);
-      Context.POOL.add(d);
+      d=MetaData.found(path,name) ? Open.open(context,name) : CreateDB.xml(context,f,name);
     }
  catch (    final IOException ex) {
       if (err)       Err.or(coll ? NOCOLL : NODOC,ex.getMessage());

@@ -1,11 +1,12 @@
 {
-  if (db == null || Prop.mainmem)   return new MemBuilder().build(p,"");
+  if (Prop.mainmem)   return xml(p);
   final Builder builder=new DiskBuilder();
   try {
     final Data data=builder.build(p,db);
     if (data.meta.txtindex)     data.setIndex(Type.TXT,new ValueBuilder(true).build(data));
     if (data.meta.atvindex)     data.setIndex(Type.ATV,new ValueBuilder(false).build(data));
     if (data.meta.ftxindex)     data.setIndex(Type.FTX,data.meta.ftfz ? new FTFuzzyBuilder().build(data) : new FTTrieBuilder().build(data));
+    if (ctx != null)     ctx.addToPool(data);
     return data;
   }
  catch (  final IOException ex) {

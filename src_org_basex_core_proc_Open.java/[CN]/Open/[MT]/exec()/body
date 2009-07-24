@@ -1,13 +1,8 @@
 {
-  final String db=args[0];
-  if (!IO.dbpath(db).exists())   return error(DBNOTFOUND,db);
   context.close();
+  final String db=args[0];
   try {
-    Data data=context.pin(db);
-    if (data == null) {
-      data=new DiskData(db);
-      context.addToPool(data);
-    }
+    final Data data=open(context,db);
     context.data(data);
     if (Prop.info) {
       if (data.meta.oldindex)       info(INDUPDATE + NL);
