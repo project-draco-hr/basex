@@ -12,10 +12,13 @@
   boolean doc=true;
   final TokenBuilder files=new TokenBuilder();
   final CachedOutput out=new CachedOutput();
-  context=new Context();
   final Nodes cont=nodes("*:contextItem",root);
-  if (cont.size() != 0)   new CreateDB(sources + string(data.atom(cont.nodes[0])) + ".xml").execute(context,out);
-  final QueryProcessor xq=new QueryProcessor(in,context.current(),context);
+  Nodes curr=null;
+  if (cont.size() != 0) {
+    final Data d=Open.check(context,sources + string(data.atom(cont.nodes[0])) + ".xml");
+    curr=new Nodes(d.doc(),d);
+  }
+  final QueryProcessor xq=new QueryProcessor(in,curr,context);
   final QueryContext qctx=xq.ctx;
   qctx.stop=stop;
   qctx.thes=thes;
@@ -145,27 +148,20 @@ catch (  final Error ex) {
           if (rin.startsWith("<?xml"))           rin=rin.replaceAll("^<.*?>","");
           rin="<X>" + rin + "</X>";
         }
-        final Context ctx=new Context();
-        final Process cr=new CreateDB(rin,null);
-        if (cr.execute(ctx)) {
-          final Data rdata=ctx.data();
-          final SeqIter si=new SeqIter();
-          int pre=doc ? 0 : 2;
-          final int size=rdata.meta.size;
-          while (pre < size) {
-            final int k=rdata.kind(pre);
-            if (k != Data.TEXT || !ws(rdata.atom(pre))) {
-              si.add(new DBNode(rdata,pre));
-            }
-            pre+=rdata.size(pre,k);
+        final Data rdata=CreateDB.xml(IO.get(rin));
+        final SeqIter si=new SeqIter();
+        int pre=doc ? 0 : 2;
+        final int size=rdata.meta.size;
+        while (pre < size) {
+          final int k=rdata.kind(pre);
+          if (k != Data.TEXT || !ws(rdata.atom(pre))) {
+            si.add(new DBNode(rdata,pre));
           }
-          final boolean test=FNSeq.deep(iter,si);
-          ctx.close();
-          if (test)           break;
+          pre+=rdata.size(pre,k);
         }
- else {
-          BaseX.errln("Could not open %: % ",inname,cr.info());
-        }
+        final boolean test=FNSeq.deep(iter,si);
+        rdata.close();
+        if (test)         break;
       }
     }
     if (s == result.size() && !inspect) {
@@ -237,6 +233,6 @@ catch (  final Error ex) {
     logFile.append(Prop.NL);
   }
   xq.close();
-  context.close();
+  if (curr != null)   Close.close(context,curr.data);
   return single == null || !outname.equals(single);
 }

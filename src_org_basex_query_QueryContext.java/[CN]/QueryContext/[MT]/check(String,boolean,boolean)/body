@@ -1,22 +1,9 @@
 {
-  final IO f=IO.get(path);
-  final String name=f.dbname();
-  if (context == null) {
-    try {
-      return MetaData.found(path,name) ? Open.open(context,name) : CreateDB.xml(context,f,name);
-    }
- catch (    final IOException ex) {
-      if (err)       Err.or(coll ? NOCOLL : NODOC,ex.getMessage());
-    }
+  try {
+    return Open.check(context,path);
   }
-  Data d=context.pin(name);
-  if (d == null) {
-    try {
-      d=MetaData.found(path,name) ? Open.open(context,name) : CreateDB.xml(context,f,name);
-    }
- catch (    final IOException ex) {
-      if (err)       Err.or(coll ? NOCOLL : NODOC,ex.getMessage());
-    }
+ catch (  final IOException ex) {
+    if (err)     Err.or(coll ? NOCOLL : NODOC,ex.getMessage());
+    return null;
   }
-  return d;
 }

@@ -1,3 +1,11 @@
 {
-  return context.close() ? !Prop.info || info(DBCLOSED) : error(DBCLOSEERR);
+  try {
+    close(context,context.data());
+    context.closeDB();
+    return !Prop.info || info(DBCLOSED);
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    return error(DBCLOSEERR);
+  }
 }
