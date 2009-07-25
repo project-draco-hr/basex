@@ -1,15 +1,15 @@
 {
-  Collection col=null;
+  Collection coll=null;
   try {
     Class<?> c=Class.forName(DRIVER);
-    Database database=(Database)c.newInstance();
-    DatabaseManager.registerDatabase(database);
-    col=DatabaseManager.getCollection(DBNAME);
-    XPathQueryService service=(XPathQueryService)col.getService("XPathQueryService","1.0");
-    ResourceSet resultSet=service.query(QUERY);
-    ResourceIterator results=resultSet.getIterator();
-    while (results.hasMoreResources()) {
-      Resource res=results.nextResource();
+    Database db=(Database)c.newInstance();
+    DatabaseManager.registerDatabase(db);
+    coll=DatabaseManager.getCollection(DBNAME);
+    XPathQueryService service=(XPathQueryService)coll.getService("XPathQueryService","1.0");
+    ResourceSet set=service.query(QUERY);
+    ResourceIterator iter=set.getIterator();
+    while (iter.hasMoreResources()) {
+      Resource res=iter.nextResource();
       System.out.println((String)res.getContent());
     }
   }
@@ -17,6 +17,6 @@
     System.err.println("XML:DB Exception occured " + e.errorCode);
   }
  finally {
-    if (col != null)     col.close();
+    if (coll != null)     coll.close();
   }
 }
