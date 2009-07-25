@@ -8,10 +8,13 @@
   dos=new DataOutputStream(socket.getOutputStream());
   out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
   final int port=socket.getPort();
-  String in;
+  String in="";
   while (running) {
     in=getMessage().trim();
-    if (in.equals("end"))     break;
+    if (in.equals("end")) {
+      stop(false);
+      break;
+    }
     if (verbose)     BaseX.outln("[%:%] %",ha,port,in);
     Process pr=null;
     try {
@@ -28,7 +31,7 @@
     }
     if (pr instanceof Exit) {
       send(0);
-      running=false;
+      stop(true);
       break;
     }
     final Process proc=pr;
@@ -55,5 +58,4 @@
     }
     if (verbose)     BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
   }
-  close();
 }
