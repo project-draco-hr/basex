@@ -1,22 +1,18 @@
 {
   if (Prop.fsmeta || Prop.fscont) {
     final AbstractParser parser=getParser(suffix);
-    if (parser == null)     return;
-    atts.reset();
-    if (name != null) {
-      final StringBuilder sb=new StringBuilder(name.length() + suffix.length() + 1).append(name).append('.').append(suffix);
-      atts.add(DataText.NAME,token(sb.toString()));
+    final long offset=bfc.absolutePosition();
+    final long size=bfc.size();
+    fileStartEvent(name,suffix,offset);
+    if (parser != null) {
+      try {
+        parse0(parser,bfc);
+      }
+ catch (      final IOException e) {
+        BaseX.debug("Failed to parse file fragment (file: %, offset: %, length: %)",bfc.getFileName(),offset,size);
+        bfc.finish();
+      }
     }
-    if (suffix != null)     atts.add(DataText.SUFFIX,token(suffix));
-    atts.add(DataText.OFFSET,token(bfc.absolutePosition()));
-    atts.add(DataText.SIZE,token(bfc.size()));
-    atts.add(DataText.MTIME,ParserUtil.getMTime(curr));
-    builder.startElem(DataText.FILE,atts);
-    try {
-      parse0(parser,bfc);
-    }
-  finally {
-      builder.endElem(DataText.FILE);
-    }
+    fileEndEvent(size);
   }
 }

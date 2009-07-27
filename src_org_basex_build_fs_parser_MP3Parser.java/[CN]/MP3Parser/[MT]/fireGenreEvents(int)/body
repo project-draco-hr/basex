@@ -1,0 +1,22 @@
+{
+  final byte[] value=readText(s);
+  int id;
+  if (!ws(value)) {
+    if (value[0] == '(') {
+      int limit=1;
+      while (value[limit] >= '0' && value[limit] <= '9' && limit < s)       limit++;
+      id=toInt(value,1,limit);
+    }
+ else     id=toInt(value);
+    if (id == Integer.MIN_VALUE) {
+      final byte[][] arrays=Token.split(value,',');
+      for (      final byte[] a : arrays) {
+        meta.setString(StringField.genre,a,true);
+        fsparser.metaEvent(meta);
+      }
+    }
+ else {
+      meta.setString(StringField.genre,getGenre(id),false);
+    }
+  }
+}

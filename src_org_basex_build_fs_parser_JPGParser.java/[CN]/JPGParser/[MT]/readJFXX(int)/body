@@ -9,27 +9,31 @@
   int height=0;
 switch (bfc.get()) {
 case 0x10:
-    fsparser.fileStartEvent("Thumbnail","jpg",Type.IMAGE,MimeType.JPG,bfc.absolutePosition(),s);
-  break;
+    fsparser.fileStartEvent("Thumbnail","jpg",bfc.absolutePosition());
+  fsparser.metaEvent(new Metadata(MetaType.IMAGE));
+fsparser.metaEvent(new Metadata(MimeType.JPG.get()));
+break;
 case 0x11:
 width=bfc.get();
 height=bfc.get();
 s-=2;
-fsparser.fileStartEvent("Thumbnail",null,Type.IMAGE,MimeType.UNKNOWN,bfc.absolutePosition(),s);
-fsparser.metaEvent(Element.DESCRIPTION,DataType.STRING,Definition.NONE,null,token("Thumbnail coded using 1 byte/pixel."));
+fsparser.fileStartEvent("Thumbnail",null,bfc.absolutePosition());
+fsparser.metaEvent(new Metadata(MetaType.IMAGE));
+fsparser.metaEvent(meta.setString(StringField.description,"Thumbnail coded using 1 byte/pixel."));
 break;
 case 0x13:
 width=bfc.get();
 height=bfc.get();
 s-=2;
-fsparser.fileStartEvent("Thumbnail",null,Type.IMAGE,MimeType.UNKNOWN,bfc.absolutePosition(),s);
-fsparser.metaEvent(Element.DESCRIPTION,DataType.STRING,Definition.NONE,null,token("Thumbnail coded using 3 bytes/pixel."));
+fsparser.fileStartEvent("Thumbnail",null,bfc.absolutePosition());
+fsparser.metaEvent(new Metadata(MetaType.IMAGE));
+fsparser.metaEvent(meta.setString(StringField.description,"Thumbnail coded using 3 bytes/pixel."));
 break;
 default :
 BaseX.debug("JPGParser: Illegal or unsupported JFIF header (%)",bfc.getFileName());
 }
-fsparser.metaEvent(Element.WIDTH,DataType.INTEGER,Definition.PIXEL,null,token(width));
-fsparser.metaEvent(Element.HEIGHT,DataType.INTEGER,Definition.PIXEL,null,token(height));
-fsparser.fileEndEvent();
+fsparser.metaEvent(meta.setInt(IntField.pixelWidth,width));
+fsparser.metaEvent(meta.setInt(IntField.pixelHeight,height));
+fsparser.fileEndEvent(s);
 bfc.skip(s);
 }
