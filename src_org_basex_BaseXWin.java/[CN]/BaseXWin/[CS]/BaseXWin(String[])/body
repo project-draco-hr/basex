@@ -1,22 +1,21 @@
 {
   System.setProperty("apple.laf.useScreenMenuBar","true");
   System.setProperty("com.apple.mrj.application.apple.menu.about.name",NAME);
-  Prop.read();
+  final Context ctx=new Context();
+  final GUIProp gprop=new GUIProp();
+  ctx.prop.set(Prop.CHOP,true);
   Prop.gui=true;
-  Prop.xqerrcode=false;
-  Prop.chop=true;
-  GUIProp.read();
   final JFrame wait=waitPanel();
   Performance.sleep(50);
-  GUIConstants.init();
+  GUIConstants.init(gprop);
   SwingUtilities.invokeLater(new Runnable(){
     public void run(){
-      init();
-      gui=new GUI();
+      init(gprop);
+      gui=new GUI(ctx,gprop);
       if (args.length != 0) {
         final String db=args[0].replace('\\','/');
         gui.execute(new CreateDB(db));
-        GUIProp.createpath=IO.get(db).path();
+        gprop.set(GUIProp.CREATEPATH,IO.get(db).path());
       }
       wait.dispose();
     }

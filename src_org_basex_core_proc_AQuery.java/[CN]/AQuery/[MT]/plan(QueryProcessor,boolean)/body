@@ -1,18 +1,18 @@
 {
-  if (c != Prop.compplan)   return;
-  if (Prop.dotplan) {
+  if (c != prop.is(Prop.COMPPLAN))   return;
+  if (prop.is(Prop.DOTPLAN)) {
     final CachedOutput out=new CachedOutput();
     final DOTSerializer ser=new DOTSerializer(out);
     qu.plan(ser);
     ser.close();
     IO.get(PLANDOT).write(out.finish());
-    new ProcessBuilder(Prop.dotty,PLANDOT).start().waitFor();
+    new ProcessBuilder(prop.get(Prop.DOTTY),PLANDOT).start().waitFor();
   }
-  if (Prop.xmlplan) {
+  if (prop.is(Prop.XMLPLAN)) {
     final CachedOutput out=new CachedOutput();
     qu.plan(new XMLSerializer(out,false,true));
-    info(NL + QUERYPLAN + NL);
-    info(out + NL);
+    info(QUERYPLAN);
+    info.add(out.toString());
   }
   per.getTime();
 }

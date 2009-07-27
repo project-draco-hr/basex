@@ -1,0 +1,122 @@
+{
+  boolean ok=true;
+  for (int a=0; a < args.length; a++) {
+    ok=false;
+    if (!args[a].startsWith("-")) {
+      console=false;
+      file=args[a];
+      ok=true;
+    }
+ else {
+      final Prop prop=context.prop;
+      for (int i=1; i < args[a].length(); i++) {
+        ok=false;
+        final char c=args[a].charAt(i);
+        if (c == 'c') {
+          set(Prop.CHOP,true);
+          ok=true;
+        }
+ else         if (c == 'd') {
+          Prop.debug=true;
+          ok=true;
+        }
+ else         if (c == 'D' && standalone) {
+          set(Prop.DOTPLAN,true);
+          ok=true;
+        }
+ else         if (c == 'e') {
+          set(Prop.ENTITY,false);
+          ok=true;
+        }
+ else         if (c == 'm') {
+          set(Prop.TABLEMEM,true);
+          ok=true;
+        }
+ else         if (c == 'M') {
+          set(Prop.MAINMEM,true);
+          ok=true;
+        }
+ else         if (c == 'o') {
+          if (++i == args[a].length()) {
+            a++;
+            i=0;
+          }
+          if (a == args.length)           break;
+          output=args[a].substring(i);
+          i=args[a].length();
+          ok=true;
+        }
+ else         if (c == 'p' && !standalone) {
+          if (++i == args[a].length()) {
+            a++;
+            i=0;
+          }
+          if (a == args.length)           break;
+          final int p=Token.toInt(args[a].substring(i));
+          if (p <= 0) {
+            error(null,SERVERPORT + args[a].substring(i));
+            break;
+          }
+          prop.set(Prop.PORT,p);
+          i=args[a].length();
+          ok=true;
+        }
+ else         if (c == 'q') {
+          console=false;
+          String input="";
+          if (i + 1 < args[a].length())           input=args[a].substring(i + 1);
+          for (++a; a < args.length; a++)           input+=' ' + args[a];
+          commands=input.trim();
+          return true;
+        }
+ else         if (c == 'r') {
+          if (++i == args[a].length()) {
+            a++;
+            i=0;
+          }
+          if (a == args.length)           break;
+          final int runs=Math.max(1,Token.toInt(args[a].substring(i)));
+          set(Prop.RUNS,runs);
+          i=args[a].length();
+          ok=true;
+        }
+ else         if (c == 's' && !standalone) {
+          if (++i == args[a].length()) {
+            a++;
+            i=0;
+          }
+          if (a == args.length)           break;
+          prop.set(Prop.HOST,args[a].substring(i));
+          i=args[a].length();
+          ok=true;
+        }
+ else         if (c == 'v') {
+          set(Prop.INFO,true);
+          ok=true;
+        }
+ else         if (c == 'V') {
+          set(Prop.INFO,ALL);
+          ok=true;
+        }
+ else         if (c == 'x') {
+          set(Prop.XMLOUTPUT,true);
+          ok=true;
+        }
+ else         if (c == 'X') {
+          set(Prop.XMLPLAN,true);
+          ok=true;
+        }
+ else         if (c == 'z') {
+          set(Prop.SERIALIZE,false);
+          ok=true;
+        }
+ else {
+          break;
+        }
+      }
+    }
+    if (!ok)     break;
+  }
+  if (!ok)   BaseX.outln(standalone ? LOCALINFO : CLIENTINFO);
+  return ok;
+}

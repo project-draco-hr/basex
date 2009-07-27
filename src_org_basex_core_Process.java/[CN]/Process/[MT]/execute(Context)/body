@@ -1,11 +1,12 @@
 {
   context=ctx;
+  prop=ctx.prop;
   final Data data=context.data();
   if (data() && data == null)   return error(PROCNODB);
   if (data != null) {
     while (data.getLock() == 2)     Performance.sleep(50);
     if (updating()) {
-      if (Prop.tablemem || Prop.mainmem)       return error(PROCMM);
+      if (prop.is(Prop.TABLEMEM) || prop.is(Prop.MAINMEM))       return error(PROCMM);
       while (data.getLock() != 0)       Performance.sleep(50);
     }
   }

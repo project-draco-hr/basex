@@ -6,13 +6,14 @@
   textLen=null;
   zoomStep=0;
   final Data data=gui.context.data();
+  final GUIProp gprop=gui.prop;
   if (data != null && getWidth() != 0) {
-    if (!GUIProp.showmap)     return;
-    if (GUIProp.mapinfo)     mapInfo=new DialogMapInfo(gui);
-    painter=data.fs != null ? new MapFS(this,data.fs) : new MapDefault(this);
+    if (!gprop.is(GUIProp.SHOWMAP))     return;
+    if (gprop.is(GUIProp.MAPINFO))     mapInfo=new DialogMapInfo(gui);
+    painter=data.fs != null ? new MapFS(this,data.fs,gprop) : new MapDefault(this,gprop);
     mainMap=createImage();
     zoomMap=createImage();
-    if (GUIProp.mapinteraction)     hugeMap=new BufferedImage(fkt * getWidth(),fkt * getHeight(),BufferedImage.TYPE_INT_BGR);
+    if (gprop.is(GUIProp.MAPINTERACTION))     hugeMap=new BufferedImage(fkt * getWidth(),fkt * getHeight(),BufferedImage.TYPE_INT_BGR);
     refreshLayout();
     repaint();
   }

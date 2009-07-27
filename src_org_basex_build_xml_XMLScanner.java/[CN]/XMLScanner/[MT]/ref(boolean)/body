@@ -1,44 +1,44 @@
 {
   if (consume('#')) {
-    final TokenBuilder entity=new TokenBuilder();
+    final TokenBuilder ent=new TokenBuilder();
     int b=10;
     int ch=nextChar();
-    entity.addUTF(ch);
+    ent.addUTF(ch);
     if (ch == 'x') {
       b=16;
-      entity.addUTF(ch=nextChar());
+      ent.addUTF(ch=nextChar());
     }
     int n=0;
     do {
       final boolean m=ch >= '0' && ch <= '9';
       final boolean h=b == 16 && (ch >= 'a' && ch <= 'f' || ch >= 'A' && ch <= 'F');
       if (!m && !h) {
-        completeRef(entity);
-        if (Prop.entity)         error(INVALIDENTITY,entity);
+        completeRef(ent);
+        if (entity)         error(INVALIDENTITY,ent);
         return EMPTY;
       }
       n*=b;
       n+=ch & 15;
       if (!m)       n+=9;
-      entity.addUTF(ch=nextChar());
+      ent.addUTF(ch=nextChar());
     }
  while (ch != ';');
     if (!valid(n)) {
-      if (Prop.entity)       error(INVALIDENTITY,entity);
+      if (entity)       error(INVALIDENTITY,ent);
       return EMPTY;
     }
-    entity.reset();
-    entity.addUTF(n);
-    return entity.finish();
+    ent.reset();
+    ent.addUTF(n);
+    return ent.finish();
   }
-  final byte[] name=name(Prop.entity);
+  final byte[] name=name(entity);
   if (!consume(';')) {
-    if (Prop.entity)     error(INVALIDENTITY,name);
+    if (entity)     error(INVALIDENTITY,name);
     return EMPTY;
   }
   if (!f)   return concat(AMP,name,SEMI);
   final byte[] en=ents.get(name);
   if (en != null)   return en;
-  if (Prop.entity)   error(UNKNOWNENTITY,name);
+  if (entity)   error(UNKNOWNENTITY,name);
   return EMPTY;
 }

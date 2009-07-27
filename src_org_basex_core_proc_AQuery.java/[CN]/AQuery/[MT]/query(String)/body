@@ -1,9 +1,7 @@
 {
-  long pars=0;
-  long comp=0;
-  long eval=0;
+  final int runs=prop.num(Prop.RUNS);
   try {
-    for (int i=0; i < Prop.runs; i++) {
+    for (int i=0; i < runs; i++) {
       qp=new QueryProcessor(query,context);
       progress(qp);
       qp.parse();
@@ -14,14 +12,9 @@
       comp+=per.getTime();
       result=qp.query();
       eval+=per.getTime();
-      if (i + 1 < Prop.runs)       qp.close();
+      if (i + 1 < runs)       qp.close();
     }
-    if (Prop.info) {
-      info(NL + qp.info());
-      info(QUERYPARSE + Performance.getTimer(pars,Prop.runs) + NL);
-      info(QUERYCOMPILE + Performance.getTimer(comp,Prop.runs) + NL);
-      info(QUERYEVALUATE + Performance.getTimer(eval,Prop.runs) + NL);
-    }
+    execInfo();
     return true;
   }
  catch (  final QueryException ex) {

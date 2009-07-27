@@ -45,7 +45,7 @@
       final String fn=thes2.get(s);
       if (fn != null) {
         if (qctx.ftopt.th == null)         qctx.ftopt.th=new ThesQuery();
-        qctx.ftopt.th.add(new Thesaurus(IO.get(fn)));
+        qctx.ftopt.th.add(new Thesaurus(IO.get(fn),context));
       }
     }
     for (    final int p : nodes("*:module",root).nodes) {
@@ -53,7 +53,7 @@
       final String f=mods.get(string(data.atom(p))) + ".xq";
       xq.module(ns,f);
     }
-    final XMLSerializer xml=new XMLSerializer(out,false,Prop.xqformat);
+    final XMLSerializer xml=new XMLSerializer(out,false,context.prop.is(Prop.XQFORMAT));
     iter=SeqIter.get(xq.iter());
     Item it;
     while ((it=iter.next()) != null) {
@@ -102,9 +102,9 @@ catch (  final Error ex) {
     log.append(files);
     log.append("]");
   }
-  log.append(Prop.NL);
+  log.append(NL);
   log.append(norm(in));
-  log.append(Prop.NL);
+  log.append(NL);
   final String logStr=log.toString();
   final boolean print=currTime || !logStr.contains("current-") && !logStr.contains("implicit-timezone");
   if (reporting) {
@@ -128,8 +128,8 @@ catch (  final Error ex) {
       logOK.append(logStr);
       logOK.append("[Right] ");
       logOK.append(norm(error));
-      logOK.append(Prop.NL);
-      logOK.append(Prop.NL);
+      logOK.append(NL);
+      logOK.append(NL);
       addLog(pth,outname + ".log",error);
     }
     if (reporting)     logFile.append("pass");
@@ -148,7 +148,7 @@ catch (  final Error ex) {
           if (rin.startsWith("<?xml"))           rin=rin.replaceAll("^<.*?>","");
           rin="<X>" + rin + "</X>";
         }
-        final Data rdata=CreateDB.xml(IO.get(rin));
+        final Data rdata=CreateDB.xml(IO.get(rin),context.prop);
         final SeqIter si=new SeqIter();
         int pre=doc ? 0 : 2;
         final int size=rdata.meta.size;
@@ -170,11 +170,11 @@ catch (  final Error ex) {
         logErr.append(logStr);
         logErr.append("[" + testid + " ] ");
         logErr.append(norm(result.get(0)));
-        logErr.append(Prop.NL);
+        logErr.append(NL);
         logErr.append("[Wrong] ");
         logErr.append(norm(out.toString()));
-        logErr.append(Prop.NL);
-        logErr.append(Prop.NL);
+        logErr.append(NL);
+        logErr.append(NL);
         addLog(pth,outname + (xml ? ".xml" : ".txt"),out.toString());
       }
       if (reporting)       logFile.append("fail");
@@ -185,8 +185,8 @@ catch (  final Error ex) {
         logOK.append(logStr);
         logOK.append("[Right] ");
         logOK.append(norm(out.toString()));
-        logOK.append(Prop.NL);
-        logOK.append(Prop.NL);
+        logOK.append(NL);
+        logOK.append(NL);
         addLog(pth,outname + (xml ? ".xml" : ".txt"),out.toString());
       }
       if (reporting) {
@@ -202,11 +202,11 @@ catch (  final Error ex) {
         logOK2.append(logStr);
         logOK2.append("[" + testid + " ] ");
         logOK2.append(norm(expError));
-        logOK2.append(Prop.NL);
+        logOK2.append(NL);
         logOK2.append("[Rght?] ");
         logOK2.append(norm(error));
-        logOK2.append(Prop.NL);
-        logOK2.append(Prop.NL);
+        logOK2.append(NL);
+        logOK2.append(NL);
         addLog(pth,outname + ".log",error);
       }
       if (reporting)       logFile.append("pass");
@@ -217,11 +217,11 @@ catch (  final Error ex) {
         logErr2.append(logStr);
         logErr2.append("[" + testid + " ] ");
         logErr2.append(norm(result.get(0)));
-        logErr2.append(Prop.NL);
+        logErr2.append(NL);
         logErr2.append("[Wrong] ");
         logErr2.append(norm(error));
-        logErr2.append(Prop.NL);
-        logErr2.append(Prop.NL);
+        logErr2.append(NL);
+        logErr2.append(NL);
         addLog(pth,outname + ".log",error);
       }
       if (reporting)       logFile.append("fail");
@@ -230,7 +230,7 @@ catch (  final Error ex) {
   }
   if (reporting) {
     logFile.append("'/>");
-    logFile.append(Prop.NL);
+    logFile.append(NL);
   }
   xq.close();
   if (curr != null)   Close.close(context,curr.data);

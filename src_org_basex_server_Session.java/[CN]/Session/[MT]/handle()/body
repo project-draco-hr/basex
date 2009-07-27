@@ -1,5 +1,5 @@
 {
-  BaseX.outln("Login from Client %.",clientId);
+  if (info)   BaseX.outln("Login from Client %.",clientId);
   final Performance perf=new Performance();
   final InetAddress addr=socket.getInetAddress();
   final String ha=addr.getHostAddress();
@@ -8,17 +8,16 @@
   dos=new DataOutputStream(socket.getOutputStream());
   out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
   final int port=socket.getPort();
-  String in="";
   while (running) {
-    in=getMessage().trim();
+    final String in=getMessage().trim();
     if (in.equals("end")) {
       stop(false);
       break;
     }
-    if (verbose)     BaseX.outln("[%:%] %",ha,port,in);
+    if (info)     BaseX.outln("[%:%] %",ha,port,in);
     Process pr=null;
     try {
-      pr=new CommandParser(in).parse()[0];
+      pr=new CommandParser(in,context).parse()[0];
     }
  catch (    final QueryException ex) {
       pr=new Process(0){
@@ -56,6 +55,6 @@
       send(proc.execute(context) ? sp : -sp);
       timeout.interrupt();
     }
-    if (verbose)     BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
+    if (info)     BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
   }
 }

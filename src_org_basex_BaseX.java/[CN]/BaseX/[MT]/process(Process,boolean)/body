@@ -1,0 +1,30 @@
+{
+  try {
+    final ALauncher launcher=launcher(pr);
+    final boolean ok=launcher.execute();
+    if (ok && pr.printing()) {
+      final PrintOutput out=output != null ? new PrintOutput(output) : new PrintOutput(System.out);
+      launcher.out(out);
+      out.close();
+    }
+    if (v) {
+      final CachedOutput out=new CachedOutput();
+      launcher.info(out);
+      final String inf=out.toString();
+      if (inf.length() != 0) {
+        if (!ok) {
+          error(null,inf);
+        }
+ else {
+          BaseX.out(inf);
+        }
+      }
+    }
+    if (v && console && !(pr instanceof Prompt))     BaseX.outln();
+    return ok;
+  }
+ catch (  final IOException ex) {
+    error(ex,SERVERERR + NL);
+  }
+  return false;
+}

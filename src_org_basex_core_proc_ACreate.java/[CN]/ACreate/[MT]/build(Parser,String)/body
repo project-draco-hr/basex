@@ -2,19 +2,16 @@
   String err=null;
   Builder builder=null;
   try {
-    new Close().execute(context);
-    final boolean mem=db == null || Prop.mainmem;
+    exec(new Close());
+    final boolean mem=db == null || prop.is(Prop.MAINMEM);
     if (!mem && context.pinned(db))     return error(DBINUSE);
-    final Performance pp=new Performance();
-    builder=mem ? new MemBuilder() : new DiskBuilder();
+    builder=mem ? new MemBuilder(p) : new DiskBuilder(p);
     progress(builder);
-    final Data data=builder.build(p,db == null ? "" : db);
-    if (Prop.allInfo)     info(CREATETABLE + NL,pp.getTimer());
-    builder=null;
+    final Data data=builder.build(db == null ? "" : db);
     index(data);
     context.openDB(data);
     context.addToPool(data);
-    return Prop.info ? info(DBCREATED,db,perf.getTimer()) : true;
+    return info(DBCREATED,db,perf.getTimer());
   }
  catch (  final FileNotFoundException ex) {
     BaseX.debug(ex);
@@ -38,6 +35,6 @@ catch (  final Exception ex) {
  catch (  final IOException ex) {
     BaseX.debug(ex);
   }
-  DropDB.drop(db);
+  DropDB.drop(db,prop);
   return error(err);
 }

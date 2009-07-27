@@ -10,7 +10,7 @@
     if (verbose)     BaseX.outln("[%:%] %",ha,sp,in);
     Process pr=null;
     try {
-      pr=new CommandParser(in).parse()[0];
+      pr=new CommandParser(in,context).parse()[0];
     }
  catch (    final QueryException ex) {
       pr=new Process(0){
@@ -32,11 +32,11 @@
         try {
           if (proc instanceof GetResult || proc instanceof GetInfo) {
             final OutputStream os=s.getOutputStream();
-            final PrintOutput out=new PrintOutput(new BufferedOutput(os),Prop.web ? Prop.maxtext : Integer.MAX_VALUE);
+            final PrintOutput out=new PrintOutput(new BufferedOutput(os),Prop.web ? context.prop.num(Prop.MAXTEXT) : Integer.MAX_VALUE);
             final int id=Math.abs(Integer.parseInt(proc.args().trim()));
             final Process c=get(id);
             if (c == null) {
-              out.print(BaseX.info(SERVERTIME,Prop.timeout));
+              out.print(BaseX.info(SERVERTIME,context.prop.num(Prop.TIMEOUT)));
             }
  else             if (proc instanceof GetResult) {
               c.output(out);

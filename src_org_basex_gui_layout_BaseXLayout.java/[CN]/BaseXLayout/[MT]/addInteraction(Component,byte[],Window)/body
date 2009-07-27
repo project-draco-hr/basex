@@ -42,15 +42,18 @@
         }
       }
       if (e.isControlDown()) {
-        final int fs=GUIProp.fontsize;
+        final GUIProp prop=gui(comp).prop;
+        final int fs=prop.num(GUIProp.FONTSIZE);
+        int nfs=fs;
         if (code == '+' || code == '-' || code == '=') {
-          GUIProp.fontsize=Math.max(1,GUIProp.fontsize + (code == '-' ? -1 : 1));
+          nfs=Math.max(1,fs + (code == '-' ? -1 : 1));
         }
  else         if (code == '0') {
-          GUIProp.fontsize=12;
+          nfs=12;
         }
-        if (fs != GUIProp.fontsize) {
-          GUIConstants.initFonts();
+        if (fs != nfs) {
+          prop.set(GUIProp.FONTSIZE,nfs);
+          GUIConstants.initFonts(prop);
           gui.notify.layout();
         }
       }

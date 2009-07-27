@@ -1,5 +1,6 @@
 {
   final Data data=gui.context.data();
+  final GUIProp gprop=gui.prop;
   if (data == null || data.meta.size == 0) {
     super.paintComponent(g);
     return;
@@ -26,7 +27,7 @@
     gui.painting=false;
     if (focused == null || !focused.thumb)     return;
   }
-  if (GUIProp.mapoffsets == 0 && !mapdist && !constMag) {
+  if (gprop.num(GUIProp.MAPOFFSETS) == 0 && !mapdist && !constMag) {
     g.setColor(COLORS[32]);
     int pre=mainRects.size;
     int par=ViewData.parent(data,focused.pre);
@@ -56,10 +57,10 @@
     g.setColor(color6);
     g.drawRect(x,y,w,h);
     g.drawRect(x + 1,y + 1,w - 2,h - 2);
-    BaseXLayout.antiAlias(g);
+    BaseXLayout.antiAlias(g,gui.prop);
     g.setFont(font);
     if (data.kind(focused.pre) == Data.ELEM) {
-      String tt=Token.string(ViewData.tag(data,focused.pre));
+      String tt=Token.string(ViewData.tag(gprop,data,focused.pre));
       if (tt.length() > 32)       tt=tt.substring(0,30) + DOTS;
       BaseXLayout.drawTooltip(g,tt,x,y,getWidth(),focused.level + 5);
     }
@@ -71,62 +72,64 @@
       final byte[] text=ViewData.content(data,focused.pre,false);
       final TokenList tl=MapRenderer.calculateThumbnailsToolTip(focused,Tokenizer.getInfo(text),sen,mouseX,mouseY,getWidth(),g,spc);
       final MapRect mr=new MapRect(getX(),getY(),getWidth(),getHeight());
-      MapRenderer.drawToolTip(g,mouseX,mouseY,mr,tl);
+      MapRenderer.drawToolTip(g,mouseX,mouseY,mr,tl,gprop.num(GUIProp.FONTSIZE));
       focused.x-=3;
       focused.w+=3;
     }
   }
   final int ac=AlphaComposite.SRC_OVER;
-  ((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,GUIProp.zoomboxalpha / 100.0f));
-  if (GUIProp.mapinteraction && thumbMap) {
+  ((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,gprop.num(GUIProp.ZOOMBOXALPHA) / 100.0f));
+  if (gprop.is(GUIProp.MAPINTERACTION) && thumbMap) {
     g.drawImage(tinyMap,tinyx,tinyy,tinyw,tinyh,this);
     g.setColor(Color.black);
     g.drawRect(tinyx,tinyy,tinyw,tinyh);
   }
- else   if (GUIProp.mapinteraction && constMag) {
-    int dxstart=mouseX - GUIProp.fishw / 2;
-    int dxend=mouseX + GUIProp.fishw / 2;
+ else   if (gprop.is(GUIProp.MAPINTERACTION) && constMag) {
+    int fishw=gprop.num(GUIProp.FISHW);
+    int fishh=gprop.num(GUIProp.FISHH);
+    int dxstart=mouseX - fishw / 2;
+    int dxend=mouseX + fishw / 2;
     if (dxstart < 0) {
       dxstart=0;
-      dxend=GUIProp.fishw;
+      dxend=fishw;
     }
  else     if (dxend > getWidth()) {
       dxend=getWidth();
-      dxstart=getWidth() - GUIProp.fishw;
+      dxstart=getWidth() - fishw;
     }
-    int dystart=mouseY - GUIProp.fishh / 2;
-    int dyend=mouseY + GUIProp.fishh / 2;
+    int dystart=mouseY - fishh / 2;
+    int dyend=mouseY + fishh / 2;
     if (dystart < 0) {
       dystart=0;
-      dyend=GUIProp.fishh;
+      dyend=fishh;
     }
  else     if (dyend > getHeight()) {
       dyend=getHeight();
-      dystart=getHeight() - GUIProp.fishh;
+      dystart=getHeight() - fishh;
     }
-    int sxstart=fkt * mouseX - GUIProp.fishw / 2;
-    int sxend=fkt * mouseX + GUIProp.fishw / 2;
+    int sxstart=fkt * mouseX - fishw / 2;
+    int sxend=fkt * mouseX + fishw / 2;
     if (sxstart < 0) {
       sxstart=0;
-      sxend=GUIProp.fishw;
+      sxend=fishw;
     }
  else     if (sxend > hugeMap.getWidth()) {
       sxend=hugeMap.getWidth();
-      sxstart=hugeMap.getWidth() - GUIProp.fishw;
+      sxstart=hugeMap.getWidth() - fishw;
     }
-    int systart=fkt * mouseY - GUIProp.fishh / 2;
-    int syend=fkt * mouseY + GUIProp.fishh / 2;
+    int systart=fkt * mouseY - fishh / 2;
+    int syend=fkt * mouseY + fishh / 2;
     if (systart < 0) {
       systart=0;
-      syend=GUIProp.fishh;
+      syend=fishh;
     }
  else     if (syend > hugeMap.getHeight()) {
       syend=hugeMap.getHeight();
-      systart=hugeMap.getHeight() - GUIProp.fishh;
+      systart=hugeMap.getHeight() - fishh;
     }
     g.drawImage(hugeMap,dxstart,dystart,dxend,dyend,sxstart,systart,sxend,syend,this);
     g.setColor(Color.black);
-    g.drawRect(dxstart,dystart,GUIProp.fishw,GUIProp.fishh);
+    g.drawRect(dxstart,dystart,fishw,fishh);
   }
   gui.painting=false;
 }

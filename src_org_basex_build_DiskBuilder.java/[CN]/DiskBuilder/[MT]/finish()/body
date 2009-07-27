@@ -1,8 +1,8 @@
 {
   close();
   final String db=meta.name;
-  final TableAccess ta=new TableDiskAccess(db,DATATBL);
-  final DataInput in=new DataInput(db,DATATMP);
+  final TableAccess ta=new TableDiskAccess(db,DATATBL,parser.prop);
+  final DataInput in=new DataInput(parser.prop.dbfile(db,DATATMP));
   for (int pre=0; pre < ssize; pre++) {
     final boolean sz=in.readBool();
     final int p=in.readNum();
@@ -11,6 +11,6 @@
   }
   ta.close();
   in.close();
-  IO.dbfile(db,DATATMP).delete();
+  parser.prop.dbfile(db,DATATMP).delete();
   return new DiskData(meta,tags,atts,path,ns);
 }

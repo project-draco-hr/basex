@@ -1,7 +1,7 @@
 {
   if (BUTTONRENAME.equals(cmd)) {
     new DialogRename(gui,choice.getValue());
-    choice.setData(List.list().finish());
+    choice.setData(List.list(gui.context).finish());
   }
  else   if (BUTTONOPEN.equals(cmd)) {
     close();
@@ -10,21 +10,21 @@
     final String db=choice.getValue();
     if (db.length() == 0)     return;
     if (Dialog.confirm(this,BaseX.info(DROPCONF,db))) {
-      DropDB.drop(db);
-      choice.setData(List.list().finish());
+      DropDB.drop(db,gui.context.prop);
+      choice.setData(List.list(gui.context).finish());
       choice.requestFocusInWindow();
     }
   }
  else {
     final String db=choice.getValue().trim();
-    ok=db.length() != 0 && IO.dbpath(db).exists();
+    ok=db.length() != 0 && gui.context.prop.dbpath(db).exists();
     if (ok)     doc.setText(db);
     enableOK(buttons,BUTTONDROP,ok);
     if (ok) {
       DataInput in=null;
       try {
-        in=new DataInput(db,DATAINFO);
-        final MetaData meta=new MetaData(db,in);
+        in=new DataInput(gui.context.prop.dbfile(db,DATAINFO));
+        final MetaData meta=new MetaData(db,in,gui.context.prop);
         detail.setText(InfoDB.db(meta,true,true).finish());
       }
  catch (      final IOException ex) {
@@ -35,7 +35,7 @@
         try {
           if (in != null)           in.close();
         }
- catch (        final IOException e) {
+ catch (        final IOException ex) {
         }
       }
     }

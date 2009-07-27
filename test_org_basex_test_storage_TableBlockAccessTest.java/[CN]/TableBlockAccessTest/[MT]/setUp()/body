@@ -1,10 +1,10 @@
 {
   try {
-    final XMLParser parser=new XMLParser(IO.get(TESTFILE));
-    final Data data=new DiskBuilder().build(parser,dbname);
+    final XMLParser parser=new XMLParser(IO.get(TESTFILE),PROP);
+    final Data data=new DiskBuilder(parser).build(DBNAME);
     size=data.meta.size;
     data.close();
-    tba=new TableDiskAccess(dbname,DATATBL);
+    tba=new TableDiskAccess(DBNAME,DATATBL,PROP);
   }
  catch (  final Exception ex) {
     ex.printStackTrace();
@@ -16,5 +16,5 @@
   }
   entries=IO.BLOCKSIZE >>> IO.NODEPOWER;
   blocks=(int)Math.ceil(size / Math.floor(entries * IO.BLOCKFILL));
-  nodesPerBlock=(int)(entries * IO.BLOCKFILL);
+  nodes=(int)(entries * IO.BLOCKFILL);
 }

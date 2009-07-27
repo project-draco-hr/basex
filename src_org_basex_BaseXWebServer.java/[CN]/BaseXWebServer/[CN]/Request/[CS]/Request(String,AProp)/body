@@ -1,0 +1,29 @@
+{
+  file=IO.get(prop.get(Prop.WEBPATH) + "/" + fn);
+  if (file.isDir()) {
+    for (    final String index : INDEXFILES) {
+      final IO f=IO.get(prop.get(Prop.WEBPATH) + "/" + fn+ "/"+ index);
+      if (f.exists()) {
+        code=302;
+        file=f;
+        return;
+      }
+    }
+    if (!fn.endsWith("/")) {
+      code=302;
+      return;
+    }
+  }
+  String f=fn;
+  int i=fn.indexOf("?");
+  if (i != -1) {
+    final String[] arg=fn.substring(i + 1).split("\\|");
+    f=fn.substring(0,i);
+    args=new String[arg.length][2];
+    for (int a=0; a < arg.length; a++)     args[a]=arg[a].split("=",2);
+  }
+  i=f.indexOf(".");
+  file=IO.get(prop.get(Prop.WEBPATH) + "/" + f);
+  suf=i != -1 ? f.substring(i + 1) : "";
+  if (!file.exists())   code=404;
+}

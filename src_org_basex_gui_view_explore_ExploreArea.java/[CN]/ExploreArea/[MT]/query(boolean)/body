@@ -1,5 +1,5 @@
 {
-  if (!force && !GUIProp.execrt)   return;
+  if (!force && !gui.prop.is(GUIProp.EXECRT))   return;
   final TokenBuilder tb=new TokenBuilder();
   final Data data=gui.context.data();
   final int cs=panel.getComponentCount();
@@ -54,15 +54,14 @@
   }
   String qu=tb.toString();
   final boolean root=gui.context.root();
-  if (qu.length() != 0) {
-    if (!GUIProp.filterrt && !root)     qu="." + qu;
-  }
+  final boolean rt=gui.prop.is(GUIProp.FILTERRT);
+  if (qu.length() != 0 && !rt && !root)   qu="." + qu;
   String simple=all.getText().trim();
   if (simple.length() != 0) {
-    simple=Find.find(simple,gui.context,GUIProp.filterrt);
+    simple=Find.find(simple,gui.context,rt);
     qu=qu.length() != 0 ? simple + " | " + qu : simple;
   }
-  if (qu.length() == 0)   qu=GUIProp.filterrt || root ? "/" : ".";
+  if (qu.length() == 0)   qu=rt || root ? "/" : ".";
   if (!force && last.equals(qu))   return;
   last=qu;
   gui.xquery(qu,false);

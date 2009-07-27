@@ -1,14 +1,14 @@
 {
   final Context context=view.gui.context;
   final Data data=context.data();
-  final int o=GUIProp.fontsize;
+  final int fsz=prop.num(GUIProp.FONTSIZE);
   final int pre=rect.pre;
   final int kind=data.kind(pre);
   final boolean tag=kind == Data.ELEM || kind == Data.DOC;
   final boolean file=fs.isFile(pre);
   final boolean dir=!file && fs.isDir(pre);
   final Nodes current=context.current();
-  final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size() == 1 && pre != 0 && !file && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(data,pre);
+  final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size() == 1 && pre != 0 && !file && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(prop,data,pre);
   final boolean isImage=GUIFS.mime(name) == GUIFS.Type.IMAGE;
   if (isImage) {
     final Image image=images.get(pre);
@@ -28,8 +28,8 @@
       return false;
     }
   }
-  final boolean full=!isImage && rect.w >= GUIProp.fontsize * 12 && rect.h >= GUIProp.fontsize * 8 || rect.w == view.getWidth() && rect.h == view.getHeight();
-  final int fullsize=full && file && GUIProp.mapfs ? 1 : 0;
+  final boolean full=!isImage && rect.w >= prop.num(GUIProp.FONTSIZE) * 12 && rect.h >= prop.num(GUIProp.FONTSIZE) * 8 || rect.w == view.getWidth() && rect.h == view.getHeight();
+  final int fullsize=full && file && prop.is(GUIProp.MAPFS) ? 1 : 0;
   final int off=(16 << fullsize) + fullsize * 8;
   final byte[] text=tag ? name : data.text(pre);
   g.setFont(tag ? fullsize == 1 ? lfont : font : mfont);
@@ -42,9 +42,9 @@
       rect.w-=off;
     }
     g.setColor(Color.black);
-    BaseXLayout.chopString(g,text,rect.x + 2,rect.y,rect.w - 2);
-    rect.y+=o;
-    rect.h-=o;
+    BaseXLayout.chopString(g,text,rect.x + 2,rect.y,rect.w - 2,fsz);
+    rect.y+=fsz;
+    rect.h-=fsz;
     if (icon != null) {
       rect.x-=off;
       rect.w+=off;
@@ -61,14 +61,14 @@
       rect.y+=18;
       rect.h-=18;
       g.setColor(Color.black);
-      final int w=BaseXLayout.chopString(g,text,rect.x + off + 3,rect.y,rect.w - off - 3);
+      final int w=BaseXLayout.chopString(g,text,rect.x + off + 3,rect.y,rect.w - off - 3,fsz);
       final long size=toLong(fs.size(pre));
       final String info=GUIFS.desc(text,dir) + ", " + Performance.format(size,true);
       rect.w-=10;
       final int sw=BaseXLayout.width(g,info);
       if (w + sw + 48 < rect.w) {
         g.setColor(COLORS[rect.level + 10]);
-        BaseXLayout.chopString(g,token(info),rect.x + rect.w - sw,rect.y,rect.w);
+        BaseXLayout.chopString(g,token(info),rect.x + rect.w - sw,rect.y,rect.w,fsz);
       }
       rect.x+=10;
       rect.y+=30;
@@ -81,19 +81,19 @@
       rect.w-=24;
       rect.h-=24;
       g.setColor(Color.black);
-      MapRenderer.drawText(g,rect,data.text(pre));
+      MapRenderer.drawText(g,rect,data.text(pre),prop.num(GUIProp.FONTSIZE));
     }
   }
-  if (!file || rect.w < o << 1 || rect.h < o << 1)   return false;
-  rect.y+=o >> 1;
-  rect.h-=o >> 1;
+  if (!file || rect.w < fsz << 1 || rect.h < fsz << 1)   return false;
+  rect.y+=fsz >> 1;
+  rect.h-=fsz >> 1;
   long s=0;
   final byte[] path=ViewData.path(data,pre);
   byte[] fileBuf=null;
   try {
     boolean binary=GUIFS.mime(name) == GUIFS.Type.IMAGE;
     if (!binary) {
-      s=Math.max(0,rect.h * rect.w / o * 4 / mfwidth['A']);
+      s=Math.max(0,rect.h * rect.w / fsz * 4 / mfwidth['A']);
       final File f=new File(string(path));
       s=Math.min(s,f.length());
       fileBuf=new byte[(int)s];
@@ -129,12 +129,12 @@
   g.setColor(Color.black);
   g.setFont(mfont);
   try {
-    rect.thumb=MapRenderer.calcHeight(g,rect,fileBuf) >= rect.h;
+    rect.thumb=MapRenderer.calcHeight(g,rect,fileBuf,fsz) >= rect.h;
     if (rect.thumb) {
-      MapRenderer.drawThumbnails(g,rect,fileBuf);
+      MapRenderer.drawThumbnails(g,rect,fileBuf,fsz);
     }
  else {
-      MapRenderer.drawText(g,rect,fileBuf);
+      MapRenderer.drawText(g,rect,fileBuf,fsz);
     }
   }
  catch (  final Exception ex) {

@@ -7,7 +7,7 @@ case DB:
 case XML:
       final String fn=path(cmd);
     final String db=name(null);
-  return db == null ? new CreateDB(fn) : new CreateDB(fn,db);
+  return new CreateDB(fn,db == null ? fn : db);
 case MAB:
 case MAB2:
 return new CreateMAB(path(cmd),name(null));
@@ -104,36 +104,12 @@ break;
 case SET:
 final String opt=name(cmd).toUpperCase();
 String val=string(null,false);
-try {
-final Object o=Prop.class.getField(opt.toLowerCase()).get(null);
-if (val != null) {
-if (o instanceof Boolean) {
-val=val.toUpperCase();
-final boolean info=opt.equals(CmdSet.INFO.name());
-if (!val.equals(ON) && !val.equals(OFF) && !(info && val.equals(ALL))) {
-final StringList sl=new StringList();
-sl.add(OFF);
-sl.add(ON);
-if (info) sl.add(ALL);
-help(sl,cmd);
-}
-}
- else if (o instanceof Integer) {
-if (toInt(val) == Integer.MIN_VALUE) help(null,cmd);
-}
-}
+final Object type=ctx.prop.object(opt.toUpperCase());
+if (type == null) help(null,cmd);
 return new Set(opt,val);
-}
- catch (final IllegalAccessException ex) {
-help(list(CmdSet.class,opt),cmd);
-}
-catch (final NoSuchFieldException ex) {
-help(list(CmdSet.class,opt),cmd);
-}
-break;
 case HELP:
 String hc=name(null);
-if (hc != null && !hc.toUpperCase().equals(ALL)) {
+if (hc != null) {
 qp=qm;
 hc=consume(Cmd.class,cmd).toString();
 }

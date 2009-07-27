@@ -3,7 +3,20 @@
   super.mouseMoved(e);
   mouseX=e.getX();
   mouseY=e.getY();
-  if (GUIProp.mapinteraction && e.isControlDown() && mapdist) {
+  if (!gui.prop.is(GUIProp.MAPINTERACTION) || !e.isControlDown()) {
+    if (focus()) {
+      if (!(mouseX > tinyx && mouseX < tinyx + tinyw && mouseY > tinyy && mouseY < tinyy + tinyh)) {
+        thumbMap=false;
+      }
+      repaint();
+    }
+ else {
+      constMag=false;
+      mapdist=false;
+      refreshMark();
+    }
+  }
+ else   if (mapdist) {
     mapdist=true;
     final Graphics g=mainMap.getGraphics();
     g.setColor(Color.black);
@@ -21,23 +34,12 @@
     drawMap(mainMap,distRects,1);
     repaint();
   }
- else   if (focus()) {
-    if (!(mouseX > tinyx && mouseX < tinyx + tinyw && mouseY > tinyy && mouseY < tinyy + tinyh)) {
-      thumbMap=false;
-    }
-    repaint();
-  }
- else   if (GUIProp.mapinteraction && e.isControlDown() && GUIProp.mapdist) {
+ else   if (gui.prop.is(GUIProp.MAPDIST)) {
     mapdist=true;
     repaint();
   }
- else   if (GUIProp.mapinteraction && e.isControlDown()) {
+ else {
     constMag=true;
     repaint();
-  }
- else   if (GUIProp.mapinteraction && !e.isControlDown()) {
-    constMag=false;
-    mapdist=false;
-    refreshMark();
   }
 }
