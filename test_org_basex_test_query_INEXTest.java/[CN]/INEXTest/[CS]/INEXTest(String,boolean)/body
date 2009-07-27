@@ -30,50 +30,53 @@
     s1=line.indexOf('"',s0 + 1);
     s0=line.indexOf('/',s1);
     String q=line.substring(s0);
-    q=q.replaceAll("\\. ",".//text() ");
-    q=replaceDedicatedNodes(q);
-    q=xqm + "for $i score $s in " + q+ " order by $s return (basex:sum-path($i), $s)";
-    final Process proc=new XQuery(q);
-    if (!proc.execute(context)) {
-      System.out.println("- " + proc.info());
-      System.out.println("Query: " + q);
-    }
+    System.out.println(q);
+    q=replaceElements(q);
+    System.out.println(q);
+    if (exe) {
+      q=xqm + "for $i score $s in " + q+ " order by $s return (basex:sum-path($i), $s)";
+      final Process proc=new XQuery(q);
+      if (!proc.execute(context)) {
+        System.out.println("- " + proc.info());
+        System.out.println("Query: " + q);
+      }
  else {
-      final String info=proc.info();
-      proc.output(new NullOutput());
-      final int i=info.indexOf("Evaluating: ");
-      final int j=info.indexOf(" ms",i);
-      final String time=info.substring(i + "Evaluating: ".length() + 2,j);
-      if (s) {
-        xml.openElement(token("topic"),token("topic-id"),token(tid),token("total_time_ms"),token(time));
-        xml.openElement(token("result"));
-        xml.openElement(token("file"));
-        xml.text(token(file.toString()));
-        xml.closeElement();
-        final Result val=proc.result();
-        if (val instanceof SeqIter) {
-          final SeqIter itr=(SeqIter)val;
-          Item a;
-          int r=1;
-          while ((a=itr.next()) != null) {
-            if (a instanceof Str) {
-              xml.openElement(token("path"));
-              xml.text(a.str());
-              xml.closeElement();
-              xml.openElement(token("rank"));
-              xml.text(token(r++));
-              xml.closeElement();
-            }
- else             if (a instanceof Dbl) {
-              xml.openElement(token("rsv"));
-              xml.text(a.str());
-              xml.closeElement();
+        final String info=proc.info();
+        proc.output(new NullOutput());
+        final int i=info.indexOf("Evaluating: ");
+        final int j=info.indexOf(" ms",i);
+        final String time=info.substring(i + "Evaluating: ".length() + 2,j);
+        if (s) {
+          xml.openElement(token("topic"),token("topic-id"),token(tid),token("total_time_ms"),token(time));
+          xml.openElement(token("result"));
+          xml.openElement(token("file"));
+          xml.text(token(file.toString()));
+          xml.closeElement();
+          final Result val=proc.result();
+          if (val instanceof SeqIter) {
+            final SeqIter itr=(SeqIter)val;
+            Item a;
+            int r=1;
+            while ((a=itr.next()) != null) {
+              if (a instanceof Str) {
+                xml.openElement(token("path"));
+                xml.text(a.str());
+                xml.closeElement();
+                xml.openElement(token("rank"));
+                xml.text(token(r++));
+                xml.closeElement();
+              }
+ else               if (a instanceof Dbl) {
+                xml.openElement(token("rsv"));
+                xml.text(a.str());
+                xml.closeElement();
+              }
             }
           }
+          xml.closeElement();
+          xml.closeElement();
+          sub.flush();
         }
-        xml.closeElement();
-        xml.closeElement();
-        sub.flush();
       }
     }
     if (++curr >= STOPAFTER)     break;
