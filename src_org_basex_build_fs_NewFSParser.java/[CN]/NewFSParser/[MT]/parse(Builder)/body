@@ -17,7 +17,14 @@
     final byte[] bck=Prop.fuse ? token(mybackingpath) : token(fsimportpath);
     atts.add(MOUNTPOINT,mnt);
     atts.add(BACKINGSTORE,bck);
-    if (ADD_ATTS)     builder.startNS(token("xsi"),token("http://www.w3.org/2001/XMLSchema-instance"));
+    NS.FS.start(builder);
+    if (prop.is(Prop.FSMETA)) {
+      NS.FSMETA.start(builder);
+      NS.DCTERMS.start(builder);
+    }
+    if (ADD_ATTS) {
+      NS.XSI.start(builder);
+    }
     builder.startElem(DEEPFS,atts);
     for (    final File f : root ? File.listRoots() : new File[]{new File(fsimportpath).getCanonicalFile()}) {
       importRootLength=f.getAbsolutePath().length();

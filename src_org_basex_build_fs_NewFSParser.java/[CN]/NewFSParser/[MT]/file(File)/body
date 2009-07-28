@@ -1,35 +1,40 @@
 {
   curr=f;
-  atts.reset();
-  final String name=f.getName();
   final long size=f.length();
-  atts.add(NAME,token(name));
   if (!singlemode) {
+    atts.reset();
+    final String name=f.getName();
+    atts.add(NAME,token(name));
     builder.startElem(FILE,atts);
-    if ((prop.is(Prop.FSMETA) || prop.is(Prop.FSCONT)) && f.canRead() && f.isFile()&& f.getName().indexOf('.') != -1) {
-      final int dot=name.lastIndexOf('.');
-      final String suffix=name.substring(dot + 1).toLowerCase();
-      if (size > 0) {
-        final AbstractParser parser=getParser(suffix);
-        if (parser != null) {
-          final BufferedFileChannel bfc=new BufferedFileChannel(f,buffer);
-          try {
-            parse0(parser,bfc);
-          }
- catch (          final IOException ex) {
-            BaseX.debug("NewFSParser: Failed to parse file metadata (%).",bfc.getFileName());
-          }
- finally {
+    if ((prop.is(Prop.FSMETA) || prop.is(Prop.FSCONT)) && f.canRead() && f.isFile()) {
+      if (prop.is(Prop.SPOTLIGHT)) {
+        spotlight.parse(f);
+      }
+ else       if (name.indexOf('.') != -1) {
+        final int dot=name.lastIndexOf('.');
+        final String suffix=name.substring(dot + 1).toLowerCase();
+        if (size > 0) {
+          final AbstractParser parser=getParser(suffix);
+          if (parser != null) {
+            final BufferedFileChannel fc=new BufferedFileChannel(f,buffer);
             try {
-              bfc.close();
+              parse0(parser,fc);
             }
- catch (            final IOException e1) {
+ catch (            final IOException e) {
+              BaseX.debug("NewFSParser: Failed to parse file metadata (%).",fc.getFileName());
+            }
+ finally {
+              try {
+                fc.close();
+              }
+ catch (              final IOException e1) {
+              }
             }
           }
         }
+        addFSAtts(f,size);
       }
     }
-    addFSAtts(f,size);
     builder.endElem(FILE);
   }
   sizeStack[lvl]+=size;

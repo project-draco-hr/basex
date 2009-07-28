@@ -1,17 +1,17 @@
 {
   final byte[] array=new byte[30];
   bfc.get(array,0,30);
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.title,array));
+  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.TITLE,array));
   bfc.get(array,0,30);
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.creator,array));
+  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.CREATOR,array));
   bfc.get(array,0,30);
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.album,array));
+  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.ALBUM,array));
   final byte[] a2=new byte[4];
   bfc.get(a2,0,4);
   if (!ws(array)) {
     try {
       final Date d=SDF.parse(new String(a2));
-      fsparser.metaEvent(meta.setDate(DateField.dateReleased,ParserUtil.convertDate(d)));
+      fsparser.metaEvent(meta.setDate(DateField.DATE,ParserUtil.convertDate(d)));
     }
  catch (    final ParseException ex) {
       if (NewFSParser.VERBOSE)       BaseX.debug(ex.getMessage());
@@ -20,11 +20,11 @@
   bfc.get(array,0,30);
   if (array[28] == 0) {
     if (array[29] != 0) {
-      fsparser.metaEvent(meta.setInt(IntField.track,array[29]));
+      fsparser.metaEvent(meta.setInt(IntField.TRACK,array[29]));
       array[29]=0;
     }
   }
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.comment,array));
+  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.DESCRIPTION,array));
   final int genreId=bfc.get() & 0xFF;
-  if (genreId != 0)   fsparser.metaEvent(meta.setString(StringField.genre,getGenre(genreId)));
+  if (genreId != 0)   fsparser.metaEvent(meta.setString(StringField.GENRE,getGenre(genreId)));
 }

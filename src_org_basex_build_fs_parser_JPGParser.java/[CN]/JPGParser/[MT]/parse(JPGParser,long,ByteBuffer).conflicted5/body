@@ -1,14 +1,7 @@
 {
-  final int type=buf.getShort();
-  if (buf.getInt() == 1) {
-    if (type == IFD_TYPE_SHORT) {
-      obj.meta.setShort(IntField.pixelHeight,(short)(buf.getShort() & 0xFFFF));
-    }
- else     if (type == IFD_TYPE_LONG) {
-      obj.meta.setInt(IntField.pixelHeight,buf.getInt() & 0xFFFFFFFF);
-    }
- else     error(obj,"Image length (0x0101)");
+  if (buf.getShort() == IFD_TYPE_ASCII) {
+    obj.meta.setString(StringField.DESCRIPTION,obj.readAscii(buf,ifdOff));
     obj.fsparser.metaEvent(obj.meta);
   }
- else   error(obj,"Image length (0x0101)");
+ else   error(obj,"Image description (0x010E)");
 }

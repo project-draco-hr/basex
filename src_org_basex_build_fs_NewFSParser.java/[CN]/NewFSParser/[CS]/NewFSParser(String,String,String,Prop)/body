@@ -10,12 +10,16 @@
   mountpoint=mp;
   mybackingpath=backingroot + Prop.SEP + fsdbname;
   if (prop.is(Prop.FSMETA) || prop.is(Prop.FSCONT)) {
-    final int size=(int)Math.ceil(REGISTRY.size() / 0.75f);
-    parserInstances=new HashMap<String,AbstractParser>(size);
-    buffer=ByteBuffer.allocateDirect(IO.BLOCKSIZE);
-  }
+    if (prop.is(Prop.SPOTLIGHT)) {
+      spotlight=new SpotlightExtractor(this);
+    }
  else {
-    parserInstances=null;
-    buffer=null;
+      final int size=(int)Math.ceil(REGISTRY.size() / 0.75f);
+      parserInstances=new HashMap<String,AbstractParser>(size);
+      buffer=ByteBuffer.allocateDirect(IO.BLOCKSIZE);
+      return;
+    }
   }
+  parserInstances=null;
+  buffer=null;
 }
