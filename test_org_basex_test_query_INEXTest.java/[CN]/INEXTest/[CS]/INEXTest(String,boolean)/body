@@ -3,7 +3,7 @@
   final BufferedWriter out=new BufferedWriter(new FileWriter(new File("INEX/INEX1.log")));
   final PrintOutput sub=new PrintOutput("INEX/sub.xml");
   final XMLSerializer xml=new XMLSerializer(sub,false,true);
-  final File file=new File("INEX/co1.que");
+  final File file=new File("INEX/co.que");
   if (!file.exists()) {
     System.out.println("Could not read \"" + file.getAbsolutePath() + "\"");
     return;
@@ -29,11 +29,11 @@
     s1=line.indexOf('"',s0 + 1);
     s0=line.indexOf('/',s1);
     String q=line.substring(s0);
-    System.out.println(q);
+    final String qo=q;
     q=replaceElements(q);
-    System.out.println(q);
     if (exe) {
       q=xqm + "for $i score $s in " + q+ " order by $s return (basex:sum-path($i), $s)";
+      context.prop.set(Prop.ALLINFO,true);
       final Process proc=new XQuery(q);
       if (!proc.execute(context)) {
         System.out.println("- " + proc.info());
@@ -42,6 +42,11 @@
  else {
         final String info=proc.info();
         proc.output(new NullOutput());
+        if (info.indexOf("Applying full-text index") < 0) {
+          System.out.println("No index usage: " + qo);
+          System.out.println(q);
+          System.out.println("****");
+        }
         final int i=info.indexOf("Evaluating: ");
         final int j=info.indexOf(" ms",i);
         final String time=info.substring(i + "Evaluating: ".length() + 2,j);
