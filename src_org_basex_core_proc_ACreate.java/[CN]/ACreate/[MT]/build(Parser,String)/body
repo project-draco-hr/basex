@@ -8,6 +8,7 @@
     builder=mem ? new MemBuilder(p) : new DiskBuilder(p);
     progress(builder);
     final Data data=builder.build(db == null ? "" : db);
+    builder=null;
     index(data);
     context.openDB(data);
     context.addToPool(data);
@@ -18,7 +19,7 @@
     err=BaseX.info(FILEWHICH,p.io);
   }
 catch (  final ProgressException ex) {
-    return error(Prop.server ? SERVERTIME : CANCELCREATE);
+    err=Prop.server ? SERVERTIME : CANCELCREATE;
   }
 catch (  final IOException ex) {
     BaseX.debug(ex);
