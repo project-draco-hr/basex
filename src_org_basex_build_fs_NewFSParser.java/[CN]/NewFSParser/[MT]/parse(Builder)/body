@@ -3,7 +3,8 @@
   builder.encoding(Prop.ENCODING);
   builder.meta.backingpath=mybackingpath;
   builder.meta.mountpoint=mountpoint;
-  if (Prop.fuse && !singlemode) {
+  final boolean fuse=prop.is(Prop.FUSE);
+  if (fuse && !singlemode) {
     final File bs=new File(mybackingpath);
     if (!bs.mkdirs() && bs.exists())     throw new IOException(BACKINGEXISTS + mybackingpath);
   }
@@ -13,8 +14,8 @@
   }
  else {
     atts.reset();
-    final byte[] mnt=Prop.fuse ? token(mountpoint) : NOTMOUNTED;
-    final byte[] bck=Prop.fuse ? token(mybackingpath) : token(fsimportpath);
+    final byte[] mnt=fuse ? token(mountpoint) : NOTMOUNTED;
+    final byte[] bck=fuse ? token(mybackingpath) : token(fsimportpath);
     atts.add(MOUNTPOINT,mnt);
     atts.add(BACKINGSTORE,bck);
     NS.FS.start(builder);
