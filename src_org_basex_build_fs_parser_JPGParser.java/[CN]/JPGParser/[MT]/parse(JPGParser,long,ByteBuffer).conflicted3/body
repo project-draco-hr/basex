@@ -1,14 +1,10 @@
 {
-  final int type=buf.getShort();
-  if (buf.getInt() == 1) {
-    if (type == IFD_TYPE_LONG) {
-      obj.meta.setLong(IntField.PIXEL_HEIGHT,(long)buf.getInt() & 0xFFFFFFFF);
-    }
- else     if (type == IFD_TYPE_SHORT) {
-      obj.meta.setShort(IntField.PIXEL_HEIGHT,(short)(buf.getShort() & 0xFFFF));
-    }
- else     error(obj,"Exif Image Height (0xA003)");
+  if (buf.getShort() == IFD_TYPE_ASCII && buf.getInt() == 20) {
+    obj.bfc.position(ifdOff + buf.getInt());
+    obj.bfc.buffer(20);
+    final byte[] data=new byte[20];
+    obj.bfc.get(data);
+    obj.dateEvent(DateField.DATE_CREATED,data);
   }
- else   error(obj,"Exif Image Height (0xA003)");
-  obj.fsparser.metaEvent(obj.meta);
+ else   error(obj,"DateTime (0x0132)");
 }
