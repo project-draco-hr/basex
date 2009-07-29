@@ -1,94 +1,29 @@
 {
-  new Open(db).execute(context);
-  final BufferedWriter out=new BufferedWriter(new FileWriter(new File("INEX/INEX1.log")));
-  final PrintOutput sub=new PrintOutput("INEX/sub.xml");
-  final XMLSerializer xml=new XMLSerializer(sub,false,true);
-  final File file=new File("INEX/co.que");
-  if (!file.exists()) {
-    System.out.println("Could not read \"" + file.getAbsolutePath() + "\"");
-    return;
+  BufferedWriter out=null;
+  PrintOutput sub=null;
+  XMLSerializer xml=null;
+  if (d != null) {
+    out=new BufferedWriter(new FileWriter(new File("INEX/log/" + d + ".log")));
+    sub=new PrintOutput("INEX/sub/" + d + ".xml");
+    xml=new XMLSerializer(sub,false,true);
+    xml.openElement(token("efficiency-submission"));
+    test(sub,xml,d,exe);
   }
-  context.prop.set(Prop.INFO,true);
-  if (s) {
-    xml.openElement(token("efficiency-submission"),token("participant-id"),token("1111111"),token("run-id"),token("1111111"),token("taks"),token(task[0]),token("type"),token(type[0]),token("query"),token(query[0]),token("sequential"),token("yes"));
-    xml.emptyElement(token("topic-fields"),token("co_title"),token("no"),token("cas_title"),token("no"),token("xpath_title"),token("yes"),token("text_predicates"),token("no"),token("description"),token("no"),token("narrative"),token("no"));
-    xml.emptyElement(token("general_description"));
-    xml.emptyElement(token("ranking_description"));
-    xml.emptyElement(token("indexing_description"));
-    xml.emptyElement(token("caching_description"));
-  }
-  final FileInputStream fis=new FileInputStream(file);
-  final InputStreamReader isr=new InputStreamReader(fis,"UTF8");
-  final BufferedReader br=new BufferedReader(isr);
-  String line=null;
-  while ((line=br.readLine()) != null) {
-    int s0=line.indexOf('"');
-    int s1=line.indexOf('"',s0 + 1);
-    final int tid=Integer.parseInt(line.substring(s0 + 1,s1));
-    s0=line.indexOf('"',s1 + 1);
-    s1=line.indexOf('"',s0 + 1);
-    s0=line.indexOf('/',s1);
-    String q=line.substring(s0);
-    final String qo=q;
-    q=replaceElements(q);
-    if (exe) {
-      q=xqm + "for $i score $s in " + q+ " order by $s return (basex:sum-path($i), $s)";
-      context.prop.set(Prop.ALLINFO,true);
-      final Process proc=new XQuery(q);
-      if (!proc.execute(context)) {
-        System.out.println("- " + proc.info());
-        System.out.println("Query: " + q);
-      }
  else {
-        final String info=proc.info();
-        proc.output(new NullOutput());
-        if (info.indexOf("Applying full-text index") < 0) {
-          System.out.println("No index usage: " + qo);
-          System.out.println(q);
-          System.out.println("****");
-        }
-        final int i=info.indexOf("Evaluating: ");
-        final int j=info.indexOf(" ms",i);
-        final String time=info.substring(i + "Evaluating: ".length() + 2,j);
-        if (s) {
-          xml.openElement(token("topic"),token("topic-id"),token(tid),token("total_time_ms"),token(time));
-          xml.openElement(token("result"));
-          xml.openElement(token("file"));
-          xml.text(token(file.toString()));
-          xml.closeElement();
-          final Result val=proc.result();
-          if (val instanceof SeqIter) {
-            final SeqIter itr=(SeqIter)val;
-            Item a;
-            int r=1;
-            while ((a=itr.next()) != null) {
-              if (a instanceof Str) {
-                xml.openElement(token("path"));
-                xml.text(a.str());
-                xml.closeElement();
-                xml.openElement(token("rank"));
-                xml.text(token(r++));
-                xml.closeElement();
-              }
- else               if (a instanceof Dbl) {
-                xml.openElement(token("rsv"));
-                xml.text(a.str());
-                xml.closeElement();
-              }
-            }
-          }
-          xml.closeElement();
-          xml.closeElement();
-          sub.flush();
-        }
+    final StringList dbs=List.list(context);
+    final Iterator<String> i=dbs.iterator();
+    while (i.hasNext()) {
+      final String db=i.next();
+      if (db.startsWith("pages")) {
+        out=new BufferedWriter(new FileWriter(new File("INEX/log/" + db + ".log")));
+        sub=new PrintOutput("INEX/sub/" + db + ".xml");
+        xml=new XMLSerializer(sub,false,true);
+        xml.openElement(token("efficiency-submission"));
+        test(sub,xml,db,exe);
       }
     }
-    if (++curr >= STOPAFTER)     break;
   }
-  br.close();
-  if (s) {
-    xml.closeElement();
-  }
+  xml.closeElement();
   xml.close();
   sub.close();
   out.close();

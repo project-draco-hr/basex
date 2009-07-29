@@ -1,7 +1,7 @@
 {
   byte[] b=str.getBytes();
   final byte[] or=new byte[]{' ','o','r',' '};
-  final byte[] co=new byte[]{' ',',',' '};
+  final byte[] co=new byte[]{' ','|',' '};
   final byte[] txt=new byte[]{'/','t','e','x','t','(',')'};
   int i=0;
   int sp=-1, sb=-1, sbb=-1, os=-1, ebb=-1;
@@ -14,8 +14,8 @@ case '/':
     break;
 case '(':
   sb=i;
+if (b[i + 1] == ')' || b[i + 1] == ' ' || b[i + 1] == '.') break;
 i++;
-if (b[i] == ')' || b[i] == ' ') break;
 boolean f=false;
 while (i < b.length && b[i] != ')' && !f) {
 f=b[i] == '"' || b[i] == '\'';
@@ -66,7 +66,7 @@ for (int k=0; k < tok.length; k++) {
 bn=Array.add(bn,b,0,sb);
 bn=Array.add(bn,tok[k],0,tok[k].length);
 bn=Array.add(bn,b,sbb,b.length);
-if (k < tok.length - 1) bn=Array.add(bn,or,0,or.length);
+if (k < tok.length - 1) bn=Array.add(bn,co,0,co.length);
 }
 i=sb;
 b=bn;
@@ -89,6 +89,7 @@ ebb=-1;
 }
 break;
 case '[':
+ebb=-1;
 sbb=i;
 break;
 case ']':
