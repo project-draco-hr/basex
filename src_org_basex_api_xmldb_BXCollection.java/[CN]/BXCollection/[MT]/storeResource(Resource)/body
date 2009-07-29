@@ -7,10 +7,8 @@
   final Resource old=getResource(id);
   if (old != null)   removeResource(getResource(id));
   final Object cont=xml.content;
-  Parser p=null;
-  if (cont instanceof Document)   p=new DOCWrapper((Document)cont,id,ctx.prop);
- else   p=new DirParser(new IOContent((byte[])cont,id),ctx.prop);
   try {
+    final Parser p=cont instanceof Document ? new DOCWrapper((Document)cont,id,ctx.prop) : Parser.xmlParser(new IOContent((byte[])cont,id),ctx.prop);
     final Data data=ctx.data();
     data.insert(data.meta.size,-1,new MemBuilder(p).build(id));
     data.flush();
