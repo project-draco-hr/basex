@@ -3,7 +3,12 @@
   final IO io=IO.get(string(name));
   if (!Prop.web && io.exists()) {
     try {
-      return Str.get(io.content());
+      final XMLInput in=new XMLInput(io);
+      final int len=(int)in.length();
+      final TokenBuilder tb=new TokenBuilder(len);
+      while (in.pos() < len)       tb.addUTF(in.next());
+      in.finish();
+      return Str.get(tb.finish());
     }
  catch (    final IOException ex) {
       BaseX.debug(ex);
