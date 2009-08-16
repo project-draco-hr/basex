@@ -1,9 +1,8 @@
 {
   final Data data=context.data();
-  if (data instanceof MemData)   return error(PROCMM);
   try {
     Type index=null;
-switch (type) {
+switch (getType(args[0])) {
 case TEXT:
       data.meta.txtindex=true;
     index=Type.TXT;
@@ -20,7 +19,12 @@ data.meta.ftcs=prop.is(Prop.FTCS);
 data.meta.ftdc=prop.is(Prop.FTDC);
 index=Type.FTX;
 break;
+case SUMMARY:
+return summary(data);
+default :
+return false;
 }
+if (data instanceof MemData) return error(PROCMM);
 data.flush();
 buildIndex(index,data);
 return info(DBINDEXED,perf.getTimer());

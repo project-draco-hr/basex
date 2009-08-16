@@ -10,7 +10,7 @@
     if (verbose)     BaseX.outln("[%:%] %",ha,sp,in);
     Process pr=null;
     try {
-      pr=new CommandParser(in,context).parse()[0];
+      pr=new CommandParser(in,context,true).parse()[0];
     }
  catch (    final QueryException ex) {
       pr=new Process(0){
@@ -21,7 +21,7 @@
       send(s,-sp);
       return;
     }
-    if (pr instanceof Exit) {
+    if (pr instanceof IntStop) {
       send(s,1);
       running=false;
       return;
@@ -30,7 +30,7 @@
     new Thread(){
       @Override public void run(){
         try {
-          if (proc instanceof GetResult || proc instanceof GetInfo) {
+          if (proc instanceof IntOutput || proc instanceof IntInfo) {
             final OutputStream os=s.getOutputStream();
             final PrintOutput out=new PrintOutput(new BufferedOutput(os),Prop.web ? context.prop.num(Prop.MAXTEXT) : Integer.MAX_VALUE);
             final int id=Math.abs(Integer.parseInt(proc.args().trim()));
@@ -38,23 +38,24 @@
             if (c == null) {
               out.print(BaseX.info(SERVERTIME,context.prop.num(Prop.TIMEOUT)));
             }
- else             if (proc instanceof GetResult) {
+ else             if (proc instanceof IntOutput) {
               c.output(out);
             }
- else             if (proc instanceof GetInfo) {
+ else             if (proc instanceof IntInfo) {
               c.info(out);
+              remove(c);
             }
             out.close();
           }
  else {
             add(new BaseXSession(sp,System.nanoTime(),proc));
             send(s,proc.execute(context) ? sp : -sp);
+            if (proc.info().equals(PROGERR))             proc.error(SERVERTIME);
           }
           dis.close();
         }
  catch (        final Exception ex) {
-          if (ex instanceof IOException)           BaseX.errln(SERVERERR);
-          ex.printStackTrace();
+          error(ex,false);
         }
         if (verbose)         BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
       }
@@ -62,7 +63,6 @@
 .start();
   }
  catch (  final Exception ex) {
-    if (ex instanceof IOException)     BaseX.errln(SERVERERR);
-    ex.printStackTrace();
+    error(ex,false);
   }
 }

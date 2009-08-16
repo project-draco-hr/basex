@@ -1,5 +1,4 @@
 {
-  Prop.server=true;
   if (!parseArguments(args))   return;
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
@@ -9,23 +8,16 @@
   }
 );
   try {
-    serverSocket=new ServerSocket(context.prop.num(Prop.PORT));
+    socket=new ServerSocket(context.prop.num(Prop.PORT));
     BaseX.outln(SERVERSTART);
-    inputListener=new InputListener();
-    inputListener.start();
-    sessionListener=new SessionListener(this);
-    sessionListener.start();
+    if (interactive) {
+      input=new InputListener();
+      input.start();
+    }
+    session=new SessionListener(this);
+    session.start();
   }
  catch (  final Exception ex) {
-    BaseX.debug(ex);
-    if (ex instanceof BindException) {
-      BaseX.errln(SERVERBIND);
-    }
- else     if (ex instanceof IOException) {
-      BaseX.errln(SERVERERR);
-    }
- else {
-      BaseX.errln(ex.getMessage());
-    }
+    error(ex,true);
   }
 }

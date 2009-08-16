@@ -15,14 +15,14 @@
     final boolean ok=pr.execute(context);
     updating=false;
     final String inf=pr.info();
-    if (!ok && inf.length() == 0) {
+    if (!ok && inf.equals(PROGERR)) {
       proc=null;
       return false;
     }
     final Result result=pr.result();
     final Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
     if (ok && pr.printing()) {
-      if (!text.isValid() && nodes == null)       GUICommands.SHOWTEXT.execute(this);
+      if (!text.visible() && nodes == null)       GUICommands.SHOWTEXT.execute(this);
       if (prop.is(GUIProp.SHOWTEXT)) {
         final CachedOutput out=new CachedOutput(context.prop.num(Prop.MAXTEXT));
         pr.output(out);
@@ -37,7 +37,7 @@
     if (prop.is(GUIProp.SHOWINFO) && (ok || main))     info.setInfo(Token.token(inf),ok);
     if (!ok) {
       if (!feedback) {
-        if (!text.isValid())         GUICommands.SHOWTEXT.execute(this);
+        if (!text.visible())         GUICommands.SHOWTEXT.execute(this);
         text.setText(Token.token(inf));
       }
       cursor(CURSORARROW,true);

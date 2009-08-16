@@ -1,15 +1,17 @@
 {
   final byte[] qu=getText();
-  final boolean mod=isModule(qu);
-  if (gui.prop.is(GUIProp.EXECRT) && !mod) {
-    query(false);
+  final boolean module=isModule(qu);
+  boolean mod=!Token.eq(qu,last);
+  view.modified(view.modified || mod);
+  if (gui.prop.is(GUIProp.EXECRT) && !module && mod) {
+    query(qu,true);
   }
  else {
     try {
       last=qu;
-      final String xq=Token.string(qu);
+      final String xq=qu.length == 0 ? "." : Token.string(qu);
       final QueryContext ctx=new QueryContext(gui.context);
-      if (isModule(qu))       ctx.module(xq);
+      if (module)       ctx.module(xq);
  else       ctx.parse(xq);
       view.info("",true);
     }

@@ -1,60 +1,61 @@
 {
-  if (info)   BaseX.outln("Login from Client %.",clientId);
   final Performance perf=new Performance();
   final InetAddress addr=socket.getInetAddress();
   final String ha=addr.getHostAddress();
   final int sp=socket.getPort();
   dis=new DataInputStream(socket.getInputStream());
-  dos=new DataOutputStream(socket.getOutputStream());
   out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
   final int port=socket.getPort();
-  while (running) {
-    final String in=getMessage().trim();
-    if (in.equals("end")) {
+  if (info)   BaseX.outln("[%:%] Login: client '%'.",ha,port,clientId);
+  while (true) {
+    final String in=getMessage();
+    if (in == null) {
       stop(false);
       break;
     }
     if (info)     BaseX.outln("[%:%] %",ha,port,in);
-    Process pr=null;
+    Process proc=null;
     try {
-      pr=new CommandParser(in,context).parse()[0];
+      proc=new CommandParser(in,context,true).parse()[0];
     }
  catch (    final QueryException ex) {
-      pr=new Process(0){
+      proc=new Process(0){
       }
 ;
-      pr.error(ex.extended());
-      core=pr;
-      send(-sp);
-      return;
+      proc.error(ex.extended());
+      core=proc;
+      send(false);
+      continue;
     }
-    if (pr instanceof Exit) {
-      send(0);
+    if (proc instanceof IntStop || proc instanceof Exit) {
+      send(true);
       stop(true);
+      if (proc instanceof IntStop)       bxs.stop();
       break;
     }
-    final Process proc=pr;
-    if (proc instanceof GetResult || proc instanceof GetInfo) {
-      final Process c=core;
-      if (c == null) {
+ else     if (proc instanceof IntOutput || proc instanceof IntInfo) {
+      if (core == null) {
         out.print(BaseX.info(SERVERTIME));
       }
- else       if (proc instanceof GetResult) {
-        c.output(out);
-        out.write(0);
+ else {
+        if (proc instanceof IntOutput) {
+          core.output(out);
+          out.write(new byte[IO.BLOCKSIZE]);
+        }
+ else {
+          new DataOutputStream(out).writeUTF(core.info());
+        }
+        out.flush();
       }
- else       if (proc instanceof GetInfo) {
-        c.info(out);
-        out.write(0);
-      }
-      out.flush();
     }
  else {
       core=proc;
       timeout(proc);
-      send(proc.execute(context) ? sp : -sp);
+      send(proc.execute(context));
+      if (proc.info().equals(PROGERR))       proc.error(SERVERTIME);
       timeout.interrupt();
     }
     if (info)     BaseX.outln("[%:%] %",ha,sp,perf.getTimer());
   }
+  if (info)   BaseX.outln("[%:%] Logout: client '%'.",ha,port,clientId);
 }

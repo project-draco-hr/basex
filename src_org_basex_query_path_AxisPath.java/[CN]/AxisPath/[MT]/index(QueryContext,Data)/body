@@ -1,72 +1,76 @@
 {
   for (  final Step s : step)   if (!s.axis.down)   return this;
-  for (int i=0; i < step.length; i++) {
-    final Step stp=step[i];
-    IndexContext ictx=null;
-    int ip=0;
-    final boolean d=stp.pred.length == 0 || pathNodes(data,i) == null;
+  IndexContext ics=null;
+  int ips=0;
+  int ms=0;
+  for (int s=0; s < step.length; s++) {
+    final Step stp=step[s];
+    final boolean d=pathNodes(data,s) == null;
     for (int p=0; p < stp.pred.length; p++) {
-      final IndexContext ic=new IndexContext(ctx,data,stp,d);
-      if (stp.pred[p].indexAccessible(ic) && (ictx == null || ictx.is > ic.is)) {
-        ictx=ic;
-        ip=p;
-      }
-    }
-    if (ictx == null)     continue;
-    if (ictx.is == 0) {
-      if (ictx.not) {
-        stp.pred[ip]=Bln.TRUE;
-        continue;
-      }
-      ctx.compInfo(OPTNOINDEX,this);
-      return Seq.EMPTY;
-    }
-    final Expr ie=stp.pred[ip].indexEquivalent(ictx);
-    if (ictx.seq) {
-      stp.pred[ip]=ie;
-    }
- else {
-      Step[] inv={};
-      final Expr[] newPreds=new Expr[stp.pred.length - 1];
-      int c=0;
-      for (int p=0; p != stp.pred.length; p++) {
-        if (p != ip)         newPreds[c++]=stp.pred[p];
-      }
-      for (int j=i; j >= 0; j--) {
-        final Axis a=step[j].axis.invert();
-        if (a == null)         break;
-        if (j == 0) {
-          if (a == Axis.PARENT)           inv=Array.add(inv,Step.get(a,new KindTest(Type.DOC)));
+      IndexContext ic=new IndexContext(ctx,data,stp,d);
+      if (!stp.pred[p].indexAccessible(ic))       continue;
+      if (ic.is == 0) {
+        if (ic.not) {
+          stp.pred[p]=Bln.TRUE;
+          continue;
         }
- else {
-          final Step prev=step[j - 1];
-          if (prev.pred.length != 0)           break;
-          inv=Array.add(inv,Step.get(a,prev.test));
-        }
+        ctx.compInfo(OPTNOINDEX,this);
+        return Seq.EMPTY;
       }
-      final boolean add=inv.length != 0 || newPreds.length != 0;
-      AxisPath result=null;
-      if (ie instanceof AxisPath) {
-        result=(AxisPath)ie;
+      if (ics == null || ics.is > ic.is) {
+        ics=ic;
+        ips=p;
+        ms=s;
+        break;
       }
- else       if (add || i + 1 < step.length) {
-        result=add ? new AxisPath(ie,Step.get(Axis.SELF,Test.NODE)) : new AxisPath(ie);
-      }
- else {
-        return ie;
-      }
-      final int sl=result.step.length - 1;
-      for (      final Expr np : newPreds) {
-        result.step[sl]=result.step[sl].addPred(np);
-      }
-      if (inv.length != 0) {
-        result.step[sl]=result.step[sl].addPred(AxisPath.get(null,inv));
-      }
-      for (int j=i + 1; j < step.length; j++) {
-        result.step=Array.add(result.step,step[j]);
-      }
-      return result.comp(ctx);
     }
+  }
+  if (ics == null)   return this;
+  final Step stp=step[ms];
+  final Expr ie=stp.pred[ips].indexEquivalent(ics);
+  if (ics.seq) {
+    stp.pred[ips]=ie;
+  }
+ else {
+    Step[] inv={};
+    final Expr[] newPreds=new Expr[stp.pred.length - 1];
+    int c=0;
+    for (int p=0; p != stp.pred.length; p++) {
+      if (p != ips)       newPreds[c++]=stp.pred[p];
+    }
+    for (int j=ms; j >= 0; j--) {
+      final Axis a=step[j].axis.invert();
+      if (a == null)       break;
+      if (j == 0) {
+        if (a != Axis.ANC && a != Axis.ANCORSELF)         inv=Array.add(inv,Step.get(a,new KindTest(Type.DOC)));
+      }
+ else {
+        final Step prev=step[j - 1];
+        inv=Array.add(inv,Step.get(a,prev.test,prev.pred));
+      }
+    }
+    final boolean add=inv.length != 0 || newPreds.length != 0;
+    AxisPath result=null;
+    if (ie instanceof AxisPath) {
+      result=(AxisPath)ie;
+    }
+ else     if (add || ms + 1 < step.length) {
+      result=add ? new AxisPath(ie,Step.get(Axis.SELF,Test.NODE)) : new AxisPath(ie);
+    }
+ else {
+      return ie;
+    }
+    final int sl=result.step.length - 1;
+    for (    final Expr np : newPreds) {
+      result.step[sl]=result.step[sl].addPred(np);
+    }
+    if (inv.length != 0) {
+      result.step[sl]=result.step[sl].addPred(AxisPath.get(null,inv));
+    }
+    for (int s=ms + 1; s < step.length; s++) {
+      result.step=Array.add(result.step,step[s]);
+    }
+    return result.comp(ctx);
   }
   return this;
 }

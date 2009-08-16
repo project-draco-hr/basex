@@ -1,26 +1,34 @@
 {
-  for (  final String arg : args) {
-    if (arg.equals("-r")) {
-      reporting=true;
-      currTime=true;
-    }
- else     if (arg.startsWith("-p")) {
-      path=arg.substring(2);
-    }
- else     if (arg.equals("-t")) {
-      currTime=true;
-    }
- else     if (arg.equals("-v")) {
-      verbose=true;
-    }
- else     if (!arg.startsWith("-")) {
-      single=arg;
-      maxout*=10;
+  final Args arg=new Args(args);
+  boolean o=true;
+  while (arg.more() && o) {
+    if (arg.dash()) {
+      final char c=arg.next();
+      if (c == 'r') {
+        reporting=true;
+        currTime=true;
+      }
+ else       if (c == 'p') {
+        path=arg.string();
+      }
+ else       if (c == 't') {
+        currTime=true;
+      }
+ else       if (c == 'v') {
+        verbose=true;
+      }
+ else {
+        o=false;
+      }
     }
  else {
-      BaseX.outln("\n" + NAME + " vs. XQuery Test Suite\n"+ " [pat] perform only tests with the specified pattern\n"+ " -h show this help\n"+ " -p change path\n"+ " -r create report\n"+ " -v verbose output");
-      return;
+      single=arg.string();
+      maxout*=10;
     }
+  }
+  if (!o) {
+    BaseX.outln(NL + BaseX.name(this) + " Test Suite"+ NL+ " [pat] perform only tests with the specified pattern"+ NL+ " -h show this help"+ NL+ " -p change path"+ NL+ " -r create report"+ NL+ " -v verbose output");
+    return;
   }
   queries=path + "Queries/XQuery/";
   expected=path + "ExpectedTestResults/";
@@ -32,11 +40,12 @@
   final Performance perf=new Performance();
   context.prop.set(Prop.XQFORMAT,false);
   context.prop.set(Prop.MAINMEM,false);
+  context.prop.set(Prop.CHOP,false);
   new CreateDB(path + input).execute(context);
   data=context.data();
   final Nodes root=new Nodes(0,data);
-  BaseX.outln("\n" + TITLE + " vs. XQuery Test Suite "+ text("/*:test-suite/@version",root));
-  BaseX.outln("\nCaching Sources...");
+  BaseX.outln(NL + BaseX.name(this) + " Test Suite "+ text("/*:test-suite/@version",root));
+  BaseX.outln(NL + "Caching Sources...");
   for (  final int s : nodes("//*:source",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
     final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
@@ -59,24 +68,7 @@
     }
     colls.put(cname,dl.finish());
   }
-  BaseX.outln("Caching Full-text Structures...");
-  for (  final int s : nodes("//*:stopwords",root).nodes) {
-    final Nodes srcRoot=new Nodes(s,data);
-    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
-    stop.put(text("@uri",srcRoot),val);
-    stop2.put(text("@ID",srcRoot),val);
-  }
-  for (  final int s : nodes("//*:stemming-dictionary",root).nodes) {
-    final Nodes srcRoot=new Nodes(s,data);
-    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
-    stem.put(text("@ID",srcRoot),val);
-  }
-  for (  final int s : nodes("//*:thesaurus",root).nodes) {
-    final Nodes srcRoot=new Nodes(s,data);
-    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
-    thes.put(text("@uri",srcRoot),val);
-    thes2.put(text("@ID",srcRoot),val);
-  }
+  init(root);
   if (reporting) {
     BaseX.outln("Delete old results...");
     delete(new File[]{new File(results)});
@@ -91,7 +83,7 @@
   BaseX.outln();
   final String time=perf.getTimer();
   final int total=ok + ok2 + err+ err2;
-  BaseX.outln("Writing log file...\n");
+  BaseX.outln("Writing log file..." + NL);
   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathlog),UTF8));
   bw.write("TEST RESULTS ==================================================");
   bw.write(NL + NL + "Total #Queries: "+ total+ NL);

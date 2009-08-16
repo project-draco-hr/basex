@@ -1,60 +1,20 @@
 {
-  data=new byte[8192];
-  commands.set(pathPos,file.getAbsolutePath());
-  Process p=pb.start();
-  InputStream in=p.getInputStream();
-  int bytesRead=0;
-  int status;
-  while (true) {
-    status=in.read(data,bytesRead,data.length - bytesRead);
-    if (status == -1)     break;
-    bytesRead+=status;
-    if (bytesRead == data.length) {
-      data=Array.resize(data,data.length,bytesRead << 1);
-    }
-  }
-  byte[][] tokens=Token.split(data,10);
-  int numLines=tokens.length;
-  for (int i=0; i < numLines; i++) {
-    byte[] line=tokens[i];
-    if (ws(line))     continue;
-    int len=line.length;
-    if (!startsWith(line,new byte[]{'k','M','D','I','t','e','m'})) {
-      continue;
-    }
-    int pos=indexOf(line,' ');
-    if (pos == -1) {
-      BaseX.debug("Failed to parse spotlight items (%)",file);
-      return;
-    }
-    String itemName=string(substring(line,7,pos));
-    Item item;
+  final Map<String,Object> metadata=getMetadata(file.getAbsolutePath());
+  if (metadata == null)   return;
+  for (  final Entry<String,Object> e : metadata.entrySet()) {
     try {
-      item=Item.valueOf(itemName);
-    }
- catch (    IllegalArgumentException e) {
-      continue;
-    }
-    for (; pos < len; pos++)     if (line[pos] == '=')     break;
-    pos+=2;
-    if (pos >= len) {
-      BaseX.debug("Failed to parse spotlight items (%)",file);
-      return;
-    }
-    if (line[pos] == '(') {
-      while (tokens[++i][0] != ')') {
-        line=trim(tokens[i]);
-        if (line[0] == '"')         line=substring(line,1,line.length - 1);
-        item.parse(this,line);
+      final Item item=Item.getValue(e.getKey());
+      final Object val=e.getValue();
+      if (val instanceof Object[]) {
+        for (        final Object o : (Object[])val) {
+          item.parse(this,o);
+        }
       }
-    }
  else {
-      int end=line.length;
-      if (line[pos] == '"') {
-        pos++;
-        end--;
+        item.parse(this,val);
       }
-      item.parse(this,substring(line,pos,end));
+    }
+ catch (    final IllegalArgumentException ex) {
     }
   }
 }

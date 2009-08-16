@@ -1,19 +1,18 @@
 {
-  hits=Token.toInt(args[0]);
-  sub=Token.toInt(args[1]);
-  final String query=args[2] + "[position() <= " + hits * sub + "]";
+  maxh=Token.toInt(args[0]);
+  maxs=Token.toInt(args[1]);
+  final String query="(" + args[2] + ")[position() <= "+ maxh * maxs + "]";
   long fini=0;
-  QueryProcessor qu=null;
   final int runs=prop.num(Prop.RUNS);
   try {
     for (int i=0; i < runs; i++) {
-      qu=new QueryProcessor(query,context);
-      progress(qu);
-      qu.parse();
+      qp=new QueryProcessor(query,context);
+      progress(qp);
+      qp.parse();
       pars+=per.getTime();
-      qu.compile();
+      qp.compile();
       comp+=per.getTime();
-      result=qu.queryNodes();
+      result=qp.queryNodes();
       eval+=per.getTime();
       final Nodes ns=(Nodes)result;
       result=new Nodes(ns.nodes,ns.data);
@@ -35,7 +34,7 @@
  else {
           ids.index(id,pre);
         }
-        if (ids.size() == hits)         break;
+        if (ids.size() == maxh)         break;
       }
       maxhits=ids.size();
       fini+=per.getTime();

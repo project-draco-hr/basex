@@ -1,20 +1,20 @@
 {
-  final byte[] n=Token.token(args[0]);
-  final byte[] v=Token.token(args[1]);
-  final int att=data.attNameID(n);
-  if (!check(n))   return error(ATTINVALID,n);
+  final byte[] name=Token.token(args[2]);
+  final byte[] val=Token.token(args[3]);
+  final int att=data.attNameID(name);
+  if (!check(name))   return error(ATTINVALID,name);
   for (int i=nodes.size() - 1; i >= 0; i--) {
     final int par=nodes.nodes[i];
     final int kind=data.kind(par);
     if (kind != Data.ELEM)     return error(COPYTAGS);
     final int last=par + data.attSize(par,kind);
     for (int p=par + 1; p < last; p++) {
-      if (att == data.attNameID(p))       return error(ATTDUPL,n);
+      if (att == data.attNameID(p))       return error(ATTDUPL,name);
     }
   }
   for (int i=nodes.size() - 1; i >= 0; i--) {
     final int par=nodes.nodes[i];
-    data.insert(par + data.attSize(par,data.kind(par)),par,n,v);
+    data.insert(par + data.attSize(par,data.kind(par)),par,name,val);
   }
   return true;
 }

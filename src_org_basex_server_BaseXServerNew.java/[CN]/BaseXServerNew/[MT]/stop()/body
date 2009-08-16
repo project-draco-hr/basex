@@ -1,12 +1,14 @@
 {
   running=false;
-  inputListener.thread.interrupt();
-  inputListener=null;
-  for (int i=0; i < sessions.size(); i++)   sessions.get(i).close();
-  try {
-    new Socket("localhost",context.prop.num(Prop.PORT));
+  if (interactive) {
+    input.thread.interrupt();
+    input=null;
   }
- catch (  IOException ex) {
-    ex.printStackTrace();
+  for (  final Session s : sessions)   s.close();
+  try {
+    new Socket(context.prop.get(Prop.HOST),context.prop.num(Prop.PORT));
+  }
+ catch (  final IOException ex) {
+    error(ex,false);
   }
 }

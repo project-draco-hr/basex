@@ -22,29 +22,69 @@
   tab2.setBorder(8,8,0,8);
   tab2.add(addIndex(true,data));
   tab2.add(addIndex(false,data));
-  final BaseXBack tab3=new BaseXBack();
-  tab3.setLayout(new GridLayout(2,1));
-  tab3.setBorder(8,8,0,8);
+  BaseXBack tab3=null;
+  final boolean pi=data.meta.pathindex;
+  indexes[0]=new BaseXCheckBox(INFOPATHINDEX,null,pi,0,this);
+  tab3=new BaseXBack();
+  tab3.setLayout(new GridLayout(1,1));
+  tab3.setBorder(8,8,8,8);
+  final BaseXBack north=new BaseXBack();
+  north.setLayout(new BorderLayout());
+  north.add(indexes[0],BorderLayout.WEST);
+  final BaseXButton export=new BaseXButton(GUIEXPORT,null,this);
+  export.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      final IO file=GUICommands.save(gui,true);
+      if (file != null) {
+        PrintOutput out=null;
+        try {
+          out=new PrintOutput(file.path());
+          final XMLSerializer xml=new XMLSerializer(out,false,true);
+          data.path.plan(data,xml);
+        }
+ catch (        final IOException ex) {
+          Dialog.error(gui,NOTSAVED);
+        }
+ finally {
+          if (out != null)           try {
+            out.close();
+          }
+ catch (          final Exception x) {
+          }
+        }
+      }
+    }
+  }
+);
+  if (pi)   north.add(export,BorderLayout.EAST);
   BaseXBack p=new BaseXBack();
   p.setLayout(new BorderLayout());
-  indexes[0]=new BaseXCheckBox(INFOTEXTINDEX,Token.token(TXTINDEXINFO),meta.txtindex,0,this);
-  p.add(indexes[0],BorderLayout.NORTH);
-  p.add(text(meta.txtindex ? data.info(Type.TXT) : Token.token(TXTINDEXINFO)),BorderLayout.CENTER);
-  tab3.add(p);
-  p=new BaseXBack();
-  p.setLayout(new BorderLayout());
-  indexes[1]=new BaseXCheckBox(INFOATTRINDEX,Token.token(ATTINDEXINFO),meta.atvindex,0,this);
-  p.add(indexes[1],BorderLayout.NORTH);
-  p.add(text(meta.atvindex ? data.info(Type.ATV) : Token.token(ATTINDEXINFO)),BorderLayout.CENTER);
+  p.add(north,BorderLayout.NORTH);
+  if (pi)   p.add(text(data.path.info(data)),BorderLayout.CENTER);
   tab3.add(p);
   final BaseXBack tab4=new BaseXBack();
-  tab4.setLayout(new GridLayout(1,1));
-  tab4.setBorder(8,8,8,8);
+  tab4.setLayout(new GridLayout(2,1));
+  tab4.setBorder(8,8,0,8);
+  p=new BaseXBack();
+  p.setLayout(new BorderLayout());
+  indexes[1]=new BaseXCheckBox(INFOTEXTINDEX,Token.token(TXTINDEXINFO),meta.txtindex,0,this);
+  p.add(indexes[1],BorderLayout.NORTH);
+  p.add(text(meta.txtindex ? data.info(Type.TXT) : Token.token(TXTINDEXINFO)),BorderLayout.CENTER);
+  tab4.add(p);
+  p=new BaseXBack();
+  p.setLayout(new BorderLayout());
+  indexes[2]=new BaseXCheckBox(INFOATTRINDEX,Token.token(ATTINDEXINFO),meta.atvindex,0,this);
+  p.add(indexes[2],BorderLayout.NORTH);
+  p.add(text(meta.atvindex ? data.info(Type.ATV) : Token.token(ATTINDEXINFO)),BorderLayout.CENTER);
+  tab4.add(p);
+  final BaseXBack tab5=new BaseXBack();
+  tab5.setLayout(new GridLayout(1,1));
+  tab5.setBorder(8,8,8,8);
   ftedit=!meta.ftxindex;
-  indexes[2]=new BaseXCheckBox(INFOFTINDEX,Token.token(FTINDEXINFO),meta.ftxindex,0,this);
+  indexes[3]=new BaseXCheckBox(INFOFTINDEX,Token.token(FTINDEXINFO),meta.ftxindex,0,this);
   p=new BaseXBack();
   p.setLayout(ftedit ? new TableLayout(10,1) : new BorderLayout());
-  p.add(indexes[2],BorderLayout.NORTH);
+  p.add(indexes[3],BorderLayout.NORTH);
   if (ftedit) {
     p.add(new BaseXLabel(FTINDEXINFO,ftedit,false));
     final String[] cb={CREATEFZ,CREATESTEM,CREATEDC,CREATECS};
@@ -60,12 +100,13 @@
  else {
     p.add(text(data.info(Type.FTX)),BorderLayout.CENTER);
   }
-  tab4.add(p);
+  tab5.add(p);
   final BaseXTabs tabs=new BaseXTabs(this);
   tabs.addTab(GENERALINFO,tab1);
   tabs.addTab(NAMESINFO,tab2);
-  tabs.addTab(INDEXINFO,tab3);
-  tabs.addTab(FTINFO,tab4);
+  tabs.addTab(INFOPATHINDEX,tab3);
+  tabs.addTab(INDEXINFO,tab4);
+  tabs.addTab(FTINFO,tab5);
   set(tabs,BorderLayout.CENTER);
   buttons=newButtons(this,true,new String[]{BUTTONOPT,BUTTONOK,BUTTONCANCEL},new byte[][]{HELPOPT,HELPOK,HELPCANCEL});
   set(buttons,BorderLayout.SOUTH);

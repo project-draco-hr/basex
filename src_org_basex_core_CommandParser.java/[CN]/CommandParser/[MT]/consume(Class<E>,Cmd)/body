@@ -2,7 +2,10 @@
   final String token=name(null);
   try {
     final String t=token == null ? "NULL" : token.toUpperCase();
-    if (!t.startsWith("DUMMY"))     return Enum.valueOf(cmp,t);
+    final E cmd=Enum.valueOf(cmp,t);
+    if (!(cmd instanceof Cmd))     return cmd;
+    final Cmd c=(Cmd)cmd;
+    if (!c.dummy() && (internal || !c.internal()))     return cmd;
   }
  catch (  final IllegalArgumentException ex) {
   }
@@ -13,9 +16,8 @@
   }
   final byte[] name=lc(token(token));
   final Levenshtein ls=new Levenshtein();
-  for (  final Enum<?> e : cmp.getEnumConstants()) {
-    if (e instanceof Cmd && !((Cmd)e).official)     continue;
-    final byte[] sm=lc(token(e.name()));
+  for (  final String s : list(cmp,null)) {
+    final byte[] sm=lc(token(s));
     if (ls.similar(name,sm,0))     error(alt,CMDSIMILAR,name,sm);
   }
   if (par == null)   error(alt,CMDWHICH,token);

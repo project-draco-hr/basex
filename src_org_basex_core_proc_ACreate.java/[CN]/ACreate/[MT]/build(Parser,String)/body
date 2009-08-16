@@ -1,15 +1,15 @@
 {
+  exec(new Close());
   String err=null;
   Builder builder=null;
   try {
-    exec(new Close());
     final boolean mem=db == null || prop.is(Prop.MAINMEM);
     if (!mem && context.pinned(db))     return error(DBINUSE);
-    builder=mem ? new MemBuilder(p) : new DiskBuilder(p);
+    builder=mem ? new MemBuilder(p) : prop.is(Prop.NATIVEDATA) ? new NativeBuilder(p) : new DiskBuilder(p);
     progress(builder);
     final Data data=builder.build(db == null ? "" : db);
     builder=null;
-    if (!(data instanceof MemData))     index(data);
+    if (!prop.is(Prop.MAINMEM))     index(data);
     context.openDB(data);
     context.addToPool(data);
     return info(DBCREATED,db,perf.getTimer());
@@ -19,7 +19,7 @@
     err=BaseX.info(FILEWHICH,p.io);
   }
 catch (  final ProgressException ex) {
-    err=Prop.server ? SERVERTIME : CANCELCREATE;
+    err=PROGERR;
   }
 catch (  final IOException ex) {
     BaseX.debug(ex);
@@ -27,7 +27,7 @@ catch (  final IOException ex) {
     err=BaseX.info(msg != null ? msg : args[0]);
   }
 catch (  final Exception ex) {
-    BaseX.errln(ex);
+    BaseX.debug(ex);
     err=BaseX.info(CREATEERR,args[0]);
   }
   try {

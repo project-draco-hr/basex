@@ -1,0 +1,29 @@
+{
+  no(new Insert(CmdUpdate.ELEMENT,"//title","name"));
+  ok(new CreateDB(FILE));
+  final Data data=CONTEXT.data();
+  final int size=data != null ? data.meta.size : 0;
+  ok(new Insert(CmdUpdate.ELEMENT,"//unknown","name"));
+  ok(data,size);
+  no(new Insert(CmdUpdate.ELEMENT,"//title","in valid"));
+  ok(data,size);
+  ok(new Insert(CmdUpdate.ELEMENT,"//  title","name"));
+  ok(data,size + 1);
+  ok(new Insert(CmdUpdate.TEXT,"//title","abc"));
+  ok(data,size + 2);
+  ok(new Insert(CmdUpdate.TEXT,"//li","abc"));
+  ok(data,size + 2);
+  no(new Insert(CmdUpdate.ATTRIBUTE,"//title","in valid","new value"));
+  ok(new Insert(CmdUpdate.ATTRIBUTE,"//title","name","new value"));
+  ok(data,size + 3);
+  ok(new Insert(CmdUpdate.COMMENT,"//title","new value"));
+  ok(data,size + 4);
+  no(new Insert(CmdUpdate.PI,"//title",1,"in valid","new value"));
+  ok(new Insert(CmdUpdate.PI,"//title",1,"name","new value"));
+  ok(data,size + 5);
+  no(new Insert(CmdUpdate.FRAGMENT,"//title",1,"<xml"));
+  ok(new Insert(CmdUpdate.FRAGMENT,"//title",1,"<xml/>"));
+  ok(data,size + 6);
+  ok(new Insert("FRAGMENT","//title",1,"<xml/>"));
+  ok(new Insert("fragment","//title",1,"<xml/>"));
+}

@@ -1,7 +1,7 @@
 {
   final byte[] tag=utf8(name,meta.encoding);
   final int tid=tags.index(tag,null,true);
-  path.add(tid,level,Data.ELEM);
+  if (meta.pathindex)   path.add(tid,level,Data.ELEM);
   tagStack[level]=tid;
   parStack[level]=meta.size;
   final int pre=meta.size;
@@ -16,7 +16,7 @@
     final byte[] av=att.val[a];
     final int an=atts.index(att.key[a],av,true);
     final int ans=ns.get(att.key[a]);
-    path.add(an,level + 1,Data.ATTR);
+    if (meta.pathindex)     path.add(an,level + 1,Data.ATTR);
     addAttr(an,ans,av,a + 1);
   }
   if (level != 0) {
@@ -29,7 +29,7 @@
   }
   if (meta.size != 1)   inDoc=true;
   if (Prop.debug) {
-    if (++c % 500000 == 0)     BaseX.err(" " + c + "\n");
+    if (++c % 500000 == 0)     BaseX.err(" " + c + NL);
  else     if (c % 50000 == 0)     BaseX.err("!");
  else     if (c % 10000 == 0)     BaseX.err(".");
   }

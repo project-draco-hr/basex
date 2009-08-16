@@ -1,0 +1,18 @@
+{
+  Data tmp;
+  try {
+    final IO io=IO.get(args[2]);
+    final Parser parser=prop.is(Prop.INTPARSE) || io instanceof IOContent ? new XMLParser(io,prop) : new SAXWrapper(new SAXSource(io.inputSource()),prop);
+    tmp=new MemBuilder(parser).build();
+  }
+ catch (  final IOException ex) {
+    BaseX.debug(ex);
+    return error(ex.getMessage());
+  }
+  for (int i=nodes.size() - 1; i >= 0; i--) {
+    final int par=nodes.nodes[i];
+    final int p=par == 0 ? 0 : pos;
+    data.insert(pre(par,p,data),par,tmp);
+  }
+  return true;
+}

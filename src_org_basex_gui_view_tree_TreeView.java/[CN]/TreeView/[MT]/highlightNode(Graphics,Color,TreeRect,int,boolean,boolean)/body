@@ -1,0 +1,42 @@
+{
+  if (level == -1)   return;
+  final int y=getYperLevel(level);
+  final int h=nodeHeight;
+  final Data data=gui.context.data();
+  final int pre=r.pre;
+  final int kind=data.kind(pre);
+  g.setColor(c);
+  g.drawRect(r.x,y,r.w,h);
+  if (showParent && pre > 0) {
+    int par=data.parent(pre,kind);
+    int l=level - 1;
+    TreeRect parRect=null;
+    if (l >= 0)     parRect=searchRect(l,par);
+    if (parRect != null) {
+      g.drawLine((2 * parRect.x + parRect.w) / 2,getYperLevel(l) + nodeHeight + 1,(2 * r.x + r.w) / 2,y - 1);
+      highlightNode(g,Color.RED,parRect,l,false,false);
+    }
+  }
+  if (showChildren && data.size(pre,data.kind(pre)) > 0) {
+  }
+  String s="";
+  if (s.length() > 0)   s+=" | ";
+  if (kind == Data.ELEM) {
+    s+=Token.string(data.tag(pre));
+  }
+ else {
+    s+=Token.string(data.text(pre));
+  }
+  int w=BaseXLayout.width(g,s);
+  g.setColor(highlightColor);
+  if (r.pre == 0) {
+    g.fillRect(r.x,y + fontHeight + 1,w + 2,h);
+    g.setColor(Color.WHITE);
+    g.drawString(s,r.x + 1,y + fontHeight + h - 2);
+  }
+ else {
+    g.fillRect(r.x,y - fontHeight,w + 2,h);
+    g.setColor(Color.WHITE);
+    g.drawString(s,r.x + 1,(int)(y - h / (float)fontHeight) - 2);
+  }
+}

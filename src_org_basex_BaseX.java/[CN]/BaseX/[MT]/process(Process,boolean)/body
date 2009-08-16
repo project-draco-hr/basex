@@ -1,30 +1,30 @@
 {
   try {
-    final ALauncher launcher=launcher(pr);
-    final boolean ok=launcher.execute();
+    final ALauncher la=launcher();
+    final boolean ok=la.execute(pr);
     if (ok && pr.printing()) {
       final PrintOutput out=output != null ? new PrintOutput(output) : new PrintOutput(System.out);
-      launcher.out(out);
+      la.output(out);
       out.close();
     }
     if (v || !ok) {
       final CachedOutput out=new CachedOutput();
-      launcher.info(out);
+      la.info(out);
       final String inf=out.toString();
       if (inf.length() != 0) {
         if (!ok) {
           error(null,inf);
         }
  else {
-          BaseX.out(inf);
+          out(inf);
         }
       }
     }
-    if (v && console && !(pr instanceof Prompt))     BaseX.outln();
+    if (v && console && !(pr instanceof IntPrompt))     outln();
     return ok;
   }
  catch (  final IOException ex) {
-    error(ex,SERVERERR + NL);
+    error(ex,SERVERERR);
+    return false;
   }
-  return false;
 }

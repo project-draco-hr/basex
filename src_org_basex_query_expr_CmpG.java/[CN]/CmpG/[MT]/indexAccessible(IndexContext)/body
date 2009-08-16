@@ -6,11 +6,12 @@
   if (!text && !attr)   return false;
   final Iter ir=expr[1].iter(ic.ctx);
   Item it;
+  ic.is=0;
   while ((it=ir.next()) != null) {
     final boolean str=it instanceof Str;
     if (!str || it.str().length > Token.MAXLEN)     return false;
     final Type type=text ? Type.TXT : Type.ATV;
-    ic.is=Math.max(ic.is,!str ? ic.data.meta.size / 10 : ic.data.nrIDs(new ValuesToken(type,it.str())));
+    ic.is+=ic.data.nrIDs(new ValuesToken(type,it.str()));
     iacc=Array.add(iacc,new IndexAccess(it,type,ic));
   }
   return true;

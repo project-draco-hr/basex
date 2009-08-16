@@ -3,9 +3,15 @@
     final AbstractParser parser=getParser(suffix);
     final long offset=bfc.absolutePosition();
     final long size=bfc.size();
-    fileStartEvent(name,suffix,offset);
+    startContent(offset,size);
+    if (title != null) {
+      meta.setString(StringField.TITLE,token(title));
+      metaEvent(meta);
+    }
     if (parser != null) {
       try {
+        lastContentOffset=offset;
+        lastContentSize=size;
         parse0(parser,bfc);
       }
  catch (      final IOException ex) {
@@ -13,6 +19,6 @@
         bfc.finish();
       }
     }
-    fileEndEvent(size);
+    endContent();
   }
 }

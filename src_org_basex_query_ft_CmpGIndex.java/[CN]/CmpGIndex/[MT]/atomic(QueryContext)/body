@@ -1,0 +1,15 @@
+{
+  final Iter ir=expr[0].iter(ctx);
+  if (fti == null) {
+    fti=expr[1].iter(ctx);
+    ftn=(DBNode)fti.next();
+  }
+  boolean found=false;
+  DBNode n=null;
+  while (!found && (n=(DBNode)ir.next()) != null) {
+    while (ftn != null && n.pre > ftn.pre)     ftn=(DBNode)fti.next();
+    found=(ftn != null && n.pre == ftn.pre) ^ ictx.not;
+  }
+  if (n == null)   fti=null;
+  return Bln.get(found ? 1 : 0);
+}

@@ -1,0 +1,48 @@
+{
+  final int numberOfRoots=gui.context.current().nodes.length;
+  final Data data=gui.context.data();
+  final int size=nodeList.length;
+  ArrayList<TreeRect> rects=new ArrayList<TreeRect>();
+  final HashMap<Integer,Double> temp=new HashMap<Integer,Double>();
+  final int y=getYperLevel(level);
+  final int h=nodeHeight;
+  int screenWidth=getSize().width - 1;
+  final double width=screenWidth / numberOfRoots;
+  double x=(int)(rootNum * width);
+  double ratio=width / size;
+  IntList preList=new IntList();
+  int factor=1;
+  double currRatio=ratio;
+  while (currRatio < 2) {
+    currRatio*=++factor;
+  }
+  for (int i=0; i < size; i++) {
+    double boxMiddle=x + ratio / 2f;
+    double w=ratio;
+    int pre=nodeList[i];
+    if (pre == -1) {
+      x+=ratio;
+      continue;
+    }
+    int nodeKind=data.kind(pre);
+    int nodeSize=data.size(pre,nodeKind);
+    if (nodeSize > 0)     temp.put(pre,boxMiddle);
+    preList.add(pre);
+    w=Math.max(2,ratio);
+    TreeRect rect=new TreeRect();
+    rect.x=(int)x;
+    rect.w=(int)w;
+    rect.pre=pre;
+    rect.multiPres=preList.finish();
+    preList.reset();
+    rects.add(rect);
+    g.setColor(new Color(colorRect - ((level < 11 ? level : 11) * colorDiff)));
+    g.drawRect((int)x + 2,y,(int)w - 2,h);
+    g.setColor(new Color(colorNode - ((level < 11 ? level : 11) * colorDiff)));
+    g.fillRect((int)x + 1,y,(int)w - 1,h);
+    drawTextIntoRectangle(g,nodeKind,pre,(int)boxMiddle,(int)w,y);
+    x+=ratio;
+  }
+  rects.trimToSize();
+  rectsPerLevel.add(rects);
+}

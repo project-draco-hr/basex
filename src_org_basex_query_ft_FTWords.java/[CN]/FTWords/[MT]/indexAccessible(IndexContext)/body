@@ -1,6 +1,5 @@
 {
-  data=ic.data;
-  final MetaData md=data.meta;
+  final MetaData md=ic.data.meta;
   final FTOpt fto=ic.ctx.ftopt;
   if (txt == null || occ != null || mode != FTMode.ANY && mode != FTMode.ALL && mode != FTMode.PHRASE || md.ftcs != fto.is(FTOpt.CS) || md.ftdc != fto.is(FTOpt.DC) || md.ftst != fto.is(FTOpt.ST) || fto.sw != null)   return false;
   if (fto.is(FTOpt.WC)) {
@@ -14,12 +13,9 @@
   ic.is=0;
   while (ft.more()) {
     if (ft.get().length > Token.MAXLEN)     return false;
-    final double s=data.nrIDs(ft);
-    if (s == 0) {
-      ic.is=0;
-      break;
-    }
-    ic.is+=s;
+    final int s=ic.data.nrIDs(ft);
+    if (ic.is > s || ic.is == 0)     ic.is=s;
+    if (s == 0)     break;
   }
   return true;
 }

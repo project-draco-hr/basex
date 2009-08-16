@@ -1,0 +1,18 @@
+{
+  if (!parseArguments(args))   return;
+  final BufferedReader br=new BufferedReader(new FileReader(QUERIES));
+  queries=new StringList();
+  String l;
+  while ((l=br.readLine()) != null && queries.size() < maxqu)   queries.add(l);
+  br.close();
+  databases=new StringList();
+  for (  final String s : List.list(ctx)) {
+    if (s.startsWith(DBPREFIX) && databases.size() < maxdb)     databases.add(s);
+  }
+  BaseX.outln(BaseX.name(InexDBTest.class) + " [" + (server ? CLIENTMODE : LOCALMODE)+ "]");
+  BaseX.outln("=> % queries on % databases, % runs: % time in ms\n",queries.size(),databases.size(),runs,total ? "total" : "evaluation");
+  final Performance p=new Performance();
+  if (server)   test();
+ else   testLocal();
+  System.out.println("Total Time: " + p.getTimer());
+}

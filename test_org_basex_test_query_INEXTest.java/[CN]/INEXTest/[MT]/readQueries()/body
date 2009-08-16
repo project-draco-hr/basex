@@ -1,0 +1,25 @@
+{
+  final File file=new File("INEX/co.que");
+  if (!file.exists()) {
+    System.out.println("Could not read \"" + file.getAbsolutePath() + "\"");
+    return;
+  }
+  final FileInputStream fis=new FileInputStream(file);
+  final InputStreamReader isr=new InputStreamReader(fis,"UTF8");
+  final BufferedReader br=new BufferedReader(isr);
+  String line=null;
+  int i=0;
+  while ((line=br.readLine()) != null && i < numq) {
+    int s0=line.indexOf('"');
+    int s1=line.indexOf('"',s0 + 1);
+    topicid[i]=Integer.parseInt(line.substring(s0 + 1,s1));
+    s0=line.indexOf('"',s1 + 1);
+    s1=line.indexOf('"',s0 + 1);
+    contentid[i]=Integer.parseInt(line.substring(s0 + 1,s1));
+    s0=line.indexOf('/',s1);
+    String q=line.substring(s0);
+    q=replaceElements(q);
+    queries[i++]=q;
+  }
+  br.close();
+}

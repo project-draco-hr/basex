@@ -1,18 +1,31 @@
 {
-  if (rects == null)   return false;
-  final Iterator<TreeRect> it=rects.iterator();
-  while (it.hasNext()) {
-    final TreeRect r=it.next();
-    if (refreshedFocus ? r.pre == gui.focused : r.contains(mousePosX,mousePosY)) {
-      focusedRect=r;
-      for (      final int multiPre : r.multiPres) {
-        gui.notify.focus(multiPre,this);
+  if (refreshedFocus) {
+    for (int i=0; i < rectsPerLevel.size(); i++) {
+      TreeRect rect=searchRect(i,gui.focused);
+      if (rect != null) {
+        focusedRect=rect;
+        focusedRectLevel=i;
+        refreshedFocus=false;
+        return true;
       }
-      refreshedFocus=false;
-      return true;
     }
   }
+ else {
+    int level=getLevelperY(mousePosY);
+    if (level == -1 || level >= rectsPerLevel.size())     return false;
+    final Iterator<TreeRect> it=rectsPerLevel.get(level).iterator();
+    while (it.hasNext()) {
+      final TreeRect r=it.next();
+      if (r.contains(mousePosX)) {
+        focusedRect=r;
+        focusedRectLevel=level;
+        gui.notify.focus(r.pre,this);
+        refreshedFocus=false;
+        return true;
+      }
+    }
+  }
+  refreshedFocus=false;
   focusedRect=null;
-  gui.notify.focus(-1,this);
   return false;
 }

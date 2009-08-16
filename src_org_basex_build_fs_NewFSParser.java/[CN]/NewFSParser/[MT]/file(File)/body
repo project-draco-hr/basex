@@ -8,20 +8,40 @@
     builder.startElem(FILE,atts);
     if ((prop.is(Prop.FSMETA) || prop.is(Prop.FSCONT)) && f.canRead() && f.isFile()) {
       if (prop.is(Prop.SPOTLIGHT)) {
-        spotlight.parse(f);
+        if (prop.is(Prop.FSMETA))         spotlight.parse(f);
+        if (prop.is(Prop.FSCONT)) {
+          final BufferedFileChannel fc=new BufferedFileChannel(f,buffer);
+          try {
+            fallbackParserInstance.readContent(fc,this);
+          }
+ catch (          final IOException ex) {
+            BaseX.debug("NewFSParser: Failed to parse file metadata (% - %).",fc.getFileName(),ex.getMessage());
+          }
+ finally {
+            try {
+              fc.close();
+            }
+ catch (            final IOException e) {
+            }
+          }
+        }
       }
  else       if (name.indexOf('.') != -1) {
         final int dot=name.lastIndexOf('.');
         final String suffix=name.substring(dot + 1).toLowerCase();
         if (size > 0) {
-          final AbstractParser parser=getParser(suffix);
+          AbstractParser parser=getParser(suffix);
+          if (parser == null)           parser=getFallbackParser();
           if (parser != null) {
             final BufferedFileChannel fc=new BufferedFileChannel(f,buffer);
             try {
+              lastContentOffset=0;
+              lastContentSize=size;
+              contentOpenedCounter=0;
               parse0(parser,fc);
             }
- catch (            final IOException e) {
-              BaseX.debug("NewFSParser: Failed to parse file metadata (%).",fc.getFileName());
+ catch (            final IOException ex) {
+              BaseX.debug("NewFSParser: Failed to parse file metadata (% - %).",fc.getFileName(),ex.getMessage());
             }
  finally {
               try {

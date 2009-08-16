@@ -1,11 +1,9 @@
 {
   final ArrayList<Class<?>> loadedClasses=new ArrayList<Class<?>>();
   try {
-    final String pkgName=pkg.getName();
-    String pkgPath=pkgName.replace('.','/');
-    if (!pkgPath.startsWith("/"))     pkgPath="/" + pkgPath;
     Matcher matcher;
-    final URL pkgUrl=Loader.class.getResource(pkgPath);
+    final String pkgName=pkg.getName();
+    final URL pkgUrl=getURL(pkgName);
     if (pkgUrl == null)     return new Class<?>[0];
     final File packageDir=new File(pkgUrl.getFile());
     if (packageDir.exists()) {
@@ -13,7 +11,7 @@
         String fileName=f.getName();
         if (!fileName.endsWith(".class"))         continue;
         fileName=fileName.substring(0,fileName.length() - 6);
-        matcher=fileNamePattern.matcher(fileName);
+        matcher=fileNamePat.matcher(fileName);
         if (matcher.matches()) {
           final String clazz=pkgName + "." + fileName;
           loadedClasses.add(Class.forName(clazz));
@@ -21,9 +19,9 @@
       }
     }
  else {
-      final JarURLConnection conn=(JarURLConnection)pkgUrl.openConnection();
-      final JarFile jfile=conn.getJarFile();
-      final String starts=conn.getEntryName();
+      final JarURLConnection con=(JarURLConnection)pkgUrl.openConnection();
+      final JarFile jfile=con.getJarFile();
+      final String starts=con.getEntryName();
       final Enumeration<JarEntry> e=jfile.entries();
       while (e.hasMoreElements()) {
         final JarEntry entry=e.nextElement();
@@ -32,7 +30,7 @@
           String classname=name.substring(0,name.length() - 6);
           final int i=classname.lastIndexOf('/') + 1;
           final String shortName=classname.substring(i);
-          matcher=fileNamePattern.matcher(shortName);
+          matcher=fileNamePat.matcher(shortName);
           if (matcher.matches()) {
             if (classname.startsWith("/"))             classname=classname.substring(1);
             classname=classname.replace('/','.');

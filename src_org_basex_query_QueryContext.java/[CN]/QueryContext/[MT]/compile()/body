@@ -3,10 +3,10 @@
   try {
     if (nodes != null) {
       final Data data=nodes.data;
-      for (int d=0; d < nodes.size(); d++) {
+      for (int d=0, dl=nodes.size(); d < dl; d++) {
         final int p=nodes.nodes[d];
-        if (data.kind(p) == Data.DOC) {
-          addDoc(new DBNode(data,p));
+        if (nodes.doc || data.kind(p) == Data.DOC) {
+          addDoc(new DBNode(data,p,Data.DOC));
           rootDocs++;
         }
       }
@@ -16,28 +16,26 @@
           rootDocs++;
         }
       }
-      final SeqIter si=new SeqIter();
-      if (root instanceof AxisPath && ((AxisPath)root).root instanceof Root) {
-        for (int d=0; d < docs; d++)         si.add(doc[d]);
+      if (nodes.doc || !root.uses(Use.ELM,this)) {
+        item=Seq.get(doc,docs);
       }
  else {
-        for (int n=0; n < nodes.size(); n++)         si.add(new DBNode(data,nodes.nodes[n]));
+        final SeqIter si=new SeqIter(nodes.size());
+        for (int n=0; n < nodes.size(); n++) {
+          si.add(new DBNode(data,nodes.nodes[n]));
+        }
+        item=si.finish();
       }
-      item=si.finish();
-      final NodIter ni=new NodIter();
-      for (int d=0; d < docs; d++)       ni.add(doc[d]);
-      addColl(ni,token(data.meta.name));
+      addColl(new NodIter(doc,docs),token(data.meta.name));
     }
     if (inf)     compInfo(QUERYCOMP);
     fun.comp(this);
     vars.comp(this);
     root=root.comp(this);
-    if (inf) {
-      compInfo(QUERYRESULT + "%" + NL,root);
-    }
+    if (inf)     compInfo(QUERYRESULT + "%" + NL,root);
   }
- catch (  final StackOverflowError e) {
-    if (Prop.debug)     e.printStackTrace();
+ catch (  final StackOverflowError ex) {
+    if (Prop.debug)     ex.printStackTrace();
     Err.or(XPSTACK);
   }
 }

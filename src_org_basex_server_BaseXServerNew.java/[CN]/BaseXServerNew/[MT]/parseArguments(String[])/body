@@ -1,40 +1,36 @@
 {
+  final Args arg=new Args(args);
   boolean ok=true;
-  for (int a=0; a < args.length; a++) {
-    ok=false;
-    if (args[a].startsWith("-")) {
-      for (int i=1; i < args[a].length(); i++) {
-        final char c=args[a].charAt(i);
-        if (c == 'p') {
-          if (++i == args[a].length()) {
-            a++;
-            i=0;
-          }
-          if (a == args.length)           break;
-          final int p=Token.toInt(args[a].substring(i));
-          if (p <= 0) {
-            BaseX.errln(SERVERPORT + args[a].substring(i));
-            break;
-          }
-          context.prop.set(Prop.PORT,p);
-          i=args[a].length();
-          ok=true;
-        }
- else         if (c == 'd') {
-          Prop.debug=true;
-          ok=true;
-        }
- else         if (c == 'v') {
-          verbose=true;
-          ok=true;
-        }
+  while (arg.more() && ok) {
+    if (arg.dash()) {
+      final char c=arg.next();
+      if (c == 'd') {
+        ok=set(Prop.DEBUG,true);
+      }
+ else       if (c == 'i') {
+        interactive=true;
+      }
+ else       if (c == 'p') {
+        ok=set(Prop.PORT,arg.string());
+      }
+ else       if (c == 's') {
+        ok=set(Prop.HOST,arg.string());
+      }
+ else       if (c == 'v') {
+        verbose=true;
+      }
  else {
-          break;
-        }
+        ok=false;
       }
     }
-    if (!ok)     break;
+ else {
+      ok=false;
+      if (arg.string().equals("stop")) {
+        quit();
+        return false;
+      }
+    }
   }
-  if (!ok)   BaseX.errln(SERVERINFO);
+  if (!ok)   BaseX.outln(SERVERINFO);
   return ok;
 }

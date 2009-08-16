@@ -1,6 +1,6 @@
 {
   final Data data=context.data();
-switch (type) {
+switch (getType(args[0])) {
 case TEXT:
     data.meta.txtindex=false;
   return drop(Type.TXT,DATATXT);
@@ -10,6 +10,13 @@ return drop(Type.ATV,DATAATV);
 case FULLTEXT:
 data.meta.ftxindex=false;
 return drop(Type.FTX,DATAFTX);
+case SUMMARY:
+if (data.meta.pathindex) {
+data.meta.pathindex=false;
+data.path.root=null;
+data.flush();
+}
+return info(DBDROP,perf.getTimer());
 default :
 return false;
 }

@@ -16,38 +16,16 @@
   Nodes curr=null;
   if (cont.size() != 0) {
     final Data d=Open.check(context,sources + string(data.atom(cont.nodes[0])) + ".xml");
-    curr=new Nodes(d.doc(),d);
+    curr=new Nodes(d.doc(),d,true);
   }
   final QueryProcessor xq=new QueryProcessor(in,curr,context);
   final QueryContext qctx=xq.ctx;
-  qctx.stop=stop;
-  qctx.thes=thes;
   try {
     files.add(file(nodes("*:input-file",root),nodes("*:input-file/@variable",root),qctx));
     files.add(file(nodes("*:input-URI",root),nodes("*:input-URI/@variable",root),qctx));
     files.add(file(nodes("*:defaultCollection",root),null,qctx));
     var(nodes("*:input-query/@name",root),nodes("*:input-query/@variable",root),pth,qctx);
-    for (    final String s : aux("stopwords",root)) {
-      final String fn=stop2.get(s);
-      if (fn != null) {
-        if (qctx.ftopt.sw == null)         qctx.ftopt.sw=new StopWords();
-        qctx.ftopt.sw.read(IO.get(fn),false);
-      }
-    }
-    for (    final String s : aux("stemming-dictionary",root)) {
-      final String fn=stem.get(s);
-      if (fn != null) {
-        if (qctx.ftopt.sd == null)         qctx.ftopt.sd=new StemDir();
-        qctx.ftopt.sd.read(IO.get(fn));
-      }
-    }
-    for (    final String s : aux("thesaurus",root)) {
-      final String fn=thes2.get(s);
-      if (fn != null) {
-        if (qctx.ftopt.th == null)         qctx.ftopt.th=new ThesQuery();
-        qctx.ftopt.th.add(new Thesaurus(IO.get(fn),context));
-      }
-    }
+    parse(qctx,root);
     for (    final int p : nodes("*:module",root).nodes) {
       final String ns=text("@namespace",new Nodes(p,data));
       final String f=mods.get(string(data.atom(p))) + ".xq";

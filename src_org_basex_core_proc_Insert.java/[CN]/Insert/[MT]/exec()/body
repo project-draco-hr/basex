@@ -1,20 +1,27 @@
 {
-  final boolean gui=args[args.length - 1] == null;
-  final Data data=context.data();
-  if (data.ns.size() != 0)   return error(UPDATENS);
+  if (!checkDB())   return false;
   final CmdUpdate type=getType();
-  final Nodes nodes=gui ? context.marked() : query(args[type == CmdUpdate.PI ? 3 : 2],null);
-  if (nodes == null)   return false;
+  if (type == null)   return false;
+  final Data data=context.data();
+  Nodes nodes;
+  if (gui) {
+    nodes=context.marked();
+    context.copy(null);
+  }
+ else {
+    nodes=query(args[1],null);
+    if (nodes == null)     return false;
+  }
   boolean ok=false;
 switch (type) {
 case ATTRIBUTE:
     ok=attr(data,nodes);
   break;
 case FRAGMENT:
-ok=frag(data,nodes,gui);
+ok=frag(data,nodes);
 break;
 default :
-ok=node(data,nodes,gui);
+ok=node(data,nodes);
 break;
 }
 if (!ok) return false;
