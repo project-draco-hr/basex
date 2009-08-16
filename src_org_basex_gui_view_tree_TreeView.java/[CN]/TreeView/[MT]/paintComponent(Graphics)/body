@@ -7,7 +7,6 @@
   perf.initTimer();
   fontHeight=g.getFontMetrics().getHeight();
   nodeHeight=fontHeight;
-  final Data data=gui.context.data();
   if (windowSizeChanged()) {
     treeImage=createImage();
     final Graphics tIg=treeImage.getGraphics();
@@ -25,34 +24,5 @@
   g.drawImage(treeImage,0,0,getWidth(),getHeight(),this);
   if (focus()) {
     highlightNode(g,markColor,focusedRect,focusedRectLevel,showParentNode,showChildNodes);
-  }
-  if (rectsPerLevel.size() > 0 && gui.context.marked().size() > 0) {
-    for (int k=0; k < rectsPerLevel.size(); k++) {
-      int y=getYperLevel(k);
-      Iterator<TreeRect> it=rectsPerLevel.get(k).iterator();
-      while (it.hasNext()) {
-        final TreeRect r=it.next();
-        int size=gui.context.marked().size();
-        final int[] markedNodes=new int[size];
-        System.arraycopy(gui.context.marked().nodes,0,markedNodes,0,size);
-        for (int j=0; j < size; j++) {
-          for (int z=0; z < r.multiPres.length; z++) {
-            if (r.multiPres[z] == markedNodes[j]) {
-              g.setColor(Color.RED);
-              g.fillRect(r.x + 1,y + 1,r.w - 1,nodeHeight - 1);
-              drawTextIntoRectangle(g,data.kind(r.pre),r.pre,r.x + (int)(r.w / 2f),r.w,y);
-              if (size < 2) {
-                return;
-              }
- else               if (j < size - 1) {
-                markedNodes[j]=markedNodes[size - 1];
-              }
-              size--;
-              break;
-            }
-          }
-        }
-      }
-    }
   }
 }
