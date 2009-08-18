@@ -1,0 +1,30 @@
+{
+  if (!parseArguments(args))   return;
+  final BufferedReader br=new BufferedReader(new FileReader(QUERIES));
+  queries=new StringList();
+  final IntList tidl=new IntList();
+  String l;
+  while ((l=br.readLine()) != null && queries.size() < maxqu) {
+    int i=l.indexOf(';');
+    tidl.add(Integer.parseInt(l.substring(0,i)));
+    int j=l.indexOf(';',i + 1);
+    queries.add(l.substring(j + 1));
+  }
+  br.close();
+  if (subfile) {
+    qtimes=new double[queries.size()];
+    results=new SeqIter[queries.size()];
+    tid=tidl.finish();
+  }
+  databases=new StringList();
+  for (  final String s : List.list(ctx)) {
+    if (s.startsWith(DBPREFIX) && databases.size() < maxdb)     databases.add(s);
+  }
+  BaseX.outln(BaseX.name(InexDBTest.class) + " [" + (server ? CLIENTMODE : LOCALMODE)+ "]");
+  BaseX.outln("=> % queries on % databases, % runs: % time in ms\n",queries.size(),databases.size(),runs,total ? "total" : "evaluation");
+  final Performance p=new Performance();
+  if (server)   test();
+ else   testLocal();
+  System.out.println("Total Time: " + p.getTimer());
+  if (subfile)   createSubFile();
+}

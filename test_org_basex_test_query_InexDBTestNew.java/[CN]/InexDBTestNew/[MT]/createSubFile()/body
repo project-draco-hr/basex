@@ -1,0 +1,30 @@
+{
+  openSubFile();
+  for (int j=0; j < queries.size(); j++) {
+    xml.openElement(token("topic"),token("topic-id"),token(tid[j]),token("total_time_ms"),token(qtimes[j]));
+    xml.openElement(token("result"));
+    xml.openElement(token("file"));
+    xml.text(token("wikpedia"));
+    xml.closeElement();
+    Item a;
+    int r=1;
+    while (results[j] != null && (a=results[j].next()) != null) {
+      if (a instanceof Str) {
+        xml.openElement(token("path"));
+        xml.text(a.str());
+        xml.closeElement();
+        xml.openElement(token("rank"));
+        xml.text(token(r++));
+        xml.closeElement();
+      }
+ else       if (a instanceof Dbl) {
+        xml.openElement(token("rsv"));
+        xml.text(a.str());
+        xml.closeElement();
+      }
+    }
+    xml.closeElement();
+    xml.closeElement();
+  }
+  closeSubFile();
+}
