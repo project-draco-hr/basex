@@ -1,5 +1,8 @@
 {
   return new NodeIter(){
+    final Stack<Integer> pres=new Stack<Integer>();
+    final Stack<Integer> level=new Stack<Integer>();
+    int l=-1;
     int k=data.kind(pre);
     int p=pre + data.attSize(pre,k);
     final int s=pre + data.size(pre,k);
@@ -9,6 +12,28 @@
       k=data.kind(p);
       node.set(p,k);
       p+=data.attSize(p,k);
+      if (data.size(node.pre,k) > 1) {
+        if (l == -1) {
+          final int pp=data.parent(node.pre,k);
+          if (pres.size() == 0) {
+            pres.push(pp);
+            level.push(0);
+            l=1;
+          }
+          while (pres.peek() != pp) {
+            pres.pop();
+            level.pop();
+          }
+          l=level.peek() + 1;
+        }
+        pres.push(node.pre);
+        node.score(node.score / Math.abs(l));
+        level.push(l++);
+      }
+ else {
+        node.score(node.score / Math.abs(l));
+        l=-1;
+      }
       return node;
     }
   }

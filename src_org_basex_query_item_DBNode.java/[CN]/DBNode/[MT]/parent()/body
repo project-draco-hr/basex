@@ -4,5 +4,12 @@
   if (p == (root != null ? 0 : -1))   return root;
   final DBNode node=copy();
   node.set(p,data.kind(p));
+  final double f=(double)distToRoot(node.pre) / (double)data.meta.height;
+  node.score(node.score * Math.max(1 - f,f));
+  final int tid=data.tags.id(node.nname());
+  StatsKey sk=data.tags.stat(tid);
+  if (sk != null && sk.counter > 2) {
+    node.score(node.score * 1.00 - (double)sk.counter / (double)data.tags.tn);
+  }
   return node;
 }
