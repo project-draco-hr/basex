@@ -1,11 +1,13 @@
 {
   startContent(offset,size);
-  atts.reset();
-  atts.add(Metadata.DATA_TYPE,Metadata.DATA_TYPE_STRING);
-  if (preserveSpace)   atts.add(Metadata.XML_SPACE,Metadata.XmlSpace.PRESERVE.get());
- else   text.chop();
+  if (ADD_ATTS) {
+    atts.reset();
+    atts.add(Metadata.DATA_TYPE,Metadata.DATA_TYPE_STRING);
+    if (preserveSpace)     atts.add(Metadata.XML_SPACE,Metadata.XmlSpace.PRESERVE.get());
+  }
+  if (!preserveSpace)   text.chop();
   if (text.size() == 0)   return;
-  builder.startElem(TEXT_CONTENT_NS,atts);
+  builder.startElem(TEXT_CONTENT_NS,ADD_ATTS ? atts : EMPTY_ATTS);
   builder.text(text,false);
   builder.endElem(TEXT_CONTENT_NS);
   endContent();

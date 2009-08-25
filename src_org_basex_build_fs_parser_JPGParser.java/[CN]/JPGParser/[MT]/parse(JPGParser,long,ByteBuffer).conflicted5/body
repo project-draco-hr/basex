@@ -1,7 +1,15 @@
 {
-  if (buf.getShort() == IFD_TYPE_LONG && buf.getInt() == 1) {
-    obj.bfc.position(ifdOff + buf.getInt());
-    obj.readIFD();
+  final int type=buf.getShort();
+  if (buf.getInt() == 1) {
+    if (type == IFD_TYPE_SHORT) {
+      obj.meta.setShort(IntField.PIXEL_WIDTH,(short)(buf.getShort() & 0xFFFF));
+      buf.getShort();
+    }
+ else     if (type == IFD_TYPE_LONG) {
+      obj.meta.setInt(IntField.PIXEL_WIDTH,buf.getInt() & 0xFFFFFFFF);
+    }
+ else     error(obj,"Image width (0x0100)");
+    obj.fsparser.metaEvent(obj.meta);
   }
- else   error(obj,"Exif (0x8769)");
+ else   error(obj,"Image width (0x0100)");
 }
