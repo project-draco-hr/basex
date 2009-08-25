@@ -1,11 +1,14 @@
 {
-  bfc=f;
-  fsparser=parser;
-  bfc.buffer(6);
-  if (bfc.get() != 0xFF || bfc.get() != 0xD8) {
-    if (NewFSParser.VERBOSE)     BaseX.debug("JPGParser: Not a jpg file (%).",bfc.getFileName());
+  try {
+    f.buffer(6);
+  }
+ catch (  final EOFException e) {
     return;
   }
+  if (!check(f))   return;
+  bfc=f;
+  fsparser=parser;
+  bfc.skip(-2);
   while (bfc.get() == 0xFF) {
     final int b=bfc.get();
     final int size=readSize();
