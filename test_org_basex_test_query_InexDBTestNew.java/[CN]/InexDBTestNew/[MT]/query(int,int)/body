@@ -1,5 +1,5 @@
 {
-  final String que=subfile ? xqm + "for $i score $s in " + queries.get(qu)+ " order by $s return (basex:sum-path($i), $s)" : queries.get(qu);
+  final String que=subfile ? xqm + "for $i score $s in " + queries.get(qu)+ " order by $s descending return (basex:sum-path($i), $s)" : queries.get(qu);
   final Process proc=new XQuery(que);
   if (launcher.execute(proc)) {
     launcher.output(new NullOutput());
@@ -12,8 +12,20 @@
     final Result val=proc.result();
     if (val instanceof SeqIter) {
       final SeqIter itr=(SeqIter)val;
+      for (int i=0; i < itr.size(); i++) {
+        if (itr.item[i] instanceof Str) {
+          String str=new String(((Str)itr.item[i]).str());
+          if (str.startsWith("article")) {
+            final int s0=str.indexOf('[');
+            final int s1=str.indexOf(']');
+            final int c=Integer.parseInt(str.substring(s0 + 1,s1)) + numArt[db];
+            final Str tmp=new Str(("article[" + c + str.substring(s1)).getBytes(),false);
+            itr.item[i]=tmp;
+          }
+        }
+      }
       if (results[qu] == null)       results[qu]=itr;
- else       results[qu].add(itr);
+ else       results[qu]=addSorted(results[qu],itr);
     }
   }
   BaseX.outln("Query % on %: %",qu + 1,databases.get(db),time);
