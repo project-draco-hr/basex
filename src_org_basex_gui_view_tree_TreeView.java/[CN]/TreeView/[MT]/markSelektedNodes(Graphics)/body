@@ -1,0 +1,49 @@
+{
+  final int x=selectRect.w < 0 ? selectRect.x + selectRect.w : selectRect.x;
+  final int y=selectRect.h < 0 ? selectRect.y + selectRect.h : selectRect.y;
+  final int w=Math.abs(selectRect.w);
+  final int h=Math.abs(selectRect.h);
+  g.setColor(Color.RED);
+  g.drawRect(x,y,w,h);
+  final int f=y;
+  final int t=y + h;
+  final int size=rectsPerLevel.size();
+  final IntList list=new IntList();
+  for (int i=0; i < size; i++) {
+    int yL=getYperLevel(i);
+    if ((yL >= f || yL + nodeHeight >= f) && (yL <= t || yL + nodeHeight <= t)) {
+      final ArrayList<TreeRect> rList=rectsPerLevel.get(i);
+      if (rList.get(0).multiPres != null) {
+        final TreeRect mRect=rList.get(0);
+        final int l=mRect.multiPres.length;
+        int sPrePos=(int)(l * (x / (double)mRect.w));
+        int ePrePos=(int)(l * ((x + w) / (double)mRect.w));
+        if (sPrePos < 0)         sPrePos=0;
+        if (ePrePos >= l)         ePrePos=l - 1;
+        for (int j=sPrePos; j < ePrePos; j++) {
+          list.add(mRect.multiPres[j]);
+        }
+        gui.notify.mark(new Nodes(list.finish(),gui.context.data()),this);
+        markNodes();
+        repaint();
+      }
+ else {
+        boolean b=false;
+        for (int j=0; j < rList.size(); j++) {
+          TreeRect tR=rList.get(j);
+          if (!b && tR.contains(x))           b=true;
+          if (b && tR.contains(x + w)) {
+            list.add(tR.pre);
+            break;
+          }
+          if (b) {
+            list.add(tR.pre);
+          }
+        }
+        gui.notify.mark(new Nodes(list.finish(),gui.context.data()),this);
+        markNodes();
+        repaint();
+      }
+    }
+  }
+}
