@@ -1,3 +1,18 @@
 {
-  obj.stringEvent(StringField.TITLE,o);
+  final StringField field=StringField.GENRE;
+  String g=(String)o;
+  try {
+    if (g.charAt(0) == '(')     g=g.substring(1,g.length() - 2);
+    final int genreId=Integer.parseInt(g);
+    obj.stringEvent(field,new String(MP3Parser.getGenre(genreId)));
+  }
+ catch (  final NumberFormatException ex) {
+    if (g.contains(",")) {
+      final StringTokenizer tok=new StringTokenizer(g,", ");
+      while (tok.hasMoreTokens())       obj.stringEvent(field,tok.nextToken());
+    }
+ else {
+      obj.stringEvent(field,g);
+    }
+  }
 }

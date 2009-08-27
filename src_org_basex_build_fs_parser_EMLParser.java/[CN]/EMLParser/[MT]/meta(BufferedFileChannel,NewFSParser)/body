@@ -1,0 +1,24 @@
+{
+  if (!check(f))   return;
+  fsparser=parser;
+  mBoundary="";
+  do {
+    String type="";
+    final Matcher m=KEYPAT.matcher(mCurrLine);
+    if (m.matches()) {
+      type=m.group(1).toUpperCase().replace('-','_');
+      mCurrLine=m.group(2).trim();
+    }
+    boolean readNext=true;
+    try {
+      readNext=EML_Meta.valueOf(type).parse(this);
+    }
+ catch (    final IllegalArgumentException ex) {
+      if (mCurrLine.contains("boundary=")) {
+        getBoundary();
+      }
+    }
+    if (readNext && !readLine())     return;
+  }
+ while (mCurrLine.length() != 0);
+}
