@@ -1,0 +1,12 @@
+{
+  final Iter tgI=expr[0].iter(ctx);
+  final Iter nI=expr[1].iter(ctx);
+  Item i=tgI.next();
+  if (i == null)   Err.or(INCOMPLETE,i);
+  if (tgI.size() > 1 || !(i instanceof DBNode))   Err.or(INCOMPLETE,i);
+  final Item nmItem=nI.next();
+  if (!(nmItem instanceof Str))   Err.or(IMPLCOL,nmItem);
+  final DBNode n=(DBNode)i;
+  ctx.updates.addPrimitive(new RenamePrimitive(ctx.data().id(n.pre),n.pre,nmItem.str()));
+  return Iter.EMPTY;
+}
