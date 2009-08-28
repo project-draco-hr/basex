@@ -2,17 +2,16 @@
   final TokenBuilder tmp=new TokenBuilder();
   final int len=text.length;
   for (int i=0; i < len; i++) {
-    byte c=text[i];
+    final byte c=text[i];
     if (c == '=') {
-      if ((i + 2) >= len)       break;
+      if (i + 2 >= len)       break;
       if (text[++i] == 0xA)       continue;
       final int n1=hex2num(text[i]);
       final int n2=hex2num(text[++i]);
       if (n1 < 0 || n2 < 0)       continue;
-      if (!mBodyCharset.equalsIgnoreCase("UTF-8"))       tmp.addUTF(n1 << 4 | n2);
- else       tmp.add((byte)(n1 << 4 | n2));
+      addByte(tmp,(n1 << 4 | n2),utf);
     }
- else     tmp.add(c);
+ else     addByte(tmp,c,utf);
   }
   return tmp.finish();
 }

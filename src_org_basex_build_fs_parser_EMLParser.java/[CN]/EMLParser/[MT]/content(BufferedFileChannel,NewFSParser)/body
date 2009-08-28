@@ -6,11 +6,15 @@
     final Matcher m=KEYPAT.matcher(mCurrLine);
     if (m.matches()) {
       type=m.group(1);
-      if (type.equals("Content-Type"))       getContentType();
- else       if (type.equals("Content-Transfer-Encoding"))       getEncoding();
+      mCurrLine=m.group(2).trim();
+      if (type.equalsIgnoreCase("content-type"))       getContentType();
+ else       if (type.equalsIgnoreCase("content-transfer-encoding")) {
+        getEncoding();
+      }
     }
- else     if (mCurrLine.contains("boundary=")) {
+ else {
       getBoundary();
+      getCharset();
     }
     if (!readLine())     return;
   }

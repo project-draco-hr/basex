@@ -12,7 +12,7 @@
       getEncoding();
     }
  else     if (type.equals("content-type")) {
-      String mimeString=mCurrLine.split(";")[0].toLowerCase();
+      final String mimeString=mCurrLine.split(";")[0].toLowerCase();
       MimeType mime=null;
       if (mimeString.startsWith("multipart")) {
         mContentType=mimeString;
@@ -21,20 +21,15 @@
       }
       mime=MimeType.getItem(mimeString);
       if (mime != null) {
-        for (        MetaType mt : mime.getMetaTypes()) {
+        for (        final MetaType mt : mime.getMetaTypes()) {
           fsparser.metaEvent(meta.setMetaType(mt));
           if (mt == MetaType.TEXT)           plaintext=true;
         }
         fsparser.metaEvent(meta.setMimeType(mime));
-        if (plaintext) {
-          getCharset();
-          if (mBodyCharset.length() != 0)           fsparser.metaEvent(meta.setString(StringField.ENCODING,mBodyCharset));
-        }
- else {
-          fsparser.metaEvent(meta.setString(StringField.ENCODING,mTransferEncoding));
-        }
+        getCharset();
       }
     }
+ else     getCharset();
   }
  while (readLine() && mCurrLine.length() != 0);
   if (!plaintext)   return false;

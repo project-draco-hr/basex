@@ -1,0 +1,41 @@
+{
+  final long bodyStartPos=bfc.absolutePosition();
+  if (multipart)   fsparser.startContent(bodyStartPos);
+  if (multipart ? readSectionHeader() : mContentType.startsWith("text")) {
+    final long pos2=bfc.absolutePosition();
+    final TokenBuilder tb=new TokenBuilder();
+    boolean first=true;
+    final boolean emlx=bfc.getFileName().endsWith(".emlx");
+    final boolean utf=mBodyCharset.equalsIgnoreCase(Token.UTF8);
+    while (readLine()) {
+      if (multipart && mCurrLine.contains(mBoundary))       break;
+      if (emlx && mCurrLine.startsWith("<?xml")) {
+        final String oldLine=mCurrLine;
+        readLine();
+        if (mCurrLine.equals(PLIST))         break;
+        if (first)         first=false;
+ else         tb.add('\n');
+        tb.add(oldLine);
+      }
+      if (first)       first=false;
+ else       tb.add('\n');
+      tb.add(mCurrLine);
+    }
+    final byte[] text=tb.finish();
+    final byte[] data=bodyEnc.decode(text,utf);
+    final int size=data.length;
+    if (size > 0)     fsparser.textContent(pos2,text.length,data,true);
+  }
+ else {
+    while (readLine()) {
+      if (multipart)       if (mCurrLine.contains(mBoundary))       break;
+    }
+  }
+  if (multipart) {
+    bodyEnc=Encoding.NONE;
+    final int readAhead=mCurrLine == null ? 0 : mCurrLine.length();
+    fsparser.setContentSize(bfc.absolutePosition() - bodyStartPos - readAhead- 1);
+    fsparser.endContent();
+  }
+  return mCurrLine != null && multipart && !mCurrLine.endsWith("--");
+}
