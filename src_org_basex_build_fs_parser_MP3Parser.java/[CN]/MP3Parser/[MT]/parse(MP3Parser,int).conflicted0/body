@@ -1,10 +1,16 @@
 {
-  try {
-    final Date d=SDF.parse(new String(obj.readText(size)));
-    obj.meta.setDate(DateField.DATE,ParserUtil.convertDate(d));
-    obj.fsparser.metaEvent(obj.meta);
+  final String encoding=obj.readEncoding();
+  byte[] lang=obj.readText(3,"");
+  for (  final byte b : lang) {
+    if (ws(b) || b == 0) {
+      lang=EMPTY;
+      break;
+    }
   }
- catch (  final ParseException ex) {
-    if (NewFSParser.VERBOSE)     BaseX.debug(ex.getMessage());
-  }
+  int pos=4;
+  while (obj.bfc.get() != 0 && ++pos < size)   ;
+  if (pos >= size)   return;
+  obj.meta.setString(StringField.DESCRIPTION,obj.readText(size - pos,encoding));
+  if (!ws(lang) && lang[0] != 'X')   obj.meta.setXmlLang(lang);
+  obj.fsparser.metaEvent(obj.meta);
 }
