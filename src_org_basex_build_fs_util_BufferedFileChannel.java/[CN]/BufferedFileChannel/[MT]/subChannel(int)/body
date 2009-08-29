@@ -1,6 +1,6 @@
 {
-  final long remaining=bytesToRead - buf.remaining();
-  if (remaining > rem)   throw new IllegalArgumentException("Requested number of bytes to read is too large.");
-  rem-=remaining;
-  return new BufferedFileChannel(f,fc,buf,remaining);
+  if (remaining() < bytesToRead)   throw new EOFException("Requested number of bytes to read is too large.");
+  rem-=bytesToRead;
+  rem+=buf.remaining();
+  return new BufferedFileChannel(f,fc,buf,bytesToRead);
 }
