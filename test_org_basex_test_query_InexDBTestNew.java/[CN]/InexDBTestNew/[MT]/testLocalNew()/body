@@ -4,10 +4,14 @@
     final Data data=Open.open(ctx,databases.get(d));
     roots[d]=new Nodes(data.doc(),data);
   }
+  if (subfile)   openSubFile();
   for (int q=0; q < queries.size(); q++) {
+    SeqIter s=null;
     for (int d=0; d < databases.size(); d++) {
       ctx.current(roots[d]);
-      query(d,q);
+      s=s == null ? queryNew(d,q) : addSorted(s,queryNew(d,q));
     }
+    if (subfile)     createQueryEntry(q,s);
   }
+  if (subfile)   closeSubFile();
 }
