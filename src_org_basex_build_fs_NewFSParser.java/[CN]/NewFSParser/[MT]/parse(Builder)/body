@@ -18,6 +18,7 @@
     final byte[] bck=fuse ? token(mybackingpath) : token(fsimportpath);
     atts.add(MOUNTPOINT,mnt);
     atts.add(BACKINGSTORE,bck);
+    atts.add(SIZE,EMPTY);
     NS.FS.start(builder);
     if (prop.is(Prop.FSMETA)) {
       NS.FSMETA.start(builder);
@@ -26,13 +27,14 @@
     if (ADD_ATTS) {
       NS.XSI.start(builder);
     }
-    builder.startElem(DEEPFS_NS,atts);
+    int sizeAttId=builder.startElem(DEEPFS_NS,atts) + 3;
     for (    final File f : root ? File.listRoots() : new File[]{new File(fsimportpath).getCanonicalFile()}) {
       if (f.isHidden())       continue;
       importRootLength=f.getAbsolutePath().length();
       sizeStack[0]=0;
       parse(f);
-      addFSAtts(f,sizeStack[0]);
+      addFSElems(f,sizeStack[0]);
+      addFSAtts(sizeAttId,f,sizeStack[0]);
     }
     builder.endElem(DEEPFS_NS);
   }
