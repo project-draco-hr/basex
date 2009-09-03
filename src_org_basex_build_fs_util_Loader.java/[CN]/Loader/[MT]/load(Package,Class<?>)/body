@@ -4,7 +4,13 @@
     final String pkgName=pkg.getName();
     final URL pkgUrl=getURL(pkgName);
     if (pkgUrl == null)     return new Class<?>[0];
-    final File packageDir=new File(pkgUrl.getFile());
+    File packageDir;
+    try {
+      packageDir=new File(pkgUrl.toURI());
+    }
+ catch (    IllegalArgumentException ex) {
+      packageDir=new File(pkgUrl.getFile());
+    }
     if (packageDir.exists()) {
       for (      final File f : packageDir.listFiles()) {
         String fileName=f.getName();
@@ -43,7 +49,7 @@
     throw ex;
   }
 catch (  final Throwable t) {
-    BaseX.errln("Failed to load class (%)",t.getMessage());
+    BaseX.errln("Failed to load class: %",t);
   }
   final int counter=initializeClasses(foundClasses);
   return foundClasses.subList(0,counter).toArray(new Class<?>[counter]);
