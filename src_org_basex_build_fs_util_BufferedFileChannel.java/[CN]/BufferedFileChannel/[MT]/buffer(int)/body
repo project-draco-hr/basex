@@ -4,7 +4,9 @@
   if (buffered < n) {
     if (n > buf.capacity())     return false;
     buf.compact();
-    rem-=fc.read(buf);
+    final int readBytes=fc.read(buf);
+    if (readBytes + buffered < n || readBytes == -1)     throw new EOFException(f.getAbsolutePath());
+    rem-=readBytes;
     buf.flip();
   }
   return true;
