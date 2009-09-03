@@ -1,2 +1,59 @@
 {
+  final TokenBuilder tmp=new TokenBuilder();
+  final byte[] data=Token.delete(text,0xA);
+  final int size=data.length;
+  if (size % 4 != 0)   BaseX.debug("EMLParser: Invalid base64 encoding (%)",Token.string(data));
+  byte b1, b2, b3, b4;
+  int i, max;
+  boolean valid=true;
+  try {
+    for (i=0, max=size - 4; i < max; ) {
+      b1=base64Val(data[i++]);
+      b2=base64Val(data[i++]);
+      b3=base64Val(data[i++]);
+      b4=base64Val(data[i++]);
+      if (b1 == -1 || b2 == -1 || b3 == -1 || b4 == -1) {
+        valid=false;
+        addByte(tmp,' ',true);
+        continue;
+      }
+      addByte(tmp,b1 << 2 | b2 >> 4,utf);
+      addByte(tmp,b2 << 4 & 0xF0 | b3 >> 2,utf);
+      addByte(tmp,b3 << 6 & 0xC0 | b4,utf);
+    }
+    b1=base64Val(data[i++]);
+    if (b1 < 0)     valid=false;
+ else {
+      b2=base64Val(data[i++]);
+      if (b2 == -2) {
+        final int b=b1 << 2;
+        if (b != 0)         addByte(tmp,b,utf);
+      }
+ else       if (b2 == -1)       valid=false;
+ else {
+        addByte(tmp,b1 << 2 | b2 >> 4,utf);
+        b3=base64Val(data[i++]);
+        if (b3 == -2) {
+          final int b=b2 << 4 & 0xF0;
+          if (b != 0)           addByte(tmp,b,utf);
+        }
+ else         if (b3 == -1)         valid=false;
+ else {
+          addByte(tmp,b2 << 4 & 0xF0 | b3 >> 2,utf);
+          b4=base64Val(data[i++]);
+          if (b4 == -2) {
+            final byte b=(byte)(b3 << 6 & 0xC0);
+            if (b != 0)             addByte(tmp,b,utf);
+          }
+ else           if (b4 == -1)           valid=false;
+ else           addByte(tmp,b3 << 6 & 0xC0 | b4,utf);
+        }
+      }
+    }
+  }
+ catch (  final Exception ex) {
+    BaseX.debug("EMLParser: invalid base64 encoding");
+  }
+  if (!valid)   BaseX.debug("EMLParser: invalid base64 encoding");
+  return tmp.finish();
 }
