@@ -1,13 +1,27 @@
 {
+  final File[] files=d.listFiles();
+  if (files == null)   return;
   atts.reset();
-  atts.add(NAME,token(f.getName()));
-  atts.add(SIZE,EMPTY);
+  final String name=d.getName();
+  atts.add(NAME,token(!name.equals("") ? name : d.getAbsolutePath()));
+  atts.add(SIZE,ZERO);
   int sizeAttId=builder.startElem(DIR_NS,atts) + 2;
   sizeStack[++lvl]=0;
-  parse(f);
+  final boolean fuse=prop.is(Prop.FUSE);
+  for (  final File f : files) {
+    if (!valid(f) || f.isHidden())     continue;
+    if (f.isDirectory()) {
+      if (fuse)       new File(mybackingpath + f.getAbsolutePath().substring(importRootLength)).mkdir();
+      dir(f);
+    }
+ else {
+      if (fuse)       copy(f.getAbsoluteFile(),new File(mybackingpath + f.getAbsolutePath().substring(importRootLength)));
+      file(f);
+    }
+  }
   final long size=sizeStack[lvl];
-  addFSElems(f,size);
-  addFSAtts(sizeAttId,f,size);
+  addFSElems(d,size);
+  addFSAtts(sizeAttId,d,size);
   builder.endElem(DIR_NS);
   sizeStack[--lvl]+=size;
 }

@@ -5,7 +5,7 @@
     atts.reset();
     final String name=f.getName();
     atts.add(NAME,token(name));
-    atts.add(SIZE,EMPTY);
+    atts.add(SIZE,ZERO);
     int sizeAttId=builder.startElem(FILE_NS,atts) + 2;
     if ((prop.is(Prop.FSMETA) || prop.is(Prop.FSCONT)) && f.canRead() && f.isFile()) {
       addFSElems(f,size);
@@ -13,19 +13,21 @@
       if (prop.is(Prop.SPOTLIGHT)) {
         if (prop.is(Prop.FSMETA))         spotlight.parse(f);
         if (prop.is(Prop.FSCONT)) {
-          final BufferedFileChannel fc=new BufferedFileChannel(f,buffer);
           try {
-            fallbackParserInstance.readContent(fc,this);
-          }
- catch (          final IOException ex) {
-            BaseX.debug("NewFSParser: Failed to parse file metadata (% - %).",fc.getFileName(),ex.getMessage());
-          }
- finally {
+            final BufferedFileChannel fc=new BufferedFileChannel(f,buffer);
             try {
-              fc.close();
+              fallbackParserInstance.readContent(fc,this);
             }
- catch (            final IOException e) {
+  finally {
+              try {
+                fc.close();
+              }
+ catch (              final IOException e) {
+              }
             }
+          }
+ catch (          IOException ex) {
+            BaseX.debug("Failed to parse file: %",ex);
           }
         }
       }
@@ -36,22 +38,24 @@
           AbstractParser parser=getParser(suffix);
           if (parser == null)           parser=getFallbackParser();
           if (parser != null) {
-            final BufferedFileChannel fc=new BufferedFileChannel(f,buffer);
             try {
-              lastContentOffset=0;
-              lastContentSize=size;
-              contentOpenedCounter=0;
-              parse0(parser,fc);
-            }
- catch (            final IOException ex) {
-              BaseX.debug("NewFSParser: Failed to parse file metadata (% - %).",fc.getFileName(),ex.getMessage());
-            }
- finally {
+              final BufferedFileChannel fc=new BufferedFileChannel(f,buffer);
               try {
-                fc.close();
+                lastContentOffset=0;
+                lastContentSize=size;
+                contentOpenedCounter=0;
+                parse0(parser,fc);
               }
- catch (              final IOException e1) {
+  finally {
+                try {
+                  fc.close();
+                }
+ catch (                final IOException e1) {
+                }
               }
+            }
+ catch (            IOException ex) {
+              BaseX.debug("Failed to parse file: %",ex);
             }
           }
         }
