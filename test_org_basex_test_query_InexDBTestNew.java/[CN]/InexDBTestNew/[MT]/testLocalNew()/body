@@ -4,15 +4,21 @@
     final Data data=Open.open(ctx,databases.get(d));
     roots[d]=new Nodes(data.doc(),data);
   }
-  if (subfile)   openSubFile();
   for (int q=0; q < queries.size(); q++) {
     SeqIter s=null;
     for (int d=0; d < databases.size(); d++) {
       ctx.current(roots[d]);
-      queryNew(d,q);
-      s=s == null ? queryNew(d,q) : addSorted(s,queryNew(d,q));
+      int oldSize=0;
+      if (s != null) {
+        BaseX.outln("old:" + s.size());
+        oldSize=s.size();
+      }
+ else       BaseX.outln("old: 0");
+      final SeqIter ni=queryNew(d,q);
+      BaseX.outln("add:" + ni.size());
+      s=s == null ? ni : addSorted(s,ni);
+      if (s != null)       BaseX.outln("new:" + s.size() + " "+ (s.size() == oldSize + ni.size()));
     }
-    if (subfile)     createQueryEntry(q,s,1500);
+    if (subfile)     results[q]=s;
   }
-  if (subfile)   closeSubFile();
 }

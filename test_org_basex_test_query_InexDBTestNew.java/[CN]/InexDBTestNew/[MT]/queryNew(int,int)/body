@@ -10,8 +10,10 @@
   final String time=Pattern.compile(".*" + (total ? "Total Time" : "Evaluating") + ": (.*?) ms.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1");
   if (subfile) {
     qtimes[qu]+=Double.parseDouble(time);
+    if (server) {
+    }
     final Result val=proc.result();
-    if (val instanceof SeqIter) {
+    if (val != null && val instanceof SeqIter) {
       itr=(SeqIter)val;
       for (int i=0; i < itr.size(); i++) {
         if (itr.item[i] instanceof Str) {
@@ -20,16 +22,20 @@
             final int s0=str.indexOf('[');
             final int s1=str.indexOf(']');
             final int c=Integer.parseInt(str.substring(s0 + 1,s1)) + numArt[db];
-            final Str tmp=new Str(("article[" + c + str.substring(s1)).getBytes(),false);
+            Str tmp;
+            if (dbpath) {
+              tmp=new Str((databases.get(db) + ":" + "article["+ (c - numArt[db])+ str.substring(s1)).getBytes(),false);
+            }
+ else             tmp=new Str(("article[" + c + str.substring(s1)).getBytes(),false);
             itr.item[i]=tmp;
           }
         }
       }
     }
   }
-  log.add("Query " + (qu + 1) + " on "+ databases.get(db)+ ":"+ time+ NL);
+  BaseX.outln("Query % on %: %",qu + 1,databases.get(db),time);
   if (info) {
-    log.add("- " + Pattern.compile(".*Result: (.*?)\\n.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1"));
+    BaseX.outln("- " + Pattern.compile(".*Result: (.*?)\\n.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1"));
   }
   return itr;
 }
