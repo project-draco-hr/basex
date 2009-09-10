@@ -1,0 +1,34 @@
+{
+  final File file=new File("topics.xml");
+  if (!file.exists()) {
+    System.out.println("Could not read \"" + file.getAbsolutePath() + "\"");
+    return;
+  }
+  final FileInputStream fis=new FileInputStream(file);
+  final InputStreamReader isr=new InputStreamReader(fis,"UTF8");
+  final BufferedReader br=new BufferedReader(isr);
+  String line=null;
+  String t=new String();
+  String ca=new String();
+  String ty=new String();
+  final PrintOutput out=new PrintOutput("inex.queries");
+  while ((line=br.readLine()) != null) {
+    if (line.indexOf("topic ct_no") > -1) {
+      int s0=line.indexOf('"');
+      int s1=line.indexOf('"',s0 + 1);
+      t=line.substring(s0 + 1,s1);
+      s0=line.indexOf('"',s1 + 1);
+      s1=line.indexOf('"',s0 + 1);
+      ca=line.substring(s0 + 1,s1);
+      s0=line.indexOf('"',s1 + 1);
+      s1=line.indexOf('"',s0 + 1);
+      ty=line.substring(s0 + 1,s1);
+    }
+ else     if (line.indexOf("xpath_title") > -1) {
+      int s0=line.indexOf('/');
+      String q=line.substring(s0,line.lastIndexOf('<'));
+      out.println(t + ";" + c+ ";"+ ty+ ";"+ q);
+    }
+  }
+  br.close();
+}

@@ -1,5 +1,5 @@
 {
-  final String que=subfile ? xqm + "for $i score $s in " + queries.get(qu)+ " order by $s descending return (basex:sum-path($i), $s)" : queries.get(qu);
+  final String que=subfile ? xqm + "for $i score $s in " + queries.get(qu)+ " order by $s descending return (basex:sum-path($i), $s, "+ "base-uri($i))" : queries.get(qu);
   final Process proc=new XQuery(que);
   final CachedOutput res=new CachedOutput();
   if (launcher.execute(proc)) {
@@ -8,36 +8,27 @@
   final CachedOutput out=new CachedOutput();
   launcher.info(out);
   SeqIter sq=new SeqIter();
-  final String time=Pattern.compile(".*" + (total ? "Total Time" : "Evaluating") + ": (.*?) ms.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1");
   if (subfile) {
-    qtimes[qu]+=Double.parseDouble(time);
     StringTokenizer st=new StringTokenizer(res.toString()," ");
     String lp=new String();
     while (st.hasMoreTokens()) {
       final String p=st.nextToken();
       if (!st.hasMoreTokens())       break;
       final String s=st.nextToken();
-      if (!lp.equals(p)) {
-        Str str;
-        if (p.startsWith("article")) {
-          final int s0=p.indexOf('[');
-          final int s1=p.indexOf(']');
-          final int n=Integer.parseInt(p.substring(s0 + 1,s1)) + numArt[db];
-          String a;
-          if (dbpath)           a=databases.get(db) + ":" + "article["+ (n - numArt[db])+ p.substring(s1);
- else           a="article[" + n + p.substring(s1);
-          str=new Str(a.getBytes(),false);
-        }
- else {
-          str=new Str(p.getBytes(),false);
-        }
+      if (!st.hasMoreTokens())       break;
+      String uri=st.nextToken();
+      uri=uri.substring(uri.lastIndexOf('/') + 1);
+      final String tmp=uri + ";" + p;
+      if (!lp.equals(tmp)) {
+        final Str str=new Str((uri + ";" + p).getBytes(),false);
         str.score(Double.parseDouble(s));
-        lp=p;
         sq.add(str);
+        lp=tmp;
       }
+      qtimes[qu]+=qt[db * 115 + qu];
     }
   }
-  BaseX.outln("Query % on %: %",qu + 1,databases.get(db),time);
+  BaseX.outln("Query % on %: %",qu + 1,databases.get(db),qt[db * 115 + qu]);
   if (info) {
     BaseX.outln("- " + Pattern.compile(".*Result: (.*?)\\n.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1"));
   }
