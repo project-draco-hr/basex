@@ -1,5 +1,5 @@
 {
-  final String que=subfile ? xqm + "for $i score $s in " + queries.get(qu)+ " order by $s descending return (basex:sum-path($i), $s, "+ "base-uri($i))" : queries.get(qu);
+  final String que=subfile ? XQM + "for $i score $s in " + queries.get(qu)+ " order by $s descending return (basex:sum-path($i), $s, "+ "base-uri($i))" : queries.get(qu);
   final Process proc=new XQuery(que);
   final CachedOutput res=new CachedOutput();
   if (launcher.execute(proc)) {
@@ -10,7 +10,7 @@
   SeqIter sq=new SeqIter();
   if (subfile) {
     StringTokenizer st=new StringTokenizer(res.toString()," ");
-    String lp=new String();
+    String lp="";
     while (st.hasMoreTokens()) {
       qtimes[qu]+=qt[db * 115 + qu];
       final String p=st.nextToken();
@@ -21,7 +21,7 @@
       uri=uri.substring(uri.lastIndexOf('/') + 1);
       final String tmp=uri + ";" + p;
       if (!lp.equals(tmp)) {
-        final Str str=new Str((uri + ";" + p).getBytes(),false);
+        final Str str=Str.get(token(uri + ";" + p));
         str.score(Double.parseDouble(s));
         sq.add(str);
         lp=tmp;

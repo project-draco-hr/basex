@@ -1,5 +1,5 @@
 {
-  final String que=subfile ? xqm + "for $i score $s in " + queries.get(qu)+ " order by $s descending return (basex:sum-path($i), $s)" : queries.get(qu);
+  final String que=subfile ? XQM + "for $i score $s in " + queries.get(qu)+ " order by $s descending return (basex:sum-path($i), $s)" : queries.get(qu);
   final Process proc=new XQuery(que);
   if (launcher.execute(proc)) {
     launcher.output(new NullOutput());
@@ -17,17 +17,17 @@
       itr=(SeqIter)val;
       for (int i=0; i < itr.size(); i++) {
         if (itr.item[i] instanceof Str) {
-          String str=new String(((Str)itr.item[i]).str());
+          String str=string(((Str)itr.item[i]).str());
           if (str.startsWith("article")) {
             final int s0=str.indexOf('[');
             final int s1=str.indexOf(']');
             final int count=Integer.parseInt(str.substring(s0 + 1,s1)) + numArt[db];
-            Str tmp;
+            String tmp;
             if (dbpath) {
-              tmp=new Str((databases.get(db) + ":" + "article["+ (count - numArt[db])+ str.substring(s1)).getBytes(),false);
+              tmp=databases.get(db) + ":" + "article["+ (count - numArt[db])+ str.substring(s1);
             }
- else             tmp=new Str(("article[" + count + str.substring(s1)).getBytes(),false);
-            itr.item[i]=tmp;
+ else             tmp="article[" + count + str.substring(s1);
+            itr.item[i]=Str.get(token(tmp));
           }
         }
       }
