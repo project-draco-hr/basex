@@ -1,0 +1,34 @@
+{
+  if (path.equals("/")) {
+    sbuf.st_atimespec.setToMillis(rootStat.st_atimespec.toMillis());
+    sbuf.st_ctimespec.setToMillis(rootStat.st_ctimespec.toMillis());
+    sbuf.st_mtimespec.setToMillis(rootStat.st_mtimespec.toMillis());
+    sbuf.st_mode=rootStat.st_mode;
+    sbuf.st_size=rootStat.st_size;
+    sbuf.st_uid=rootStat.st_uid;
+    sbuf.st_gid=rootStat.st_gid;
+    sbuf.st_nlink=rootStat.st_gid;
+    return 0;
+  }
+  int pre=path2pre(path);
+  if (pre == -1)   return -1;
+  byte[] mtime=attr(pre,mtimeID);
+  byte[] ctime=attr(pre,ctimeID);
+  byte[] atime=attr(pre,atimeID);
+  byte[] mode=attr(pre,modeID);
+  byte[] size=attr(pre,sizeID);
+  byte[] uid=attr(pre,uidID);
+  byte[] gid=attr(pre,gidID);
+  byte[] nlink=attr(pre,nlinkID);
+  BaseX.debug("mtime: " + string(mtime) + "\nctime: "+ string(ctime)+ "\natime: "+ string(atime)+ "\nmode: "+ string(mode)+ "\nsize: "+ string(size)+ "\nuid: "+ string(uid)+ "\ngid: "+ string(gid)+ "\nnlink: "+ string(nlink));
+  sbuf.st_atimespec.setToMillis(Long.parseLong(string(atime)));
+  sbuf.st_ctimespec.setToMillis(Long.parseLong(string(ctime)));
+  sbuf.st_mtimespec.setToMillis(Long.parseLong(string(mtime)));
+  sbuf.st_mode=Long.parseLong(string(mode));
+  sbuf.st_size=Long.parseLong(string(size));
+  sbuf.st_uid=Long.parseLong(string(uid));
+  sbuf.st_gid=Long.parseLong(string(gid));
+  sbuf.st_nlink=Long.parseLong(string(nlink));
+  if (Prop.debug)   sbuf.printFields("-",new PrintStream(System.err));
+  return 0;
+}

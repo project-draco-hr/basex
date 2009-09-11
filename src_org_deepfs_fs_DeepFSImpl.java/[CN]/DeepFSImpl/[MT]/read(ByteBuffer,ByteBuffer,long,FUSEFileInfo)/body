@@ -1,0 +1,19 @@
+{
+  String pathString=FUSEUtil.decodeUTF8(path);
+  if (pathString == null) {
+    return -ENOENT;
+  }
+ else   if (offset < 0 || offset > Integer.MAX_VALUE) {
+    return -EINVAL;
+  }
+ else   if (!pathString.equals(hello_path))   return -ENOENT;
+ else {
+    int bytesLeftInFile=hello_str.length - (int)(offset);
+    if (bytesLeftInFile > 0) {
+      int len=Math.min(bytesLeftInFile,buf.remaining());
+      buf.put(hello_str,(int)offset,len);
+      return len;
+    }
+    return 0;
+  }
+}
