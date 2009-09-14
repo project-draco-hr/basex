@@ -14,9 +14,6 @@
  else         if (c == 'r') {
           runs=Integer.parseInt(arg.string());
         }
- else         if (c == 's') {
-          server=true;
-        }
  else         if (c == 't') {
           total=true;
         }
@@ -31,20 +28,18 @@
         ok=false;
       }
     }
-    launcher=server ? new ClientLauncherNew(ctx) : new Launcher(ctx);
+    launcher=new ClientLauncherNew(ctx);
     launcher.execute(new Set(Prop.SERIALIZE,total));
-    launcher.execute(new Set(Prop.RUNS,runs));
     launcher.execute(new Set(Prop.INFO,true));
     launcher.execute(new Set(Prop.ALLINFO,info));
   }
  catch (  final Exception ex) {
     ok=false;
-    if (server && ex instanceof ConnectException) {
-      BaseX.outln("Please run BaseXServerNew for using server mode.");
-    }
+    BaseX.errln("Please run BaseXServerNew for using server mode.");
+    ex.printStackTrace();
   }
   if (!ok) {
-    BaseX.outln("Usage: " + BaseX.name(this) + " [options]"+ NL+ "  -d<no>  maximum no/database"+ NL+ "  -q<no>  maximum no/queries"+ NL+ "  -r<no>  number of runs"+ NL+ "  -s      use server architecture"+ NL+ "  -t      measure total time"+ NL+ "  -v      show process info");
+    BaseX.outln("Usage: " + BaseX.name(this) + " [options]"+ NL+ "  -d<no>  maximum no/database"+ NL+ "  -q<no>  maximum no/queries"+ NL+ "  -r<no>  number of runs"+ NL+ "  -t      measure total time"+ NL+ "  -v      show process info");
   }
   return ok;
 }
