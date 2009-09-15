@@ -1,5 +1,12 @@
 {
-  if (p instanceof DeletePrimitive)   deletes.add((DeletePrimitive)p);
-  if (p instanceof RenamePrimitive)   renames.add((RenamePrimitive)p);
-  if (p instanceof ReplacePrimitive)   replaces.add((ReplacePrimitive)p);
+  if (p.node instanceof FNode)   fragPrimitives.addPrimitive(p);
+ else   if (p.node instanceof DBNode) {
+    final Data d=((DBNode)p.node).data;
+    Primitives dp=dbPrimitives.get(d);
+    if (dp == null) {
+      dp=new Primitives();
+      dbPrimitives.put(d,dp);
+    }
+    dp.addPrimitive(p);
+  }
 }
