@@ -1,16 +1,8 @@
 {
   String pathString=FUSEUtil.decodeUTF8(path);
-  dbfs.stat(pathString,stbuf);
+  BaseX.debug("getattr: " + pathString);
   if (pathString == null)   return -ENOENT;
-  if (pathString.equals("/")) {
-    stbuf.st_mode=S_IFDIR | 0755;
-    stbuf.st_nlink=2;
-  }
- else   if (pathString.equals(hello_path)) {
-    stbuf.st_mode=S_IFREG | 0444;
-    stbuf.st_nlink=1;
-    stbuf.st_size=hello_str.length;
-  }
- else   return -ENOENT;
+  int rc=dbfs.stat(pathString,stbuf);
+  if (rc == -1)   return -ENOENT;
   return 0;
 }

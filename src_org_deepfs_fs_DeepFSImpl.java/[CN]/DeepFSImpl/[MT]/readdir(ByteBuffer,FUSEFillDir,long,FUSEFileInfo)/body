@@ -1,11 +1,10 @@
 {
   String pathString=FUSEUtil.decodeUTF8(path);
   if (pathString == null)   return -ENOENT;
- else   if (!pathString.equals("/"))   return -ENOENT;
- else {
-    filler.fill(FUSEUtil.encodeUTF8("."),null,0);
-    filler.fill(FUSEUtil.encodeUTF8(".."),null,0);
-    filler.fill(FUSEUtil.encodeUTF8(hello_path.substring(1)),null,0);
-    return 0;
-  }
+  byte[][] dents=dbfs.readdir(pathString);
+  if (dents == null)   return -ENOENT;
+  filler.fill(DOT,null,0);
+  filler.fill(DOTDOT,null,0);
+  for (  byte[] de : dents)   filler.fill(de,null,0);
+  return 0;
 }
