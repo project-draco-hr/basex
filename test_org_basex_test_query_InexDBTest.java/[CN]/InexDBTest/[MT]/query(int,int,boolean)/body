@@ -1,6 +1,18 @@
 {
+  if (budget > -1) {
+    final double timer=budget - rqt[qu];
+    if (timer <= 0) {
+      if (s) {
+        res.println(0 + ";" + 0);
+        BaseX.outln("Query % on %: %",qu + 1,databases.get(db),0);
+      }
+      return;
+    }
+    launcher.execute(new Set(Prop.IBT,timer));
+  }
+  final CachedOutput r=new CachedOutput();
   if (launcher.execute(new XQuery(queries.get(qu)))) {
-    launcher.output(new CachedOutput());
+    launcher.output(r);
     if (!s)     return;
     final CachedOutput out=new CachedOutput();
     launcher.info(out);
@@ -9,6 +21,15 @@
     if (info) {
       BaseX.outln("- " + Pattern.compile(".*Result: (.*?)\\n.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1"));
     }
-    res.println(time);
+    String in=out.toString();
+    in=in.substring(in.indexOf("Results") + "Results".length(),in.indexOf("Item")).trim();
+    rqt[qu]+=Double.parseDouble(time);
+    res.println(time + ";" + Integer.parseInt(in.substring(in.indexOf(':') + 2)));
+  }
+ else {
+    final CachedOutput out=new CachedOutput();
+    launcher.info(out);
+    BaseX.outln(out.toString());
+    res.println(-1 + ";" + -1);
   }
 }
