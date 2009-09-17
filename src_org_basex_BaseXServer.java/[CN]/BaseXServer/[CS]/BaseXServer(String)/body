@@ -2,24 +2,20 @@
   if (!parseArguments(args))   return;
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      for (      final BaseXSession s : sess)       s.core.stop();
+      for (      final Session s : sessions)       s.core.stop();
       context.close();
     }
   }
 );
-  new Thread(){
-    @Override public void run(){
-      while (running) {
-        Performance.sleep(1000);
-        clean();
-      }
-    }
-  }
-.start();
   try {
-    final ServerSocket server=new ServerSocket(context.prop.num(Prop.PORT));
+    socket=new ServerSocket(context.prop.num(Prop.PORT));
     BaseX.outln(SERVERSTART);
-    while (running)     serve(server);
+    if (interactive) {
+      input=new InputListener();
+      input.start();
+    }
+    session=new SessionListener(this);
+    session.start();
   }
  catch (  final Exception ex) {
     error(ex,true);

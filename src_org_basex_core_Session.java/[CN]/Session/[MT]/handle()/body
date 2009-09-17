@@ -1,0 +1,57 @@
+{
+  final Performance perf=new Performance();
+  dis=new DataInputStream(socket.getInputStream());
+  out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
+  if (info)   BaseX.outln(this + " Login.");
+  while (true) {
+    final String in=getMessage();
+    if (in == null) {
+      stop(false);
+      break;
+    }
+    if (info)     BaseX.outln(this + " " + in);
+    Process proc=null;
+    try {
+      proc=new CommandParser(in,context,true).parse()[0];
+    }
+ catch (    final QueryException ex) {
+      proc=new Process(0){
+      }
+;
+      proc.error(ex.extended());
+      core=proc;
+      send(false);
+      continue;
+    }
+    if (proc instanceof IntStop || proc instanceof Exit) {
+      send(true);
+      stop(true);
+      if (proc instanceof IntStop)       bxs.stop();
+      break;
+    }
+ else     if (proc instanceof IntOutput || proc instanceof IntInfo) {
+      if (core == null) {
+        out.print(BaseX.info(SERVERTIME));
+      }
+ else {
+        if (proc instanceof IntOutput) {
+          core.output(out);
+          out.write(new byte[IO.BLOCKSIZE]);
+        }
+ else {
+          new DataOutputStream(out).writeUTF(core.info());
+        }
+        out.flush();
+      }
+    }
+ else {
+      core=proc;
+      timeout(proc);
+      send(proc.execute(context));
+      if (proc.info().equals(PROGERR))       proc.error(SERVERTIME);
+      timeout.interrupt();
+    }
+    if (info)     BaseX.outln(this + " " + perf);
+  }
+  if (info)   BaseX.outln(this + " Logout.");
+}
