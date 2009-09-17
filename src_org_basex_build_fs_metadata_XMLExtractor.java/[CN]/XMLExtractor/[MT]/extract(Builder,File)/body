@@ -1,6 +1,14 @@
 {
-  build.startElem(XML,atts.reset());
+  if (f.length() > build.parser.prop.num(Prop.FSTEXTMAX))   return;
   final IO io=IO.get(f.getPath());
+  try {
+    final Parser p=Parser.xmlParser(io,build.parser.prop);
+    new MemBuilder(p).build();
+  }
+ catch (  final IOException ex) {
+    return;
+  }
+  build.startElem(XML,atts.reset());
   final Parser parser=Parser.xmlParser(io,build.parser.prop);
   parser.doc=false;
   parser.parse(build);

@@ -4,10 +4,12 @@
   getHeaderData(build);
   if (mBoundary.length() != 0) {
     mMultiPart=mContentType != null && mContentType.contains("multipart");
-    if (mMultiPart)     while (!mCurrLine.contains(mBoundary))     readLine();
+    if (mMultiPart)     while (!mCurrLine.contains(mBoundary) && readLine())     ;
   }
-  while (getBodyData(build))   ;
-  mMultiPart=false;
+  if (mCurrLine != null) {
+    while (getBodyData(build))     ;
+    mMultiPart=false;
+  }
   build.endElem(EMAIL);
   while (readLine() && mCurrLine.length() == 0)   ;
   return mCurrLine != null;
