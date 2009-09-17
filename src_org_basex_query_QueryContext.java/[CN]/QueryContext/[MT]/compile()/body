@@ -3,19 +3,17 @@
   try {
     if (nodes != null) {
       final Data data=nodes.data;
+      if (nodes.doc)       doc=new DBNode[nodes.size()];
       for (int d=0, dl=nodes.size(); d < dl; d++) {
         final int p=nodes.nodes[d];
         if (nodes.doc || data.kind(p) == Data.DOC) {
           addDoc(new DBNode(data,p,Data.DOC));
-          rootDocs++;
         }
       }
-      if (rootDocs == 0) {
-        for (        final int p : data.doc()) {
-          addDoc(new DBNode(data,p));
-          rootDocs++;
-        }
+      if (docs == 0) {
+        for (        final int p : data.doc())         addDoc(new DBNode(data,p));
       }
+      rootDocs=docs;
       if (nodes.doc || !root.uses(Use.ELM,this)) {
         item=Seq.get(doc,docs);
       }
@@ -28,6 +26,7 @@
       }
       addColl(new NodIter(doc,docs),token(data.meta.name));
     }
+    if (doc == null)     doc=new DBNode[1];
     if (inf)     compInfo(QUERYCOMP);
     fun.comp(this);
     vars.comp(this);
