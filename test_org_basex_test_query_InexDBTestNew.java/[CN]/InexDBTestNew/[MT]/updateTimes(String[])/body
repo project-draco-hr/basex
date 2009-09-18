@@ -2,11 +2,12 @@
   final BufferedReader[] bf=new BufferedReader[args.length];
   for (int j=0; j < bf.length; j++)   bf[j]=new BufferedReader(new FileReader(args[j]));
   final int numdb=10;
-  final int numq=115;
-  final double[] qut=new double[numq * numdb];
+  final double[] qut=new double[nqueries * numdb];
   String l;
   int i=0;
-  while ((l=bf[0].readLine()) != null)   qut[i++]=Double.parseDouble(l);
+  while ((l=bf[0].readLine()) != null) {
+    qut[i++]=Double.parseDouble(l.substring(0,l.indexOf(';')));
+  }
   bf[0].close();
   for (int j=1; j < bf.length; j++) {
     i=0;
@@ -16,14 +17,14 @@
     }
     bf[j].close();
   }
-  final double[] tmp=new double[numq];
+  final double[] tmp=new double[nqueries];
   for (int j=0; j < tmp.length; j++) {
     for (int z=0; z < numdb; z++) {
-      tmp[j]+=qut[j + z * numq];
+      tmp[j]+=qut[j + z * nqueries];
     }
   }
-  final BufferedReader br=new BufferedReader(new FileReader("submission.xml"));
-  final PrintOutput o=new PrintOutput("submissionU.xml");
+  final BufferedReader br=new BufferedReader(new FileReader(SUBMISSION));
+  final PrintOutput o=new PrintOutput(SUBMISSIONU);
   i=0;
   while ((l=br.readLine()) != null) {
     if (l.contains("<topic topic-id=")) {
@@ -44,5 +45,5 @@
   br.close();
   o.flush();
   o.close();
-  System.out.println("Updated");
+  Main.outln("Updated");
 }

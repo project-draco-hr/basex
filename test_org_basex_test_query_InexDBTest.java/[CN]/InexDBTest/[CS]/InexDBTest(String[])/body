@@ -1,20 +1,25 @@
 {
+  final Performance p=new Performance();
+  Main.outln(Main.name(InexDBTest.class));
   if (!parseArguments(args))   return;
   final BufferedReader br=new BufferedReader(new FileReader(QUERIES));
   queries=new StringList();
   String l;
-  while ((l=br.readLine()) != null && queries.size() < maxqu)   queries.add(l.substring(l.indexOf('/')));
+  int c=0;
+  while ((l=br.readLine()) != null) {
+    if (quindex == -1 || ++c == quindex) {
+      queries.add(l.substring(l.lastIndexOf(';') + 1));
+    }
+  }
   br.close();
   rqt=new double[queries.size()];
   databases=new StringList();
   for (  final String s : List.list(ctx)) {
-    if (s.startsWith(DBPREFIX) && databases.size() < maxdb)     databases.add(s);
+    if (s.startsWith(DBPREFIX) && (dbindex == -1 || s.equals(DBPREFIX + dbindex)))     databases.add(s);
   }
-  BaseX.outln(BaseX.name(InexDBTest.class) + " [" + CLIENTMODE+ "]");
-  BaseX.outln("=> % queries on % databases, % runs: time in ms\n",queries.size(),databases.size(),runs);
-  res=new PrintOutput("times");
-  final Performance p=new Performance();
+  Main.outln("=> % queries on % databases, % runs: time in ms\n",queries.size(),databases.size(),runs);
+  if (dbindex == -1 && quindex == -1)   res=new PrintOutput(TIMES);
   test();
-  System.out.println("Total Time: " + p.getTimer());
-  res.close();
+  if (res != null)   res.close();
+  Main.outln("Total Time: " + p);
 }

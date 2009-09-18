@@ -1,23 +1,33 @@
 {
-  if (!parseArguments(args))   return;
+  super(true,true,args);
+  if (!ok)   return;
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      for (      final Session s : sessions)       s.core.stop();
+      for (      final Session s : context.sessions)       s.core.stop();
       context.close();
     }
   }
 );
-  try {
-    socket=new ServerSocket(context.prop.num(Prop.PORT));
-    BaseX.outln(SERVERSTART);
-    if (interactive) {
-      input=new InputListener();
-      input.start();
+  new Thread(){
+    @Override public void run(){
+      try {
+        final ServerSocket ss=new ServerSocket(context.prop.num(Prop.PORT));
+        while (running) {
+          try {
+            final Socket s=ss.accept();
+            if (running)             context.add(new Session(s,BaseXServer.this));
+          }
+ catch (          final IOException ex) {
+            Main.error(ex,false);
+          }
+        }
+      }
+ catch (      final Exception ex) {
+        Main.error(ex,true);
+      }
     }
-    session=new SessionListener(this);
-    session.start();
   }
- catch (  final Exception ex) {
-    error(ex,true);
-  }
+.start();
+  outln(CONSOLE,SERVERMODE,console ? CONSOLE2 : SERVERSTART);
+  if (console)   quit(console());
 }

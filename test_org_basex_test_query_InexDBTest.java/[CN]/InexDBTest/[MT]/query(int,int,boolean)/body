@@ -3,33 +3,33 @@
     final double timer=budget - rqt[qu];
     if (timer <= 0) {
       if (s) {
-        res.println(0 + ";" + 0);
-        BaseX.outln("Query % on %: %",qu + 1,databases.get(db),0);
+        if (res != null)         res.println(0 + ";" + 0);
+        Main.outln("Query % on %: %",qu + 1,databases.get(db),0);
       }
       return;
     }
     launcher.execute(new Set(Prop.IBT,timer));
   }
   final CachedOutput r=new CachedOutput();
-  if (launcher.execute(new XQuery(PROLOG + queries.get(qu)))) {
+  if (launcher.execute(new XQuery((stem ? PROLOG : "") + queries.get(qu)))) {
     launcher.output(r);
     if (!s)     return;
     final CachedOutput out=new CachedOutput();
     launcher.info(out);
     final String time=Pattern.compile(".*Total Time: (.*?) ms.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1");
-    BaseX.outln("Query % on %: %",qu + 1,databases.get(db),time);
+    Main.outln("Query % on %: %",qu + 1,databases.get(db),time);
     if (info) {
-      BaseX.outln("- " + Pattern.compile(".*Result: (.*?)\\n.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1"));
+      Main.outln("- " + Pattern.compile(".*Result: (.*?)\\n.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1"));
     }
     String in=out.toString();
     in=in.substring(in.indexOf("Results") + "Results".length(),in.indexOf("Item")).trim();
     rqt[qu]+=Double.parseDouble(time);
-    res.println(time + ";" + Integer.parseInt(in.substring(in.indexOf(':') + 2)));
+    if (res != null)     res.println(time + ";" + Integer.parseInt(in.substring(in.indexOf(':') + 2)));
   }
  else {
     final CachedOutput out=new CachedOutput();
     launcher.info(out);
-    BaseX.outln(out.toString());
-    res.println(-1 + ";" + -1);
+    Main.outln(out.toString());
+    if (res != null)     res.println(-1 + ";" + -1);
   }
 }

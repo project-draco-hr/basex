@@ -27,7 +27,7 @@
     }
   }
   if (!o) {
-    BaseX.outln(NL + BaseX.name(this) + " Test Suite"+ NL+ " [pat] perform only tests with the specified pattern"+ NL+ " -h show this help"+ NL+ " -p change path"+ NL+ " -r create report"+ NL+ " -v verbose output");
+    Main.outln(NL + Main.name(this) + " Test Suite"+ NL+ " [pat] perform only tests with the specified pattern"+ NL+ " -h show this help"+ NL+ " -p change path"+ NL+ " -r create report"+ NL+ " -v verbose output");
     return;
   }
   queries=path + "Queries/XQuery/";
@@ -44,20 +44,20 @@
   new CreateDB(path + input).execute(context);
   data=context.data();
   final Nodes root=new Nodes(0,data);
-  BaseX.outln(NL + BaseX.name(this) + " Test Suite "+ text("/*:test-suite/@version",root));
-  BaseX.outln(NL + "Caching Sources...");
+  Main.outln(NL + Main.name(this) + " Test Suite "+ text("/*:test-suite/@version",root));
+  Main.outln(NL + "Caching Sources...");
   for (  final int s : nodes("//*:source",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
     final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
     srcs.put(text("@ID",srcRoot),val);
   }
-  BaseX.outln("Caching Modules...");
+  Main.outln("Caching Modules...");
   for (  final int s : nodes("//*:module",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
     final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
     mods.put(text("@ID",srcRoot),val);
   }
-  BaseX.outln("Caching Collections...");
+  Main.outln("Caching Collections...");
   for (  final int c : nodes("//*:collection",root).nodes) {
     final Nodes nodes=new Nodes(c,data);
     final String cname=text("@ID",nodes);
@@ -70,20 +70,20 @@
   }
   init(root);
   if (reporting) {
-    BaseX.outln("Delete old results...");
+    Main.outln("Delete old results...");
     delete(new File[]{new File(results)});
   }
-  BaseX.out("Parsing Queries");
-  if (verbose)   BaseX.outln();
+  Main.out("Parsing Queries");
+  if (verbose)   Main.outln();
   final Nodes nodes=nodes("//*:test-case",root);
   for (int t=0; t < nodes.size(); t++) {
     if (!parse(new Nodes(nodes.nodes[t],data)))     break;
-    if (!verbose && t % 1000 == 0)     BaseX.out(".");
+    if (!verbose && t % 1000 == 0)     Main.out(".");
   }
-  BaseX.outln();
+  Main.outln();
   final String time=perf.getTimer();
   final int total=ok + ok2 + err+ err2;
-  BaseX.outln("Writing log file..." + NL);
+  Main.outln("Writing log file..." + NL);
   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(pathlog),UTF8));
   bw.write("TEST RESULTS ==================================================");
   bw.write(NL + NL + "Total #Queries: "+ total+ NL);
@@ -111,10 +111,10 @@
     write(bw,report + NAME + "Pos.xml");
     bw.close();
   }
-  BaseX.outln("Total #Queries: " + total);
-  BaseX.outln("Correct / Empty results: " + ok + " / "+ ok2);
-  BaseX.out("Conformance (w/empty results): ");
-  BaseX.outln(pc(ok,total) + " / " + pc(ok + ok2,total));
-  BaseX.outln("Total Time: " + time);
+  Main.outln("Total #Queries: " + total);
+  Main.outln("Correct / Empty results: " + ok + " / "+ ok2);
+  Main.out("Conformance (w/empty results): ");
+  Main.outln(pc(ok,total) + " / " + pc(ok + ok2,total));
+  Main.outln("Total Time: " + time);
   context.close();
 }

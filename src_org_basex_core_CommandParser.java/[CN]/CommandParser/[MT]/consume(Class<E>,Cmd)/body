@@ -5,22 +5,22 @@
     final E cmd=Enum.valueOf(cmp,t);
     if (!(cmd instanceof Cmd))     return cmd;
     final Cmd c=(Cmd)cmd;
-    if (!c.dummy() && (internal || !c.internal()))     return cmd;
+    if (!c.help() && (internal || !c.internal()) && (server || !c.server()))     return cmd;
   }
  catch (  final IllegalArgumentException ex) {
   }
-  final StringList alt=list(cmp,token);
+  final Enum<?>[] alt=list(cmp,token);
   if (token == null) {
-    if (par == null)     error(alt,CMDNO);
-    help(alt,par);
+    if (par == null)     error(list(alt),CMDNO);
+    help(list(alt),par);
   }
   final byte[] name=lc(token(token));
   final Levenshtein ls=new Levenshtein();
-  for (  final String s : list(cmp,null)) {
-    final byte[] sm=lc(token(s));
-    if (ls.similar(name,sm,0))     error(alt,CMDSIMILAR,name,sm);
+  for (  final Enum<?> s : list(cmp,null)) {
+    final byte[] sm=lc(token(s.name().toLowerCase()));
+    if (ls.similar(name,sm,0) && (server || !((Cmd)s).server()))     error(list(alt),CMDSIMILAR,name,sm);
   }
-  if (par == null)   error(alt,CMDWHICH,token);
-  help(alt,par);
+  if (par == null)   error(list(alt),CMDWHICH,token);
+  help(list(alt),par);
   return null;
 }

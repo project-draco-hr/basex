@@ -1,37 +1,33 @@
 {
-  if (QRESSIZES[db * 115 + qu] == 0)   return new SeqIter();
-  final String que=XQM + "for $i score $s in " + queries.get(qu)+ " order by $s descending "+ "return (basex:sum-path($i), $s, base-uri($i))";
+  final int size=qressizes[db * nqueries + qu];
+  final double qtime=qt[db * nqueries + qu];
+  if (size == 0)   return new SeqIter();
+  final String que=XQM + (stem ? PROLOG : "") + "for $i score $s in "+ queries.get(qu)+ " order by $s descending "+ "return (basex:sum-path($i), $s, base-uri($i))";
   final Process proc=new XQuery(que);
   final CachedOutput res=new CachedOutput();
-  if (launcher.execute(proc)) {
-    launcher.output(res);
-  }
-  final CachedOutput out=new CachedOutput();
-  launcher.info(out);
+  if (launcher.execute(proc))   launcher.output(res);
+  launcher.info(new CachedOutput());
   final SeqIter sq=new SeqIter();
-  final int size=QRESSIZES[db * 115 + qu];
-  if (size > 0) {
-    StringTokenizer st=new StringTokenizer(res.toString()," ");
-    String lp="";
-    int z=0;
-    while (st.hasMoreTokens() && z < size) {
-      qtimes[qu]+=qt[db * 115 + qu];
-      final String p=st.nextToken();
-      if (!st.hasMoreTokens())       break;
-      final String s=st.nextToken();
-      if (!st.hasMoreTokens())       break;
-      String uri=st.nextToken();
-      uri=uri.substring(uri.lastIndexOf('/') + 1);
-      final String tmp=uri + ";" + p;
-      if (!lp.equals(tmp)) {
-        final Str str=Str.get(token(uri + ";" + p));
-        str.score(Double.parseDouble(s));
-        sq.add(str);
-        lp=tmp;
-      }
-      z++;
+  final StringTokenizer st=new StringTokenizer(res.toString()," ");
+  String lp="";
+  int z=0;
+  while (st.hasMoreTokens() && z < size) {
+    qtimes[qu]+=qtime;
+    final String p=st.nextToken();
+    if (!st.hasMoreTokens())     break;
+    final String s=st.nextToken();
+    if (!st.hasMoreTokens())     break;
+    String uri=st.nextToken();
+    uri=uri.substring(uri.lastIndexOf('/') + 1);
+    final String tmp=uri + ";" + p;
+    if (!lp.equals(tmp)) {
+      final Str str=Str.get(token(uri + ";" + p));
+      str.score(Double.parseDouble(s));
+      sq.add(str);
+      lp=tmp;
     }
+    z++;
   }
-  BaseX.outln("Query % on %: %",qu + 1,databases.get(db),qt[db * 115 + qu]);
+  Main.outln("Query % on %: %",qu + 1,databases.get(db),qtime);
   return sq;
 }
