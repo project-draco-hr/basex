@@ -8,28 +8,26 @@
       }
       return;
     }
-    launcher.execute(new Set(Prop.IBT,timer));
+    session.execute(new Set(Prop.IBT,timer));
   }
   final CachedOutput r=new CachedOutput();
-  if (launcher.execute(new XQuery((stem ? PROLOG : "") + queries.get(qu)))) {
-    launcher.output(r);
+  if (session.execute(new XQuery(queries.get(qu)))) {
+    session.output(r);
     if (!s)     return;
     final CachedOutput out=new CachedOutput();
-    launcher.info(out);
-    final String time=Pattern.compile(".*Total Time: (.*?) ms.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1");
-    Main.outln("Query % on %: %",qu + 1,databases.get(db),time);
-    if (info) {
-      Main.outln("- " + Pattern.compile(".*Result: (.*?)\\n.*",Pattern.DOTALL).matcher(out.toString()).replaceAll("$1"));
-    }
-    String in=out.toString();
-    in=in.substring(in.indexOf("Results") + "Results".length(),in.indexOf("Item")).trim();
+    session.info(out);
+    final String str=out.toString();
+    final String time=find(str,"Total Time: (.*) ms");
+    final String items=find(str,"([0-9]+) ms");
+    Main.outln("Query % on %: % (% items)",qu + 1,databases.get(db),time,items);
+    if (info)     Main.outln("- " + find(str,"Result: (.*)\\r?\\n"));
     rqt[qu]+=Double.parseDouble(time);
-    if (res != null)     res.println(time + ";" + Integer.parseInt(in.substring(in.indexOf(':') + 2)));
+    if (res != null)     res.println(time + ";" + items);
   }
  else {
     final CachedOutput out=new CachedOutput();
-    launcher.info(out);
-    Main.outln(out.toString());
-    if (res != null)     res.println(-1 + ";" + -1);
+    session.info(out);
+    Main.outln(out);
+    if (res != null)     res.println("-1;-1");
   }
 }

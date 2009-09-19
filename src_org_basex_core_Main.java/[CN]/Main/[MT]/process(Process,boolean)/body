@@ -1,14 +1,16 @@
 {
   try {
-    final boolean success=launcher.execute(pr);
+    final Session ss=session();
+    if (ss == null)     return false;
+    final boolean success=ss.execute(pr);
     if (success && pr.printing()) {
       final PrintOutput out=output != null ? new PrintOutput(output) : new PrintOutput(System.out);
-      launcher.output(out);
+      ss.output(out);
       out.close();
     }
     if (v || !success) {
       final CachedOutput out=new CachedOutput();
-      launcher.info(out);
+      ss.info(out);
       final String inf=out.toString();
       if (inf.length() != 0) {
         if (!success) {
@@ -23,7 +25,7 @@
     return success;
   }
  catch (  final IOException ex) {
-    error(ex,SERVERERR);
+    error(ex,true);
     return false;
   }
 }

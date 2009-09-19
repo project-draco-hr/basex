@@ -4,10 +4,13 @@
   while (arg.more() && ok) {
     if (arg.dash()) {
       final char c=arg.next();
-      if (c == 'd') {
+      if (c == 'c') {
+        commands=arg.remaining();
+      }
+ else       if (c == 'd') {
         context.prop.set(Prop.DEBUG,true);
       }
- else       if (c == 'D' && standalone) {
+ else       if (c == 'D' && sa()) {
         ok=set(Prop.DOTPLAN,true);
       }
  else       if (c == 'm') {
@@ -16,20 +19,17 @@
  else       if (c == 'M') {
         ok=set(Prop.MAINMEM,true);
       }
+ else       if (c == 'n' && !sa()) {
+        context.prop.set(Prop.HOST,arg.string());
+      }
  else       if (c == 'o') {
         output=arg.string();
       }
- else       if (c == 'p' && !standalone) {
-        context.prop.set(Prop.PORT,Integer.parseInt(arg.string()));
-      }
- else       if (c == 'q') {
-        commands=arg.rest();
+ else       if (c == 'p' && !sa()) {
+        context.prop.set(Prop.PORT,arg.num());
       }
  else       if (c == 'r') {
         ok=set(Prop.RUNS,arg.string());
-      }
- else       if (c == 's' && !standalone) {
-        context.prop.set(Prop.HOST,arg.string());
       }
  else       if (c == 'v') {
         ok=set(Prop.INFO,true);
@@ -55,5 +55,5 @@
     }
   }
   console=file == null && commands == null;
-  if (!ok)   outln(standalone ? LOCALINFO : CLIENTINFO);
+  if (!ok)   outln(sa() ? LOCALINFO : CLIENTINFO);
 }

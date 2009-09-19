@@ -1,0 +1,61 @@
+{
+  try {
+    final DataInputStream dis=new DataInputStream(socket.getInputStream());
+    final PrintOutput out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
+    if (info)     Main.outln(this + " Login.");
+    while (true) {
+      String in=null;
+      try {
+        in=dis.readUTF();
+      }
+ catch (      final IOException ex) {
+        exit();
+        break;
+      }
+      final Performance perf=new Performance();
+      Process proc=null;
+      try {
+        proc=new CommandParser(in,context,true).parse()[0];
+        if (proc instanceof IntStop || proc instanceof Exit) {
+          send(out,true);
+          exit();
+          if (proc instanceof IntStop)           server.quit(false);
+          break;
+        }
+ else         if (proc instanceof IntOutput || proc instanceof IntInfo) {
+          if (core == null) {
+            out.print(Main.info(SERVERTIME));
+          }
+ else           if (proc instanceof IntOutput) {
+            core.output(out);
+            out.write(new byte[IO.BLOCKSIZE]);
+          }
+ else {
+            new DataOutputStream(out).writeUTF(core.info());
+          }
+          out.flush();
+        }
+ else {
+          core=proc;
+          timeout(proc);
+          send(out,proc.execute(context));
+          if (proc.info().equals(PROGERR))           proc.error(SERVERTIME);
+          timeout.interrupt();
+        }
+      }
+ catch (      final QueryException ex) {
+        proc=new Process(0){
+        }
+;
+        proc.error(ex.extended());
+        core=proc;
+        send(out,false);
+      }
+      if (info)       Main.outln(this + " " + in+ ": "+ perf.getTimer());
+    }
+    if (info)     Main.outln(this + " Logout.");
+  }
+ catch (  final IOException ex) {
+    Main.error(ex,false);
+  }
+}
