@@ -1,36 +1,26 @@
 {
   super(args);
   if (!ok)   return;
-  Runtime.getRuntime().addShutdownHook(new Thread(){
-    @Override public void run(){
-      for (      final ServerSession s : context.sessions)       s.stopProcess();
-      context.close();
-    }
-  }
-);
-  new Thread(){
-    @Override public void run(){
-      try {
-        final ServerSocket ss=new ServerSocket(context.prop.num(Prop.PORT));
+  try {
+    server=new ServerSocket(context.prop.num(Prop.PORT));
+    new Thread(){
+      @Override public void run(){
         while (running) {
           try {
-            final Socket s=ss.accept();
-            if (running) {
-              context.add(new ServerSession(s,BaseXServer.this,info));
-            }
+            final Socket s=server.accept();
+            context.add(new ServerSession(s,BaseXServer.this,info));
           }
  catch (          final IOException ex) {
-            error(ex,false);
+            break;
           }
         }
       }
- catch (      final Exception ex) {
-        error(ex,true);
-      }
     }
-  }
 .start();
-  outln(CONSOLE,SERVERMODE,console ? CONSOLE2 : SERVERSTART);
-  if (!console)   return;
-  quit(console());
+    outln(CONSOLE,SERVERMODE,console ? CONSOLE2 : SERVERSTART);
+    if (console)     quit(console());
+  }
+ catch (  final Exception ex) {
+    error(ex,false);
+  }
 }

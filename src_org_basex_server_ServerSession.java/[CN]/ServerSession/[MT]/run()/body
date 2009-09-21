@@ -16,31 +16,28 @@
       Process proc=null;
       try {
         proc=new CommandParser(in,context,true).parse()[0];
-        if (proc instanceof IntStop || proc instanceof Exit) {
-          send(out,true);
-          exit();
-          if (proc instanceof IntStop)           server.quit(false);
-          break;
-        }
- else         if (proc instanceof IntOutput || proc instanceof IntInfo) {
-          if (core == null) {
-            out.print(Main.info(SERVERTIME));
-          }
- else           if (proc instanceof IntOutput) {
+        if (proc instanceof IntOutput || proc instanceof IntInfo) {
+          if (proc instanceof IntOutput) {
             core.output(out);
             out.write(new byte[IO.BLOCKSIZE]);
           }
  else {
-            new DataOutputStream(out).writeUTF(core.info());
+            String inf=core.info();
+            if (inf.equals(PROGERR))             inf=SERVERTIME;
+            new DataOutputStream(out).writeUTF(inf);
           }
           out.flush();
         }
  else {
           core=proc;
-          timeout(proc);
+          startTimer(proc);
           send(out,proc.execute(context));
-          if (proc.info().equals(PROGERR))           proc.error(SERVERTIME);
-          if (timeout != null)           timeout.interrupt();
+          stopTimer();
+          if (proc instanceof IntStop || proc instanceof Exit) {
+            exit();
+            if (proc instanceof IntStop)             server.quit(false);
+            break;
+          }
         }
       }
  catch (      final QueryException ex) {
