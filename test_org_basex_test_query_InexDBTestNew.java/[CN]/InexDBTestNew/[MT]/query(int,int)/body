@@ -1,6 +1,7 @@
 {
   final int size=qressizes[db * nqueries + qu];
   final double qtime=qt[db * nqueries + qu];
+  qtimes[qu]+=qtime;
   if (size == 0)   return new SeqIter();
   final String que=XQM + "for $i score $s in " + queries.get(qu)+ " order by $s descending "+ "return (basex:sum-path($i), $s, base-uri($i))";
   final Process proc=new XQuery(que);
@@ -11,7 +12,6 @@
   String lp="";
   int z=0;
   while (st.hasMoreTokens() && z < size) {
-    qtimes[qu]+=qtime;
     final String p=st.nextToken();
     if (!st.hasMoreTokens())     break;
     final String s=st.nextToken();
