@@ -1,5 +1,6 @@
 {
   final Context ctx=gui.context;
+  final GUIProp gprop=gui.prop;
   if (BUTTONRENAME.equals(cmd)) {
     new DialogRename(gui,choice.getValue());
     choice.setData(List.list(ctx).finish());
@@ -10,7 +11,7 @@
  else   if (BUTTONDROP.equals(cmd)) {
     final String db=choice.getValue();
     if (db.length() == 0)     return;
-    if (Dialog.confirmWarning(this,Main.info(DROPCONF,db),DROPTITLE)) {
+    if (Dialog.confirm(this,Main.info(DROPCONF,db))) {
       if (ctx.data() != null && ctx.data().meta.name.equals(db)) {
         new Close().execute(gui.context);
         gui.notify.init();
@@ -23,14 +24,20 @@
  else {
     final String db=choice.getValue().trim();
     ok=db.length() != 0 && ctx.prop.dbpath(db).exists();
-    if (ok)     doc.setText(db);
     enableOK(buttons,BUTTONDROP,ok);
     if (ok) {
+      doc.setText(db);
       DataInput in=null;
       try {
         in=new DataInput(ctx.prop.dbfile(db,DATAINFO));
         final MetaData meta=new MetaData(db,in,ctx.prop);
         detail.setText(InfoDB.db(meta,true,true).finish());
+        if (WTHROUGH.equals(cmd) && wth.isSelected()) {
+          final boolean dec=Dialog.confirmWarning(this,Main.info(WTHROUGHOK,meta.name,meta.backing),WTHROUGHTITLE);
+          ctx.prop.set(Prop.WTHROUGH,dec);
+          gprop.set(GUIProp.FSWTHROUGH,dec);
+          wth.setSelected(dec);
+        }
       }
  catch (      final IOException ex) {
         detail.setText(Token.token(ex.getMessage()));

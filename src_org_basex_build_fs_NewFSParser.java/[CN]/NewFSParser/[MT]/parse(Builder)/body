@@ -1,23 +1,18 @@
 {
   builder=build;
   builder.encoding(Prop.ENCODING);
-  builder.meta.backing=mybackingpath;
   builder.meta.mount=mountpoint;
-  final boolean fuse=prop.is(Prop.FUSE);
-  if (fuse && !singlemode) {
-    final File bs=new File(mybackingpath);
-    if (!bs.mkdirs() && bs.exists())     throw new IOException(BACKINGEXISTS + mybackingpath);
-  }
+  builder.meta.backing=fsimportpath;
+  builder.meta.deepfs=true;
   builder.startDoc(token(io.name()));
   if (singlemode) {
     file(new File(io.path()).getCanonicalFile());
   }
  else {
     atts.reset();
-    final byte[] mnt=fuse ? token(mountpoint) : NOTMOUNTED;
-    final byte[] bck=fuse ? token(mybackingpath) : token(fsimportpath);
+    final byte[] mnt=prop.is(Prop.FUSE) ? token(mountpoint) : NOTMOUNTED;
     atts.add(MOUNTPOINT,mnt);
-    atts.add(BACKINGSTORE,bck);
+    atts.add(BACKINGSTORE,token(fsimportpath));
     atts.add(SIZE,ZERO);
     builder.startNS(FS,FSURL);
     if (prop.is(Prop.FSMETA)) {
@@ -30,7 +25,6 @@
     builder.startElem(DEEPFS_NS,atts);
     for (    final File f : root ? File.listRoots() : new File[]{new File(fsimportpath).getCanonicalFile()}) {
       if (f.isHidden() && !f.getAbsolutePath().equals("C:\\"))       continue;
-      importRootLength=f.getAbsolutePath().length();
       sizeStack[0]=0;
       dir(f);
     }

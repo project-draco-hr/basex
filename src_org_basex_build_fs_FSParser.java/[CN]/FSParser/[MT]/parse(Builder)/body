@@ -1,20 +1,17 @@
 {
+  final boolean fuse=prop.is(Prop.FUSE);
   builder=build;
   builder.encoding(Prop.ENCODING);
-  builder.meta.backing=backingpath;
   builder.meta.mount=mountpoint;
-  final boolean fuse=prop.is(Prop.FUSE);
-  if (fuse && !singlemode) {
-    final File bs=new File(backingpath);
-    if (!bs.mkdirs() && bs.exists())     throw new IOException(BACKINGEXISTS + backingpath);
-  }
+  builder.meta.backing=fsimportpath;
+  builder.meta.deepfs=true;
   builder.startDoc(token(io.name()));
   if (singlemode) {
     file(new File(io.path()).getCanonicalFile());
   }
  else {
     final byte[] mnt=fuse ? token(mountpoint) : NOTMOUNTED;
-    final byte[] bck=fuse ? token(backingpath) : token(fsimportpath);
+    final byte[] bck=token(fsimportpath);
     atts.reset();
     atts.add(MOUNTPOINT,mnt);
     atts.add(SIZE,Token.EMPTY);
@@ -25,7 +22,6 @@
     }
     builder.startElem(DEEPFS,atts);
     for (    final File f : root ? File.listRoots() : new File[]{new File(fsimportpath).getCanonicalFile()}) {
-      importRootLength=f.getAbsolutePath().length();
       sizeStack[0]=0;
       parse(f);
       builder.setAttValue(preStack[0] + SIZEOFFSET,token(sizeStack[0]));
