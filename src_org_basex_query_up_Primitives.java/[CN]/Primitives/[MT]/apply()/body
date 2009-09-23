@@ -19,16 +19,15 @@
     }
  else {
       while (i != null) {
-        if (i.child().size() == -1) {
+        final int k=Nod.kind(i.type);
+        if (k == Data.COMM || k == Data.PI)         Err.or(UPIMPL,i.type);
+        if (k == Data.TEXT) {
           DBNode dbn=null;
           if (i instanceof DBNode)           dbn=(DBNode)i;
           data.insert(pre++,par,dbn == null ? i.nname() : dbn.data.tag(dbn.pre),Nod.kind(i.type));
         }
- else {
-          final MemData mem=buildDB(i);
-          if (mem == null)           break;
-          data.insert(pre++,par,mem);
-        }
+        final MemData m=buildDB(i);
+        data.insert(pre++,par,m);
         i=(Nod)p.replaceNodes.next();
       }
     }
