@@ -4,18 +4,18 @@
   Item i=t.next();
   if (i == null)   Err.or(UPSEQEMP,t);
   if (t.next() != null)   Err.or(UPTRGMULT,t);
-  if (!(i instanceof DBNode))   Err.or(UPTRGMULT,t);
-  final DBNode trgtN=(DBNode)i;
-  final Nod nod=trgtN.parent();
-  if (nod == null || Nod.kind(nod.type) == Data.DOC)   Err.or(UPNOPAR,t);
+  if (!(i instanceof Nod))   Err.or(UPTRGMULT,t);
+  final Nod trgtN=(Nod)i;
+  final Nod par=trgtN.parent();
+  if (par == null || Nod.kind(par.type) == Data.DOC)   Err.or(UPNOPAR,t);
   final Iter r=expr[1].iter(ctx);
-  final int trgtKind=Nod.kind(trgtN.type);
+  final boolean trgIsAttr=Nod.kind(trgtN.type) == Data.ATTR ? true : false;
   i=r.next();
   while (i != null) {
-    if (Nod.kind(i.type) != trgtKind)     ;
+    if ((Nod.kind(i.type) == Data.ATTR) ^ trgIsAttr)     Err.or(INCOMPLETE,t);
     i=r.next();
   }
-  i=r.finish();
-  ctx.updates.addPrimitive(new ReplacePrimitive(trgtN,i));
+  r.reset();
+  ctx.updates.addPrimitive(new ReplacePrimitive(trgtN,r));
   return Iter.EMPTY;
 }
