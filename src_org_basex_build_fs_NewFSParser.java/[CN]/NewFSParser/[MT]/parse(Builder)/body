@@ -22,12 +22,17 @@
     if (ADD_ATTS) {
       builder.startNS(FSXSIPREF,FSXSIURL);
     }
-    builder.startElem(DEEPFS_NS,atts);
+    final int sizeAttId=builder.startElem(DEEPFS_NS,atts) + 3;
     for (    final File f : root ? File.listRoots() : new File[]{new File(fsimportpath).getCanonicalFile()}) {
       if (f.isHidden() && !f.getAbsolutePath().equals("C:\\"))       continue;
       sizeStack[0]=0;
-      dir(f);
+      for (      final File file : f.listFiles()) {
+        if (!valid(file) || file.isHidden())         continue;
+        if (file.isDirectory())         dir(file);
+ else         file(file);
+      }
     }
+    setSize(sizeAttId,sizeStack[0]);
     builder.endElem(DEEPFS_NS);
   }
   builder.endDoc();
