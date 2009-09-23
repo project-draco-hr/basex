@@ -9,7 +9,6 @@
   if (session.execute(proc))   session.output(res);
   final SeqIter sq=new SeqIter();
   final StringTokenizer st=new StringTokenizer(res.toString()," ");
-  String lp="";
   int z=0;
   while (st.hasMoreTokens() && z < size) {
     final String p=st.nextToken();
@@ -17,14 +16,11 @@
     final String s=st.nextToken();
     if (!st.hasMoreTokens())     break;
     String uri=st.nextToken();
-    uri=uri.substring(uri.lastIndexOf('/') + 1);
+    uri=uri.substring(uri.lastIndexOf('/') + 1,uri.indexOf(".xml") + 4);
     final String tmp=uri + ";" + p;
-    if (!lp.equals(tmp)) {
-      final Str str=Str.get(token(uri + ";" + p));
-      str.score(Double.parseDouble(s));
-      sq.add(str);
-      lp=tmp;
-    }
+    final Str str=Str.get(token(tmp));
+    str.score(Double.parseDouble(s));
+    sq.add(str);
     z++;
   }
   Main.outln("Query % on %: %",qu + 1,databases.get(db),qtime);
