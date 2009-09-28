@@ -5,40 +5,6 @@
   }
   for (  final ReplacePrimitive p : replaces) {
     if (!(p.node instanceof DBNode))     continue;
-    final DBNode n=(DBNode)p.node;
-    int pre=n.pre;
-    final int par=data.parent(pre,data.kind(pre));
-    data.delete(pre);
-    Nod i=(Nod)p.replaceNodes.next();
-    if (Nod.kind(i.type) == Data.ATTR) {
-      while (i != null) {
-        if (i instanceof FNode) {
-          final FAttr attr=(FAttr)i;
-          data.insert(pre++,par,attr.qname().str(),attr.str());
-        }
- else         if (i instanceof DBNode) {
-          final DBNode attr=(DBNode)i;
-          final Data d=attr.data;
-          data.insert(pre++,par,d.attName(attr.pre),d.attValue(attr.pre));
-        }
-        i=(Nod)p.replaceNodes.next();
-      }
-    }
- else {
-      while (i != null) {
-        final int k=Nod.kind(i.type);
-        if (k == Data.TEXT || k == Data.COMM || k == Data.PI) {
-          DBNode dbn=null;
-          if (i instanceof DBNode)           dbn=(DBNode)i;
-          data.insert(pre++,par,dbn == null ? i.nname() : dbn.data.tag(dbn.pre),Nod.kind(i.type));
-        }
- else {
-          final MemData m=buildDB(i);
-          data.insert(pre++,par,m);
-        }
-        i=(Nod)p.replaceNodes.next();
-      }
-    }
   }
   final IntList pres=new IntList();
   for (  final DeletePrimitive p : deletes)   pres.add(((DBNode)p.node).pre);

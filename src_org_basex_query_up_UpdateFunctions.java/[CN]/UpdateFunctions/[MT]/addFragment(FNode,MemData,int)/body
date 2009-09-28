@@ -1,39 +1,26 @@
 {
-  int d=dis;
   final int k=Nod.kind(n.type);
 switch (k) {
 case Data.ELEM:
     final FElem e=(FElem)n;
   final int as=e.attr().size();
 final int s=e.desc().size();
-m.addElem(m.tags.index(e.nname(),null,false),0,d++,as > -1 ? as : as + 2,s > -1 ? s : s + 2,false);
+m.addElem(m.tags.index(e.nname(),null,false),0,dis,as == -1 ? 1 : as,s == -1 ? 1 : s,false);
 break;
 case Data.TEXT:
-m.addText(((FTxt)n).str(),d++,k);
-break;
-case Data.COMM:
-m.addText(((FComm)n).str(),d++,k);
-break;
+m.addText(((FTxt)n).str(),dis,k);
+return;
 case Data.PI:
-m.addText(((FPI)n).str(),d++,k);
-break;
+m.addText(((FPI)n).str(),dis,k);
+return;
+case Data.COMM:
+m.addText(((FComm)n).str(),dis,k);
+return;
 }
-if (k != Data.ELEM) return d;
-final FElem e=(FElem)n;
-final NodeIter nIt=e.attr();
+final NodeIter nIt=n.attr();
 FAttr at=(FAttr)nIt.next();
-int ld=1;
 while (at != null) {
-m.addAtt(m.atts.index(at.qname().str(),null,false),0,at.str(),ld);
-ld++;
-d++;
+m.addAtt(m.atts.index(at.qname().str(),null,false),0,at.str(),dis);
 at=(FAttr)nIt.next();
 }
-final NodeIter cIt=n.child();
-FNode ch=(FNode)cIt.next();
-while (ch != null) {
-ld=addFragment(ch,m,ld);
-ch=(FNode)cIt.next();
-}
-return d;
 }

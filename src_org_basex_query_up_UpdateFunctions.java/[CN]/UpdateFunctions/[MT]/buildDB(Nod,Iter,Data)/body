@@ -1,0 +1,45 @@
+{
+  MemData m=null;
+  if (d == null)   m=new MemData(20,new Names(),new Names(),new Namespaces(),new PathSummary(),new Prop());
+ else   m=new MemData(20,d.tags,d.atts,d.ns,d.path,d.meta.prop);
+  final Iter i=ch;
+  Nod n=(Nod)i.next();
+  int ds=1;
+  while (n != null) {
+    if (n instanceof DBNode) {
+      final DBNode dbn=(DBNode)n;
+      ds+=dbn.data.size(dbn.pre,Nod.kind(dbn.type));
+    }
+ else     if (n instanceof FNode) {
+      final FNode fn=(FNode)n;
+      ds+=fn.descOrSelf().size();
+    }
+    n=(Nod)i.next();
+  }
+  if (root == null)   m.addDoc(Token.EMPTY,ds);
+ else   return null;
+  int dis=1;
+  i.reset();
+  n=(Nod)i.next();
+  while (n != null) {
+    if (n instanceof DBNode) {
+      final NodeIter desc=((DBNode)n).descOrSelf();
+      DBNode dn=(DBNode)desc.next();
+      while (dn != null) {
+        addDBNode(dn,m,dis);
+        dn=(DBNode)desc.next();
+      }
+    }
+ else     if (n instanceof FNode) {
+      final NodeIter desc=((FNode)n).descOrSelf();
+      FNode fn=(FNode)desc.next();
+      while (fn != null) {
+        addFragment(fn,m,dis);
+        fn=(FNode)desc.next();
+      }
+    }
+    n=(Nod)i.next();
+  }
+  printTable(m);
+  return m;
+}
