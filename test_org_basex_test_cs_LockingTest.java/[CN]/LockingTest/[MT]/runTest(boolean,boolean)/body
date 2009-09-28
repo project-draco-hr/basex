@@ -1,0 +1,31 @@
+{
+  new Thread(){
+    @Override public void run(){
+      if (test1) {
+        process(new XQuery(QUERY),session1);
+      }
+ else {
+        process(new Insert(CmdUpdate.ELEMENT,"//members","aa"),session1);
+      }
+      new Thread(){
+        @Override public void run(){
+          String result="";
+          if (test2) {
+            result=process(new XQuery(QUERY),session2);
+          }
+ else {
+            result=process(new Delete("//aa"),session2);
+          }
+          if (result != null)           err("test failed readRead: " + result);
+          done=true;
+        }
+      }
+.start();
+    }
+  }
+.start();
+  while (!done) {
+    Performance.sleep(200);
+  }
+  if (test1 && !test2)   running=false;
+}
