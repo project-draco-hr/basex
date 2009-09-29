@@ -1,29 +1,29 @@
 {
   new Thread(){
     @Override public void run(){
-      if (test1) {
-        process(new XQuery(QUERY),session1);
+      Performance.sleep(300);
+      String result="";
+      if (test2) {
+        result=process(new XQuery(QUERY),session2);
+        String res=checkRes(session2);
+        if (!res.equals("192000"))         err("test failed: " + res);
       }
  else {
-        process(new Insert(CmdUpdate.ELEMENT,"//members","aa"),session1);
+        result=process(new Delete("//aa"),session2);
       }
-      new Thread(){
-        @Override public void run(){
-          String result="";
-          if (test2) {
-            result=process(new XQuery(QUERY),session2);
-          }
- else {
-            result=process(new Delete("//aa"),session2);
-          }
-          if (result != null)           err("test failed readRead: " + result);
-          done=true;
-        }
-      }
-.start();
+      if (result != null)       err("test failed: " + result);
+      done=true;
     }
   }
 .start();
+  if (test1) {
+    process(new XQuery(QUERY),session1);
+    String res=checkRes(session1);
+    if (!res.equals("192000"))     err("test failed: " + res);
+  }
+ else {
+    process(new Insert(CmdUpdate.ELEMENT,"//members","aa"),session1);
+  }
   while (!done) {
     Performance.sleep(200);
   }
