@@ -1,0 +1,34 @@
+{
+  final Data data=n.data;
+  final int k=Nod.kind(n.type);
+  int pre=preVal;
+switch (k) {
+case Data.ELEM:
+    m.addElem(m.tags.index(data.tag(n.pre),null,false),0,pre - par,data.attSize(n.pre,k),data.size(n.pre,k),false);
+  pre++;
+break;
+case Data.TEXT:
+m.addText(data.text(n.pre),pre - par,k);
+return ++pre;
+case Data.PI:
+m.addText(data.text(n.pre),pre - par,k);
+return ++pre;
+case Data.COMM:
+m.addText(data.text(n.pre),pre - par,k);
+return ++pre;
+}
+final NodeIter atts=n.attr();
+DBNode at=(DBNode)atts.next();
+while (at != null) {
+m.addAtt(m.atts.index(at.data.attName(at.pre),null,false),0,at.data.attValue(at.pre),pre - preVal);
+pre++;
+at=(DBNode)atts.next();
+}
+final NodeIter chIt=n.child();
+Nod dn=chIt.next();
+while (dn != null) {
+pre=addDBNode((DBNode)dn,m,pre,preVal);
+dn=chIt.next();
+}
+return pre;
+}

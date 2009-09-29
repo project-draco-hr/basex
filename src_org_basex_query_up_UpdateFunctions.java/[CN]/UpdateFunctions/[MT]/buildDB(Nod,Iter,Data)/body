@@ -12,31 +12,23 @@
     }
  else     if (n instanceof FNode) {
       final FNode fn=(FNode)n;
-      ds+=fn.descOrSelf().size();
+      ds+=fragmentSize(fn,false);
     }
     n=(Nod)i.next();
   }
   if (root == null)   m.addDoc(Token.EMPTY,ds);
  else   return null;
-  int dis=1;
+  int pre=1;
   i.reset();
   n=(Nod)i.next();
   while (n != null) {
     if (n instanceof DBNode) {
-      final NodeIter desc=((DBNode)n).descOrSelf();
-      DBNode dn=(DBNode)desc.next();
-      while (dn != null) {
-        addDBNode(dn,m,dis);
-        dn=(DBNode)desc.next();
-      }
+      DBNode dn=(DBNode)n;
+      pre=addDBNode(dn,m,pre,0);
     }
  else     if (n instanceof FNode) {
-      final NodeIter desc=((FNode)n).descOrSelf();
-      FNode fn=(FNode)desc.next();
-      while (fn != null) {
-        addFragment(fn,m,dis);
-        fn=(FNode)desc.next();
-      }
+      final FNode fn=(FNode)n;
+      pre=addFragment(fn,m,pre,0);
     }
     n=(Nod)i.next();
   }
