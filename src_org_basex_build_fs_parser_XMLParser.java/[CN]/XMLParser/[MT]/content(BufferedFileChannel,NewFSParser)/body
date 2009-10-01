@@ -1,16 +1,7 @@
 {
-  final long size=f.size();
-  if (size <= parser.prop.num(Prop.FSTEXTMAX) && !f.isSubChannel()) {
-    try {
-      final Parser p=Parser.xmlParser(new IOFile(parser.curr),parser.prop);
-      new MemBuilder(p).build();
-      parser.startXMLContent(f.absolutePosition(),f.size());
-      parser.parseXML();
-      parser.endXMLContent();
-      return;
-    }
- catch (    final IOException ex) {
-    }
+  if (!check(f,parser)) {
     parser.parseWithFallbackParser(f,true);
+    return;
   }
+  parse(f,parser);
 }
