@@ -1,0 +1,37 @@
+{
+  final Performance p=new Performance();
+  Main.outln(Main.name(InexSubmit.class));
+  final BufferedReader br=new BufferedReader(new FileReader(QUERIES));
+  queries=new StringList();
+  tid=new IntList();
+  String l;
+  while ((l=br.readLine()) != null) {
+    tid.add(Integer.parseInt(l.substring(0,l.indexOf(';'))));
+    queries.add(l.substring(l.lastIndexOf(';') + 1));
+  }
+  br.close();
+  nqueries=queries.size();
+  qtimes=new double[nqueries];
+  results=new SeqIter[nqueries];
+  qressizes=new int[10 * nqueries];
+  qt=new double[10 * nqueries];
+  if (!parseArguments(args))   return;
+  final BufferedReader brt=new BufferedReader(new FileReader(TIMES));
+  while ((l=brt.readLine()) != null) {
+    final int index=l.indexOf(';');
+    qt[c]=Double.parseDouble(l.substring(0,index));
+    qressizes[c++]=Integer.parseInt(l.substring(index + 1));
+  }
+  brt.close();
+  databases=new StringList();
+  for (  final String s : List.list(ctx)) {
+    if (s.startsWith(DBPREFIX))     databases.add(s);
+  }
+  test();
+  openSubFile();
+  for (int i=0; i < results.length; i++) {
+    createQueryEntryServer(i,results[i],1500);
+  }
+  closeSubFile();
+  Main.outln("Total Time: " + p);
+}
