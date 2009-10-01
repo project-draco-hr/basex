@@ -1,0 +1,19 @@
+{
+  if (!into)   Err.or(UPIMPL,"only insert into");
+  final Iter src=expr[1].iter(ctx);
+  Item i=src.next();
+  if (i == null)   Err.or(UPSEQEMP,src);
+  if (src.next() != null)   Err.or(UPTRGMULT,src);
+  if (!(i instanceof Nod))   Err.or(UPTRGMULT,src);
+  final Nod trgtN=(Nod)i;
+  final Iter r=SeqIter.get(expr[0].iter(ctx));
+  i=r.next();
+  if (i instanceof Nod) {
+    final Nod n=(Nod)i;
+    if (Nod.kind(n.type) == Data.ATTR)     Err.or(UPIMPL,"no attrs supported");
+  }
+  r.reset();
+  final MemData m=buildDB(r,trgtN instanceof DBNode ? ((DBNode)trgtN).data : null);
+  ctx.updates.addPrimitive(new InsertPrimitive(trgtN,m));
+  return Iter.EMPTY;
+}

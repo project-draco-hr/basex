@@ -1,16 +1,9 @@
 {
-  for (  final RenamePrimitive p : renames) {
-    final DBNode n=(DBNode)p.node;
-    rename(n.pre,p.newName,n.data);
-  }
-  for (  final ReplacePrimitive p : replaces) {
-    if (!(p.node instanceof DBNode))     continue;
-    final DBNode n=(DBNode)p.node;
-    final int k=Nod.kind(n.type);
-    data.delete(n.pre);
-    data.insertSeq(n.pre + data.size(n.pre,k),data.parent(n.pre,k),p.r);
-  }
-  final IntList pres=new IntList();
-  for (  final DeletePrimitive p : deletes)   pres.add(((DBNode)p.node).pre);
-  deleteDBNodes(new Nodes(pres.finish(),data));
+  final int l=op.size();
+  final Integer[] t=new Integer[l];
+  op.keySet().toArray(t);
+  final int[] p=new int[l];
+  for (int i=0; i < l; i++)   p[i]=t[i];
+  Arrays.sort(p);
+  for (int i=l - 1; i >= 0; i--)   op.get(new Integer(p[i])).apply();
 }
