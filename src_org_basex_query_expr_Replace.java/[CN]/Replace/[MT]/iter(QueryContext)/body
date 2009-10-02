@@ -9,14 +9,19 @@
   final Nod par=trgtN.parent();
   if (par == null || Nod.kind(par.type) == Data.DOC)   Err.or(UPNOPAR,t);
   final Iter r=SeqIter.get(expr[1].iter(ctx));
-  final boolean trgIsAttr=Nod.kind(trgtN.type) == Data.ATTR ? true : false;
   i=r.next();
+  if (value) {
+    Err.or(UPIMPL,"foobanchu");
+    if (!(i instanceof Str || i instanceof QNm))     Err.or(IMPLCOL,i);
+    if (r.next() != null)     Err.or(UPTRGMULT,i);
+    return Iter.EMPTY;
+  }
+  final boolean trgIsAttr=Nod.kind(trgtN.type) == Data.ATTR ? true : false;
   while (i != null) {
     if ((Nod.kind(i.type) == Data.ATTR) ^ trgIsAttr)     Err.or(INCOMPLETE,t);
     i=r.next();
   }
   r.reset();
-  if (value)   Err.or(UPIMPL,value);
   final MemData m=buildDB(r,trgtN instanceof DBNode ? ((DBNode)trgtN).data : null);
   ctx.updates.addPrimitive(new ReplacePrimitive(trgtN,m,trgIsAttr,value));
   return Iter.EMPTY;
