@@ -3,6 +3,12 @@
   final String outname=text("@name",root);
   if (single != null && !outname.startsWith(single))   return true;
   if (verbose)   Main.outln("- " + outname);
+  if (reporting) {
+    logFile.append("    <test-case name=\"");
+    logFile.append(outname);
+    logFile.append("\" result='");
+  }
+  if (outname.equals("id-insert-expr-079"))   return true;
   final Nodes nodes=states(root);
   for (int n=0; n < nodes.size(); n++) {
     final Nodes state=new Nodes(nodes.nodes[n],nodes.data);
@@ -17,15 +23,15 @@
     final Nodes cont=nodes("*:contextItem",state);
     Nodes curr=null;
     if (cont.size() != 0) {
-      final Data d=Open.check(context,sources + string(data.atom(cont.nodes[0])) + ".xml");
+      final Data d=Open.check(context,srcs.get(string(data.atom(cont.nodes[0]))));
       curr=new Nodes(d.doc(),d,true);
     }
     final QueryProcessor xq=new QueryProcessor(in,curr,context);
     final QueryContext qctx=xq.ctx;
     try {
-      files.add(file(nodes("*:input-file",state),nodes("*:input-file/@variable",state),qctx));
-      files.add(file(nodes("*:input-URI",state),nodes("*:input-URI/@variable",state),qctx));
-      files.add(file(nodes("*:defaultCollection",state),null,qctx));
+      files.add(file(nodes("*:input-file",state),nodes("*:input-file/@variable",state),qctx,n == 0));
+      files.add(file(nodes("*:input-URI",state),nodes("*:input-URI/@variable",state),qctx,n == 0));
+      files.add(file(nodes("*:defaultCollection",state),null,qctx,n == 0));
       var(nodes("*:input-query/@name",state),nodes("*:input-query/@variable",state),pth,qctx);
       parse(qctx,state);
       for (      final int p : nodes("*:module",root).nodes) {
@@ -87,11 +93,6 @@ catch (    final Error ex) {
     log.append(NL);
     final String logStr=log.toString();
     final boolean print=currTime || !logStr.contains("current-") && !logStr.contains("implicit-timezone");
-    if (reporting) {
-      logFile.append("    <test-case name=\"");
-      logFile.append(outname);
-      logFile.append("\" result='");
-    }
     boolean correctError=false;
     if (error != null && (outFiles.size() == 0 || expError.length() != 0)) {
       expError=error(pth + outname,expError);
@@ -145,7 +146,7 @@ catch (    final Error ex) {
           if (test)           break;
         }
       }
-      if (rs > 0 && s == rs && !inspect) {
+      if ((rs > 0 || expError.length() != 0) && s == rs && !inspect) {
         if (print) {
           if (outFiles.size() == 0)           result.add(error(pth + outname,expError));
           logErr.append(logStr);
@@ -209,12 +210,12 @@ catch (    final Error ex) {
         err2++;
       }
     }
-    if (reporting) {
-      logFile.append("'/>");
-      logFile.append(NL);
-    }
-    xq.close();
     if (curr != null)     Close.close(context,curr.data);
+    xq.close();
+  }
+  if (reporting) {
+    logFile.append("'/>");
+    logFile.append(NL);
   }
   return single == null || !outname.equals(single);
 }
