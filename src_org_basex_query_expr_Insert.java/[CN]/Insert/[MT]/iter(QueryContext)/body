@@ -1,22 +1,34 @@
 {
-  if (!into)   Err.or(UPIMPL,"only insert into");
-  final Iter ti=expr[0].iter(ctx);
-  Item i=ti.next();
-  if (i == null)   Err.or(UPSEQEMP,ti);
-  if (ti.next() != null)   Err.or(UPTRGMULT,ti);
-  if (!(i instanceof Nod))   Err.or(UPTRGMULT,ti);
-  final Nod trgtN=(Nod)i;
-  final Iter r=SeqIter.get(expr[1].iter(ctx));
-  i=r.next();
-  if (i == null)   Err.or(UPSEQEMP,i);
-  final boolean insAttr=Nod.kind(i.type) == Data.ATTR;
-  if (insAttr && Nod.kind(trgtN.type) != Data.ELEM)   Err.or(UPDATE,r);
-  i=r.next();
+  final Iter s=SeqIter.get(expr[1].iter(ctx));
+  final SeqIter seq=new SeqIter();
+  Item i=s.next();
+  boolean e=false;
   while (i != null) {
-    if ((Nod.kind(i.type) == Data.ATTR) ^ insAttr)     Err.or(UPDATE,r);
-    i=r.next();
+    if (i.type.num || i.type.str)     seq.add(new FTxt(i.str(),null));
+ else     if (i instanceof Nod) {
+      final Nod tn=(Nod)i;
+      final int k=Nod.kind(tn.type);
+      if (e && k == Data.ATTR)       Err.or(UPNOATTRPER,this);
+      if (k != Data.ATTR)       e=true;
+      if (Nod.kind(tn.type) == Data.DOC)       seq.add(tn.child());
+ else       seq.add(tn);
+    }
+ else     Err.or(UPDATE,this);
+    i=s.next();
   }
-  r.reset();
-  ctx.updates.addPrimitive(new InsertIntoPrimitive(trgtN,r,insAttr));
+  seq.reset();
+  final boolean into=!(before || after);
+  final Iter t=SeqIter.get(expr[0].iter(ctx));
+  i=t.next();
+  if (i == null)   Err.or(UPSEQEMP,this);
+  if (!(i instanceof Nod) || t.size() > 1)   Err.or(UPTRGTYP,this);
+  final Nod n=(Nod)i;
+  final int k=Nod.kind(n.type);
+  if (into && (!(k == Data.ELEM || k == Data.DOC)))   Err.or(UPTRGTYP,this);
+  if (before || after) {
+    if (k == Data.ATTR)     Err.or(UPTRGTYP2,this);
+    if (n.parent() == null)     Err.or(UPPAREMPTY,this);
+  }
+  Err.or(UPDATE,this);
   return Iter.EMPTY;
 }

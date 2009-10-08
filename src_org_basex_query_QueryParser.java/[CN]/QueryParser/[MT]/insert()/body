@@ -5,23 +5,25 @@
     qp=p;
     return null;
   }
-  final Expr s=check(single(),UPDATE);
-  boolean in=false;
-  boolean af=false;
-  boolean be=false;
-  boolean as=false;
+  final Expr s=check(single(),UPEXPSIMPLE);
+  boolean first=false;
   boolean last=false;
+  boolean into=false;
+  boolean before=false;
+  boolean after=false;
   if (consumeWS(AS)) {
-    as=true;
     if (!consumeWS(FIRST)) {
       check(LAST);
       last=true;
     }
+ else     first=true;
+    check(INTO);
+    into=true;
   }
-  if (consumeWS(INTO))   in=true;
- else   if (consumeWS(AFTER))   af=true;
- else   if (consumeWS(BEFORE))   be=true;
-  if (!(in ^ af ^ be))   error(INCOMPLETE);
-  final Expr trg=check(single(),INCOMPLETE);
-  return new Insert(s,as,last,in,af,trg);
+  if (!into)   into=consumeWS(INTO);
+  after=consumeWS(AFTER);
+  before=consume(BEFORE);
+  if (!(into ^ after ^ before))   Err.or(UPDATE,this);
+  final Expr trg=check(single(),UPEXPSIMPLE);
+  return new Insert(s,first,last,before,after,trg);
 }
