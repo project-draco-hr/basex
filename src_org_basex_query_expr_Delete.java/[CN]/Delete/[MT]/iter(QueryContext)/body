@@ -1,6 +1,10 @@
 {
-  final Iter it=expr.iter(ctx);
-  Item i;
-  while ((i=it.next()) != null)   if (i instanceof Nod)   ctx.updates.addPrimitive(new DeletePrimitive((Nod)i));
+  final Iter t=SeqIter.get(expr.iter(ctx));
+  Item i=t.next();
+  while (i != null) {
+    if (!(i instanceof Nod))     Err.or(UPTRGDELEMPT,this);
+    ctx.updates.addPrimitive(new DeletePrimitive((Nod)i));
+    i=t.next();
+  }
   return Iter.EMPTY;
 }
