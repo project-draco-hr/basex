@@ -1,8 +1,16 @@
 {
   String pathString=FUSEUtil.decodeUTF8(path);
-  Main.debug("getattr: " + pathString);
   if (pathString == null)   return -ENOENT;
-  int rc=dbfs.stat(pathString,stbuf);
-  if (rc == -1)   return -ENOENT;
+  DeepStat dst=dbfs.stat(pathString);
+  if (dst == null)   return -ENOENT;
+  stbuf.st_ino=dst.stino;
+  stbuf.st_atimespec.setToMillis(dst.statimespec);
+  stbuf.st_ctimespec.setToMillis(dst.stctimespec);
+  stbuf.st_mtimespec.setToMillis(dst.stmtimespec);
+  stbuf.st_mode=dst.stmode;
+  stbuf.st_size=dst.stsize;
+  stbuf.st_uid=dst.stuid;
+  stbuf.st_gid=dst.stgid;
+  stbuf.st_nlink=dst.stnlink;
   return 0;
 }

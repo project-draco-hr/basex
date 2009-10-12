@@ -1,0 +1,25 @@
+{
+  final String db=args[0];
+  final String mp=args[1];
+  new Close().execute(context);
+  new Open(db).execute(context);
+  final Data data=context.data();
+  if (data.fs == null) {
+    Main.err("No DeepFS instance");
+    return false;
+  }
+  final DeepFS fs=new DeepFS(context);
+  if (JFUSEAdapter.loadJFUSELibrary()) {
+    new Thread(){
+      @Override public void run(){
+        DeepFSImpl.mount(mp,fs);
+      }
+    }
+.start();
+  }
+ else {
+    Main.err("Missing native jfuse library.");
+    return false;
+  }
+  return true;
+}

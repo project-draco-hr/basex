@@ -1,4 +1,35 @@
 {
-  this(path,"/mnt/deepfs",pr);
-  singlemode=true;
+  super(IO.get(path),pr);
+  prop.set(Prop.INTPARSE,true);
+  prop.set(Prop.ENTITY,false);
+  prop.set(Prop.DTD,false);
+  root=path.equals("/");
+  backingpath=root ? "" : io.path();
+  if (prop.is(Prop.SPOTLIGHT)) {
+    if (!Prop.MAC)     prop.set(Prop.SPOTLIGHT,false);
+    if (!LibraryLoader.isLoaded(LibraryLoader.SPOTEXLIBNAME)) {
+      try {
+        Class.forName(SpotlightExtractor.class.getCanonicalName(),true,ClassLoader.getSystemClassLoader());
+      }
+ catch (      final ClassNotFoundException e) {
+      }
+      if (!LibraryLoader.isLoaded(LibraryLoader.SPOTEXLIBNAME))       prop.set(Prop.SPOTLIGHT,false);
+    }
+  }
+  if (prop.is(Prop.FSMETA) || prop.is(Prop.FSCONT)) {
+    buffer=ByteBuffer.allocateDirect(IO.BLOCKSIZE);
+    if (prop.is(Prop.SPOTLIGHT)) {
+      spotlight=new SpotlightExtractor(this);
+      fallbackParserInstance=new TXTParser();
+    }
+ else {
+      final int size=(int)Math.ceil(REGISTRY.size() / 0.75f);
+      parserInstances=new HashMap<String,AbstractParser>(size);
+      return;
+    }
+  }
+ else {
+    buffer=null;
+  }
+  parserInstances=null;
 }

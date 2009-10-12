@@ -1,12 +1,19 @@
 {
-  final String name=r ? f.getPath() : f.getName();
+  final String name=f.getName();
   final int s=name.lastIndexOf('.');
-  final long time=f.lastModified() / 60000;
+  final long time=f.lastModified();
   final byte[] suf=s != -1 ? lc(token(name.substring(s + 1))) : EMPTY;
   atts.reset();
   atts.add(NAME,token(name));
   atts.add(SUFFIX,suf);
+  atts.add(MTIME,token(time));
+  atts.add(CTIME,ZERO);
+  atts.add(ATIME,ZERO);
+  if (d)   atts.add(MODE,token(getSIFDIR() | 0755));
+ else   atts.add(MODE,token(getSIFREG() | 0644));
   atts.add(SIZE,token(f.length()));
-  if (time != 0)   atts.add(MTIME,token(time));
+  atts.add(UID,ZERO);
+  atts.add(GID,ZERO);
+  atts.add(NLINK,ZERO);
   return atts;
 }
