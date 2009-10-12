@@ -3,12 +3,8 @@
   final String outname=text("@name",root);
   if (single != null && !outname.startsWith(single))   return true;
   if (verbose)   Main.outln("- " + outname);
-  if (reporting) {
-    logFile.append("    <test-case name=\"");
-    logFile.append(outname);
-    logFile.append("\" result='");
-  }
-  if (outname.equals("id-insert-expr-079"))   return true;
+  boolean inspect=false;
+  boolean correct=true;
   final Nodes nodes=states(root);
   for (int n=0; n < nodes.size(); n++) {
     final Nodes state=new Nodes(nodes.nodes[n],nodes.data);
@@ -92,7 +88,7 @@ catch (    final Error ex) {
     log.append(norm(in));
     log.append(NL);
     final String logStr=log.toString();
-    final boolean print=currTime || !logStr.contains("current-") && !logStr.contains("implicit-timezone");
+    final boolean print=currTime || !logStr.contains("current-");
     boolean correctError=false;
     if (error != null && (outFiles.size() == 0 || expError.length() != 0)) {
       expError=error(pth + outname,expError);
@@ -113,11 +109,9 @@ catch (    final Error ex) {
         logOK.append(NL);
         addLog(pth,outname + ".log",error);
       }
-      if (reporting)       logFile.append("pass");
       ok++;
     }
  else     if (error == null) {
-      boolean inspect=false;
       int s=-1;
       final int rs=result.size();
       while (++s < rs) {
@@ -141,9 +135,9 @@ catch (    final Error ex) {
             }
             pre+=rdata.size(pre,k);
           }
-          final boolean test=FNSeq.deep(iter,si);
+          final boolean eq=FNSeq.deep(iter,si);
           rdata.close();
-          if (test)           break;
+          if (eq)           break;
         }
       }
       if ((rs > 0 || expError.length() != 0) && s == rs && !inspect) {
@@ -159,7 +153,7 @@ catch (    final Error ex) {
           logErr.append(NL);
           addLog(pth,outname + (xml ? ".xml" : ".txt"),out.toString());
         }
-        if (reporting)         logFile.append("fail");
+        correct=false;
         err++;
       }
  else {
@@ -170,10 +164,6 @@ catch (    final Error ex) {
           logOK.append(NL);
           logOK.append(NL);
           addLog(pth,outname + (xml ? ".xml" : ".txt"),out.toString());
-        }
-        if (reporting) {
-          logFile.append("pass");
-          if (inspect)           logFile.append("' todo='inspect");
         }
         ok++;
       }
@@ -191,7 +181,6 @@ catch (    final Error ex) {
           logOK2.append(NL);
           addLog(pth,outname + ".log",error);
         }
-        if (reporting)         logFile.append("pass");
         ok2++;
       }
  else {
@@ -206,7 +195,7 @@ catch (    final Error ex) {
           logErr2.append(NL);
           addLog(pth,outname + ".log",error);
         }
-        if (reporting)         logFile.append("fail");
+        correct=false;
         err2++;
       }
     }
@@ -214,8 +203,13 @@ catch (    final Error ex) {
     xq.close();
   }
   if (reporting) {
-    logFile.append("'/>");
-    logFile.append(NL);
+    logReport.append("    <test-case name=\"");
+    logReport.append(outname);
+    logReport.append("\" result='");
+    logReport.append(correct ? "pass" : "fail");
+    if (inspect)     logReport.append("' todo='inspect");
+    logReport.append("'/>");
+    logReport.append(NL);
   }
   return single == null || !outname.equals(single);
 }
