@@ -4,10 +4,14 @@
   valid(v,Node.class);
   final ByteArrayOutputStream ba=new ByteArrayOutputStream();
   try {
-    new XMLSerializer(ba,null).serialize(v);
+    final DOMImplementationRegistry registry=DOMImplementationRegistry.newInstance();
+    final DOMImplementationLS impl=(DOMImplementationLS)registry.getDOMImplementation("LS");
+    final LSOutput output=impl.createLSOutput();
+    output.setByteStream(ba);
+    impl.createLSSerializer().write(v,output);
   }
- catch (  final IOException ex) {
-    throw new BXQException(ex);
+ catch (  Exception e) {
+    e.printStackTrace();
   }
   return new BXQItem(createDB(new IOContent(ba.toByteArray())),this);
 }
