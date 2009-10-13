@@ -10,6 +10,14 @@
     final UpdatePrimitive[] pl=op.get(p[i]);
     for (    final UpdatePrimitive pp : pl)     if (pp != null)     pp.check();
     if (f)     return;
-    for (    final UpdatePrimitive pp : pl)     if (pp != null && pp.node instanceof DBNode)     pp.apply();
+    int add=0;
+    for (    final UpdatePrimitive pp : pl) {
+      if (pp == null)       continue;
+      if (pp.type().ordinal() == Type.INSERTBEFORE.ordinal()) {
+        final MemData m=((InsertBeforePrimitive)pp).buildDB();
+        add=m.size(0,Data.DOC) - 1;
+      }
+      pp.apply(add);
+    }
   }
 }
