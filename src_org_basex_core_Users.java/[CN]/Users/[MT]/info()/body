@@ -1,15 +1,29 @@
 {
   final int size=users.size();
   final TokenBuilder tb=new TokenBuilder();
-  tb.add("% Users",size);
-  tb.add(size != 0 ? COL : DOT);
-  if (size != 0)   tb.add(NL + "Username\tRead\tWrite\tAdmin\tCreate");
-  for (int i=0; i < size; i++) {
-    tb.add(NL + users.get(i)[0] + "\t\t");
-    for (int j=1; j <= 4; j++) {
-      if ((Boolean)users.get(i)[j])       tb.add("  X\t");
- else       tb.add("\t");
+  if (size != 0) {
+    int[] ind=new int[5];
+    for (    final User u : users)     ind[0]=Math.max(ind[0],u.name.length());
+    for (int u=0; u < USERS.length; u++) {
+      ind[u]=Math.max(ind[u],USERS[u].length()) + 2;
+      tb.add(ind[u],USERS[u]);
     }
+    tb.add(NL);
+    for (int u=0; u < USERS.length; u++) {
+      for (int i=0; i < ind[u]; i++)       tb.add('-');
+    }
+    tb.add(NL);
+    for (int i=0; i < size; i++) {
+      final User user=users.get(i);
+      tb.add(ind[0],user.name);
+      tb.add(ind[1],user.read ? "X" : "");
+      tb.add(ind[2],user.write ? "X" : "");
+      tb.add(ind[3],user.create ? "X" : "");
+      tb.add(ind[4],user.admin ? "X" : "");
+      tb.add(NL);
+    }
+    tb.add(NL);
   }
+  tb.add(size + " Users registered.");
   return tb.toString();
 }
