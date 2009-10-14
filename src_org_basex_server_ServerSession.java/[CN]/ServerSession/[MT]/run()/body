@@ -5,9 +5,8 @@
     final String us=dis.readUTF();
     final String pw=dis.readUTF();
     context.user=context.users.get(us,pw);
-    final boolean ok=us.equals("") || context.user != null;
-    new DataOutputStream(out).writeUTF(ok ? "" : "Login failed.");
-    out.flush();
+    final boolean ok=context.user != null;
+    send(out,ok);
     if (info)     Main.outln(this + (ok ? " Login: " : " Failed: ") + us);
     if (!ok)     return;
     while (true) {
@@ -75,7 +74,7 @@
       }
       if (info)       Main.outln(this + " " + in+ ": "+ perf.getTimer());
     }
-    if (info)     Main.outln(this + " Logout: " + context.user);
+    if (info)     Main.outln(this + " Logout: " + us);
   }
  catch (  final IOException ex) {
     Main.error(ex,false);

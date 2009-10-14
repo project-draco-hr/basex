@@ -1,7 +1,15 @@
 {
-  if (buf.getShort() == IFD_TYPE_ASCII) {
-    o.meta.setString(StringField.CREATOR,o.readAscii(buf));
+  final int type=buf.getShort();
+  if (buf.getInt() == 1) {
+    if (type == IFD_TYPE_SHORT) {
+      o.meta.setShort(IntField.PIXEL_WIDTH,(short)(buf.getShort() & 0xFFFF));
+      buf.getShort();
+    }
+ else     if (type == IFD_TYPE_LONG) {
+      o.meta.setInt(IntField.PIXEL_WIDTH,buf.getInt() & 0xFFFFFFFF);
+    }
+ else     error(o,"Image width (0x0100)");
     o.fsparser.metaEvent(o.meta);
   }
- else   error(o,"Creator (0x013B)");
+ else   error(o,"Image width (0x0100)");
 }
