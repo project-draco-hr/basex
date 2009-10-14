@@ -34,11 +34,31 @@
             new DataOutputStream(out).writeUTF(inf);
           }
           out.flush();
+          server.cp.remove(cp);
         }
  else {
           core=proc;
           startTimer(proc);
+          cp=new ClientProcess(this,proc.updating());
+          server.cp.add(cp);
+          if (server.cp.size() > 1) {
+            if (proc.updating()) {
+              server.cp.add(cp);
+              while (server.cp.indexOf(cp) != 0)               Performance.sleep(50);
+            }
+ else {
+              server.cp.add(cp);
+              boolean write=false;
+              for (int i=0; i < server.cp.size(); i++) {
+                if (server.cp.get(i).updating)                 write=true;
+              }
+              if (write) {
+                while (server.cp.indexOf(cp) != 0)                 Performance.sleep(50);
+              }
+            }
+          }
           send(out,proc.execute(context));
+          if (!proc.printing())           server.cp.remove(cp);
           stopTimer();
           if (proc instanceof IntStop || proc instanceof Exit) {
             exit();
