@@ -1,6 +1,12 @@
 {
   if (!(node instanceof DBNode))   return;
   final DBNode n=(DBNode)node;
+  final Data d=n.data;
   final int p=n.pre + add;
-  deleteDBNodes(new Nodes(new int[]{p},n.data));
+  final int l=leftSibling(d,p);
+  deleteDBNodes(new Nodes(new int[]{p},d));
+  if (l == -1)   return;
+  final int lk=d.kind(l);
+  final int r=l + d.size(l,lk);
+  if (d.parent(l,lk) == d.parent(r,d.kind(r)))   mergeTextNodes(d,l,r);
 }
