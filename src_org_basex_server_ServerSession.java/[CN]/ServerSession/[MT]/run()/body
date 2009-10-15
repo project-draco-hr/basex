@@ -7,72 +7,14 @@
     context.user=context.users.get(us,pw);
     final boolean ok=context.user != null;
     send(out,ok);
-    if (info)     Main.outln(this + (ok ? " Login: " : " Failed: ") + us);
-    if (!ok)     return;
-    while (true) {
-      String in=null;
-      try {
-        in=dis.readUTF();
-      }
- catch (      final IOException ex) {
-        exit();
-        break;
-      }
-      final Performance perf=new Performance();
-      Process proc=null;
-      try {
-        proc=new CommandParser(in,context,true).parse()[0];
-        if (proc instanceof IntOutput || proc instanceof IntInfo) {
-          if (proc instanceof IntOutput) {
-            core.output(out);
-            out.write(new byte[IO.BLOCKSIZE]);
-          }
- else {
-            String inf=core.info();
-            if (inf.equals(PROGERR))             inf=SERVERTIME;
-            new DataOutputStream(out).writeUTF(inf);
-          }
-          out.flush();
-          server.cp.remove(cp);
-        }
- else {
-          core=proc;
-          startTimer(proc);
-          cp=new ClientProcess(this,proc.updating());
-          server.cp.add(cp);
-          if (server.cp.size() > 1) {
-            if (proc.updating()) {
-              while (server.cp.indexOf(cp) != 0)               Performance.sleep(50);
-            }
- else {
-              boolean write=false;
-              for (int i=0; i < server.cp.size(); i++) {
-                if (server.cp.get(i).updating)                 write=true;
-              }
-              if (write) {
-                while (server.cp.indexOf(cp) != 0)                 Performance.sleep(50);
-              }
-            }
-          }
-          send(out,proc.execute(context));
-          if (!proc.printing())           server.cp.remove(cp);
-          stopTimer();
-          if (proc instanceof IntStop || proc instanceof Exit) {
-            server.cp.remove(cp);
-            exit();
-            if (proc instanceof IntStop)             server.quit(false);
-            break;
-          }
-        }
-      }
- catch (      final QueryException ex) {
-        proc=new IntError(ex.extended());
-        core=proc;
-        send(out,false);
-      }
-      if (info)       Main.outln(this + " " + in+ ": "+ perf.getTimer());
+    if (ok) {
+      if (info)       Main.outln(this + (ok ? " Login: " : " Failed: ") + us);
+      process(dis,out);
+      if (info)       Main.outln(this + " Logout: " + us);
     }
-    if (info)     Main.outln(this + " Logout: " + us);
+ else {
+      if (info)       Main.outln(this + " Failed: " + us);
+    }
   }
  catch (  final IOException ex) {
     Main.error(ex,false);

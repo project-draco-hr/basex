@@ -1,0 +1,18 @@
+{
+  new Close().execute(context,out);
+  final String db=args[0];
+  Data data=context.data();
+  try {
+    if (data == null || !data.meta.name.equals(db)) {
+      data=open(context,db);
+      context.openDB(data);
+      if (data.meta.oldindex)       info(INDUPDATE);
+    }
+    return info(DBOPENED,db,perf.getTimer());
+  }
+ catch (  final IOException ex) {
+    Main.debug(ex);
+    final String msg=ex.getMessage();
+    return error(msg.length() != 0 ? msg : DBOPENERR);
+  }
+}

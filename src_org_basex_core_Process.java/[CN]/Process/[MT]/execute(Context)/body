@@ -1,34 +1,3 @@
 {
-  perf=new Performance();
-  context=ctx;
-  prop=ctx.prop;
-  final User user=context.user;
-  String perm=null;
-  if (admin() && !user.perm(User.ADMIN))   perm="admin";
- else   if (create() && !user.perm(User.CREATE))   perm="create";
- else   if (write() && !user.perm(User.WRITE))   perm="write";
- else   if (read() && !user.perm(User.READ))   perm="read";
-  if (perm != null)   return error("User has no global '" + perm + "' rights.");
-  final Data data=context.data();
-  if (data()) {
-    if (data == null)     return error(PROCNODB);
-    if (updating() && (prop.is(Prop.TABLEMEM) || prop.is(Prop.MAINMEM)))     return error(PROCMM);
-  }
-  boolean ok=false;
-  if (data != null)   data.setLock(updating() ? 2 : 1);
-  try {
-    ok=exec();
-  }
- catch (  final Throwable ex) {
-    ex.printStackTrace();
-    if (ex instanceof OutOfMemoryError) {
-      Performance.gc(2);
-      error(PROCOUTMEM);
-    }
- else {
-      error(PROCERR,this,ex.toString());
-    }
-  }
-  if (data != null)   data.setLock(0);
-  return ok;
+  return execute(ctx,null);
 }

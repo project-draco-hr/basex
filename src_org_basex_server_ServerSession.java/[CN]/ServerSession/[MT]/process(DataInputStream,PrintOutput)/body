@@ -1,0 +1,56 @@
+{
+  while (true) {
+    String in=null;
+    try {
+      in=dis.readUTF();
+    }
+ catch (    final IOException ex) {
+      exit();
+      return;
+    }
+    final Performance perf=new Performance();
+    Process proc=null;
+    try {
+      proc=new CommandParser(in,context,true).parse()[0];
+      if (proc instanceof IntInfo) {
+        String inf=core.info();
+        if (inf.equals(PROGERR))         inf=SERVERTIME;
+        new DataOutputStream(out).writeUTF(inf);
+        out.flush();
+      }
+ else {
+        core=proc;
+        boolean updating=proc.updating();
+        cp=new ClientProcess(this,updating);
+        server.cp.add(cp);
+        startTimer(proc);
+        if (server.cp.size() > 1) {
+          for (int i=0; !updating && i < server.cp.size(); i++) {
+            updating=server.cp.get(i).updating;
+          }
+          if (updating) {
+            while (server.cp.indexOf(cp) != 0)             Performance.sleep(50);
+          }
+        }
+        final boolean ok=proc.execute(context,out);
+        server.cp.remove(cp);
+        stopTimer();
+        out.write(new byte[IO.BLOCKSIZE]);
+        send(out,ok);
+        if (proc instanceof IntStop || proc instanceof Exit) {
+          server.cp.remove(cp);
+          exit();
+          if (proc instanceof IntStop)           server.quit(false);
+          return;
+        }
+      }
+    }
+ catch (    final QueryException ex) {
+      proc=new IntError(ex.extended());
+      core=proc;
+      out.write(new byte[IO.BLOCKSIZE]);
+      send(out,false);
+    }
+    if (info)     Main.outln(this + " " + in+ ": "+ perf.getTimer());
+  }
+}

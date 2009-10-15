@@ -2,17 +2,14 @@
   try {
     final Session ss=session();
     if (ss == null)     return false;
-    final boolean success=ss.execute(pr);
+    final PrintOutput out=output != null ? new PrintOutput(output) : new PrintOutput(System.out);
+    final boolean ok=ss.execute(pr,out);
+    out.close();
     if (pr instanceof Exit)     return true;
-    if (success) {
-      final PrintOutput out=output != null ? new PrintOutput(output) : new PrintOutput(System.out);
-      ss.output(out);
-      out.close();
-    }
-    if (v || !success) {
+    if (v || !ok) {
       final String inf=ss.info();
       if (inf.length() != 0) {
-        if (!success) {
+        if (!ok) {
           error(null,inf);
         }
  else {
@@ -21,7 +18,7 @@
       }
     }
     if (v && console)     outln();
-    return success;
+    return ok;
   }
  catch (  final IOException ex) {
     error(ex,true);

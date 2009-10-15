@@ -1,0 +1,54 @@
+{
+  maxh=Token.toInt(args[0]);
+  maxs=Token.toInt(args[1]);
+  final String query="(" + args[2] + ")[position() <= "+ maxh * maxs + "]";
+  long fini=0;
+  final int runs=prop.num(Prop.RUNS);
+  try {
+    for (int i=0; i < runs; i++) {
+      qp=new QueryProcessor(query,context);
+      progress(qp);
+      qp.parse();
+      pars+=per.getTime();
+      qp.compile();
+      comp+=per.getTime();
+      result=qp.queryNodes();
+      eval+=per.getTime();
+      final Nodes ns=(Nodes)result;
+      result=new Nodes(ns.nodes,ns.data);
+      final Data data=context.data();
+      final int medid=data.tagID(MAB2.MEDIUM);
+      final int mvid=data.attNameID(MAB2.MV_ID);
+      final Nodes res=(Nodes)result;
+      final int[] pres=res.nodes;
+      final int size=res.size();
+      ids=new IDSet();
+      for (int n=0; n < size; n++) {
+        int pre=data.parent(pres[n],data.kind(pres[n]));
+        final boolean s=data.tagID(pre) == medid;
+        if (!s)         pre=pres[n];
+        final byte[] id=data.attValue(mvid,pre);
+        if (s) {
+          ids.index(id,pre,pres[n]);
+        }
+ else {
+          ids.index(id,pre);
+        }
+        if (ids.size() == maxh)         break;
+      }
+      maxhits=ids.size();
+      fini+=per.getTime();
+    }
+    execInfo();
+    info(QUERYFINISH + Performance.getTimer(fini,runs));
+    for (int i=0; i < runs; i++) {
+      show(i == 0 && prop.is(Prop.SERIALIZE) ? out : new NullOutput());
+    }
+    outInfo(out,maxhits);
+    return true;
+  }
+ catch (  final Exception ex) {
+    Main.debug(ex);
+    return error(ex.getMessage());
+  }
+}
