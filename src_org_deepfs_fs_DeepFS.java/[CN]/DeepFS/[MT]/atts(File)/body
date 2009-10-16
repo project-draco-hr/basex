@@ -1,0 +1,18 @@
+{
+  final String name=f.getName();
+  final byte[] time=token(System.currentTimeMillis());
+  final Atts atts=new Atts();
+  atts.reset();
+  atts.add(NAME,token(name));
+  atts.add(SIZE,token(f.length()));
+  if (f.isDirectory())   atts.add(MODE,token(getSIFDIR() | 0755));
+ else   atts.add(MODE,token(getSIFREG() | 0644));
+  atts.add(UID,token(getUID()));
+  atts.add(GID,token(getGID()));
+  atts.add(ATIME,time);
+  atts.add(CTIME,time);
+  atts.add(MTIME,token(f.lastModified()));
+  atts.add(NLINK,token("1"));
+  atts.add(SUFFIX,getSuffix(name));
+  return atts;
+}
