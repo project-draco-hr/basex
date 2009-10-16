@@ -16,7 +16,7 @@
   final BaseXTextField port=new BaseXTextField(String.valueOf(ctx.prop.num(Prop.PORT)),null,this);
   final BaseXButton change=new BaseXButton("Change",null,this);
   try {
-    new ClientSession(ctx,ADMIN,ADMIN);
+    cs=new ClientSession(ctx,ADMIN,ADMIN);
     start.setEnabled(false);
     host.setEnabled(false);
     port.setEnabled(false);
@@ -35,6 +35,7 @@
       port.setEnabled(false);
       change.setEnabled(false);
       tabs.setEnabledAt(1,true);
+      startServer();
     }
   }
 );
@@ -46,6 +47,12 @@
       port.setEnabled(true);
       change.setEnabled(true);
       tabs.setEnabledAt(1,false);
+      try {
+        cs.execute(new IntStop(),null);
+      }
+ catch (      IOException e1) {
+        e1.printStackTrace();
+      }
     }
   }
 );
@@ -90,22 +97,13 @@
   final JPasswordField pass=new JPasswordField(10);
   final JTable table=new JTable(new TableModel());
   final JScrollPane scrollPane=new JScrollPane(table);
-  final BaseXCombo userco=new BaseXCombo(getUsers(),null,this);
+  final BaseXCombo userco=new BaseXCombo(usernames,null,this);
   p21.add(pass);
   final BaseXButton create=new BaseXButton("Create User",null,this);
   final BaseXButton delete=new BaseXButton("Drop User",null,this);
   create.addActionListener(new ActionListener(){
     public void actionPerformed(    final ActionEvent e){
-      final String u=user.getText();
-      final String p=new String(pass.getPassword());
-      if (!u.equals("") && !p.equals("")) {
-        ctx.users.create(u,p);
-        user.setText("");
-        pass.setText("");
-        ((TableModel)table.getModel()).setData();
-        userco.addItem(u);
-        delete.setEnabled(true);
-      }
+      fillLists();
     }
   }
 );
@@ -120,7 +118,7 @@
       ctx.users.drop(test);
       userco.removeItem(test);
       ((TableModel)table.getModel()).setData();
-      if (getUsers().length == 0)       delete.setEnabled(false);
+      if (usernames.length == 0)       delete.setEnabled(false);
     }
   }
 );
