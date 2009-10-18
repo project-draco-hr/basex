@@ -1,0 +1,71 @@
+{
+  if (START.equals(cmd)) {
+    try {
+      final ProcessBuilder pb=new ProcessBuilder("java","-cp",Prop.WORK + "bin",org.basex.BaseXServer.class.getName());
+      pb.start();
+      createSession();
+    }
+ catch (    final IOException ex) {
+      Main.debug(ex);
+      ex.printStackTrace();
+    }
+  }
+ else   if (STOP.equals(cmd)) {
+    try {
+      cs.execute(new IntStop(),null);
+      cs=null;
+    }
+ catch (    final IOException ex) {
+      Main.debug(ex);
+      ex.printStackTrace();
+    }
+  }
+ else   if (CHANGE.equals(cmd)) {
+    ctx.prop.set(Prop.HOST,host.getText());
+    try {
+      final int p=Integer.parseInt(port.getText());
+      ctx.prop.set(Prop.PORT,p);
+    }
+ catch (    final NumberFormatException n) {
+      port.setText(Integer.toString(ctx.prop.num(Prop.PORT)));
+    }
+  }
+ else   if (CREATE.equals(cmd)) {
+    final String u=user.getText();
+    final String p=new String(pass.getPassword());
+    try {
+      cs.execute(new CreateUser(u,p));
+      user.setText("");
+      pass.setText("");
+      ((TableModel)table.getModel()).setData();
+      userco.addItem(u);
+      delete.setEnabled(true);
+    }
+ catch (    final IOException e1) {
+      e1.printStackTrace();
+    }
+  }
+ else   if (DROP.equals(cmd)) {
+    final String test=(String)userco.getSelectedItem();
+    try {
+      cs.execute(new DropUser(test));
+      userco.removeItem(test);
+      ((TableModel)table.getModel()).setData();
+      if (usernames.size() == 0)       delete.setEnabled(false);
+    }
+ catch (    final IOException e1) {
+      e1.printStackTrace();
+    }
+  }
+  final boolean run=cs == null;
+  stop.setEnabled(!run);
+  start.setEnabled(run);
+  host.setEnabled(run);
+  port.setEnabled(run);
+  change.setEnabled(run && port.getText().matches("^[0-9]+$"));
+  tabs.setEnabledAt(1,!run);
+  if (user != null) {
+    create.setEnabled(user.getText().matches("^[A-Za-z0-9_.-]+$") && new String(pass.getPassword()).matches("^[A-Za-z0-9_.-]+$"));
+    delete.setEnabled(usernames.size() != 0);
+  }
+}

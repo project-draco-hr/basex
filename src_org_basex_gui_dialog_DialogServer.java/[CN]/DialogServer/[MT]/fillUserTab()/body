@@ -1,72 +1,30 @@
 {
+  p2.add(new BaseXLabel(CREATEUSER,false,true));
   final BaseXBack p21=new BaseXBack();
-  p21.setLayout(new TableLayout(4,5,6,0));
-  p21.add(new BaseXLabel("Create User:",false,true));
-  p21.add(new BaseXLabel(""));
-  p21.add(new BaseXLabel(""));
-  p21.add(new BaseXLabel(""));
-  p21.add(new BaseXLabel(""));
-  p21.add(new BaseXLabel("Username:"));
-  final BaseXTextField user=new BaseXTextField("",null,this);
+  p21.setLayout(new TableLayout(1,5,6,0));
+  p21.add(new BaseXLabel(SERVERUSER));
+  user=new BaseXTextField("",null,this);
+  BaseXLayout.setWidth(user,100);
+  user.addKeyListener(keys);
   p21.add(user);
-  p21.add(new BaseXLabel("Password:"));
-  final JPasswordField pass=new JPasswordField(10);
-  final JTable table=new JTable(new TableModel());
-  final JScrollPane scrollPane=new JScrollPane(table);
-  final BaseXCombo userco=new BaseXCombo(usernames,null,this);
+  p21.add(new BaseXLabel(SERVERPW));
+  pass=new JPasswordField(10);
+  pass.addKeyListener(keys);
   p21.add(pass);
-  final BaseXButton create=new BaseXButton("Create User",null,this);
-  final BaseXButton delete=new BaseXButton("Drop User",null,this);
-  create.addActionListener(new ActionListener(){
-    public void actionPerformed(    final ActionEvent e){
-      final String u=user.getText();
-      final String p=new String(pass.getPassword());
-      if (!u.equals("") && !p.equals("")) {
-        try {
-          cs.execute(new CreateUser(u,p));
-          user.setText("");
-          pass.setText("");
-          ((TableModel)table.getModel()).setData();
-          userco.addItem(u);
-          delete.setEnabled(true);
-        }
- catch (        IOException e1) {
-          e1.printStackTrace();
-        }
-      }
-    }
-  }
-);
+  create=new BaseXButton(CREATE,null,this);
   p21.add(create);
-  final BaseXBack p22=new BaseXBack();
-  p22.setLayout(new TableLayout(2,2,6,0));
-  p22.add(new BaseXLabel("Drop User:",false,true));
-  p22.add(new BaseXLabel(""));
-  if (usernames.size() == 0)   delete.setEnabled(false);
-  delete.addActionListener(new ActionListener(){
-    public void actionPerformed(    final ActionEvent e){
-      final String test=(String)userco.getSelectedItem();
-      try {
-        cs.execute(new DropUser(test));
-        userco.removeItem(test);
-        ((TableModel)table.getModel()).setData();
-        if (usernames.size() == 0)         delete.setEnabled(false);
-      }
- catch (      IOException e1) {
-        e1.printStackTrace();
-      }
-    }
-  }
-);
-  p22.add(userco);
-  p22.add(delete);
-  final BaseXBack p23=new BaseXBack();
-  p23.setLayout(new TableLayout(5,1,6,0));
-  p23.add(new BaseXLabel("                      "));
-  p23.add(new BaseXLabel("User rights management:",false,true));
-  table.setPreferredScrollableViewportSize(new Dimension(500,70));
-  p23.add(scrollPane);
   p2.add(p21);
+  p2.add(new BaseXLabel(DROPUSER,false,true));
+  final BaseXBack p22=new BaseXBack();
+  p22.setLayout(new TableLayout(1,2,6,0));
+  userco=new BaseXCombo(usernames,null,this);
+  p22.add(userco);
+  delete=new BaseXButton(DROP,null,this);
+  p22.add(delete);
   p2.add(p22);
-  p2.add(p23);
+  p2.add(Box.createVerticalStrut(8));
+  p2.add(new BaseXLabel(PERMISSIONS + COL,false,true));
+  table=new JTable(new TableModel());
+  table.setPreferredScrollableViewportSize(new Dimension(420,100));
+  p2.add(new JScrollPane(table));
 }

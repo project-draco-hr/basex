@@ -1,32 +1,16 @@
 {
-  final CachedOutput out=new CachedOutput();
   try {
+    final CachedOutput out=new CachedOutput();
     cs.execute(new Show("Users"),out);
+    data=new ArrayList<Object[]>();
+    usernames=new Vector<String>();
+    for (    final Object[] o : table(out.toString())) {
+      usernames.addElement(o[0].toString());
+      for (int i=1; i < o.length; i++)       o[i]=o[i].toString().length() != 0;
+      data.add(o);
+    }
   }
  catch (  final IOException ex) {
     ex.printStackTrace();
-  }
-  String info=out.toString();
-  info=info.substring(info.lastIndexOf("-") + 3);
-  final Scanner s=new Scanner(info);
-  int i=0;
-  data=new ArrayList<Object[]>();
-  usernames=new Vector<String>();
-  while (s.hasNextLine()) {
-    final String line=s.nextLine();
-    if (line.isEmpty())     break;
-    String username=line.substring(0,10).trim();
-    usernames.addElement(username);
-    Object[] user=new Object[5];
-    user[0]=username;
-    user[1]=line.substring(10,16).contains("X");
-    user[2]=line.substring(16,23).contains("X");
-    ;
-    user[3]=line.substring(23,31).contains("X");
-    ;
-    user[4]=line.substring(31,38).contains("X");
-    ;
-    data.add(user);
-    i++;
   }
 }
