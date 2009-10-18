@@ -1,26 +1,16 @@
 {
   String right="";
   if (col == 1)   right=CmdPerm.READ.toString();
-  if (col == 2)   right=CmdPerm.WRITE.toString();
-  if (col == 3)   right=CmdPerm.CREATE.toString();
-  if (col == 4)   right=CmdPerm.ADMIN.toString();
+ else   if (col == 2)   right=CmdPerm.WRITE.toString();
+ else   if (col == 3)   right=CmdPerm.CREATE.toString();
+ else   if (col == 4)   right=CmdPerm.ADMIN.toString();
   final String uname=(String)data.get(row)[0];
-  if (value.equals(true)) {
-    try {
-      cs.execute(new Grant(right,uname));
-    }
- catch (    final IOException e) {
-      e.printStackTrace();
-    }
+  try {
+    cs.execute(value.equals(true) ? new Grant(right,uname) : new Revoke(right,uname));
+    data.get(row)[col]=value;
+    fireTableCellUpdated(row,col);
   }
- else {
-    try {
-      cs.execute(new Revoke(right,uname));
-    }
- catch (    final IOException e) {
-      e.printStackTrace();
-    }
+ catch (  final IOException ex) {
+    ex.printStackTrace();
   }
-  data.get(row)[col]=value;
-  fireTableCellUpdated(row,col);
 }

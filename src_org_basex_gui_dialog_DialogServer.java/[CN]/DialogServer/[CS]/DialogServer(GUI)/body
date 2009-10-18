@@ -7,19 +7,14 @@
   p2.setBorder(8,8,8,8);
   tabs.add(SERVER,p1);
   tabs.add(USERS,p2);
-  final BaseXBack p11=new BaseXBack();
-  p11.setLayout(new TableLayout(1,2,6,0));
   start=new BaseXButton(START,null,this);
   stop=new BaseXButton(STOP,null,this);
   host=new BaseXTextField(ctx.prop.get(Prop.HOST),null,this);
   port=new BaseXTextField(Integer.toString(ctx.prop.num(Prop.PORT)),null,this);
   port.addKeyListener(keys);
   change=new BaseXButton(CHANGE,null,this);
-  try {
-    createSession();
-  }
- catch (  final IOException e1) {
-  }
+  final BaseXBack p11=new BaseXBack();
+  p11.setLayout(new TableLayout(1,2,6,0));
   p11.add(start);
   p11.add(stop);
   final BaseXBack p12=new BaseXBack();
@@ -35,6 +30,39 @@
   p1.add(p11);
   p1.add(p12);
   set(tabs,BorderLayout.CENTER);
+  user=new BaseXTextField("",null,this);
+  user.addKeyListener(keys);
+  create=new BaseXButton(CREATE,null,this);
+  pass=new JPasswordField(10);
+  pass.addKeyListener(keys);
+  userco=new BaseXCombo(new String[]{},null,this);
+  delete=new BaseXButton(DROP,null,this);
+  table=new JTable(new TableModel());
+  table.setPreferredScrollableViewportSize(new Dimension(420,100));
+  p2.add(new BaseXLabel(CREATEUSER,false,true));
+  final BaseXBack p21=new BaseXBack();
+  p21.setLayout(new TableLayout(1,5,6,0));
+  p21.add(new BaseXLabel(SERVERUSER));
+  BaseXLayout.setWidth(user,100);
+  p21.add(user);
+  p21.add(new BaseXLabel(SERVERPW));
+  p21.add(pass);
+  p21.add(create);
+  p2.add(p21);
+  p2.add(new BaseXLabel(DROPUSER,false,true));
+  final BaseXBack p22=new BaseXBack();
+  p22.setLayout(new TableLayout(1,2,6,0));
+  p22.add(userco);
+  p22.add(delete);
+  p2.add(p22);
+  p2.add(Box.createVerticalStrut(8));
+  p2.add(new BaseXLabel(PERMISSIONS + COL,false,true));
+  p2.add(new JScrollPane(table));
+  try {
+    createSession();
+  }
+ catch (  final IOException e1) {
+  }
   action(null);
   finish(null);
 }
