@@ -1,0 +1,19 @@
+{
+  final String db=args[2];
+  final CmdPerm cmd=getOption(CmdPerm.class);
+  int perm=-1;
+  if (cmd == CmdPerm.READ) {
+    perm=User.READ;
+  }
+ else   if (cmd == CmdPerm.WRITE) {
+    perm=User.WRITE;
+  }
+ else   if (db == null && cmd == CmdPerm.CREATE) {
+    perm=User.CREATE;
+  }
+ else   if (db == null && cmd == CmdPerm.ADMIN) {
+    perm=User.ADMIN;
+  }
+  if (perm == -1)   return error("Invalid permission flag.");
+  return context.users.perm(args[1],set,perm) ? info("Permission removed.") : error("User is unknown");
+}

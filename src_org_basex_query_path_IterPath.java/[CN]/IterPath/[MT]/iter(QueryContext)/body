@@ -7,10 +7,12 @@
     int p;
     @Override public Nod next() throws QueryException {
       if (iter == null) {
-        final int o=root != null ? 1 : 0;
-        expr=new Expr[step.length + o];
-        expr[0]=root;
-        Array.copy(step,expr,o);
+        expr=step;
+        if (root != null) {
+          expr=new Expr[step.length + 1];
+          expr[0]=root;
+          System.arraycopy(step,0,expr,1,step.length);
+        }
         iter=new Iter[expr.length];
         iter[0]=ctx.iter(expr[0]);
         prev=null;
