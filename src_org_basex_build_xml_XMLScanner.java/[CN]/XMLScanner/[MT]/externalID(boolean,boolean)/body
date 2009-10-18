@@ -17,7 +17,8 @@
       if (!dtd && r)       return cont;
       final XMLInput tin=input;
       try {
-        IO file=IO.get(input.file.dir() + "/" + name);
+        final String dir=input.file.dir();
+        IO file=IO.get(dir == null ? name : dir + "/" + name);
         if (!file.exists())         file=input.file.merge(IO.get(name));
         cont=file.content();
         input=new XMLInput(new IOContent(cont,name));
@@ -35,9 +36,7 @@
         ch=nextChar();
         if (s(ch))         ch=nextChar();
         if (ch != '?' || nextChar() != '>')         error(DECLWRONG);
-        final byte[] c=new byte[cont.length - input.pos()];
-        System.arraycopy(cont,input.pos(),c,0,c.length);
-        cont=c;
+        cont=Arrays.copyOfRange(cont,input.pos(),cont.length);
       }
       s();
       if (r) {

@@ -1,16 +1,21 @@
 {
-  boolean u=false;
-  if (file != null) {
-    Prop.xquery=IO.get(file);
-    final String query=content();
-    if (query != null)     process(new XQuery(query),true);
-  }
- else   if (commands != null) {
-    process(commands);
-  }
+  try {
+    boolean u=false;
+    if (file != null) {
+      Prop.xquery=IO.get(file);
+      final String query=content();
+      if (query != null)       process(new XQuery(query),true);
+    }
+ else     if (commands != null) {
+      process(commands);
+    }
  else {
-    outln(CONSOLE,sa() ? LOCALMODE : CLIENTMODE,CONSOLE2);
-    u=console();
+      outln(CONSOLE,sa() ? LOCALMODE : CLIENTMODE,CONSOLE2);
+      u=console();
+    }
+    quit(u);
   }
-  quit(u);
+ catch (  final IOException ex) {
+    error(ex,true);
+  }
 }

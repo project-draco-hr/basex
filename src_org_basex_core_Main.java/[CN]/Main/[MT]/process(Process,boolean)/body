@@ -1,27 +1,21 @@
 {
-  try {
-    final Session ss=session();
-    if (ss == null)     return false;
-    final PrintOutput out=output != null ? new PrintOutput(output) : new PrintOutput(System.out);
-    final boolean ok=ss.execute(pr,out);
-    out.close();
-    if (pr instanceof Exit)     return true;
-    if (v || !ok) {
-      final String inf=ss.info();
-      if (inf.length() != 0) {
-        if (!ok) {
-          error(null,inf);
-        }
+  final Session ss=session();
+  if (ss == null)   return false;
+  final PrintOutput out=output != null ? new PrintOutput(output) : new PrintOutput(System.out);
+  final boolean ok=ss.execute(pr,out);
+  out.close();
+  if (pr instanceof Exit)   return true;
+  if (v || !ok) {
+    final String inf=ss.info();
+    if (inf.length() != 0) {
+      if (!ok) {
+        error(null,inf);
+      }
  else {
-          out(inf);
-        }
+        out(inf);
       }
     }
-    if (v && console)     outln();
-    return ok;
   }
- catch (  final IOException ex) {
-    error(ex,true);
-    return false;
-  }
+  if (v && console)   outln();
+  return ok;
 }

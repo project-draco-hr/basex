@@ -1,17 +1,17 @@
 {
-  Object monitor=new Object();
+  final Object monitor=new Object();
 synchronized (monitor) {
 synchronized (this) {
-      if (allowWriter()) {
-        ++activeWriters;
+      if (waitingWriters.size() == 0 && activeReaders == 0 && !activeWriter) {
+        activeWriter=true;
         return;
       }
-      waitingWriterMonitors.add(monitor);
+      waitingWriters.add(monitor);
     }
     try {
       monitor.wait();
     }
- catch (    InterruptedException ex) {
+ catch (    final InterruptedException ex) {
       ex.printStackTrace();
     }
   }

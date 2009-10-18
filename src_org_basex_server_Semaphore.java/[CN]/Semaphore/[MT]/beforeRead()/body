@@ -1,16 +1,14 @@
 {
-synchronized (waitingReaderMonitor) {
 synchronized (this) {
-      if (allowReader()) {
-        ++activeReaders;
-        return;
-      }
-      ++waitingReaders;
+    if (!activeWriter && waitingWriters.size() == 0) {
+      ++activeReaders;
+      return;
     }
+    ++waitingReaders;
     try {
-      waitingReaderMonitor.wait();
+      wait();
     }
- catch (    InterruptedException ex) {
+ catch (    final InterruptedException ex) {
       ex.printStackTrace();
     }
   }
