@@ -57,8 +57,37 @@
   start.setEnabled(run);
   host.setEnabled(run);
   port.setEnabled(run);
-  change.setEnabled(run && port.getText().matches("^[0-9]+$"));
+  boolean onep1=port.getText().matches("^[0-9]+$");
+  boolean twop1=host.getText().isEmpty();
+  change.setEnabled(run && onep1 && !twop1);
+  if (!onep1 || twop1) {
+    infop1.setIcon(BaseXLayout.icon("warn"));
+    if (!onep1) {
+      infop1.setText("Invalid port");
+    }
+ else {
+      infop1.setText("Invalid hostname");
+    }
+  }
+ else {
+    infop1.setText("");
+    infop1.setIcon(null);
+  }
   tabs.setEnabledAt(1,!run);
-  create.setEnabled(user.getText().matches("^[A-Za-z0-9_.-]+$") && new String(pass.getPassword()).matches("^[A-Za-z0-9_.-]+$"));
+  boolean onep2=user.getText().matches("^[A-Za-z0-9_.-]+$");
+  boolean twop2=new String(pass.getPassword()).matches("^[A-Za-z0-9_.-]+$");
+  create.setEnabled(onep2 && twop2);
+  if (!onep2 && !user.getText().isEmpty()) {
+    infop2.setIcon(BaseXLayout.icon("warn"));
+    infop2.setText("Invalid username");
+  }
+ else   if (!twop2 && !new String(pass.getPassword()).isEmpty()) {
+    infop2.setIcon(BaseXLayout.icon("warn"));
+    infop2.setText("Invalid password");
+  }
+ else {
+    infop2.setText("");
+    infop2.setIcon(null);
+  }
   delete.setEnabled(data.size() != 0);
 }
