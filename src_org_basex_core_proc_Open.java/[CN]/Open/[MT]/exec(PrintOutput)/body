@@ -8,6 +8,10 @@
       User user=context.user;
       final User us=data.meta.users.get(user.name);
       if (us != null)       user=us;
+      if (!user.perm(User.READ)) {
+        Close.close(context,data);
+        return error(PERMNO,CmdPerm.READ);
+      }
       context.openDB(data);
       if (data.meta.oldindex)       info(INDUPDATE);
     }
