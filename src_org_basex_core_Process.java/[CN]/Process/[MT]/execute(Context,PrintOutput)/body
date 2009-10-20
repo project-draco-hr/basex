@@ -3,31 +3,21 @@
   context=ctx;
   prop=ctx.prop;
   final Data data=context.data();
-  if (data()) {
-    if (data == null)     return error(PROCNODB);
-    if (write() && (prop.is(Prop.TABLEMEM) || prop.is(Prop.MAINMEM)))     return error(PROCMM);
+  if (data() && data == null)   return error(PROCNODB);
+  final User user=context.user;
+  int up=user.perm;
+  if (data != null) {
+    final User us=data.meta.users.get(user.name);
+    if (us != null)     up=up & ~(User.READ | User.WRITE) | us.perm;
   }
-  User user=context.user;
-  CmdPerm perm=null;
-  if (admin() && !user.perm(User.ADMIN)) {
-    perm=CmdPerm.ADMIN;
+  int fp=flags & (User.READ | User.WRITE | User.CREATE| User.ADMIN);
+  if (updating(ctx))   fp|=User.WRITE;
+  int i=4;
+  while (--i >= 0) {
+    final int f=1 << i;
+    if ((f & fp) != 0 && (f & up) == 0)     break;
   }
- else   if (create() && !user.perm(User.CREATE)) {
-    perm=CmdPerm.CREATE;
-  }
- else {
-    if (data != null) {
-      final User us=data.meta.users.get(user.name);
-      if (us != null)       user=us;
-    }
-    if (write() && !user.perm(User.WRITE)) {
-      perm=CmdPerm.WRITE;
-    }
- else     if (read() && !user.perm(User.READ)) {
-      perm=CmdPerm.READ;
-    }
-  }
-  if (perm != null)   return error(PERMNO,perm);
+  if (i != -1)   return error(PERMNO,CmdPerm.values()[i]);
   try {
     return exec(out);
   }
