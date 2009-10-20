@@ -3,23 +3,15 @@
     ctx.prop.set(Prop.HOST,host.getText());
     final int p=Integer.parseInt(port.getText());
     ctx.prop.set(Prop.PORT,p);
-    ProtectionDomain pDomain=this.getClass().getProtectionDomain();
-    CodeSource cSource=pDomain.getCodeSource();
-    URL loc=cSource.getLocation();
-    String path=loc.getPath().substring(1);
-    if (path.contains("%20")) {
-      path=path.replace("%20"," ");
-      path="\"" + path + "\"";
-    }
-    final Runtime run=Runtime.getRuntime();
     try {
-      String exec="java -cp " + path + " org.basex.BaseXServer";
-      System.out.println(exec);
-      run.exec(exec);
+      final String path=IOFile.file(getClass().getProtectionDomain().getCodeSource().getLocation().toString());
+      final String mem="-Xmx" + Runtime.getRuntime().maxMemory();
+      final String clazz=org.basex.BaseXServer.class.getName();
+      new ProcessBuilder(new String[]{"java",mem,"-cp",path,clazz}).start();
       createSession();
     }
- catch (    IOException e) {
-      e.printStackTrace();
+ catch (    final Exception ex) {
+      ex.printStackTrace();
     }
   }
  else   if (STOP.equals(cmd)) {
