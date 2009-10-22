@@ -1,17 +1,19 @@
 {
-  buf1=new long[size];
-  buf2=new long[size];
-  final DataInput in=new DataInput(pr.dbfile(db,fn + 'i'));
+  super(nm,fn,pr);
+  buf1=new long[sz];
+  buf2=new long[sz];
+  size=sz;
+  final DataInput in=new DataInput(pr.dbfile(nm,fn + 'i'));
   in.readNum();
   in.readNum();
   in.readNum();
   final int[] firstPres=in.readNums();
   final int[] blocks=in.readNums();
   in.close();
-  final RandomAccessFile f=new RandomAccessFile(pr.dbfile(db,fn),"r");
+  final RandomAccessFile f=new RandomAccessFile(pr.dbfile(nm,fn),"r");
   final byte[] array=new byte[IO.BLOCKSIZE];
   int np=0;
-  for (int c=0, i=0, l=0; i != size; i++) {
+  for (int c=0, i=0, l=0; i != sz; i++) {
     while (i == np) {
       f.seek((long)blocks[c++] * IO.BLOCKSIZE);
       f.read(array);
