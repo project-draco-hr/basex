@@ -4,15 +4,16 @@
   do {
     final Var v=new Var(varName());
     check(ASSIGN);
-    final Expr e=check(single(),UPEXPSIMPLE);
+    final Expr e=simple(check(single(),INCOMPLETE));
     ctx.vars.add(v);
     fl=Array.add(fl,new For(e,v,null,null));
   }
  while (consumeWS(COMMA));
   check(MODIFY);
-  final Expr e1=check(single(),UPEXPSIMPLE);
+  final Expr m=check(single(),INCOMPLETE);
+  if (!m.uses(Use.UPD,ctx) && !m.v())   error(UPEXPECT);
   check(RETURN);
-  final Expr e2=check(single(),UPEXPSIMPLE);
+  final Expr r=simple(check(single(),INCOMPLETE));
   error(UPIMPL);
-  return new Transform(fl,e1,e2);
+  return new Transform(fl,m,r);
 }

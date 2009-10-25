@@ -5,8 +5,7 @@
     qp=p;
     return null;
   }
-  if (declVar)   Err.or(UPNOUPDT,this);
-  final Expr s=check(single(),UPEXPSIMPLE);
+  final Expr s=simple(check(single(),INCOMPLETE));
   boolean first=false;
   boolean last=false;
   boolean into=false;
@@ -24,8 +23,8 @@
   if (!into)   into=consumeWS(INTO);
   after=consumeWS(AFTER);
   before=consume(BEFORE);
-  if (!(into ^ after ^ before))   Err.or(UPDATE,this);
-  final Expr trg=check(single(),UPEXPSIMPLE);
+  if (!(into || after || before))   Err.or(INCOMPLETE);
+  final Expr trg=simple(check(single(),INCOMPLETE));
   ctx.updating=true;
   return new Insert(s,first,last,before,after,trg);
 }

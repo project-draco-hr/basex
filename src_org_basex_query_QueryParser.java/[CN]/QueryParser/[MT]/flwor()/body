@@ -5,7 +5,7 @@
   Expr where=null;
   if (consumeWS(WHERE)) {
     ap=qp;
-    where=check(single(),NOWHERE);
+    where=simple(check(single(),NOWHERE));
     alter=NOWHERE;
   }
   Grp[] group=null;
@@ -33,5 +33,5 @@
   }
   final Expr ret=check(single(),NORETURN);
   ctx.vars.reset(s);
-  return order == null && group == null ? new FLWR(fl,where,ret) : new FLWOR(fl,where,order == null ? null : new Order(order),group == null ? null : new Group(group),ret);
+  return ret == Seq.EMPTY ? ret : order == null && group == null ? new FLWR(fl,where,ret) : new FLWOR(fl,where,order == null ? null : new Order(order),group == null ? null : new Group(group),ret);
 }

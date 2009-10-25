@@ -1,9 +1,10 @@
 {
   if (!consumeWS(TYPESWITCH,PAR1,TYPEPAR))   return null;
   check(PAR1);
-  final Expr e=check(expr(),NOTYPESWITCH);
+  final Expr e=simple(check(expr(),NOTYPESWITCH));
   check(PAR2);
   Case[] cases={};
+  Expr[] list={};
   while (consumeWS(CASE)) {
     final int s=ctx.vars.size();
     skipWS();
@@ -16,6 +17,7 @@
     if (name != null)     ctx.vars.add(var);
     check(RETURN);
     final Expr ret=check(single(),NOTYPESWITCH);
+    list=add(list,ret);
     cases=Array.add(cases,new Case(var,ret));
     ctx.vars.reset(s);
   }
@@ -28,6 +30,10 @@
   if (var != null)   ctx.vars.add(var);
   check(RETURN);
   final Expr ret=check(single(),NOTYPESWITCH);
+  list=add(list,ret);
+  updating(list);
   ctx.vars.reset(s);
-  return new TypeSwitch(e,cases,var,ret);
+  boolean em=true;
+  for (  final Expr l : list)   em&=l.e();
+  return em ? Seq.EMPTY : new TypeSwitch(e,cases,var,ret);
 }
