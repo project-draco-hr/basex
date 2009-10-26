@@ -1,29 +1,27 @@
 {
   final int p=qp;
-  if (!consumeWS(INSERT))   return null;
-  if (!consumeWS(NODE) && !consumeWS(NODES)) {
+  if (!consumeWS(INSERT) || !consumeWS(NODE) && !consumeWS(NODES)) {
     qp=p;
     return null;
   }
   final Expr s=simple(check(single(),INCOMPLETE));
   boolean first=false;
   boolean last=false;
-  boolean into=false;
   boolean before=false;
   boolean after=false;
   if (consumeWS(AS)) {
-    if (!consumeWS(FIRST)) {
+    first=consumeWS(FIRST);
+    if (!first) {
       check(LAST);
       last=true;
     }
- else     first=true;
     check(INTO);
-    into=true;
   }
-  if (!into)   into=consumeWS(INTO);
-  after=consumeWS(AFTER);
-  before=consume(BEFORE);
-  if (!(into || after || before))   Err.or(INCOMPLETE);
+ else   if (!consumeWS(INTO)) {
+    after=consumeWS(AFTER);
+    before=!after && consumeWS(BEFORE);
+    if (!after && !before)     Err.or(INCOMPLETE);
+  }
   final Expr trg=simple(check(single(),INCOMPLETE));
   ctx.updating=true;
   return new Insert(s,first,last,before,after,trg);
