@@ -11,7 +11,8 @@
       createSession();
     }
  catch (    final Exception ex) {
-      ex.printStackTrace();
+      err=BUTTONSTASERV + FAILED;
+      Main.debug(ex);
     }
   }
  else   if (BUTTONSTOSERV.equals(cmd)) {
@@ -20,6 +21,7 @@
       cs=null;
     }
  catch (    final IOException ex) {
+      err=BUTTONSTOSERV + FAILED;
       Main.debug(ex);
     }
   }
@@ -29,7 +31,8 @@
         cs.execute(p);
       }
  catch (      IOException e) {
-        e.printStackTrace();
+        err=BUTTONCHANGE + FAILED;
+        Main.debug(e);
       }
     }
     permps.clear();
@@ -44,6 +47,7 @@
       setData();
     }
  catch (    final IOException ex) {
+      err=CREATEU + FAILED;
       Main.debug(ex);
     }
   }
@@ -56,6 +60,7 @@
       }
     }
  catch (    final IOException ex) {
+      err=DROPU + FAILED;
       Main.debug(ex);
     }
   }
@@ -66,7 +71,8 @@
       cs.execute(new AlterUser(u,p));
     }
  catch (    IOException e) {
-      e.printStackTrace();
+      err=ALTERPW + FAILED;
+      Main.debug(e);
     }
   }
   final boolean run=cs == null;
@@ -85,6 +91,11 @@
       infop1.setText(PORT + INVALID);
     }
   }
+ else   if (err != null) {
+    infop1.setText(err);
+    infop1.setIcon(BaseXLayout.icon("error"));
+    err=null;
+  }
  else {
     infop1.setText(" ");
     infop1.setIcon(null);
@@ -102,6 +113,11 @@
  else   if ((!valpass && !new String(pass.getPassword()).isEmpty()) || (!valnewpass && !new String(newpass.getPassword()).isEmpty())) {
     infop2.setIcon(BaseXLayout.icon("warn"));
     infop2.setText(SERVERPW + INVALID);
+  }
+ else   if (err != null) {
+    infop2.setText(err);
+    infop2.setIcon(BaseXLayout.icon("error"));
+    err=null;
   }
  else {
     infop2.setText(" ");
