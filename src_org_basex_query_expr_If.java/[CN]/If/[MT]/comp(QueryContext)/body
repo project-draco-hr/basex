@@ -1,8 +1,13 @@
 {
   super.comp(ctx);
   List.updating(ctx,new Expr[]{expr[1],expr[2]});
-  if (!expr[0].i())   return this;
-  final Expr e=expr[((Item)expr[0]).bool() ? 1 : 2];
-  ctx.compInfo(OPTSIMPLE,this,e);
+  Expr e=this;
+  if (checkUp(expr[0],ctx).i()) {
+    e=expr[((Item)expr[0]).bool() ? 1 : 2];
+  }
+ else   if (expr[1].e() && expr[2].e()) {
+    e=Seq.EMPTY;
+  }
+  if (e != this)   ctx.compInfo(OPTPRE,this);
   return e;
 }

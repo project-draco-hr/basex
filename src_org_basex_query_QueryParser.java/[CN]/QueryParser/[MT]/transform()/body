@@ -4,15 +4,14 @@
   do {
     final Var v=new Var(varName());
     check(ASSIGN);
-    final Expr e=simple(check(single(),INCOMPLETE));
+    final Expr e=check(single(),INCOMPLETE);
     ctx.vars.add(v);
     fl=Array.add(fl,new Let(e,v,false));
   }
  while (consumeWS(COMMA));
   check(MODIFY);
   final Expr m=check(single(),INCOMPLETE);
-  if (!m.uses(Use.UPD,ctx) && !m.v())   error(UPEXPECT);
   check(RETURN);
-  final Expr r=simple(check(single(),INCOMPLETE));
+  final Expr r=check(single(),INCOMPLETE);
   return new Transform(fl,m,r);
 }
