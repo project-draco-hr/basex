@@ -1,4 +1,23 @@
 {
-  ts=ts.comp(ctx);
-  return this;
+  ts=checkUp(ts,ctx).comp(ctx);
+  final Expr[] tmp=new Expr[cs.length];
+  for (int i=0; i < cs.length; i++)   tmp[i]=cs[i].expr;
+  List.updating(ctx,tmp);
+  for (int c=0; c < cs.length; c++) {
+    if (ts.i() && cs[c].var.type != null) {
+      if (cs[c].var.type.instance(ts.iter(ctx))) {
+        final Expr e=cs[c].comp(ctx,(Item)ts).expr;
+        ctx.compInfo(OPTPRE,this);
+        return e;
+      }
+      cs=Array.delete(cs,c);
+    }
+ else {
+      cs[c]=cs[c].comp(ctx);
+    }
+  }
+  boolean em=true;
+  for (  final Expr t : tmp)   em&=t.e();
+  if (em)   ctx.compInfo(OPTTRUE);
+  return em ? Seq.EMPTY : this;
 }
