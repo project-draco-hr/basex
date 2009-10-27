@@ -1,16 +1,21 @@
 {
   final Iter t=SeqIter.get(expr[0].iter(ctx));
-  Item i=t.next();
+  final Item i=t.next();
   if (i == null)   Err.or(UPSEQEMP,this);
-  if (!(i instanceof Nod) || t.size() != 1)   Err.or(UPWRTRGTYP,this);
-  final Nod n=(Nod)i;
-  if (n.type != Type.ELM && n.type != Type.ATT && n.type != Type.PI)   Err.or(UPWRTRGTYP,this);
-  final Iter na=SeqIter.get(expr[1].iter(ctx));
-  i=na.next();
-  byte[] name=Token.token("");
-  if (i == null)   Err.or(UPDATE,this);
-  if (i.type.num || i.type.str)   name=i.str();
-  if (name.length == 0)   Err.or(UPDATE,this);
-  ctx.updates.addPrimitive(new RenamePrimitive(n,name));
+  if (t.size() != 1)   Err.or(UPWRTRGTYP,this);
+  CFrag ex=null;
+  if (i.type == Type.ELM) {
+    ex=new CElem(expr[1],new Expr[0],new Atts());
+  }
+ else   if (i.type == Type.ATT) {
+    ex=new CAttr(expr[1],new Expr[0],false);
+  }
+ else   if (i.type == Type.PI) {
+    ex=new CPI(expr[1],Seq.EMPTY);
+  }
+ else {
+    Err.or(UPWRTRGTYP,this);
+  }
+  ctx.updates.addPrimitive(new RenamePrimitive((Nod)i,ex.atomic(ctx).qname().ln()));
   return Iter.EMPTY;
 }
