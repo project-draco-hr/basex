@@ -119,23 +119,29 @@ catch (    final Error ex) {
         if (result.get(s).equals(out.toString()))         break;
         if (xml || frag) {
           iter.reset();
-          String rin=result.get(s).trim();
-          if (!doc || frag) {
-            if (rin.startsWith("<?xml"))             rin=rin.replaceAll("^<.*?>","");
-            rin="<X>" + rin + "</X>";
+          String ri=result.get(s).trim();
+          if (!doc) {
+            if (ri.startsWith("<?xml"))             ri=ri.replaceAll("^<.*?>\\s*","");
+            ri="<X>" + ri + "</X>";
           }
-          final Data rdata=CreateDB.xml(IO.get(rin),context.prop);
+          final Data rdata=CreateDB.xml(IO.get(ri),context.prop);
           final SeqIter si=new SeqIter();
-          int pre=doc ? 0 : 2;
-          final int size=rdata.meta.size;
-          while (pre < size) {
-            final int k=rdata.kind(pre);
-            if (k != Data.TEXT || !ws(rdata.atom(pre))) {
-              si.add(new DBNode(rdata,pre));
-            }
-            pre+=rdata.size(pre,k);
+          for (int pre=doc ? 0 : 2; pre < rdata.meta.size; ) {
+            si.add(new DBNode(rdata,pre));
+            pre+=rdata.size(pre,rdata.kind(pre));
           }
           final boolean eq=FNSeq.deep(iter,si);
+          if (!eq && debug) {
+            iter.reset();
+            si.reset();
+            final XMLSerializer ser=new XMLSerializer(new PrintOutput(System.out));
+            Item it;
+            Main.outln(NL + "=== " + testid+ " ===");
+            while ((it=si.next()) != null)             it.serialize(ser);
+            Main.outln(NL + "=== " + NAME+ " ===");
+            while ((it=iter.next()) != null)             it.serialize(ser);
+            Main.outln();
+          }
           rdata.close();
           if (eq)           break;
         }
