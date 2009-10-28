@@ -1,15 +1,15 @@
 {
-  final int c=ctx.vars.size();
+  final int s=ctx.vars.size();
   for (  final Let fo : copies) {
     final Data m=UpdateFunctions.buildDB(fo.expr.iter(ctx),null);
     ctx.vars.add(fo.var.bind(new DBNode(m,1),ctx).copy());
   }
   final PendingUpdates upd=ctx.updates;
   ctx.updates=new PendingUpdates();
-  expr[0].iter(ctx);
+  ctx.iter(expr[0]).next();
   ctx.updates.apply();
   ctx.updates=upd;
   final Item im=expr[1].iter(ctx).finish();
-  ctx.vars.reset(c);
-  return im.iter();
+  ctx.vars.reset(s);
+  return im;
 }
