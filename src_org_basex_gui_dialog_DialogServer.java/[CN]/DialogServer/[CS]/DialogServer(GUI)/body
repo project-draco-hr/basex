@@ -10,6 +10,7 @@
   start=new BaseXButton(BUTTONSTASERV,null,this);
   stop=new BaseXButton(BUTTONSTOSERV,null,this);
   connect=new BaseXButton(BUTTONCONNECT,null,this);
+  disconnect=new BaseXButton(BUTTONDISCONNECT,null,this);
   host=new BaseXTextField(ctx.prop.get(Prop.HOST),null,this);
   portl=new BaseXTextField(Integer.toString(ctx.prop.num(Prop.PORT)),null,this);
   port=new BaseXTextField(Integer.toString(ctx.prop.num(Prop.PORT)),null,this);
@@ -46,7 +47,11 @@
   p12.add(new BaseXLabel(PORT + COLS));
   p12.add(port);
   p12.add(new BaseXLabel(" "));
-  p12.add(connect);
+  final BaseXBack p121=new BaseXBack();
+  p121.setLayout(new TableLayout(1,2,2,2));
+  p121.add(connect);
+  p121.add(disconnect);
+  p12.add(p121);
   p11.setBorder(8,8,8,8);
   p12.setBorder(8,8,8,8);
   infop1=new BaseXLabel(" ");
@@ -109,9 +114,12 @@
   p2.add(infop2);
   p2.add(new BaseXLabel(" "));
   try {
-    createSession();
+    run=true;
+    createSession(ADMIN,ADMIN,true);
+    cs=null;
   }
  catch (  final IOException e1) {
+    run=false;
   }
   action(null);
   finish(null);
