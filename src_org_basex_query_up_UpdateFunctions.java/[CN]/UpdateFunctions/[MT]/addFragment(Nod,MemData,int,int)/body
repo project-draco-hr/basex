@@ -1,0 +1,28 @@
+{
+  final int k=Nod.kind(n.type);
+  int pre=pval;
+switch (k) {
+case Data.ELEM:
+    final int as=fragmentSize(n,true);
+  final int s=fragmentSize(n,false);
+m.addElem(m.tags.index(n.nname(),null,false),0,pre - par,as,s,false);
+pre++;
+break;
+case Data.ATTR:
+m.addAtt(m.atts.index(n.nname(),null,false),0,n.str(),pre - par);
+return ++pre;
+case Data.TEXT:
+case Data.PI:
+case Data.COMM:
+m.addText(n.str(),pre - par,k);
+return ++pre;
+}
+NodeIter ir=n.attr();
+Nod i;
+while ((i=ir.next()) != null) {
+m.addAtt(m.atts.index(i.nname(),null,false),0,i.str(),pre++ - pval);
+}
+ir=n.child();
+while ((i=ir.next()) != null) pre=addFragment(i,m,pre,pval);
+return pre;
+}

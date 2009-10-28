@@ -1,35 +1,26 @@
 {
-  MemData m=null;
-  if (d == null)   m=new MemData(20,new Names(),new Names(),new Namespaces(),new PathSummary(),new Prop());
- else   m=new MemData(20,d);
-  final Iter i=ch;
-  Nod n=(Nod)i.next();
+  MemData m=d == null ? new MemData(20,new Names(),new Names(),new Namespaces(),new PathSummary(),new Prop()) : new MemData(20,d);
   int ds=1;
-  while (n != null) {
+  Item n;
+  while ((n=ch.next()) != null) {
     if (n instanceof DBNode) {
       final DBNode dbn=(DBNode)n;
-      ds+=dbn.data.size(dbn.pre,Nod.kind(dbn.type));
+      ds+=dbn.data.size(dbn.pre,Nod.kind(n.type));
     }
  else     if (n instanceof FNode) {
-      final FNode fn=(FNode)n;
-      ds+=fragmentSize(fn,false);
+      ds+=fragmentSize((FNode)n,false);
     }
-    n=(Nod)i.next();
   }
   m.addDoc(EMPTY,ds);
   int pre=1;
-  i.reset();
-  n=(Nod)i.next();
-  while (n != null) {
+  ch.reset();
+  while ((n=ch.next()) != null) {
     if (n instanceof DBNode) {
-      final DBNode dn=(DBNode)n;
-      pre=addDBNode(dn,m,pre,0);
+      pre=addDBNode((DBNode)n,m,pre,0);
     }
  else     if (n instanceof FNode) {
-      final FNode fn=(FNode)n;
-      pre=addFragment(fn,m,pre,0);
+      pre=addFragment((FNode)n,m,pre,0);
     }
-    n=(Nod)i.next();
   }
   return m;
 }
