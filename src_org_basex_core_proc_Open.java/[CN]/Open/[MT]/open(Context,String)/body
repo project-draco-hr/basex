@@ -5,5 +5,12 @@
     data=new DiskData(db,ctx.prop);
     ctx.addToPool(data);
   }
+  User user=ctx.user;
+  final User us=data.meta.users.get(user.name);
+  if (us != null)   user=us;
+  if (!user.perm(User.READ)) {
+    Close.close(ctx,data);
+    throw new IOException(Main.info(PERMNO,CmdPerm.READ));
+  }
   return data;
 }
