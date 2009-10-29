@@ -1,14 +1,15 @@
 {
   final Item[] arg=new Item[expr.length];
   for (int a=0; a < expr.length; a++) {
-    arg[a]=expr[a].atomic(ctx);
-    if (arg[a] == null)     Err.empty(this);
+    arg[a]=expr[a].iter(ctx).finish();
+    if (arg[a].size(ctx) == 0)     Err.empty(this);
   }
   Object result=null;
   try {
     result=mth.equals("new") ? constructor(arg) : method(arg);
   }
  catch (  final Exception ex) {
+    Main.debug(ex);
     Err.or(FUNJAVA,info());
   }
   return result == null ? Iter.EMPTY : iter(result);
