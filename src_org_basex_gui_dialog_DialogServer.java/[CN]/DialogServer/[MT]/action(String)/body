@@ -28,65 +28,13 @@
       Main.debug(ex);
     }
   }
- else   if (BUTTONCHANGE.equals(cmd)) {
-    for (    final Process p : permps) {
-      try {
-        cs.execute(p);
-      }
- catch (      final IOException e) {
-        err2=BUTTONCHANGE + FAILED + error(e);
-        Main.debug(e);
-      }
-    }
-    permps.clear();
-  }
- else   if (BUTTONCREATE.equals(cmd)) {
-    final String u=user.getText();
-    final String p=new String(pass.getPassword());
-    try {
-      if (!cs.execute(new CreateUser(u,p))) {
-        throw new BaseXException(cs.info());
-      }
-      user.setText("");
-      pass.setText("");
-      setData();
-    }
- catch (    final Exception ex) {
-      err2=CREATEU + FAILED + error(ex);
-      Main.debug(ex);
-    }
-  }
- else   if (BUTTONDROP.equals(cmd)) {
-    try {
-      final String u=(String)userco1.getSelectedItem();
-      if (Dialog.confirm(this,Main.info(DRQUESTION,u))) {
-        cs.execute(new DropUser(u));
-        setData();
-      }
-    }
- catch (    final Exception ex) {
-      err2=DROPU + FAILED + error(ex);
-      Main.debug(ex);
-    }
-  }
- else   if (BUTTONALTER.equals(cmd)) {
-    final String u=(String)userco2.getSelectedItem();
-    final String p=new String(newpass.getPassword());
-    try {
-      cs.execute(new AlterUser(u,p));
-    }
- catch (    final IOException e) {
-      err2=ALTERPW + FAILED + error(e);
-      Main.debug(e);
-    }
-  }
  else   if (BUTTONCONNECT.equals(cmd)) {
     try {
       ctx.prop.set(Prop.PORT,Integer.parseInt(ports.getText()));
       ctx.prop.set(Prop.HOST,host.getText());
       ctx.prop.write();
       createSession(loguser.getText(),new String(logpass.getPassword()));
-      setData();
+      p2.setData();
       connected=true;
     }
  catch (    Exception e) {
@@ -102,6 +50,9 @@
       err1=BUTTONDISCONNECT + FAILED + error(e);
       Main.debug(e);
     }
+  }
+ else   if (connected) {
+    p2.action(cmd);
   }
   stop.setEnabled(run);
   ports.setEnabled(!run);
@@ -151,28 +102,4 @@
     infop1.setIcon(null);
   }
   tabs.setEnabledAt(1,connected);
-  final boolean valuname=user.getText().matches("^[A-Za-z0-9_.-]+$");
-  final boolean valpass=new String(pass.getPassword()).matches("^[A-Za-z0-9_.-]+$");
-  final boolean valnewpass=new String(newpass.getPassword()).matches("^[A-Za-z0-9_.-]+$");
-  alter.setEnabled(valnewpass);
-  create.setEnabled(valuname && valpass);
-  if (!valuname && !user.getText().isEmpty()) {
-    infop2.setIcon(BaseXLayout.icon("warn"));
-    infop2.setText(SERVERUSER + INVALID);
-  }
- else   if ((!valpass && !new String(pass.getPassword()).isEmpty()) || (!valnewpass && !new String(newpass.getPassword()).isEmpty())) {
-    infop2.setIcon(BaseXLayout.icon("warn"));
-    infop2.setText(SERVERPW + INVALID);
-  }
- else   if (err2 != null) {
-    infop2.setText(err2);
-    infop2.setIcon(BaseXLayout.icon("error"));
-    err2=null;
-  }
- else {
-    infop2.setText(" ");
-    infop2.setIcon(null);
-  }
-  delete.setEnabled(data.contents.size() != 0);
-  change.setEnabled(false);
 }
