@@ -1,0 +1,22 @@
+{
+  try {
+    dis=new DataInputStream(socket.getInputStream());
+    out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
+    final String us=dis.readUTF();
+    final String pw=dis.readUTF();
+    context.user=context.users.get(us,pw);
+    final boolean ok=context.user != null;
+    send(ok);
+    if (ok) {
+      start();
+    }
+ else {
+      if (info)       Main.outln(this + " Failed: " + us);
+    }
+    return ok;
+  }
+ catch (  final IOException ex) {
+    Main.error(ex,false);
+    return false;
+  }
+}

@@ -1,20 +1,61 @@
 {
+  if (info)   Main.outln(this + " Login: " + context.user.name);
   try {
-    final DataInputStream dis=new DataInputStream(socket.getInputStream());
-    final PrintOutput out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
-    final String us=dis.readUTF();
-    final String pw=dis.readUTF();
-    context.user=context.users.get(us,pw);
-    final boolean ok=context.user != null;
-    send(out,ok);
-    if (ok) {
-      if (info)       Main.outln(this + (ok ? " Login: " : " Failed: ") + us);
-      process(dis,out);
-      if (info)       Main.outln(this + " Logout: " + us);
-    }
+    while (true) {
+      String in=null;
+      try {
+        in=dis.readUTF();
+      }
+ catch (      final IOException ex) {
+        exit();
+        break;
+      }
+      final Performance perf=new Performance();
+      Process proc=null;
+      try {
+        proc=new CommandParser(in,context,true).parse()[0];
+        if (proc instanceof IntInfo) {
+          String inf=core.info();
+          if (inf.equals(PROGERR))           inf=SERVERTIME;
+          new DataOutputStream(out).writeUTF(inf);
+          out.flush();
+        }
+ else         if (proc instanceof IntStop || proc instanceof Exit) {
+          exit();
+          if (proc instanceof IntStop)           server.quit(false);
+          break;
+        }
  else {
-      if (info)       Main.outln(this + " Failed: " + us);
+          core=proc;
+          startTimer(proc);
+          final boolean up=proc.updating(context);
+          if (up) {
+            server.sem.beforeWrite();
+          }
+ else {
+            server.sem.beforeRead();
+          }
+          final boolean ok=proc.execute(context,out);
+          stopTimer();
+          out.write(new byte[IO.BLOCKSIZE]);
+          send(ok);
+          if (up) {
+            server.sem.afterWrite();
+          }
+ else {
+            server.sem.afterRead();
+          }
+        }
+      }
+ catch (      final QueryException ex) {
+        proc=new IntError(ex.extended());
+        core=proc;
+        out.write(new byte[IO.BLOCKSIZE]);
+        send(false);
+      }
+      if (info)       Main.outln(this + " " + in+ ": "+ perf.getTimer());
     }
+    if (info)     Main.outln(this + " Logout: " + context.user.name);
   }
  catch (  final IOException ex) {
     Main.error(ex,false);
