@@ -24,11 +24,17 @@
       success=false;
       if (arg.string().equals("stop")) {
         try {
-          new ClientSession("localhost",context.prop.num(Prop.PORT),ADMIN,ADMIN).execute(new IntStop(),null);
-          outln(SERVERSTOPPED);
+          context.prop.set(Prop.STOP,true);
+          context.prop.write();
+          new ClientSession("localhost",context.prop.num(Prop.PORT),"","").execute(new IntStop(),null);
         }
  catch (        final IOException ex) {
-          error(ex,true);
+          if (ex instanceof LoginException) {
+            outln(SERVERSTOPPED);
+          }
+ else {
+            error(ex,true);
+          }
         }
         return;
       }

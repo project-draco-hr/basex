@@ -2,6 +2,12 @@
   while (running) {
     try {
       final ServerSession s=new ServerSession(server.accept(),this,info);
+      context.setProp(new Prop());
+      if (context.prop.is(Prop.STOP)) {
+        context.prop.set(Prop.STOP,false);
+        context.prop.write();
+        quit(false);
+      }
       if (s.init())       context.add(s);
     }
  catch (    final IOException ex) {
