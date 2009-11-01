@@ -1,0 +1,14 @@
+def sendCommand(self, com):
+    fcom = self.formatCommand(com)
+    if self.verb:
+        print ('C=>' + repr(fcom))
+    self.connect()
+    self.s.send(fcom)
+    data = self.s.recv(1024)
+    if self.verb:
+        print ('R=>' + repr(data))
+    if (len(data) == 4):
+        self.sesid = str(((ord(data[2]) * 256) + ord(data[3])))
+    else:
+        sys.stdout.write('Error\n')
+    self.close()
