@@ -8,7 +8,12 @@
   final int size=data.size(pre,kind);
   int multiPreX=-1;
   g.setColor(c);
-  g.drawRect(r.x,y,r.w,h);
+  if (fillNodes) {
+    g.fillRect(r.x + 1,y,r.w - 1,h);
+  }
+ else {
+    g.drawRect(r.x,y,r.w,h);
+  }
   if (r.multiPres != null) {
     final int index=searchPreArrayPosition(r.multiPres,pre);
     final double ratio=index / (double)(r.multiPres.length - 1);
@@ -27,17 +32,30 @@
       if (rList.get(0).multiPres != null) {
         final TreeRect mPreRect=rList.get(0);
         mPreRect.pre=par;
-        highlightNode(g,Color.DARK_GRAY,mPreRect,l,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,true,false);
+        highlightNode(g,ancestorHighlightColor,mPreRect,l,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,false,true,false);
       }
  else {
         parRect=searchRect(rList,par);
         if (parRect != null) {
-          highlightNode(g,Color.DARK_GRAY,parRect,l,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,true,false);
+          highlightNode(g,ancestorHighlightColor,parRect,l,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,true,true,false);
         }
       }
     }
   }
   if (showChildren && size > 1 && level + 1 < rectsPerLevel.size()) {
+    final int l=level + 1;
+    final ArrayList<TreeRect> rList=rectsPerLevel.get(l);
+    final ChildIterator chIt=new ChildIterator(data,pre);
+    if (rList.get(0).multiPres != null) {
+    }
+ else {
+      while (chIt.more()) {
+        TreeRect sRect=searchRect(rList,chIt.next());
+        g.setColor(new Color(0x38323D4F,true));
+        g.fillPolygon(new int[]{multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,sRect.x,sRect.x + sRect.w},new int[]{getYperLevel(level) + nodeHeight,getYperLevel(l) - 1,getYperLevel(l) - 1},3);
+        highlightNode(g,descendantHighlightColor,sRect,l,-1,true,false,true);
+      }
+    }
   }
   String s="";
   if (s.length() > 0)   s+=" | ";
