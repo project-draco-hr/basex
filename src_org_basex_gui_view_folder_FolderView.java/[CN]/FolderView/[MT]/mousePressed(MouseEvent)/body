@@ -1,19 +1,9 @@
 {
-  super.mousePressed(e);
   if (gui.updating || opened == null)   return;
+  super.mousePressed(e);
   if (!focus(e.getX(),e.getY()))   return;
-  final boolean left=SwingUtilities.isLeftMouseButton(e);
-  final int pre=gui.focused;
   final Nodes marked=gui.context.marked();
-  if (!left) {
-    if (marked.contains(pre))     gui.notify.mark(0,null);
-  }
- else   if (getCursor() == CURSORHAND) {
-    opened[pre]^=true;
-    refreshHeight();
-    repaint();
-  }
- else   if (e.getClickCount() == 2) {
+  if (e.getClickCount() == 2) {
     gui.notify.context(marked,false,null);
   }
  else   if (e.isShiftDown()) {
@@ -22,7 +12,12 @@
  else   if (e.isControlDown()) {
     gui.notify.mark(2,null);
   }
+ else   if (!SwingUtilities.isLeftMouseButton(e) || getCursor() != CURSORHAND) {
+    if (!marked.contains(gui.focused))     gui.notify.mark(0,null);
+  }
  else {
-    if (!marked.contains(pre))     gui.notify.mark(0,null);
+    opened[gui.focused]^=true;
+    refreshHeight();
+    repaint();
   }
 }

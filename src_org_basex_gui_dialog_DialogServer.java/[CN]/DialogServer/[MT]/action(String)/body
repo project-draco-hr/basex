@@ -1,6 +1,5 @@
 {
-  ImageIcon icon=null;
-  String msg="";
+  String msg=null;
   try {
     if (BUTTONSTASERV.equals(cmd)) {
       final int p=Integer.parseInt(ports.getText());
@@ -50,13 +49,14 @@
   final boolean vallu=loguser.getText().matches("[\\w]*");
   final boolean vallp=new String(logpass.getPassword()).matches("[\\w]*");
   final boolean valh=host.getText().matches("([\\w]+://)?[\\w.-]+");
-  if (!msg.isEmpty()) {
-    icon=BaseXLayout.icon("error");
+  boolean warn=true;
+  if (msg != null) {
+    warn=false;
   }
  else   if (!(valpl && valh && valp&& vallu&& vallp)) {
-    icon=BaseXLayout.icon("warn");
-    msg=(!valpl ? LOCAL + PORT : !valh ? HOST : !valp ? PORT : !vallu ? SERVERUSER : SERVERPW) + INVALID;
+    msg=Main.info(INVALID,!valpl ? LOCAL + PORT : !valh ? HOST : !valp ? PORT : !vallu ? SERVERUSER : SERVERPW);
   }
+  info.setError(msg,warn);
   ports.setEnabled(!running);
   start.setEnabled(!running && valpl);
   stop.setEnabled(running);
@@ -68,7 +68,5 @@
   disconnect.setEnabled(connected);
   tabs.setEnabledAt(1,connected);
   tabs.setEnabledAt(2,connected);
-  info.setText(msg);
-  info.setIcon(icon);
   ctx.prop.write();
 }

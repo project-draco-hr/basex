@@ -9,8 +9,8 @@
   if (exists)   gui.prop.set(GUIProp.CREATEPATH,file.path());
   final String nm=dbname();
   ok=exists && !nm.isEmpty();
-  String inf=!exists ? PATHWHICH : !ok ? DBWHICH : " ";
-  ImageIcon img=null;
+  String inf=!exists ? PATHWHICH : !ok ? DBWHICH : null;
+  boolean warn=false;
   if (ok) {
     ok=IO.valid(nm);
     if (!ok) {
@@ -18,12 +18,10 @@
     }
  else     if (db.contains(nm)) {
       inf=RENAMEOVER;
-      img=BaseXLayout.icon("warn");
+      warn=true;
     }
   }
-  final boolean err=!inf.trim().isEmpty();
-  info.setText(inf);
-  info.setIcon(err ? img != null ? img : BaseXLayout.icon("error") : null);
+  info.setError(inf,warn);
   filter.setEnabled(exists && file.isDir());
   enableOK(buttons,BUTTONOK,ok);
 }

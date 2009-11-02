@@ -21,12 +21,12 @@
     cAll=!p.isEmpty() && file.exists();
   }
   ok&=cAll;
-  String inf=" ";
+  String inf=null;
   if (!ok) {
     if (!cAll)     inf=PATHWHICH;
     if (!cNam)     inf=DBWHICH;
   }
-  ImageIcon img=null;
+  boolean warn=false;
   if (ok) {
     ok=IO.valid(nm);
     if (!ok) {
@@ -34,11 +34,9 @@
     }
  else     if (db.contains(nm)) {
       inf=prop.is(Prop.FUSE) ? RENAMEOVERBACKING : RENAMEOVER;
-      img=BaseXLayout.icon("warn");
+      warn=true;
     }
   }
-  final boolean err=!inf.trim().isEmpty();
-  info.setText(inf);
-  info.setIcon(err ? img != null ? img : BaseXLayout.icon("error") : null);
+  info.setError(inf,warn);
   enableOK(buttons,BUTTONOK,ok);
 }

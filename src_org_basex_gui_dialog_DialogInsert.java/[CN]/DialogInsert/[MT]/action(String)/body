@@ -2,10 +2,11 @@
   for (int i=1; i < EDITKIND.length; i++)   if (radio[i].isSelected())   kind=i;
   lkind=kind;
   String msg=null;
-  if (kind != Data.TEXT && kind != Data.COMM && !XMLToken.isQName(token(input1.getText())))   msg="Invalid name";
-  if (kind == Data.TEXT && input2.getText().length == 0)   msg="Invalid text";
-  ok=msg == null;
-  info.setIcon(ok ? null : BaseXLayout.icon("warn"));
-  info.setText(ok ? " " : msg);
+  ok=kind != Data.TEXT || input2.getText().length != 0;
+  if (kind != Data.TEXT && kind != Data.COMM) {
+    ok=XMLToken.isQName(token(input1.getText()));
+    if (!ok && input1.getText().length() != 0)     msg="Invalid name";
+  }
+  info.setError(msg,true);
   enableOK(buttons,BUTTONOK,ok);
 }
