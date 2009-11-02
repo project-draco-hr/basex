@@ -11,8 +11,7 @@
         console=true;
       }
  else       if (c == 'p') {
-        p=arg.num();
-        context.prop.set(Prop.SERVERPORT,p);
+        context.prop.set(Prop.SERVERPORT,arg.num());
       }
  else       if (c == 'v') {
         info=true;
@@ -25,22 +24,12 @@
       success=false;
       if (arg.string().equals("stop")) {
         try {
-          context.prop.set(Prop.STOP,true);
-          context.prop.write();
-          if (p != 0) {
-            new ClientSession("localhost",p,"","");
-          }
- else {
-            new ClientSession("localhost",context.prop.num(Prop.PORT),"","");
-          }
+          STOP.write(Token.EMPTY);
+          new Socket("localhost",context.prop.num(Prop.SERVERPORT));
+          outln(SERVERSTOPPED);
         }
  catch (        final IOException ex) {
-          if (ex instanceof LoginException) {
-            outln(SERVERSTOPPED);
-          }
- else {
-            error(ex,true);
-          }
+          error(ex,true);
         }
         return;
       }
