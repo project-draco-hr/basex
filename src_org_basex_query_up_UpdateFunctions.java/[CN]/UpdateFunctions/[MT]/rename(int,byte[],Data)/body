@@ -1,5 +1,14 @@
 {
   final int k=data.kind(pre);
-  if (k == Data.ELEM || k == Data.PI)   data.update(pre,name);
- else   data.update(pre,name,data.attValue(pre));
+  if (k == Data.ELEM) {
+    data.update(pre,name);
+  }
+ else   if (k == Data.PI) {
+    byte[] val=data.text(pre);
+    final int i=indexOf(val,' ');
+    data.update(pre,i == -1 ? name : concat(name,SPACE,substring(val,i + 1)));
+  }
+ else {
+    data.update(pre,name,data.attValue(pre));
+  }
 }

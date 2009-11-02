@@ -71,49 +71,6 @@ case FIND:
 return new Find(string(cmd));
 case CS:
 return new Cs(xquery(cmd));
-case COPY:
-return new Copy(xquery(cmd),target(INTO,cmd),pos(cmd));
-case DELETE:
-return new Delete(xquery(cmd));
-case INSERT:
-final CmdUpdate ins=consume(CmdUpdate.class,cmd);
-switch (ins) {
-case ELEMENT:
-String val=name(cmd);
-return new Insert(ins,target(INTO,cmd),pos(cmd),val);
-case TEXT:
-case COMMENT:
-case FRAGMENT:
-val=string(cmd);
-return new Insert(ins,target(INTO,cmd),pos(cmd),val);
-case PI:
-val=name(cmd);
-String val2=string(cmd);
-return new Insert(ins,target(INTO,cmd),pos(cmd),val,val2);
-case ATTRIBUTE:
-val=name(cmd);
-val2=string(cmd);
-return new Insert(ins,target(INTO,cmd),val,val2);
-}
-break;
-case UPDATE:
-final CmdUpdate upd=consume(CmdUpdate.class,cmd);
-switch (upd) {
-case ELEMENT:
-String val=name(cmd);
-return new Update(upd,target(AT,cmd),val);
-case TEXT:
-case COMMENT:
-val=string(cmd);
-return new Update(upd,target(AT,cmd),val);
-case PI:
-case ATTRIBUTE:
-val=name(cmd);
-String val2=string(cmd);
-return new Update(upd,target(AT,cmd),val,val2);
-default :
-}
-break;
 case SET:
 final String opt=name(cmd);
 String val=string(null);
