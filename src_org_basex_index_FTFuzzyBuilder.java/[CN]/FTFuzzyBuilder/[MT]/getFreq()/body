@@ -1,0 +1,38 @@
+{
+  byte j=1;
+  maxfreq=new int[nodes.size()];
+  IntList fre=new IntList();
+  nmbdocwt=new int[isize - 1];
+  for (int c=0; j < tree.length && c < isize - 1; j++) {
+    final FTHash tre=tree[j];
+    if (tre == null)     continue;
+    tre.init();
+    while (tre.more()) {
+      final int p=tre.next();
+      final byte[] vpre=tre.pre[p];
+      int lpre=4;
+      final int size=Num.size(vpre);
+      int cr=1;
+      int co=0;
+      int pre=Num.read(vpre,lpre);
+      int le=Num.len(vpre,lpre);
+      while (lpre < size) {
+        while (cr < nodes.size() && pre > nodes.get(cr))         cr++;
+        while (cr == nodes.size() || pre < nodes.get(cr)) {
+          co++;
+          lpre+=le;
+          if (lpre >= size)           break;
+          pre=Num.read(vpre,lpre);
+          le=Num.len(vpre,lpre);
+        }
+        maxfreq[cr - 1]=co > maxfreq[cr - 1] ? co : maxfreq[cr - 1];
+        fre.add(co);
+        if (co > 0)         nmbdocwt[c]++;
+        co=0;
+        cr++;
+      }
+    }
+    c++;
+  }
+  freq=fre.finish();
+}
