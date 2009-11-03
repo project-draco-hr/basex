@@ -23,6 +23,9 @@
     }
     return Seq.EMPTY;
   }
-  ctx.updates.add(k == Data.ELEM ? new ReplaceElemContent(n,seq.get(0).str()) : new ReplaceValue(n,seq.get(0).str()),ctx);
+  final byte[] txt=seq.size() < 1 ? EMPTY : seq.get(0).str();
+  if (k == Data.COMM && (contains(txt,token("--")) || endsWith(txt,token("-"))))   Err.or(COMINVALID,i);
+  if (k == Data.PI && (contains(txt,token("?>")) || endsWith(txt,token("-"))))   Err.or(CPICONT,i);
+  ctx.updates.add(k == Data.ELEM ? new ReplaceElemContent(n,txt) : new ReplaceValue(n,txt),ctx);
   return Seq.EMPTY;
 }
