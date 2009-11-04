@@ -1,20 +1,24 @@
 {
   if (c != prop.is(Prop.COMPPLAN))   return;
-  if (prop.is(Prop.DOTPLAN)) {
-    final CachedOutput out=new CachedOutput();
-    final DOTSerializer ser=new DOTSerializer(out);
-    qu.plan(ser);
-    ser.close();
-    final String dot="plan.dot";
-    IO.get(dot).write(out.finish());
-    new ProcessBuilder(prop.get(Prop.DOTTY),dot).start().waitFor();
+  try {
+    if (prop.is(Prop.DOTPLAN)) {
+      final CachedOutput out=new CachedOutput();
+      final DOTSerializer ser=new DOTSerializer(out);
+      qu.plan(ser);
+      ser.close();
+      final String dot="plan.dot";
+      IO.get(dot).write(out.finish());
+      new ProcessBuilder(prop.get(Prop.DOTTY),dot).start().waitFor();
+    }
+    if (prop.is(Prop.XMLPLAN)) {
+      final CachedOutput out=new CachedOutput();
+      qu.plan(new XMLSerializer(out,false,true));
+      info(QUERYPLAN);
+      info.add(out.toString());
+      info.add(NL);
+    }
   }
-  if (prop.is(Prop.XMLPLAN)) {
-    final CachedOutput out=new CachedOutput();
-    qu.plan(new XMLSerializer(out,false,true));
-    info(QUERYPLAN);
-    info.add(out.toString());
-    info.add(NL);
+ catch (  final Exception ex) {
+    Main.debug(ex);
   }
-  per.getTime();
 }

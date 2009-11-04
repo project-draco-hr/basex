@@ -3,9 +3,10 @@
   maxs=Token.toInt(args[1]);
   final String query="(" + args[2] + ")[position() <= "+ maxh * maxs + "]";
   long fini=0;
-  final int runs=prop.num(Prop.RUNS);
+  final int runs=Math.max(1,prop.num(Prop.RUNS));
   try {
     for (int i=0; i < runs; i++) {
+      final Performance per=new Performance();
       qp=new QueryProcessor(query,context);
       progress(qp);
       qp.parse();
@@ -38,16 +39,14 @@
       }
       maxhits=ids.size();
       fini+=per.getTime();
-    }
-    execInfo();
-    info(QUERYFINISH + Performance.getTimer(fini,runs));
-    for (int i=0; i < runs; i++) {
       show(i == 0 && prop.is(Prop.SERIALIZE) ? out : new NullOutput());
+      qp.close();
     }
-    outInfo(out,maxhits);
+    evalInfo(out,maxhits,runs);
+    info(QUERYFINISH + Performance.getTimer(fini,runs));
     return true;
   }
- catch (  final Exception ex) {
+ catch (  final QueryException ex) {
     Main.debug(ex);
     return error(ex.getMessage());
   }
