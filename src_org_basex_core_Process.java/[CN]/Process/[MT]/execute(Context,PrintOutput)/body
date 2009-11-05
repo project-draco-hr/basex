@@ -4,19 +4,7 @@
   prop=ctx.prop;
   final Data data=context.data();
   if (data() && data == null)   return error(PROCNODB);
-  final User user=context.user;
-  int up=user.perm;
-  if (data != null) {
-    final User us=data.meta.users.get(user.name);
-    if (us != null)     up=up & ~(User.READ | User.WRITE) | us.perm;
-  }
-  int fp=flags & (User.READ | User.WRITE | User.CREATE| User.ADMIN);
-  if (updating(ctx))   fp|=User.WRITE;
-  int i=4;
-  while (--i >= 0) {
-    final int f=1 << i;
-    if ((f & fp) != 0 && (f & up) == 0)     break;
-  }
+  final int i=context.perm(flags & 0xFF,data);
   if (i != -1)   return error(PERMNO,CmdPerm.values()[i]);
   try {
     return exec(out);
