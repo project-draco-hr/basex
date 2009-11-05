@@ -1,5 +1,6 @@
 {
   final String db=args[0];
+  final String mp=args[1];
   new Close().execute(context,out);
   new Open(db).execute(context,out);
   final Data data=context.data();
@@ -7,15 +8,26 @@
     Main.err("No DeepFS instance");
     return false;
   }
-  if (JFUSEAdapter.loadJFUSELibrary()) {
+  final DeepFS fs=new DeepFS(context);
+  if (LibraryLoader.load(LibraryLoader.JFUSELIBNAME)) {
     new Thread(){
       @Override public void run(){
+        try {
+          Class<?> cls=Class.forName("org.deepfs.DeepFSImpl");
+          Class<?>[] signature=new Class[2];
+          signature[0]=String.class;
+          signature[1]=DeepFS.class;
+          cls.getMethod("mount",signature).invoke(null,mp,fs);
+        }
+ catch (        Exception e) {
+          Main.err("Can not mount: ",e);
+        }
       }
     }
 .start();
   }
  else {
-    Main.err("Missing native jfuse library.");
+    Main.err("Missing native fuse support.");
     return false;
   }
   return true;
