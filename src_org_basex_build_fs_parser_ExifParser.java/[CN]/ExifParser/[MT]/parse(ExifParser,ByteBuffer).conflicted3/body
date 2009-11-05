@@ -1,14 +1,10 @@
 {
-  final int type=buf.getShort();
-  if (buf.getInt() == 1) {
-    if (type == IFD_TYPE_SHORT) {
-      o.meta.setShort(IntField.PIXEL_HEIGHT,(short)(buf.getShort() & 0xFFFF));
-    }
- else     if (type == IFD_TYPE_LONG) {
-      o.meta.setInt(IntField.PIXEL_HEIGHT,buf.getInt() & 0xFFFFFFFF);
-    }
- else     error(o,"Image length (0x0101)");
-    o.fsparser.metaEvent(o.meta);
+  if (buf.getShort() == IFD_TYPE_ASCII && buf.getInt() >= 20) {
+    o.bfc.position(buf.getInt());
+    o.bfc.buffer(20);
+    final byte[] data=new byte[20];
+    o.bfc.get(data);
+    o.dateEvent(MetaElem.DATE_CREATED,data);
   }
- else   error(o,"Image length (0x0101)");
+ else   error(o,"DateTime (0x0132)");
 }

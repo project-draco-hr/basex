@@ -5,38 +5,34 @@
     return;
   }
   int s=size - HEADER_JFXX.length - 1;
-  int width=0;
-  int height=0;
+  fsparser.startContent(bfc.absolutePosition(),s);
+  MetaStore contentMeta=new MetaStore();
 switch (bfc.get()) {
 case 0x10:
-    fsparser.startContent(bfc.absolutePosition(),s);
-  fsparser.metaEvent(meta.setMetaType(MetaType.PICTURE));
-fsparser.metaEvent(meta.setMimeType(MimeType.JPG));
-fsparser.metaEvent(meta.setString(StringField.TITLE,"Thumbnail"));
+    contentMeta.setType(MetaType.PICTURE);
+  contentMeta.setFormat(MimeType.JPG);
+contentMeta.add(MetaElem.TITLE,"Thumbnail");
 break;
 case 0x11:
-width=bfc.get();
-height=bfc.get();
 s-=2;
-fsparser.startContent(bfc.absolutePosition(),s);
-fsparser.metaEvent(meta.setMetaType(MetaType.PICTURE));
-fsparser.metaEvent(meta.setString(StringField.TITLE,"Thumbnail"));
-fsparser.metaEvent(meta.setString(StringField.DESCRIPTION,"Thumbnail coded using 1 byte/pixel."));
+contentMeta.setType(MetaType.PICTURE);
+contentMeta.add(MetaElem.TITLE,"Thumbnail");
+contentMeta.add(MetaElem.DESCRIPTION,"Thumbnail coded using 1 byte/pixel.");
+contentMeta.add(MetaElem.PIXEL_WIDTH,bfc.get());
+contentMeta.add(MetaElem.PIXEL_HEIGHT,bfc.get());
 break;
 case 0x13:
-width=bfc.get();
-height=bfc.get();
 s-=2;
-fsparser.startContent(bfc.absolutePosition(),s);
-fsparser.metaEvent(meta.setMetaType(MetaType.PICTURE));
-fsparser.metaEvent(meta.setString(StringField.TITLE,"Thumbnail"));
-fsparser.metaEvent(meta.setString(StringField.DESCRIPTION,"Thumbnail coded using 3 bytes/pixel."));
+contentMeta.setType(MetaType.PICTURE);
+contentMeta.add(MetaElem.TITLE,"Thumbnail");
+contentMeta.add(MetaElem.DESCRIPTION,"Thumbnail coded using 3 bytes/pixel.");
+contentMeta.add(MetaElem.PIXEL_WIDTH,bfc.get());
+contentMeta.add(MetaElem.PIXEL_HEIGHT,bfc.get());
 break;
 default :
 Main.debug("JPGParser: Illegal or unsupported JFIF header (%)",bfc.getFileName());
 }
-fsparser.metaEvent(meta.setInt(IntField.PIXEL_WIDTH,width));
-fsparser.metaEvent(meta.setInt(IntField.PIXEL_HEIGHT,height));
+contentMeta.write(fsparser);
 fsparser.endContent();
 bfc.skip(s);
 }

@@ -2,17 +2,17 @@
   setTypeAndFormat();
   final byte[] array=new byte[30];
   bfc.get(array,0,30);
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.TITLE,array,true));
+  if (!ws(array))   meta.add(MetaElem.TITLE,Token.trim(array));
   bfc.get(array,0,30);
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.CREATOR,array,true));
+  if (!ws(array))   meta.add(MetaElem.CREATOR,Token.trim(array));
   bfc.get(array,0,30);
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.ALBUM,array,true));
+  if (!ws(array))   meta.add(MetaElem.ALBUM,Token.trim(array));
   final byte[] a2=new byte[4];
   bfc.get(a2,0,4);
   if (!ws(array)) {
     try {
       final Date d=SDF.parse(new String(a2));
-      fsparser.metaEvent(meta.setDate(DateField.DATE,ParserUtil.convertDate(d)));
+      meta.add(MetaElem.DATE,d);
     }
  catch (    final ParseException ex) {
       if (NewFSParser.VERBOSE)       Main.debug(ex.getMessage());
@@ -21,11 +21,11 @@
   bfc.get(array,0,30);
   if (array[28] == 0) {
     if (array[29] != 0) {
-      fsparser.metaEvent(meta.setInt(IntField.TRACK,array[29]));
+      meta.add(MetaElem.TRACK,array[29]);
       array[29]=0;
     }
   }
-  if (!ws(array))   fsparser.metaEvent(meta.setString(StringField.DESCRIPTION,array,true));
+  if (!ws(array))   meta.add(MetaElem.DESCRIPTION,Token.trim(array));
   final int genreId=bfc.get() & 0xFF;
-  if (genreId != 0)   fsparser.metaEvent(meta.setString(StringField.GENRE,getGenre(genreId)));
+  if (genreId != 0)   meta.add(MetaElem.GENRE,getGenre(genreId));
 }

@@ -1,4 +1,5 @@
 {
+  final MetaStore meta=new MetaStore();
   final Map<String,Object> metadata=getMetadata(file.getAbsolutePath());
   if (metadata == null)   return;
   for (  final Entry<String,Object> e : metadata.entrySet()) {
@@ -6,15 +7,12 @@
       final Item item=Item.getValue(e.getKey());
       final Object val=e.getValue();
       if (val instanceof Object[]) {
-        for (        final Object o : (Object[])val) {
-          item.parse(this,o);
-        }
+        for (        final Object o : (Object[])val)         item.parse(meta,o);
       }
- else {
-        item.parse(this,val);
-      }
+ else       item.parse(meta,val);
     }
  catch (    final IllegalArgumentException ex) {
     }
   }
+  meta.write(parser);
 }
