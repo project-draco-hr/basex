@@ -1,17 +1,12 @@
 {
   Context context=new Context();
   PrintOutput out=new PrintOutput(System.out);
-  out.println("=== First version: Processing a result instance");
-  QueryProcessor processor=new QueryProcessor(QUERY,context);
-  Result result=processor.query();
-  XMLSerializer xml=new XMLSerializer(out);
-  result.serialize(xml);
-  xml.close();
-  processor.close();
+  out.println("\n=== First version: Using the database command");
+  new XQuery(QUERY).exec(context,out);
   out.println("\n=== Second version: Iterating through all results");
-  processor=new QueryProcessor(QUERY,context);
+  QueryProcessor processor=new QueryProcessor(QUERY,context);
   Iter iter=processor.iter();
-  xml=new XMLSerializer(out);
+  XMLSerializer xml=new XMLSerializer(out);
   while (true) {
     Item item=iter.next();
     if (item == null)     break;
@@ -19,8 +14,13 @@
   }
   xml.close();
   processor.close();
-  out.println("\n=== Third version: Using the database command");
-  new XQuery(QUERY).exec(context,out);
+  out.println("=== Third version: Processing a result instance");
+  processor=new QueryProcessor(QUERY,context);
+  Result result=processor.query();
+  xml=new XMLSerializer(out);
+  result.serialize(xml);
+  xml.close();
+  processor.close();
   out.close();
   context.close();
 }
