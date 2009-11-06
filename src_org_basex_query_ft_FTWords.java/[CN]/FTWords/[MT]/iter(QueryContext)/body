@@ -6,7 +6,7 @@
     FTIndexIterator iat;
     @Override public FTItem next(){
       if (iat == null) {
-        if (ctx.context.prop.is(Prop.INDEXSCORES)) {
+        if (ctx.context.prop.num(Prop.FTSCTYPE) > 0) {
           final ScoringTokenizer st=new ScoringTokenizer(Token.lc(txt),ctx.ftopt,fast,ctx.context.prop);
           st.phrase();
           st.more();
@@ -23,7 +23,7 @@
         }
         iat.setTokenNum(++ctx.ftoknum);
       }
-      return iat.more() ? new FTItem(iat.matches(),data,iat.next(),txt.length,iat.indexSize(),ctx.context.prop.is(Prop.INDEXSCORES)) : null;
+      return iat.more() ? new FTItem(iat.matches(),data,iat.next(),txt.length,iat.indexSize(),ctx.context.prop.num(Prop.FTSCTYPE) > 0,iat.score()) : null;
     }
   }
 ;
