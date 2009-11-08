@@ -1,0 +1,16 @@
+{
+  final BaseXFileChooser fc=new BaseXFileChooser(GUISAVEAS,gui.prop.get(GUIProp.SAVEPATH),gui);
+  final IO file=fc.select(BaseXFileChooser.Mode.FSAVE);
+  if (file == null)   return;
+  gui.prop.set(GUIProp.SAVEPATH,file.path());
+  try {
+    final PrintOutput out=new PrintOutput(file.toString());
+    if (proc != null)     proc.execute(gui.context,out);
+ else     if (ns != null)     ns.serialize(new XMLSerializer(out));
+ else     out.write(area.getText());
+    out.close();
+  }
+ catch (  final IOException ex) {
+    Dialog.error(gui,NOTSAVED);
+  }
+}

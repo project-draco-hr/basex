@@ -11,36 +11,31 @@
     final Nodes current=context.current();
     final Data data=context.data();
     proc=pr;
+    final CachedOutput out=new CachedOutput(context.prop.num(Prop.MAXTEXT));
     final boolean up=pr.updating(context);
     updating=up;
-    final CachedOutput out=new CachedOutput(context.prop.num(Prop.MAXTEXT));
     final boolean ok=pr.execute(context,out);
-    updating=false;
     final String inf=pr.info();
+    updating=false;
     if (!ok && inf.equals(PROGERR)) {
       proc=null;
       return false;
     }
+    info.setInfo(inf,ok);
     boolean feedback=main;
     if (!main && query.visible() && pr instanceof XQuery) {
-      feedback=true;
       query.info(inf,ok);
-    }
-    if (prop.is(GUIProp.SHOWINFO) && (ok || main)) {
-      info.setInfo(Token.token(inf),ok);
+      feedback=true;
     }
     if (!ok) {
-      if (!feedback) {
-        if (!text.visible())         GUICommands.SHOWTEXT.execute(this);
-        text.setText(Token.token(inf));
-      }
+      if (!feedback && !info.visible())       GUICommands.SHOWINFO.execute(this);
     }
  else {
       final Result result=pr.result();
       final Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
       if (ok && out.size() != 0 && nodes == null) {
         if (!text.visible())         GUICommands.SHOWTEXT.execute(this);
-        text.setText(out);
+        text.setText(out,pr);
       }
       final Data ndata=context.data();
       final String time=perf.getTimer();

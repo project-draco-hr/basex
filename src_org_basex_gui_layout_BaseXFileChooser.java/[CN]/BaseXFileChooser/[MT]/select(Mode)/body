@@ -1,9 +1,11 @@
 {
+  IO io=null;
   if (fd != null) {
     if (mode == Mode.FDOPEN)     fd.setFile(" ");
     fd.setMode(mode == Mode.FSAVE || mode == Mode.DSAVE ? FileDialog.SAVE : FileDialog.LOAD);
     fd.setVisible(true);
-    if (fd.getFile() == null)     return null;
+    String f=fd.getFile();
+    if (f == null)     return null;
     final String dir=fd.getDirectory();
     return IO.get(mode == Mode.DOPEN || mode == Mode.DSAVE ? dir : dir + "/" + fd.getFile());
   }
@@ -26,6 +28,8 @@ state=fc.showDialog(gui,null);
 break;
 }
 if (state != JFileChooser.APPROVE_OPTION) return null;
-final IO io=IO.get(fc.getSelectedFile().getPath());
-return mode != Mode.FSAVE || !io.exists() || Dialog.confirm(gui,Main.info(FILEREPLACE,io.name())) ? io : null;
+io=IO.get(fc.getSelectedFile().getPath());
+if (mode != Mode.FSAVE) return io;
+if (suffix != null && io.path().indexOf(".") == -1) io=IO.get(io.path() + suffix);
+return !io.exists() || Dialog.confirm(gui,Main.info(FILEREPLACE,io)) ? io : null;
 }

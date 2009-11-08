@@ -1,5 +1,5 @@
 {
-  String in=input.getText();
+  final String in=input.getText();
   final boolean db=context.data() != null;
   final boolean cmd=prop.num(GUIProp.SEARCHMODE) == 2 || !db;
   if (cmd || in.startsWith("!")) {
@@ -11,18 +11,15 @@
         }
       }
  catch (      final QueryException ex) {
-        if (!text.visible())         GUICommands.SHOWTEXT.execute(this);
-        text.setText(new TokenBuilder(ex.getMessage()).finish());
+        if (!info.visible())         GUICommands.SHOWINFO.execute(this);
+        info.setInfo(ex.getMessage(),false);
       }
     }
   }
+ else   if (prop.num(GUIProp.SEARCHMODE) == 1 || in.startsWith("/")) {
+    xquery(in,true);
+  }
  else {
-    if (prop.num(GUIProp.SEARCHMODE) == 1 || in.startsWith("/")) {
-      xquery(in,true);
-    }
- else {
-      in=Find.find(in,context,prop.is(GUIProp.FILTERRT));
-      execute(new XQuery(in),true);
-    }
+    execute(new XQuery(Find.find(in,context,prop.is(GUIProp.FILTERRT))),true);
   }
 }
