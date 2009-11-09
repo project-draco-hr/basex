@@ -6,20 +6,12 @@
     FTIndexIterator iat;
     @Override public FTItem next(){
       if (iat == null) {
-        if (ctx.context.prop.num(Prop.FTSCTYPE) > 0) {
-          final ScoringTokenizer st=new ScoringTokenizer(Token.lc(txt),ctx.ftopt,fast,ctx.context.prop);
-          st.phrase();
-          st.more();
-          iat=(FTIndexIterator)data.ids(st);
-        }
- else {
-          final Tokenizer ft=new Tokenizer(txt,ctx.ftopt,fast,ctx.context.prop);
-          ft.fast&=ft.count() == 1;
-          ft.init();
-          while (ft.more()) {
-            final FTIndexIterator it=(FTIndexIterator)data.ids(ft);
-            iat=iat == null ? it : FTIndexIterator.phrase(iat,it);
-          }
+        final Tokenizer ft=new Tokenizer(txt,ctx.ftopt,fast,ctx.context.prop);
+        ft.fast&=ft.count() == 1;
+        ft.init();
+        while (ft.more()) {
+          final FTIndexIterator it=(FTIndexIterator)data.ids(ft);
+          iat=iat == null ? it : FTIndexIterator.phrase(iat,it);
         }
         iat.setTokenNum(++ctx.ftoknum);
       }
