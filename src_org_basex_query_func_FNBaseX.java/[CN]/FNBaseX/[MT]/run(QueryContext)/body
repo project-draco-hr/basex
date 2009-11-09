@@ -1,0 +1,13 @@
+{
+  final byte[] name=checkStr(expr[0],ctx);
+  final IO io=IO.get(string(name));
+  if (!ctx.context.user.perm(User.ADMIN) || !io.exists())   Err.or(NODOC,name);
+  try {
+    return eval(ctx,io.content());
+  }
+ catch (  final IOException ex) {
+    Main.debug(ex);
+    Err.or(FILEERR,name);
+    return null;
+  }
+}
