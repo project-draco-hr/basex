@@ -1,6 +1,6 @@
 {
   new Close().execute(context);
-  final boolean mem=db == null || prop.is(Prop.MAINMEM);
+  final boolean mem=prop.is(Prop.MAINMEM);
   if (!mem) {
     if (context.pinned(db))     return error(DBINUSE);
     if (p.prop.dbpath(db + ".tmp").exists())     return error(DBTMP,db);
@@ -9,7 +9,7 @@
   progress(builder);
   String err=null;
   try {
-    final Data data=builder.build(db == null ? "" : db + ".tmp");
+    final Data data=builder.build(db);
     if (mem) {
       context.openDB(data);
     }
@@ -17,7 +17,8 @@
       index(data);
       data.close();
       if (!move(db,p.prop))       throw new Exception();
-      new Open(db).execute(context);
+      final Process pr=new Open(db);
+      if (!pr.execute(context))       throw new IOException(pr.info());
     }
     return info(DBCREATED,db,perf);
   }
@@ -43,6 +44,6 @@ catch (  final Exception ex) {
  catch (  final IOException ex) {
     Main.debug(ex);
   }
-  if (db != null)   DropDB.drop(db + ".tmp",prop);
+  if (!mem)   DropDB.drop(db + ".tmp",prop);
   return error(err);
 }
