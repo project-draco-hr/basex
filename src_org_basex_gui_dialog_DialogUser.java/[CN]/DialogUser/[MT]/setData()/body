@@ -4,7 +4,13 @@
     throw new IOException(sess.info());
   }
   data=new Table(out.toString());
+  StringList items=new StringList();
   if (!global) {
+    StringList empty=new StringList();
+    empty.add(" ");
+    empty.add("");
+    empty.add("");
+    data.contents.add(empty);
     final CachedOutput out2=new CachedOutput();
     sess.execute(new Show("Users"),out2);
     Table data2=new Table(out2.toString());
@@ -18,11 +24,7 @@
     }
     for (    String s : tmp2) {
       if (!tmp1.contains(s)) {
-        StringList item=new StringList();
-        item.add(s);
-        item.add("");
-        item.add("");
-        data.contents.add(item);
+        items.add(s);
       }
     }
   }
@@ -44,4 +46,8 @@
   userco2.setSelectedIndex(-1);
   if (global)   data.contents.remove(tmp);
   ((TableModel)table.getModel()).fireTableChanged(null);
+  if (!global) {
+    TableColumn col=table.getColumnModel().getColumn(0);
+    col.setCellEditor(new MyComboBoxEditor(items.getList()));
+  }
 }
