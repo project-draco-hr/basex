@@ -4,7 +4,7 @@
   final TokenBuilder xquery=new TokenBuilder();
   final boolean r=root || context.root();
   if (r)   xquery.add("/");
-  xquery.add("descendant-or-self::");
+  xquery.add(Axis.DESCORSELF + "::");
   String name="*";
   do {
     boolean exact=true;
@@ -27,7 +27,7 @@
     int off=exact ? 1 : 0;
     while (off < qu.length() && qu.charAt(off) == ' ')     off++;
     qu=qu.substring(off);
-    if (qu.length() == 0)     continue;
+    if (qu.isEmpty())     continue;
     final int i=qu.indexOf(' ');
     String t=qu.substring(0,i);
     if (pred == DataText.S_SIZE) {
@@ -41,7 +41,7 @@
       }
       t="\"" + t + "\"";
     }
-    xquery.add(name + "[@" + pred+ (exact ? op : " contains text ")+ t+ "]");
+    xquery.add(name + "[@" + pred+ (exact ? op : " " + CT + " ")+ t+ "]");
     qu=qu.substring(i + 1);
     name="";
   }
@@ -49,8 +49,8 @@
   boolean f=true;
   for (  final String t : split(query)) {
     if (Character.isLetterOrDigit(t.charAt(0))) {
-      if (f)       xquery.add(" | " + (r ? "/" : "") + "descendant-or-self::file");
-      xquery.add("[descendant::text() contains text \"" + t + "\"]");
+      if (f)       xquery.add(" | " + (r ? "/" : "") + Axis.DESCORSELF+ "::file");
+      xquery.add("[" + Axis.DESC + "::text() "+ CT+ " \""+ t+ "\"]");
       f=false;
     }
   }

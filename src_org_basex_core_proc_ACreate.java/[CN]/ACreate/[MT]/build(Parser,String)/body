@@ -1,10 +1,7 @@
 {
   new Close().execute(context);
   final boolean mem=prop.is(Prop.MAINMEM);
-  if (!mem) {
-    if (context.pinned(db))     return error(DBINUSE);
-    if (p.prop.dbpath(db + ".tmp").exists())     return error(DBTMP,db);
-  }
+  if (!mem && p.prop.dblocked(db))   return error(DBLOCKED,db);
   final Builder builder=mem ? new MemBuilder(p) : prop.is(Prop.NATIVEDATA) ? new NativeBuilder(p) : new DiskBuilder(p);
   progress(builder);
   String err=null;
@@ -16,7 +13,6 @@
  else {
       index(data);
       data.close();
-      if (!move(db,p.prop))       throw new Exception();
       final Process pr=new Open(db);
       if (!pr.execute(context))       throw new IOException(pr.info());
     }
@@ -44,6 +40,5 @@ catch (  final Exception ex) {
  catch (  final IOException ex) {
     Main.debug(ex);
   }
-  if (!mem)   DropDB.drop(db + ".tmp",prop);
   return error(err);
 }

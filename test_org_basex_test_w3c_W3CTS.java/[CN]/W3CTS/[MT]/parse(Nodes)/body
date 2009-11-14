@@ -124,26 +124,31 @@ catch (    final Error ex) {
             if (ri.startsWith("<?xml"))             ri=ri.replaceAll("^<.*?>\\s*","");
             ri="<X>" + ri + "</X>";
           }
-          final Data rdata=CreateDB.xml(IO.get(ri),context.prop);
-          final SeqIter si=new SeqIter();
-          for (int pre=doc ? 0 : 2; pre < rdata.meta.size; ) {
-            si.add(new DBNode(rdata,pre));
-            pre+=rdata.size(pre,rdata.kind(pre));
+          try {
+            final Data rdata=CreateDB.xml(IO.get(ri),context.prop);
+            final SeqIter si=new SeqIter();
+            for (int pre=doc ? 0 : 2; pre < rdata.meta.size; ) {
+              si.add(new DBNode(rdata,pre));
+              pre+=rdata.size(pre,rdata.kind(pre));
+            }
+            final boolean eq=FNSeq.deep(iter,si);
+            if (!eq && debug) {
+              iter.reset();
+              si.reset();
+              final XMLSerializer ser=new XMLSerializer(new PrintOutput(System.out));
+              Item it;
+              Main.outln(NL + "=== " + testid+ " ===");
+              while ((it=si.next()) != null)               it.serialize(ser);
+              Main.outln(NL + "=== " + NAME+ " ===");
+              while ((it=iter.next()) != null)               it.serialize(ser);
+              Main.outln();
+            }
+            rdata.close();
+            if (eq)             break;
           }
-          final boolean eq=FNSeq.deep(iter,si);
-          if (!eq && debug) {
-            iter.reset();
-            si.reset();
-            final XMLSerializer ser=new XMLSerializer(new PrintOutput(System.out));
-            Item it;
-            Main.outln(NL + "=== " + testid+ " ===");
-            while ((it=si.next()) != null)             it.serialize(ser);
-            Main.outln(NL + "=== " + NAME+ " ===");
-            while ((it=iter.next()) != null)             it.serialize(ser);
-            Main.outln();
+ catch (          final IOException ex) {
+            ex.printStackTrace();
           }
-          rdata.close();
-          if (eq)           break;
         }
       }
       if ((rs > 0 || !expError.isEmpty()) && s == rs && !inspect) {

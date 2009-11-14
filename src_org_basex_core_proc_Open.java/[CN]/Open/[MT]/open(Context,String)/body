@@ -1,7 +1,8 @@
 {
   Data data=ctx.pin(db);
   if (data == null) {
-    if (!ctx.prop.dbpath(db).exists())     throw new FileNotFoundException(Main.info(DBNOTFOUND,db));
+    if (!ctx.prop.dbexists(db))     throw new IOException(Main.info(DBNOTFOUND,db));
+    if (ctx.prop.dblocked(db))     throw new IOException(Main.info(DBLOCKED,db));
     data=new DiskData(db,ctx.prop);
     ctx.addToPool(data);
   }

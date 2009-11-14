@@ -21,20 +21,20 @@
     }
  else     if (term.startsWith("@")) {
       if (term.length() == 1)       continue;
-      preds+="[@* contains text \"" + term.substring(1) + "\"]";
+      preds+="[@* " + CT + " \""+ term.substring(1)+ "\"]";
       term=term.substring(1);
       if (XMLToken.isName(token(term))) {
         pre+=(r ? "" : ".") + "//@" + term+ " | ";
       }
     }
  else {
-      preds+="[text() contains text \"" + term + "\"]";
+      preds+="[text() " + CT + " \""+ term+ "\"]";
       if (XMLToken.isName(token(term))) {
-        pre+=(r ? "/" : "") + "descendant::*:" + term+ " | ";
+        pre+=(r ? "/" : "") + Axis.DESC + "::*:"+ term+ " | ";
       }
-      pre+="descendant-or-self::*[@name contains text \"" + term + "\"] | ";
+      pre+=(r ? "/" : "") + Axis.DESCORSELF + "::*[@name "+ CT+ " \""+ term+ "\"] | ";
     }
   }
   if (pre.isEmpty() && preds.isEmpty())   return root ? "/" : ".";
-  return pre + (r ? "/" : "") + "descendant-or-self::"+ tag+ preds;
+  return pre + (r ? "/" : "") + Axis.DESCORSELF+ "::"+ tag+ preds;
 }

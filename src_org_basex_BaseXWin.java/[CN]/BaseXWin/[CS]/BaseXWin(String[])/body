@@ -5,8 +5,6 @@
   final GUIProp gprop=new GUIProp();
   ctx.prop.set(Prop.CACHEQUERY,true);
   Prop.gui=true;
-  final JFrame wait=waitPanel();
-  Performance.sleep(50);
   GUIConstants.init(gprop);
   SwingUtilities.invokeLater(new Runnable(){
     public void run(){
@@ -14,10 +12,15 @@
       final GUI gui=new GUI(ctx,gprop);
       if (args.length != 0) {
         final String db=args[0].replace('\\','/');
-        gui.execute(new CreateDB(db));
-        gprop.set(GUIProp.OPENPATH,IO.get(db).path());
+        final IO io=IO.get(db);
+        if (db.endsWith(IO.XQSUFFIX)) {
+          gui.query.setQuery(io);
+        }
+ else {
+          gui.execute(new Check(db));
+          gprop.set(GUIProp.OPENPATH,io.path());
+        }
       }
-      wait.dispose();
     }
   }
 );
