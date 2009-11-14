@@ -1,5 +1,5 @@
 {
-  final CachedOutput out=new CachedOutput();
+  CachedOutput out=new CachedOutput();
   if (!sess.execute(global ? new Show("Users") : new InfoUsers(),out)) {
     throw new IOException(sess.info());
   }
@@ -11,9 +11,9 @@
     empty.add("");
     empty.add("");
     data.contents.add(empty);
-    final CachedOutput out2=new CachedOutput();
-    sess.execute(new Show("Users"),out2);
-    Table data2=new Table(out2.toString());
+    out=new CachedOutput();
+    sess.execute(new Show("Users"),out);
+    Table data2=new Table(out.toString());
     StringList tmp1=new StringList();
     for (    StringList l : data.contents) {
       tmp1.add(l.get(0));
@@ -25,6 +25,15 @@
     for (    String s : tmp2) {
       if (!tmp1.contains(s) && !s.equals(ADMIN)) {
         items.add(s);
+        for (        StringList l : data2.contents) {
+          if (l.get(0).equals(s)) {
+            StringList tmp=new StringList();
+            tmp.add(s);
+            tmp.add(l.get(1));
+            tmp.add(l.get(2));
+            tempP.add(tmp);
+          }
+        }
       }
     }
   }
@@ -44,7 +53,7 @@
   }
   userco1.setSelectedIndex(-1);
   userco2.setSelectedIndex(-1);
-  if (global)   data.contents.remove(tmp);
+  data.contents.remove(tmp);
   ((TableModel)table.getModel()).fireTableChanged(null);
   if (!global) {
     TableColumn col=table.getColumnModel().getColumn(0);
