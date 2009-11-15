@@ -1,11 +1,8 @@
 {
   final Data data=gui.context.data();
   final GUIProp gprop=gui.prop;
-  if (data == null || data.meta.size == 0) {
+  if (mainRects == null || mainRects.size == 0) {
     super.paintComponent(g);
-    return;
-  }
-  if (mainRects == null) {
     refreshInit();
     return;
   }
@@ -58,6 +55,7 @@
     g.drawRect(x,y,w,h);
     g.drawRect(x + 1,y + 1,w - 2,h - 2);
     g.setFont(font);
+    smooth(g);
     if (data.kind(focused.pre) == Data.ELEM) {
       String tt=Token.string(ViewData.tag(gprop,data,focused.pre));
       if (tt.length() > 32)       tt=tt.substring(0,30) + DOTS;
@@ -66,10 +64,8 @@
     if (focused != null && focused.thumb) {
       focused.x+=3;
       focused.w-=3;
-      final boolean sen=focused.thumbal < 2;
-      final boolean spc=focused.thumbal < 1;
       final byte[] text=ViewData.content(data,focused.pre,false);
-      final TokenList tl=MapRenderer.calculateThumbnailsToolTip(focused,Tokenizer.getInfo(text),sen,mouseX,mouseY,getWidth(),g,spc);
+      final TokenList tl=MapRenderer.calculateToolTip(focused,Tokenizer.getInfo(text),mouseX,mouseY,getWidth(),g);
       final MapRect mr=new MapRect(getX(),getY(),getWidth(),getHeight());
       MapRenderer.drawToolTip(g,mouseX,mouseY,mr,tl,gprop.num(GUIProp.FONTSIZE));
       focused.x-=3;

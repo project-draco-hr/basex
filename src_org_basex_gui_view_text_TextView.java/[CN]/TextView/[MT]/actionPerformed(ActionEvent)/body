@@ -5,9 +5,16 @@
   gui.prop.set(GUIProp.SAVEPATH,file.path());
   try {
     final PrintOutput out=new PrintOutput(file.toString());
-    if (proc != null)     proc.execute(gui.context,out);
- else     if (ns != null)     ns.serialize(new XMLSerializer(out));
- else     out.write(area.getText());
+    if (proc != null) {
+      proc.execute(gui.context,out);
+    }
+ else     if (ns != null) {
+      ns.serialize(new XMLSerializer(out));
+    }
+ else {
+      final byte[] txt=area.getText();
+      for (      final byte t : txt)       if (t < 0 || t > ' ' || Token.ws(t))       out.write(t);
+    }
     out.close();
   }
  catch (  final IOException ex) {

@@ -50,19 +50,11 @@
         error=error.substring(error.indexOf('\n') + 1);
       }
       if (error.startsWith("[")) {
-        final int i=error.indexOf("]");
-        error=error.substring(1).substring(0,i - 1) + error.substring(i + 1);
+        error=error.replaceAll("\\[(.*?)\\] (.*)","$1 $2");
       }
     }
 catch (    final Exception ex) {
-      final ByteArrayOutputStream bw=new ByteArrayOutputStream();
-      ex.printStackTrace(new PrintStream(bw));
-      error=bw.toString();
-    }
-catch (    final Error ex) {
-      final ByteArrayOutputStream bw=new ByteArrayOutputStream();
-      ex.printStackTrace(new PrintStream(bw));
-      error=bw.toString();
+      error=ex.toString();
     }
     final Nodes outFiles=nodes("*:output-file/text()",state);
     final Nodes cmpFiles=nodes("*:output-file/@compare",state);

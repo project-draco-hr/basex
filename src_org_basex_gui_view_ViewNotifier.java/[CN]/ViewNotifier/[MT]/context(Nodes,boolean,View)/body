@@ -1,19 +1,18 @@
 {
-  if (nodes.size() == 0)   return;
   final Context context=gui.context;
   final Nodes n=new Nodes(context.data(),context.marked().ftpos);
-  if (!quick) {
-    final String input=gui.input.getText();
-    checkHist();
-    queries[hist]=input;
-    marked[hist]=context.marked();
-    cont[++hist]=nodes;
-    queries[hist]=input;
-    marked[hist]=n;
-    maxhist=hist;
-  }
+  if (!cont[hist].same(quick ? context.current() : context.marked())) {
+    if (!quick) {
+      final String input=gui.input.getText();
+      checkHist();
+      queries[hist]=input;
+      marked[hist]=context.marked();
+      cont[++hist]=nodes;
+      queries[hist]=input;
+      marked[hist]=n;
+      maxhist=hist;
+    }
  else {
-    if (!cont[hist].same(context.current())) {
       checkHist();
       queries[hist]="";
       marked[hist]=new Nodes(context.data());
@@ -22,6 +21,6 @@
     }
   }
   init(context,nodes,n);
-  for (  final View v : view)   if (v != vw)   v.refreshContext(true,quick);
+  for (  final View v : view)   if (v != vw && v.visible())   v.refreshContext(true,quick);
   gui.refreshControls();
 }
