@@ -4,15 +4,14 @@
   final NodIter aSeq=c.ats;
   if (c.errAtt)   Err.or(UPNOATTRPER);
   if (c.duplAtt != null)   Err.or(UPATTDUPL,c.duplAtt);
-  final Iter t=SeqIter.get(expr[0].iter(ctx));
+  final Iter t=expr[0].iter(ctx);
   Item i=t.next();
   if (i == null)   Err.or(UPSEQEMP,i);
   final int k=Nod.kind(i.type);
-  if (t.size() > 1 || !(i instanceof Nod) || k == Data.DOC)   Err.or(UPTRGMULT,i);
+  if (!(i instanceof Nod) || k == Data.DOC || t.next() != null)   Err.or(UPTRGMULT,i);
   final Nod n=(Nod)i;
-  final Nod p=n.parent();
-  if (p == null)   Err.or(UPNOPAR,i);
   if (!value) {
+    if (n.parent() == null)     Err.or(UPNOPAR,i);
     if (k != Data.ATTR) {
       if (aSeq.size() > 0)       Err.or(UPWRELM,i);
       ctx.updates.add(new ReplacePrimitive(n,seq,false),ctx);

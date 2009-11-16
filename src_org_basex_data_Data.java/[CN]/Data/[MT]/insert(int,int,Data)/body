@@ -1,18 +1,17 @@
 {
   meta.update();
-  final int sa=dt.kind(0) == DOC && par > 0 ? 1 : 0;
-  final int ss=dt.size(sa,dt.kind(sa));
-  for (int s=sa; s < sa + ss; s++) {
+  final int ss=dt.meta.size;
+  for (int s=0; s < ss; s++) {
     final int k=dt.kind(s);
     final int r=dt.parent(s,k);
-    final int d=r < sa ? pre - par : s - r;
-    final int p=pre + s - sa;
+    final int p=s + pre;
+    final int d=r >= 0 ? s - r : p - par;
 switch (k) {
-case ELEM:
-      insertElem(p,d,dt.tag(s),dt.attSize(s,k),dt.size(s,k));
-    break;
 case DOC:
-  insertDoc(p,dt.size(s,k),dt.text(s));
+      insertDoc(p,dt.size(s,k),dt.text(s));
+    break;
+case ELEM:
+  insertElem(p,d,dt.tag(s),dt.attSize(s,k),dt.size(s,k));
 break;
 case TEXT:
 case COMM:
@@ -24,6 +23,6 @@ insertAttr(p,d,dt.attName(s),dt.attValue(s));
 break;
 }
 }
-if (par != 0) updateTable(pre,par,ss);
+if (par >= 0) updateTable(pre,par,ss);
 if (size(0,DOC) == 1) delete(0);
 }

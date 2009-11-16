@@ -1,9 +1,6 @@
 {
-  if (is == null)   return null;
-  final String id=is.getSystemId();
-  if (is.getByteStream() != null || id == null || id.isEmpty())   return is;
-  length=IO.get(id).length();
-  final FileInputStream fis=new FileInputStream(io.path()){
+  if (!(io instanceof IOFile) || is == null || is.getByteStream() != null || is.getSystemId() == null || is.getSystemId().isEmpty())   return is;
+  final InputSource in=new InputSource(new FileInputStream(io.path()){
     @Override public int read(    final byte[] b,    final int off,    final int len) throws IOException {
       final int i=super.read(b,off,len);
       for (int o=off; o < len; o++)       if (b[off + o] == '\n')       line++;
@@ -11,8 +8,8 @@
       return i;
     }
   }
-;
-  final InputSource input=new InputSource(fis);
-  source.setInputSource(input);
-  return input;
+);
+  source.setInputSource(in);
+  length=io.length();
+  return in;
 }
