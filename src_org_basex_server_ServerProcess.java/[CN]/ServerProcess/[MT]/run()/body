@@ -2,46 +2,40 @@
   if (info)   Main.outln(this + " Login: " + context.user.name);
   try {
     while (true) {
-      String in=null;
+      String input=null;
       try {
-        in=dis.readUTF();
+        input=in.readString();
       }
  catch (      final IOException ex) {
         exit();
         break;
       }
       final Performance perf=new Performance();
-      Process proc=null;
+      proc=null;
       try {
-        proc=new CommandParser(in,context,true).parse()[0];
-        if (proc instanceof IntInfo) {
-          String inf=core.info();
-          if (inf.equals(PROGERR))           inf=SERVERTIME;
-          new DataOutputStream(out).writeUTF(inf);
-          out.flush();
-        }
- else         if (proc instanceof Exit) {
-          exit();
-          break;
-        }
- else {
-          core=proc;
-          startTimer(proc);
-          final boolean up=proc.updating(context) || (proc.flags & User.CREATE) != 0;
-          sem.before(up);
-          final boolean ok=proc.execute(context,out);
-          out.write(new byte[IO.BLOCKSIZE]);
-          send(ok);
-          stopTimer();
-          sem.after(up);
-        }
+        proc=new CommandParser(input,context,true).parse()[0];
       }
  catch (      final QueryException ex) {
-        proc=new IntError(ex.extended());
-        core=proc;
-        out.write(new byte[IO.BLOCKSIZE]);
+        out.write(0);
+        out.print(ex.extended());
+        out.write(0);
         send(false);
       }
+      if (proc instanceof Exit) {
+        exit();
+        break;
+      }
+      startTimer(proc);
+      final boolean up=proc.updating(context) || (proc.flags & User.CREATE) != 0;
+      sem.before(up);
+      final boolean ok=proc.execute(context,out);
+      out.write(0);
+      final String inf=proc.info();
+      out.print(inf.equals(PROGERR) ? SERVERTIME : inf);
+      out.write(0);
+      send(ok);
+      stopTimer();
+      sem.after(up);
       if (info)       Main.outln(this + " " + in+ ": "+ perf);
     }
     if (info)     Main.outln(this + " Logout: " + context.user.name);
