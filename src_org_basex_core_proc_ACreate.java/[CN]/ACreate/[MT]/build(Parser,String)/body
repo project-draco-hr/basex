@@ -1,7 +1,7 @@
 {
   new Close().execute(context);
   final boolean mem=prop.is(Prop.MAINMEM);
-  if (!mem && p.prop.dblocked(db))   return error(DBLOCKED,db);
+  if (!mem && context.pinned(db))   return error(DBLOCKED,db);
   final Builder builder=mem ? new MemBuilder(p) : prop.is(Prop.NATIVEDATA) ? new NativeBuilder(p) : new DiskBuilder(p);
   progress(builder);
   String err=null;
@@ -14,7 +14,7 @@
       index(data);
       data.close();
       final Process pr=new Open(db);
-      if (!pr.execute(context))       throw new IOException(pr.info());
+      if (!pr.execute(context))       return error(pr.info());
     }
     return info(DBCREATED,db,perf);
   }
@@ -30,13 +30,18 @@ catch (  final IOException ex) {
     final String msg=ex.getMessage();
     err=Main.info(msg != null ? msg : args[0]);
   }
-catch (  final Exception ex) {
+catch (  final Throwable ex) {
     Main.debug(ex);
-    err=Main.info(CREATEERR,args[0]);
+    if (ex instanceof OutOfMemoryError) {
+      Performance.gc(2);
+      err=PROCOUTMEM;
+    }
+ else {
+      err=Main.info(CREATEERR,args[0]);
+    }
   }
   if (!mem) {
     try {
-      context.prop.dbfile(db,DATALOCK).delete();
       builder.close();
     }
  catch (    final IOException ex) {

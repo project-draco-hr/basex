@@ -1,12 +1,11 @@
 {
   final Prop pr=parser.prop;
+  DropDB.drop(db,pr);
+  pr.dbpath(db).mkdirs();
   meta=new MetaData(db,pr);
   meta.file=parser.io;
   meta.filesize=meta.file.length();
   meta.time=meta.file.date();
-  DropDB.drop(db,pr);
-  pr.dbpath(db).mkdirs();
-  pr.dbfile(db,DATALOCK).createNewFile();
   int bs=IO.BLOCKSIZE;
   while (bs < meta.filesize && bs < 1 << 22)   bs<<=1;
   tout=new DataOutput(new TableOutput(db,DATATBL,pr));

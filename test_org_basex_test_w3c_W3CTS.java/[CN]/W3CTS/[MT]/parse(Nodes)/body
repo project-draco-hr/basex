@@ -18,10 +18,7 @@
     final CachedOutput out=new CachedOutput();
     final Nodes cont=nodes("*:contextItem",state);
     Nodes curr=null;
-    if (cont.size() != 0) {
-      final Data d=Check.check(context,srcs.get(string(data.atom(cont.nodes[0]))));
-      curr=new Nodes(d.doc(),d,true);
-    }
+    if (cont.size() != 0)     curr=new Nodes(Check.check(context,srcs.get(string(data.atom(cont.nodes[0])))),true);
     final QueryProcessor xq=new QueryProcessor(in,curr,context);
     final QueryContext qctx=xq.ctx;
     try {
@@ -44,7 +41,7 @@
       }
       xml.close();
     }
- catch (    final QueryException ex) {
+ catch (    final Exception ex) {
       error=ex.getMessage();
       if (error.startsWith(STOPPED)) {
         error=error.substring(error.indexOf('\n') + 1);
@@ -52,9 +49,6 @@
       if (error.startsWith("[")) {
         error=error.replaceAll("\\[(.*?)\\] (.*)","$1 $2");
       }
-    }
-catch (    final Exception ex) {
-      error=ex.toString();
     }
     final Nodes outFiles=nodes("*:output-file/text()",state);
     final Nodes cmpFiles=nodes("*:output-file/@compare",state);

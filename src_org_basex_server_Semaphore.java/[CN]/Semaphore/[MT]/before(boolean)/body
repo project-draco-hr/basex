@@ -1,0 +1,35 @@
+{
+  if (up) {
+    final Object monitor=new Object();
+synchronized (monitor) {
+synchronized (this) {
+        if (waitingW.size() == 0 && activeR == 0 && !activeW) {
+          activeW=true;
+          return;
+        }
+        waitingW.add(monitor);
+      }
+      try {
+        monitor.wait();
+      }
+ catch (      final InterruptedException ex) {
+        ex.printStackTrace();
+      }
+    }
+  }
+ else {
+synchronized (this) {
+      if (!activeW && waitingW.size() == 0) {
+        ++activeR;
+        return;
+      }
+      ++waitingR;
+      try {
+        wait();
+      }
+ catch (      final InterruptedException ex) {
+        ex.printStackTrace();
+      }
+    }
+  }
+}

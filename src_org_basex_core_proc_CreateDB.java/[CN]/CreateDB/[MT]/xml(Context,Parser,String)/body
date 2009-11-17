@@ -1,7 +1,7 @@
 {
   final Prop pr=p.prop;
   if (pr.is(Prop.MAINMEM))   return new MemBuilder(p).build(db);
-  if (p.prop.dblocked(db))   throw new IOException(Main.info(DBLOCKED,db));
+  if (ctx.pinned(db))   throw new IOException(Main.info(DBLOCKED,db));
   final Builder builder=new DiskBuilder(p);
   try {
     final Data data=builder.build(db);
@@ -12,7 +12,6 @@
   }
  catch (  final IOException ex) {
     try {
-      pr.dbfile(db,DATALOCK).delete();
       builder.close();
     }
  catch (    final IOException exx) {
