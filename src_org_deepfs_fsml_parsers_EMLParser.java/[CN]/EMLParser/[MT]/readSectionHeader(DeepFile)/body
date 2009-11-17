@@ -1,0 +1,37 @@
+{
+  boolean plaintext=false;
+  do {
+    String type="";
+    if (mCurrLine == null)     break;
+    final Matcher m=KEYPAT.matcher(mCurrLine);
+    if (m.matches()) {
+      type=m.group(1).toLowerCase();
+      mCurrLine=m.group(2).trim();
+    }
+    if (type.equals("content-transfer-encoding")) {
+      getEncoding();
+    }
+ else     if (type.equals("content-type")) {
+      final String mimeString=mCurrLine.split(";")[0].toLowerCase();
+      MimeType mime=null;
+      if (mimeString.startsWith("multipart")) {
+        mContentType=mimeString;
+        if (mimeString.startsWith("multipart/related"))         multipartRelated();
+        break;
+      }
+      mime=MimeType.getItem(mimeString);
+      if (mime != null) {
+        for (        final FileType mt : mime.getMetaTypes()) {
+          contentMeta.setFileType(mt);
+          if (mt == FileType.TEXT)           plaintext=true;
+        }
+        contentMeta.setFileFormat(mime);
+        getCharset();
+      }
+    }
+ else     getCharset();
+  }
+ while (readLine() && !mCurrLine.isEmpty());
+  if (!plaintext)   return false;
+  return true;
+}

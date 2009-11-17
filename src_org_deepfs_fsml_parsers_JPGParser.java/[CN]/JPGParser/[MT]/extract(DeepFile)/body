@@ -1,0 +1,32 @@
+{
+  if (df.fsmeta) {
+    deepFile=df;
+    bfc=deepFile.getBufferedFileChannel();
+    if (!check(bfc))     return;
+    deepFile.setFileType(FileType.PICTURE);
+    deepFile.setFileFormat(MimeType.JPG);
+    bfc.skip(-2);
+    while (bfc.get() == 0xFF) {
+      final int b=bfc.get();
+      final int size=readSize();
+switch (b) {
+case 0xE0:
+        readJFIF(size);
+      break;
+case 0xE1:
+    readExif(size);
+  break;
+case 0xFE:
+readComment(size);
+break;
+default :
+if (b >= 0xC0 && b <= 0xC3) {
+readDimensions();
+return;
+}
+bfc.skip(size);
+}
+bfc.buffer(4);
+}
+}
+}

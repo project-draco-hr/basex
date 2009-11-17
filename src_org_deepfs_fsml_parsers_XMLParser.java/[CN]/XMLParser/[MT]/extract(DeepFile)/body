@@ -1,0 +1,29 @@
+{
+  final BufferedFileChannel bfc=deepFile.getBufferedFileChannel();
+  final int maxSize=deepFile.fstextmax;
+  if (bfc.size() <= maxSize) {
+    final Data data=parse(bfc);
+    if (data != null) {
+      if (deepFile.fsmeta) {
+        deepFile.setFileType(FileType.XML);
+        final String name=bfc.getFileName();
+        final String suf=name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+        final MimeType mime=SUFFIXES.get(suf);
+        if (mime == null)         Main.notexpected();
+        deepFile.setFileFormat(mime);
+      }
+      if (deepFile.fsxml) {
+        deepFile.addXML(bfc.getOffset(),(int)bfc.size(),data);
+      }
+      return;
+    }
+  }
+  if (deepFile.fscont) {
+    try {
+      deepFile.fallback();
+    }
+ catch (    final ParserException e) {
+      Main.debug("Failed to read text content from xml file with " + "fallback parser (%).",e);
+    }
+  }
+}

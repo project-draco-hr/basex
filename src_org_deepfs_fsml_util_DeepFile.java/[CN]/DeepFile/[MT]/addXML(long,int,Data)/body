@@ -1,0 +1,21 @@
+{
+  if (!fsxml)   return;
+  final ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  final PrintOutput po=new PrintOutput(baos);
+  final XMLSerializer ser=new XMLSerializer(po);
+  final Context ctx=new Context();
+  ctx.openDB(data);
+  final QueryProcessor qp=new QueryProcessor("/",ctx);
+  String xmlContent;
+  try {
+    final Result res=qp.query();
+    res.serialize(ser);
+    xmlContent=baos.toString();
+    ser.close();
+    po.close();
+  }
+ catch (  final QueryException e) {
+    xmlContent="";
+  }
+  xmlContents.add(new XMLContent(position,byteCount,xmlContent));
+}

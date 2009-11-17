@@ -2,13 +2,13 @@
   final int len=HEADER_EXIF.length;
   bfc.buffer(len);
   if (!checkNextBytes(HEADER_EXIF))   bfc.skip(size - len);
-  final BufferedFileChannel sub=bfc.subChannel(size - len);
+  final DeepFile subFile=deepFile.subfile(size - len);
   try {
-    exifParser.parse(sub,fsparser);
+    exifParser.extract(subFile);
   }
   finally {
     try {
-      sub.finish();
+      subFile.finish();
     }
  catch (    final Exception ex) {
       Main.debug(ex);

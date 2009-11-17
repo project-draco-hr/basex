@@ -5,34 +5,29 @@
     return;
   }
   int s=size - HEADER_JFXX.length - 1;
-  fsparser.startContent(bfc.absolutePosition(),s);
-  MetaStore contentMeta=new MetaStore();
+  final DeepFile content=deepFile.newContentSection("Thumbnail",bfc.absolutePosition(),s);
 switch (bfc.get()) {
 case 0x10:
-    contentMeta.setType(MetaType.PICTURE);
-  contentMeta.setFormat(MimeType.JPG);
-contentMeta.add(MetaElem.TITLE,"Thumbnail");
+    content.setFileType(FileType.PICTURE);
+  content.setFileFormat(MimeType.JPG);
+content.addMeta(MetaElem.DESCRIPTION,"Thumbnail coded using JPEG.");
 break;
 case 0x11:
 s-=2;
-contentMeta.setType(MetaType.PICTURE);
-contentMeta.add(MetaElem.TITLE,"Thumbnail");
-contentMeta.add(MetaElem.DESCRIPTION,"Thumbnail coded using 1 byte/pixel.");
-contentMeta.add(MetaElem.PIXEL_WIDTH,bfc.get());
-contentMeta.add(MetaElem.PIXEL_HEIGHT,bfc.get());
+content.setFileType(FileType.PICTURE);
+content.addMeta(MetaElem.DESCRIPTION,"Thumbnail coded using 1 byte/pixel.");
+content.addMeta(MetaElem.PIXEL_WIDTH,bfc.get());
+content.addMeta(MetaElem.PIXEL_HEIGHT,bfc.get());
 break;
 case 0x13:
 s-=2;
-contentMeta.setType(MetaType.PICTURE);
-contentMeta.add(MetaElem.TITLE,"Thumbnail");
-contentMeta.add(MetaElem.DESCRIPTION,"Thumbnail coded using 3 bytes/pixel.");
-contentMeta.add(MetaElem.PIXEL_WIDTH,bfc.get());
-contentMeta.add(MetaElem.PIXEL_HEIGHT,bfc.get());
+content.setFileType(FileType.PICTURE);
+content.addMeta(MetaElem.DESCRIPTION,"Thumbnail coded using 3 bytes/pixel.");
+content.addMeta(MetaElem.PIXEL_WIDTH,bfc.get());
+content.addMeta(MetaElem.PIXEL_HEIGHT,bfc.get());
 break;
 default :
 Main.debug("JPGParser: Illegal or unsupported JFIF header (%)",bfc.getFileName());
 }
-contentMeta.write(fsparser);
-fsparser.endContent();
 bfc.skip(s);
 }

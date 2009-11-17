@@ -1,14 +1,10 @@
 {
-  final int type=buf.getShort();
-  if (buf.getInt() == 1) {
-    if (type == IFD_TYPE_SHORT) {
-      o.meta.add(MetaElem.PIXEL_WIDTH,buf.getShort() & 0xFFFF);
-      buf.getShort();
-    }
- else     if (type == IFD_TYPE_LONG) {
-      o.meta.add(MetaElem.PIXEL_WIDTH,buf.getInt());
-    }
- else     error(o,"Image width (0x0100)");
+  if (buf.getShort() == IFD_TYPE_ASCII && buf.getInt() >= 20) {
+    o.bfc.position(buf.getInt());
+    o.bfc.buffer(20);
+    final byte[] data=new byte[20];
+    o.bfc.get(data);
+    o.dateEvent(MetaElem.DATE_CREATED,data);
   }
- else   error(o,"Image width (0x0100)");
+ else   error(o,"DateTime (0x0132)");
 }

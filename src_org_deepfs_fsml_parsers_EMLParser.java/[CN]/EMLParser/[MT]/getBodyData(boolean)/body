@@ -1,8 +1,9 @@
 {
   final long bodyStartPos=bfc.absolutePosition();
-  if (multipart)   fsparser.startContent(bodyStartPos);
-  MetaStore contentMeta=new MetaStore();
-  if (multipart ? readSectionHeader(contentMeta) : mContentType == null || mContentType.startsWith("text")) {
+  final DeepFile content;
+  if (multipart)   content=deepFile.newContentSection(bodyStartPos);
+ else   content=deepFile;
+  if (multipart ? readSectionHeader(content) : mContentType == null || mContentType.startsWith("text")) {
     final long pos2=bfc.absolutePosition();
     final TokenBuilder tb=new TokenBuilder();
     boolean first=true;
@@ -25,7 +26,7 @@
     final byte[] text=tb.finish();
     final byte[] data=bodyEnc.decode(text,utf);
     final int size=data.length;
-    if (size > 0)     fsparser.textContent(pos2,text.length,data,true);
+    if (size > 0)     deepFile.addText(pos2,text.length,data);
   }
  else {
     while (readLine()) {
@@ -35,9 +36,7 @@
   if (multipart) {
     bodyEnc=Encoding.NONE;
     final int readAhead=mCurrLine == null ? 0 : mCurrLine.length();
-    fsparser.setContentSize(bfc.absolutePosition() - bodyStartPos - readAhead- 1);
-    contentMeta.write(fsparser);
-    fsparser.endContent();
+    content.setSize(bfc.absolutePosition() - bodyStartPos - readAhead- 1);
   }
   return mCurrLine != null && multipart && !mCurrLine.endsWith("--");
 }

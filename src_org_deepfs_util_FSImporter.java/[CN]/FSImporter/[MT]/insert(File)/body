@@ -1,12 +1,54 @@
 {
-  final String fname=escape(f.getName());
-  final String fragment=f.isDirectory() ? "<dir name=\"" + fname + "\"/>" : "<file name=\"" + fname + "\"/>";
-  final String query="insert nodes " + fragment + " into "+ targetNode;
-  try {
-    new QueryProcessor(query,ctx).queryNodes();
+  currentFile=f.toString();
+  String xmlFragment=null;
+  if (f.isDirectory()) {
+    try {
+      xmlFragment=FSMLSerializer.serializeFile(f);
+    }
+ catch (    final IOException e) {
+      Main.debug("Failed to open dir (%)",e);
+    }
   }
- catch (  QueryException e) {
-    e.printStackTrace();
+ else {
+    try {
+      final BufferedFileChannel bfc=new BufferedFileChannel(f,buffer);
+      try {
+        final DeepFile deepFile=new DeepFile(parserRegistry,bfc,ctx.prop.is(Prop.FSMETA),ctx.prop.is(Prop.FSXML),ctx.prop.is(Prop.FSCONT),ctx.prop.num(Prop.FSTEXTMAX));
+        deepFile.extract();
+        xmlFragment=FSMLSerializer.serialize(deepFile);
+      }
+ catch (      final IOException ex) {
+        Main.debug("Failed to extract metadata/contents from the file (% - %)",f.getAbsolutePath(),ex);
+      }
+ finally {
+        try {
+          bfc.close();
+        }
+ catch (        final IOException e1) {
+        }
+      }
+    }
+ catch (    final IOException e) {
+      Main.debug("Failed to open the file (% - %)",f.getAbsolutePath(),e);
+    }
   }
-  return fname;
+  if (xmlFragment != null) {
+    final String query="insert nodes " + xmlFragment + " into "+ targetNode;
+    final QueryProcessor qp=new QueryProcessor(query,ctx);
+    try {
+      qp.query();
+    }
+ catch (    final QueryException ex) {
+      Main.debug("Failed to insert a node for the file % into the document (%)",f.getAbsolutePath(),ex);
+    }
+ finally {
+      try {
+        qp.close();
+      }
+ catch (      IOException e) {
+        Main.debug("Failed to close query processor (%).",e);
+      }
+    }
+  }
+  return f.getName();
 }

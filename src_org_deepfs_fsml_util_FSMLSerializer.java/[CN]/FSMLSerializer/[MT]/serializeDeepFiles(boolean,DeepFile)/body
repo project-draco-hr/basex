@@ -1,0 +1,40 @@
+{
+  final Atts atts=new Atts();
+  for (  final DeepFile d : c) {
+    if (subfile) {
+      atts.add(OFFSET,token(d.getOffset()));
+      atts.add(SIZE,token(d.getSize()));
+      startElem(CONTENT_NS,atts);
+    }
+ else {
+      final File f=d.getBufferedFileChannel().getAssociatedFile();
+      final Atts a=DeepFS.atts(f);
+      startElem(FILE_NS,a);
+    }
+    if (d.fsmeta) {
+      for (      final Entry<MetaElem,byte[]> e : d.getMeta().entrySet())       nodeAndText(e.getKey().get(),atts.reset(),e.getValue());
+    }
+    if (d.fscont) {
+      for (      final TextContent t : d.getTextContents()) {
+        atts.reset();
+        atts.add(OFFSET,token(t.getOffset()));
+        atts.add(SIZE,token(t.getSize()));
+        startElem(TEXT_CONTENT_NS,atts);
+        text(t.getText());
+        endElem(TEXT_CONTENT_NS);
+      }
+    }
+    if (d.fsxml) {
+      for (      final XMLContent x : d.getXMLContents()) {
+        atts.reset();
+        atts.add(OFFSET,token(x.getOffset()));
+        atts.add(SIZE,token(x.getSize()));
+        startElem(XML_CONTENT_NS,atts);
+        o.write(token(x.asString()));
+        endElem(XML_CONTENT_NS);
+      }
+    }
+    serializeDeepFiles(true,d.getContent());
+    endElem(subfile ? CONTENT_NS : FILE_NS);
+  }
+}

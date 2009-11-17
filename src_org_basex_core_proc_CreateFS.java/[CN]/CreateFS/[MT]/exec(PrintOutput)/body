@@ -1,5 +1,14 @@
 {
   prop.set(Prop.CHOP,true);
   prop.set(Prop.ENTITY,true);
-  return prop.is(Prop.NEWFSPARSER) ? build(new NewFSParser(args[0],prop),args[1]) : build(new FSParser(args[0],prop),args[1]);
+  if (!prop.is(Prop.FSTRAVERSAL))   return build(new FSParser(args[0],prop),args[1]);
+  new Close().execute(context);
+  final FSTraversalParser p=new FSTraversalParser();
+  progress(p);
+  p.parse(args[0],context,args[1]);
+  final Optimize opt=new Optimize();
+  progress(opt);
+  opt.execute(context);
+  new Open(args[1]).execute(context);
+  return info(DBCREATED,args[1],perf);
 }
