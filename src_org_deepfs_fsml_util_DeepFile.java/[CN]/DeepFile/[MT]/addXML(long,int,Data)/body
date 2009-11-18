@@ -6,16 +6,25 @@
   final Context ctx=new Context();
   ctx.openDB(data);
   final QueryProcessor qp=new QueryProcessor("/",ctx);
-  String xmlContent;
+  byte[] xmlContent;
   try {
     final Result res=qp.query();
     res.serialize(ser);
-    xmlContent=baos.toString();
+    xmlContent=baos.toByteArray();
     ser.close();
     po.close();
   }
  catch (  final QueryException e) {
-    xmlContent="";
+    xmlContent=new byte[]{};
   }
-  xmlContents.add(new XMLContent(position,byteCount,xmlContent));
+  if (xmlContent.length == 0)   return;
+  if (xmlContent.length > fstextmax) {
+    if (!fscont)     return;
+    final byte[] text=new byte[fstextmax];
+    System.arraycopy(xmlContent,0,text,0,fstextmax);
+    textContents.add(new TextContent(position,fstextmax,text));
+  }
+ else {
+    xmlContents.add(new XMLContent(position,byteCount,new String(xmlContent)));
+  }
 }

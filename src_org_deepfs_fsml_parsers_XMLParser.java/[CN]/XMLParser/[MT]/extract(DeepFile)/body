@@ -1,10 +1,10 @@
 {
   final BufferedFileChannel bfc=deepFile.getBufferedFileChannel();
-  final int maxSize=deepFile.fstextmax;
+  final int maxSize=deepFile.maxTextSize();
   if (bfc.size() <= maxSize) {
     final Data data=parse(bfc);
     if (data != null) {
-      if (deepFile.fsmeta) {
+      if (deepFile.extractMeta()) {
         deepFile.setFileType(FileType.XML);
         final String name=bfc.getFileName();
         final String suf=name.substring(name.lastIndexOf('.') + 1).toLowerCase();
@@ -12,13 +12,13 @@
         if (mime == null)         Main.notexpected();
         deepFile.setFileFormat(mime);
       }
-      if (deepFile.fsxml) {
+      if (deepFile.extractXML()) {
         deepFile.addXML(bfc.getOffset(),(int)bfc.size(),data);
       }
       return;
     }
   }
-  if (deepFile.fscont) {
+  if (deepFile.extractText()) {
     try {
       deepFile.fallback();
     }

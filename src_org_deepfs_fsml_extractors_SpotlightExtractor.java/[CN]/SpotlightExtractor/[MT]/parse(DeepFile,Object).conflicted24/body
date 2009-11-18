@@ -1,17 +1,16 @@
 {
-  String g=(String)o;
   try {
-    if (g.charAt(0) == '(')     g=g.substring(1,g.length() - 2);
-    final int genreId=Integer.parseInt(g);
-    deepFile.addMeta(MetaElem.GENRE,MP3Parser.getGenre(genreId));
-  }
- catch (  final NumberFormatException ex) {
-    if (g.contains(",")) {
-      final StringTokenizer tok=new StringTokenizer(g,", ");
-      while (tok.hasMoreTokens())       deepFile.addMeta(MetaElem.GENRE,tok.nextToken());
-    }
+    String key=((String)o).toUpperCase();
+    key=key.replace('.','_').replace('-','_');
+    final SpotlightContentType ct=SpotlightContentType.valueOf(key);
+    final FileType ft=ct.getType();
+    if (ft != null)     deepFile.setFileType(ft);
  else {
-      deepFile.addMeta(MetaElem.GENRE,g);
+      final MimeType mi=ct.getFormat();
+      if (mi != null)       deepFile.setFileFormat(mi);
     }
+  }
+ catch (  final IllegalArgumentException ex) {
+    Main.debug("SpotlightExtractor: unsupported ContentType found (%)",(String)o);
   }
 }

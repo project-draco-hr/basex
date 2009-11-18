@@ -7,15 +7,16 @@
       startElem(CONTENT_NS,atts);
     }
  else {
-      final File f=d.getBufferedFileChannel().getAssociatedFile();
-      final Atts a=DeepFS.atts(f);
+      final Atts a=d.getFSAtts();
       startElem(FILE_NS,a);
     }
-    if (d.fsmeta) {
-      for (      final Entry<MetaElem,byte[]> e : d.getMeta().entrySet())       nodeAndText(e.getKey().get(),atts.reset(),e.getValue());
+    final TreeMap<MetaElem,byte[]> meta=d.getMeta();
+    if (meta != null) {
+      for (      final Entry<MetaElem,byte[]> e : meta.entrySet())       nodeAndText(e.getKey().get(),atts.reset(),e.getValue());
     }
-    if (d.fscont) {
-      for (      final TextContent t : d.getTextContents()) {
+    final TextContent[] textContents=d.getTextContents();
+    if (textContents != null) {
+      for (      final TextContent t : textContents) {
         atts.reset();
         atts.add(OFFSET,token(t.getOffset()));
         atts.add(SIZE,token(t.getSize()));
@@ -24,8 +25,9 @@
         endElem(TEXT_CONTENT_NS);
       }
     }
-    if (d.fsxml) {
-      for (      final XMLContent x : d.getXMLContents()) {
+    final XMLContent[] xmlContents=d.getXMLContents();
+    if (xmlContents != null) {
+      for (      final XMLContent x : xmlContents) {
         atts.reset();
         atts.add(OFFSET,token(x.getOffset()));
         atts.add(SIZE,token(x.getSize()));

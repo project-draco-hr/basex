@@ -1,0 +1,29 @@
+{
+  final File f=bfc.getAssociatedFile();
+  final String name=bfc.getFileName();
+  final byte[] time=token(System.currentTimeMillis());
+  final Atts atts=new Atts();
+  atts.reset();
+  atts.add(NAME,token(name));
+  atts.add(SIZE,token(bfc.size()));
+  if (f.isDirectory())   atts.add(MODE,token(getSIFDIR() | 0755));
+ else   atts.add(MODE,token(getSIFREG() | 0644));
+  final byte[] uid=metaElements.get(MetaElem.FS_OWNER_USER_ID);
+  if (uid != null) {
+    atts.add(UID,uid);
+    metaElements.remove(MetaElem.FS_OWNER_USER_ID);
+  }
+ else   atts.add(UID,token(getUID()));
+  final byte[] gid=metaElements.get(MetaElem.FS_OWNER_GROUP_ID);
+  if (gid != null) {
+    atts.add(GID,gid);
+    metaElements.remove(MetaElem.FS_OWNER_GROUP_ID);
+  }
+ else   atts.add(GID,token(getGID()));
+  atts.add(ATIME,time);
+  atts.add(CTIME,time);
+  atts.add(MTIME,token(f.lastModified()));
+  atts.add(NLINK,token("1"));
+  atts.add(SUFFIX,DeepFS.getSuffix(name));
+  return atts;
+}
