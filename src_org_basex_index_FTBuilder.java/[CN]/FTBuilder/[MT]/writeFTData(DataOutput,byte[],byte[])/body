@@ -1,29 +1,24 @@
 {
-  int lpre=4;
-  int lpos=4;
-  final int pres=Num.size(vpre);
-  final int poss=Num.size(vpos);
-  int cn=scm == 1 ? 1 : 0;
-  int lastpre=-1;
-  int pre=-1;
-  while (lpre < pres && lpos < poss) {
+  int np=4, pp=4, lp=-1, up=-1, fc=-1, p;
+  final int ns=Num.size(vpre);
+  while (np < ns) {
     if (scm > 0) {
-      if (lastpre < pre)       fc++;
-      pre=Num.read(vpre,lpre);
-      while (cn < nodes.size() && nodes.get(cn) < pre)       cn++;
-      if (scm == 1 && (cn < nodes.size() && nodes.get(cn - 1) < pre && nodes.get(cn) > pre || cn == nodes.size() && nodes.get(cn - 1) < pre) && pre != lastpre || scm == 2 && pre == nodes.get(cn)) {
-        final int score=Scoring.tfIDF(nodes.size(),nmbdocwt[c],maxfreq[cn - (scm == 1 ? 1 : 0)],freq.get(fc));
-        if (score > maxscore)         maxscore=score;
-        if (score < minscore)         minscore=score;
-        out.write(Num.num(-score));
-        if (scm == 2) {
-          fc++;
-          cn++;
+      p=Num.read(vpre,np);
+      if (lp != p) {
+        up=unit.find(p);
+        if (up < 0)         up=-up - 1;
+        if (scm == 1 && (up == unit.size() || p < unit.get(up)) || scm == 2) {
+          final int s=Scoring.tfIDF(freq.get(++fc),maxfreq[up],unit.size(),ntoken[token]);
+          if (max < s)           max=s;
+          if (min > s)           min=s;
+          if (np != 4)           out.write(0);
+          out.write(Num.num(s));
         }
+        lp=p;
       }
-      lastpre=pre;
     }
-    for (int z=0, l=Num.len(vpre,lpre); z < l; z++)     out.write(vpre[lpre++]);
-    for (int z=0, l=Num.len(vpos,lpos); z < l; z++)     out.write(vpos[lpos++]);
+    for (final int l=np + Num.len(vpre,np); np < l; np++)     out.write(vpre[np]);
+    for (final int l=pp + Num.len(vpos,pp); pp < l; pp++)     out.write(vpos[pp]);
   }
+  token++;
 }

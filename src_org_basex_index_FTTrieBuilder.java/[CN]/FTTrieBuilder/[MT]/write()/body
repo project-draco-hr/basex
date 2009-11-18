@@ -4,18 +4,13 @@
   final DataOutput outb=new DataOutput(pr.dbfile(db,DATAFTX + 'b'));
   if (scm == 0)   hash.init();
  else   hash.initIter();
-  c=0;
   while (hash.more()) {
     final int p=hash.next();
     final byte[] tok=hash.key();
     final int ds=hash.ns[p];
     final long cpre=outb.size();
-    final byte[] vpre=hash.pre[p];
-    final byte[] vpos=hash.pos[p];
-    fc=0;
-    writeFTData(outb,vpre,vpos);
+    writeFTData(outb,hash.pre[p],hash.pos[p]);
     index.insertSorted(tok,ds,cpre);
-    c++;
   }
   hash=null;
   final TokenList tokens=index.tokens;

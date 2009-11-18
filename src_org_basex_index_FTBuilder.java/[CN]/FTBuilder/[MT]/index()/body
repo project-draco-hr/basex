@@ -1,26 +1,34 @@
 {
-  for (id=0; id < total; id++) {
-    if (data.kind(id) != Data.TEXT) {
-      if (data.kind(id) == Data.DOC && scm == 1)       nodes.add(id);
+  for (pre=0; pre < total; pre++) {
+    final int k=data.kind(pre);
+    if (k != Data.TEXT) {
+      if (scm == 1 && k == Data.DOC)       unit.add(pre);
       continue;
     }
-    if (scm == 2)     nodes.add(id);
+    if (scm == 2)     unit.add(pre);
     checkStop();
-    wp.init(data.text(id));
+    wp.init(data.text(pre));
     while (wp.more()) {
       final byte[] tok=wp.get();
       if (tok.length <= MAXLEN)       index(tok);
     }
   }
   if (scm > 0) {
-    freq=new IntList();
+    maxfreq=new int[unit.size() + 1];
+    ntoken=new int[nrTokens()];
+    token=0;
     getFreq();
   }
-  data.meta.ftiscm=scm;
+  token=0;
   write();
+  if (Prop.debug) {
+    Performance.gc(4);
+    Main.debug("Memory: " + Performance.getMem());
+  }
   if (scm > 0) {
-    data.meta.ftmaxscore=maxscore;
-    data.meta.ftminscore=minscore;
+    data.meta.ftscmax=max;
+    data.meta.ftscmin=min;
+    data.meta.ftsctype=scm;
     data.meta.dirty=true;
   }
 }

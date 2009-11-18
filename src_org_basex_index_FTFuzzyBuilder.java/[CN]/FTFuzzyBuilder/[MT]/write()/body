@@ -7,29 +7,25 @@
   outx.write(isize);
   long dr=0;
   int tr=0;
-  byte j=1;
-  for (c=0; j < tree.length && c < ntok; j++) {
-    final FTHash tre=tree[j];
-    if (tre == null)     continue;
+  byte j=-1;
+  while (++j < tree.length) {
+    final FTHash hash=tree[j];
+    if (hash == null)     continue;
     outx.write(j);
     outx.writeInt(tr);
-    if (scm == 0)     tre.init();
- else     tre.initIter();
-    while (tre.more()) {
-      final int p=tre.next();
-      fc=0;
-      final byte[] key=tre.key();
-      for (int x=0; x != j; x++)       outy.write(key[x]);
+    if (scm == 0)     hash.init();
+ else     hash.initIter();
+    while (hash.more()) {
+      final int p=hash.next();
+      final byte[] key=hash.key();
+      for (int i=0; i < j; i++)       outy.write(key[i]);
       outy.write5(dr);
-      final int ds=tre.ns[p];
-      outy.writeInt(ds);
-      final byte[] vpre=tre.pre[p];
-      final byte[] vpos=tre.pos[p];
-      writeFTData(outz,vpre,vpos);
+      outy.writeInt(hash.ns[p]);
+      writeFTData(outz,hash.pre[p],hash.pos[p]);
       dr=outz.size();
       tr=(int)outy.size();
-      c++;
     }
+    tree[j]=null;
   }
   tree=null;
   outx.write(j);
