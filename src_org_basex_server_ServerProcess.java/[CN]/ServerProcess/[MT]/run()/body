@@ -1,5 +1,6 @@
 {
   if (info)   Main.outln(this + " Login: " + context.user.name);
+  log.write(this + " Login: " + context.user.name);
   try {
     while (true) {
       String input=null;
@@ -27,6 +28,7 @@
       }
       startTimer(proc);
       final boolean up=proc.updating(context) || (proc.flags & User.CREATE) != 0;
+      log.write(this + " " + proc.toString()+ ": "+ context.user.name+ " received");
       sem.before(up);
       final boolean ok=proc.execute(context,out);
       out.write(0);
@@ -36,9 +38,11 @@
       send(ok);
       stopTimer();
       sem.after(up);
+      log.write(this + " " + proc.toString()+ ": "+ context.user.name+ " executed");
       if (info)       Main.outln(this + " " + in+ ": "+ perf);
     }
     if (info)     Main.outln(this + " Logout: " + context.user.name);
+    log.write(this + " Logout: " + context.user.name);
   }
  catch (  final IOException ex) {
     Main.error(ex,false);
