@@ -1,10 +1,8 @@
 {
   deepFile=df;
   bfc=df.getBufferedFileChannel();
-  if (!check(bfc))   return;
+  if (!readLine())   return;
   if (df.extractMeta()) {
-    df.setFileType(FileType.MESSAGE);
-    df.setFileFormat(MimeType.EML);
     mBoundary="";
     do {
       String type="";
@@ -24,7 +22,12 @@
       if (readNext && !readLine())       return;
     }
  while (!mCurrLine.isEmpty());
-    deepFile.addMeta(MetaElem.ENCODING,mBodyCharset);
+    if (deepFile.isMetaSet(MetaElem.SENDER_EMAIL) || deepFile.isMetaSet(MetaElem.SENDER_NAME)) {
+      deepFile.setFileType(FileType.MESSAGE);
+      deepFile.setFileFormat(MimeType.EML);
+      deepFile.addMeta(MetaElem.ENCODING,mBodyCharset);
+    }
+ else     System.out.println("------");
     if (df.extractText())     if (mCurrLine != null)     parseContent();
   }
  else   if (df.extractText()) {
