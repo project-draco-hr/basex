@@ -1,4 +1,21 @@
 {
   metaFinished=true;
+  final ArrayList<byte[]> type=metaElements.get(MetaElem.TYPE);
+  if (type != null && Token.eq(type.get(0),FileType.MESSAGE.get())) {
+    ArrayList<byte[]> creator=metaElements.get(MetaElem.CREATOR_NAME);
+    boolean err=false;
+    if (creator != null) {
+      if (creator.size() > 1)       err=true;
+      addMeta0(MetaElem.SENDER_NAME,creator.get(0));
+      metaElements.remove(MetaElem.CREATOR_NAME);
+    }
+    creator=metaElements.get(MetaElem.CREATOR_EMAIL);
+    if (creator != null) {
+      if (creator.size() > 1)       err=true;
+      addMeta0(MetaElem.SENDER_EMAIL,creator.get(0));
+      metaElements.remove(MetaElem.CREATOR_EMAIL);
+    }
+    if (err)     Main.debug("Found multiple creators for a message. " + "All but the first one are dropped (%).",bfc.getFileName());
+  }
   if (fsAtts == null)   fsAtts=extractFSAtts();
 }
