@@ -6,6 +6,7 @@
   data=new Table(out.toString());
   StringList items=new StringList();
   if (!global) {
+    userco3.removeAllItems();
     StringList empty=new StringList();
     empty.add(" ");
     empty.add("");
@@ -35,6 +36,9 @@
           }
         }
       }
+ else       if (!s.equals(ADMIN)) {
+        userco3.addItem(s);
+      }
     }
   }
   userco1.removeAllItems();
@@ -53,43 +57,11 @@
   }
   userco1.setSelectedIndex(-1);
   userco2.setSelectedIndex(-1);
+  userco3.setSelectedIndex(-1);
   data.contents.remove(tmp);
   ((TableModel)table.getModel()).fireTableChanged(null);
   if (!global) {
     TableColumn col=table.getColumnModel().getColumn(0);
     col.setCellEditor(new MyComboBoxEditor(items.getList()));
-    table.addMouseListener(new MouseAdapter(){
-      @Override public void mousePressed(      final MouseEvent e){
-        if (e.getButton() == MouseEvent.BUTTON3) {
-          final int row=table.rowAtPoint(e.getPoint());
-          int x=e.getPoint().x;
-          int y=e.getPoint().y;
-          table.setRowSelectionInterval(row,row);
-          JPopupMenu menu=new JPopupMenu();
-          JMenuItem item=new JMenuItem("Remove from db: " + gui.context.data.meta.name);
-          menu.add(item);
-          item.addActionListener(new ActionListener(){
-            public void actionPerformed(            final ActionEvent event){
-              String usern=((TableModel)table.getModel()).getValueAt(row,0).toString();
-              gui.context.data.meta.users.remove(gui.context.data.meta.users.get(usern));
-              try {
-                setData();
-              }
- catch (              IOException ex) {
-                ex.printStackTrace();
-              }
-              permps.clear();
-              change.setEnabled(false);
-            }
-          }
-);
-          int column=table.columnAtPoint(e.getPoint());
-          if (row != table.getRowCount() - 1 && column == 0) {
-            menu.show(table,x,y);
-          }
-        }
-      }
-    }
-);
   }
 }
