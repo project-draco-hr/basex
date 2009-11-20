@@ -10,11 +10,12 @@
   try {
     ok=exec(out);
   }
- catch (  final IOException ex) {
-    return error(ex.getMessage());
-  }
-catch (  final Throwable ex) {
+ catch (  final Throwable ex) {
+    Performance.gc(2);
     Main.debug(ex);
+    abort();
+    if (ex instanceof OutOfMemoryError)     return error(PROCOUTMEM);
+    if (ex instanceof IOException)     return error(ex.getMessage());
     return error(PROCERR,this,ex.toString());
   }
   return ok;
