@@ -18,7 +18,8 @@
   for (  final String s : List.list(ctx)) {
     if (s.startsWith(DBPREFIX)) {
       if (d++ != 0)       qu.add(",\n");
-      qu.add("doc('" + s + "')"+ query);
+      final String doc="doc('" + s + "')";
+      qu.add(doc + query.replaceAll("\\| ","| " + doc));
     }
   }
   qu.add(")\n" + "order by $s descending\n" + "return <result score='{ $s }' "+ "file='{ replace(base-uri($i), '.*/', '') }'>{ $i }</result>)"+ "\n"+ "return <results query=\"" + query + "\">{ $hits }</results>\n");
