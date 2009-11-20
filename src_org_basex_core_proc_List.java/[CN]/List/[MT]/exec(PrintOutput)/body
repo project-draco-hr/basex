@@ -7,12 +7,14 @@
     final StringList entry=new StringList();
     entry.add(name);
     DataInput in=null;
+    String file=null;
     try {
       in=new DataInput(prop.dbfile(name,DATAINFO));
-      entry.add(new MetaData(name,in,prop).file.toString());
+      final MetaData meta=new MetaData(name,in,prop);
+      if (context.perm(User.READ,meta) == -1)       file=meta.file.toString();
     }
  catch (    final IOException ex) {
-      entry.add(INFODBERR);
+      file=INFODBERR;
     }
  finally {
       try {
@@ -21,7 +23,10 @@
  catch (      final IOException ex) {
       }
     }
-    table.contents.add(entry);
+    if (file != null) {
+      entry.add(file);
+      table.contents.add(entry);
+    }
   }
   table.sort();
   out.println(table.finish());

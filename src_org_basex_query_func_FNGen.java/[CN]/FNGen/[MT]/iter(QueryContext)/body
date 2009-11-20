@@ -3,10 +3,11 @@ switch (func) {
 case DATA:
     return data(ctx.iter(expr[0]));
 case COLLECT:
-  Iter iter=expr.length != 0 ? ctx.iter(expr[0]) : null;
-Item it=iter != null ? iter.next() : null;
-if (iter != null && it == null) Err.empty(this);
-return ctx.coll(iter == null ? null : checkStr(it));
+  if (expr.length == 0)   return ctx.coll(null);
+Iter iter=ctx.iter(expr[0]);
+Item it=iter.next();
+if (it == null) Err.empty(this);
+return ctx.coll(checkStr(it));
 case PUT:
 if (!ctx.context.user.perm(User.ADMIN)) throw new QueryException(Main.info(PERMNO,CmdPerm.ADMIN));
 final byte[] file=checkStr(expr[1],ctx);

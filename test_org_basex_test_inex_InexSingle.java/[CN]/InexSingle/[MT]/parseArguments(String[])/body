@@ -1,11 +1,25 @@
 {
   final Args arg=new Args(args);
-  final boolean ok=arg.more();
-  if (ok) {
-    quindex=arg.num();
-  }
+  boolean ok=true;
+  try {
+    while (arg.more() && ok) {
+      if (arg.dash()) {
+        final char c=arg.next();
+        if (c == 'q') {
+          quiet=true;
+        }
  else {
-    Main.outln("Usage: " + Main.name(this) + " query"+ NL+ "  query  perform specified query (1-#queries)");
+          ok=false;
+        }
+      }
+ else {
+        quindex=arg.num();
+      }
+    }
   }
+ catch (  final Exception ex) {
+    ok=false;
+  }
+  if (!ok || quindex == -1)   Main.outln("Usage: " + Main.name(this) + " [options] query"+ NL+ "  -q     quiet mode (suppress output)"+ NL+ "  query  perform specified query (1-#queries)");
   return ok;
 }
