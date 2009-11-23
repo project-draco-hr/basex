@@ -28,7 +28,6 @@
       }
       startTimer(proc);
       final boolean up=proc.updating(context) || (proc.flags & User.CREATE) != 0;
-      log.write(this + " " + proc.toString()+ ": "+ context.user.name+ " received");
       sem.before(up);
       final boolean ok=proc.execute(context,out);
       out.write(0);
@@ -38,13 +37,14 @@
       send(ok);
       stopTimer();
       sem.after(up);
-      log.write(this + " " + proc.toString()+ ": "+ context.user.name+ " executed");
+      log.write(this + " " + proc.toString()+ ": "+ context.user.name);
       if (info)       Main.outln(this + " " + in+ ": "+ perf);
     }
     if (info)     Main.outln(this + " Logout: " + context.user.name);
     log.write(this + " Logout: " + context.user.name);
   }
  catch (  final IOException ex) {
+    log.write(ex.getMessage());
     Main.error(ex,false);
   }
 }
