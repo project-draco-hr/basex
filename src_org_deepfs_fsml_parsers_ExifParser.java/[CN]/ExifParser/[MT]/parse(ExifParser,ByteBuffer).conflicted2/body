@@ -1,7 +1,10 @@
 {
-  if (buf.getShort() == IFD_TYPE_LONG && buf.getInt() == 1) {
+  if (buf.getShort() == IFD_TYPE_ASCII && buf.getInt() >= 20) {
     o.bfc.position(buf.getInt());
-    o.readIFD();
+    o.bfc.buffer(20);
+    final byte[] data=new byte[20];
+    o.bfc.get(data);
+    o.dateEvent(MetaElem.DATE_CREATED,data);
   }
- else   error(o,"Exif (0x8769)");
+ else   error(o,"DateTime (0x0132)");
 }

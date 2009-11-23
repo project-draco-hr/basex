@@ -1,0 +1,33 @@
+{
+  final int len=d.length;
+  if (len >= 4) {
+    final int year=Token.toInt(d,0,4);
+    if (len >= 7) {
+      if (d[4] != '-')       return null;
+      final int month=Token.toInt(d,5,7);
+      if (len >= 10) {
+        if (d[7] != '-')         return null;
+        final int day=Token.toInt(d,8,10);
+        if (len >= 13) {
+          if (d[10] != 'T')           return null;
+          GregorianCalendar gc=new GregorianCalendar();
+          gc.set(year,month,day);
+          gc.set(Calendar.HOUR_OF_DAY,Token.toInt(d,11,13));
+          if (len >= 16) {
+            if (d[13] != ':')             return null;
+            gc.set(Calendar.MINUTE,Token.toInt(d,14,16));
+            if (len >= 19) {
+              if (d[16] != ':')               return null;
+              gc.set(Calendar.SECOND,Token.toInt(d,17,19));
+            }
+          }
+          return ParserUtil.convertDateTime(gc);
+        }
+        return ParserUtil.convertDate(year,month,day);
+      }
+      return ParserUtil.convertYearMonth(year,month);
+    }
+    return ParserUtil.convertYear(year);
+  }
+  return null;
+}
