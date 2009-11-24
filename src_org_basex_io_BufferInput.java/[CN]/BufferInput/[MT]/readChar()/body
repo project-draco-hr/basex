@@ -5,17 +5,17 @@
   if (enc == UTF8) {
     final int cl=cl(ch);
     if (cl == 1)     return ch & 0xFF;
-    CACHE[0]=ch;
-    for (int c=1; c < cl; c++)     CACHE[c]=readByte();
-    return cp(CACHE,0);
+    cache[0]=ch;
+    for (int c=1; c < cl; c++)     cache[c]=readByte();
+    return cp(cache,0);
   }
   if (ch >= 0)   return ch;
   int p=0;
   while (true) {
-    if (p == 4)     return -CACHE[0];
-    CACHE[p++]=ch;
+    if (p == 4)     return -cache[0];
+    cache[p++]=ch;
     try {
-      final CharBuffer cb=csd.decode(ByteBuffer.wrap(Arrays.copyOf(CACHE,p)));
+      final CharBuffer cb=csd.decode(ByteBuffer.wrap(Arrays.copyOf(cache,p)));
       int i=0;
       for (int c=0; c < cb.limit(); c++)       i|=cb.get(c) << (c << 3);
       return i;
