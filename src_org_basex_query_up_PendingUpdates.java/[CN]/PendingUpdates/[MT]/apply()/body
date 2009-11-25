@@ -1,15 +1,14 @@
 {
-  final int[] fnodes=frags.getNodes();
-  for (  final int fnode : fnodes)   val.validate(frags.op.get(fnode));
-  for (  final DBPrimitives dbp : dbs.values()) {
+  for (  final Primitives dbp : primitives.values()) {
     for (    final int node : dbp.getNodes()) {
-      val.validate(dbp.op.get(node));
+      for (      final UpdatePrimitive p : dbp.op.get(node)) {
+        if (p == null)         continue;
+        p.prepare();
+      }
     }
   }
-  val.status();
-  frags.apply();
-  for (  final Data d : dbs.keySet().toArray(new Data[dbs.size()])) {
-    dbs.get(d).apply();
+  for (  final Data d : primitives.keySet().toArray(new Data[primitives.size()])) {
+    primitives.get(d).apply();
     d.flush();
   }
 }
