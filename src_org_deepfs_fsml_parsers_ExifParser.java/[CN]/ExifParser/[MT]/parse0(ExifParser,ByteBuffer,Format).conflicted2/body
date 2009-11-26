@@ -1,5 +1,14 @@
 {
-  final MetaElem elem=MetaElem.PIXEL_HEIGHT;
-  if (o.deepFile.isMetaSet(elem))   return;
-  metaSimple(o,buf,f,elem);
+  try {
+    final double sec=readRational(o.bfc,buf);
+    o.deepFile.addMeta(MetaElem.EXPOSURE_TIME_MS,sec * 1000);
+    final StringBuilder str=new StringBuilder();
+    if (sec < 1)     str.append("1/").append((int)(1 / sec));
+ else     str.append((int)sec);
+    str.append(" seconds");
+    o.deepFile.addMeta(MetaElem.EXPOSURE_TIME,str.toString());
+  }
+ catch (  final IOException e) {
+    err(o,e);
+  }
 }
