@@ -1,5 +1,6 @@
 {
   String msg=null;
+  String msg2=null;
   try {
     if (BUTTONSTASERV.equals(cmd)) {
       final int p=Integer.parseInt(ports.getText());
@@ -36,6 +37,35 @@
  else     if (BUTTONREFRESH.equals(cmd)) {
       fillsedb();
     }
+ else     if ("Show".equals(cmd)) {
+      FileReader fread=new FileReader(logdir + logc.getSelectedItem().toString());
+      logt.read(fread,logc.getSelectedItem().toString());
+      fread.close();
+      scroll.setVisible(true);
+      logs.validate();
+    }
+ else     if ("Delete".equals(cmd)) {
+      File f=new File(logdir + logc.getSelectedItem().toString());
+      if (f.delete()) {
+        logFiles();
+        scroll.setVisible(false);
+        logs.validate();
+      }
+ else {
+        msg2="Delete not possible";
+      }
+    }
+ else     if ("Delete All".equals(cmd)) {
+      boolean d=false;
+      for (int i=0; i < logc.getItemCount(); i++) {
+        File f=new File(logdir + logc.getItemAt(i).toString());
+        d=f.delete();
+      }
+      if (!d)       msg2="Delete of all logs not possible";
+      logFiles();
+      scroll.setVisible(false);
+      logs.validate();
+    }
  else     if (connected) {
       user.action(cmd);
     }
@@ -52,13 +82,14 @@
   final boolean vallp=new String(logpass.getPassword()).matches("[\\w]*");
   final boolean valh=host.getText().matches("([\\w]+://)?[\\w.-]+");
   boolean warn=true;
-  if (msg != null) {
+  if (msg != null || msg2 != null) {
     warn=false;
   }
  else   if (!(valpl && valh && valp&& vallu&& vallp)) {
     msg=Main.info(INVALID,!valpl ? LOCALPORT : !valh ? HOST : !valp ? PORT : !vallu ? SERVERUSER : SERVERPW);
   }
   info.setError(msg,warn);
+  info2.setError(msg2,warn);
   ports.setEnabled(!running);
   start.setEnabled(!running && valpl);
   stop.setEnabled(running);
@@ -70,5 +101,8 @@
   disconnect.setEnabled(connected);
   tabs.setEnabledAt(1,connected);
   tabs.setEnabledAt(2,connected);
+  show.setEnabled(logc.getSelectedIndex() != -1);
+  delete.setEnabled(logc.getSelectedIndex() != -1);
+  deleteAll.setEnabled(logc.getItemCount() > 0);
   ctx.prop.write();
 }
