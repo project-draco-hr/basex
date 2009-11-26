@@ -1,0 +1,43 @@
+{
+  int node=n;
+  changed.set(true,node);
+  while (node != -1 && node != root && changed.get(getParent(node))) {
+    if (getParent(node) == getLeft(getParent(getParent(node)))) {
+      int y=getRight(getParent(getParent(node)));
+      if (y != -1 && changed.get(y)) {
+        changed.set(false,getParent(node));
+        changed.set(false,y);
+        changed.set(true,getParent(getParent(node)));
+        node=getParent(getParent(node));
+      }
+ else {
+        if (node == getRight(getParent(node))) {
+          node=getParent(node);
+          rotateLeft(node);
+        }
+        changed.set(false,getParent(node));
+        changed.set(true,getParent(getParent(node)));
+        if (getParent(getParent(node)) != -1)         rotateRight(getParent(getParent(node)));
+      }
+    }
+ else {
+      int y=getLeft(getParent(getParent(node)));
+      if (y != -1 && changed.get(y)) {
+        changed.set(false,getParent(node));
+        changed.set(false,y);
+        changed.set(true,getParent(getParent(node)));
+        node=getParent(getParent(node));
+      }
+ else {
+        if (node == getLeft(getParent(node))) {
+          node=getParent(node);
+          rotateRight(node);
+        }
+        changed.set(false,getParent(node));
+        changed.set(true,getParent(getParent(node)));
+        if (getParent(getParent(node)) != -1)         rotateLeft(getParent(getParent(node)));
+      }
+    }
+  }
+  changed.set(false,root);
+}

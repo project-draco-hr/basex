@@ -1,3 +1,10 @@
 {
-  return ids(it).size();
+  if (it instanceof RangeToken)   return idRange((RangeToken)it).size();
+  final byte[] tok=it.get();
+  final int id=cache.id(tok);
+  if (id > 0)   return cache.getSize(id);
+  final long pos=get(tok);
+  final int numPre=idxl.readNum(pos);
+  cache.add(it.get(),numPre,pos + Num.len(numPre));
+  return numPre;
 }
