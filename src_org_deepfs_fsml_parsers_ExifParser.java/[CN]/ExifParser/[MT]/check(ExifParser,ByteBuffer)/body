@@ -3,23 +3,26 @@
   for (  final Format f : aFormats) {
     if (f.equals(format)) {
       final long c=buf.getInt() & 0xFFFFFFFFL;
-      if (c > Integer.MAX_VALUE) {
+      if (c > Integer.MAX_VALUE || c < 1) {
         err(o,"Invalid item count.");
         return false;
       }
-      if (count == Long.MIN_VALUE)       count=(int)c;
- else       if (count != c)       return false;
+      if (defaultCount == -1)       count=(int)c;
+ else       if (defaultCount != c)       return false;
+ else       count=defaultCount;
       final int size=count * format.getSize();
       if (size <= 4)       inlined=true;
-      try {
-        o.bfc.position(buf.getInt());
-        o.bfc.buffer(size);
+ else {
+        try {
+          o.bfc.position(buf.getInt());
+          o.bfc.buffer(size);
+        }
+ catch (        IOException e) {
+          err(o,e);
+          return false;
+        }
+        inlined=false;
       }
- catch (      IOException e) {
-        err(o,e);
-        return false;
-      }
-      inlined=false;
       return true;
     }
   }
