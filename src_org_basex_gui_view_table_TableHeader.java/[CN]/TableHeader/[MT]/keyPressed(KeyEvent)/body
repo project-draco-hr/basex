@@ -1,7 +1,7 @@
 {
   if (tdata.roots.size() == 0)   return;
-  shift=e.isShiftDown();
-  alt=e.isAltDown();
+  final boolean shift=e.isShiftDown();
+  final boolean alt=e.isAltDown();
   if (box == null && alt || inputCol == -1)   return;
   final int c=e.getKeyCode();
   if (c == KeyEvent.VK_ENTER) {
@@ -15,9 +15,17 @@
       tdata.cols[inputCol].filter=box.text;
       box.stop();
     }
-    inputCol=(inputCol + (shift ? -1 : 1)) % tdata.cols.length;
-    if (inputCol == -1)     inputCol=tdata.cols.length - 1;
-    box=new TableInput(TableHeader.this,tdata.cols[inputCol].filter);
+    final int in=inputCol + (shift ? -1 : 1);
+    if (in < 0) {
+      transferFocusBackward();
+    }
+ else     if (in == tdata.cols.length) {
+      transferFocus();
+    }
+ else {
+      inputCol=in;
+      box=new TableInput(TableHeader.this,tdata.cols[inputCol].filter);
+    }
   }
  else {
     box.code(c);
