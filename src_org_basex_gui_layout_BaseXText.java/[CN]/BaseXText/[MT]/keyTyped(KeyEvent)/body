@@ -5,7 +5,7 @@
   boolean down=true;
   final byte[] txt=text.text;
   text.pos(text.cursor());
-  final boolean ctrl=(Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() & e.getModifiers()) != 0;
+  final boolean mod=BaseXLayout.mod(e);
   if (ch == KeyEvent.VK_BACK_SPACE) {
     if (text.start() == -1) {
       if (text.pos() == 0)       return;
@@ -13,7 +13,7 @@
     }
     final boolean ld=ftChar(text.curr());
     text.delete();
-    if (ctrl) {
+    if (mod) {
       while (text.pos() > 0 && ld == ftChar(text.prev()))       text.delete();
       if (text.pos() != 0)       text.next();
     }
@@ -23,10 +23,10 @@
     if (text.start() == -1 && text.pos() == text.size())     return;
     final boolean ld=ftChar(text.curr());
     text.delete();
-    while (ctrl && text.pos() < text.size() && ld == ftChar(text.curr()))     text.delete();
+    while (mod && text.pos() < text.size() && ld == ftChar(text.curr()))     text.delete();
   }
  else {
-    if (ctrl)     return;
+    if (mod)     return;
     if (text.start() != -1)     text.delete();
     text.add(String.valueOf(ch));
   }

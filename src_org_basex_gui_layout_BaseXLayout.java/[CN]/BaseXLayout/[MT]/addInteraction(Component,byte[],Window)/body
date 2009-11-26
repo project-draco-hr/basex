@@ -15,12 +15,12 @@
           BaseXCombo c=(BaseXCombo)e.getSource();
           if (c.isPopupVisible())           return;
         }
-        final int code=e.getKeyCode();
-        if (code == KeyEvent.VK_ENTER) {
+        final int c=e.getKeyCode();
+        if (c == KeyEvent.VK_ENTER) {
           final Object s=e.getSource();
           if (!(s instanceof BaseXButton || s instanceof BaseXText))           d.close();
         }
- else         if (code == KeyEvent.VK_ESCAPE) {
+ else         if (c == KeyEvent.VK_ESCAPE) {
           d.cancel();
         }
       }
@@ -30,28 +30,29 @@
   if (gui == null)   return;
   comp.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      final int code=e.getKeyCode();
+      final int c=e.getKeyCode();
+      final boolean mod=mod(e);
       if (e.isAltDown() && gui.context.data != null) {
-        if (code == KeyEvent.VK_LEFT) {
+        if (c == KeyEvent.VK_LEFT) {
           GUICommands.GOBACK.execute(gui);
         }
- else         if (code == KeyEvent.VK_RIGHT) {
+ else         if (c == KeyEvent.VK_RIGHT) {
           GUICommands.GOFORWARD.execute(gui);
         }
- else         if (code == KeyEvent.VK_UP) {
+ else         if (c == KeyEvent.VK_UP) {
           GUICommands.GOUP.execute(gui);
         }
- else         if (code == KeyEvent.VK_HOME) {
+ else         if (c == KeyEvent.VK_HOME) {
           GUICommands.ROOT.execute(gui);
         }
       }
-      if (e.isControlDown()) {
+      if (mod) {
         final int fs=gui.prop.num(GUIProp.FONTSIZE);
         int nfs=fs;
-        if (code == '+' || code == '-' || code == '=') {
-          nfs=Math.max(1,fs + (code == '-' ? -1 : 1));
+        if (c == '+' || c == '-' || c == '=') {
+          nfs=Math.max(1,fs + (c == '-' ? -1 : 1));
         }
- else         if (code == '0') {
+ else         if (c == '0') {
           nfs=12;
         }
         if (fs != nfs) {
