@@ -1,6 +1,4 @@
 {
-  final Data data=gui.context.data;
-  if (data == null || !data.meta.pathindex)   return;
   super.paintComponent(g);
   if (plotData == null) {
     refreshInit();
@@ -11,10 +9,12 @@
   plotWidth=w - (MARGIN[1] + MARGIN[3]);
   plotHeight=h - (MARGIN[0] + MARGIN[2]);
   final int sz=sizeFactor();
-  if (plotWidth - sz < 0 || plotHeight - sz < 0) {
-    g.setFont(font);
-    g.setColor(Color.black);
-    BaseXLayout.drawCenter(g,NOSPACE,w,h / 2 - MARGIN[0]);
+  g.setFont(font);
+  g.setColor(Color.black);
+  final Data data=gui.context.data;
+  final boolean nd=data == null || !data.meta.pathindex;
+  if (nd || plotWidth - sz < 0 || plotHeight - sz < 0) {
+    BaseXLayout.drawCenter(g,nd ? NODATA : NOSPACE,w,h / 2 - MARGIN[0]);
     return;
   }
   if (plotImg == null || plotChanged)   createPlotImage();
