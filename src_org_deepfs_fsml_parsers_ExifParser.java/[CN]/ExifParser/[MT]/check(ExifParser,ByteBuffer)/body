@@ -1,10 +1,28 @@
 {
-  final Format format=Format.getForId(buf.getShort());
+  format=Format.getForId(buf.getShort());
   for (  final Format f : aFormats) {
     if (f.equals(format)) {
-      if (expVal == null || (buf.getInt() & 0xFFFFFFFFL) == expVal)       return f;
+      final long c=buf.getInt() & 0xFFFFFFFFL;
+      if (c > Integer.MAX_VALUE) {
+        err(o,"Invalid item count.");
+        return false;
+      }
+      if (count == Long.MIN_VALUE)       count=(int)c;
+ else       if (count != c)       return false;
+      final int size=count * format.getSize();
+      if (size <= 4)       inlined=true;
+      try {
+        o.bfc.position(buf.getInt());
+        o.bfc.buffer(size);
+      }
+ catch (      IOException e) {
+        err(o,e);
+        return false;
+      }
+      inlined=false;
+      return true;
     }
   }
   err(o);
-  return null;
+  return false;
 }
