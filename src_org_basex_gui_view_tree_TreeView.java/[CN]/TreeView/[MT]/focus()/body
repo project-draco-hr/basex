@@ -1,21 +1,18 @@
 {
   if (refreshedFocus) {
     final int pre=gui.context.focused;
-    for (int i=0; i < rectsPerLevel.size(); i++) {
-      final ArrayList<TreeRect> rectsL=rectsPerLevel.get(i);
-      if (rectsL.get(0).multiPres != null) {
-        final TreeRect multiPres=rectsL.get(0);
-        final int index=searchPreArrayPosition(multiPres.multiPres,pre);
+    for (int i=0; i < cache.maxLevel; i++) {
+      if (cache.isBigRectangle(i)) {
+        final int index=cache.searchPreArrayPosition(i,pre);
         if (index > -1) {
-          multiPres.pre=pre;
-          focusedRect=multiPres;
+          focusedRect=cache.getTreeRectsPerLevel(i)[0];
           focusedRectLevel=i;
           refreshedFocus=false;
           return true;
         }
       }
  else {
-        final TreeRect rect=searchRect(rectsL,pre);
+        final TreeRect rect=cache.searchRect(i,pre);
         if (rect != null) {
           focusedRect=rect;
           focusedRectLevel=i;
@@ -27,18 +24,18 @@
   }
  else {
     final int level=getLevelPerY(mousePosY);
-    if (level == -1 || level >= rectsPerLevel.size())     return false;
-    final Iterator<TreeRect> it=rectsPerLevel.get(level).iterator();
-    while (it.hasNext()) {
-      final TreeRect r=it.next();
+    if (level == -1 || level >= cache.maxLevel)     return false;
+    final TreeRect[] rL=cache.getTreeRectsPerLevel(level);
+    for (int i=0; i < rL.length; i++) {
+      final TreeRect r=rL[i];
       if (r.contains(mousePosX)) {
         focusedRect=r;
         focusedRectLevel=level;
         int pre=r.pre;
-        if (r.multiPres != null) {
+        if (cache.isBigRectangle(level)) {
           final double ratio=mousePosX / (double)r.w;
-          final int index=(int)((r.multiPres.length - 1) * ratio);
-          pre=r.multiPres[index];
+          final int index=(int)((cache.getSizePerLevel(level) - 1) * ratio);
+          pre=cache.getPrePerLevelAndIndex(level,index);
           r.pre=pre;
         }
         gui.notify.focus(pre,this);

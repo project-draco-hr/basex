@@ -4,17 +4,17 @@
   final Graphics mIg=markedImage.getGraphics();
   final int size=gui.context.marked.size();
   final int[] marked=Arrays.copyOf(gui.context.marked.sorted,size);
-  for (int k=0; k < rectsPerLevel.size(); k++) {
+  for (int k=0; k < cache.maxLevel; k++) {
     final int y=getYperLevel(k);
-    final ArrayList<TreeRect> rList=rectsPerLevel.get(k);
-    if (rList.get(0).multiPres != null) {
-      final TreeRect currRect=rList.get(0);
+    final TreeRect[] rL=cache.getTreeRectsPerLevel(k);
+    if (cache.isBigRectangle(k)) {
+      final TreeRect currRect=rL[0];
       for (int j=0; j < size; j++) {
         final int pre=marked[j];
         if (pre == -1)         continue;
-        final int index=searchPreArrayPosition(currRect.multiPres,pre);
+        final int index=cache.searchPreArrayPosition(j,pre);
         if (index > -1) {
-          final int x=(int)(currRect.w * index / (double)currRect.multiPres.length);
+          final int x=(int)(currRect.w * index / (double)cache.getSizePerLevel(k));
           mIg.setColor(Color.RED);
           mIg.drawLine(x,y,x,y + nodeHeight);
           marked[j]=-1;
@@ -24,8 +24,7 @@
  else {
       for (int j=0; j < size; j++) {
         final int pre=marked[j];
-        if (pre == -1)         continue;
-        final TreeRect rect=searchRect(rList,pre);
+        final TreeRect rect=cache.searchRect(j,pre);
         if (rect != null) {
           mIg.setColor(Color.RED);
           mIg.fillRect(rect.x + 1,y,rect.w - 1,nodeHeight);

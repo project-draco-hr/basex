@@ -1,0 +1,69 @@
+{
+  if (l == -1)   return;
+  final int y=getYperLevel(l);
+  final int h=nodeHeight;
+  final Data data=gui.context.data;
+  final int pre=r.pre;
+  final int kind=data.kind(pre);
+  final int size=data.size(pre,kind);
+  int multiPreX=-1;
+  if (fillNodes) {
+    drawRectangle(g,l,r.x,y,r.w,h,false,true,DRAW_HIGHLIGHT);
+  }
+ else {
+    drawRectangle(g,l,r.x,y,r.w,h,true,false,DRAW_HIGHLIGHT);
+  }
+  if (cache.isBigRectangle(l)) {
+    final int index=cache.searchPreArrayPosition(l,pre);
+    final double ratio=index / (double)(cache.getSizePerLevel(l) - 1);
+    multiPreX=(int)(r.w * ratio);
+    g.drawLine(multiPreX,y,multiPreX,y + nodeHeight);
+  }
+  if (childX > -1) {
+    g.drawLine(childX,getYperLevel(l + 1) - 1,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,y + nodeHeight + 1);
+  }
+  if (showParent && pre > 0) {
+    final int par=data.parent(pre,kind);
+    final int lv=l - 1;
+    TreeRect parRect=null;
+    if (lv >= 0) {
+      if (cache.isBigRectangle(lv)) {
+      }
+ else {
+        parRect=cache.searchRect(lv,par);
+        if (parRect != null) {
+          highlightNode(g,parRect,lv,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,true,true,false);
+        }
+      }
+    }
+  }
+  if (showChildren && size > 1 && l + 1 < cache.maxLevel) {
+    final int lv=l + 1;
+    @SuppressWarnings("unused") final TreeRect[] rL=cache.getTreeRectsPerLevel(lv);
+    final ChildIterator chIt=new ChildIterator(data,pre);
+    if (cache.isBigRectangle(lv)) {
+    }
+ else {
+      while (chIt.more()) {
+        TreeRect sRect=cache.searchRect(lv,chIt.next());
+        g.setColor(new Color(0x38323D4F,true));
+        int parX=multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX;
+        g.fillPolygon(new int[]{parX,sRect.x,sRect.x + sRect.w,sRect.x,sRect.x + sRect.w},new int[]{getYperLevel(l) + nodeHeight,getYperLevel(lv) - 1,getYperLevel(lv) - 1,getYperLevel(lv) + nodeHeight,getYperLevel(lv) + nodeHeight},5);
+        highlightNode(g,sRect,lv,-1,true,false,true);
+      }
+    }
+  }
+  if (!(showParent && showChildren))   return;
+  String s=cache.getText(data,pre);
+  final int w=BaseXLayout.width(g,s);
+  if (r.pre == 0) {
+    g.fillRect(r.x,y + fontHeight + 1,w + 2,h);
+    g.setColor(Color.WHITE);
+    g.drawString(s,r.x + 1,y + fontHeight + h - 2);
+  }
+ else {
+    g.fillRect(r.x,y - fontHeight,w + 2,h);
+    g.setColor(Color.WHITE);
+    g.drawString(s,r.x + 1,(int)(y - h / (float)fontHeight) - 2);
+  }
+}

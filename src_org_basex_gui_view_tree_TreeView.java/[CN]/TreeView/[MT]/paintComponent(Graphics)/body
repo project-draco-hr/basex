@@ -1,10 +1,8 @@
 {
   super.paintComponent(g);
   g.setFont(GUIConstants.font);
-  final Performance perf=new Performance();
-  perf.initTimer();
-  fontHeight=g.getFontMetrics().getHeight();
-  if (nodeHeight == -1)   nodeHeight=fontHeight;
+  Data data=gui.context.data;
+  nodeHeight=fontHeight=g.getFontMetrics().getHeight();
   setLevelDistance();
   if (windowSizeChanged()) {
     if (markedImage != null) {
@@ -12,24 +10,12 @@
       refreshedMark=true;
     }
     focusedRect=null;
-    treeImage=createImage();
-    final Graphics tIg=treeImage.getGraphics();
-    if (rectsPerLevel == null) {
-      rectsPerLevel=new ArrayList<ArrayList<TreeRect>>();
-    }
- else {
-      rectsPerLevel.clear();
-    }
-    final Nodes curr=gui.context.current;
-    for (int i=0; i < curr.size(); i++) {
-      treeView(curr.nodes[i],tIg);
-    }
+    createNewMainImage(data);
   }
   g.drawImage(treeImage,0,0,getWidth(),getHeight(),this);
-  if (refreshedMark)   markNodes();
   if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
   if (focus()) {
-    highlightNode(g,markColor,focusedRect,focusedRectLevel,-1,false,showAncestors,showDescendants);
+    highlightNode(g,focusedRect,focusedRectLevel,-1,false,SHOW_ANCESTORS,SHOW_DESCENDANTS);
   }
   if (selection)   markSelektedNodes(g);
 }
