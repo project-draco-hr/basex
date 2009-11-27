@@ -1,21 +1,18 @@
 {
   if (tdata.roots.size() == 0)   return;
-  final boolean shift=e.isShiftDown();
-  final boolean alt=e.isAltDown();
-  if (box == null && alt || inputCol == -1)   return;
-  final int c=e.getKeyCode();
-  if (c == KeyEvent.VK_ENTER) {
+  if (box == null && ignoreTyped(e) || inputCol == -1)   return;
+  if (pressed(ENTER,e)) {
     box.stop();
     inputCol=-1;
     final Nodes marked=view.gui.context.marked;
     if (marked.size() != 0)     view.gui.notify.context(marked,false,null);
   }
- else   if (c == KeyEvent.VK_TAB) {
+ else   if (pressed(TAB,e)) {
     if (box != null) {
       tdata.cols[inputCol].filter=box.text;
       box.stop();
     }
-    final int in=inputCol + (shift ? -1 : 1);
+    final int in=inputCol + (e.isShiftDown() ? -1 : 1);
     if (in < 0) {
       transferFocusBackward();
     }
@@ -28,7 +25,7 @@
     }
   }
  else {
-    box.code(c);
+    box.code(e);
   }
   repaint();
 }

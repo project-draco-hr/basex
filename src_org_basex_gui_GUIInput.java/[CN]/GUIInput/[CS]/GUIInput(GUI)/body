@@ -14,8 +14,7 @@
   addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
       final int count=box.getItemCount();
-      final int c=e.getKeyCode();
-      if (c == KeyEvent.VK_ENTER) {
+      if (pressed(ENTER,e)) {
         if (pop.isVisible()) {
           completeInput();
         }
@@ -36,7 +35,7 @@
       }
       if (count == 0)       return;
       int bi=box.getSelectedIndex();
-      if (c == KeyEvent.VK_DOWN) {
+      if (pressed(DOWN,e)) {
         if (!pop.isVisible()) {
           showPopup();
         }
@@ -44,7 +43,7 @@
           if (++bi == count)           bi=0;
         }
       }
- else       if (c == KeyEvent.VK_UP) {
+ else       if (pressed(UP,e)) {
         if (!pop.isVisible()) {
           showPopup();
         }
@@ -55,16 +54,13 @@
       if (bi != box.getSelectedIndex())       box.setSelectedIndex(bi);
     }
     @Override public void keyReleased(    final KeyEvent e){
-      final int c=e.getKeyCode();
-      if (e.getKeyChar() == 0xFFFF || BaseXLayout.mod(e) || c == KeyEvent.VK_DOWN || c == KeyEvent.VK_UP)       return;
-      if (c == KeyEvent.VK_ESCAPE) {
+      if (pressed(ESCAPE,e)) {
         pop.setVisible(false);
-        return;
       }
-      if (c == KeyEvent.VK_ENTER) {
+ else       if (pressed(ENTER,e)) {
         pop.hide();
       }
- else {
+ else       if (!ignoreTyped(e) && !pressed(DOWN,e) && !pressed(UP,e)) {
         showPopup();
         if (gui.prop.is(GUIProp.EXECRT) && !cmdMode())         main.execute();
       }

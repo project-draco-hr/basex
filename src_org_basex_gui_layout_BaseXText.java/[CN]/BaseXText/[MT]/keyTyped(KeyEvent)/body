@@ -1,37 +1,10 @@
 {
-  if (undo == null)   return;
-  final char ch=e.getKeyChar();
-  if (!Prop.MAC && e.isAltDown() || e.isActionKey() || ch == KeyEvent.VK_ESCAPE)   return;
-  boolean down=true;
-  final byte[] txt=text.text;
+  if (undo == null || ignoreTyped(e) || pressed(ESCAPE,e) || pressed(DEL,e) || pressed(DELBACK,e))   return;
   text.pos(text.cursor());
-  final boolean mod=BaseXLayout.mod(e);
-  if (ch == KeyEvent.VK_BACK_SPACE) {
-    if (text.start() == -1) {
-      if (text.pos() == 0)       return;
-      text.prev();
-    }
-    final boolean ld=ftChar(text.curr());
-    text.delete();
-    if (mod) {
-      while (text.pos() > 0 && ld == ftChar(text.prev()))       text.delete();
-      if (text.pos() != 0)       text.next();
-    }
-    down=false;
-  }
- else   if (ch == KeyEvent.VK_DELETE) {
-    if (text.start() == -1 && text.pos() == text.size())     return;
-    final boolean ld=ftChar(text.curr());
-    text.delete();
-    while (mod && text.pos() < text.size() && ld == ftChar(text.curr()))     text.delete();
-  }
- else {
-    if (mod)     return;
-    if (text.start() != -1)     text.delete();
-    text.add(String.valueOf(ch));
-  }
-  e.consume();
+  if (text.start() != -1)   text.delete();
+  text.add(String.valueOf(e.getKeyChar()));
   text.setCaret();
-  if (txt != text.text)   rend.calc();
-  showCursor(down ? 2 : 0);
+  rend.calc();
+  showCursor(2);
+  e.consume();
 }

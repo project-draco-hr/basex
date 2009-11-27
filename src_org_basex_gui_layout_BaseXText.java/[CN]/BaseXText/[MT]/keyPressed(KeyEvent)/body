@@ -1,110 +1,140 @@
 {
-  final int c=e.getKeyCode();
-  final boolean shf=e.isShiftDown();
-  final boolean mod=BaseXLayout.mod(e);
-  if (c == KeyEvent.VK_TAB && mod) {
-    if (shf)     transferFocusBackward();
- else     transferFocus();
+  if (modifier(e))   return;
+  if (pressed(PREVTAB,e)) {
+    transferFocusBackward();
     return;
   }
-  if (mod && c == KeyEvent.VK_F) {
+  if (pressed(NEXTTAB,e)) {
+    transferFocus();
+    return;
+  }
+  if (pressed(FIND,e)) {
     if (find != null)     find.requestFocusInWindow();
     return;
   }
-  if (c == KeyEvent.VK_F3) {
-    find(rend.find(shf,true));
+  cursor(true);
+  final int fh=rend.fontH();
+  if (pressed(SCROLLDOWN,e)) {
+    scroll.pos(scroll.pos() + fh);
     return;
   }
-  if (e.isAltDown() || c == KeyEvent.VK_SHIFT || c == KeyEvent.VK_META || c == KeyEvent.VK_CONTROL || c == KeyEvent.VK_ESCAPE)   return;
+  if (pressed(SCROLLUP,e)) {
+    scroll.pos(scroll.pos() - fh);
+    return;
+  }
+  if (pressed(COPY,e)) {
+    copy();
+    return;
+  }
   text.pos(text.cursor());
-  cursor(true);
-  final byte[] txt=text.text;
+  if (!pressed(UP,e) && !pressed(DOWN,e))   lastCol=-1;
+  if (pressed(FINDNEXT,e) || pressed(FINDPREV,e)) {
+    find(rend.find(pressed(FINDPREV,e),true));
+    return;
+  }
+  if (pressed(SELECTALL,e)) {
+    selectAll();
+    text.setCaret();
+    return;
+  }
+  final boolean marking=e.isShiftDown();
+  final boolean nomark=text.start() == -1;
+  if (marking && nomark)   text.startMark();
   boolean down=true;
-  if (!mod && !e.isActionKey())   return;
-  if (c != KeyEvent.VK_DOWN && c != KeyEvent.VK_UP)   col=-1;
-  if (mod && !shf) {
-    if (c == KeyEvent.VK_A) {
-      selectAll();
-      text.setCaret();
-      return;
-    }
-    if (c == KeyEvent.VK_C) {
-      copy();
-      return;
-    }
-    if (undo != null) {
-      if (c == KeyEvent.VK_X) {
-        cut();
-      }
- else       if (c == KeyEvent.VK_V) {
-        paste();
-      }
- else       if (c == KeyEvent.VK_Z) {
-        undo();
-      }
- else       if (c == KeyEvent.VK_Y) {
-        redo();
-      }
-    }
+  boolean consumed=true;
+  if (pressed(WORDRIGHT,e)) {
+    final boolean ch=ftChar(text.next(marking));
+    while (text.pos() < text.size() && ch == ftChar(text.curr()))     text.next(marking);
   }
-  if (shf && text.start() == -1)   text.startMark();
-  final int fh=rend.fontH();
-  final int h=getHeight();
-  if (c == KeyEvent.VK_RIGHT) {
-    if (mod) {
-      final boolean ch=ftChar(text.next(shf));
-      while (text.pos() < text.size() && ch == ftChar(text.curr()))       text.next(shf);
-    }
- else {
-      text.next(shf);
-    }
-  }
- else   if (c == KeyEvent.VK_LEFT) {
-    if (mod) {
-      final boolean ch=ftChar(text.prev(shf));
-      while (text.pos() > 0 && ch == ftChar(text.prev(shf)))       ;
-      if (text.pos() != 0)       text.next(shf);
-    }
- else {
-      text.prev(shf);
-    }
+ else   if (pressed(WORDLEFT,e)) {
+    final boolean ch=ftChar(text.prev(marking));
+    while (text.pos() > 0 && ch == ftChar(text.prev(marking)))     ;
+    if (text.pos() != 0)     text.next(marking);
     down=false;
   }
- else   if (c == KeyEvent.VK_DOWN) {
-    if (mod) {
-      scroll.pos(scroll.pos() + fh);
-      return;
-    }
-    down(1,shf);
-  }
- else   if (c == KeyEvent.VK_UP) {
-    if (mod) {
-      scroll.pos(scroll.pos() - fh);
-      return;
-    }
-    up(1,shf);
+ else   if (pressed(BOT,e)) {
+    if (!marking)     text.noMark();
+    text.pos(0);
     down=false;
   }
+ else   if (pressed(EOT,e)) {
+    if (!marking)     text.noMark();
+    text.pos(text.size());
+  }
+ else   if (pressed(BOL,e)) {
+    text.bol(marking);
+    down=false;
+  }
+ else   if (pressed(EOL,e)) {
+    text.forward(Integer.MAX_VALUE,marking);
+  }
+ else   if (pressed(PAGEDOWN,e)) {
+    down(getHeight() / fh,marking);
+  }
+ else   if (pressed(PAGEUP,e)) {
+    up(getHeight() / fh,marking);
+    down=false;
+  }
+ else   if (pressed(RIGHT,e)) {
+    text.next(marking);
+  }
+ else   if (pressed(LEFT,e)) {
+    text.prev(marking);
+    down=false;
+  }
+ else   if (pressed(UP,e)) {
+    up(1,marking);
+    down=false;
+  }
+ else   if (pressed(DOWN,e)) {
+    down(1,marking);
+  }
  else {
-    if (!shf)     text.noMark();
-    if (c == KeyEvent.VK_HOME) {
-      if (mod)       text.pos(0);
- else       text.home(shf);
+    consumed=false;
+  }
+  final byte[] txt=text.text;
+  if (marking) {
+    text.endMark();
+  }
+ else   if (undo != null) {
+    if (pressed(CUT,e)) {
+      cut();
+    }
+ else     if (pressed(PASTE,e)) {
+      paste();
+    }
+ else     if (pressed(UNDO,e)) {
+      undo();
+    }
+ else     if (pressed(REDO,e)) {
+      redo();
+    }
+ else     if (pressed(DELWORD,e) || pressed(DEL,e)) {
+      if (nomark && text.pos() == text.size())       return;
+      final boolean ld=ftChar(text.curr());
+      text.delete();
+      if (nomark && pressed(DELWORD,e)) {
+        while (text.pos() < text.size() && ld == ftChar(text.curr()))         text.delete();
+      }
+    }
+ else     if (pressed(DELWORDBACK,e) || pressed(DELBACK,e)) {
+      if (nomark) {
+        if (text.pos() == 0)         return;
+        text.prev();
+      }
+      final boolean ld=ftChar(text.curr());
+      text.delete();
+      if (nomark && pressed(DELWORDBACK,e)) {
+        while (text.pos() > 0 && ld == ftChar(text.prev()))         text.delete();
+        if (text.pos() != 0)         text.next();
+      }
       down=false;
     }
- else     if (c == KeyEvent.VK_END) {
-      if (mod)       text.pos(text.size());
- else       text.end(Integer.MAX_VALUE,shf);
-    }
- else     if (c == KeyEvent.VK_PAGE_DOWN) {
-      down(h / fh,shf);
-    }
- else     if (c == KeyEvent.VK_PAGE_UP) {
-      up(h / fh,shf);
-      down=false;
+ else {
+      consumed=false;
     }
   }
-  if (shf)   text.endMark();
+  if (consumed)   e.consume();
   text.setCaret();
   if (txt != text.text)   rend.calc();
   showCursor(down ? 2 : 0);
