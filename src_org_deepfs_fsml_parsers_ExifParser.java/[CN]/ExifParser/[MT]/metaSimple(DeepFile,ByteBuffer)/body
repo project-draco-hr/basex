@@ -1,16 +1,25 @@
 {
 switch (format) {
 case BYTE:
-    d.addMeta(elem,(short)(buf.get() & 0xFF));
-  break;
+    final StringBuilder sbb=new StringBuilder();
+  for (int i=0, max=count - 1; i < max; i++)   sbb.append(readByte(b)).append(", ");
+sbb.append(readByte(b));
+d.addMeta(elem,sbb.toString());
+break;
 case ASCII:
-d.addMeta(elem,buf.get(new byte[count]).array());
+d.addMeta(elem,readAscii(b));
 break;
 case SHORT:
-d.addMeta(elem,buf.getShort() & 0xFFFF);
+final StringBuilder sbs=new StringBuilder();
+for (int i=0, max=count - 1; i < max; i++) sbs.append(readShort(b)).append(", ");
+sbs.append(readShort(b));
+d.addMeta(elem,sbs.toString());
 break;
 case LONG:
-d.addMeta(elem,buf.getInt() & 0xFFFFFFFFL);
+d.addMeta(elem,readLong(b));
+break;
+case SLONG:
+d.addMeta(elem,readSLong(b));
 break;
 default :
 Main.debug("ExifParser: Unknown or unsupported field type for " + "inlined data (%)",format);
