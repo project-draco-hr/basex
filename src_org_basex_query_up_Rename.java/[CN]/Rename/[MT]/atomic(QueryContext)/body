@@ -16,6 +16,14 @@
  else {
     Err.or(UPWRTRGTYP,this);
   }
-  ctx.updates.add(new RenamePrimitive((Nod)i,ex.atomic(ctx).qname()),ctx);
+  final QNm name=ex.atomic(ctx).qname();
+  final Nod tar=(Nod)i;
+  final Nod test=i.type == Type.ELM ? tar : i.type == Type.ATT ? tar.parent() : null;
+  if (test != null) {
+    byte[] uri=test.uri(name.pref());
+    if (uri == null && name.pref().length == 0)     uri=ctx.nsElem;
+    if (uri != null && !eq(name.uri.str(),uri))     Err.or(UPCONFNS);
+  }
+  ctx.updates.add(new RenamePrimitive(tar,name),ctx);
   return Seq.EMPTY;
 }
