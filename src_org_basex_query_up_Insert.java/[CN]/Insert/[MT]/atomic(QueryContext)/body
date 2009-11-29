@@ -1,7 +1,7 @@
 {
   final Constr c=new Constr(ctx,expr[1]);
-  final NodIter seq=c.children;
-  final NodIter aSeq=c.ats;
+  final NodIter cList=c.children;
+  final NodIter aList=c.ats;
   if (c.errAtt)   Err.or(UPNOATTRPER);
   if (c.duplAtt != null)   Err.or(UPATTDUPL,c.duplAtt);
   final Iter t=expr[0].iter(ctx);
@@ -18,29 +18,29 @@
     if (n.type != Type.ELM && n.type != Type.DOC)     Err.or(UPTRGTYP,this);
   }
   UpdatePrimitive up=null;
-  if (aSeq.size() > 0) {
-    if (before || after) {
-      if (par.type != Type.ELM)       Err.or(UPATTDOC,this);
-      up=new InsertAttribute(par,aSeq);
+  if (aList.size() > 0) {
+    final Nod tar=before || after ? par : n;
+    if (tar.type != Type.ELM)     Err.or(before || after ? UPATTELM : UPATTELM2,this);
+    for (int a=0; a < aList.size(); a++) {
+      final QNm name=aList.get(a).qname();
+      final byte[] uri=tar.uri(name.pref(),ctx);
+      if (uri != null && !eq(name.uri.str(),uri))       Err.or(UPCONFNS);
     }
- else {
-      if (n.type != Type.ELM)       Err.or(UPWRTRGTYP2,this);
-      up=new InsertAttribute(n,aSeq);
-    }
+    up=new InsertAttribute(tar,aList);
     ctx.updates.add(up,ctx);
   }
-  if (seq.size() > 0) {
+  if (cList.size() > 0) {
     if (before) {
-      up=new InsertBefore(n,seq);
+      up=new InsertBefore(n,cList);
     }
  else     if (after) {
-      up=new InsertAfter(n,seq);
+      up=new InsertAfter(n,cList);
     }
  else     if (first) {
-      up=new InsertIntoFirst(n,seq);
+      up=new InsertIntoFirst(n,cList);
     }
  else {
-      up=new InsertInto(n,seq,last);
+      up=new InsertInto(n,cList,last);
     }
     ctx.updates.add(up,ctx);
   }
