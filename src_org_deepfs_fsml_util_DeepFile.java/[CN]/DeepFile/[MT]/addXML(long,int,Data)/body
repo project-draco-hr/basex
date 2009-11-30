@@ -1,5 +1,5 @@
 {
-  if (!fsxml)   return;
+  if (!extractXML())   return;
   final ByteArrayOutputStream baos=new ByteArrayOutputStream();
   final PrintOutput po=new PrintOutput(baos);
   final XMLSerializer ser=new XMLSerializer(po);
@@ -18,11 +18,12 @@
     xmlContent=new byte[]{};
   }
   if (xmlContent.length == 0)   return;
-  if (xmlContent.length > fstextmax) {
-    if (!fscont)     return;
-    final byte[] text=new byte[fstextmax];
-    System.arraycopy(xmlContent,0,text,0,fstextmax);
-    textContents.add(new TextContent(position,fstextmax,text));
+  final int textmax=context.prop.num(Prop.FSTEXTMAX);
+  if (xmlContent.length > textmax) {
+    if (!extractText())     return;
+    final byte[] text=new byte[textmax];
+    System.arraycopy(xmlContent,0,text,0,textmax);
+    textContents.add(new TextContent(position,textmax,text));
   }
  else {
     xmlContents.add(new XMLContent(position,byteCount,new String(xmlContent)));
