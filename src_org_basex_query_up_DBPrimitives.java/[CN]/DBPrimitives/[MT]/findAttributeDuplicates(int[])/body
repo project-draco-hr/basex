@@ -1,20 +1,21 @@
 {
-  final Map<String,Integer> m=new HashMap<String,Integer>();
+  final ObjectMap<Integer> m=new ObjectMap<Integer>();
   final Set<Integer> ats=new HashSet<Integer>();
   for (  final int pre : pres) {
     if (d.kind(pre) == Data.ATTR) {
       ats.add(pre);
-      addAttributeChanges(m,pre);
+      for (      final UpdatePrimitive up : op.get(pre)) {
+        if (up == null)         continue;
+        changeAttributePool(m,true,up.addAtt());
+        changeAttributePool(m,false,up.remAtt());
+      }
     }
  else {
       addElementChanges(m,pre);
-      int p=pre + 1;
-      while (p < pre + d.attSize(pre,Data.ELEM)) {
-        if (!ats.contains(p))         changeAttributePool(m,true,Token.string(d.attName(p)));
-        p++;
+      for (int p=pre + 1; p < pre + d.attSize(pre,Data.ELEM); p++) {
+        if (!ats.contains(p))         changeAttributePool(m,true,d.attName(p));
       }
     }
   }
   findDuplicates(m);
-  m.clear();
 }
