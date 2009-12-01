@@ -7,12 +7,12 @@
   final Iter t=expr[0].iter(ctx);
   Item i=t.next();
   if (i == null)   Err.or(UPSEQEMP,i);
-  final int k=Nod.kind(i.type);
-  if (!(i instanceof Nod) || k == Data.DOC || t.next() != null)   Err.or(UPTRGMULT,i);
+  final Type type=i.type;
+  if (!(i instanceof Nod) || type == Type.DOC || t.next() != null)   Err.or(UPTRGMULT,i);
   final Nod n=(Nod)i;
   if (!value) {
     if (n.parent() == null)     Err.or(UPNOPAR,i);
-    if (k != Data.ATTR) {
+    if (type != Type.ATT) {
       if (aSeq.size() > 0)       Err.or(UPWRELM,i);
       ctx.updates.add(new ReplacePrimitive(n,seq,false),ctx);
     }
@@ -23,9 +23,9 @@
   }
  else {
     final byte[] txt=seq.size() < 1 ? EMPTY : seq.get(0).str();
-    if (k == Data.COMM)     CComm.check(txt);
-    if (k == Data.PI)     CPI.check(txt);
-    ctx.updates.add(k == Data.ELEM ? new ReplaceElemContent(n,txt) : new ReplaceValue(n,new QNm(txt)),ctx);
+    if (type == Type.COM)     CComm.check(txt);
+    if (type == Type.PI)     CPI.check(txt);
+    ctx.updates.add(type == Type.ELM ? new ReplaceElemContent(n,txt) : new ReplaceValue(n,new QNm(txt)),ctx);
   }
   return Seq.EMPTY;
 }
