@@ -6,10 +6,16 @@
   if (!prop.is(Prop.FSTRAVERSAL))   return build(new FSParser(path,prop),db);
   FSTraversalParser parser=new FSTraversalParser(path,context,db);
   progress(parser);
-  parser.parse();
+  try {
+    parser.parse();
+  }
+ catch (  final ProgressException ex) {
+    new Open(db).execute(context);
+    return error(PROGERR);
+  }
   final Optimize opt=new Optimize();
   progress(opt);
   opt.execute(context);
-  new Open(args[1]).execute(context);
+  new Open(db).execute(context);
   return info(DBCREATED,args[1],perf);
 }
