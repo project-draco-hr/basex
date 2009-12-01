@@ -2,29 +2,49 @@
   final int k=Nod.kind(nd.type);
 switch (k) {
 case Data.ATTR:
-    QNm n=nd.qname();
-  int uri=Math.abs(m.ns.add(n.uri.str()));
-m.addAtt(m.atts.index(n.str(),null,false),uri,nd.str(),pre - par);
+    QNm qn=nd.qname();
+  int uri=Math.abs(md.ns.add(qn.uri.str()));
+md.addAtt(md.atts.index(qn.str(),null,false),uri,nd.str(),pre - par);
 return pre + 1;
 case Data.PI:
 final byte[] nm=nd.nname();
 final byte[] vl=nd.str();
-m.addText(vl.length == 0 ? nm : concat(nm,SPACE,vl),pre - par,k);
+md.addText(vl.length == 0 ? nm : concat(nm,SPACE,vl),pre - par,k);
 return pre + 1;
 case Data.TEXT:
 case Data.COMM:
-m.addText(nd.str(),pre - par,k);
+md.addText(nd.str(),pre - par,k);
 return pre + 1;
 default :
-n=nd.qname();
-uri=Math.abs(m.ns.add(n.uri.str()));
-m.addElem(m.tags.index(n.str(),null,false),uri,pre - par,size(nd,true),size(nd,false),false);
+int s=md.meta.size;
+boolean ne=false;
+if (par == 0) {
+final TokenList nsp=new TokenList();
+Nod n=nd;
+do {
+final Atts nns=n.ns();
+for (int a=nns.size - 1; a >= 0; a--) {
+final byte[] key=nns.key[a];
+if (nsp.contains(key)) continue;
+nsp.add(key);
+md.ns.add(key,nns.val[a]);
+}
+n=n.parent();
+}
+ while (n != null && n.type == Type.ELM);
+ne=nsp.size() != 0;
+if (ne) md.ns.open(s);
+}
+qn=nd.qname();
+ne|=qn.uri.str().length != 0;
+uri=ne ? Math.abs(md.ns.add(qn.uri.str())) : 0;
+md.addElem(md.tags.index(qn.str(),null,false),uri,pre - par,size(nd,true),size(nd,false),ne);
 NodeIter ir=nd.attr();
 Nod i;
 int p=pre + 1;
-while ((i=ir.next()) != null) p=addFragment(i,m,p,pre);
+while ((i=ir.next()) != null) p=addFragment(i,md,p,pre);
 ir=nd.child();
-while ((i=ir.next()) != null) p=addFragment(i,m,p,pre);
+while ((i=ir.next()) != null) p=addFragment(i,md,p,pre);
 return p;
 }
 }
