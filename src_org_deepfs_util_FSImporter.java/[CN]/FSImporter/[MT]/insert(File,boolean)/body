@@ -3,7 +3,7 @@
   String xmlFragment=null;
   if (f.isDirectory()) {
     try {
-      xmlFragment=FSMLSerializer.serializeFile(f);
+      xmlFragment=FSMLSerializer.serializeFile(f,absolutePath);
     }
  catch (    final IOException e) {
       Main.debug("Failed to open dir (%)",e);
@@ -20,6 +20,10 @@
         }
         deepFile.extract();
         xmlFragment=FSMLSerializer.serialize(deepFile);
+        if (absolutePath) {
+          final String par=escape(f.getParent().replace("\\","/"));
+          xmlFragment=xmlFragment.replace("<file name=\"","<file name=\"" + par + "/");
+        }
       }
  catch (      final IOException ex) {
         Main.debug("FSImporter: Failed to extract metadata/contents from the file " + "(% - %)",f.getAbsolutePath(),ex);
@@ -53,5 +57,5 @@
       }
     }
   }
-  return f.getName();
+  return escape(absolutePath ? f.getAbsolutePath().replace("\\","/") : f.getName());
 }

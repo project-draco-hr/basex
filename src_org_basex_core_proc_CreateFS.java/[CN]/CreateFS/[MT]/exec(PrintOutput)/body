@@ -1,9 +1,14 @@
 {
   prop.set(Prop.CHOP,true);
   prop.set(Prop.ENTITY,true);
-  final String path=args[0];
+  final String path;
+  try {
+    path=new File(args[0]).getCanonicalPath();
+  }
+ catch (  IOException e) {
+    return error("Could not get the canonical path for the given " + "directory%(%)",Prop.NL,e);
+  }
   final String db=args[1];
-  System.out.println(path);
   if (!prop.is(Prop.FSTRAVERSAL))   return build(new FSParser(path,prop),db);
   FSTraversalParser parser=new FSTraversalParser(path,context,db);
   progress(parser);

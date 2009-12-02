@@ -1,24 +1,4 @@
 {
-  final String name=FSImporter.escape(d.getAbsolutePath());
-  final StringBuilder query=new StringBuilder();
-  query.append("insert nodes ");
-  query.append("<").append(Token.string(DIR_NS)).append(" name=\"");
-  query.append(FSImporter.escape(name));
-  query.append("\" />");
-  query.append(" into ").append(targetNode);
-  final QueryProcessor qp=new QueryProcessor(query.toString(),ctx);
-  try {
-    qp.query();
-  }
- catch (  Exception e) {
-    Main.notexpected("FSImporter: Failed to insert root node (" + e + ").");
-  }
- finally {
-    try {
-      qp.close();
-    }
- catch (    IOException e) {
-    }
-  }
-  targetNode+="/dir[@name = \"" + name + "\"]";
+  final String fname=insert(d,true);
+  if (d.isDirectory())   targetNode+="/dir[@name = \"" + escape(fname) + "\"]";
 }
