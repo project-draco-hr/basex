@@ -4,14 +4,10 @@
     throw new IOException(sess.info());
   }
   data=new Table(out.toString());
-  StringList items=new StringList();
   if (!global) {
-    userco3.removeAllItems();
-    StringList empty=new StringList();
-    empty.add(" ");
-    empty.add("");
-    empty.add("");
-    data.contents.add(empty);
+    removeUser.removeAllItems();
+    addUser.removeAllItems();
+    tempP.clear();
     out=new CachedOutput();
     sess.execute(new Show("Users"),out);
     Table data2=new Table(out.toString());
@@ -25,7 +21,7 @@
     }
     for (    String s : tmp2) {
       if (!tmp1.contains(s) && !s.equals(ADMIN)) {
-        items.add(s);
+        addUser.addItem(s);
         for (        StringList l : data2.contents) {
           if (l.get(0).equals(s)) {
             StringList tmp=new StringList();
@@ -37,31 +33,28 @@
         }
       }
  else       if (!s.equals(ADMIN)) {
-        userco3.addItem(s);
+        removeUser.addItem(s);
       }
     }
   }
-  userco1.removeAllItems();
-  userco2.removeAllItems();
+  dropUser.removeAllItems();
+  alterUser.removeAllItems();
   StringList tmp=new StringList();
   for (  final StringList o : data.contents) {
     final String check=o.get(0);
     if (!check.equals(ADMIN)) {
-      userco1.addItem(check);
-      userco2.addItem(check);
+      dropUser.addItem(check);
+      alterUser.addItem(check);
     }
  else {
-      userco2.addItem(check);
+      alterUser.addItem(check);
       tmp=o;
     }
   }
-  userco1.setSelectedIndex(-1);
-  userco2.setSelectedIndex(-1);
-  userco3.setSelectedIndex(-1);
+  dropUser.setSelectedIndex(-1);
+  alterUser.setSelectedIndex(-1);
+  removeUser.setSelectedIndex(-1);
+  addUser.setSelectedIndex(-1);
   data.contents.remove(tmp);
   ((TableModel)table.getModel()).fireTableChanged(null);
-  if (!global) {
-    TableColumn col=table.getColumnModel().getColumn(0);
-    col.setCellEditor(new MyComboBoxEditor(items.finish()));
-  }
 }

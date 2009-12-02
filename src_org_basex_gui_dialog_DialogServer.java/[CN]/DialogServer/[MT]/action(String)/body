@@ -37,14 +37,20 @@
  else     if (BUTTONREFRESH.equals(cmd)) {
       fillsedb();
     }
- else     if ("Show".equals(cmd)) {
-      final IO io=IO.get(logdir + logc.getSelectedItem().toString());
-      logt.setText(io.content());
+ else     if ("Update".equals(cmd)) {
+      if (logc.getSelectedIndex() != -1) {
+        final IO io=IO.get(logdir + logc.getSelectedItem().toString());
+        logt.setText(io.content());
+      }
+ else {
+        logt.setText(Token.EMPTY);
+      }
     }
  else     if ("Delete".equals(cmd)) {
       File f=new File(logdir + logc.getSelectedItem().toString());
       if (f.delete()) {
-        initLog();
+        logc.setSelectedIndex(-1);
+        refreshLog();
       }
  else {
         msg2="Delete not possible";
@@ -56,8 +62,13 @@
         File f=new File(logdir + logc.getItemAt(i).toString());
         d=f.delete();
       }
-      if (!d)       msg2="Delete of all logs not possible";
-      initLog();
+      if (!d) {
+        msg2="Delete of all logs not possible";
+      }
+ else {
+        logc.setSelectedIndex(-1);
+      }
+      refreshLog();
     }
  else     if (connected) {
       user.action(cmd);
@@ -94,7 +105,7 @@
   disconnect.setEnabled(connected);
   tabs.setEnabledAt(1,connected);
   tabs.setEnabledAt(2,connected);
-  show.setEnabled(logc.getSelectedIndex() != -1);
+  update.setEnabled(logc.getSelectedIndex() != -1);
   delete.setEnabled(logc.getSelectedIndex() != -1);
   deleteAll.setEnabled(logc.getItemCount() > 0);
   ctx.prop.write();

@@ -62,11 +62,10 @@
   logs.setLayout(new BorderLayout(2,0));
   logs.setBorder(8,8,8,8);
   final BaseXBack pl1=new BaseXBack();
-  show=new BaseXButton("Show",this);
+  update=new BaseXButton("Update",this);
   delete=new BaseXButton("Delete",this);
   deleteAll=new BaseXButton("Delete All",this);
   pl1.add(logc);
-  pl1.add(show);
   pl1.add(delete);
   pl1.add(deleteAll);
   pl1.add(Box.createHorizontalGlue());
@@ -74,25 +73,28 @@
   info2=new BaseXLabel(" ");
   info2.setBorder(8,0,0,0);
   logs.add(logt,BorderLayout.CENTER);
-  logs.add(info2,BorderLayout.SOUTH);
+  final BaseXBack pl2=new BaseXBack();
+  pl2.setLayout(new BorderLayout(0,2));
+  pl2.add(info2,BorderLayout.WEST);
+  pl2.add(update,BorderLayout.EAST);
+  logs.add(pl2,BorderLayout.SOUTH);
   set(tabs,BorderLayout.CENTER);
   running=ping(true);
   tabs.addChangeListener(new ChangeListener(){
     public void stateChanged(    final ChangeEvent evt){
       BaseXTabs pane=(BaseXTabs)evt.getSource();
       if (pane.getSelectedIndex() == 3) {
-        Object tmp=logc.getSelectedItem();
-        int i=logc.getSelectedIndex();
-        if (i != -1) {
-          action("Show");
-        }
         refreshLog();
-        logc.setSelectedItem(tmp);
       }
     }
   }
 );
-  initLog();
+  logc.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent event){
+      action("Update");
+    }
+  }
+);
   action(null);
   finish(null);
 }

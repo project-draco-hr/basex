@@ -1,38 +1,16 @@
 {
-  if (row == getRowCount() - 1 && col == 0) {
-    if (value != null) {
-      data.contents.get(row).set(value.toString(),col);
-      fireTableCellUpdated(row,col);
-      for (      StringList l : tempP) {
-        if (l.get(0).equals(value.toString())) {
-          data.contents.get(row).set(l.get(1),col + 1);
-          data.contents.get(row).set(l.get(2),col + 2);
-          fireTableCellUpdated(row,col + 1);
-          fireTableCellUpdated(row,col + 2);
-          String db=dia.gui.context.data.meta.name;
-          String right=CmdPerm.values()[col].toString();
-          permps.add(getValueAt(row,col + 1).equals(true) ? new Grant(right,value.toString(),db) : new Revoke(right,value.toString(),db));
-          right=CmdPerm.values()[col + 1].toString();
-          permps.add(getValueAt(row,col + 2).equals(true) ? new Grant(right,value.toString(),db) : new Revoke(right,value.toString(),db));
-        }
-      }
-      if (permps.size() != 0)       action(BUTTONCHANGE);
+  final String uname=data.contents.get(row).get(0);
+  if (!uname.equals(" ")) {
+    final String right=CmdPerm.values()[col - 1].toString();
+    if (global) {
+      permps.add(value.equals(true) ? new Grant(right,uname) : new Revoke(right,uname));
     }
-  }
  else {
-    final String uname=data.contents.get(row).get(0);
-    if (!uname.equals(" ")) {
-      final String right=CmdPerm.values()[col - 1].toString();
-      if (global) {
-        permps.add(value.equals(true) ? new Grant(right,uname) : new Revoke(right,uname));
-      }
- else {
-        String db=dia.gui.context.data.meta.name;
-        permps.add(value.equals(true) ? new Grant(right,uname,db) : new Revoke(right,uname,db));
-      }
-      data.contents.get(row).set(value == Boolean.TRUE ? "X" : "",col);
-      fireTableCellUpdated(row,col);
-      change.setEnabled(true);
+      String db=dia.gui.context.data.meta.name;
+      permps.add(value.equals(true) ? new Grant(right,uname,db) : new Revoke(right,uname,db));
     }
+    data.contents.get(row).set(value == Boolean.TRUE ? "X" : "",col);
+    fireTableCellUpdated(row,col);
+    change.setEnabled(true);
   }
 }
