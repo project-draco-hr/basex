@@ -1,4 +1,31 @@
 {
   sess=s;
-  setData();
+  if (global) {
+    setData();
+  }
+ else {
+    CachedOutput out=new CachedOutput();
+    sess.execute(new List(),out);
+    Table dbs=new Table(out.toString());
+    databases.removeAllItems();
+    for (    StringList l : dbs.contents) {
+      databases.addItem(l.get(0));
+    }
+    databases.setSelectedIndex(-1);
+    databases.addItemListener(new ItemListener(){
+      @Override public void itemStateChanged(      final ItemEvent e){
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+          try {
+            sess.execute(new Close());
+            sess.execute(new Open(databases.getSelectedItem().toString()));
+            setDataL();
+          }
+ catch (          IOException e1) {
+            e1.printStackTrace();
+          }
+        }
+      }
+    }
+);
+  }
 }

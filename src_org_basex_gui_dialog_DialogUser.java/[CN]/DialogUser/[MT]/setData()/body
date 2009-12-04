@@ -1,42 +1,9 @@
 {
   CachedOutput out=new CachedOutput();
-  if (!sess.execute(global ? new Show("Users") : new InfoUsers(),out)) {
+  if (!sess.execute(new Show("Users"),out)) {
     throw new IOException(sess.info());
   }
   data=new Table(out.toString());
-  if (!global) {
-    removeUser.removeAllItems();
-    addUser.removeAllItems();
-    tempP.clear();
-    out=new CachedOutput();
-    sess.execute(new Show("Users"),out);
-    Table data2=new Table(out.toString());
-    StringList tmp1=new StringList();
-    for (    StringList l : data.contents) {
-      tmp1.add(l.get(0));
-    }
-    StringList tmp2=new StringList();
-    for (    StringList l : data2.contents) {
-      tmp2.add(l.get(0));
-    }
-    for (    String s : tmp2) {
-      if (!tmp1.contains(s) && !s.equals(ADMIN)) {
-        addUser.addItem(s);
-        for (        StringList l : data2.contents) {
-          if (l.get(0).equals(s)) {
-            StringList tmp=new StringList();
-            tmp.add(s);
-            tmp.add(l.get(1));
-            tmp.add(l.get(2));
-            tempP.add(tmp);
-          }
-        }
-      }
- else       if (!s.equals(ADMIN)) {
-        removeUser.addItem(s);
-      }
-    }
-  }
   dropUser.removeAllItems();
   alterUser.removeAllItems();
   StringList tmp=new StringList();
@@ -53,8 +20,6 @@
   }
   dropUser.setSelectedIndex(-1);
   alterUser.setSelectedIndex(-1);
-  removeUser.setSelectedIndex(-1);
-  addUser.setSelectedIndex(-1);
   data.contents.remove(tmp);
   ((TableModel)table.getModel()).fireTableChanged(null);
 }
