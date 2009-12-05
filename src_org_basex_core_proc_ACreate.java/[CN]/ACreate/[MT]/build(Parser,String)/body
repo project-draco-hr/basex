@@ -10,28 +10,17 @@
       context.openDB(data);
     }
  else {
-      index(data);
+      index(data,false);
       data.close();
       final Proc pr=new Open(db);
       if (!pr.execute(context))       return error(pr.info());
     }
     return info(DBCREATED,db,perf);
   }
- catch (  final FileNotFoundException ex) {
+ catch (  final IOException ex) {
     Main.debug(ex);
-    return error(FILEWHICH,p.io);
-  }
-catch (  final ProgressException ex) {
     abort();
-    return error(PROGERR);
-  }
-catch (  final IOException ex) {
-    Main.debug(ex);
     final String msg=ex.getMessage();
     return error(msg != null ? msg : args[0]);
-  }
-catch (  final Exception ex) {
-    Main.debug(ex);
-    return error(PARSEERR,args[0]);
   }
 }
