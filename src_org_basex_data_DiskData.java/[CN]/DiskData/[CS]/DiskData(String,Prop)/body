@@ -1,8 +1,8 @@
 {
-  DataInput in=null;
+  meta=new MetaData(db,pr);
+  final DataInput in=new DataInput(meta.file(DATAINFO));
   try {
-    in=new DataInput(pr.dbfile(db,DATAINFO));
-    meta=new MetaData(db,in,pr);
+    meta.read(in);
     while (true) {
       final String k=Token.string(in.readBytes());
       if (k.isEmpty())       break;
@@ -21,7 +21,7 @@
     throw ex;
   }
  finally {
-    if (in != null)     try {
+    try {
       in.close();
     }
  catch (    final IOException ex) {

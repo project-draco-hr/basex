@@ -1,0 +1,23 @@
+{
+  this(md,pf,md.size);
+  final DataInput in=new DataInput(md.file(pf + 'i'));
+  in.readNum();
+  in.readNum();
+  final int[] firstPres=in.readNums();
+  final int[] blocks=in.readNums();
+  in.close();
+  final RandomAccessFile f=new RandomAccessFile(md.file(pf),"r");
+  final byte[] array=new byte[IO.BLOCKSIZE];
+  int np=0;
+  for (int c=0, i=0, l=0; i != md.size; i++) {
+    while (i == np) {
+      f.seek((long)blocks[c++] * IO.BLOCKSIZE);
+      f.read(array);
+      np=c == firstPres.length ? Integer.MAX_VALUE : firstPres[c];
+      l=0;
+    }
+    buf1[i]=getLong(array,l++ << 3);
+    buf2[i]=getLong(array,l++ << 3);
+  }
+  f.close();
+}

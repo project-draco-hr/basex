@@ -2,13 +2,21 @@
 switch (kind(pre)) {
 case TEXT:
 case COMM:
-    return text(pre);
+    return text(pre,true);
 case ATTR:
-  return attValue(pre);
+  return text(pre,false);
 case PI:
-final byte[] txt=text(pre);
+final byte[] txt=text(pre,true);
 return substring(txt,indexOf(txt,' ') + 1);
 default :
-return atm(pre);
+final TokenBuilder tb=new TokenBuilder();
+int p=pre;
+final int s=p + size(p,kind(p));
+while (p != s) {
+final int k=kind(p);
+if (k == TEXT) tb.add(text(p,true));
+p+=attSize(p,k);
+}
+return tb.finish();
 }
 }

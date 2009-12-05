@@ -1,21 +1,20 @@
 {
-  int nm=tags.index(tag,null,true);
-  if (meta.pathindex)   path.add(nm,level,Data.ELEM);
-  tagStack[level]=nm;
+  int n=tags.index(tag,null,true);
+  if (meta.pathindex)   path.add(n,level,Data.ELEM);
+  tagStack[level]=n;
   parStack[level]=meta.size;
   final int pre=meta.size;
   final int dis=level != 0 ? meta.size - parStack[level - 1] : 1;
-  final int al=att.size;
-  int uri=ns.uri(tag);
-  if (uri == 0)   uri=uriStack[level];
+  final int as=att.size;
+  int u=ns.uri(tag);
+  if (u == 0)   u=uriStack[level];
   uriStack[level + 1]=uriStack[level];
-  final boolean n=ns.open(meta.size);
-  addElem(nm,uri,dis,al + 1,n);
-  for (int a=0; a < al; a++) {
-    nm=atts.index(att.key[a],att.val[a],true);
-    uri=ns.uri(att.key[a]);
-    if (meta.pathindex)     path.add(nm,level + 1,Data.ATTR);
-    addAttr(nm,uri,att.val[a],a + 1);
+  addElem(dis,n,as + 1,u,ns.open(meta.size));
+  for (int a=0; a < as; a++) {
+    n=atts.index(att.key[a],att.val[a],true);
+    u=ns.uri(att.key[a]);
+    if (meta.pathindex)     path.add(n,level + 1,Data.ATTR);
+    addAttr(n,att.val[a],a + 1,u);
   }
   if (level != 0) {
     if (level > 1) {
@@ -31,5 +30,10 @@
  else     if (c % 50000 == 0)     Main.err("!");
  else     if (c % 10000 == 0)     Main.err(".");
   }
+  limit(tags.size(),0x8000,LIMITTAGS);
+  limit(atts.size(),0x8000,LIMITATTS);
+  limit(ns.size(),0x100,LIMITNS);
+  limit(as,0x20,LIMITATT);
+  if (meta.size < 0)   limit(0,0,LIMITRANGE);
   return pre;
 }

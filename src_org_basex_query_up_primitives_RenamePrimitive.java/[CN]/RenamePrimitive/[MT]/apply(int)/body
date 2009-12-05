@@ -5,20 +5,9 @@
   final byte[] nm=name.str();
   final byte[] uri=name.uri.str();
   final byte[] pref=pref(nm);
-  if (data.ns.uri(nm,pre) == 0 && uri.length != 0) {
-    data.ns.add(pref,uri,pre);
-    data.ns(pre,data.ns.id(pref));
-  }
   final int k=data.kind(pre);
-  if (k == Data.ELEM) {
-    data.update(pre,nm);
+  if (data.ns.uri(nm,pre) == 0 && uri.length != 0) {
+    data.uri(pre,k,data.ns.add(pref,uri,pre));
   }
- else   if (k == Data.ATTR) {
-    data.update(pre,nm,data.attValue(pre));
-  }
- else {
-    final byte[] val=data.text(pre);
-    final int i=indexOf(val,' ');
-    data.update(pre,i == -1 ? nm : concat(nm,SPACE,substring(val,i + 1)));
-  }
+  data.rename(pre,k,nm);
 }
