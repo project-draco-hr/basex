@@ -1,8 +1,14 @@
 {
   final DBNode n=(DBNode)node;
-  final int p=n.pre + add;
+  final int par=n.pre + add;
   final Data d=n.data;
-  final int j=p + d.attSize(p,Data.ELEM);
-  while (p + d.size(p,Data.ELEM) > j)   d.delete(j);
-  if (txt.length > 0)   d.insert(j,p,txt,Data.TEXT);
+  final int pre=par + d.attSize(par,Data.ELEM);
+  while (par + d.size(par,Data.ELEM) > pre) {
+    d.delete(pre);
+  }
+  if (txt.length > 0) {
+    final MemData md=new MemData(n.data);
+    md.insertText(0,pre - par,txt,Data.TEXT);
+    d.insert(pre,par,md);
+  }
 }

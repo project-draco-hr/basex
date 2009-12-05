@@ -29,6 +29,8 @@ case CHECK:
 return new Check(string(cmd));
 case ADD:
 return new Add(string(cmd));
+case DELETE:
+return new Delete(string(cmd));
 case INFO:
 case I:
 switch (consume(CmdInfo.class,cmd)) {
@@ -60,7 +62,9 @@ return new DropDB(name(cmd));
 case INDEX:
 return new DropIndex(consume(CmdIndex.class,cmd));
 case USER:
-return new DropUser(name(cmd));
+final String name=name(cmd);
+final String db=key(ON,null) ? name(cmd) : null;
+return new DropUser(name,db);
 }
 break;
 case OPTIMIZE:
@@ -78,7 +82,7 @@ case CS:
 return new Cs(xquery(cmd));
 case SET:
 final String opt=name(cmd);
-String val=string(null);
+final String val=string(null);
 final Object type=ctx.prop.object(opt.toUpperCase());
 if (type == null) help(null,cmd);
 return new Set(opt,val);

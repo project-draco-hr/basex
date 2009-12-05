@@ -1,29 +1,25 @@
 {
   CachedOutput out=new CachedOutput();
-  if (!sess.execute(new InfoUsers(),out)) {
-    throw new IOException(sess.info());
-  }
-  data=new Table(out.toString());
+  if (!sess.execute(new InfoUsers(),out))   throw new IOException(sess.info());
+  final String users=out.toString();
+  out=new CachedOutput();
+  if (!sess.execute(new Show(CmdShow.USERS),out))   throw new IOException(sess.info());
+  data=new Table(users);
   removeUser.removeAllItems();
   addUser.removeAllItems();
   tempP.clear();
-  out=new CachedOutput();
-  sess.execute(new Show("Users"),out);
-  Table data2=new Table(out.toString());
-  StringList tmp1=new StringList();
-  for (  StringList l : data.contents) {
-    tmp1.add(l.get(0));
-  }
-  StringList tmp2=new StringList();
-  for (  StringList l : data2.contents) {
-    tmp2.add(l.get(0));
-  }
-  for (  String s : tmp2) {
-    if (!tmp1.contains(s) && !s.equals(ADMIN)) {
+  final Table data2=new Table(out.toString());
+  final StringList tmp1=new StringList();
+  for (  final StringList l : data.contents)   tmp1.add(l.get(0));
+  final StringList tmp2=new StringList();
+  for (  final StringList l : data2.contents)   tmp2.add(l.get(0));
+  for (  final String s : tmp2) {
+    if (s.equals(ADMIN))     continue;
+    if (!tmp1.contains(s)) {
       addUser.addItem(s);
-      for (      StringList l : data2.contents) {
+      for (      final StringList l : data2.contents) {
         if (l.get(0).equals(s)) {
-          StringList tmp=new StringList();
+          final StringList tmp=new StringList();
           tmp.add(s);
           tmp.add(l.get(1));
           tmp.add(l.get(2));
@@ -31,7 +27,7 @@
         }
       }
     }
- else     if (!s.equals(ADMIN)) {
+ else {
       removeUser.addItem(s);
     }
   }

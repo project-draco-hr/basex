@@ -1,0 +1,88 @@
+{
+  String msg=null;
+  try {
+    if (cmp == change) {
+      for (      final Proc p : permps) {
+        if (!sess.execute(p)) {
+          msg=sess.info();
+          break;
+        }
+      }
+      permps.clear();
+      if (global) {
+        setData();
+      }
+ else {
+        setDataL();
+      }
+    }
+ else     if (cmp == create) {
+      final String u=user.getText();
+      final String p=new String(pass.getPassword());
+      if (!sess.execute(new CreateUser(u,p)))       msg=sess.info();
+      user.setText("");
+      pass.setText("");
+      setData();
+    }
+ else     if (cmp == drop) {
+      final String u=dropUser.getSelectedItem().toString();
+      if (Dialog.confirm(this,Main.info(DRQUESTION,u)) && !sess.execute(new DropUser(u)))       msg=sess.info();
+      setData();
+    }
+ else     if (cmp == alter) {
+      final String u=alterUser.getSelectedItem().toString();
+      final String p=new String(newpass.getPassword());
+      if (!sess.execute(new AlterUser(u,p)))       msg=sess.info();
+      newpass.setText("");
+      setData();
+    }
+ else     if (cmp == remove) {
+      final String u=removeUser.getSelectedItem().toString();
+      final String db=databases.getSelectedItem().toString();
+      if (!sess.execute(new DropUser(u,db)))       msg=sess.info();
+      setDataL();
+    }
+ else     if (cmp == add) {
+      final String value=addUser.getSelectedItem().toString();
+      for (      final StringList l : tempP) {
+        if (l.get(0).equals(value)) {
+          final String db=databases.getSelectedItem().toString();
+          for (int i=1; i <= 2; i++) {
+            final String o=l.get(i);
+            final Object val=o.equals("") ? Boolean.FALSE : o.equals("X") ? Boolean.TRUE : o;
+            final String right=CmdPerm.values()[0].toString();
+            permps.add(val.equals(true) ? new Grant(right,value,db) : new Revoke(right,value,db));
+          }
+        }
+      }
+      action(change);
+    }
+  }
+ catch (  final IOException ex) {
+    Main.debug(ex);
+    if (ex instanceof BindException)     msg=SERVERBIND;
+ else     if (ex instanceof LoginException)     msg=SERVERLOGIN;
+ else     msg=ex.getMessage();
+  }
+  final boolean valuname=user.getText().matches("[\\w]*");
+  final boolean valpass=new String(pass.getPassword()).matches("[\\w]*");
+  final boolean valnewpass=new String(newpass.getPassword()).matches("[\\w]*");
+  boolean disname=!user.getText().equals(ADMIN);
+  for (int i=0; i < dropUser.getItemCount(); i++) {
+    disname&=!user.getText().equals(dropUser.getItemAt(i).toString());
+  }
+  boolean warn=true;
+  if (msg != null) {
+    warn=false;
+  }
+ else   if (!(valuname && valpass && valnewpass&& disname)) {
+    msg=!disname ? Main.info(USERKNOWN,user.getText()) : Main.info(INVALID,!valuname ? SERVERUSER : SERVERPW);
+  }
+  info.setError(msg,warn);
+  alter.setEnabled(valnewpass && newpass.getPassword().length != 0 && alterUser.getSelectedIndex() != -1);
+  create.setEnabled(valuname && valpass && disname&& !user.getText().isEmpty()&& pass.getPassword().length != 0);
+  drop.setEnabled(dropUser.getSelectedIndex() != -1);
+  remove.setEnabled(removeUser.getSelectedIndex() != -1);
+  add.setEnabled(addUser.getSelectedIndex() != -1);
+  change.setEnabled(false);
+}
