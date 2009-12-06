@@ -1,0 +1,28 @@
+{
+  final Map<QNm,Integer> m=new HashMap<QNm,Integer>();
+  final IntList ats=new IntList();
+  for (  final int pre : pres) {
+    if (d.kind(pre) == Data.ATTR) {
+      ats.add(pre);
+      addElementChanges(m,pre);
+    }
+ else {
+      addElementChanges(m,pre);
+      final int ps=pre + d.attSize(pre,Data.ELEM);
+      for (int p=pre + 1; p < ps; p++) {
+        if (!ats.contains(p)) {
+          changePool(m,true,new QNm(d.name(p,Data.ATTR)));
+        }
+      }
+    }
+  }
+  for (  final QNm n : m.keySet())   if (m.get(n) > 1)   Err.or(UPATTDUPL,n);
+  final Atts at=new Atts();
+  for (  final QNm name : m.keySet()) {
+    final byte[] an=name.pref();
+    final byte[] uri=name.uri.str();
+    final int ai=at.get(an);
+    if (ai == -1)     at.add(an,uri);
+ else     if (!eq(uri,at.val[ai]))     Err.or(UPNSCONFL2);
+  }
+}

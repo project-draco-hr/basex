@@ -5,8 +5,9 @@
   }
  else {
     final int ou=ns.uri(nm,pre);
-    final int u=ou == 0 && uri.length != 0 ? ns.add(nm,uri,pre) : ou != 0 && eq(ns.uri(ou),uri) ? ou : 0;
+    final boolean ne=ou == 0 && uri.length != 0;
+    final int u=ne ? ns.add(pref(nm),uri,pre) : ou != 0 && eq(ns.uri(ou),uri) ? ou : 0;
     table.write1(pre,k == ELEM ? 3 : 11,u);
-    table.write2(pre,1,(nsFlag(pre) ? 1 << 15 : 0) | (k == ELEM ? tags : atts).index(nm,null,false));
+    table.write2(pre,1,(ne | nsFlag(pre) ? 1 << 15 : 0) | (k == ELEM ? tags : atts).index(nm,null,false));
   }
 }

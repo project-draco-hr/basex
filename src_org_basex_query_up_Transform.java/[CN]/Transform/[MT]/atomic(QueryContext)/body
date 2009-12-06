@@ -1,19 +1,19 @@
 {
   final int s=ctx.vars.size();
-  final PendingUpdates tUpd=new PendingUpdates(true);
+  final PendingUpdates pu=new PendingUpdates(true);
   for (  final Let fo : copies) {
     final Iter ir=fo.expr.iter(ctx);
     final Item i=ir.next();
     if (i == null || !i.node() || ir.next() != null)     Err.or(UPCOPYMULT,this);
     final Data m=UpdateFunctions.buildDB(new NodIter(new Nod[]{(Nod)i},1),new MemData(ctx.context.prop));
     ctx.vars.add(fo.var.bind(new DBNode(m,0),ctx).copy());
-    tUpd.addDataReference(m);
+    pu.addDataReference(m);
   }
-  final PendingUpdates upd=ctx.updates;
-  ctx.updates=tUpd;
+  final PendingUpdates tmp=ctx.updates;
+  ctx.updates=pu;
   ctx.iter(expr[0]).finish();
   ctx.updates.apply();
-  ctx.updates=upd;
+  ctx.updates=tmp;
   final Item im=expr[1].iter(ctx).finish();
   ctx.vars.reset(s);
   return im;

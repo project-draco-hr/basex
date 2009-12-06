@@ -11,8 +11,15 @@ case DOC:
       insertDoc(p,dt.size(s,k),dt.text(s,true));
     break;
 case ELEM:
-  int n=tags.index(dt.name(s,k),null,false);
-insertElem(p,d,n,dt.attSize(s,k),dt.size(s,k),dt.uri(s,k),dt.nsFlag(s));
+  final boolean ne=dt.nsFlag(s);
+byte[] nm=dt.name(s,k);
+if (ne) {
+final Atts at=dt.ns(s);
+for (int a=0; a < at.size; a++) ns.add(at.key[a],at.val[a],p);
+}
+int u=ns.uri(nm);
+int n=tags.index(nm,null,false);
+insertElem(p,d,n,dt.attSize(s,k),dt.size(s,k),u,ne);
 break;
 case TEXT:
 case COMM:
@@ -20,11 +27,20 @@ case PI:
 insertText(p,d,dt.text(s,true),k);
 break;
 case ATTR:
-n=atts.index(dt.name(s,k),null,false);
-insertAttr(p,d,n,dt.text(s,false),dt.uri(s,k));
+nm=dt.name(s,k);
+n=atts.index(nm,null,false);
+u=ns.uri(nm);
+System.out.println(u + "/" + dt.uri(s,k));
+insertAttr(p,d,n,dt.text(s,false),u);
 break;
 }
 }
-if (par >= 0) updateTable(pre,par,ss);
+int p=par;
+while (p >= 0) {
+final int k=kind(p);
+size(p,k,size(p,k) + ss);
+p=parent(p,k);
+}
+updateDist(pre + ss,ss);
 if (size(0,DOC) == 1) delete(0);
 }

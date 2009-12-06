@@ -1,29 +1,24 @@
 {
   super.check();
-  int i=nodes.length - 1;
+  int p=nodes.size() - 1;
   int par=-1;
-  while (i >= 0) {
-    if (par == nodes[i]) {
-      if (i > 0)       i--;
- else       return;
-    }
-    int pre=nodes[i];
+  while (p >= 0) {
+    if (par == nodes.get(p) && --p < 0)     break;
+    int pre=nodes.get(p);
     final int k=d.kind(pre);
-    if (k == Data.ELEM) {
-      findAttributeDuplicates(new int[]{pre});
-    }
     if (k == Data.ATTR) {
       par=d.parent(pre,k);
-      final IntList il=new IntList(1);
-      while (i >= 0 && (pre=nodes[i]) > par) {
+      final IntList il=new IntList();
+      while (p >= 0 && (pre=nodes.get(p)) > par) {
         il.add(pre);
-        i--;
+        p--;
       }
       if (par != -1)       il.add(par);
-      findAttributeDuplicates(il.finish());
+      findDuplicates(il.finish());
     }
  else {
-      i--;
+      if (k == Data.ELEM)       findDuplicates(pre);
+      p--;
     }
   }
 }
