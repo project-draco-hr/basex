@@ -1,0 +1,49 @@
+{
+  meta.update();
+  final TokenBuilder tb=new TokenBuilder();
+  final int ms=dt.meta.size;
+  for (int mp=0; mp < ms; mp++) {
+    final int k=dt.kind(mp);
+    final int p=pre + mp;
+    final int r=dt.parent(mp,k);
+    final int d=r >= 0 ? mp - r : p - par;
+switch (k) {
+case DOC:
+      tb.add(doc(p,dt.size(mp,k),dt.text(mp,true)));
+    break;
+case ELEM:
+  final boolean ne=dt.nsFlag(mp);
+byte[] nm=dt.name(mp,k);
+if (ne) {
+final Atts at=dt.ns(mp);
+for (int a=0; a < at.size; a++) {
+  ns.add(at.key[a],at.val[a],p,p - d);
+}
+}
+int u=ns.uri(nm);
+int n=tags.index(nm,null,false);
+tb.add(elem(d,n,dt.attSize(mp,k),dt.size(mp,k),u,ne));
+break;
+case TEXT:
+case COMM:
+case PI:
+tb.add(text(p,d,dt.text(mp,true),k));
+break;
+case ATTR:
+nm=dt.name(mp,k);
+n=atts.index(nm,null,false);
+u=ns.uri(nm);
+tb.add(attr(p,d,n,dt.text(mp,false),u));
+break;
+}
+}
+table.insert(pre,tb.finish());
+int p=par;
+while (p >= 0) {
+final int k=kind(p);
+size(p,k,size(p,k) + ms);
+p=parent(p,k);
+}
+updateDist(pre + ms,ms);
+if (size(0,DOC) == 1) delete(0);
+}
