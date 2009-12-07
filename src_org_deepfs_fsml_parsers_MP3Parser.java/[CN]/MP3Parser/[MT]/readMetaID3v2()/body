@@ -1,15 +1,22 @@
 {
   setTypeAndFormat();
-  int size=readID3v2Header();
-  while (size >= MINIMAL_FRAME_SIZE) {
+  final int size=readID3v2Header();
+  int s=size;
+  while (s >= MINIMAL_FRAME_SIZE) {
     final int res=readID3v2Frame();
     if (res > 0) {
-      size-=res;
+      s-=res;
     }
  else {
-      size+=res;
-      if (size < MINIMAL_FRAME_SIZE)       break;
+      s+=res;
+      if (s < MINIMAL_FRAME_SIZE)       break;
       bfc.skip(-res);
     }
   }
+  final long pos=bfc.position();
+  if (checkID3v1()) {
+    bfc.position(pos);
+    techInfo(size + 128);
+  }
+ else   techInfo(size);
 }
