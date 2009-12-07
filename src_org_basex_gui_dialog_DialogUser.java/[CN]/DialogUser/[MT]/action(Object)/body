@@ -50,12 +50,26 @@
           for (int i=1; i <= 2; i++) {
             final String o=l.get(i);
             final Object val=o.equals("") ? Boolean.FALSE : o.equals("X") ? Boolean.TRUE : o;
-            final String right=CmdPerm.values()[0].toString();
+            final String right=CmdPerm.values()[i - 1].toString();
             permps.add(val.equals(true) ? new Grant(right,value,db) : new Revoke(right,value,db));
           }
         }
       }
       action(change);
+    }
+ else     if (cmp == databases) {
+      try {
+        sess.execute(new Close());
+        sess.execute(new Open(databases.getSelectedItem().toString()));
+        setDataL();
+      }
+ catch (      final IOException e1) {
+        addUser.removeAllItems();
+        removeUser.removeAllItems();
+        data=new Table();
+        msg=e1.getMessage();
+        ((TableModel)table.getModel()).fireTableChanged(null);
+      }
     }
   }
  catch (  final IOException ex) {
