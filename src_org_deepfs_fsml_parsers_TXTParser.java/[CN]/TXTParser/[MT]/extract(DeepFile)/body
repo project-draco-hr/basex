@@ -1,3 +1,21 @@
 {
-  extract0(deepFile);
+  final BufferedFileChannel bfc=deepFile.getBufferedFileChannel();
+  if (deepFile.extractMeta()) {
+    final String name=bfc.getFileName();
+    final String suf=name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+    final MimeType mime=SUFFIXES.get(suf);
+    if (mime == null) {
+      deepFile.setFileType(FileType.TEXT);
+      deepFile.setFileFormat(MimeType.UNKNOWN);
+    }
+ else {
+      for (      final FileType ft : mime.getMetaTypes())       deepFile.setFileType(ft);
+      deepFile.setFileFormat(mime);
+    }
+  }
+  if (deepFile.extractText()) {
+    final int len=(int)Math.min(bfc.size(),deepFile.maxTextSize());
+    final byte[] text=bfc.get(new byte[len]);
+    if (Token.isValidUTF8(text))     deepFile.addText(0,len,Token.string(text));
+  }
 }

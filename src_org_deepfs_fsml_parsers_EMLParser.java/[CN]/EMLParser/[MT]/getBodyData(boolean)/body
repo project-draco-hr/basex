@@ -23,10 +23,15 @@
  else       tb.add('\n');
       tb.add(mCurrLine);
     }
-    final byte[] text=tb.finish();
-    final byte[] data=bodyEnc.decode(text,utf);
-    final int size=data.length;
-    if (size > 0)     deepFile.addText(pos2,text.length,data);
+    try {
+      final byte[] text=tb.finish();
+      final byte[] data=bodyEnc.decode(text,utf);
+      final int size=data.length;
+      if (size > 0)       deepFile.addText(pos2,text.length,Token.string(data));
+    }
+ catch (    final DecodingException e) {
+      deepFile.debug("EMLParser: Failed to decode text (%)",e);
+    }
   }
  else {
     while (readLine()) {

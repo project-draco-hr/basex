@@ -12,7 +12,12 @@
     final int end=m.start() - 2;
     if (end > pos) {
       final byte[] text=chop(Token.token(addresses.substring(pos,end)));
-      deepFile.addMeta(name,chop(decode(text)));
+      try {
+        deepFile.addMeta(name,chop(decode(text)));
+      }
+ catch (      final DecodingException e) {
+        deepFile.debug("EMLParser: Failed to decode mail address (% - %)",name,e);
+      }
     }
     pos=m.end() + 2;
   }
