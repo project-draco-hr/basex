@@ -1,49 +1,53 @@
 {
   meta.update();
   final TokenBuilder tb=new TokenBuilder();
-  final int ms=dt.meta.size;
-  for (int mp=0; mp < ms; mp++) {
-    final int k=dt.kind(mp);
-    final int p=pre + mp;
-    final int r=dt.parent(mp,k);
-    final int d=r >= 0 ? mp - r : p - par;
-switch (k) {
+  final int ms=md.meta.size;
+  for (int mpre=0; mpre < ms; mpre++) {
+    final int mk=md.kind(mpre);
+    final int mpar=md.parent(mpre,mk);
+    final int pre=ipre + mpre;
+    final int dis=mpar >= 0 ? mpre - mpar : pre - ipar;
+switch (mk) {
 case DOC:
-      tb.add(doc(p,dt.size(mp,k),dt.text(mp,true)));
+      tb.add(doc(pre,md.size(mpre,mk),md.text(mpre,true)));
     break;
 case ELEM:
-  final boolean ne=dt.nsFlag(mp);
-byte[] nm=dt.name(mp,k);
+  final boolean ne=md.nsFlag(mpre);
+byte[] nm=md.name(mpre,mk);
 if (ne) {
-final Atts at=dt.ns(mp);
+final Atts at=md.ns(mpre);
 for (int a=0; a < at.size; a++) {
-  ns.add(at.key[a],at.val[a],p,p - d);
+  ns.add(pre,ipar,at.key[a],at.val[a]);
 }
 }
-int u=ns.uri(nm,p);
+int u=ns.uri(nm,pre);
 int n=tags.index(nm,null,false);
-tb.add(elem(d,n,dt.attSize(mp,k),dt.size(mp,k),u,ne));
+tb.add(elem(dis,n,md.attSize(mpre,mk),md.size(mpre,mk),u,ne));
 break;
 case TEXT:
 case COMM:
 case PI:
-tb.add(text(p,d,dt.text(mp,true),k));
+tb.add(text(pre,dis,md.text(mpre,true),mk));
 break;
 case ATTR:
-nm=dt.name(mp,k);
+nm=md.name(mpre,mk);
 n=atts.index(nm,null,false);
-u=pref(nm).length != 0 ? ns.uri(nm,p) : 0;
-tb.add(attr(p,d,n,dt.text(mp,false),u));
+if (md.nsFlag(mpre)) {
+ns.add(ipar,ipar,pref(nm),md.ns.uri(md.uri(mpre,mk)));
+table.write2(ipar,1,1 << 15 | name(ipar));
+}
+u=pref(nm).length != 0 ? ns.uri(nm,pre) : 0;
+tb.add(attr(pre,dis,n,md.text(mpre,false),u,false));
 break;
 }
 }
-table.insert(pre,tb.finish());
-int p=par;
+table.insert(ipre,tb.finish());
+int p=ipar;
 while (p >= 0) {
 final int k=kind(p);
 size(p,k,size(p,k) + ms);
 p=parent(p,k);
 }
-updateDist(pre + ms,ms);
+updateDist(ipre + ms,ms);
 if (size(0,DOC) == 1) delete(0);
 }
