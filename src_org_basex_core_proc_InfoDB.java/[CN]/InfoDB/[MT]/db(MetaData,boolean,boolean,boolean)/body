@@ -1,0 +1,35 @@
+{
+  final File dir=meta.prop.dbpath(meta.name);
+  long len=0;
+  if (dir.exists())   for (  final File f : dir.listFiles())   len+=f.length();
+  final TokenBuilder tb=new TokenBuilder();
+  final String header=(bold ? new TokenBuilder().high().add("%").norm().toString() : "%") + NL;
+  tb.add(header,INFODB);
+  format(tb,INFODBNAME,meta.name);
+  format(tb,INFODBSIZE,Performance.format(len));
+  format(tb,INFONODES,Integer.toString(meta.size));
+  format(tb,INFOHEIGHT,Integer.toString(meta.height));
+  tb.add(NL);
+  tb.add(header,INFOCREATE);
+  if (admin)   format(tb,INFODOC,meta.file.path());
+  format(tb,INFOTIME,DATE.format(new Date(meta.time)));
+  format(tb,INFODOCSIZE,Performance.format(meta.filesize));
+  format(tb,INFOENCODING,meta.encoding);
+  format(tb,INFONDOCS,Integer.toString(meta.ndocs));
+  format(tb,INFOCHOP,flag(meta.chop));
+  format(tb,INFOENTITY,flag(meta.entity));
+  if (index) {
+    tb.add(NL);
+    tb.add(header,INFOINDEX);
+    if (meta.oldindex) {
+      tb.add(" " + INDUPDATE + NL);
+    }
+ else {
+      format(tb,INFOPATHINDEX,flag(meta.pathindex));
+      format(tb,INFOTEXTINDEX,flag(meta.txtindex));
+      format(tb,INFOATTRINDEX,flag(meta.atvindex));
+      format(tb,INFOFTINDEX,flag(meta.ftxindex) + (meta.ftxindex && meta.wildcards ? " (" + INFOWCINDEX + ")" : ""));
+    }
+  }
+  return tb.finish();
+}
