@@ -9,7 +9,7 @@
   for (int n=0; n < nodes.size(); n++) {
     final Nodes state=new Nodes(nodes.nodes[n],nodes.data);
     final String inname=text("*:query/@name",state);
-    context.query=IO.get(queries + pth + inname+ ".xq");
+    context.query=IO.get(queries + pth + inname+ IO.XQSUFFIX);
     final String in=read(context.query);
     String error=null;
     SeqIter iter=null;
@@ -33,7 +33,7 @@
       parse(qctx,state);
       for (      final int p : nodes("*:module",root).nodes) {
         final String ns=text("@namespace",new Nodes(p,data));
-        final String f=mods.get(string(data.atom(p))) + ".xq";
+        final String f=mods.get(string(data.atom(p))) + IO.XQSUFFIX;
         xq.module(ns,f);
       }
       final XMLSerializer xml=new XMLSerializer(out,false,context.prop.is(Prop.CHOP));
@@ -73,7 +73,7 @@ catch (    final Exception ex) {
       frag|=eq(type,FRAGMENT);
     }
     String expError=text("*:expected-error/text()",state);
-    final StringBuilder log=new StringBuilder(pth + inname + ".xq");
+    final StringBuilder log=new StringBuilder(pth + inname + IO.XQSUFFIX);
     if (files.size() != 0) {
       log.append(" [");
       log.append(files);
@@ -157,7 +157,7 @@ catch (    final Exception ex) {
           logErr.append(norm(out.toString()));
           logErr.append(NL);
           logErr.append(NL);
-          addLog(pth,outname + (xml ? ".xml" : ".txt"),out.toString());
+          addLog(pth,outname + (xml ? IO.XMLSUFFIX : ".txt"),out.toString());
         }
         correct=false;
         err++;
@@ -169,7 +169,7 @@ catch (    final Exception ex) {
           logOK.append(norm(out.toString()));
           logOK.append(NL);
           logOK.append(NL);
-          addLog(pth,outname + (xml ? ".xml" : ".txt"),out.toString());
+          addLog(pth,outname + (xml ? IO.XMLSUFFIX : ".txt"),out.toString());
         }
         ok++;
       }

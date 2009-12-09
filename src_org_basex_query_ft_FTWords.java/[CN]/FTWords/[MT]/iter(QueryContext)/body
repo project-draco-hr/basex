@@ -9,9 +9,16 @@
         final Tokenizer ft=new Tokenizer(txt,ctx.ftopt,fast,ctx.context.prop);
         ft.fast&=ft.count() == 1;
         ft.init();
+        int d=0;
         while (ft.more()) {
-          final FTIndexIterator it=(FTIndexIterator)data.ids(ft);
-          iat=iat == null ? it : FTIndexIterator.phrase(iat,it);
+          if (ctx.ftopt.sw != null && ctx.ftopt.sw.id(ft.get()) != 0) {
+            d++;
+          }
+ else {
+            final FTIndexIterator it=(FTIndexIterator)data.ids(ft);
+            iat=iat == null ? it : FTIndexIterator.phrase(iat,it,++d);
+            d=0;
+          }
         }
         iat.setTokenNum(++ctx.ftoknum);
       }

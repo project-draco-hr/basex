@@ -1,19 +1,17 @@
 {
   int n=tags.index(tag,null,true);
   if (meta.pathindex)   path.add(n,level,Data.ELEM);
-  tagStack[level]=n;
-  parStack[level]=meta.size;
   final int pre=meta.size;
-  final int dis=level != 0 ? meta.size - parStack[level - 1] : 1;
+  tagStack[level]=n;
+  parStack[level]=pre;
+  final int dis=level != 0 ? pre - parStack[level - 1] : 1;
   final int as=att.size;
-  final boolean ne=ns.open(meta.size);
-  int u=ns.uri(tag);
-  if (u == 0)   u=uriStack[level];
-  uriStack[level + 1]=uriStack[level];
+  final boolean ne=ns.open(pre);
+  int u=ns.uri(tag,true);
   addElem(dis,n,as + 1,u,ne);
   for (int a=0; a < as; a++) {
     n=atts.index(att.key[a],att.val[a],true);
-    u=ns.uri(att.key[a]);
+    u=ns.uri(att.key[a],false);
     if (meta.pathindex)     path.add(n,level + 1,Data.ATTR);
     addAttr(n,att.val[a],a + 1,u);
   }
