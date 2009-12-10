@@ -1,0 +1,52 @@
+{
+  final Performance perf=Prop.debug ? new Performance() : null;
+  final Runtime rt=Runtime.getRuntime();
+  Performance.gc(2);
+  final String f=text ? DATATXT : DATAATV;
+  int cap=1 << 2;
+  final int max=(int)(data.meta.file(f).length() >>> 7);
+  while (cap < max && cap < 1 << 24)   cap<<=1;
+  final long maxMem=(long)(rt.maxMemory() * 0.8);
+  final int type=text ? Data.TEXT : Data.ATTR;
+  int cf=0;
+  for (pre=0; pre < total; pre++) {
+    if (data.kind(pre) != type)     continue;
+    checkStop();
+    final byte[] tok=data.text(pre,text);
+    if (tok.length <= Token.MAXLEN && !Token.ws(tok)) {
+      index.index(tok,pre);
+    }
+    if ((pre & 0x3F) == 0 && rt.totalMemory() - rt.freeMemory() > maxMem) {
+      final DataOutput outl=new DataOutput(data.meta.file(f + cf + 'l'));
+      outl.writeInt(index.size());
+      final DataOutput outr=new DataOutput(data.meta.file(f + cf + 'r'));
+      write(index,outl,outr);
+      cf++;
+      index=new ValueTree();
+      Performance.gc(1);
+    }
+  }
+  if (cf == 0) {
+    final DataOutput outl=new DataOutput(data.meta.file(f + 'l'));
+    final DataOutput outr=new DataOutput(data.meta.file(f + 'r'));
+    writeSingle(outl,outr);
+  }
+ else {
+    final DataOutput outl=new DataOutput(data.meta.file(f + cf + 'l'));
+    outl.writeInt(0);
+    final DataOutput outr=new DataOutput(data.meta.file(f + cf + 'r'));
+    write(index,outl,outr);
+    cf++;
+    index=null;
+    final int size=mergeFiles(cf);
+    final DataAccess da=new DataAccess(data.meta.file(f + 'l'));
+    da.writeInt(size);
+    da.close();
+    DropDB.delete(data.meta.name,f + "\\d+." + IO.BASEXSUFFIX,data.meta.prop);
+  }
+  if (perf != null) {
+    Performance.gc(4);
+    Main.debug((text ? "Texts" : "Attributes") + ": " + perf+ " ("+ Performance.getMem()+ ")");
+  }
+  return new Values(data,text);
+}
