@@ -1,7 +1,7 @@
 {
   painter.reset();
   final Data data=gui.context.current.data;
-  if (data.fs != null || textLen != null || gui.prop.num(GUIProp.MAPWEIGHT) == 0)   return;
+  if (textLen != null || gui.prop.num(GUIProp.MAPWEIGHT) == 0)   return;
   final int size=data.meta.size;
   textLen=new int[size];
   final int[] parStack=new int[IO.MAXHEIGHT];
@@ -17,11 +17,20 @@
     }
     if (l > 0 && ll != l)     textLen[parStack[l - 1]]+=textLen[parStack[l]];
     parStack[l]=pre;
-    if (kind == Data.TEXT || kind == Data.COMM || kind == Data.PI || kind == Data.ATTR) {
-      textLen[pre]=data.textLen(pre,kind != Data.ATTR);
+    if (data.fs != null) {
+      if (DeepFS.isFileOrDir(data,pre)) {
+        textLen[pre]=Token.toInt(data.atom(pre + 2));
+        if (DeepFS.isFile(data,pre))         pre+=data.size(pre,kind) - 1;
+        l++;
+      }
     }
- else     if ((kind == Data.ELEM || kind == Data.DOC) && data.size(pre,kind) > 1) {
-      l++;
+ else {
+      if (kind == Data.TEXT || kind == Data.COMM || kind == Data.PI || kind == Data.ATTR) {
+        textLen[pre]=data.textLen(pre,kind != Data.ATTR);
+      }
+ else       if ((kind == Data.ELEM || kind == Data.DOC) && data.size(pre,kind) > 1) {
+        l++;
+      }
     }
   }
   while (--l >= 0)   textLen[parStack[l]]+=textLen[parStack[l + 1]];
