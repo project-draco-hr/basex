@@ -2,6 +2,7 @@
   final Performance perf=Prop.debug ? new Performance() : null;
   final Runtime rt=Runtime.getRuntime();
   Performance.gc(2);
+  System.out.println("[0] " + (rt.totalMemory() - rt.freeMemory()));
   final String f=text ? DATATXT : DATAATV;
   int cap=1 << 2;
   final int max=(int)(data.meta.file(f).length() >>> 7);
@@ -13,9 +14,7 @@
     if (data.kind(pre) != type)     continue;
     checkStop();
     final byte[] tok=data.text(pre,text);
-    if (tok.length <= Token.MAXLEN && !Token.ws(tok)) {
-      index.index(tok,pre);
-    }
+    if (tok.length <= Token.MAXLEN && !Token.ws(tok))     index.index(tok,pre);
     if ((pre & 0x3F) == 0 && rt.totalMemory() - rt.freeMemory() > maxMem) {
       final DataOutput outl=new DataOutput(data.meta.file(f + cf + 'l'));
       outl.writeInt(index.size());
