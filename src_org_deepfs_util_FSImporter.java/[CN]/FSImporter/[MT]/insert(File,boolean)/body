@@ -2,7 +2,7 @@
   currentFile=f.toString();
   String xmlFragment=null;
   if (f.isDirectory()) {
-    xmlFragment=FSMLSerializer.serializeFile(f,absolutePath);
+    xmlFragment=FSMLSerializer.serializeFile(f,root);
   }
  else {
     try {
@@ -15,10 +15,6 @@
         }
         deepFile.extract();
         xmlFragment=FSMLSerializer.serialize(deepFile);
-        if (absolutePath) {
-          final String par=escape(f.getParent().replace("\\","/"));
-          xmlFragment=xmlFragment.replace("<file name=\"","<file name=\"" + par + "/");
-        }
       }
  catch (      final Exception ex) {
         Main.debug("FSImporter: Failed to extract metadata/contents from the file " + "(% - %)",f.getAbsolutePath(),ex);
@@ -34,8 +30,8 @@
  catch (    final IOException e) {
       Main.debug("FSImporter: Failed to open the file (% - %)",f.getAbsolutePath(),e);
     }
+    if (xmlFragment == null)     xmlFragment=FSMLSerializer.serializeFile(f,false);
   }
-  if (xmlFragment == null)   xmlFragment=FSMLSerializer.serializeFile(f,absolutePath);
   if (xmlFragment != null) {
     final String query="insert nodes " + xmlFragment + " into "+ targetNode;
     final QueryProcessor qp=new QueryProcessor(query,ctx);
@@ -53,5 +49,5 @@
       }
     }
   }
-  return escape(absolutePath ? f.getAbsolutePath().replace("\\","/") : f.getName());
+  return escape(root ? f.getAbsolutePath().replace("\\","/") : f.getName());
 }
