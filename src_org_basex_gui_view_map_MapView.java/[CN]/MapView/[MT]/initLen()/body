@@ -6,10 +6,9 @@
   textLen=new int[size];
   final int[] parStack=new int[IO.MAXHEIGHT];
   int l=0;
-  int par=0;
   for (int pre=0; pre < size; pre++) {
     final int kind=data.kind(pre);
-    par=data.parent(pre,kind);
+    final int par=data.parent(pre,kind);
     final int ll=l;
     while (l > 0 && parStack[l - 1] > par) {
       textLen[parStack[l - 1]]+=textLen[parStack[l]];
@@ -19,7 +18,7 @@
     parStack[l]=pre;
     if (data.fs != null) {
       if (DeepFS.isFileOrDir(data,pre)) {
-        textLen[pre]=Token.toInt(data.atom(pre + 2));
+        textLen[pre]=Token.toInt(ViewData.attValue(data,data.sizeID,pre));
         if (DeepFS.isFile(data,pre))         pre+=data.size(pre,kind) - 1;
         l++;
       }
@@ -28,7 +27,7 @@
       if (kind == Data.TEXT || kind == Data.COMM || kind == Data.PI || kind == Data.ATTR) {
         textLen[pre]=data.textLen(pre,kind != Data.ATTR);
       }
- else       if ((kind == Data.ELEM || kind == Data.DOC) && data.size(pre,kind) > 1) {
+ else       if (kind == Data.ELEM || kind == Data.DOC) {
         l++;
       }
     }

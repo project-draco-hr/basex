@@ -1,48 +1,57 @@
 {
   meta.update();
-  final TokenBuilder tb=new TokenBuilder();
+  final int[] preStack=new int[IO.MAXHEIGHT];
+  int l=0;
   final int ms=md.meta.size;
-  for (int mpre=0; mpre < ms; mpre++) {
+  final int buf=Math.min(ms,IO.BLOCKSIZE >> IO.NODEPOWER);
+  buffer(buf);
+  int mpre=-1;
+  while (++mpre != ms) {
+    if (mpre != 0 && mpre % buf == 0)     insert(ipre + mpre - buf);
     final int mk=md.kind(mpre);
     final int mpar=md.parent(mpre,mk);
     final int pre=ipre + mpre;
     final int dis=mpar >= 0 ? mpre - mpar : pre - ipar;
+    final int par=pre - dis;
+    while (l > 0 && preStack[l - 1] > par)     ns.close(preStack[--l]);
 switch (mk) {
 case DOC:
-      tb.add(doc(pre,md.size(mpre,mk),md.text(mpre,true)));
+      doc(pre,md.size(mpre,mk),md.text(mpre,true));
     meta.ndocs++;
-  break;
+  ns.open();
+preStack[l++]=pre;
+break;
 case ELEM:
 final boolean ne=md.nsFlag(mpre);
 byte[] nm=md.name(mpre,mk);
 if (ne) {
 final Atts at=md.ns(mpre);
-for (int a=0; a < at.size; a++) {
-ns.add(pre,ipar,at.key[a],at.val[a]);
+for (int a=0; a < at.size; a++) ns.add(at.key[a],at.val[a],pre);
 }
-}
-int u=ns.uri(nm,pre);
-int n=tags.index(nm,null,false);
-tb.add(elem(dis,n,md.attSize(mpre,mk),md.size(mpre,mk),u,ne));
+ns.open();
+elem(dis,tags.index(nm,null,false),md.attSize(mpre,mk),md.size(mpre,mk),ns.uri(nm,true),ne);
+preStack[l++]=pre;
 break;
 case TEXT:
 case COMM:
 case PI:
-tb.add(text(pre,dis,md.text(mpre,true),mk));
+text(pre,dis,md.text(mpre,true),mk);
 break;
 case ATTR:
 nm=md.name(mpre,mk);
-n=atts.index(nm,null,false);
 if (md.nsFlag(mpre)) {
-ns.add(ipar,ipar,pref(nm),md.ns.uri(md.uri(mpre,mk)));
+ns.add(par,l == 0 ? ipar : preStack[l - 1],pref(nm),md.ns.uri(md.uri(mpre,mk)));
 table.write2(ipar,1,1 << 15 | name(ipar));
 }
-u=pref(nm).length != 0 ? ns.uri(nm,pre) : 0;
-tb.add(attr(pre,dis,n,md.text(mpre,false),u,false));
+final int u=pref(nm).length != 0 ? ns.uri(nm,pre) : 0;
+attr(pre,dis,atts.index(nm,null,false),md.text(mpre,false),u,false);
 break;
 }
 }
-table.insert(ipre,tb.finish());
+while (l > 0) ns.close(preStack[--l]);
+Performance.gc(4);
+System.out.println(Performance.getMem());
+if (b.pos() != 0) insert(ipre + (mpre - 1) - (mpre - 1) % buf);
 int p=ipar;
 while (p >= 0) {
 final int k=kind(p);
@@ -51,4 +60,5 @@ p=parent(p,k);
 }
 updateDist(ipre + ms,ms);
 if (size(0,DOC) == 1) delete(0);
+buffer(1);
 }
