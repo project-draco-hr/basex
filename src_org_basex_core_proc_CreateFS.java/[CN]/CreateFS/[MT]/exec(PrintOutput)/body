@@ -3,7 +3,9 @@
   prop.set(Prop.ENTITY,true);
   final String path;
   try {
-    path=new File(args[0]).getCanonicalPath();
+    final File f=new File(args[0]).getCanonicalFile();
+    if (!f.exists())     return error(FILEWHICH,f.getAbsolutePath());
+    path=f.getCanonicalPath();
   }
  catch (  IOException ex) {
     return error(ex.getMessage());
@@ -17,5 +19,5 @@
   progress(opt);
   opt.execute(context);
   new Open(db).execute(context);
-  return info(DBCREATED,args[1],perf);
+  return info(DBCREATED,db,perf);
 }
