@@ -13,7 +13,17 @@
         break;
       }
       final File f=new File(Token.string(data.fs.path(id,false)));
-      BufferedImage image=ImageIO.read(f);
+      BufferedImage image=null;
+      try {
+        image=ImageIO.read(f);
+      }
+ catch (      final Throwable ex) {
+        if (ex instanceof OutOfMemoryError) {
+          Performance.gc(2);
+          if (err++ == 0)           Dialog.error(view.gui,PROCOUTMEM);
+        }
+        image=new BufferedImage(1,1,BufferedImage.TYPE_INT_BGR);
+      }
       final double iw=image.getWidth();
       final double ih=image.getHeight();
       final double min=Math.min(ww / iw,hh / ih);
