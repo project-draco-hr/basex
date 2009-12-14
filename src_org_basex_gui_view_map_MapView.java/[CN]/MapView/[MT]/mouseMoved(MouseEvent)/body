@@ -1,45 +1,6 @@
 {
   if (gui.updating)   return;
-  super.mouseMoved(e);
   mouseX=e.getX();
   mouseY=e.getY();
-  if (!gui.prop.is(GUIProp.MAPINTERACTION) || !sc(e)) {
-    if (focus()) {
-      if (!(mouseX > tinyx && mouseX < tinyx + tinyw && mouseY > tinyy && mouseY < tinyy + tinyh)) {
-        thumbMap=false;
-      }
-      repaint();
-    }
- else {
-      constMag=false;
-      mapdist=false;
-      refreshMark();
-    }
-  }
- else   if (mapdist) {
-    mapdist=true;
-    final Graphics g=mainMap.getGraphics();
-    g.setColor(Color.black);
-    g.fillRect(0,0,getWidth(),getHeight());
-    final MapRects distRects=new MapRects();
-    for (    final MapRect r : mainRects) {
-      final int x=(int)transfer(r.x,mouseX,getWidth());
-      final int y=(int)transfer(r.y,mouseY,getHeight());
-      final int w=(int)transfer(r.x + r.w,mouseX,getWidth()) - x;
-      final int h=(int)transfer(r.y + r.h,mouseY,getHeight()) - y;
-      distRects.add(new MapRect(x,y,w,h,r.pre,r.level));
-    }
-    mainMap.flush();
-    painter.init(distRects);
-    drawMap(mainMap,distRects,1);
-    repaint();
-  }
- else   if (gui.prop.is(GUIProp.MAPDIST)) {
-    mapdist=true;
-    repaint();
-  }
- else {
-    constMag=true;
-    repaint();
-  }
+  if (focus())   repaint();
 }

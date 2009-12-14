@@ -11,8 +11,6 @@
   final Image img1=in ? zoomMap : mainMap;
   final Image img2=in ? mainMap : zoomMap;
   if (zoomStep > 0) {
-    tinyh=0;
-    tinyw=0;
     drawImage(g,img1,-zoomStep);
     drawImage(g,img2,zoomStep);
   }
@@ -24,7 +22,7 @@
     gui.painting=false;
     if (focused == null || !focused.thumb)     return;
   }
-  if (gprop.num(GUIProp.MAPOFFSETS) == 0 && !mapdist && !constMag) {
+  if (gprop.num(GUIProp.MAPOFFSETS) == 0) {
     g.setColor(COLORS[32]);
     int pre=mainRects.size;
     int par=ViewData.parent(data,focused.pre);
@@ -46,7 +44,7 @@
     g.drawRect(selBox.x,selBox.y,selBox.w,selBox.h);
     g.drawRect(selBox.x - 1,selBox.y - 1,selBox.w + 2,selBox.h + 2);
   }
- else   if (!mapdist && !constMag) {
+ else {
     final int x=focused.x;
     final int y=focused.y;
     final int w=focused.w;
@@ -71,60 +69,6 @@
       focused.x-=3;
       focused.w+=3;
     }
-  }
-  final int ac=AlphaComposite.SRC_OVER;
-  ((Graphics2D)g).setComposite(AlphaComposite.getInstance(ac,gprop.num(GUIProp.ZOOMBOXALPHA) / 100.0f));
-  if (gprop.is(GUIProp.MAPINTERACTION) && thumbMap) {
-    g.drawImage(tinyMap,tinyx,tinyy,tinyw,tinyh,this);
-    g.setColor(Color.black);
-    g.drawRect(tinyx,tinyy,tinyw,tinyh);
-  }
- else   if (gprop.is(GUIProp.MAPINTERACTION) && constMag) {
-    final int fishw=gprop.num(GUIProp.FISHW);
-    final int fishh=gprop.num(GUIProp.FISHH);
-    int dxstart=mouseX - fishw / 2;
-    int dxend=mouseX + fishw / 2;
-    if (dxstart < 0) {
-      dxstart=0;
-      dxend=fishw;
-    }
- else     if (dxend > getWidth()) {
-      dxend=getWidth();
-      dxstart=getWidth() - fishw;
-    }
-    int dystart=mouseY - fishh / 2;
-    int dyend=mouseY + fishh / 2;
-    if (dystart < 0) {
-      dystart=0;
-      dyend=fishh;
-    }
- else     if (dyend > getHeight()) {
-      dyend=getHeight();
-      dystart=getHeight() - fishh;
-    }
-    int sxstart=fkt * mouseX - fishw / 2;
-    int sxend=fkt * mouseX + fishw / 2;
-    if (sxstart < 0) {
-      sxstart=0;
-      sxend=fishw;
-    }
- else     if (sxend > hugeMap.getWidth()) {
-      sxend=hugeMap.getWidth();
-      sxstart=hugeMap.getWidth() - fishw;
-    }
-    int systart=fkt * mouseY - fishh / 2;
-    int syend=fkt * mouseY + fishh / 2;
-    if (systart < 0) {
-      systart=0;
-      syend=fishh;
-    }
- else     if (syend > hugeMap.getHeight()) {
-      syend=hugeMap.getHeight();
-      systart=hugeMap.getHeight() - fishh;
-    }
-    g.drawImage(hugeMap,dxstart,dystart,dxend,dyend,sxstart,systart,sxend,syend,this);
-    g.setColor(Color.black);
-    g.drawRect(dxstart,dystart,fishw,fishh);
   }
   gui.painting=false;
 }
