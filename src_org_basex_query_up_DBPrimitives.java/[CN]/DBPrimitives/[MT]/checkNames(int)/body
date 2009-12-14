@@ -1,0 +1,24 @@
+{
+  final NamePool pool=new NamePool();
+  final IntList ats=new IntList();
+  for (  final int pre : pres) {
+    final UpdatePrimitive[] ups=op.get(pre);
+    if (ups != null) {
+      for (      final UpdatePrimitive up : ups) {
+        if (up != null)         up.update(pool);
+      }
+    }
+    if (d.kind(pre) == Data.ATTR) {
+      ats.add(pre);
+    }
+ else {
+      final int ps=pre + d.attSize(pre,Data.ELEM);
+      for (int p=pre + 1; p < ps; p++) {
+        if (!ats.contains(p))         pool.add(new QNm(d.name(p,Data.ATTR)),true);
+      }
+    }
+  }
+  final QNm dup=pool.duplicate();
+  if (dup != null)   Err.or(UPATTDUPL,dup);
+  if (!pool.nsOK())   Err.or(UPNSCONFL2);
+}
