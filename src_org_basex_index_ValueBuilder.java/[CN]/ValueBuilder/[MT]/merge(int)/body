@@ -1,40 +1,33 @@
 {
   final String f=text ? DATATXT : DATAATV;
-  final Values[] v=new Values[cf];
   final DataOutput outl=new DataOutput(data.meta.file(f + 'l'));
-  outl.writeInt(0);
   final DataOutput outr=new DataOutput(data.meta.file(f + 'r'));
-  final byte[][] t=new byte[cf][];
-  final byte[][] p=new byte[cf][];
-  for (int i=0; i < cf; i++) {
-    v[i]=new Values(data,text,f + i);
-    p[i]=v[i].nextPres();
-    t[i]=p[i].length > 0 ? data.text(Num.read(p[i],4),text) : EMPTY;
-  }
+  outl.writeInt(0);
+  final ValueMerge[] mv=new ValueMerge[cf];
+  for (int i=0; i < cf; i++)   mv[i]=new ValueMerge(data,text,i);
   int min;
-  int size=0;
+  int sz=0;
   final IntList merge=new IntList();
-  while (check(p)) {
-    size++;
+  while (check(mv)) {
+    sz++;
     outr.write5(outl.size());
     min=0;
     merge.reset();
     for (int i=0; i < cf; i++) {
-      if (min == i || t[i].length == 0)       continue;
-      final int d=diff(t[min],t[i]);
-      if (d > 0 || t[min].length == 0) {
+      if (min == i || mv[i].t.length == 0)       continue;
+      final int d=diff(mv[min].t,mv[i].t);
+      if (d > 0 || mv[min].t.length == 0) {
         min=i;
         merge.reset();
       }
- else       if (d == 0 && t[i].length > 0) {
+ else       if (d == 0 && mv[i].t.length > 0) {
         if (merge.size() == 0)         merge.add(min);
         merge.add(i);
       }
     }
     if (merge.size() == 0) {
-      writeWithNum(outl,p[min]);
-      p[min]=v[min].nextPres();
-      t[min]=p[min].length > 0 ? data.text(Num.read(p[min],4),text) : EMPTY;
+      writeWithNum(outl,mv[min].p);
+      mv[min].next();
     }
  else {
       final TokenBuilder tb=new TokenBuilder();
@@ -45,27 +38,26 @@
         final int m=merge.get(j);
         if (j == 0) {
           int l=4;
-          while (l < p[m].length) {
-            final int diff=Num.read(p[m],l);
+          while (l < mv[m].p.length) {
+            final int diff=Num.read(mv[m].p,l);
             opre+=diff;
             l+=Num.len(diff);
           }
-          tb.add(substring(p[m],4));
+          tb.add(substring(mv[m].p,4));
         }
  else {
-          npre=Num.read(p[m],4);
+          npre=Num.read(mv[m].p,4);
           tb.add(Num.num(npre - opre));
           int l=4 + Num.len(npre);
-          tb.add(substring(p[m],l));
+          tb.add(substring(mv[m].p,l));
           opre=npre;
-          while (l < p[m].length) {
-            final int diff=Num.read(p[m],l);
+          while (l < mv[m].p.length) {
+            final int diff=Num.read(mv[m].p,l);
             opre+=diff;
             l+=Num.len(diff);
           }
         }
-        p[m]=v[m].nextPres();
-        t[m]=p[m].length > 0 ? data.text(Num.read(p[m],4),text) : EMPTY;
+        mv[m].next();
       }
       final byte[] tmp=tb.finish();
       Num.size(tmp,tmp.length);
@@ -74,6 +66,5 @@
   }
   outr.close();
   outl.close();
-  for (  final Values vv : v)   vv.close();
-  return size;
+  return sz;
 }

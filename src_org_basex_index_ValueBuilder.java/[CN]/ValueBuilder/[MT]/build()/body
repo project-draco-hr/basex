@@ -6,7 +6,7 @@
   final int type=text ? Data.TEXT : Data.ATTR;
   int cf=0;
   int cc=0;
-  for (pre=0; pre < total; pre++) {
+  for (pre=0; pre < size; pre++) {
     if ((pre & 0x0FFF) == 0) {
       checkStop();
       if (rt.totalMemory() - rt.freeMemory() > maxMem) {
@@ -32,11 +32,10 @@
     write(f + cf);
     index=null;
     cf++;
-    final int size=merge(cf);
+    final int sz=merge(cf);
     final DataAccess da=new DataAccess(data.meta.file(f + 'l'));
-    da.writeInt(size);
+    da.writeInt(sz);
     da.close();
-    DropDB.delete(data.meta.name,f + "\\d+." + IO.BASEXSUFFIX,data.meta.prop);
   }
   if (perf != null) {
     Performance.gc(4);
