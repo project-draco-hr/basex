@@ -1,0 +1,45 @@
+{
+  dialog=d;
+  setLayout(new TableLayout(14,1));
+  final Prop prop=d.gui.context.prop;
+  add(new BaseXLabel(FTINDEXINFO,true,false));
+  final String sw=prop.get(Prop.STOPWORDS);
+  String[] cb={CREATEWC,CREATESTEM,CREATECS,CREATEDC,CREATESCT,CREATESW};
+  String[] desc={WCINDEXINFO,FTSTEMINFO,FTCSINFO,FTDCINFO,FTSCINFO,FTSWINFO};
+  final boolean[] val={prop.is(Prop.WILDCARDS),prop.is(Prop.STEMMING),prop.is(Prop.CASESENS),prop.is(Prop.DIACRITICS),prop.num(Prop.SCORING) > 0,!sw.isEmpty()};
+  for (int f=0; f < check.length; f++) {
+    check[f]=new BaseXCheckBox(cb[f],val[f],create ? 1 : 0,d);
+    if (!create) {
+      labels[f]=new BaseXLabel(desc[f],true,false);
+    }
+ else {
+      check[f].setToolTipText(desc[f]);
+    }
+    if (f < check.length - 2) {
+      add(check[f]);
+      if (!create)       add(labels[f]);
+    }
+  }
+  final BaseXBack b1=new BaseXBack();
+  b1.setLayout(new TableLayout(1,2,6,0));
+  b1.add(check[4]);
+  scoring=new BaseXCombo(new String[]{CREATESCT1,CREATESCT2},d);
+  b1.add(scoring);
+  add(b1);
+  if (!create)   add(labels[4]);
+  add(check[5]);
+  final BaseXBack b2=new BaseXBack();
+  b2.setLayout(new TableLayout(1,2,6,0));
+  swpath=new BaseXTextField(sw,d);
+  b2.add(swpath);
+  swbrowse=new BaseXButton(BUTTONBROWSE,d);
+  swbrowse.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      chooseStop();
+    }
+  }
+);
+  b2.add(swbrowse);
+  add(b2);
+  if (!create)   add(labels[5]);
+}

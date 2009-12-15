@@ -11,10 +11,7 @@
       checkStop();
       if (rt.totalMemory() - rt.freeMemory() > maxMem) {
         if (cc >= 0)         throw new IOException(PROCOUTMEM);
-        final DataOutput outl=new DataOutput(data.meta.file(f + cf + 'l'));
-        outl.writeInt(index.size());
-        final DataOutput outr=new DataOutput(data.meta.file(f + cf + 'r'));
-        write(index,outl,outr);
+        write(f + cf);
         index=new ValueTree();
         Performance.gc(1);
         cc=50;
@@ -29,17 +26,12 @@
     if (tok.length <= MAXLEN && !ws(tok))     index.index(tok,pre);
   }
   if (cf == 0) {
-    final DataOutput outl=new DataOutput(data.meta.file(f + 'l'));
-    final DataOutput outr=new DataOutput(data.meta.file(f + 'r'));
-    writeSingle(outl,outr);
+    writeSingle(f);
   }
  else {
-    final DataOutput outl=new DataOutput(data.meta.file(f + cf + 'l'));
-    outl.writeInt(0);
-    final DataOutput outr=new DataOutput(data.meta.file(f + cf + 'r'));
-    write(index,outl,outr);
-    cf++;
+    write(f + cf);
     index=null;
+    cf++;
     final int size=merge(cf);
     final DataAccess da=new DataAccess(data.meta.file(f + 'l'));
     da.writeInt(size);
