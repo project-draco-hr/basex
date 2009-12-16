@@ -1,19 +1,16 @@
 {
   for (int i=nodes.size() - 1; i >= 0; i--) {
-    boolean idGone=false;
+    final UpdatePrimitive[] upd=op.get(nodes.get(i));
+    UpdatePrimitive p;
+    int j=0;
     int add=0;
-    for (    final UpdatePrimitive pp : op.get(nodes.get(i))) {
-      if (pp == null)       continue;
-      if (idGone)       break;
-      final PrimitiveType t=pp.type();
-      if (t == PrimitiveType.INSERTBEFORE) {
-        add=((NodeCopy)pp).md.meta.size;
-      }
-      pp.apply(add);
-      idGone=t == PrimitiveType.REPLACENODE || t == PrimitiveType.DELETE;
+    while (j < upd.length) {
+      p=upd[j++];
+      final PrimitiveType t=p.type();
+      p.apply(add);
+      if (t == INSERTBEFORE)       add=((NodeCopy)p).md.meta.size;
+      if (t == REPLACENODE)       break;
     }
-    final UpdatePrimitive put=op.get(nodes.get(i))[PrimitiveType.PUT.ordinal()];
-    if (idGone && put != null)     Err.or(UPFOEMPT,put);
   }
   d.flush();
 }
