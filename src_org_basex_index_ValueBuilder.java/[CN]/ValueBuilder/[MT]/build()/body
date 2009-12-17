@@ -1,5 +1,9 @@
 {
-  final Performance perf=Prop.debug ? new Performance() : null;
+  Performance perf=null;
+  if (Prop.debug) {
+    perf=Prop.debug ? new Performance() : null;
+    Main.debug((text ? "Texts" : "Attributes") + ": ");
+  }
   final String f=text ? DATATXT : DATAATV;
   final Runtime rt=Runtime.getRuntime();
   final long maxMem=(long)(rt.maxMemory() * 0.9);
@@ -7,7 +11,7 @@
   int cc=0;
   for (pre=0; pre < size; pre++) {
     if ((pre & 0x0FFF) == 0) {
-      checkStop();
+      check();
       if (rt.totalMemory() - rt.freeMemory() > maxMem) {
         if (cc >= 0)         throw new IOException(PROCOUTMEM);
         write(f + csize);
@@ -40,7 +44,9 @@
   }
   if (perf != null) {
     Performance.gc(4);
-    Main.debug((text ? "Texts" : "Attributes") + ": " + perf+ " ("+ Performance.getMem()+ ")");
+    Main.debug(" " + perf + " ("+ Performance.getMem()+ ")");
   }
+  if (text)   data.meta.txtindex=true;
+ else   data.meta.atvindex=true;
   return new Values(data,text);
 }
