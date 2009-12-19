@@ -1,8 +1,13 @@
 {
   final Context ctx=gui.context;
   if (cmp == rename) {
-    new DialogRename(gui,choice.getValue());
-    choice.setData(List.list(ctx).finish());
+    final String old=choice.getValue();
+    final DialogRename dr=new DialogRename(old,gui);
+    if (dr.ok()) {
+      final Prop prop=gui.context.prop;
+      prop.dbpath(old).renameTo(prop.dbpath(dr.name.getText()));
+      choice.setData(List.list(ctx).finish());
+    }
   }
  else   if (cmp == open) {
     close();
@@ -23,7 +28,7 @@
  else {
     final String db=choice.getValue().trim();
     ok=!db.isEmpty() && ctx.prop.dbexists(db);
-    enableOK(buttons,BUTTONDROP,ok);
+    enableOK(buttons,BUTTONDROP + DOTS,ok);
     if (ok) {
       doc.setText(db);
       DataInput in=null;

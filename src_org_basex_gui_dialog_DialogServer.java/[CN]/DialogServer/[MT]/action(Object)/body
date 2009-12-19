@@ -1,9 +1,9 @@
 {
+  Icon icon=Icon.OK;
   String msg=null;
   String msg2=null;
-  String gmsg=null;
   try {
-    if (cmp == start) {
+    if (cmp == start || cmp == ports) {
       final int p=Integer.parseInt(ports.getText());
       ctx.prop.set(Prop.SERVERPORT,p);
       if (host.getText().equals("localhost")) {
@@ -19,36 +19,34 @@
         if (running)         break;
         Performance.sleep(500);
       }
-      if (!running) {
-        msg=SERVERBIND;
-      }
- else {
-        gmsg=SERVERSTART;
-      }
+      msg=running ? SERVERSTART : SERVERBIND;
+      if (!running)       icon=Icon.ERR;
     }
  else     if (cmp == stop) {
       BaseXServer.stop(gui.context);
       running=ping(true);
       connected=connected && ping(false);
-      if (!connected)       gmsg=SERVERSTOPPED;
+      if (!connected)       msg=SERVERSTOPPED;
+      if (host.getText().equals("localhost"))       logpass.setText("");
     }
- else     if (cmp == connect) {
+ else     if (cmp == connect || cmp == loguser || cmp == logpass || cmp == host || cmp == portc) {
       gui.prop.set(GUIProp.SERVERUSER,loguser.getText());
-      gui.prop.set(GUIProp.SERVERPASS,new String(logpass.getPassword()));
+      final String pw=new String(logpass.getPassword());
       ctx.prop.set(Prop.HOST,host.getText());
       ctx.prop.set(Prop.PORT,Integer.parseInt(portc.getText()));
-      cs=new ClientSession(ctx,gui.prop.get(GUIProp.SERVERUSER),gui.prop.get(GUIProp.SERVERPASS));
+      cs=new ClientSession(ctx,gui.prop.get(GUIProp.SERVERUSER),pw);
+      cs.execute(new Set(Prop.INFO,true));
       user.setSess(cs);
       dbsP.setSess(cs);
       connected=true;
-      gmsg=Main.info(CONNECTED,host.getText(),portc.getText());
+      msg=Main.info(CONNECTED,host.getText(),portc.getText());
       refreshSess();
     }
  else     if (cmp == disconnect) {
       cs.execute(new Exit());
       connected=false;
       logpass.setText("");
-      gmsg=DISCONNECTED;
+      msg=DISCONNECTED;
     }
  else     if (cmp == refreshSess) {
       refreshSess();
@@ -68,6 +66,7 @@
       }
  else {
         msg2=Main.info(DBNOTDELETED,f.getName());
+        icon=Icon.ERR;
       }
     }
  else     if (cmp == deleteAll) {
@@ -75,6 +74,7 @@
         final File f=new File(logdir + logc.getItemAt(i).toString());
         if (!f.delete()) {
           msg2=Main.info(DBNOTDELETED,f.getName());
+          icon=Icon.ERR;
           break;
         }
       }
@@ -91,17 +91,17 @@
   }
  catch (  final IOException ex) {
     Main.debug(ex);
+    icon=Icon.ERR;
     if (ex instanceof BindException)     msg=SERVERBIND;
  else     if (ex instanceof LoginException)     msg=SERVERLOGIN;
- else {
-      msg=ex.getMessage();
-      if (msg.equals(Main.info(PERMNO,CmdPerm.values()[3]))) {
-        try {
-          cs.execute(new Exit());
-        }
- catch (        final IOException e) {
-          e.printStackTrace();
-        }
+ else     if (ex instanceof ConnectException)     msg=SERVERERR;
+ else     msg=ex.getMessage();
+    if (msg.equals(Main.info(PERMNO,CmdPerm.values()[3]))) {
+      try {
+        cs.execute(new Exit());
+      }
+ catch (      final IOException e) {
+        e.printStackTrace();
       }
     }
   }
@@ -110,19 +110,12 @@
   final boolean vallu=loguser.getText().matches("[\\w]*");
   final boolean vallp=new String(logpass.getPassword()).matches("[\\w]*");
   final boolean valh=host.getText().matches("([\\w]+://)?[\\w.-]+");
-  boolean warn=true;
-  if (msg != null || msg2 != null) {
-    warn=false;
-  }
- else   if (!(valpl && valh && valp&& vallu&& vallp)) {
+  if (msg == null && msg2 == null && !(valpl && valh && valp&& vallu&& vallp)) {
     msg=Main.info(INVALID,!valpl ? LOCALPORT : !valh ? HOST : !valp ? PORT : !vallu ? SERVERUSER : SERVERPW);
+    icon=Icon.WARN;
   }
-  infoC.setError(msg,warn);
-  infoL.setError(msg2,warn);
-  if (gmsg != null) {
-    infoC.setText(gmsg);
-    infoC.setIcon(BaseXLayout.icon("ok"));
-  }
+  infoC.setText(msg,icon);
+  infoL.setText(msg2,icon);
   ports.setEnabled(!running);
   start.setEnabled(!running && valpl);
   stop.setEnabled(running);

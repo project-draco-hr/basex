@@ -1,75 +1,65 @@
 {
+  boolean ok=true;
   String msg=null;
   try {
     final Object di=databases.getSelectedItem();
     final String db=di == null ? null : di.toString();
-    if (cmp == change) {
-      for (      final Proc p : permps) {
-        if (!sess.execute(p)) {
-          msg=sess.info();
-          break;
-        }
-      }
-      permps.clear();
-      if (global) {
-        setData();
-      }
- else {
-        setDataL();
-      }
+    if (cmp instanceof Object[]) {
+      final Object[] o=(Object[])cmp;
+      final CmdPerm perm=CmdPerm.values()[((Integer)o[2]) - 1];
+      final String uname=table.getModel().getValueAt((Integer)o[1],0).toString();
+      ok=sess.execute(o[0] == Boolean.TRUE ? new Grant(perm,uname,db) : new Revoke(perm,uname,db));
+      msg=sess.info();
+      setData();
     }
- else     if (cmp == create) {
+ else     if (cmp == create || cmp == user || cmp == pass) {
       final String u=user.getText();
       final String p=new String(pass.getPassword());
-      if (!sess.execute(new CreateUser(u,p)))       msg=sess.info();
+      ok=sess.execute(new CreateUser(u,p));
+      msg=sess.info();
+      setData();
       user.setText("");
       pass.setText("");
-      setData();
+      user.requestFocusInWindow();
     }
  else     if (cmp == drop) {
-      final String u=dropUser.getSelectedItem().toString();
-      if (Dialog.confirm(this,Main.info(DRQUESTION,u)) && !sess.execute(new DropUser(u)))       msg=sess.info();
-      setData();
+      String msg2="";
+      final int[] rows=table.getSelectedRows();
+      if (Dialog.confirm(this,Main.info(DRQUESTION,rows.length))) {
+        for (        final int r : rows) {
+          ok=sess.execute(new DropUser(table.data.value(r,0),db));
+          if (msg == null)           msg=sess.info();
+ else           if (msg2.isEmpty())           msg2=" (...)";
+          if (!ok)           break;
+        }
+        msg+=msg2;
+        setData();
+      }
     }
  else     if (cmp == alter) {
-      final String u=alterUser.getSelectedItem().toString();
-      final String p=new String(newpass.getPassword());
-      if (!sess.execute(new AlterUser(u,p)))       msg=sess.info();
-      newpass.setText("");
-      setData();
-    }
- else     if (cmp == remove) {
-      final String u=removeUser.getSelectedItem().toString();
-      if (!sess.execute(new DropUser(u,db)))       msg=sess.info();
-      setDataL();
+      final DialogPass dp=new DialogPass(dia.gui);
+      if (dp.ok()) {
+        ok=sess.execute(new AlterUser(table.getValueAt(table.getSelectedRow(),0).toString(),dp.pass()));
+        msg=sess.info();
+      }
     }
  else     if (cmp == add) {
-      final String value=addUser.getSelectedItem().toString();
-      for (      final StringList l : tempP) {
-        if (l.get(0).equals(value)) {
-          for (int i=1; i <= 2; i++) {
-            final String o=l.get(i);
-            final Object val=o.equals("") ? Boolean.FALSE : o.equals("X") ? Boolean.TRUE : o;
-            final String right=CmdPerm.values()[i - 1].toString();
-            permps.add(val.equals(true) ? new Grant(right,value,db) : new Revoke(right,value,db));
-          }
+      final String us=addUser.getSelectedItem().toString();
+      for (int r=0; r < users.contents.size(); r++) {
+        if (!users.value(r,0).equals(us))         continue;
+        for (int c=1; c <= 2; c++) {
+          final String o=users.value(r,c);
+          final String right=CmdPerm.values()[c - 1].toString();
+          ok=sess.execute(o.equals("X") ? new Grant(right,us,db) : new Revoke(right,us,db));
+          msg=sess.info();
+          if (!ok)           break;
         }
       }
-      action(change);
+      setData();
+      addUser.requestFocusInWindow();
     }
  else     if (cmp == databases) {
-      try {
-        setDataL();
-      }
- catch (      final IOException e1) {
-        addUser.removeAllItems();
-        removeUser.removeAllItems();
-        data=new Table();
-        if (databases.getSelectedIndex() > 0) {
-          msg=e1.getMessage();
-        }
-        ((TableModel)table.getModel()).fireTableChanged(null);
-      }
+      setData();
     }
   }
  catch (  final IOException ex) {
@@ -78,25 +68,24 @@
  else     if (ex instanceof LoginException)     msg=SERVERLOGIN;
  else     msg=ex.getMessage();
   }
-  final boolean n=user.getText().matches("[\\w]*");
-  final boolean p=new String(pass.getPassword()).matches("[\\w]*");
-  final boolean np=new String(newpass.getPassword()).matches("[\\w]*");
-  boolean na=!user.getText().equals(ADMIN);
-  for (int i=0; i < dropUser.getItemCount(); i++) {
-    na&=!user.getText().equals(dropUser.getItemAt(i).toString());
-  }
-  boolean warn=true;
-  if (msg != null) {
-    warn=false;
-  }
- else   if (!(n && p && np&& na)) {
-    msg=!na ? Main.info(USERKNOWN,user.getText()) : Main.info(INVALID,!n ? SERVERUSER : SERVERPW);
-  }
-  info.setError(msg,warn);
-  alter.setEnabled(np && newpass.getPassword().length != 0 && alterUser.getSelectedIndex() > 0);
-  create.setEnabled(n && p && na&& !user.getText().isEmpty()&& pass.getPassword().length != 0);
-  drop.setEnabled(dropUser.getSelectedIndex() > 0);
-  remove.setEnabled(removeUser.getSelectedIndex() > 0);
+  final boolean valname=user.getText().matches("[\\w]*");
+  final boolean valpass=new String(pass.getPassword()).matches("[\\w]*");
+  boolean newname=true;
+  for (int r=0; r < users.contents.size(); r++)   newname&=!users.value(r,0).equals(user.getText());
+  alter.setEnabled(table.getSelectedRows().length == 1);
+  create.setEnabled(valname && valpass && newname&& !user.getText().isEmpty()&& pass.getPassword().length != 0);
   add.setEnabled(addUser.getSelectedIndex() > 0);
-  change.setEnabled(false);
+  addUser.setEnabled(addUser.getSelectedIndex() > -1);
+  boolean valdrop=true;
+  for (  final int r : table.getSelectedRows()) {
+    valdrop&=!table.data.value(r,0).equals(ADMIN);
+  }
+  drop.setEnabled(valdrop && table.getSelectedRows().length > 0);
+  valdrop|=table.getSelectedRows().length == 1;
+  Icon icon=ok ? Icon.OK : Icon.ERR;
+  if (msg == null && !(valname && valpass && newname&& valdrop)) {
+    msg=!newname ? Main.info(USERKNOWN,user.getText()) : !valdrop ? USERADMIN : Main.info(INVALID,!valname ? SERVERUSER : SERVERPW);
+    icon=Icon.WARN;
+  }
+  info.setText(msg,icon);
 }
