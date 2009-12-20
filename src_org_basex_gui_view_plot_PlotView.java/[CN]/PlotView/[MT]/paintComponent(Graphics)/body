@@ -23,7 +23,19 @@
   g.drawImage(markedImg,0,0,this);
   if (plotData.pres.length < 1)   return;
   gui.painting=true;
-  final int f=plotData.findPre(gui.context.focused);
+  int focused=gui.context.focused;
+  if (focused != -1) {
+    final Data d=gui.context.data;
+    int itmID=d.tags.id(plotData.item);
+    int k=d.kind(focused);
+    int name=d.name(focused);
+    while (focused > 0 && itmID != name) {
+      focused=d.parent(focused,k);
+      k=d.kind(focused);
+      name=d.name(focused);
+    }
+  }
+  final int f=plotData.findPre(focused);
   if (f > -1) {
     final int ol=overlappingNodes(f).length;
     if (!dragging) {
@@ -32,15 +44,16 @@
       drawItem(g,x1,y1,true,false,false);
       g.setFont(font);
       final int textH=g.getFontMetrics().getHeight();
-      final String x=formatString(true);
-      final String y=formatString(false);
+      final String x=formatString(true,focused);
+      final String y=formatString(false,focused);
       String label=x.length() > 16 ? x.substring(0,14) + ".." : x;
       if (!x.isEmpty() && !y.isEmpty())       label+=" | ";
       label+=y.length() > 16 ? y.substring(0,14) + ".." : y;
       final int xa=calcCoordinate(true,x1) + 15;
       int ya=calcCoordinate(false,y1) + gui.prop.num(GUIProp.PLOTDOTS);
       final int ww=getWidth();
-      final byte[] nm=ViewData.attValue(data,data.nameID,gui.context.focused);
+      final byte[] nm=ViewData.attValue(data,data.nameID,focused);
+      if (nm != null)       System.out.println(string(nm));
       String name=nm != null ? string(nm) : "";
       if (name.length() > 0 && plotData.xAxis.attrID != data.nameID && plotData.yAxis.attrID != data.nameID) {
         if (ol > 1)         name=ol + "x: " + name+ ", ...";
