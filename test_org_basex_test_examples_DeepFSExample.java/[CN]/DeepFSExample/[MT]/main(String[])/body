@@ -1,0 +1,25 @@
+{
+  String xml;
+  System.out.println("=== Serialize a single file (without metadata and contents");
+  xml=FSMLSerializer.serialize(FILE,false);
+  System.out.println(xml);
+  System.out.println("\n=== Serialize a single file (with metadata and text/xml contents");
+  DeepFile deepFile=new DeepFile(FILE);
+  deepFile.extract();
+  xml=FSMLSerializer.serialize(deepFile);
+  System.out.println(xml);
+  System.out.println("\n=== Traverse a file system hierarchy");
+  FSImporter importer=new FSImporter(CONTEXT);
+  importer.createDB(DB);
+  new FSWalker(importer).traverse(DIRECTORY);
+  new Optimize().exec(CONTEXT,System.out);
+  new XQuery("/").exec(CONTEXT,System.out);
+  System.out.flush();
+  System.out.println("\n\n=== List available parsers");
+  System.out.println("file suffix\t| \t java class");
+  System.out.println("-----------------------------------------------------");
+  ParserRegistry registry=new ParserRegistry();
+  for (  String[] parser : registry.availableParsers()) {
+    System.out.println(parser[0] + (parser[0].length() > 7 ? "" : "\t") + "\t  "+ parser[1]);
+  }
+}
