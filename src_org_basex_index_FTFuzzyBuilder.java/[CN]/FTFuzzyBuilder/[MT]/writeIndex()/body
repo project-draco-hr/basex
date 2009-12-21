@@ -1,0 +1,32 @@
+{
+  tree.init();
+  final DataOutput outx=new DataOutput(data.meta.file(DATAFTX + cf + 'x'));
+  final DataOutput outy=new DataOutput(data.meta.file(DATAFTX + cf + 'y'));
+  final DataOutput outz=new DataOutput(data.meta.file(DATAFTX + cf + 'z'));
+  final IntList ind=new IntList();
+  long dr=0;
+  int tr=0;
+  byte j=0;
+  int c=0;
+  while (tree.more(cf)) {
+    c++;
+    tree.nextPoi();
+    final byte[] key=tree.nextTok();
+    if (j < key.length) {
+      j=(byte)key.length;
+      ind.add(j);
+      ind.add(tr);
+    }
+    for (int i=0; i < j; i++)     outy.write(key[i]);
+    outy.write5(dr);
+    outy.writeInt(tree.nextNumPre());
+    writeFTData(outz,tree.nextPres(),tree.nextPos());
+    dr=outz.size();
+    tr=(int)outy.size();
+  }
+  writeInd(outx,ind,++j,tr);
+  outx.close();
+  outy.close();
+  outz.close();
+  tree.initTrees();
+}
