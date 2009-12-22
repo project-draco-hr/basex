@@ -9,10 +9,9 @@
       final CmdPerm perm=CmdPerm.values()[((Integer)o[2]) - 1];
       final String uname=table.getModel().getValueAt((Integer)o[1],0).toString();
       final boolean grant=o[0] == Boolean.TRUE;
-      final Proc proc=grant ? new Grant(perm,uname,db) : new Revoke(perm,uname,db);
       final boolean confirm=!grant && perm == CmdPerm.READ && uname.equals(dia.loguser.getText());
       if (confirm && !Dialog.confirm(this,Main.info(DBREVOKE)))       return;
-      ok=sess.execute(proc);
+      ok=sess.execute(grant ? new Grant(perm,uname,db) : new Revoke(perm,uname,db));
       msg=sess.info();
       if (confirm)       setSess(sess);
  else       setData();
