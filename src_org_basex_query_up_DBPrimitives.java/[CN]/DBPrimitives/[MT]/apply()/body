@@ -1,14 +1,16 @@
 {
   int par=-2;
   boolean check=false;
+  int first=-1;
   for (int i=nodes.size() - 1; i >= 0; i--) {
     final int pre=nodes.get(i);
     final int parT=d.parent(pre,d.kind(pre));
     if (parT != par) {
-      if (check)       mergeTexts(par);
+      if (check)       mergeTexts(par,first);
       check=false;
       par=parT;
     }
+    first=pre;
     final UpdatePrimitive[] upd=op.get(pre);
     for (int j=0, add=0; j < upd.length; j++) {
       final UpdatePrimitive p=upd[j];
@@ -19,6 +21,6 @@
       if (t == REPLACENODE)       break;
     }
   }
-  if (check)   mergeTexts(par);
+  if (check)   mergeTexts(par,first);
   d.flush();
 }
