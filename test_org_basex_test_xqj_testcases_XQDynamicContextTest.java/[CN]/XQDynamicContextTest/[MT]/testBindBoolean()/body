@@ -6,14 +6,14 @@
     xqpe.bindBoolean(new QName("v"),true,null);
     fail("A-XQDC-1.1: bindBoolean() throws an XQException when the dynamic context is in closed state.");
   }
- catch (  XQException e) {
+ catch (  final XQException e) {
   }
   xqpe=xqc.prepareExpression("declare variable $v external; $v");
   try {
     xqpe.bindBoolean(null,true,null);
     fail("A-XQDC-1.2: null argument is invalid and throws an XQException.");
   }
- catch (  XQException e) {
+ catch (  final XQException e) {
   }
   xqpe.close();
   boolean bindFailed=false;
@@ -21,11 +21,11 @@
   try {
     xqpe.bindBoolean(new QName("v"),true,xqc.createCommentType());
   }
- catch (  XQException e) {
+ catch (  final XQException e) {
     bindFailed=true;
   }
   if (!bindFailed) {
-    XQSequence xqs=xqpe.executeQuery();
+    final XQSequence xqs=xqpe.executeQuery();
     xqs.next();
     if (xqs.getItemType().getItemKind() != XQItemType.XQITEMKIND_COMMENT)     fail("A-XQDC-1.3: The conversion is subject to the following constraints. Either it fails with an XQException, either it is successful in which case it must result in an instance of XDT.");
   }
@@ -35,7 +35,7 @@
     xqpe.bindBoolean(new QName("foo"),true,null);
     fail("A-XQDC-1.5: The bound variable must be declared external in the prepared expression.");
   }
- catch (  XQException e) {
+ catch (  final XQException e) {
   }
   xqpe.close();
   xqpe=xqc.prepareExpression("declare variable $v as xs:decimal external; $v");
@@ -44,17 +44,17 @@
     xqpe.executeQuery().getSequenceAsString(null);
     fail("A-XQDC-1.6: The dynamic type of the bound value is not compatible with the static type of the variable and must fail.");
   }
- catch (  XQException e) {
+ catch (  final XQException e) {
   }
   xqpe.close();
   xqpe=xqc.prepareExpression("declare variable $v external; $v");
   try {
     xqpe.bindBoolean(new QName("v"),true,xqc.createAtomicType(XQItemType.XQBASETYPE_BOOLEAN));
   }
- catch (  XQException e) {
+ catch (  final XQException e) {
     fail("A-XQDC-1.7: bindBoolean() failed with message: " + e.getMessage());
   }
-  XQSequence xqs=xqpe.executeQuery();
+  final XQSequence xqs=xqpe.executeQuery();
   xqs.next();
   assertEquals("A-XQDC-1.7: Successful bindXXX.","true",xqs.getAtomicValue());
   xqpe.close();
