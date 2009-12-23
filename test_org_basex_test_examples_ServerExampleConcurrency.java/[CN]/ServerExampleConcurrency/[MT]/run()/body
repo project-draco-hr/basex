@@ -1,0 +1,35 @@
+{
+  new Thread(){
+    @Override public void run(){
+      new BaseXServer();
+    }
+  }
+.start();
+  Thread.sleep(1000);
+  session=new ClientSession("localhost",1984,"admin","admin");
+  launch("set info true");
+  System.out.println("\n=== Create a database:");
+  launch("create db \"input.xml\" input");
+  System.out.println("\n=== Run a query:");
+  launch("xquery //li",true);
+  System.out.println("\n=== Show database information:");
+  launch("info db");
+  Client reader=new Client("//li",false);
+  Client writer=new Client("insert node <li>One more </li> " + "as last into /html/body//ul",false);
+  Client writer2=new Client("insert node <strong>One more </strong>" + " as last into /html/body",false);
+  Performance.sleep(2000);
+  writer.quit();
+  writer2.quit();
+  reader.quit();
+  Performance.sleep(400);
+  System.out.println("\n=== Information on the changed database:");
+  launch("info db");
+  System.out.println("\n=== Contents of the changed database:");
+  launch("xquery //li");
+  System.out.println("\n=== Close and drop the database:");
+  launch("close",false);
+  launch("drop db input",false);
+  System.out.println("\n=== Stop the server:");
+  session.close();
+  new BaseXServer("stop");
+}
