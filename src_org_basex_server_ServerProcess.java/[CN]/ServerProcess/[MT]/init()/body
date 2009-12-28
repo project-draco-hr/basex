@@ -1,18 +1,21 @@
 {
   try {
-    in=new BufferInput(socket.getInputStream());
+    final String ts=Long.toString(System.nanoTime());
     out=new PrintOutput(new BufferedOutput(socket.getOutputStream()));
+    out.print(ts);
+    send(true);
+    in=new BufferInput(socket.getInputStream());
     final String us=in.readString();
     final String pw=in.readString();
-    context.user=context.users.get(us,pw);
-    final boolean ok=context.user != null;
+    context.user=context.users.get(us);
+    boolean ok=context.user != null && md5(string(context.user.pw) + ts).equals(pw);
     send(ok);
     if (ok)     start();
  else     if (us.length() != 0)     log.write(this,"LOGIN " + us,"failed");
     return ok;
   }
  catch (  final IOException ex) {
-    Main.error(ex,false);
+    ex.printStackTrace();
     log.write(ex.getMessage());
     return false;
   }

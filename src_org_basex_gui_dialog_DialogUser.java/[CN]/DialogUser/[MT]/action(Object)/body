@@ -80,10 +80,7 @@
     }
   }
  catch (  final IOException ex) {
-    Main.debug(ex);
-    if (ex instanceof BindException)     msg=SERVERBIND;
- else     if (ex instanceof LoginException)     msg=SERVERLOGIN;
- else     msg=ex.getMessage();
+    msg=Main.server(ex);
     ok=false;
   }
   final boolean valname=user.getText().matches("[\\w]*");
@@ -100,10 +97,10 @@
   }
   drop.setEnabled(valdrop && table.getSelectedRows().length > 0);
   valdrop|=table.getSelectedRows().length == 1;
-  Icon icon=ok ? Icon.OK : Icon.ERR;
+  Msg icon=ok ? Msg.OK : Msg.ERR;
   if (msg == null && !(valname && valpass && newname&& valdrop)) {
     msg=!newname ? Main.info(USERKNOWN,user.getText()) : !valdrop ? USERADMIN : Main.info(INVALID,!valname ? SERVERUSER : SERVERPW);
-    icon=Icon.WARN;
+    icon=Msg.WARN;
   }
   info.setText(msg,icon);
 }

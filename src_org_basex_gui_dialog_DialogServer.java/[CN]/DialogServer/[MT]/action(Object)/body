@@ -1,5 +1,5 @@
 {
-  Icon icon=Icon.OK;
+  Msg icon=Msg.OK;
   String msg=null;
   String msg2=null;
   try {
@@ -20,14 +20,15 @@
         Performance.sleep(500);
       }
       msg=running ? SERVERSTART : SERVERBIND;
-      if (!running)       icon=Icon.ERR;
+      if (!running)       icon=Msg.ERR;
     }
  else     if (cmp == stop) {
-      BaseXServer.stop(gui.context);
+      if (running)       BaseXServer.stop(gui.context);
       running=ping(true);
-      connected=connected && ping(false);
+      connected&=ping(false);
       if (!connected)       msg=SERVERSTOPPED;
       if (host.getText().equals("localhost"))       logpass.setText("");
+      if (!connected)       super.setTitle(GUISERVER);
     }
  else     if (cmp == connect || cmp == loguser || cmp == logpass || cmp == host || cmp == portc) {
       gui.prop.set(GUIProp.SERVERUSER,loguser.getText());
@@ -69,7 +70,7 @@
       }
  else {
         msg2=Main.info(DBNOTDELETED,f.getName());
-        icon=Icon.ERR;
+        icon=Msg.ERR;
       }
     }
  else     if (cmp == deleteAll) {
@@ -77,7 +78,7 @@
         final File f=new File(logdir + logc.getItemAt(i).toString());
         if (!f.delete()) {
           msg2=Main.info(DBNOTDELETED,f.getName());
-          icon=Icon.ERR;
+          icon=Msg.ERR;
           break;
         }
       }
@@ -90,12 +91,8 @@
     }
   }
  catch (  final IOException ex) {
-    Main.debug(ex);
-    icon=Icon.ERR;
-    if (ex instanceof BindException)     msg=SERVERBIND;
- else     if (ex instanceof LoginException)     msg=SERVERLOGIN;
- else     if (ex instanceof ConnectException)     msg=SERVERERR;
- else     msg=ex.getMessage();
+    icon=Msg.ERR;
+    msg=Main.server(ex);
     if (msg.equals(Main.info(PERMNO,CmdPerm.values()[3]))) {
       try {
         cs.execute(new Exit());
@@ -112,7 +109,7 @@
   final boolean valh=host.getText().matches("([\\w]+://)?[\\w.-]+");
   if (msg == null && msg2 == null && !(valpl && valh && valp&& vallu&& vallp)) {
     msg=Main.info(INVALID,!valpl ? LOCALPORT : !valh ? HOST : !valp ? PORT : !vallu ? SERVERUSER : SERVERPW);
-    icon=Icon.WARN;
+    icon=Msg.WARN;
   }
   infoC.setText(msg,icon);
   infoL.setText(msg2,icon);
