@@ -1,0 +1,58 @@
+{
+  if (l == -1)   return;
+  final int y=getYperLevel(l);
+  final int h=nodeHeight;
+  final Data d=gui.context.data;
+  final int kind=d.kind(pre);
+  final int size=d.size(pre,kind);
+  int multiPreX=-1;
+  if (fillNodes) {
+    drawRectangle(g,l,r.x,r.w,h,false,true,DRAW_HIGHLIGHT);
+  }
+ else {
+    drawRectangle(g,l,r.x,r.w,h,true,false,DRAW_HIGHLIGHT);
+  }
+  if (cache.isBigRectangle(rn,l)) {
+    final int index=cache.getPreIndex(rn,l,pre);
+    final double ratio=index / (double)(cache.getLevelSize(rn,l) - 1);
+    multiPreX=(int)(r.w * ratio);
+    g.drawLine(multiPreX,y,multiPreX,y + nodeHeight);
+  }
+  if (childX > -1) {
+    g.drawLine(childX,getYperLevel(l + 1) - 1,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,y + nodeHeight + 1);
+  }
+  if (showParent && pre > 0) {
+    final int par=d.parent(pre,kind);
+    final int lv=l - 1;
+    TreeRect parRect=null;
+    if (lv >= 0) {
+      if (cache.isBigRectangle(rn,lv)) {
+      }
+ else {
+        parRect=cache.searchRect(rn,lv,par);
+        if (parRect != null) {
+          highlightNode(g,rn,par,parRect,lv,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,true,true,false);
+        }
+      }
+    }
+  }
+  if (showChildren && size > 1 && l + 1 < cache.getHeight(rn)) {
+    if (cache.isBigRectangle(rn,l + 1)) {
+    }
+ else {
+    }
+  }
+  if (!(showParent && showChildren))   return;
+  final String s=cache.getText(d,pre);
+  final int w=BaseXLayout.width(g,s);
+  if (pre == 0) {
+    g.fillRect(r.x,y + fontHeight + 1,w + 2,h);
+    g.setColor(Color.WHITE);
+    g.drawString(s,r.x + 1,y + fontHeight + h - 2);
+  }
+ else {
+    g.fillRect(r.x,y - fontHeight,w + 2,h);
+    g.setColor(Color.WHITE);
+    g.drawString(s,r.x + 1,(int)(y - h / (float)fontHeight) - 2);
+  }
+}
