@@ -28,8 +28,8 @@
         break;
       }
       startTimer(proc);
-      final boolean up=proc.updating(context) || (proc.flags & User.CREATE) != 0;
-      sem.before(up);
+      final boolean w=sema.writing(proc,context);
+      sema.before(w);
       final boolean ok=proc.execute(context,out);
       out.write(0);
       final String inf=proc.info();
@@ -37,7 +37,7 @@
       out.write(0);
       send(ok);
       stopTimer();
-      sem.after(up);
+      sema.after(w);
       final String pr=proc.toString().replaceAll("\\r|\\n"," ");
       log.write(this,pr,ok ? "OK" : INFOERROR + inf,perf);
     }
