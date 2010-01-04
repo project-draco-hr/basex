@@ -4,8 +4,13 @@
   prop=ctx.prop;
   final Data data=context.data;
   if (data == null && (flags & DATAREF) != 0)   return error(PROCNODB);
-  final int i=context.perm(flags & 0xFF,data != null ? data.meta : null);
-  if (i != -1)   return error(PERMNO,CmdPerm.values()[i]);
+  if (!context.perm(flags & 0xFF,data != null ? data.meta : null)) {
+    final CmdPerm[] perms=CmdPerm.values();
+    int i=perms.length;
+    final int f=flags & 0xFF;
+    while (--i >= 0 && (1 << i & f) == 0)     ;
+    return error(PERMNO,perms[i]);
+  }
   boolean ok=false;
   try {
     ok=exec(out);
