@@ -1,16 +1,14 @@
 {
-  final ByteArrayOutputStream baos=new ByteArrayOutputStream();
-  final PrintOutput po=new PrintOutput(baos);
-  final XMLSerializer ser=new XMLSerializer(po);
+  final CachedOutput co=new CachedOutput();
+  final XMLSerializer ser=new XMLSerializer(co);
   final Context ctx=new Context();
   ctx.openDB(data);
   final QueryProcessor qp=new QueryProcessor("/",ctx);
   try {
     final Result res=qp.query();
     res.serialize(ser);
-    final String xml=baos.toString();
+    final String xml=co.toString();
     ser.close();
-    po.close();
     addXML(position,byteCount,xml);
   }
  catch (  final QueryException e) {
