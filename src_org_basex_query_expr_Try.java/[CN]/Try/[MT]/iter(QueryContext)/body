@@ -3,18 +3,16 @@
     final int s=ctx.vars.size();
     Iter it;
     @Override public Item next() throws QueryException {
+      if (it == null && qe != null)       it=err(ctx,qe);
       try {
         if (it == null)         it=ctx.iter(expr);
         return it.next();
       }
  catch (      final QueryException ex) {
-        for (        final Catch c : ctch) {
-          it=c.iter(ctx,ex);
-          if (it != null)           return it.next();
-        }
         ctx.vars.reset(s);
-        throw ex;
+        it=err(ctx,ex);
       }
+      return it.next();
     }
   }
 ;

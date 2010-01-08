@@ -1,26 +1,30 @@
 {
-  System.out.println("\n=== Create a database from a file.");
-  new CreateDB("input.xml","Example1").exec(CONTEXT,System.out);
+  System.out.println("\n=== I Create a database from a file.");
+  new CreateDB("input.xml","Example1").exec(context,out);
+  System.out.println("\n=== II Evaluating queries.");
+  String query="for $x in //body//li return $x";
   try {
-    directOutputExample();
-  }
- catch (  final BaseXException e) {
-    System.err.println(e.getMessage());
-  }
-  try {
-    iterateExample();
+    System.out.println("===== XQuery Proc: direct output.");
+    queryExample(query);
   }
  catch (  final Exception e) {
     System.err.println(e.getMessage());
   }
   try {
-    resultInstance();
+    System.out.println("\n===== XQuery Node Iteration and XML Serializing.");
+    iterateExample(query);
   }
- catch (  final QueryException e) {
+ catch (  final Exception e) {
     System.err.println(e.getMessage());
   }
-  new Close().execute(CONTEXT);
-  new DropDB("Example1");
-  xmlSer.close();
+  try {
+    System.out.println("\n=== Serializing a complete result instance.");
+    resultExample(query);
+  }
+ catch (  final Exception e) {
+    System.err.println(e.getMessage());
+  }
+  new Close().exec(context,out);
+  new DropDB("Example1").exec(context,out);
   out.close();
 }
