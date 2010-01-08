@@ -15,6 +15,19 @@
   g.drawImage(treeImage,0,0,getWidth(),getHeight(),this);
   if (refreshedMark)   markNodes();
   if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
-  if (focus())   highlightNode(g,0,gui.context.focused,focusedRect,focusedRectLevel,-1,false,SHOW_ANCESTORS,SHOW_DESCENDANTS);
+  if (focus()) {
+    final int focused=gui.context.focused;
+    highlightNode(g,0,focused,focusedRect,focusedRectLevel,-1,false,SHOW_ANCESTORS,SHOW_DESCENDANTS);
+    if (SHOW_EXTRA_INFO) {
+      g.setColor(new Color(0xeeeeee));
+      g.fillRect(0,getHeight() - fontHeight - 6,getWidth(),fontHeight + 6);
+      final Data d=gui.context.data;
+      final int k=d.kind(focused);
+      final int s=d.size(focused,k);
+      final int as=d.attSize(focused,k);
+      g.setColor(Color.BLACK);
+      g.drawString("level: " + focusedRectLevel + "  level-size: "+ cache.getLevelSize(0,focusedRectLevel)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused))+ "  pre: "+ focused,2,getHeight() - 6);
+    }
+  }
   if (selection)   markSelektedNodes(g);
 }
