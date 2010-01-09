@@ -1,21 +1,10 @@
 {
   System.out.println("\n=== Create a database from a file via http.");
-  new CreateDB("http://en.wikipedia.org/wiki/Wikipedia","XMLWIKI").execute(context,out);
-  try {
-    System.out.print("=== Perform a database update.");
-    query("declare namespace xhtml='http://www.w3.org/1999/xhtml';" + "insert node " + "<xhtml:p>I match the WIKIFIND query because I contain"+ " article and edit. :-)</xhtml:p>"+ " into //xhtml:body");
-  }
- catch (  final BaseXException e) {
-    System.err.println(e.getMessage());
-  }
-  try {
-    System.out.println("=== Perform a query.");
-    query("declare namespace xhtml='http://www.w3.org/1999/xhtml';" + "for $x in //xhtml:p/text()" + "  where $x contains text (\"edit.*\" ftand "+ "    (\"article\" ftor \"page\")) "+ "    using wildcards distance at most 10 words "+ "return <p>{$x}</p>");
-  }
- catch (  BaseXException e) {
-    System.err.println(e.getMessage());
-  }
-  new Close().execute(context,out);
-  new DropDB("XMLWIKI").execute(context,out);
+  new CreateDB("http://en.wikipedia.org/wiki/Wikipedia","XMLWIKI").execute(ctx,out);
+  System.out.println("=== Perform a update query.");
+  query("declare namespace xhtml='http://www.w3.org/1999/xhtml';" + "insert node " + "<xhtml:p>I match the WIKIFIND query because I contain"+ " article and edit. :-)</xhtml:p>"+ " into //xhtml:body");
+  System.out.println("=== Perform a fulltext-search.");
+  query("declare namespace xhtml='http://www.w3.org/1999/xhtml';" + "for $x in //xhtml:p/text()" + "  where $x contains text (\"edit.*\" ftand "+ "    (\"article\" ftor \"page\")) "+ "    using wildcards distance at most 10 words "+ "return <p>{$x}</p>");
+  new DropDB("XMLWIKI").execute(ctx,out);
   out.close();
 }
