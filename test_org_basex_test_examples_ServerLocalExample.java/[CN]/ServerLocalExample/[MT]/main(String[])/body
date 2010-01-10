@@ -1,0 +1,25 @@
+{
+  System.out.println("=== ServerLocalExample ===");
+  new Thread(){
+    @Override public void run(){
+      new BaseXServer();
+    }
+  }
+.start();
+  Thread.sleep(1000);
+  System.out.println("\n* Create a client session.");
+  session=new ClientSession("localhost",1984,"admin","admin");
+  System.out.println("\n* Cache server-side query results.");
+  final CachedOutput result=new CachedOutput();
+  send("XQUERY for $x in doc('input.xml') return $x",result);
+  System.out.println("\n* Create a local database.");
+  new CreateDB(result.toString(),"LocalDB").execute(CONTEXT,System.out);
+  System.out.println("\n* Run a local query:");
+  new XQuery("//title").execute(CONTEXT,System.out);
+  System.out.println("\n\n* Close the client session.");
+  session.close();
+  System.out.println("\n* Stop the server:");
+  new BaseXServer("STOP");
+  System.out.println("\n* Drop the local database.");
+  new DropDB("LocalDB").execute(CONTEXT);
+}

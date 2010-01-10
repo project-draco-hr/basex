@@ -1,0 +1,11 @@
+{
+  System.out.println("=== CollectionQueryExample ===");
+  System.out.println("\n* Create a collection.");
+  new CreateDB("etc","Collection").execute(CONTEXT);
+  System.out.println("\n* List all documents in the database:");
+  new XQuery("for $doc in collection('Collection')" + "return <doc path='{ base-uri($doc) }'/>").execute(CONTEXT,System.out);
+  System.out.println("\n\n* Evaluate a query on a single document:");
+  new XQuery("for $doc in collection()" + "let $file-path := base-uri($doc)" + "where ends-with($file-path, 'factbook.xml')"+ "return concat($file-path, ' has ', count($doc//*), ' elements')").execute(CONTEXT,System.out);
+  System.out.println("\n\n* Drop the database.");
+  new DropDB("Collection").execute(CONTEXT);
+}
