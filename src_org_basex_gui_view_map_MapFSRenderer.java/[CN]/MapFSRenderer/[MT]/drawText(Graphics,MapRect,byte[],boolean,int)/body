@@ -1,0 +1,31 @@
+{
+  final int fh=(int)(1.2 * fs);
+  final Color textc=g.getColor();
+  int yy=r.y + fh;
+  final ArrayList<String> ftStrings=new ArrayList<String>();
+  if (r.pos != null) {
+    final Tokenizer tok=new Tokenizer(s,null);
+    int count=0;
+    while (tok.more()) {
+      if (r.pos.contains(count++))       ftStrings.add(string(tok.orig()));
+    }
+  }
+  final String[] lines=wrapText(g,string(s).split(Prop.NL),r.w);
+  for (  final String line : lines) {
+    if (draw) {
+      boolean ft=false;
+      if (ftStrings.size() != 0) {
+        for (        final String str : ftStrings.toArray(new String[ftStrings.size()])) {
+          if (line.contains(str)) {
+            ft=true;
+            break;
+          }
+        }
+      }
+      g.setColor(ft ? COLORFT : textc);
+      g.drawString(line,r.x,yy);
+    }
+    yy+=fh;
+  }
+  return yy - r.y;
+}

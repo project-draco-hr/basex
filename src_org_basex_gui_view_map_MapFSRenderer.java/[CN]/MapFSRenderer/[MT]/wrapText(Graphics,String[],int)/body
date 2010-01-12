@@ -1,0 +1,22 @@
+{
+  final int[] cw=fontWidths(g.getFont());
+  final ArrayList<String> wrappedLines=new ArrayList<String>(text.length);
+  for (  final String line : text) {
+    if (line.length() == 0)     wrappedLines.add("");
+    int lineWidth=0;
+    int linePos=0;
+    int startIndex=0;
+    for (    final char ch : line.toCharArray()) {
+      final int charWidth=BaseXLayout.width(g,cw,ch);
+      if (lineWidth + charWidth > width) {
+        wrappedLines.add(line.substring(startIndex,linePos));
+        startIndex=linePos;
+        lineWidth=0;
+      }
+      lineWidth+=charWidth;
+      linePos++;
+    }
+    if (startIndex < linePos - 1)     wrappedLines.add(line.substring(startIndex,linePos));
+  }
+  return wrappedLines.toArray(new String[wrappedLines.size()]);
+}
