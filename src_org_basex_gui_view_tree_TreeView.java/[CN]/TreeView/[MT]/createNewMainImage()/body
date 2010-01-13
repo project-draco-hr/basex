@@ -1,27 +1,34 @@
 {
   treeImage=createImage();
   final Graphics tg=treeImage.getGraphics();
-  final int rn=0;
-  for (int i=0; i < cache.getHeight(rn); i++) {
-    final boolean br=cache.isBigRectangle(rn,i);
-    final TreeRect[] lr=cache.getTreeRectsPerLevel(rn,i);
-    for (    final TreeRect r : lr) {
-      drawRectangle(tg,i,r.x,r.w,nodeHeight,BORDER_RECTANGLES,FILL_RECTANGLES,DRAW_RECTANGLE,br);
-    }
-    if (br) {
-      final TreeRect r=lr[0];
-      int nh=nodeHeight;
-      final int w=r.w;
-      int x=r.x;
-      final int y=getYperLevel(i);
-      tg.setColor(GUIConstants.back);
-      while (nh > 0) {
-        nh=nh - 3;
-        tg.drawLine(x,y + nh,w,y + nh);
+  final int[] roots=gui.context.current.nodes;
+  final int rl=roots.length;
+  for (int rn=0; rn < rl; rn++) {
+    final int h=cache.getHeight(rn);
+    for (int lv=0; lv < h; lv++) {
+      final boolean br=cache.isBigRectangle(rn,lv);
+      final TreeRect[] lr=cache.getTreeRectsPerLevel(rn,lv);
+      for (int i=0; i < lr.length; i++) {
+        final TreeRect r=lr[i];
+        final int pre=cache.getPrePerIndex(rn,lv,i);
+        drawRectangle(tg,rn,lv,r,pre,BORDER_RECTANGLES,FILL_RECTANGLES,DRAW_RECTANGLE);
       }
-      while (x < w) {
-        x=x + 3;
-        tg.drawLine(x,y,x,y + nodeHeight);
+      if (br) {
+        final TreeRect r=lr[0];
+        int nh=nodeHeight;
+        final int w=r.w - 1;
+        int x=r.x + 1;
+        final int y=getYperLevel(lv);
+        int box=4;
+        tg.setColor(GUIConstants.back);
+        while (nh > 0) {
+          nh=nh - box;
+          tg.drawLine(x,y + nh,w,y + nh);
+        }
+        while (x < w) {
+          x=x + box;
+          tg.drawLine(x,y,x,y + nodeHeight);
+        }
       }
     }
   }

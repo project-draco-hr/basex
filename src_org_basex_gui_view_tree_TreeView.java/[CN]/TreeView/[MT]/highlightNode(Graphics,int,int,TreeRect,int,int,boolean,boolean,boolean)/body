@@ -4,14 +4,14 @@
   final int h=nodeHeight;
   final boolean br=cache.isBigRectangle(rn,l);
   final Data d=gui.context.data;
-  final int kind=d.kind(pre);
-  final int size=d.size(pre,kind);
+  final int k=d.kind(pre);
+  final int size=d.size(pre,k);
   int multiPreX=-1;
   if (fillNodes) {
-    drawRectangle(g,l,r.x,r.w,h,false,true,DRAW_HIGHLIGHT,br);
+    drawRectangle(g,rn,l,r,pre,false,true,DRAW_HIGHLIGHT);
   }
  else {
-    drawRectangle(g,l,r.x,r.w,h,true,false,DRAW_HIGHLIGHT,br);
+    drawRectangle(g,rn,l,r,pre,true,false,DRAW_HIGHLIGHT);
   }
   if (br) {
     final int index=cache.getPreIndex(rn,l,pre);
@@ -23,7 +23,7 @@
     g.drawLine(childX,getYperLevel(l + 1) - 1,multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX,y + nodeHeight + 1);
   }
   if (showParent && pre > 0) {
-    final int par=d.parent(pre,kind);
+    final int par=d.parent(pre,k);
     final int lv=l - 1;
     TreeRect parRect=null;
     if (lv >= 0) {
@@ -37,23 +37,37 @@
       }
     }
   }
-  if (showChildren && size > 1 && l + 1 < cache.getHeight(rn)) {
-    if (cache.isBigRectangle(rn,l + 1)) {
+  if (showDescendants && size > 1 && l + 1 < cache.getHeight(rn)) {
+    int lv=l + 1;
+    TreeBorder[] sbo=cache.generateSubtreeBorders(d,pre);
+    if (cache.isBigRectangle(rn,lv)) {
     }
  else {
+      if (sbo.length < 2)       return;
+      TreeBorder bo=sbo[1];
+      TreeBorder bos=cache.getTreeBorder(rn,lv);
+      for (int j=0; j < bo.size; j++) {
+        int pi=cache.getPrePerIndex(bo,j);
+        final TreeRect sr=cache.getTreeRectPerIndex(rn,lv,j + bo.start - bos.start);
+        final int parX=multiPreX == -1 ? (2 * r.x + r.w) / 2 : multiPreX;
+        if (SHOW_DESCENDANTS_CONN) {
+          g.setColor(Color.GREEN);
+          g.fillPolygon(new int[]{parX,sr.x + 2,sr.x + 2},new int[]{getYperLevel(l) + nodeHeight,getYperLevel(lv) - 1,getYperLevel(lv) - 1 + nodeHeight},3);
+          g.setColor(Color.RED);
+          g.fillPolygon(new int[]{parX,sr.x + sr.w - 2,sr.x + sr.w - 2},new int[]{getYperLevel(l) + nodeHeight,getYperLevel(lv) - 1,getYperLevel(lv) - 1 + nodeHeight},3);
+          g.setColor(new Color(0x38323D4F,false));
+          g.fillPolygon(new int[]{parX,sr.x,sr.x + sr.w,sr.x,sr.x + sr.w},new int[]{getYperLevel(l) + nodeHeight,getYperLevel(lv) - 1,getYperLevel(lv) - 1,getYperLevel(lv) - 1 + nodeHeight,getYperLevel(lv) - 1 + nodeHeight},3);
+        }
+        highlightNode(g,rn,pi,sr,lv,-1,true,false,true);
+      }
+      lv++;
     }
   }
-  if (!(showParent && showChildren))   return;
-  final String s=cache.getText(d,pre);
+  if (!(showParent && showDescendants) || gui.context.current.nodes[rn] == pre)   return;
+  final String s=Token.string(cache.getText(gui.context,rn,pre));
   final int w=BaseXLayout.width(g,s);
-  if (pre == 0) {
-    g.fillRect(r.x,y + fontHeight + 1,w + 2,fontHeight);
-    g.setColor(Color.WHITE);
-    g.drawString(s,r.x + 1,y + fontHeight + h - 2);
-  }
- else {
-    g.fillRect(r.x,y - fontHeight,w + 2,fontHeight);
-    g.setColor(Color.WHITE);
-    g.drawString(s,r.x + 1,(int)(y - h / (float)fontHeight) - 2);
-  }
+  g.setColor(COLORS[l + 5]);
+  g.fillRect(r.x,y - fontHeight,w + 2,fontHeight);
+  g.setColor(Color.WHITE);
+  g.drawString(s,r.x + 1,(int)(y - h / (float)fontHeight) - 2);
 }
