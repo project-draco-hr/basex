@@ -1,8 +1,12 @@
 {
+  if (!merge) {
+    writeCompleteTrie();
+    return;
+  }
   writeSortedList(csize++);
-  if (!merge)   return;
   final DataOutput outb=new DataOutput(data.meta.file(DATAFTX + 'b'));
   final DataOutput outt=new DataOutput(data.meta.file(DATAFTX + 't'));
+  final IntList root=new IntList();
   final byte[][] tok=new byte[csize][];
   final int[][] pres=new int[csize][];
   final int[][] pos=new int[csize][];
@@ -31,6 +35,7 @@
         mert.add(i);
       }
     }
+    if (root.size() == 0 || root.get(root.size() - 1) != tok[min][0])     root.add(tok[min][0]);
     outt.write(tok[min].length);
     outt.write(tok[min]);
     int s=0;
@@ -51,12 +56,12 @@
     outt.write5(outb.size());
     final byte[] p=tbp.finish();
     Num.size(p,p.length);
-    final byte[] o=tbo.finish();
-    Num.size(o,o.length);
-    writeFTData(outb,p,o);
+    final byte[] op=tbo.finish();
+    Num.size(op,op.length);
+    writeFTData(outb,p,op);
   }
   outt.write(0);
   outt.close();
   outb.close();
-  writeTrie();
+  writeSplittedTrie(root);
 }

@@ -1,0 +1,43 @@
+{
+  DataAccess t=new DataAccess(data.meta.file(DATAFTX + 't'));
+  final DataOutput outN=new DataOutput(data.meta.file(DATAFTX + 'a'));
+  final DataOutput outS=new DataOutput(data.meta.file(DATAFTX + 'c'));
+  final int[] root=new int[roots.size()];
+  int rp=0;
+  outN.write((byte)1);
+  outN.write((byte)-1);
+  for (int j=0; j < roots.size(); j++) {
+    outN.writeInt(0);
+    outN.write(roots.get(j));
+  }
+  outN.writeInt(0);
+  outN.write5(-1);
+  outS.writeInt(0);
+  int siz=(int)(2L + roots.size() * 5L + 9L);
+  byte tl=t.read1();
+  while (tl > 0) {
+    final long pos=t.pos();
+    final byte[] tok=t.readBytes(pos,pos + tl);
+    final int s=t.read4();
+    final long off=t.read5();
+    if (rp < roots.size() && tok[0] != roots.get(rp)) {
+      siz=writeSubTree(root,outN,outS,rp,siz);
+      rp++;
+      index=new FTArray(128);
+    }
+    index.insertSorted(tok,s,off);
+    tl=t.read1();
+  }
+  writeSubTree(root,outN,outS,rp,siz);
+  t.close();
+  outN.close();
+  outS.close();
+  final RandomAccessFile a=new RandomAccessFile(data.meta.file(DATAFTX + 'a'),"rw");
+  a.seek(2);
+  for (int i=0; i < root.length; i++) {
+    a.writeInt(root[i]);
+    a.seek(a.getFilePointer() + 1);
+  }
+  a.close();
+  DropDB.delete(data.meta.name,DATAFTX + "\\d+." + IO.BASEXSUFFIX,data.meta.prop);
+}
