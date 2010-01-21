@@ -1,19 +1,17 @@
 {
-  byte[] fileBuf=EMPTY;
   final byte[] textElem=DeepFS.TEXT_CONTENT;
-  final int size=data.size(pre,Data.ELEM) + pre;
-  out:   for (int node=pre; node < size; ++node) {
+  final int size=mr.pre + data.size(mr.pre,Data.ELEM);
+  for (int node=mr.pre; node < size; ++node) {
     final byte[] nodeName=data.name(node,data.kind(node));
     if (eq(nodeName,textElem)) {
       int textNodeSize=data.size(node,data.kind(node));
       while (--textNodeSize > 0) {
         if (data.kind(++node) == Data.TEXT) {
-          rect.pos=view.gui.context.marked.ftpos.get(node);
-          fileBuf=ViewData.content(data,node,false);
-          break out;
+          mr.pos=view.gui.context.marked.ftpos.get(node);
+          return ViewData.content(data,node,false);
         }
       }
     }
   }
-  return fileBuf;
+  return EMPTY;
 }
