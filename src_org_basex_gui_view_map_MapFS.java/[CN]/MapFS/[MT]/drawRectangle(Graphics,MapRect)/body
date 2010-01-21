@@ -103,34 +103,14 @@
   byte[] fileBuf=EMPTY;
   if (file) {
     if (!(GUIFS.mime(name) == GUIFS.Type.IMAGE)) {
-      final byte[] textElem=DeepFS.TEXT_CONTENT;
-      final int size=data.size(pre,Data.ELEM) + pre;
-      out:       for (int node=pre; node < size; ++node) {
-        final byte[] nodeName=data.name(node,data.kind(node));
-        if (eq(nodeName,textElem)) {
-          int textNodeSize=data.size(node,data.kind(node));
-          while (--textNodeSize > 0) {
-            if (data.kind(++node) == Data.TEXT) {
-              rect.pos=view.gui.context.marked.ftpos.get(node);
-              fileBuf=ViewData.content(data,node,false);
-              break out;
-            }
-          }
-        }
-      }
+      fileBuf=content(data,pre,rect);
     }
     if (fileBuf.length == 0)     fileBuf=MAPBINARY;
   }
   g.setColor(Color.black);
   g.setFont(mfont);
   try {
-    rect.thumb=MapRenderer.calcHeight(g,rect,fileBuf,fsz) >= rect.h;
-    if (rect.thumb) {
-      MapRenderer.drawThumbnails(g,rect,fileBuf,fsz);
-    }
- else {
-      MapRenderer.drawText(g,rect,fileBuf,fsz);
-    }
+    MapRenderer.drawText(g,rect,fileBuf,fsz);
   }
  catch (  final Exception ex) {
   }

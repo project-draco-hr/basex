@@ -1,7 +1,6 @@
 {
   final int[] cw=fontWidths(g.getFont());
   final int fh=(int)(1.2 * fs);
-  final int ws=BaseXLayout.width(g,cw,' ');
   final Color textc=g.getColor();
   int xx=r.x;
   int yy=r.y + fh;
@@ -15,6 +14,10 @@
     if (ll + wl >= ww) {
       xx=r.x;
       if (ll != 0)       yy+=fh;
+      if (yy + fh > r.y + r.h) {
+        g.drawString("...",xx + ll,yy);
+        return r.h;
+      }
       ll=0;
       if (draw && wl >= ww) {
         int twl=2 * BaseXLayout.width(g,cw,'.');
@@ -34,10 +37,14 @@
       g.setColor(r.pos != null && r.pos.contains(ftt.pos) && !ftt.isSC() ? COLORFT : textc);
       g.drawString(string(tok),xx + ll,yy);
     }
-    ll+=wl + (ftt.isSC() ? 0 : ws);
+    ll+=wl;
     if (ftt.pa) {
       ll=0;
       yy+=fh;
+      if (yy + fh > r.y + r.h) {
+        g.drawString("...",xx + ll,yy);
+        return r.h;
+      }
     }
   }
   return yy - r.y;
