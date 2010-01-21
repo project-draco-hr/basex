@@ -9,20 +9,19 @@
   final int t=y + h;
   final int size=cache.maxLevel;
   final IntList list=new IntList();
-  final int rn=0;
   for (int i=0; i < size; i++) {
     final int yL=getYperLevel(i);
     if ((yL >= f || yL + nodeHeight >= f) && (yL <= t || yL + nodeHeight <= t)) {
-      final TreeRect[] rl=cache.getTreeRectsPerLevel(rn,i);
-      final int s=cache.getLevelSize(rn,i);
-      if (cache.isBigRectangle(rn,i)) {
+      final TreeRect[] rl=cache.getTreeRectsPerLevel(frn,i);
+      final int s=cache.getLevelSize(frn,i);
+      if (cache.isBigRectangle(frn,i)) {
         final TreeRect mRect=rl[0];
         int sPrePos=(int)(s * (x / (double)mRect.w));
         int ePrePos=(int)(s * ((x + w) / (double)mRect.w));
         if (sPrePos < 0)         sPrePos=0;
         if (ePrePos >= s)         ePrePos=s - 1;
         for (int j=sPrePos; j < ePrePos; j++) {
-          list.add(cache.getPrePerIndex(0,s,j));
+          list.add(cache.getPrePerIndex(frn,s,j));
         }
         gui.notify.mark(new Nodes(list.finish(),gui.context.data),this);
         markNodes();
@@ -33,12 +32,9 @@
         for (int j=0; j < s; j++) {
           final TreeRect tr=rl[j];
           if (!b && tr.contains(x))           b=true;
-          if (b && tr.contains(x + w)) {
-            list.add(cache.getPrePerIndex(rn,i,j));
-            break;
-          }
           if (b) {
-            list.add(cache.getPrePerIndex(rn,i,j));
+            list.add(cache.getPrePerIndex(frn,i,j));
+            if (tr.contains(x + w))             break;
           }
         }
         gui.notify.mark(new Nodes(list.finish(),gui.context.data),this);
