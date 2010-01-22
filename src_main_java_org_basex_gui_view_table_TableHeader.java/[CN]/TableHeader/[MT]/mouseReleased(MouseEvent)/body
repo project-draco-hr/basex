@@ -1,0 +1,34 @@
+{
+  if (tdata.rows == null)   return;
+  if (!SwingUtilities.isLeftMouseButton(e)) {
+    chooseCols(e);
+  }
+ else {
+    if (clickCol == -1)     return;
+    if (header(e.getY())) {
+      if (moveC == -1) {
+        if (clickCol == tdata.cols.length) {
+          chooseRoot(e);
+        }
+ else {
+          view.gui.cursor(CURSORWAIT);
+          tdata.asc=tdata.sortCol != clickCol || !tdata.asc;
+          tdata.sortCol=clickCol;
+          tdata.sort();
+          view.gui.cursor(CURSORARROW,true);
+        }
+      }
+    }
+ else {
+      if (clickCol != tdata.cols.length) {
+        filter(clickCol);
+      }
+ else {
+        tdata.resetFilter();
+        view.query();
+      }
+    }
+  }
+  clickCol=-1;
+  view.repaint();
+}

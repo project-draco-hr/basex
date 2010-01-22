@@ -1,0 +1,40 @@
+{
+  if (full ^ fullscr == null) {
+    if (!prop.is(GUIProp.SHOWMENU))     GUICommands.SHOWMENU.execute(this);
+    return;
+  }
+  if (full) {
+    control.remove(buttons);
+    control.remove(nav);
+    getRootPane().remove(menu);
+    top.remove(status);
+    remove(top);
+    fullscr=new JFrame();
+    fullscr.setIconImage(getIconImage());
+    fullscr.setTitle(getTitle());
+    fullscr.setUndecorated(true);
+    fullscr.setJMenuBar(menu);
+    fullscr.add(top);
+    fullscr.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+  }
+ else {
+    fullscr.removeAll();
+    fullscr.dispose();
+    fullscr=null;
+    if (!prop.is(GUIProp.SHOWBUTTONS))     control.add(buttons,BorderLayout.CENTER);
+    if (!prop.is(GUIProp.SHOWINPUT))     control.add(nav,BorderLayout.SOUTH);
+    if (!prop.is(GUIProp.SHOWSTATUS))     top.add(status,BorderLayout.SOUTH);
+    setJMenuBar(menu);
+    add(top);
+  }
+  prop.set(GUIProp.SHOWMENU,!full);
+  prop.set(GUIProp.SHOWBUTTONS,!full);
+  prop.set(GUIProp.SHOWINPUT,!full);
+  prop.set(GUIProp.SHOWSTATUS,!full);
+  fullscreen=full;
+  GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().setFullScreenWindow(fullscr);
+  setContentBorder();
+  refreshControls();
+  updateControl(menu,!full,BorderLayout.NORTH);
+  setVisible(!full);
+}

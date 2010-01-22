@@ -1,0 +1,49 @@
+{
+  oldMin=min;
+  oldMax=min;
+  double diffMin=0;
+  double diffMax=0;
+  if (pressed(PREV,e)) {
+    diffMin=-1;
+    diffMax=-1;
+  }
+ else   if (pressed(NEXT,e)) {
+    diffMin=1;
+    diffMax=1;
+  }
+ else   if (pressed(PREVLINE,e)) {
+    diffMin=-1;
+    diffMax=1;
+  }
+ else   if (pressed(NEXTLINE,e)) {
+    diffMin=1;
+    diffMax=-1;
+  }
+ else   if (pressed(LINESTART,e)) {
+    min=totMin;
+  }
+ else   if (pressed(LINEEND,e)) {
+    max=totMax;
+  }
+  if (e.isShiftDown()) {
+    diffMin/=10;
+    diffMax/=10;
+  }
+  final double dist=encode(totMax) - encode(totMin);
+  diffMin=dist / 20 * diffMin;
+  diffMax=dist / 20 * diffMax;
+  if (diffMin != 0) {
+    min=limit(totMin,max,decode(Math.max(0,encode(min) + diffMin)));
+  }
+  if (diffMax != 0) {
+    max=limit(min,totMax,decode(Math.max(0,encode(max) + diffMax)));
+  }
+  if (min != oldMin || max != oldMax) {
+    if (itr) {
+      if (min != oldMin)       min=min > oldMin ? Math.max(oldMin + 1,(long)min) : Math.min(oldMin - 1,(long)min);
+      if (max != oldMax)       max=max > oldMax ? Math.max(oldMax + 1,(long)max) : Math.min(oldMax - 1,(long)max);
+    }
+    listener.actionPerformed(null);
+    repaint();
+  }
+}

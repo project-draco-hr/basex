@@ -1,0 +1,33 @@
+{
+  final long pos=bfc.position();
+  if (!checkNextBytes(HEADER_JFXX)) {
+    bfc.position(pos + size);
+    return;
+  }
+  int s=size - HEADER_JFXX.length - 1;
+  final DeepFile content=deepFile.newContentSection("Thumbnail",bfc.absolutePosition(),s);
+switch (bfc.get()) {
+case 0x10:
+    content.setFileType(FileType.PICTURE);
+  content.setFileFormat(MimeType.JPG);
+content.addMeta(MetaElem.DESCRIPTION,"Thumbnail coded using JPEG.");
+break;
+case 0x11:
+s-=2;
+content.setFileType(FileType.PICTURE);
+content.addMeta(MetaElem.DESCRIPTION,"Thumbnail coded using 1 byte/pixel.");
+content.addMeta(MetaElem.PIXEL_WIDTH,bfc.get());
+content.addMeta(MetaElem.PIXEL_HEIGHT,bfc.get());
+break;
+case 0x13:
+s-=2;
+content.setFileType(FileType.PICTURE);
+content.addMeta(MetaElem.DESCRIPTION,"Thumbnail coded using 3 bytes/pixel.");
+content.addMeta(MetaElem.PIXEL_WIDTH,bfc.get());
+content.addMeta(MetaElem.PIXEL_HEIGHT,bfc.get());
+break;
+default :
+deepFile.debug("JPGParser: Illegal or unsupported JFIF header.");
+}
+bfc.skip(s);
+}

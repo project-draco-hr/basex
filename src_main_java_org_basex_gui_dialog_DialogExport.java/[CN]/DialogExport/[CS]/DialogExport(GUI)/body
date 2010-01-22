@@ -1,0 +1,59 @@
+{
+  super(main,GUIEXPORT);
+  final BaseXBack pp=new BaseXBack();
+  pp.setLayout(new TableLayout(3,1,0,4));
+  BaseXBack p=new BaseXBack();
+  p.setLayout(new TableLayout(2,2,6,0));
+  out=new BaseXLabel("",false,true);
+  p.add(out);
+  p.add(new BaseXLabel(""));
+  file=gui.context.doc().length == 1;
+  final IO io=gui.context.data.meta.file;
+  final String fn=file ? io.path() : io.getDir();
+  path=new BaseXTextField(fn,this);
+  path.addKeyListener(keys);
+  p.add(path);
+  final BaseXButton browse=new BaseXButton(BUTTONBROWSE,this);
+  browse.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      choose();
+    }
+  }
+);
+  p.add(browse);
+  pp.add(p);
+  p=new BaseXBack();
+  p.setLayout(new TableLayout(2,1));
+  p.add(new BaseXLabel(INFOENCODING + COL,false,true));
+  final Prop prop=gui.context.prop;
+  if (encodings == null) {
+    final SortedMap<String,Charset> cs=Charset.availableCharsets();
+    encodings=cs.keySet().toArray(new String[cs.size()]);
+  }
+  encoding=new BaseXCombo(encodings,this);
+  String enc=gui.context.data.meta.encoding;
+  boolean f=false;
+  for (  final String s : encodings)   f|=s.equals(enc);
+  if (!f) {
+    enc=enc.toUpperCase();
+    for (    final String s : encodings)     f|=s.equals(enc);
+  }
+  encoding.setSelectedItem(f ? enc : prop.get(Prop.XMLENCODING));
+  encoding.addKeyListener(keys);
+  BaseXLayout.setWidth(encoding,BaseXTextField.DWIDTH);
+  p.add(encoding);
+  pp.add(p);
+  format=new BaseXCheckBox(INDENT,prop.is(Prop.XMLFORMAT),0,this);
+  pp.add(format);
+  set(pp,BorderLayout.CENTER);
+  p=new BaseXBack();
+  p.setLayout(new BorderLayout());
+  info=new BaseXLabel(" ");
+  info.setBorder(18,0,0,0);
+  p.add(info,BorderLayout.WEST);
+  buttons=okCancel(this);
+  p.add(buttons,BorderLayout.EAST);
+  set(p,BorderLayout.SOUTH);
+  action(null);
+  finish(null);
+}

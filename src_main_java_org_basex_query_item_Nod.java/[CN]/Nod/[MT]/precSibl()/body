@@ -1,0 +1,28 @@
+{
+  return new NodeIter(){
+    /** 
+ * Children nodes. 
+ */
+    private NodIter ir;
+    /** 
+ * Counter. 
+ */
+    private int c;
+    @Override public Nod next() throws QueryException {
+      if (ir == null) {
+        final Nod r=parent();
+        if (r == null)         return null;
+        ir=new NodIter();
+        final NodeIter iter=r.child();
+        Nod n;
+        while ((n=iter.next()) != null) {
+          if (n.is(Nod.this))           break;
+          ir.add(n.finish());
+        }
+        c=ir.size();
+      }
+      return c > 0 ? ir.get(--c) : null;
+    }
+  }
+;
+}

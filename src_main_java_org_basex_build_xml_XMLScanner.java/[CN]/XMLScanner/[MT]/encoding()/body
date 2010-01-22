@@ -1,0 +1,21 @@
+{
+  if (!consume(ENCOD))   return null;
+  s();
+  check('=');
+  s();
+  final TokenBuilder enc=new TokenBuilder();
+  final int d=qu();
+  int ch=nextChar();
+  if (letter(ch) && ch != '_') {
+    while (letterOrDigit(ch) || ch == '.' || ch == '-') {
+      enc.addUTF(ch);
+      ch=nextChar();
+    }
+    prev(1);
+  }
+  check((char)d);
+  if (enc.size() == 0)   error(DECLENCODE,enc);
+  final String e=string(enc.finish());
+  input.encoding(e);
+  return e;
+}

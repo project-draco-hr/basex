@@ -1,0 +1,37 @@
+{
+  final int s=ctx.vars.size();
+  final ForLet[] fl=forLet();
+  if (fl == null)   return null;
+  Expr where=null;
+  if (consumeWS(WHERE)) {
+    ap=qp;
+    where=check(single(),NOWHERE);
+    alter=NOWHERE;
+  }
+  Grp[] group=null;
+  if (consumeWS(GROUP)) {
+    check(BY);
+    ap=qp;
+    do     group=groupSpec(group);
+ while (consumeWS2(COMMA));
+    alter=GRPBY;
+  }
+  Ord[] order=null;
+  final boolean stable=consumeWS(STABLE);
+  if (stable)   check(EMPTYORDER);
+  if (stable || consumeWS(EMPTYORDER)) {
+    check(BY);
+    ap=qp;
+    do     order=orderSpec(order);
+ while (consumeWS2(COMMA));
+    if (order != null)     order=Array.add(order,new Ord());
+    alter=ORDERBY;
+  }
+  if (!consumeWS(RETURN)) {
+    if (alter != null)     error();
+    error(where == null ? FLWORWHERE : order == null ? FLWORORD : FLWORRET);
+  }
+  final Expr ret=check(single(),NORETURN);
+  ctx.vars.reset(s);
+  return ret == Seq.EMPTY ? ret : order == null && group == null ? new FLWR(fl,where,ret) : new FLWOR(fl,where,order == null ? null : new Order(order),group == null ? null : new Group(group),ret);
+}

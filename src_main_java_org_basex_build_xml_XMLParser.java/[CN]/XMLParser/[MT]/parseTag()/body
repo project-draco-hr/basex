@@ -1,0 +1,44 @@
+{
+  if (scanner.type == Type.L_BR_CLOSE) {
+    scanner.more();
+    final byte[] tag=consumeToken(Type.TAGNAME);
+    skipSpace();
+    builder.endElem(tag);
+    return consume(Type.R_BR);
+  }
+  consume(Type.L_BR);
+  atts.reset();
+  final byte[] tag=consumeToken(Type.TAGNAME);
+  skipSpace();
+  while (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
+    final byte[] attName=consumeToken(Type.ATTNAME);
+    skipSpace();
+    consume(Type.EQ);
+    skipSpace();
+    consume(Type.QUOTE);
+    byte[] attValue=EMPTY;
+    if (scanner.type == Type.ATTVALUE) {
+      attValue=scanner.token.finish();
+      scanner.more();
+    }
+    consume(Type.QUOTE);
+    if (startsWith(attName,XMLNSC)) {
+      builder.startNS(ln(attName),attValue);
+    }
+ else     if (eq(attName,XMLNS)) {
+      builder.startNS(EMPTY,attValue);
+    }
+ else {
+      atts.add(attName,attValue);
+    }
+    if (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
+      consume(Type.WS);
+    }
+  }
+  if (scanner.type == Type.CLOSE_R_BR) {
+    builder.emptyElem(tag,atts);
+    return scanner.more();
+  }
+  builder.startElem(tag,atts);
+  return consume(Type.R_BR);
+}

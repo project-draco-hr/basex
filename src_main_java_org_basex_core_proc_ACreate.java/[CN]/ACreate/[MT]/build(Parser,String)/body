@@ -1,0 +1,26 @@
+{
+  new Close().exec(context);
+  final boolean mem=prop.is(Prop.MAINMEM);
+  if (!mem && context.pinned(db))   return error(DBLOCKED,db);
+  builder=mem ? new MemBuilder(p) : new DiskBuilder(p);
+  progress(builder);
+  try {
+    final Data d=builder.build(db);
+    if (mem) {
+      context.openDB(d);
+    }
+ else {
+      d.close();
+      final Proc pr=new Open(db);
+      if (!pr.exec(context))       return error(pr.info());
+      index(context.data);
+    }
+    return info(DBCREATED,db,perf);
+  }
+ catch (  final Exception ex) {
+    Main.debug(ex);
+    abort();
+    final String msg=ex instanceof IOException ? ex.getMessage() : Main.info(PARSEERR,p.io);
+    return error(msg != null ? msg : args[0]);
+  }
+}

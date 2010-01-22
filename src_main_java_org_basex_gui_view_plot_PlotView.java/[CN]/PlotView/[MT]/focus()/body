@@ -1,0 +1,32 @@
+{
+  final int size=itemImg.getWidth() / 2;
+  int focusedPre=gui.context.focused;
+  if (mouseX < MARGIN[1] || mouseX > getWidth() - MARGIN[3] + size || mouseY < MARGIN[0] - size || mouseY > getHeight() - MARGIN[2]) {
+    if (focusedPre == -1) {
+      return false;
+    }
+    gui.notify.focus(-1,this);
+    return true;
+  }
+  focusedPre=-1;
+  int dist=Integer.MAX_VALUE;
+  for (int i=0; i < plotData.size && dist != 0; i++) {
+    final int x=calcCoordinate(true,plotData.xAxis.co[i]);
+    final int y=calcCoordinate(false,plotData.yAxis.co[i]);
+    final int distX=Math.abs(mouseX - x);
+    final int distY=Math.abs(mouseY - y);
+    final int sz=sizeFactor() / 4;
+    if (distX < sz && distY < sz) {
+      final int currDist=distX * distY;
+      if (currDist < dist) {
+        dist=currDist;
+        focusedPre=plotData.pres[i];
+      }
+    }
+  }
+  if (focusedPre != gui.context.focused) {
+    gui.notify.focus(focusedPre,this);
+    return true;
+  }
+  return false;
+}

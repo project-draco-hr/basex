@@ -1,0 +1,23 @@
+{
+  final Item it=tag.atomic(ctx);
+  if (it == null)   Err.empty(CElem.this);
+  final int s=ctx.ns.size();
+  addNS(ctx);
+  final QNm tname=CAttr.name(ctx,it);
+  final byte[] uri=tname.uri.str();
+  if (uri.length != 0) {
+    final byte[] key=tname.pref();
+    if (!eq(key,XML)) {
+      final int i=nsp.get(key);
+      if (i == -1 || !eq(nsp.val[i],uri))       nsp.add(key,uri);
+    }
+  }
+  final Constr c=new Constr(ctx,expr);
+  if (c.errAtt)   Err.or(NOATTALL);
+  if (c.duplAtt != null)   Err.or(ATTDUPL,c.duplAtt);
+  final FElem node=new FElem(tname,c.children,c.ats,c.base,nsp,null);
+  for (int n=0; n < c.children.size(); n++)   c.children.get(n).parent(node);
+  for (int n=0; n < c.ats.size(); n++)   c.ats.get(n).parent(node);
+  ctx.ns.size(s);
+  return node;
+}

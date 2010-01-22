@@ -1,0 +1,34 @@
+{
+  try {
+    if (DISALLOW)     throw new Error("Language file was accessed.");
+    if (chk)     check=new HashMap<String,Boolean>();
+    final String path="/" + SUFFIX + "/"+ lang+ "."+ SUFFIX;
+    final URL url=BaseX.class.getResource(path);
+    if (url == null) {
+      Main.errln("%." + SUFFIX + " not found.",lang);
+    }
+ else {
+      final BufferedReader br=new BufferedReader(new InputStreamReader((InputStream)url.getContent(),Token.UTF8));
+      String line;
+      while ((line=br.readLine()) != null) {
+        final int i=line.indexOf('=');
+        if (i == -1 || line.startsWith("#"))         continue;
+        final String key=line.substring(0,i);
+        String val=line.substring(i + 1);
+        if (val.contains("\\n"))         val=val.replaceAll("\\\\n",Prop.NL);
+        if (Prop.langkeys)         val="[" + key + ": "+ val+ "]";
+        if (texts.get(key) == null) {
+          texts.put(key,val);
+        }
+ else         if (chk) {
+          Main.errln("%." + SUFFIX + ": '%' assigned twice",lang,key);
+        }
+        if (chk)         check.put(key,true);
+      }
+      br.close();
+    }
+  }
+ catch (  final IOException ex) {
+    Main.errln(ex);
+  }
+}

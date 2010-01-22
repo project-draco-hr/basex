@@ -1,0 +1,17 @@
+{
+  final int p=qp;
+  if (!consumeWS(XQUERY) || !consumeWS2(VERSION)) {
+    qp=p;
+    return;
+  }
+  final String ver=string(stringLiteral());
+  final byte[] enc=consumeWS2(ENCODING) ? lc(stringLiteral()) : null;
+  if (enc != null) {
+    boolean v=true;
+    for (    final byte e : enc)     v&=ftChar(e) || e == '-';
+    if (!v)     error(XQUERYENC2,enc);
+  }
+  skipWS();
+  check(';');
+  if (!ver.equals(ONEZERO))   error(XQUERYVER,ver);
+}

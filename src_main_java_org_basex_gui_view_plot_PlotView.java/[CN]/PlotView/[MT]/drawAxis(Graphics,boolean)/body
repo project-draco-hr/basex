@@ -1,0 +1,134 @@
+{
+  g.setColor(back);
+  final int sz=sizeFactor();
+  final int pWidth=plotWidth - sz;
+  final int pHeight=plotHeight - sz;
+  final PlotAxis axis=drawX ? plotData.xAxis : plotData.yAxis;
+  if (drawX) {
+    if (plotChanged) {
+      axis.calcCaption(pWidth);
+      final Kind kind=plotData.xAxis.type;
+      xLog.setEnabled((kind == Kind.DBL || kind == Kind.INT) && Math.abs(axis.min - axis.max) >= 1);
+    }
+  }
+ else {
+    if (plotChanged) {
+      axis.calcCaption(pHeight);
+      final Kind kind=plotData.yAxis.type;
+      yLog.setEnabled((kind == Kind.DBL || kind == Kind.INT) && Math.abs(axis.min - axis.max) >= 1);
+    }
+  }
+  if (plotData.pres.length < 1) {
+    drawCaptionAndGrid(g,drawX,"",0);
+    drawCaptionAndGrid(g,drawX,"",1);
+    return;
+  }
+  final Kind type=axis.type;
+  final int nrCaptions=axis.nrCaptions;
+  final double step=axis.actlCaptionStep;
+  final double capRange=1.0d / (nrCaptions - 1);
+  g.setFont(font);
+  if (type == Kind.TEXT) {
+    final int nrCats=axis.nrCats;
+    final double[] coSorted=Arrays.copyOf(axis.co,axis.co.length);
+    drawCaptionAndGrid(g,drawX,nrCats > 1 ? string(axis.firstCat) : "",0);
+    drawCaptionAndGrid(g,drawX,nrCats > 1 ? string(axis.lastCat) : "",1);
+    if (nrCaptions == 0)     return;
+    Arrays.sort(coSorted);
+    double op=capRange;
+    final int cl=coSorted.length;
+    int i=0;
+    while (i < cl && coSorted[i] == 0)     i++;
+    while (i < cl && op < 1.0d - 0.4d * capRange) {
+      if (coSorted[i] > op) {
+        final double distL=Math.abs(coSorted[i - 1] - op);
+        final double distG=Math.abs(coSorted[i] - op);
+        op=distL < distG ? coSorted[i - 1] : coSorted[i];
+        int j=0;
+        while (j < axis.co.length && axis.co[j] != op)         j++;
+        drawCaptionAndGrid(g,drawX,string(axis.getValue(plotData.pres[j])),op);
+        op+=capRange;
+      }
+      i++;
+    }
+    if (nrCats == 1) {
+      op=.5d;
+      int j=0;
+      while (j < axis.co.length && axis.co[j] != op)       j++;
+      drawCaptionAndGrid(g,drawX,string(axis.getValue(plotData.pres[j])),op);
+    }
+  }
+ else {
+    final boolean noRange=axis.max - axis.min == 0;
+    drawIntermediateGridLine(g,drawX,0,null);
+    drawIntermediateGridLine(g,drawX,1,null);
+    if (nrCaptions == 0)     return;
+    if (noRange) {
+      drawCaptionAndGrid(g,drawX,formatString(axis.min,drawX),.5d);
+      return;
+    }
+    int c=0;
+    if (axis.log) {
+      int l=0;
+      double a=0;
+      double b=0;
+      if (axis.min < 0) {
+        l=0;
+        a=-1;
+        while (a >= axis.min) {
+          if (a <= axis.max && adequateDistance(drawX,a,0)) {
+            drawCaptionAndGrid(g,drawX,formatString(a,drawX),axis.calcPosition(a));
+          }
+          final int lim=(int)(-1 * Math.pow(10,l + 1));
+          double last=a;
+          b=2 * a;
+          while (b > lim && b >= axis.min) {
+            if (adequateDistance(drawX,last,b) && adequateDistance(drawX,lim,b) && b < axis.max) {
+              drawIntermediateGridLine(g,drawX,axis.calcPosition(b),formatString(b,drawX));
+              last=b;
+            }
+            b+=a;
+          }
+          l++;
+          a=-1 * Math.pow(10,l);
+        }
+      }
+      if (0 >= axis.min && 0 <= axis.max)       drawCaptionAndGrid(g,drawX,formatString(0,drawX),axis.calcPosition(0));
+      if (axis.max > 0) {
+        l=0;
+        a=1;
+        while (a <= axis.max) {
+          if (a >= axis.min && adequateDistance(drawX,a,0)) {
+            drawCaptionAndGrid(g,drawX,formatString(a,drawX),axis.calcPosition(a));
+          }
+          final int lim=(int)Math.pow(10,l + 1);
+          double last=a;
+          b=2 * a;
+          while (b < lim && b <= axis.max) {
+            if (adequateDistance(drawX,last,b) && adequateDistance(drawX,lim,b) && b > axis.min) {
+              drawIntermediateGridLine(g,drawX,axis.calcPosition(b),formatString(b,drawX));
+              last=b;
+            }
+            b+=a;
+          }
+          l++;
+          a=Math.pow(10,l);
+        }
+      }
+    }
+ else {
+      double d=axis.calcPosition(axis.startvalue);
+      double f=axis.startvalue;
+      while (d < 1.0d - .25d / nrCaptions) {
+        c++;
+        drawCaptionAndGrid(g,drawX,formatString(f,drawX),d);
+        f+=step;
+        d=axis.calcPosition(f);
+      }
+      if (c < 2) {
+        drawCaptionAndGrid(g,drawX,formatString(axis.min,drawX),0.0);
+        drawCaptionAndGrid(g,drawX,formatString(axis.max,drawX),1.0);
+      }
+    }
+  }
+}

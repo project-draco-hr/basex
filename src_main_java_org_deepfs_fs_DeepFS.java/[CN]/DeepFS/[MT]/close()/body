@@ -1,0 +1,23 @@
+{
+  if (data.meta.prop.is(Prop.FUSE)) {
+    final String method="[" + Text.NAME + ".close] ";
+    Main.debug(method + "Initiating DeepFS shutdown sequence ");
+    for (int i=3; i > 0; i--) {
+      Performance.sleep(1000);
+      Main.err(i + " .. ");
+    }
+    Main.debug("GO.");
+    final String cmd="umount -f " + data.meta.mount;
+    Main.errln(method + "Trying to unmount deepfs: " + cmd);
+    final Runtime r=Runtime.getRuntime();
+    final java.lang.Process p=r.exec(cmd);
+    try {
+      p.waitFor();
+    }
+ catch (    final InterruptedException ex) {
+      ex.printStackTrace();
+    }
+    final int rc=p.exitValue();
+    Main.debug(method + "Unmount " + data.meta.mount+ (rc == 0 ? " ... OK." : " ... FAILED(" + rc + ") (Please unmount manually)"));
+  }
+}

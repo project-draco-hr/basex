@@ -1,0 +1,74 @@
+{
+  final Data data=view.gui.context.data;
+  final MapRect l=view.layout.layout;
+  l.x=(int)scale * l.x;
+  l.y=(int)scale * l.y;
+  l.w=(int)scale * l.w;
+  l.h=(int)scale * l.h;
+  final int ww=view.getWidth();
+  final int hh=view.getHeight();
+  final int min=Math.max(prop.num(GUIProp.FONTSIZE),16);
+  final int off=prop.num(GUIProp.MAPOFFSETS);
+  final int fsz=prop.num(GUIProp.FONTSIZE);
+  final int rs=rects.size;
+  for (int ri=0; ri < rs; ri++) {
+    final MapRect r=rects.get(ri);
+    final int pre=r.pre;
+    final int lvl=r.level;
+    final boolean isImage=GUIFS.mime(fs.name(r.pre)) == GUIFS.Type.IMAGE;
+    final boolean full=r.w == ww && r.h == hh;
+    Color col=color(rects,ri);
+    final boolean mark=col != null;
+    if (full && isImage)     col=Color.black;
+ else     if (full || col == null)     col=COLORS[lvl];
+    g.setColor(col);
+    if (r.w < l.x + l.w || r.h < l.y + l.h || off < 2 || ViewData.isLeaf(prop,data,pre)) {
+      g.fillRect(r.x,r.y,r.w,r.h);
+    }
+ else {
+      g.fillRect(r.x,r.y,l.x,r.h);
+      g.fillRect(r.x,r.y,r.w,l.y);
+      g.fillRect(r.x + r.w - l.w,r.y,l.w,r.h);
+      g.fillRect(r.x,r.y + r.h - l.h,r.w,l.h);
+    }
+    if (!full) {
+      col=mark ? colormark3 : COLORS[lvl + 2];
+      g.setColor(col);
+      g.drawRect(r.x,r.y,r.w,r.h);
+      col=mark ? colormark4 : COLORS[Math.max(0,lvl - 2)];
+      g.setColor(col);
+      g.drawLine(r.x + r.w,r.y,r.x + r.w,r.y + r.h);
+      g.drawLine(r.x,r.y + r.h,r.x + r.w,r.y + r.h);
+    }
+    if (r.w < min || r.h < min)     continue;
+    final MapRect copy=r.copy();
+    if (drawRectangle(g,copy)) {
+      r.x+=4;
+      r.w-=8;
+      final TokenBuilder tb=new TokenBuilder();
+      int k=data.kind(pre);
+      final int s=pre + data.size(pre,k);
+      int p=pre + data.attSize(pre,k);
+      boolean elem=false;
+      while (p != s) {
+        k=data.kind(p);
+        if (k == Data.ELEM) {
+          if (elem)           tb.add('\n');
+          tb.add(data.name(p,k));
+          tb.add(": ");
+          elem=true;
+        }
+ else         if (k == Data.TEXT) {
+          tb.add(data.text(p,true));
+          tb.add('\n');
+          elem=false;
+        }
+        p+=data.attSize(p,k);
+      }
+      r.x-=4;
+      r.w+=8;
+      g.setFont(mfont);
+      MapRenderer.drawText(g,r,tb.finish(),fsz);
+    }
+  }
+}

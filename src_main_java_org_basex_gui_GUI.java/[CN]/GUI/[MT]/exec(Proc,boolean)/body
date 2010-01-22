@@ -1,0 +1,81 @@
+{
+  final int thread=++threadID;
+  while (proc != null) {
+    proc.stop();
+    Performance.sleep(50);
+    if (threadID != thread)     return true;
+  }
+  cursor(CURSORWAIT);
+  try {
+    final Performance perf=new Performance();
+    final Nodes current=context.current;
+    final Data data=context.data;
+    proc=pr;
+    final CachedOutput co=new CachedOutput(context.prop.num(Prop.MAXTEXT));
+    final boolean up=pr.updating(context);
+    updating=up;
+    final boolean ok=pr.exec(context,co);
+    final String inf=pr.info();
+    updating=false;
+    if (!ok && inf.equals(PROGERR)) {
+      proc=null;
+      return false;
+    }
+    info.setInfo(inf,ok);
+    boolean feedback=main;
+    if (!main && query.visible() && pr instanceof XQuery) {
+      query.info(inf,ok);
+      feedback=true;
+    }
+    if (!ok) {
+      if (!feedback && !info.visible())       GUICommands.SHOWINFO.execute(this);
+    }
+ else {
+      final Result result=pr.result();
+      final Nodes nodes=result instanceof Nodes ? (Nodes)result : null;
+      if (ok && co.size() != 0 && nodes == null) {
+        if (!text.visible())         GUICommands.SHOWTEXT.execute(this);
+        text.setText(co,pr);
+      }
+      final Data ndata=context.data;
+      final String time=perf.getTimer();
+      Nodes marked=context.marked;
+      if (ndata != data) {
+        notify.init();
+      }
+ else       if (up) {
+        notify.update();
+      }
+ else       if (result != null) {
+        if (context.current != current || prop.is(GUIProp.FILTERRT)) {
+          if (nodes != null) {
+            notify.context((Nodes)result,prop.is(GUIProp.FILTERRT),null);
+          }
+        }
+ else         if (marked != null) {
+          if (nodes != null) {
+            marked=nodes;
+          }
+ else           if (marked.size() != 0) {
+            marked=new Nodes(data);
+          }
+          notify.mark(marked,null);
+          if (thread != threadID) {
+            proc=null;
+            return true;
+          }
+        }
+      }
+      setHits(result == null ? 0 : result.size());
+      status.setText(Main.info(PROCTIME,time));
+    }
+  }
+ catch (  final Exception ex) {
+    ex.printStackTrace();
+    Dialog.error(this,Main.info(PROCERR,pr,!ex.toString().isEmpty() ? ex.toString() : ex.getMessage()));
+    updating=false;
+  }
+  cursor(CURSORARROW,true);
+  proc=null;
+  return true;
+}

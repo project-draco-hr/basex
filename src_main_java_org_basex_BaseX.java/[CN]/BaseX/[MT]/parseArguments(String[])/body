@@ -1,0 +1,77 @@
+{
+  try {
+    final Args arg=new Args(args);
+    success=true;
+    while (arg.more() && success) {
+      if (arg.dash()) {
+        final char c=arg.next();
+        if (c == 'c') {
+          commands=arg.remaining();
+        }
+ else         if (c == 'd') {
+          context.prop.set(Prop.DEBUG,true);
+        }
+ else         if (c == 'D' && sa()) {
+          success=set(Prop.DOTPLAN,true);
+        }
+ else         if (c == 'i' && sa()) {
+          input=arg.string();
+        }
+ else         if (c == 'm') {
+          success=set(Prop.TABLEMEM,true);
+        }
+ else         if (c == 'M') {
+          success=set(Prop.MAINMEM,true);
+        }
+ else         if (c == 'n' && !sa()) {
+          context.prop.set(Prop.HOST,arg.string());
+        }
+ else         if (c == 'o') {
+          out=new PrintOutput(arg.string());
+        }
+ else         if (c == 'p' && !sa()) {
+          context.prop.set(Prop.PORT,arg.num());
+        }
+ else         if (c == 'P' && !sa()) {
+          pass=arg.string();
+        }
+ else         if (c == 'q') {
+          query=arg.remaining();
+        }
+ else         if (c == 'r') {
+          success=set(Prop.RUNS,arg.string());
+        }
+ else         if (c == 'U' && !sa()) {
+          user=arg.string();
+        }
+ else         if (c == 'v') {
+          success=set(Prop.INFO,true);
+        }
+ else         if (c == 'V') {
+          success=set(Prop.INFO,ALL);
+        }
+ else         if (c == 'x') {
+          success=set(Prop.XMLOUTPUT,true);
+        }
+ else         if (c == 'X') {
+          success=set(Prop.XMLPLAN,true);
+        }
+ else         if (c == 'z') {
+          success=set(Prop.SERIALIZE,false);
+        }
+ else {
+          success=false;
+        }
+      }
+ else {
+        file=file == null ? arg.string() : file + " " + arg.string();
+      }
+    }
+    console=file == null && commands == null;
+    if (!success)     outln(sa() ? LOCALINFO : CLIENTINFO);
+  }
+ catch (  final IOException ex) {
+    errln(server(ex));
+    success=false;
+  }
+}

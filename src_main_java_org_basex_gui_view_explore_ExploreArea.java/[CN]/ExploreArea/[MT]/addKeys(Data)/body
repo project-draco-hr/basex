@@ -1,0 +1,22 @@
+{
+  final TokenList sl=new TokenList();
+  final int cs=panel.getComponentCount();
+  final boolean fs=data.fs != null;
+  if (fs)   sl.add(Token.token(DeepFS.S_FILE));
+ else {
+    for (int c=0; c < cs; c+=2) {
+      final BaseXCombo combo=(BaseXCombo)panel.getComponent(c);
+      if (combo.getSelectedIndex() == 0)       continue;
+      final String elem=combo.getSelectedItem().toString();
+      if (!elem.startsWith("@"))       sl.add(Token.token(elem));
+    }
+  }
+  final TokenList tmp=data.path.desc(sl,data,!fs,false);
+  if (tmp.size() == 0)   return;
+  final String[] keys=entries(tmp.finish());
+  final BaseXCombo cm=new BaseXCombo(keys,gui);
+  cm.addActionListener(this);
+  cm.addKeyListener(main);
+  panel.add(cm);
+  panel.add(new BaseXLabel(""));
+}

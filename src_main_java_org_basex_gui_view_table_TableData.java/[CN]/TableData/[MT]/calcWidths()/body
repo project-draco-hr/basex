@@ -1,0 +1,21 @@
+{
+  if (cols.length == 0)   return;
+  final Data data=context.data;
+  final int cs=cols.length;
+  final int nRows=rows.size();
+  final TableIterator ti=new TableIterator(data,this);
+  final int ll=Math.min(nRows,MAXROWS);
+  for (int l=0; l < ll; l++) {
+    ti.init(rows.get(l));
+    while (ti.more())     cols[ti.col].width+=data.textLen(ti.pre,ti.text);
+  }
+  if (data.fs == null) {
+    final double[] widths=new double[cs];
+    for (int c=0; c < cs; c++)     widths[c]=cols[c].width;
+    final int[] il=Array.createOrder(widths,false);
+    final TableCol[] cl=new TableCol[cs];
+    for (int c=0; c < cs; c++)     cl[c]=cols[il[c]];
+    cols=cl;
+  }
+  setWidths(false);
+}

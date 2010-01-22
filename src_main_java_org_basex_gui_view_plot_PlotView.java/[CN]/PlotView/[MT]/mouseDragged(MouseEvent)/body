@@ -1,0 +1,70 @@
+{
+  if (gui.updating || e.isShiftDown())   return;
+  if (dragging) {
+    mouseX=e.getX();
+    mouseY=e.getY();
+  }
+  final int h=getHeight();
+  final int w=getWidth();
+  final int th=14;
+  final int lb=MARGIN[1] - th;
+  final int rb=w - MARGIN[3] + th;
+  final int tb=MARGIN[0] - th;
+  final int bb=h - MARGIN[2] + th;
+  final boolean inBox=mouseY > tb && mouseY < bb && mouseX > lb && mouseX < rb;
+  if (!dragging && !inBox)   return;
+  if (!dragging) {
+    dragging=true;
+    selectionBox.x=mouseX;
+    selectionBox.y=mouseY;
+  }
+  int x=mouseX;
+  int y=mouseY;
+  if (!inBox) {
+    if (mouseX < lb) {
+      if (mouseY > bb) {
+        x=lb;
+        y=bb;
+      }
+ else       if (mouseY < tb) {
+        x=lb;
+        y=tb;
+      }
+ else {
+        x=lb;
+      }
+    }
+ else     if (mouseX > rb) {
+      if (mouseY > bb) {
+        x=rb;
+        y=bb;
+      }
+ else       if (mouseY < tb) {
+        x=rb;
+        y=tb;
+      }
+ else {
+        x=rb;
+      }
+    }
+ else     if (mouseY < tb) {
+      y=tb;
+    }
+ else {
+      y=bb;
+    }
+  }
+  selectionBox.w=x - selectionBox.x;
+  selectionBox.h=y - selectionBox.y;
+  final IntList il=new IntList();
+  for (int i=0; i < plotData.size; i++) {
+    x=calcCoordinate(true,plotData.xAxis.co[i]);
+    y=calcCoordinate(false,plotData.yAxis.co[i]);
+    if (selectionBox.contains(x,y))     il.add(plotData.pres[i]);
+  }
+  gui.notify.mark(new Nodes(il.finish(),gui.context.data),this);
+  nextContext=gui.context.marked;
+  drawSubNodes=false;
+  markingChanged=true;
+  repaint();
+}

@@ -1,0 +1,123 @@
+{
+switch (cmd) {
+case CREATE:
+case C:
+switch (consume(CmdCreate.class,cmd)) {
+case DATABASE:
+case DB:
+      return new CreateDB(string(cmd),name(null));
+case COLLECTION:
+case COLL:
+    return new CreateColl(name(cmd));
+case INDEX:
+  return new CreateIndex(consume(CmdIndex.class,cmd));
+case FS:
+return new CreateFS(string(cmd),name(cmd));
+case MAB:
+return new CreateMAB(string(cmd),name(null));
+case USER:
+return new CreateUser(name(cmd),string(null));
+}
+break;
+case ALTER:
+key(USER,cmd);
+return new AlterUser(name(cmd),string(null));
+case OPEN:
+case O:
+return new Open(name(cmd));
+case CHECK:
+return new Check(string(cmd));
+case ADD:
+return new Add(string(cmd));
+case DELETE:
+return new Delete(string(cmd));
+case INFO:
+case I:
+switch (consume(CmdInfo.class,cmd)) {
+case NULL:
+return new Info();
+case DATABASE:
+case DB:
+return new InfoDB();
+case INDEX:
+return new InfoIndex(consume(CmdIndexInfo.class,null));
+case TABLE:
+String arg1=number(null);
+final String arg2=arg1 != null ? number(null) : null;
+if (arg1 == null) arg1=xquery(null);
+return new InfoTable(arg1,arg2);
+}
+break;
+case CLOSE:
+return new Close();
+case LIST:
+return new List();
+case DROP:
+switch (consume(CmdDrop.class,cmd)) {
+case DATABASE:
+case DB:
+return new DropDB(name(cmd));
+case INDEX:
+return new DropIndex(consume(CmdIndex.class,cmd));
+case USER:
+final String name=name(cmd);
+final String db=key(ON,null) ? name(cmd) : null;
+return new DropUser(name,db);
+}
+break;
+case OPTIMIZE:
+return new Optimize();
+case EXPORT:
+return new Export(string(cmd),string(null));
+case XQUERY:
+case X:
+return new XQuery(xquery(cmd));
+case RUN:
+return new Run(string(cmd));
+case FIND:
+return new Find(string(cmd));
+case CS:
+return new Cs(xquery(cmd));
+case SET:
+final String opt=name(cmd);
+final String val=string(null);
+final Object type=ctx.prop.object(opt.toUpperCase());
+if (type == null) help(null,cmd);
+return new Set(opt,val);
+case PASSWORD:
+return new Password(string(null));
+case HELP:
+String hc=name(null);
+if (hc != null) {
+qp=qm;
+hc=consume(Cmd.class,cmd).toString();
+}
+return new Help(hc);
+case EXIT:
+case QUIT:
+case Q:
+return new Exit();
+case KILL:
+return new Kill(name(cmd));
+case SHOW:
+switch (consume(CmdShow.class,cmd)) {
+case DATABASES:
+return new ShowDatabases();
+case SESSIONS:
+return new ShowSessions();
+case USERS:
+final String db=key(ON,null) ? name(cmd) : null;
+return new ShowUsers(db);
+default :
+}
+break;
+case GRANT:
+final CmdPerm perm=consume(CmdPerm.class,cmd);
+if (perm == null) help(null,cmd);
+final String db=key(ON,null) ? name(cmd) : null;
+key(TO,cmd);
+return db == null ? new Grant(perm,name(cmd)) : new Grant(perm,name(cmd),db);
+default :
+}
+return null;
+}

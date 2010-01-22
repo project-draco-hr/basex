@@ -1,0 +1,51 @@
+{
+  return new Iter(){
+    boolean finish;
+    boolean direct;
+    Iter iter;
+    long p;
+    @Override public Item next() throws QueryException {
+      if (finish)       return null;
+      if (iter == null) {
+        iter=ctx.iter(root);
+        p=1;
+        if (iter.size() != -1) {
+          if (last) {
+            p=iter.size();
+            direct=true;
+          }
+ else           if (pos != null) {
+            p=pos.min;
+            direct=true;
+          }
+        }
+      }
+      final Item ci=ctx.item;
+      final long cp=ctx.pos;
+      Item it=null;
+      if (direct) {
+        it=iter.get(p - 1);
+        ctx.pos=p++;
+      }
+ else {
+        Item old=null;
+        while ((it=iter.next()) != null) {
+          ctx.item=it;
+          ctx.pos=p++;
+          old=it;
+          final Item i=pred[0].test(ctx);
+          if (i != null) {
+            it.score(i.score());
+            break;
+          }
+        }
+        if (last)         it=old;
+      }
+      finish=last || pos != null && pos.last(ctx);
+      ctx.item=ci;
+      ctx.pos=cp;
+      return it;
+    }
+  }
+;
+}

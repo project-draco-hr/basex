@@ -1,0 +1,24 @@
+{
+  final Data data=context.data;
+  if (data instanceof MemData)   return error(PROCMM);
+switch (getOption(CmdIndex.class)) {
+case TEXT:
+    data.meta.txtindex=false;
+  return drop(Type.TXT,DATATXT);
+case ATTRIBUTE:
+data.meta.atvindex=false;
+return drop(Type.ATV,DATAATV);
+case FULLTEXT:
+data.meta.ftxindex=false;
+return drop(Type.FTX,DATAFTX);
+case PATH:
+if (data.meta.pthindex) {
+data.meta.pthindex=false;
+data.path.root=null;
+data.flush();
+}
+return info(DBDROP,perf);
+default :
+return false;
+}
+}

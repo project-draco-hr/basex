@@ -1,0 +1,27 @@
+{
+  final QNm name=new QNm(qName(DECLFUNC));
+  name.uri=Uri.uri(name.ns() ? ctx.ns.uri(name.pref(),false) : ctx.nsFunc);
+  if (name.pref().length == 0 && Type.find(name,true) != null)   error(FUNCRES,name);
+  if (module != null && !name.uri.eq(module.uri))   error(MODNS,name);
+  check(PAR1);
+  skipWS();
+  Var[] args={};
+  final int s=ctx.vars.size();
+  while (curr() == '$') {
+    final QNm arg=varName();
+    final SeqType argType=consumeWS(AS) ? sequenceType() : null;
+    final Var var=new Var(arg,argType,true);
+    ctx.vars.add(var);
+    for (    final Var v : args)     if (v.name.eq(arg))     error(FUNCDUPL,arg);
+    args=Array.add(args,var);
+    if (!consume(','))     break;
+    skipWS();
+  }
+  check(PAR2);
+  final SeqType type=consumeWS(AS) ? sequenceType() : null;
+  final Func func=new Func(new Var(name,type,true),args,true);
+  func.updating=up;
+  ctx.fun.add(func);
+  if (!consumeWS(EXTERNAL))   func.expr=enclosed(NOFUNBODY);
+  ctx.vars.reset(s);
+}

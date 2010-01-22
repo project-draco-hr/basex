@@ -1,0 +1,42 @@
+{
+  String key=args[0].toUpperCase();
+  String val=args[1];
+  CmdSet s=null;
+  try {
+    s=Enum.valueOf(CmdSet.class,key);
+  }
+ catch (  final Exception ex) {
+  }
+  try {
+    final Object type=prop.object(key);
+    if (type instanceof Boolean) {
+      final boolean b=val == null ? !((Boolean)type).booleanValue() : val.equalsIgnoreCase(ON) || val.equalsIgnoreCase(TRUE);
+      prop.set(key,b);
+      final boolean all=ALL.equalsIgnoreCase(val);
+      val=AInfo.flag(b);
+      if (s == CmdSet.INFO) {
+        prop.set(Prop.ALLINFO,all);
+        if (all) {
+          prop.set(Prop.INFO,true);
+          val=INFOON + " (" + INFOALL+ ")";
+        }
+      }
+    }
+ else     if (type instanceof Integer) {
+      prop.set(key,Integer.parseInt(val));
+    }
+ else     if (type instanceof String) {
+      prop.set(key,val);
+    }
+ else {
+      Main.notexpected();
+    }
+    final CmdSet[] cs=CmdSet.values();
+    for (int c=0; c < cs.length; c++)     if (cs[c] == s)     key=STRINGS[c];
+    return info(key + ": " + val);
+  }
+ catch (  final Exception ex) {
+    Main.debug(ex);
+    return error(SETERR,key,val);
+  }
+}

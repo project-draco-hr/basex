@@ -1,0 +1,19 @@
+{
+  final Iter ir=expr.iter(ctx);
+  final Tokenizer tmp=ctx.fttoken;
+  ctx.fttoken=ft;
+  if (fti == null) {
+    fti=ftexpr.iter(ctx);
+    ftn=fti.next();
+  }
+  boolean found=false;
+  DBNode n=null;
+  while (!found && (n=(DBNode)ir.next()) != null) {
+    while (ftn != null && n.pre > ftn.pre)     ftn=fti.next();
+    found=(ftn != null && n.pre == ftn.pre) ^ ictx.not;
+  }
+  if (n == null)   fti=null;
+  if (found && ctx.ftpos != null && !ictx.not)   ctx.ftpos.add(ftn.pre,ftn.all);
+  ctx.fttoken=tmp;
+  return Bln.get(found ? 1 : 0);
+}

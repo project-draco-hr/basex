@@ -1,0 +1,45 @@
+{
+  final Data data=gui.context.data;
+  markedImg=new BufferedImage(getWidth(),getHeight(),Transparency.BITMASK);
+  final Graphics gi=markedImg.getGraphics();
+  smooth(gi);
+  final Nodes marked=gui.context.marked;
+  if (marked.size() == 0)   return;
+  final int[] m=Arrays.copyOf(marked.nodes,marked.nodes.length);
+  int i=0;
+  if (!drawSubNodes) {
+    while (i < m.length) {
+      final int pi=plotData.findPre(m[i]);
+      if (pi > -1)       drawItem(gi,plotData.xAxis.co[pi],plotData.yAxis.co[pi],false,true,false);
+      i++;
+    }
+    return;
+  }
+  Arrays.sort(m);
+  final int[] p=plotData.pres;
+  int k=plotData.findPre(m[0]);
+  if (k > -1) {
+    drawItem(gi,plotData.xAxis.co[k],plotData.yAxis.co[k],false,true,false);
+    k++;
+  }
+ else {
+    k*=-1;
+    k--;
+  }
+  while (i < m.length && k < p.length) {
+    final int a=m[i];
+    final int b=p[k];
+    final int ns=data.size(a,data.kind(a)) - 1;
+    if (a == b) {
+      drawItem(gi,plotData.xAxis.co[k],plotData.yAxis.co[k],false,true,false);
+      k++;
+    }
+ else     if (a + ns >= b) {
+      if (a < b)       drawItem(gi,plotData.xAxis.co[k],plotData.yAxis.co[k],false,false,true);
+      k++;
+    }
+ else {
+      i++;
+    }
+  }
+}

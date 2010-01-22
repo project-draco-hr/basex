@@ -1,0 +1,66 @@
+{
+  b.encoding(ENCODING);
+  final String dir=io.getDir();
+  index(mediatypes,dir + "/mediatypes.dat");
+  index(subjects,dir + "/subjects.dat");
+  index(languages,dir + "/lang.dat");
+  index(mvids,dir + "/mvids.dat");
+  index(lendings,dir + "/lendings.dat");
+  index(status,dir + "/status.dat");
+  index(posters,dir + "/posters.dat");
+  index(genres,dir + "/genres.dat");
+  for (int i=1; i <= mvids.size(); i++) {
+    final int id=toInt(mvids.value(i));
+    if (maxid < id)     maxid=id;
+  }
+  input=new DataAccess(new File(io.path()));
+  if (input.read1() != '#' || input.read1() != '#' || input.read1() != '#') {
+    throw new BuildException("Invalid MAB2 input (doesn't start with ###)");
+  }
+  builder=b;
+  builder.startDoc(token(io.name()));
+  builder.startElem(LIBRARY,atts.reset());
+  final Performance p=new Performance();
+  final ObjectMap<MAB2Entry> ids=new ObjectMap<MAB2Entry>();
+  int i=0;
+  byte[] id;
+  while ((id=id(input)) != null) {
+    final long pos=off;
+    final byte[] par=par(input);
+    final boolean child=par != null;
+    final byte[] key=child ? par : id;
+    MAB2Entry entry=ids.get(key);
+    if (entry == null) {
+      entry=new MAB2Entry();
+      ids.put(key,entry);
+    }
+    if (child)     entry.add(pos);
+ else     entry.pos(pos);
+    if (Prop.debug) {
+      if (++i % 50000 == 0)       Main.err(" " + i + "\n");
+ else       if (i % 5000 == 0)       Main.err("!");
+ else       if (i % 1000 == 0)       Main.err(".");
+    }
+  }
+  if (Prop.debug)   Main.err("\nParse Offsets (%): %/%\n",ids.size(),p,Performance.getMem());
+  for (i=1; i <= ids.size(); i++) {
+    final MAB2Entry entry=ids.value(i);
+    final long pos=entry.pos;
+    final byte[] l=pos != 0 ? addEntry(input,pos,entry.size,null) : null;
+    for (int j=0; j < entry.size; j++) {
+      addEntry(input,entry.children[j],0,l);
+    }
+    if (entry.size != 0 && pos != 0 && !flat)     builder.endElem(MEDIUM);
+  }
+  if (Prop.debug)   Main.err("\nCreate Titles: %/%\n",p,Performance.getMem());
+  builder.endElem(LIBRARY);
+  builder.endDoc();
+  input.close();
+  final PrintOutput out=new PrintOutput(dir + "/mvids.dat");
+  for (i=1; i <= mvids.size(); i++) {
+    out.print(mvids.key(i));
+    out.print('\t');
+    out.println(mvids.value(i));
+  }
+  out.close();
+}

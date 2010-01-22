@@ -1,0 +1,39 @@
+{
+  if (nodes != null && nodes.ftpos != null)   ftpos=new FTPosData();
+  try {
+    if (nodes != null) {
+      final Data data=nodes.data;
+      if (nodes.doc) {
+        doc=new DBNode[nodes.size()];
+        final int dl=nodes.size();
+        for (int d=0; d < dl; d++) {
+          addDoc(new DBNode(data,nodes.nodes[d],Data.DOC));
+        }
+      }
+ else {
+        for (        final int p : data.doc())         addDoc(new DBNode(data,p));
+      }
+      rootDocs=docs;
+      if (nodes.doc || !root.uses(Use.ELM,this)) {
+        item=Seq.get(doc,docs);
+      }
+ else {
+        final SeqIter si=new SeqIter(nodes.size());
+        for (int n=0; n < nodes.size(); n++) {
+          si.add(new DBNode(data,nodes.nodes[n]));
+        }
+        item=si.finish();
+      }
+      addColl(new NodIter(doc,docs),token(data.meta.name));
+    }
+    if (inf)     compInfo(QUERYCOMP);
+    fun.comp(this);
+    vars.comp(this);
+    root=root.comp(this);
+    if (inf)     compInfo(QUERYRESULT + "%" + NL,root);
+  }
+ catch (  final StackOverflowError ex) {
+    if (Prop.debug)     ex.printStackTrace();
+    Err.or(XPSTACK);
+  }
+}

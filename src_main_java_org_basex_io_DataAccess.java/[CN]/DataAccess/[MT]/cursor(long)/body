@@ -1,0 +1,17 @@
+{
+  off=(int)(p & IO.BLOCKSIZE - 1);
+  final boolean ch=bm.cursor(p - off);
+  final Buffer bf=bm.curr();
+  if (ch) {
+    try {
+      if (bf.dirty)       writeBlock(bf);
+      bf.pos=p - off;
+      file.seek(bf.pos);
+      file.read(bf.buf);
+    }
+ catch (    final IOException ex) {
+      ex.printStackTrace();
+    }
+  }
+  return bf;
+}

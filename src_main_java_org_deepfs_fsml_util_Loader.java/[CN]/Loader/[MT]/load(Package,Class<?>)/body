@@ -1,0 +1,56 @@
+{
+  final ArrayList<Class<?>> foundClasses=new ArrayList<Class<?>>();
+  try {
+    final String pkgName=pkg.getName();
+    final URL pkgUrl=getURL(pkgName);
+    if (pkgUrl == null)     return new Class<?>[0];
+    File packageDir;
+    try {
+      packageDir=new File(pkgUrl.toURI());
+    }
+ catch (    final IllegalArgumentException ex) {
+      packageDir=new File(pkgUrl.getFile());
+    }
+    if (packageDir.exists()) {
+      for (      final File f : packageDir.listFiles()) {
+        String fileName=f.getName();
+        if (!fileName.endsWith(".class"))         continue;
+        fileName=fileName.substring(0,fileName.length() - 6);
+        final String clazzName=pkgName + "." + fileName;
+        if (clazzName.equals(superClass.getCanonicalName()))         continue;
+        final Class<?> clazz=Class.forName(clazzName,false,ClassLoader.getSystemClassLoader());
+        if (superClass.isAssignableFrom(clazz)) {
+          foundClasses.add(clazz);
+        }
+      }
+    }
+ else {
+      final JarURLConnection con=(JarURLConnection)pkgUrl.openConnection();
+      final JarFile jfile=con.getJarFile();
+      final String starts=con.getEntryName();
+      final Enumeration<JarEntry> e=jfile.entries();
+      while (e.hasMoreElements()) {
+        final JarEntry entry=e.nextElement();
+        final String name=entry.getName();
+        if (name.startsWith(starts) && name.lastIndexOf('/') <= starts.length() && name.endsWith(".class")) {
+          String classname=name.substring(0,name.length() - 6);
+          if (classname.startsWith("/"))           classname=classname.substring(1);
+          classname=classname.replace('/','.');
+          if (classname.equals(superClass.getCanonicalName()))           continue;
+          final Class<?> clazz=Class.forName(classname,false,ClassLoader.getSystemClassLoader());
+          if (superClass.isAssignableFrom(clazz)) {
+            foundClasses.add(clazz);
+          }
+        }
+      }
+    }
+  }
+ catch (  final IOException ex) {
+    throw ex;
+  }
+catch (  final Throwable t) {
+    Main.errln("Failed to load class: %",t);
+  }
+  final int counter=initializeClasses(foundClasses);
+  return foundClasses.subList(0,counter).toArray(new Class<?>[counter]);
+}

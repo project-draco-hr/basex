@@ -1,0 +1,23 @@
+{
+  if (gui.updating || opened == null)   return;
+  super.mousePressed(e);
+  if (!focus(e.getX(),e.getY()))   return;
+  final Nodes marked=gui.context.marked;
+  if (e.getClickCount() == 2) {
+    gui.notify.context(marked,false,null);
+  }
+ else   if (e.isShiftDown()) {
+    gui.notify.mark(1,null);
+  }
+ else   if (sc(e)) {
+    gui.notify.mark(2,null);
+  }
+ else   if (!SwingUtilities.isLeftMouseButton(e) || getCursor() != CURSORHAND) {
+    if (!marked.contains(gui.context.focused))     gui.notify.mark(0,null);
+  }
+ else {
+    opened[gui.context.focused]^=true;
+    refreshHeight();
+    repaint();
+  }
+}

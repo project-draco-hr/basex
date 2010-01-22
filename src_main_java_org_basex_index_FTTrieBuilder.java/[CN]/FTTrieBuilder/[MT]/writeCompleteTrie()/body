@@ -1,0 +1,38 @@
+{
+  if (scm == 0)   hash.init();
+ else   hash.initIter();
+  final DataOutput outb=new DataOutput(data.meta.file(DATAFTX + 'b'));
+  while (hash.more()) {
+    final int p=hash.next();
+    final byte[] tok=hash.key();
+    final int ds=hash.ns[p];
+    final long cpre=outb.size();
+    writeFTData(outb,hash.pre[p],hash.pos[p]);
+    index.insertSorted(tok,ds,cpre);
+  }
+  outb.close();
+  hash=null;
+  final TokenList tokens=index.tokens;
+  final IntArrayList next=index.next;
+  final DataOutput outN=new DataOutput(data.meta.file(DATAFTX + 'a'));
+  final DataOutput outS=new DataOutput(data.meta.file(DATAFTX + 'c'));
+  int siz=0;
+  if (index.count != 1) {
+    outN.write((byte)1);
+    outN.write((byte)-1);
+    int j=1;
+    final int js=next.get(0).length - 2;
+    for (; j < js; j++) {
+      outN.writeInt(next.get(0)[j]);
+      outN.write(tokens.get(next.get(next.get(0)[j])[0])[0]);
+    }
+    outN.writeInt(next.get(0)[j]);
+    outN.write5(-1);
+    outS.writeInt(siz);
+    siz+=2L + (next.get(0).length - 3) * 5L + 9L;
+    siz=writeSubTree(null,outN,outS,0,siz);
+    outN.close();
+    outS.close();
+  }
+  DropDB.delete(data.meta.name,DATAFTX + "\\d+." + IO.BASEXSUFFIX,data.meta.prop);
+}

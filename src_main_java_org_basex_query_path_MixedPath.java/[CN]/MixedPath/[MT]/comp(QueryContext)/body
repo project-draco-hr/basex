@@ -1,0 +1,20 @@
+{
+  super.comp(ctx);
+  for (  final Expr e : step)   checkUp(e,ctx);
+  if (root instanceof Context)   root=null;
+  final Item ci=ctx.item;
+  ctx.item=root(ctx);
+  final Type ct=ctx.item != null ? ctx.item.type : null;
+  if (ct == Type.DOC)   ctx.item.type=Type.ELM;
+  Expr e=this;
+  for (int i=0; i != step.length; i++) {
+    step[i]=step[i].comp(ctx);
+    if (step[i].e()) {
+      e=step[i];
+      break;
+    }
+  }
+  if (ct != null)   ctx.item.type=ct;
+  ctx.item=ci;
+  return e;
+}

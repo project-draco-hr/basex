@@ -1,0 +1,70 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  final Data data=gui.context.data;
+  final int cs=panel.getComponentCount();
+  for (int c=0; c < cs; c+=2) {
+    final BaseXCombo com=(BaseXCombo)panel.getComponent(c);
+    final int k=com.getSelectedIndex();
+    if (k <= 0)     continue;
+    String key=com.getSelectedItem().toString();
+    final boolean attr=key.startsWith("@");
+    final Component comp=panel.getComponent(c + 1);
+    String pattern="";
+    String val1=null;
+    String val2=null;
+    if (comp instanceof BaseXTextField) {
+      val1=((BaseXTextField)comp).getText();
+      if (!val1.isEmpty()) {
+        if (val1.startsWith("\"")) {
+          val1=val1.replaceAll("\"","");
+          pattern=PATEX;
+        }
+ else {
+          pattern=attr && data.meta.atvindex || !attr && data.meta.txtindex ? PATSUB : PATEX;
+        }
+      }
+    }
+ else     if (comp instanceof BaseXCombo) {
+      final BaseXCombo combo=(BaseXCombo)comp;
+      if (combo.getSelectedIndex() != 0) {
+        val1=combo.getSelectedItem().toString();
+        pattern=PATEX;
+      }
+    }
+ else     if (comp instanceof BaseXDSlider) {
+      final BaseXDSlider slider=(BaseXDSlider)comp;
+      if (slider.min != slider.totMin || slider.max != slider.totMax) {
+        final double m=slider.min;
+        final double n=slider.max;
+        val1=(long)m == m ? Long.toString((long)m) : Double.toString(m);
+        val2=(long)n == n ? Long.toString((long)n) : Double.toString(n);
+        pattern=PATNUM;
+      }
+    }
+    if (data.fs != null)     if (tb.size() == 0)     tb.add("//%",DeepFS.S_FILE);
+    if (attr) {
+      if (tb.size() == 0)       tb.add("//*");
+      if (pattern.isEmpty())       pattern=PATSIMPLE;
+    }
+ else {
+      if (data.fs != null)       tb.add("[%",key);
+ else       tb.add("//" + key);
+      key="text()";
+    }
+    tb.add(pattern,key,val1,key,val2);
+    if (data.fs != null && !attr)     tb.add("]");
+  }
+  String qu=tb.toString();
+  final boolean root=gui.context.root();
+  final boolean rt=gui.prop.is(GUIProp.FILTERRT);
+  if (!qu.isEmpty() && !rt && !root)   qu="." + qu;
+  String simple=all.getText().trim();
+  if (!simple.isEmpty()) {
+    simple=Find.find(simple,gui.context,rt);
+    qu=!qu.isEmpty() ? simple + " | " + qu : simple;
+  }
+  if (qu.isEmpty())   qu=rt || root ? "/" : ".";
+  if (!force && last.equals(qu))   return;
+  last=qu;
+  gui.xquery(qu,false);
+}

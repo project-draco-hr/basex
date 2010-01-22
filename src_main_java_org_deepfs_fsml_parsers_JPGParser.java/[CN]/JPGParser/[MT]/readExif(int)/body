@@ -1,0 +1,17 @@
+{
+  final int len=HEADER_EXIF.length;
+  bfc.buffer(len);
+  if (!checkNextBytes(HEADER_EXIF))   bfc.skip(size - len);
+  final DeepFile subFile=deepFile.subfile(size - len);
+  try {
+    exifParser.extract(subFile);
+  }
+  finally {
+    try {
+      subFile.finish();
+    }
+ catch (    final Exception ex) {
+      deepFile.debug("JPGParser: Failed to parse Exif data.",ex);
+    }
+  }
+}

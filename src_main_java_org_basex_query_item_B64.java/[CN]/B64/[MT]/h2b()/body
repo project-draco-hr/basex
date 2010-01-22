@@ -1,0 +1,31 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  final int a=val.length;
+  final int f=a / 3;
+  final int p=a - 3 * f;
+  int c=0;
+  for (int i=0; i < f; i++) {
+    final int b0=val[c++] & 0xff;
+    final int b1=val[c++] & 0xff;
+    final int b2=val[c++] & 0xff;
+    tb.add(H2B[b0 >> 2]);
+    tb.add(H2B[b0 << 4 & 0x3f | b1 >> 4]);
+    tb.add(H2B[b1 << 2 & 0x3f | b2 >> 6]);
+    tb.add(H2B[b2 & 0x3f]);
+  }
+  if (p != 0) {
+    final int b0=val[c++] & 0xff;
+    tb.add(H2B[b0 >> 2]);
+    if (p == 1) {
+      tb.add(H2B[b0 << 4 & 0x3f]);
+      tb.add("==");
+    }
+ else {
+      final int b1=val[c++] & 0xff;
+      tb.add(H2B[b0 << 4 & 0x3f | b1 >> 4]);
+      tb.add(H2B[b1 << 2 & 0x3f]);
+      tb.add('=');
+    }
+  }
+  return tb.finish();
+}

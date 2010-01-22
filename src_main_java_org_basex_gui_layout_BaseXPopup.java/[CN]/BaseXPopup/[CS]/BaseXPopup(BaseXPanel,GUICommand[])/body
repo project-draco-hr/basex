@@ -1,0 +1,35 @@
+{
+  popup=pop;
+  gui=comp.gui;
+  comp.addMouseListener(new MouseAdapter(){
+    @Override public void mousePressed(    final MouseEvent e){
+      if (!gui.updating && e.isPopupTrigger())       show(e.getComponent(),e.getX() - 10,e.getY() - 15);
+    }
+    @Override public void mouseReleased(    final MouseEvent e){
+      mousePressed(e);
+    }
+  }
+);
+  comp.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (!gui.updating && pressed(CONTEXT,e))       show(e.getComponent(),10,10);
+    }
+  }
+);
+  for (  final GUICommand c : pop) {
+    if (c == null) {
+      addSeparator();
+    }
+ else {
+      final JMenuItem item=add(c.desc());
+      item.addActionListener(new ActionListener(){
+        public void actionPerformed(        final ActionEvent e){
+          if (!gui.updating)           c.execute(comp.gui);
+        }
+      }
+);
+      item.setMnemonic(c.desc().charAt(0));
+      item.setToolTipText(c.help());
+    }
+  }
+}

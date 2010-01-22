@@ -1,0 +1,36 @@
+{
+  for (int o=0; o < lay.comp.length; o++) {
+    final ViewLayout comp=lay.comp[o];
+    if (comp instanceof ViewAlignment) {
+      if (add((ViewAlignment)comp))       return true;
+    }
+ else     if (comp == target) {
+      final boolean west=orient == Target.WEST;
+      final boolean east=orient == Target.EAST;
+      if (orient == Target.NORTH || west) {
+        if (lay.horiz == west) {
+          lay.add(source,o);
+        }
+ else {
+          final ViewAlignment l=new ViewAlignment(west);
+          l.add(source);
+          l.add(target);
+          lay.comp[o]=l;
+        }
+      }
+ else       if (orient == Target.SOUTH || east) {
+        if (lay.horiz == east) {
+          lay.add(source,o + 1);
+        }
+ else {
+          final ViewAlignment l=new ViewAlignment(east);
+          l.add(target);
+          l.add(source);
+          lay.comp[o]=l;
+        }
+      }
+      return true;
+    }
+  }
+  return false;
+}

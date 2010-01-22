@@ -1,0 +1,48 @@
+{
+  final File file=new File(filename);
+  try {
+    final StringBuilder user=new StringBuilder();
+    if (file.exists()) {
+      final BufferedReader br=new BufferedReader(new FileReader(file));
+      String line=null;
+      while ((line=br.readLine()) != null)       if (line.equals(PROPUSER))       break;
+      while ((line=br.readLine()) != null) {
+        user.append(line);
+        user.append(NL);
+      }
+      br.close();
+    }
+    final BufferedWriter bw=new BufferedWriter(new FileWriter(file));
+    bw.write(PROPHEADER + NL);
+    for (    final Field f : getClass().getFields()) {
+      final Object obj=f.get(null);
+      if (!(obj instanceof Object[]))       continue;
+      final String key=((Object[])obj)[0].toString();
+      if (key.equals(Prop.SKIP[0]))       break;
+      final Object val=props.get(key);
+      if (val instanceof String[]) {
+        final String[] str=(String[])val;
+        bw.write(key + " = " + str.length+ NL);
+        for (int i=0; i < str.length; i++) {
+          if (str[i] != null)           bw.write(key + (i + 1) + " = "+ str[i]+ NL);
+        }
+      }
+ else       if (val instanceof int[]) {
+        final int[] num=(int[])val;
+        for (int i=0; i < num.length; i++) {
+          bw.write(key + i + " = "+ num[i]+ NL);
+        }
+      }
+ else {
+        bw.write(key + " = " + val+ NL);
+      }
+    }
+    bw.write(NL + PROPUSER + NL);
+    bw.write(user.toString());
+    bw.close();
+  }
+ catch (  final Exception ex) {
+    Main.errln("% could not be written.",filename);
+    Main.debug(ex);
+  }
+}

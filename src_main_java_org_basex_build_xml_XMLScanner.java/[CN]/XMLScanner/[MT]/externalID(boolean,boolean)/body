@@ -1,0 +1,52 @@
+{
+  byte[] cont=null;
+  final boolean pub=consume(PUBLIC);
+  if (pub || consume(SYSTEM)) {
+    checkS();
+    if (pub) {
+      pubidLit();
+      if (f)       checkS();
+    }
+    final int qu=consume();
+    if (qu == '\'' || qu == '"') {
+      int ch=0;
+      final TokenBuilder tok=new TokenBuilder();
+      while ((ch=nextChar()) != qu)       tok.addUTF(ch);
+      if (!f)       return null;
+      final String name=string(tok.finish());
+      if (!dtd && r)       return cont;
+      final XMLInput tin=input;
+      try {
+        final IO file=input.file.merge(name);
+        cont=file.content();
+        input=new XMLInput(new IOContent(cont,name));
+      }
+ catch (      final IOException ex) {
+        Main.debug(ex);
+        error(PARSEERR,name);
+      }
+      if (consume(XDECL)) {
+        check(XML);
+        s();
+        if (version())         checkS();
+        s();
+        if (encoding() == null)         error(TEXTENC);
+        ch=nextChar();
+        if (s(ch))         ch=nextChar();
+        if (ch != '?' || nextChar() != '>')         error(DECLWRONG);
+        cont=Arrays.copyOfRange(cont,input.pos(),cont.length);
+      }
+      s();
+      if (r) {
+        extSubsetDecl();
+        if (!consume((char)0))         error(INVEND);
+      }
+      input=tin;
+    }
+ else {
+      if (f)       error(SCANQUOTE,(char)qu);
+      prev(1);
+    }
+  }
+  return cont;
+}

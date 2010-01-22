@@ -1,0 +1,29 @@
+{
+  level=ll;
+  int kind=data.kind(pre);
+  final boolean fs=data.fs != null;
+  final boolean[] open=view.opened;
+  if (open == null)   return false;
+  pre+=open[pre] ? fs ? data.attSize(pre,kind) : 1 : data.size(pre,kind);
+  while (pre < data.meta.size) {
+    kind=data.kind(pre);
+    final int p=data.parent(pre,kind);
+    while (p < par && level > 0)     par=parents[--level];
+    if (p < par)     break;
+    if (p == par) {
+      kind=data.kind(par);
+      if ((kind == Data.ELEM || kind == Data.DOC) && open[pre]) {
+        parents[level++]=par;
+        par=pre;
+        ll=level;
+      }
+ else {
+        ll=level++;
+      }
+      mode=2;
+      return true;
+    }
+    pre+=fs ? data.attSize(pre,kind) : 1;
+  }
+  return moreCS();
+}

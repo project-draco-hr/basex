@@ -1,0 +1,46 @@
+{
+  final int x=selectRect.w < 0 ? selectRect.x + selectRect.w : selectRect.x;
+  final int y=selectRect.h < 0 ? selectRect.y + selectRect.h : selectRect.y;
+  final int w=Math.abs(selectRect.w);
+  final int h=Math.abs(selectRect.h);
+  g.setColor(Color.RED);
+  g.drawRect(x,y,w,h);
+  final int f=y;
+  final int t=y + h;
+  final int size=cache.maxLevel;
+  final IntList list=new IntList();
+  for (int i=0; i < size; i++) {
+    final int yL=getYperLevel(i);
+    if ((yL >= f || yL + nodeHeight >= f) && (yL <= t || yL + nodeHeight <= t)) {
+      final TreeRect[] rl=cache.getTreeRectsPerLevel(frn,i);
+      final int s=cache.getLevelSize(frn,i);
+      if (cache.isBigRectangle(frn,i)) {
+        final TreeRect mRect=rl[0];
+        int sPrePos=(int)(s * (x / (double)mRect.w));
+        int ePrePos=(int)(s * ((x + w) / (double)mRect.w));
+        if (sPrePos < 0)         sPrePos=0;
+        if (ePrePos >= s)         ePrePos=s - 1;
+        for (int j=sPrePos; j < ePrePos; j++) {
+          list.add(cache.getPrePerIndex(frn,s,j));
+        }
+        gui.notify.mark(new Nodes(list.finish(),gui.context.data),this);
+        markNodes();
+        repaint();
+      }
+ else {
+        boolean b=false;
+        for (int j=0; j < s; j++) {
+          final TreeRect tr=rl[j];
+          if (!b && tr.contains(x))           b=true;
+          if (b) {
+            list.add(cache.getPrePerIndex(frn,i,j));
+            if (tr.contains(x + w))             break;
+          }
+        }
+        gui.notify.mark(new Nodes(list.finish(),gui.context.data),this);
+        markNodes();
+        repaint();
+      }
+    }
+  }
+}

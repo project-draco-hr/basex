@@ -1,0 +1,38 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  do {
+    final char c=curr();
+    if (c == '<') {
+      if (consumeWS2(CDATA)) {
+        tb.add(cDataSection());
+        tb.ent=true;
+      }
+ else {
+        final Str txt=text(tb);
+        return txt != null ? txt : next() == '/' ? null : constructor();
+      }
+    }
+ else     if (c == '{') {
+      if (next() == '{') {
+        tb.add(consume());
+        consume();
+      }
+ else {
+        final Str txt=text(tb);
+        return txt != null ? txt : enclosed(NOENCLEXPR);
+      }
+    }
+ else     if (c == '}') {
+      consume();
+      check('}');
+      tb.add('}');
+    }
+ else     if (c != 0) {
+      entity(tb);
+    }
+ else {
+      error(NOCLOSING,tag);
+    }
+  }
+ while (true);
+}

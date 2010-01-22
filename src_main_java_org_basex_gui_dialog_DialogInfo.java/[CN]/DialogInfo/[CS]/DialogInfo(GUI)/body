@@ -1,0 +1,102 @@
+{
+  super(main,INFODB);
+  final BaseXBack tab1=new BaseXBack();
+  tab1.setBorder(new CompoundBorder(new EtchedBorder(),new EmptyBorder(8,8,8,8)));
+  tab1.setLayout(new BorderLayout());
+  final Data data=gui.context.data;
+  final MetaData meta=data.meta;
+  final Font f=tab1.getFont();
+  final BaseXLabel doc=new BaseXLabel(meta.name);
+  doc.setFont(f.deriveFont(f.getSize2D() + 7f));
+  doc.setBorder(0,0,5,0);
+  tab1.add(doc,BorderLayout.NORTH);
+  final byte[] db=InfoDB.db(meta,true,false,true);
+  final TokenBuilder info=new TokenBuilder(db);
+  if (data.ns.size() != 0) {
+    info.high().add(NL + INFONS + NL).norm().add(data.ns.info());
+  }
+  final BaseXText text=text(info.finish());
+  text.setFont(f);
+  tab1.add(text,BorderLayout.CENTER);
+  final BaseXBack tab2=new BaseXBack();
+  tab2.setLayout(new GridLayout(2,1,0,8));
+  tab2.setBorder(8,8,8,8);
+  tab2.add(addIndex(true,data));
+  tab2.add(addIndex(false,data));
+  final String[] cb={INFOPATHINDEX,INFOTEXTINDEX,INFOATTRINDEX,INFOFTINDEX};
+  final boolean[] val={data.meta.pthindex,data.meta.txtindex,data.meta.atvindex,data.meta.ftxindex};
+  final BaseXBack[] panels=new BaseXBack[indexes.length];
+  for (int i=0; i < indexes.length; i++) {
+    indexes[i]=new BaseXCheckBox(cb[i],val[i],0,this);
+    indexes[i].setEnabled(data instanceof DiskData);
+    panels[i]=new BaseXBack();
+    panels[i].setLayout(new BorderLayout());
+  }
+  final BaseXBack tab3=new BaseXBack();
+  tab3.setLayout(new GridLayout(1,1));
+  tab3.setBorder(8,8,8,8);
+  JComponent north=indexes[0];
+  if (val[0]) {
+    north=new BaseXBack();
+    north.setLayout(new BorderLayout());
+    north.add(indexes[0],BorderLayout.WEST);
+    final BaseXButton export=new BaseXButton(GUIEXPORT,this);
+    export.addActionListener(new ActionListener(){
+      public void actionPerformed(      final ActionEvent e){
+        final IO file=GUICommands.save(gui,true);
+        if (file != null) {
+          PrintOutput out=null;
+          try {
+            out=new PrintOutput(file.path());
+            data.path.plan(data,new XMLSerializer(out));
+          }
+ catch (          final IOException ex) {
+            Dialog.error(gui,NOTSAVED);
+          }
+ finally {
+            if (out != null)             try {
+              out.close();
+            }
+ catch (            final Exception x) {
+            }
+          }
+        }
+      }
+    }
+);
+    north.add(export,BorderLayout.EAST);
+  }
+  panels[0].add(north,BorderLayout.NORTH);
+  panels[0].add(text(val[0] ? data.info(Type.PTH) : Token.token(PATHINDEXINFO)),BorderLayout.CENTER);
+  tab3.add(panels[0]);
+  final BaseXBack tab4=new BaseXBack();
+  tab4.setLayout(new GridLayout(2,1));
+  tab4.setBorder(8,8,8,8);
+  panels[1].add(indexes[1],BorderLayout.NORTH);
+  panels[1].add(text(val[1] ? data.info(Type.TXT) : Token.token(TXTINDEXINFO)),BorderLayout.CENTER);
+  tab4.add(panels[1]);
+  panels[2].add(indexes[2],BorderLayout.NORTH);
+  panels[2].add(text(val[2] ? data.info(Type.ATV) : Token.token(ATTINDEXINFO)),BorderLayout.CENTER);
+  tab4.add(panels[2]);
+  final BaseXBack tab5=new BaseXBack();
+  tab5.setLayout(new GridLayout(1,1));
+  tab5.setBorder(8,8,8,8);
+  panels[3].add(indexes[3],BorderLayout.NORTH);
+  if (!val[3])   ft=new DialogFT(this,false);
+  panels[3].add(val[3] ? text(data.info(Type.FTX)) : ft,BorderLayout.CENTER);
+  tab5.add(panels[3]);
+  final BaseXTabs tabs=new BaseXTabs(this);
+  tabs.addTab(GENERALINFO,tab1);
+  tabs.addTab(NAMESINFO,tab2);
+  tabs.addTab(INFOPATHINDEX,tab3);
+  tabs.addTab(INDEXINFO,tab4);
+  tabs.addTab(FTINFO,tab5);
+  set(tabs,BorderLayout.CENTER);
+  optimize=new BaseXButton(BUTTONOPT,this);
+  buttons=newButtons(this,optimize,BUTTONOK,BUTTONCANCEL);
+  set(buttons,BorderLayout.SOUTH);
+  action(null);
+  setResizable(true);
+  setMinimumSize(getPreferredSize());
+  finish(null);
+}

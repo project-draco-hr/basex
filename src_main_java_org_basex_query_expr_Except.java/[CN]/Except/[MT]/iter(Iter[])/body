@@ -1,0 +1,37 @@
+{
+  return new NodeIter(){
+    Nod[] items;
+    @Override public Nod next() throws QueryException {
+      if (items == null) {
+        items=new Nod[iter.length];
+        for (int i=0; i != iter.length; i++)         next(i);
+      }
+      for (int i=1; i != items.length; i++) {
+        if (items[0] == null)         return null;
+        if (items[i] == null)         continue;
+        final int d=items[0].diff(items[i]);
+        if (d < 0) {
+          if (i + 1 == items.length) {
+            break;
+          }
+        }
+        if (d == 0) {
+          next(0);
+          i=0;
+        }
+        if (d > 0) {
+          next(i--);
+        }
+      }
+      final Nod temp=items[0];
+      next(0);
+      return temp;
+    }
+    private void next(    final int i) throws QueryException {
+      final Item it=iter[i].next();
+      if (it != null && !it.node())       Err.nodes(Except.this);
+      items[i]=(Nod)it;
+    }
+  }
+;
+}

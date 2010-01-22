@@ -1,0 +1,19 @@
+{
+  if (!data.meta.pthindex || !data.meta.uptodate || data.ns.size() != 0)   return null;
+  ArrayList<PathNode> in=data.path.root();
+  for (int s=0; s <= l; s++) {
+    final boolean desc=step[s].axis == Axis.DESC;
+    if (!desc && step[s].axis != Axis.CHILD || step[s].test.kind != Kind.NAME)     return null;
+    final int name=data.tags.id(step[s].test.name.ln());
+    final ArrayList<PathNode> out=new ArrayList<PathNode>();
+    for (    final PathNode sn : data.path.desc(in,desc)) {
+      if (sn.kind == Data.ELEM && name == sn.name) {
+        if (out.size() != 0 && out.get(0).level() != sn.level())         return null;
+        out.add(sn);
+      }
+    }
+    if (out.size() == 0)     return null;
+    in=out;
+  }
+  return in;
+}

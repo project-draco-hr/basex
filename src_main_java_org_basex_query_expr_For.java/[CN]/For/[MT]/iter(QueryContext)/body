@@ -1,0 +1,46 @@
+{
+  final Var v=var.copy();
+  final Var p=pos != null ? pos.copy() : null;
+  final Var s=score != null ? score.copy() : null;
+  return new Iter(){
+    /** 
+ * Variable stack size. 
+ */
+    private int vs;
+    /** 
+ * Iterator flag. 
+ */
+    private Iter ir;
+    /** 
+ * Counter. 
+ */
+    private int c;
+    @Override public Bln next() throws QueryException {
+      if (ir == null) {
+        vs=ctx.vars.size();
+        ir=ctx.iter(expr);
+        ctx.vars.add(v);
+        if (p != null)         ctx.vars.add(p);
+        if (s != null)         ctx.vars.add(s);
+      }
+      final Item it=ir.next();
+      if (it != null) {
+        v.bind(it,ctx);
+        if (p != null)         p.bind(Itr.get(++c),ctx);
+        if (s != null)         s.bind(Dbl.get(it.score()),ctx);
+      }
+ else {
+        reset();
+      }
+      return Bln.get(ir != null);
+    }
+    @Override public boolean reset(){
+      ctx.vars.reset(vs);
+      if (ir != null)       ir.reset();
+      ir=null;
+      c=0;
+      return true;
+    }
+  }
+;
+}

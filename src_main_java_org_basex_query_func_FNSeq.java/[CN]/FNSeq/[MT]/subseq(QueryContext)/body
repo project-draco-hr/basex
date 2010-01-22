@@ -1,0 +1,22 @@
+{
+  final long s=Math.round(checkDbl(expr[1],ctx));
+  final long e=expr.length > 2 ? s + Math.round(checkDbl(expr[2],ctx)) : Long.MAX_VALUE;
+  final Iter iter=ctx.iter(expr[0]);
+  return iter.size() != -1 ? new Iter(){
+    long c=Math.max(1,s);
+    @Override public Item next(){
+      return c < e ? iter.get(c++ - 1) : null;
+    }
+  }
+ : new Iter(){
+    long c;
+    @Override public Item next() throws QueryException {
+      while (true) {
+        final Item i=iter.next();
+        if (i == null || ++c >= e)         return null;
+        if (c >= s)         return i;
+      }
+    }
+  }
+;
+}

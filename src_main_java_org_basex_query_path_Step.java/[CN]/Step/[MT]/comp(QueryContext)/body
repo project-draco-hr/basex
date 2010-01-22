@@ -1,0 +1,19 @@
+{
+  if (!test.comp(ctx))   return Seq.EMPTY;
+  final Data data=ctx.data();
+  ctx.leaf=false;
+  if (data != null && test.kind == Kind.NAME) {
+    final byte[] ln=((NameTest)test).ln;
+    final boolean att=test.type == Type.ATT;
+    ctx.leaf=axis.down && data.meta.uptodate && data.ns.size() == 0 && data.tags.stat((att ? data.atts : data.tags).id(ln)).leaf;
+  }
+  final Expr e=super.comp(ctx);
+  ctx.leaf=false;
+  if (e != this)   return e;
+  if (pred.length == 0)   return get(axis,test);
+  final Expr p=pred[0];
+  final Pos pos=p instanceof Pos ? (Pos)p : null;
+  final boolean last=p instanceof Fun && ((Fun)p).func == FunDef.LAST;
+  if (pred.length > 1 || !last && pos == null && uses(Use.POS,ctx))   return this;
+  return new IterStep(axis,test,pred,pos,last);
+}

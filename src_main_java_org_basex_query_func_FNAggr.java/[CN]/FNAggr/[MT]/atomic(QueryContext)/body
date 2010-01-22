@@ -1,0 +1,22 @@
+{
+  final Iter iter=ctx.iter(expr[0]);
+switch (func) {
+case COUNT:
+    int c=iter.size();
+  if (c == -1)   do   ++c;
+ while (iter.next() != null);
+return Itr.get(c);
+case MIN:
+return minmax(iter,CmpV.Comp.GT,ctx);
+case MAX:
+return minmax(iter,CmpV.Comp.LT,ctx);
+case SUM:
+Item it=iter.next();
+return it != null ? sum(iter,it,false) : expr.length == 2 ? expr[1].atomic(ctx) : Itr.ZERO;
+case AVG:
+it=iter.next();
+return it == null ? null : sum(iter,it,true);
+default :
+return super.atomic(ctx);
+}
+}

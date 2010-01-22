@@ -1,0 +1,60 @@
+{
+  final IntList il=new IntList();
+  final StringList sl=new StringList();
+  final StringList cmp=new StringList();
+  final StringList eval=new StringList();
+  final StringList pln=new StringList();
+  String err="";
+  final String[] split=inf.split(NL);
+  for (int i=0; i < split.length; i++) {
+    final String line=split[i];
+    final int s=line.indexOf(':');
+    if (line.startsWith(QUERYPARSE) || line.startsWith(QUERYCOMPILE) || line.startsWith(QUERYEVALUATE)|| line.startsWith(QUERYPRINT)|| line.startsWith(QUERYTOTAL)) {
+      final int t=line.indexOf(" ms");
+      sl.add(line.substring(0,s).trim());
+      il.add((int)(Double.parseDouble(line.substring(s + 1,t)) * 100));
+    }
+ else     if (line.startsWith(QUERYSTRING)) {
+      query=line.substring(s + 1).trim();
+    }
+ else     if (line.startsWith(QUERYPLAN)) {
+      while (++i < split.length && !Character.isLetter(split[i].charAt(0)))       pln.add(split[i]);
+      --i;
+    }
+ else     if (line.startsWith(QUERYCOMP)) {
+      while (!split[++i].contains(QUERYRESULT))       cmp.add(split[i]);
+      result=split[i].substring(split[i].indexOf(':') + 1).trim();
+    }
+ else     if (line.startsWith(QUERYEVAL)) {
+      while (split[++i].startsWith(QUERYSEP))       eval.add(split[i]);
+      --i;
+    }
+ else     if (!ok) {
+      err+=line + NL;
+    }
+  }
+  final TokenBuilder tb=new TokenBuilder();
+  String tm="";
+  stat=il;
+  strings=sl;
+  compile=cmp;
+  evaluate=eval;
+  plan=pln;
+  final int runs=Math.max(1,gui.context.prop.num(Prop.RUNS));
+  if (sl.size() != 0) {
+    add(tb,QUERYQU,query);
+    add(tb,QUERYCOMP,compile);
+    if (compile.size() != 0)     add(tb,QUERYRESULT,result);
+    add(tb,QUERYPLAN,plan);
+    add(tb,QUERYEVAL,evaluate);
+    add(tb,QUERYTIME,strings);
+    tm=strings.get(il.size() - 1) + ": " + Performance.getTimer(stat.get(il.size() - 1) * 10000L * runs,runs);
+  }
+ else   if (!ok) {
+    add(tb,INFOERROR,err.replaceAll(STOPPED + ".*\\r?\\n",""));
+    tm="";
+  }
+  area.setText(tb.finish());
+  timer.setText(tm);
+  repaint();
+}

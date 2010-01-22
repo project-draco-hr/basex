@@ -1,0 +1,51 @@
+{
+  if (tl == null || tl.size() == 0)   return;
+  final int[] cw=fontWidths(g.getFont());
+  final int sw=BaseXLayout.width(g,cw,' ');
+  int wl=0;
+  int nl=1;
+  int wi=mr.w / 2;
+  final IntList len=new IntList();
+  for (int i=0; i < tl.size(); i++) {
+    int l=0;
+    final byte[] tok=tl.get(i);
+    final int ns=tok.length;
+    for (int n=0; n < ns; n+=cl(tok[n])) {
+      l+=BaseXLayout.width(g,cw,cp(tok,n));
+    }
+    if (wl + l + sw < wi) {
+      wl+=l + sw;
+    }
+ else {
+      nl++;
+      if (l > wi)       wi=l;
+      wl=l + sw;
+    }
+    len.add(l);
+  }
+  final int ww=nl == 1 && wl < wi ? wl : wi;
+  final int xx=x + 10 + ww >= mr.x + mr.w ? mr.x + mr.w - ww - 2 : x + 10;
+  int yy=y + 28 + fs * nl + 4 < mr.y + mr.h ? y + 28 : y - mr.y - 4 > fs * nl ? y - fs * nl : mr.y + mr.h - 4 - fs * nl;
+  g.setColor(COLORS[10]);
+  g.drawRect(xx - 3,yy - fs - 1,ww + 3,fs * nl + 7);
+  g.setColor(COLORS[0]);
+  g.fillRect(xx - 2,yy - fs,ww + 2,fs * nl + 6);
+  g.setColor(COLORS[20]);
+  wl=0;
+  final int is=tl.size();
+  for (int i=0; i < is; i++) {
+    final int l=len.get(i);
+    if (wl + l + sw >= wi) {
+      yy+=fs + 1;
+      wl=0;
+    }
+    final boolean pm=!ftChar(tl.get(i)[tl.get(i).length - 1]);
+    if (ttcol.get(i))     g.setColor(COLORFT);
+    g.drawString(string(tl.get(i)),xx + wl,yy);
+    if (i == ul) {
+      g.drawLine(xx + wl,yy + 1,xx + wl + (pm ? l - sw : l),yy + 1);
+    }
+    g.setColor(COLORS[24]);
+    wl+=l + sw;
+  }
+}

@@ -1,0 +1,41 @@
+{
+  final MapRect l=view.layout.layout;
+  l.x=(int)scale * l.x;
+  l.y=(int)scale * l.y;
+  l.w=(int)scale * l.w;
+  l.h=(int)scale * l.h;
+  final int ww=view.getWidth();
+  final int hh=view.getWidth();
+  final Data data=view.gui.context.data;
+  final int off=prop.num(GUIProp.MAPOFFSETS);
+  final int rs=rects.size;
+  for (int ri=0; ri < rs; ri++) {
+    final MapRect r=rects.get(ri);
+    final int pre=r.pre;
+    final int lvl=r.level;
+    final boolean full=r.w == ww && r.h == hh;
+    Color col=color(rects,ri);
+    final boolean mark=col != null;
+    r.pos=view.gui.context.marked.ftpos.get(pre);
+    g.setColor(mark ? col : COLORS[lvl]);
+    if (r.w < l.x + l.w || r.h < l.y + l.h || off < 2 || ViewData.isLeaf(prop,data,pre)) {
+      g.fillRect(r.x,r.y,r.w,r.h);
+    }
+ else {
+      g.fillRect(r.x,r.y,l.x,r.h);
+      g.fillRect(r.x,r.y,r.w,l.y);
+      g.fillRect(r.x + r.w - l.w,r.y,l.w,r.h);
+      g.fillRect(r.x,r.y + r.h - l.h,r.w,l.h);
+    }
+    if (!full) {
+      col=mark ? colormark3 : COLORS[lvl + 2];
+      g.setColor(col);
+      g.drawRect(r.x,r.y,r.w,r.h);
+      col=mark ? colormark4 : COLORS[Math.max(0,lvl - 2)];
+      g.setColor(col);
+      g.drawLine(r.x + r.w,r.y,r.x + r.w,r.y + r.h);
+      g.drawLine(r.x,r.y + r.h,r.x + r.w,r.y + r.h);
+    }
+    if (r.w > 3 && r.h >= prop.num(GUIProp.FONTSIZE))     drawRectangle(g,r);
+  }
+}

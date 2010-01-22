@@ -1,0 +1,28 @@
+{
+  final int p=qp;
+  final QNm name=new QNm(qName(null));
+  if (!consumeWS2(PAR1) || Type.node(name) != null) {
+    qp=p;
+    return null;
+  }
+  Expr[] exprs={};
+  while (curr() != 0) {
+    if (consumeWS2(PAR2)) {
+      alter=new Object[]{name};
+      ap=qp;
+      ctx.ns.uri(name);
+      name.uri=Uri.uri(name.ns() ? ctx.ns.uri(name.pref(),false) : ctx.nsFunc);
+      final Expr func=ctx.fun.get(name,exprs,ctx);
+      if (func != null) {
+        alter=null;
+        return func;
+      }
+      qp=p;
+      return null;
+    }
+    if (exprs.length != 0)     check(COMMA);
+    exprs=add(exprs,single());
+  }
+  error(FUNCMISS,name.str());
+  return null;
+}

@@ -1,0 +1,33 @@
+{
+  if (contains(path,'<') || contains(path,'>'))   Err.or(INVDOC,path);
+  for (int c=0; c < colls; c++) {
+    for (int n=0; n < collect[c].size(); n++) {
+      if (eq(path,collect[c].get(n).base())) {
+        return (DBNode)collect[c].get(n);
+      }
+    }
+  }
+  final String nm=string(path);
+  for (int d=0; d < docs; d++)   if (doc[d].data.meta.name.equals(nm))   return doc[d];
+  final IO io=IO.get(string(path));
+  for (int d=0; d < docs; d++) {
+    if (doc[d].data.meta.file.eq(io))     return doc[d];
+  }
+  Data data=null;
+  if (db) {
+    try {
+      data=Open.open(context,nm);
+    }
+ catch (    final IOException ex) {
+      Err.or(NODB,nm);
+    }
+  }
+ else {
+    final IO file=file();
+    data=check(nm,file == null,coll);
+    if (data == null)     data=check(file.merge(string(path)).path(),true,coll);
+  }
+  final DBNode node=new DBNode(data,0);
+  addDoc(node);
+  return node;
+}

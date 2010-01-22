@@ -1,0 +1,137 @@
+{
+  Msg icon=Msg.OK;
+  String msg=null;
+  String msg2=null;
+  try {
+    if (cmp == start || cmp == ports) {
+      final int p=Integer.parseInt(ports.getText());
+      ctx.prop.set(Prop.SERVERPORT,p);
+      if (host.getText().equals("localhost")) {
+        ctx.prop.set(Prop.PORT,p);
+        portc.setText(ports.getText());
+      }
+      final String path=IOFile.file(getClass().getProtectionDomain().getCodeSource().getLocation().toString());
+      final String mem="-Xmx" + Runtime.getRuntime().maxMemory();
+      final String clazz=org.basex.BaseXServer.class.getName();
+      new ProcessBuilder(new String[]{"java",mem,"-cp",path,clazz,"-p",String.valueOf(p)}).start();
+      for (int c=0; c < 6; c++) {
+        running=ping(true);
+        if (running)         break;
+        Performance.sleep(500);
+      }
+      msg=running ? SERVERSTART : SERVERBIND;
+      if (!running)       icon=Msg.ERR;
+    }
+ else     if (cmp == stop) {
+      if (running)       BaseXServer.stop(gui.context);
+      running=ping(true);
+      connected=connected && ping(false);
+      if (!connected)       msg=SERVERSTOPPED;
+      if (host.getText().equals("localhost"))       logpass.setText("");
+      if (!connected)       super.setTitle(GUISERVER);
+    }
+ else     if (cmp == connect || cmp == loguser || cmp == logpass || cmp == host || cmp == portc) {
+      gui.prop.set(GUIProp.SERVERUSER,loguser.getText());
+      final String pw=new String(logpass.getPassword());
+      ctx.prop.set(Prop.HOST,host.getText());
+      ctx.prop.set(Prop.PORT,Integer.parseInt(portc.getText()));
+      cs=new ClientSession(ctx,gui.prop.get(GUIProp.SERVERUSER),pw);
+      cs.execute(new Set(Prop.INFO,true));
+      user.setSess(cs);
+      dbsP.setSess(cs);
+      connected=true;
+      super.setTitle(GUISERVER + LI + loguser.getText()+ "@"+ host.getText()+ COL+ portc.getText());
+      msg=Main.info(CONNECTED,host.getText(),portc.getText());
+      refreshSess();
+    }
+ else     if (cmp == disconnect) {
+      cs.execute(new Exit());
+      connected=false;
+      logpass.setText("");
+      super.setTitle(GUISERVER);
+      msg=DISCONNECTED;
+    }
+ else     if (cmp == refreshSess) {
+      refreshSess();
+    }
+ else     if (cmp == refreshLog || cmp == logc) {
+      byte[] cont=Token.EMPTY;
+      if (logc.getSelectedIndex() != -1) {
+        cont=IO.get(logdir + logc.getSelectedItem().toString()).content();
+      }
+      logt.setText(cont);
+      logt.scrollToEnd();
+    }
+ else     if (cmp == delete) {
+      final File f=new File(logdir + logc.getSelectedItem().toString());
+      if (f.delete()) {
+        logc.setSelectedIndex(-1);
+        refreshLog();
+      }
+ else {
+        msg2=Main.info(DBNOTDELETED,f.getName());
+        icon=Msg.ERR;
+      }
+    }
+ else     if (cmp == deleteAll) {
+      for (int i=0; i < logc.getItemCount(); i++) {
+        final File f=new File(logdir + logc.getItemAt(i).toString());
+        if (!f.delete()) {
+          msg2=Main.info(DBNOTDELETED,f.getName());
+          icon=Msg.ERR;
+          break;
+        }
+      }
+      logc.setSelectedIndex(-1);
+      refreshLog();
+    }
+ else     if (connected) {
+      if (tab == 1)       user.action(cmp);
+      if (tab == 2)       dbsP.action(cmp);
+    }
+  }
+ catch (  final IOException ex) {
+    icon=Msg.ERR;
+    msg=Main.server(ex);
+    if (msg.equals(Main.info(PERMNO,CmdPerm.values()[4]))) {
+      try {
+        cs.execute(new Exit());
+      }
+ catch (      final IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+  final boolean valp=portc.getText().matches("[\\d]+") && Integer.parseInt(portc.getText()) <= 65535;
+  final boolean valpl=ports.getText().matches("[\\d]+") && Integer.parseInt(ports.getText()) <= 65535;
+  final boolean vallu=loguser.getText().matches("[\\w]*");
+  final boolean vallp=new String(logpass.getPassword()).matches("[^ ;'\\\"]*");
+  final boolean valh=host.getText().matches("([\\w]+://)?[\\w.-]+");
+  if (msg == null && msg2 == null && !(valpl && valh && valp&& vallu&& vallp)) {
+    msg=Main.info(INVALID,!valpl ? LOCALPORT : !valh ? HOST : !valp ? PORT : !vallu ? SERVERUSER : SERVERPW);
+    icon=Msg.WARN;
+  }
+  infoC.setText(msg,icon);
+  infoL.setText(msg2,icon);
+  ports.setEnabled(!running);
+  start.setEnabled(!running && valpl);
+  stop.setEnabled(running);
+  loguser.setEnabled(!connected);
+  logpass.setEnabled(!connected);
+  host.setEnabled(!connected);
+  portc.setEnabled(!connected);
+  connect.setEnabled(!connected && vallu && vallp&& valh&& valp&& !loguser.getText().isEmpty()&& logpass.getPassword().length != 0);
+  disconnect.setEnabled(connected);
+  tabs.setEnabledAt(1,connected);
+  tabs.setEnabledAt(2,connected);
+  tabs.setEnabledAt(3,connected);
+  tabs.setEnabledAt(4,running || logc.getItemCount() > 0);
+  refreshLog.setEnabled(logc.getSelectedIndex() != -1);
+  delete.setEnabled(logc.getSelectedIndex() != -1);
+  deleteAll.setEnabled(logc.getItemCount() > 0);
+  if (loguser.hasFocus()) {
+    logpass.setText("");
+    connect.setEnabled(false);
+  }
+  ctx.prop.write();
+}

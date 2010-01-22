@@ -1,0 +1,16 @@
+{
+  skipWS();
+  final char delim=curr();
+  if (!quote(delim))   error(NOQUOTE,found());
+  consume();
+  tok.reset();
+  while (true) {
+    while (!consume(delim)) {
+      if (curr() == 0)       error(NOQUOTE,found());
+      entity(tok);
+    }
+    if (!consume(delim))     break;
+    tok.add(delim);
+  }
+  return tok.finish();
+}

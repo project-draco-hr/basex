@@ -1,0 +1,26 @@
+{
+  final String token=name(null);
+  try {
+    final String t=token == null ? "NULL" : token.toUpperCase();
+    final E cmd=Enum.valueOf(cmp,t);
+    if (!(Cmd.class.isInstance(cmd)))     return cmd;
+    final Cmd c=Cmd.class.cast(cmd);
+    if (!c.help() && (internal || !c.internal()))     return cmd;
+  }
+ catch (  final IllegalArgumentException ex) {
+  }
+  final Enum<?>[] alt=list(cmp,token);
+  if (token == null) {
+    if (par == null)     error(list(alt),CMDNO);
+    help(list(alt),par);
+  }
+  final byte[] name=lc(token(token));
+  final Levenshtein ls=new Levenshtein();
+  for (  final Enum<?> s : list(cmp,null)) {
+    final byte[] sm=lc(token(s.name().toLowerCase()));
+    if (ls.similar(name,sm,0) && Cmd.class.isInstance(s))     error(list(alt),CMDSIMILAR,name,sm);
+  }
+  if (par == null)   error(list(alt),CMDWHICH,token);
+  help(list(alt),par);
+  return null;
+}

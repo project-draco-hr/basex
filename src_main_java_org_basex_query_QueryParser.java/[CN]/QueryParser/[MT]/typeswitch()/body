@@ -1,0 +1,28 @@
+{
+  if (!consumeWS(TYPESWITCH,PAR1,TYPEPAR))   return null;
+  check(PAR1);
+  final Expr ts=check(expr(),NOTYPESWITCH);
+  check(PAR2);
+  Case[] cases={};
+  final int s=ctx.vars.size();
+  boolean cs=true;
+  do {
+    cs=consumeWS(CASE);
+    if (!cs)     check(DEFAULT);
+    skipWS();
+    QNm name=null;
+    if (curr() == '$') {
+      name=varName();
+      if (cs)       check(AS);
+    }
+    final Var var=new Var(name,cs ? sequenceType() : null,false);
+    if (name != null)     ctx.vars.add(var);
+    check(RETURN);
+    final Expr ret=check(single(),NOTYPESWITCH);
+    cases=Array.add(cases,new Case(var,ret));
+    ctx.vars.reset(s);
+  }
+ while (cs);
+  if (cases.length == 1)   error(NOTYPESWITCH);
+  return new TypeSwitch(ts,cases);
+}

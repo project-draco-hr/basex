@@ -1,0 +1,29 @@
+{
+  return new FTIndexIterator(){
+    FTIndexIterator n, r, s;
+    int c;
+    @Override public boolean more(){
+      if (c <= 0)       r=i1.more() ? i1 : null;
+      if (c >= 0)       s=i2.more() ? i2 : null;
+      c=r != null && s != null ? r.next() - s.next() : r != null ? -1 : 1;
+      n=c <= 0 ? r : s;
+      return n != null;
+    }
+    @Override public FTMatches matches(){
+      final FTMatches m=n.matches();
+      if (c == 0)       for (      final FTMatch sm : s.matches())       m.add(sm);
+      return m;
+    }
+    @Override public int next(){
+      return n.next();
+    }
+    @Override public void setTokenNum(    final byte tn){
+      i1.toknum=tn;
+      i2.toknum=tn;
+    }
+    @Override public double score(){
+      return Scoring.union(i1.score(),i2.score());
+    }
+  }
+;
+}

@@ -1,0 +1,18 @@
+{
+  final long v=Token.toSimpleInt(val);
+  if (v != Integer.MIN_VALUE) {
+    textOff(pre,v | IO.NUMOFF);
+  }
+ else {
+    final DataAccess da=txt ? texts : values;
+    long o=textOff(pre);
+    if (!num(o) && val.length <= textLen(pre,txt)) {
+      da.writeBytes(o,val);
+    }
+ else {
+      if (num(o) || da.readNum(o) + da.pos() != da.length())       o=da.length();
+      da.writeBytes(o,val);
+      textOff(pre,o);
+    }
+  }
+}

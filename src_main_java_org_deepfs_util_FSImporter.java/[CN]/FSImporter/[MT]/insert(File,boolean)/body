@@ -1,0 +1,53 @@
+{
+  currentFile=f.toString();
+  String xmlFragment=null;
+  if (f.isDirectory()) {
+    xmlFragment=FSMLSerializer.serialize(f,root);
+  }
+ else {
+    try {
+      final BufferedFileChannel bfc=new BufferedFileChannel(f,buffer);
+      try {
+        final DeepFile deepFile=new DeepFile(parserRegistry,bfc,ctx);
+        if (spotlight != null) {
+          spotlight.extract(deepFile);
+          deepFile.finishMetaExtraction();
+        }
+        deepFile.extract();
+        xmlFragment=FSMLSerializer.serialize(deepFile);
+      }
+ catch (      final Exception ex) {
+        Main.debug("FSImporter: Failed to extract metadata/contents from the file " + "(% - %)",f.getAbsolutePath(),ex);
+      }
+ finally {
+        try {
+          bfc.close();
+        }
+ catch (        final IOException e1) {
+        }
+      }
+    }
+ catch (    final IOException e) {
+      Main.debug("FSImporter: Failed to open the file (% - %)",f.getAbsolutePath(),e);
+    }
+    if (xmlFragment == null)     xmlFragment=FSMLSerializer.serialize(f,false);
+  }
+  if (xmlFragment != null) {
+    final String query="insert nodes " + xmlFragment + " into "+ targetNode;
+    final QueryProcessor qp=new QueryProcessor(query,ctx);
+    try {
+      qp.query();
+    }
+ catch (    final QueryException ex) {
+      Main.debug("FSImporter: Failed to insert a node for the file % into the " + "document (%)",f.getAbsolutePath(),ex);
+    }
+ finally {
+      try {
+        qp.close();
+      }
+ catch (      final IOException e) {
+      }
+    }
+  }
+  return escape(root ? f.getAbsolutePath().replace("\\","/") : f.getName());
+}

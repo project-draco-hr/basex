@@ -1,0 +1,18 @@
+{
+  if (enc == UTF8) {
+    out.write(token(s));
+  }
+ else {
+    final boolean le=enc == UTF16LE;
+    if (enc == UTF16BE || le) {
+      for (int i=0; i < s.length(); i++) {
+        final char ch=s.charAt(i);
+        out.write(le ? ch & 0xFF : ch >>> 8);
+        out.write(le ? ch >>> 8 : ch & 0xFF);
+      }
+    }
+ else {
+      out.write(s.getBytes(enc));
+    }
+  }
+}

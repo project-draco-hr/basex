@@ -1,0 +1,56 @@
+{
+  final double xx=r.x;
+  final double ww=r.w;
+  final FTPos ftp=r.pos;
+  final int ys=r.y + 3;
+  int yy=ys;
+  int wl=0;
+  double ll=0;
+  double e=0;
+  final Color textc=COLORS[r.level + 4];
+  int count=0;
+  int sl=0, pl=0;
+  int psl=0, ppl=0;
+  int cchars=0;
+  for (int i=0; i < data[0].length; i++) {
+    wl=(int)(data[0][i] * r.thumbf);
+    e+=data[0][i] * r.thumbf - wl;
+    if (e >= 1) {
+      wl+=(int)e;
+      e-=(int)e;
+    }
+    sl+=data[0][i];
+    pl+=data[0][i];
+    cchars+=data[0][i];
+    if (ll + wl + r.thumbsw * (psl < data[1].length && sl == data[1][psl] ? 1 : 0) >= ww) {
+      yy+=r.thumblh;
+      ll=0;
+      if (wl >= ww)       return r.h + 3;
+    }
+    if (draw) {
+      g.setColor(ftp != null && ftp.contains(count) ? COLORFT : textc);
+      g.fillRect((int)(xx + ll),yy,wl,r.thumbfh);
+    }
+    ll+=wl;
+    count++;
+    if (psl < data[1].length && sl == data[1][psl]) {
+      if (draw) {
+        g.setColor(Color.black);
+        g.fillRect((int)(xx + ll),yy,(int)r.thumbsw,r.thumbfh);
+        g.setColor(textc);
+      }
+      ll+=r.thumbsw;
+      psl++;
+      sl=0;
+    }
+    ll+=r.thumbf;
+    wl=0;
+    if (ppl < data[2].length && pl == data[2][ppl]) {
+      yy+=r.thumblh;
+      ll=0;
+      ppl++;
+      pl=0;
+    }
+  }
+  return yy - r.y + 3;
+}

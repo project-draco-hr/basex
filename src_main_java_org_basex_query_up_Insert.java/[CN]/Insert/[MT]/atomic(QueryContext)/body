@@ -1,0 +1,48 @@
+{
+  final Constr c=new Constr(ctx,expr[1]);
+  final NodIter cList=c.children;
+  final NodIter aList=c.ats;
+  if (c.errAtt)   Err.or(UPNOATTRPER);
+  if (c.duplAtt != null)   Err.or(UPATTDUPL,c.duplAtt);
+  final Iter t=expr[0].iter(ctx);
+  final Item i=t.next();
+  if (i == null)   Err.or(UPSEQEMP,Main.name(this));
+  if (!(i instanceof Nod) || t.next() != null)   Err.or(before || after ? UPTRGTYP2 : UPTRGTYP,this);
+  final Nod n=(Nod)i;
+  final Nod par=n.parent();
+  if (before || after) {
+    if (n.type == Type.ATT || n.type == Type.DOC)     Err.or(UPTRGTYP2,this);
+    if (par == null)     Err.or(UPPAREMPTY,this);
+  }
+ else {
+    if (n.type != Type.ELM && n.type != Type.DOC)     Err.or(UPTRGTYP,this);
+  }
+  UpdatePrimitive up=null;
+  if (aList.size() > 0) {
+    final Nod targ=before || after ? par : n;
+    if (targ.type != Type.ELM)     Err.or(before || after ? UPATTELM : UPATTELM2,this);
+    for (int a=0; a < aList.size(); a++) {
+      final QNm name=aList.get(a).qname();
+      final byte[] uri=targ.uri(name.pref(),ctx);
+      if (uri != null && !eq(name.uri.str(),uri))       Err.or(UPNSCONFL);
+    }
+    up=new InsertAttribute(targ,aList);
+    ctx.updates.add(up,ctx);
+  }
+  if (cList.size() > 0) {
+    if (before) {
+      up=new InsertBefore(n,cList);
+    }
+ else     if (after) {
+      up=new InsertAfter(n,cList);
+    }
+ else     if (first) {
+      up=new InsertIntoFirst(n,cList);
+    }
+ else {
+      up=new InsertInto(n,cList,last);
+    }
+    ctx.updates.add(up,ctx);
+  }
+  return Seq.EMPTY;
+}

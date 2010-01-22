@@ -1,0 +1,20 @@
+{
+  final TokenList tl=new TokenList();
+  tl.add(XML);
+  if (ctx.nsElem.length != 0)   tl.add(EMPTY);
+  Nod n=node;
+  do {
+    final Atts at=n.ns();
+    if (at == null)     break;
+    if (n != node || ctx.nsPreserve) {
+      for (int a=0; a < at.size; a++) {
+        if (!tl.contains(at.key[a]))         tl.add(at.key[a]);
+      }
+    }
+    n=n.parent();
+  }
+ while (n != null && ctx.nsInherit);
+  final SeqIter seq=new SeqIter();
+  for (  final byte[] t : tl)   seq.add(Str.get(t));
+  return seq;
+}

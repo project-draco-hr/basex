@@ -1,0 +1,21 @@
+{
+  final String s=DATAFTX + (merge ? Integer.toString(cs) : "");
+  final DataOutput outa=new DataOutput(data.meta.file(s + 'a'));
+  final DataOutput outb=new DataOutput(data.meta.file(s + 'b'));
+  if (scm == 0)   hash.init();
+ else   hash.initIter();
+  while (hash.more()) {
+    final int p=hash.next();
+    final byte[] tok=hash.key();
+    final int ds=hash.ns[p];
+    writeFTData(outb,hash.pre[p],hash.pos[p]);
+    outa.write1(tok.length);
+    outa.write(tok);
+    outa.writeInt(ds);
+    outa.write5(outb.size());
+  }
+  outa.write1(0);
+  hash=new FTHash();
+  outb.close();
+  outa.close();
+}

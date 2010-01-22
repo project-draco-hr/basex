@@ -1,0 +1,25 @@
+{
+  setTypeAndFormat();
+  final byte[] array=new byte[30];
+  bfc.get(array,0,30);
+  if (!ws(array))   deepFile.addMeta(MetaElem.TITLE,Token.trim(array));
+  bfc.get(array,0,30);
+  if (!ws(array))   deepFile.addMeta(MetaElem.CREATOR_NAME,Token.trim(array));
+  bfc.get(array,0,30);
+  if (!ws(array))   deepFile.addMeta(MetaElem.ALBUM,Token.trim(array));
+  final byte[] a2=new byte[4];
+  bfc.get(a2,0,4);
+  if (!ws(a2))   deepFile.addMeta(MetaElem.YEAR,ParserUtil.convertYear(Token.toInt(a2)));
+  bfc.get(array,0,30);
+  if (array[28] == 0) {
+    if (array[29] != 0) {
+      deepFile.addMeta(MetaElem.TRACK,array[29]);
+      array[29]=0;
+    }
+  }
+  if (!ws(array))   deepFile.addMeta(MetaElem.DESCRIPTION,Token.trim(array));
+  final int genreId=bfc.get() & 0xFF;
+  if (genreId != 0)   deepFile.addMeta(MetaElem.GENRE,getGenre(genreId));
+  bfc.position(0);
+  techInfo(128);
+}

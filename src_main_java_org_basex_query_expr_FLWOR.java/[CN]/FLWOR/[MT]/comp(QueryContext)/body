@@ -1,0 +1,38 @@
+{
+  checkUp(where,ctx);
+  final int vs=ctx.vars.size();
+  for (int f=0; f != fl.length; f++) {
+    final boolean fast=ctx.ftfast;
+    ctx.ftfast=ctx.ftfast && fl[f].standard();
+    final Expr e=fl[f].comp(ctx);
+    fl[f]=e == Seq.EMPTY ? null : (ForLet)e;
+    ctx.ftfast=fast;
+  }
+  boolean em=false;
+  if (where != null) {
+    where=checkUp(where,ctx).comp(ctx);
+    em=where.e();
+    if (!em && where.i()) {
+      em=!((Item)where).bool();
+      if (!em) {
+        ctx.compInfo(OPTTRUE,where);
+        where=null;
+      }
+    }
+  }
+  if (group != null)   group.comp(ctx);
+  if (order != null)   order.comp(ctx);
+  ret=ret.comp(ctx);
+  ctx.vars.reset(vs);
+  if (em) {
+    ctx.compInfo(OPTFALSE,where);
+    return Seq.EMPTY;
+  }
+  for (  final ForLet e : fl) {
+    if (e == null) {
+      ctx.compInfo(OPTFLWOR);
+      return Seq.EMPTY;
+    }
+  }
+  return this;
+}

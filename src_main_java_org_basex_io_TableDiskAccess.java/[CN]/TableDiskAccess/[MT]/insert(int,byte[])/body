@@ -1,0 +1,46 @@
+{
+  dirty=true;
+  final int nr=entries.length >>> IO.NODEPOWER;
+  meta.size+=nr;
+  cursor(pre - 1);
+  final int ins=pre - firstPre;
+  if (nr < ENTRIES - nextPre + firstPre) {
+    copy(bf.buf,ins,bf.buf,ins + nr,nextPre - pre + 1);
+    copy(entries,0,bf.buf,ins,nr);
+    for (int i=index + 1; i < blocks; i++)     firstPres[i]+=nr;
+    nextPre+=nr;
+    return;
+  }
+  final int move=nextPre - pre;
+  final byte[] rest=new byte[move << IO.NODEPOWER];
+  copy(bf.buf,ins,rest,0,move);
+  int newBlocks=(int)Math.ceil((double)nr / NEWENTRIES) + 1;
+  if (pre == nextPre)   newBlocks--;
+  final int s=allBlocks + newBlocks;
+  firstPres=Arrays.copyOf(firstPres,s);
+  blockIndex=Arrays.copyOf(blockIndex,s);
+  Array.move(firstPres,index + 1,newBlocks,blocks - index - 1);
+  Array.move(blockIndex,index + 1,newBlocks,blocks - index - 1);
+  int remain=nr;
+  int pos=0;
+  while (remain > 0) {
+    newBlock();
+    copy(entries,pos,bf.buf,0,Math.min(remain,NEWENTRIES));
+    firstPres[++index]=nr - remain + pre;
+    blockIndex[index]=(int)bf.pos;
+    blocks++;
+    remain-=NEWENTRIES;
+    pos+=NEWENTRIES;
+  }
+  if (rest.length > 0) {
+    newBlock();
+    copy(rest,0,bf.buf,0,move);
+    firstPres[++index]=pre + nr;
+    blockIndex[index]=(int)bf.pos;
+    blocks++;
+  }
+  for (int i=index + 1; i < blocks; i++)   firstPres[i]+=nr;
+  firstPre=pre;
+  if (rest.length > 0)   firstPre+=nr;
+  nextPre=index + 1 >= blocks ? meta.size : firstPres[index + 1];
+}

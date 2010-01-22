@@ -1,0 +1,18 @@
+{
+  checkLock();
+  int bytesToRead=dst.length;
+  if (buffer(bytesToRead)) {
+    buf.get(dst,0,bytesToRead);
+  }
+ else {
+    final int buffered=buf.remaining();
+    bytesToRead-=buffered;
+    if (rem < bytesToRead)     throw new EOFException(f.getAbsolutePath());
+    buf.get(dst,0,buffered);
+    buf.clear();
+    final ByteBuffer tmp=ByteBuffer.wrap(dst,buffered,bytesToRead);
+    rem-=fc.read(new ByteBuffer[]{tmp,buf});
+    buf.flip();
+  }
+  return dst;
+}

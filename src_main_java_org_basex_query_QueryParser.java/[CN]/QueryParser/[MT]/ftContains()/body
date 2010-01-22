@@ -1,0 +1,17 @@
+{
+  final Expr e=range();
+  if (!consumeWS(FTCONTAINS)) {
+    final int p=qp;
+    if (!consumeWS(CONTAINS) || !consumeWS(TEXT)) {
+      qp=p;
+      return e;
+    }
+  }
+  final FTExpr select=ftSelection(false);
+  if (consumeWS2(WITHOUT)) {
+    check(CONTENT);
+    union();
+    error(FTIGNORE);
+  }
+  return new FTContains(e,select);
+}

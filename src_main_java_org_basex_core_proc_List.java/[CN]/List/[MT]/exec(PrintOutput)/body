@@ -1,0 +1,36 @@
+{
+  final Table table=new Table();
+  table.desc=DATABASES;
+  final boolean create=context.user.perm(User.CREATE);
+  table.header.add(INFODBNAME);
+  if (create)   table.header.add(INFODOC);
+  for (  final String name : list(context)) {
+    DataInput in=null;
+    String file=null;
+    final MetaData meta=new MetaData(name,prop);
+    try {
+      in=new DataInput(meta.file(DATAINFO));
+      meta.read(in);
+      if (context.perm(User.READ,meta))       file=meta.file.toString();
+    }
+ catch (    final IOException ex) {
+      file=INFODBERR;
+    }
+ finally {
+      try {
+        if (in != null)         in.close();
+      }
+ catch (      final IOException ex) {
+      }
+    }
+    if (file != null) {
+      final TokenList sl=new TokenList();
+      sl.add(name);
+      if (create)       sl.add(file);
+      table.contents.add(sl);
+    }
+  }
+  table.sort();
+  out.println(table.finish());
+  return true;
+}

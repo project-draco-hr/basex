@@ -1,0 +1,35 @@
+{
+  super.paintComponent(g);
+  g.setFont(GUIConstants.font);
+  nodeHeight=MAX_NODE_HEIGHT;
+  fontHeight=g.getFontMetrics().getHeight();
+  if (windowSizeChanged()) {
+    if (markedImage != null) {
+      markedImage=null;
+      refreshedMark=true;
+    }
+    focusedRect=null;
+    if ((treedist=cache.generateBordersAndRects(g,gui.context,getWidth())) == -1)     return;
+    setLevelDistance();
+    createNewMainImage();
+  }
+ else   setLevelDistance();
+  g.drawImage(treeImage,0,0,getWidth(),getHeight(),this);
+  if (refreshedMark)   markNodes();
+  if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
+  if (focus()) {
+    final int focused=gui.context.focused;
+    highlightNode(g,frn,focused,focusedRect,focusedRectLevel,-1,DRAW_HIGHLIGHT,SHOW_ANCESTORS,SHOW_DESCENDANTS);
+    if (SHOW_EXTRA_INFO) {
+      g.setColor(new Color(0xeeeeee));
+      g.fillRect(0,getHeight() - fontHeight - 6,getWidth(),fontHeight + 6);
+      final Data d=gui.context.data;
+      final int k=d.kind(focused);
+      final int s=d.size(focused,k);
+      final int as=d.attSize(focused,k);
+      g.setColor(Color.BLACK);
+      g.drawString("level: " + focusedRectLevel + "  level-size: "+ cache.getLevelSize(0,focusedRectLevel)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused))+ "  pre: "+ focused,2,getHeight() - 6);
+    }
+  }
+  if (selection)   markSelektedNodes(g);
+}

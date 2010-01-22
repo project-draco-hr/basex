@@ -1,0 +1,23 @@
+{
+switch (func) {
+case DATA:
+    return data(ctx.iter(expr[0]));
+case COLLECT:
+  if (expr.length == 0)   return ctx.coll(null);
+final Iter iter=ctx.iter(expr[0]);
+Item it=iter.next();
+if (it == null) Err.empty(this);
+return ctx.coll(checkStr(it));
+case PUT:
+if (!ctx.context.user.perm(User.ADMIN)) throw new QueryException(Main.info(PERMNO,CmdPerm.ADMIN));
+final byte[] file=checkStr(expr[1],ctx);
+it=expr[0].atomic(ctx);
+if (it == null || it.type != Type.DOC && it.type != Type.ELM) Err.or(UPFOTYPE,expr[0]);
+final Uri u=Uri.uri(file);
+if (u == Uri.EMPTY || !u.valid()) Err.or(UPFOURI,file);
+ctx.updates.add(new Put((Nod)it,u),ctx);
+return Iter.EMPTY;
+default :
+return super.iter(ctx);
+}
+}

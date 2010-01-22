@@ -1,0 +1,10 @@
+{
+  if (bfc == null)   throw new IOException("Can't create a subfile for a deep file that is " + "not associated with a regular file.");
+  final BufferedFileChannel sub=bfc.subChannel(fileName,fileSize);
+  final DeepFile content=new DeepFile(registry,sub,context,sub.absolutePosition(),sub.size());
+  fileFragments.add(content);
+  if (fileName != null)   content.addMeta(MetaElem.TITLE,fileName);
+  if (registry != null)   process(content,suffix);
+  sub.finish();
+  return content;
+}

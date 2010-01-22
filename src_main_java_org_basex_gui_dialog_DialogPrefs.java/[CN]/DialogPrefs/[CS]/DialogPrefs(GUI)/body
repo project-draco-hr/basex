@@ -1,0 +1,50 @@
+{
+  super(main,PREFSTITLE);
+  final BaseXBack pp=new BaseXBack();
+  pp.setLayout(new TableLayout(11,1,0,0));
+  pp.add(new BaseXLabel(DATABASEPATH,true,true));
+  BaseXBack p=new BaseXBack();
+  p.setLayout(new TableLayout(1,2,6,0));
+  final Prop prop=gui.context.prop;
+  final GUIProp gprop=gui.prop;
+  path=new BaseXTextField(prop.get(Prop.DBPATH),this);
+  path.addKeyListener(keys);
+  final BaseXButton button=new BaseXButton(BUTTONBROWSE,this);
+  button.addActionListener(new ActionListener(){
+    public void actionPerformed(    final ActionEvent e){
+      final IO file=new BaseXFileChooser(DIALOGFC,path.getText(),gui).select(BaseXFileChooser.Mode.DOPEN);
+      if (file != null)       path.setText(file.getDir());
+    }
+  }
+);
+  p.add(path);
+  p.add(button);
+  pp.add(p);
+  BaseXLabel label=new BaseXLabel(PREFINTER,true,true);
+  label.setBorder(10,0,8,0);
+  pp.add(label);
+  javalook=new BaseXCheckBox(PREFLF,gprop.is(GUIProp.JAVALOOK),this);
+  pp.add(javalook);
+  focus=new BaseXCheckBox(PREFFOCUS,gprop.is(GUIProp.MOUSEFOCUS),this);
+  pp.add(focus);
+  simpfd=new BaseXCheckBox(SIMPLEFILE,gprop.is(GUIProp.SIMPLEFD),this);
+  pp.add(simpfd);
+  names=new BaseXCheckBox(PREFNAME,gprop.is(GUIProp.SHOWNAME),12,this);
+  final Data data=gui.context.data;
+  names.setEnabled(data != null && data.fs == null && data.nameID != 0);
+  pp.add(names);
+  label=new BaseXLabel(PREFLANG,true,true);
+  pp.add(label);
+  p=new BaseXBack();
+  p.setLayout(new TableLayout(1,2,12,0));
+  lang=new BaseXCombo(LANGS[0],this);
+  lang.setSelectedItem(prop.get(Prop.LANGUAGE));
+  p.add(lang);
+  creds=new BaseXLabel("");
+  p.add(creds);
+  pp.add(p);
+  buttons=okCancel(this);
+  set(buttons,BorderLayout.SOUTH);
+  set(pp,BorderLayout.CENTER);
+  finish(null);
+}

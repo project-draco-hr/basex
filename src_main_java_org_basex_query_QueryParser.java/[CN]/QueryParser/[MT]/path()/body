@@ -1,0 +1,41 @@
+{
+  checkInit();
+  final int s=consume('/') ? consume('/') ? 2 : 1 : 0;
+  if (s > 0)   checkAxis(s == 2 ? Axis.DESC : Axis.CHILD);
+  qm=qp;
+  final Expr ex=step();
+  if (ex == null) {
+    if (s == 2) {
+      if (more())       checkInit();
+      error(PATHMISS);
+    }
+    return s == 1 ? new Root() : null;
+  }
+  final boolean slash=consume('/');
+  final boolean step=ex instanceof Step;
+  if (!slash && s == 0 && !step)   return ex;
+  Expr[] list={};
+  if (s == 2)   list=add(list,descOrSelf());
+  final Expr root=s > 0 ? new Root() : !step ? ex : null;
+  if (root != ex)   list=add(list,ex);
+  if (slash) {
+    do {
+      final boolean desc=consume('/');
+      qm=qp;
+      if (desc)       list=add(list,descOrSelf());
+      checkAxis(desc ? Axis.DESC : Axis.CHILD);
+      final Expr st=step();
+      if (st == null)       error(PATHMISS);
+      if (!(st instanceof Context))       list=add(list,st);
+    }
+ while (consume('/'));
+  }
+  if (list.length == 0)   return new MixedPath(root,new Context());
+  boolean axes=true;
+  final Step[] tmp=new Step[list.length];
+  for (int l=0; l < list.length; l++) {
+    axes&=list[l] instanceof Step;
+    if (axes)     tmp[l]=(Step)list[l];
+  }
+  return axes ? AxisPath.get(root,tmp) : new MixedPath(root,list);
+}

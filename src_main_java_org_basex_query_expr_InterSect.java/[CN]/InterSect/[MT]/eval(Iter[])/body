@@ -1,0 +1,30 @@
+{
+  NodIter ni=new NodIter(true);
+  Item it;
+  while ((it=iter[0].next()) != null) {
+    if (!it.node())     Err.nodes(this);
+    ni.add((Nod)it);
+  }
+  final boolean db=ni.dbnodes();
+  for (int e=1; e != expr.length && ni.size() != 0; e++) {
+    final NodIter res=new NodIter(true);
+    final Iter ir=iter[e];
+    while ((it=ir.next()) != null) {
+      if (!it.node())       Err.nodes(this);
+      final Nod node=(Nod)it;
+      if (db && node instanceof DBNode) {
+        if (ni.contains((DBNode)node))         res.add(node);
+      }
+ else {
+        for (int n=0; n < ni.size(); n++) {
+          if (ni.get(n).is(node)) {
+            res.add(node);
+            break;
+          }
+        }
+      }
+    }
+    ni=res;
+  }
+  return ni;
+}

@@ -1,0 +1,48 @@
+{
+  return new NodeIter(){
+    final Item ci=ctx.item;
+    final long cp=ctx.pos;
+    boolean finish;
+    NodeIter ir;
+    Iter iter;
+    @Override public Nod next() throws QueryException {
+      if (finish)       return null;
+      if (iter == null) {
+        iter=checkCtx(ctx).iter();
+        ctx.pos=0;
+      }
+      Nod temp=null;
+      while (true) {
+        ctx.checkStop();
+        if (ir == null) {
+          final Item i=iter.next();
+          if (i == null)           break;
+          if (!i.node())           Err.or(NODESPATH,IterStep.this,i.type);
+          ir=axis.init((Nod)i);
+        }
+        final Nod nod=ir.next();
+        if (nod != null) {
+          if (test.eval(nod)) {
+            ctx.item=nod;
+            ctx.pos++;
+            final Item i=pred[0].test(ctx);
+            if (i != null) {
+              nod.score(i.score());
+              if (pos != null && pos.last(ctx))               ir=null;
+              return nod.finish();
+            }
+            if (last)             temp=nod.finish();
+          }
+        }
+ else {
+          ir=null;
+        }
+      }
+      ctx.item=ci;
+      ctx.pos=cp;
+      finish=last;
+      return temp;
+    }
+  }
+;
+}

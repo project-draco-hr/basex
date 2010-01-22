@@ -1,0 +1,20 @@
+{
+  if (!consumeWS(COPY,DOLLAR,INCOMPLETE))   return null;
+  final boolean u=ctx.updating;
+  ctx.updating=false;
+  Let[] fl={};
+  do {
+    final Var v=new Var(varName());
+    check(ASSIGN);
+    final Expr e=check(single(),INCOMPLETE);
+    ctx.vars.add(v);
+    fl=Array.add(fl,new Let(e,v,false));
+  }
+ while (consumeWS(COMMA));
+  check(MODIFY);
+  final Expr m=check(single(),INCOMPLETE);
+  check(RETURN);
+  final Expr r=check(single(),INCOMPLETE);
+  ctx.updating=u;
+  return new Transform(fl,m,r);
+}

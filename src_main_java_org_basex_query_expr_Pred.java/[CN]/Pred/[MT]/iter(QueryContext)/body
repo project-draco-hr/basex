@@ -1,0 +1,31 @@
+{
+  if (counter) {
+    final Item it=pred[0].ebv(ctx);
+    final long l=it.itr();
+    final Expr e=Pos.get(l,l);
+    return l != it.dbl() || e == Bln.FALSE ? Iter.EMPTY : new IterPred(root,pred,(Pos)e,false).iter(ctx);
+  }
+  final Iter iter=ctx.iter(root);
+  final Item ci=ctx.item;
+  final long cs=ctx.size;
+  final long cp=ctx.pos;
+  final SeqIter si=new SeqIter();
+  Item i;
+  while ((i=iter.next()) != null)   si.add(i);
+  for (  final Expr p : pred) {
+    ctx.size=si.size();
+    ctx.pos=1;
+    int c=0;
+    final int sl=si.size();
+    for (int s=0; s < sl; s++) {
+      ctx.item=si.item[s];
+      if (p.test(ctx) != null)       si.item[c++]=si.item[s];
+      ctx.pos++;
+    }
+    si.size(c);
+  }
+  ctx.item=ci;
+  ctx.size=cs;
+  ctx.pos=cp;
+  return si;
+}

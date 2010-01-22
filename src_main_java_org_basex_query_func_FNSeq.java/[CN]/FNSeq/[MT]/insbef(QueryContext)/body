@@ -1,0 +1,19 @@
+{
+  return new Iter(){
+    final long pos=Math.max(1,checkItr(expr[1],ctx));
+    final Iter iter=expr[0].iter(ctx);
+    final Iter ins=expr[2].iter(ctx);
+    long p=pos;
+    boolean last;
+    @Override public Item next() throws QueryException {
+      if (last)       return p > 0 ? ins.next() : null;
+      final boolean sub=p == 0 || --p == 0;
+      final Item i=(sub ? ins : iter).next();
+      if (i != null)       return i;
+      if (sub)       --p;
+ else       last=true;
+      return next();
+    }
+  }
+;
+}

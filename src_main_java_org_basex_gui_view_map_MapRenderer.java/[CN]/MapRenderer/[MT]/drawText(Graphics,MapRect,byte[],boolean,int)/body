@@ -1,0 +1,51 @@
+{
+  final int[] cw=fontWidths(g.getFont());
+  final int fh=(int)(1.2 * fs);
+  final Color textc=g.getColor();
+  int xx=r.x;
+  int yy=r.y + fh;
+  final int ww=r.w;
+  final Tokenizer ftt=new Tokenizer(s,null);
+  int ll=0;
+  while (ftt.moreSC()) {
+    byte[] tok=ftt.nextSC();
+    int wl=0;
+    for (int n=0; n < tok.length; n+=cl(tok[n]))     wl+=BaseXLayout.width(g,cw,cp(tok,n));
+    if (ll + wl >= ww) {
+      xx=r.x;
+      if (ll != 0)       yy+=fh;
+      if (yy + fh > r.y + r.h) {
+        if (draw)         g.drawString("...",xx + ll,yy);
+        return r.h;
+      }
+      ll=0;
+      if (draw && wl >= ww) {
+        int twl=2 * BaseXLayout.width(g,cw,'.');
+        if (twl >= ww)         return Integer.MAX_VALUE;
+        int n=0;
+        for (; n < tok.length; n+=cl(tok[n])) {
+          final int l=BaseXLayout.width(g,cw,cp(tok,n));
+          if (twl + l >= ww)           break;
+          twl+=l;
+        }
+        tok=Arrays.copyOf(tok,n + 2);
+        tok[n]='.';
+        tok[n + 1]='.';
+      }
+    }
+    if (draw) {
+      g.setColor(r.pos != null && r.pos.contains(ftt.pos) && !ftt.isSC() ? COLORFT : textc);
+      g.drawString(string(tok),xx + ll,yy);
+    }
+    ll+=wl;
+    if (ftt.pa) {
+      ll=0;
+      yy+=fh;
+      if (yy + fh > r.y + r.h) {
+        if (draw)         g.drawString("...",xx + ll,yy);
+        return r.h;
+      }
+    }
+  }
+  return yy - r.y;
+}

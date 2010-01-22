@@ -1,0 +1,11 @@
+{
+  Data data=ctx.pin(db);
+  if (data == null) {
+    if (!ctx.prop.dbexists(db))     throw new IOException(Main.info(DBNOTFOUND,db));
+    data=new DiskData(db,ctx.prop);
+    ctx.pin(data);
+  }
+  if (ctx.perm(User.READ,data.meta))   return data;
+  Close.close(ctx,data);
+  throw new IOException(Main.info(PERMNO,CmdPerm.READ));
+}

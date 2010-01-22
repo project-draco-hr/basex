@@ -1,0 +1,17 @@
+{
+  final Expr e=check(single(),ORDERBY);
+  boolean desc=false;
+  if (!consumeWS(ASCENDING))   desc=consumeWS(DESCENDING);
+  boolean least=!ctx.orderGreatest;
+  if (consumeWS(EMPTYORD)) {
+    least=!consumeWS(GREATEST);
+    if (least)     check(LEAST);
+  }
+  if (consumeWS(COLLATION)) {
+    final byte[] coll=stringLiteral();
+    if (!eq(URLCOLL,coll))     error(INVCOLL,coll);
+  }
+  if (e.e())   return order;
+  final Ord ord=new Ord(e,desc,least);
+  return order == null ? new Ord[]{ord} : Array.add(order,ord);
+}
