@@ -1,6 +1,6 @@
 {
   final TokenList nsp=data.ns.size() != 0 ? new TokenList() : null;
-  final int[] parent=new int[IO.MAXHEIGHT];
+  final int[] parStack=new int[IO.MAXHEIGHT];
   final byte[][] names=new byte[IO.MAXHEIGHT][];
   names[0]=dn;
   int l=0;
@@ -9,7 +9,7 @@
   while (p < s && !finished()) {
     final int k=data.kind(p);
     final int r=data.parent(p,k);
-    while (l > 0 && parent[l - 1] >= r) {
+    while (l > 0 && parStack[l - 1] >= r) {
       closeElement();
       l--;
     }
@@ -69,7 +69,7 @@
       while (++p != as) {
         attribute(data.name(p,Data.ATTR),data.text(p,false));
       }
-      parent[l++]=r;
+      parStack[l++]=r;
       names[l]=empty;
     }
   }
