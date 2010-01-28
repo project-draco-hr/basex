@@ -5,29 +5,31 @@
   if (gui.context.marked == null)   return;
   final int size=gui.context.marked.size();
   final int[] marked=Arrays.copyOf(gui.context.marked.nodes,size);
-  final int rn=0;
-  for (int i=0; i < cache.getHeight(rn); i++) {
-    final int y=getYperLevel(i);
-    if (cache.isBigRectangle(rn,i)) {
-      for (int j=0; j < size; j++) {
-        final int pre=marked[j];
-        if (pre == -1)         continue;
-        final int ix=cache.getPreIndex(rn,i,pre);
-        if (ix > -1) {
-          final int x=(int)(getWidth() * ix / (double)cache.getLevelSize(rn,i));
-          mg.setColor(Color.RED);
-          mg.drawLine(x,y,x,y + nodeHeight);
-          marked[j]=-1;
+  final int rl=gui.context.current.nodes.length;
+  for (int rn=0; rn < rl; rn++) {
+    for (int i=0; i < cache.getHeight(rn); i++) {
+      final int y=getYperLevel(i);
+      if (cache.isBigRectangle(rn,i)) {
+        for (int j=0; j < size; j++) {
+          final int pre=marked[j];
+          if (pre == -1)           continue;
+          final int ix=cache.getPreIndex(rn,i,pre);
+          if (ix > -1) {
+            final int x=(int)(getWidth() * ix / (double)cache.getLevelSize(rn,i));
+            mg.setColor(Color.RED);
+            mg.drawLine(x,y,x,y + nodeHeight);
+            marked[j]=-1;
+          }
         }
       }
-    }
  else {
-      for (int j=0; j < size; j++) {
-        final int pre=marked[j];
-        final TreeRect rect=cache.searchRect(rn,i,pre);
-        if (rect != null) {
-          drawRectangle(mg,rn,i,rect,pre,DRAW_MARK);
-          marked[j]=-1;
+        for (int j=0; j < size; j++) {
+          final int pre=marked[j];
+          final TreeRect rect=cache.searchRect(rn,i,pre);
+          if (rect != null) {
+            drawRectangle(mg,rn,i,rect,pre,DRAW_MARK);
+            marked[j]=-1;
+          }
         }
       }
     }
