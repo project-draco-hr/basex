@@ -1,17 +1,7 @@
 {
   try {
     final Data data=context.data;
-    final int[] docs=context.doc();
-    final IO io=IO.get(args[0]);
-    if (docs.length != 1)     io.md();
-    for (    final int pre : docs) {
-      final IO file=io.merge(docs.length == 1 && args[1] != null ? args[1] : Token.string(data.text(pre,true)));
-      final PrintOutput po=new PrintOutput(file.path());
-      final XMLSerializer xml=new XMLSerializer(po,false,context.prop.is(Prop.XMLFORMAT));
-      xml.encoding(context.prop.get(Prop.XMLENCODING));
-      xml.node(data,pre);
-      po.close();
-    }
+    export(context.prop,data,args[0],args[1]);
     return info(DBEXPORTED,data.meta.name,perf);
   }
  catch (  final IOException ex) {
