@@ -1,5 +1,5 @@
 def login(self):
-    ts = self.receive()[:(-1)]
+    ts = self.receive()
     user = raw_input('Username: ')
     pw = raw_input('Password: ')
     pwmd5 = hashlib.md5(pw).hexdigest()
@@ -8,8 +8,6 @@ def login(self):
     m.update(ts)
     complete = m.hexdigest()
     self.sendCommand(user)
-    self.sendNullbyte()
     self.sendCommand(complete)
-    self.sendNullbyte()
-    data = self.receive()
+    data = self.s.recv(1)
     return ('\x00' == data)

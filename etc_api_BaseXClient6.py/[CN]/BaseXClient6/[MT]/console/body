@@ -1,10 +1,18 @@
 def console(self):
     if (self.connect() == True):
+        self.sendCommand('SET INFO ON')
+        self.s.recv(1024)
         while (self.readCommand() != 'exit'):
             self.sendCommand(self.com)
-            self.sendNullbyte()
-            print self.receive()
-        self.sendCommand('exit')
+            data = self.receive()
+            if (data != ''):
+                print data
+            else:
+                print self.receive()
+        try:
+            self.sendCommand('exit')
+        except:
+            self.close()
         print 'See you.'
     else:
         print 'Access denied.'
