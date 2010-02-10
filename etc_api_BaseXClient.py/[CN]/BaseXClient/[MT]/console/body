@@ -1,15 +1,15 @@
 def console(self):
-    if (self.session() == True):
-        session.sendCommand('SET INFO ON')
-        session.s.recv(1024)
+    if self.session():
+        session.send('SET INFO ON')
+        session.receive()
         while True:
-            com = self.readCommand()
+            com = raw_input('> ').strip()
             if (com == 'exit'):
-                session.sendCommand('exit')
                 break
-            print session.execute(com)
+            if com:
+                print session.execute(com)
         try:
-            session.sendCommand('exit')
+            session.send('exit')
         except:
             session.close()
         print 'See you.'
