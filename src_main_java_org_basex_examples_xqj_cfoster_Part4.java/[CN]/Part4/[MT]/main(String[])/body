@@ -1,0 +1,97 @@
+{
+  init("4: XDM Model within XQJ");
+  XQConnection conn=connect();
+  info("Create XQuery items from int values");
+  XQItem[] items=new XQItem[7];
+  items[0]=conn.createItemFromInt(0,null);
+  XQItemType xsInteger=conn.createAtomicType(XQItemType.XQBASETYPE_INTEGER);
+  XQItemType xsString=conn.createAtomicType(XQItemType.XQBASETYPE_STRING);
+  XQItemType xsByte=conn.createAtomicType(XQItemType.XQBASETYPE_BYTE);
+  XQItemType xsDecimal=conn.createAtomicType(XQItemType.XQBASETYPE_DECIMAL);
+  XQItemType xsLong=conn.createAtomicType(XQItemType.XQBASETYPE_LONG);
+  items[1]=conn.createItemFromInt(1,xsInteger);
+  items[2]=conn.createItemFromInt(2,xsString);
+  items[3]=conn.createItemFromInt(3,xsByte);
+  items[4]=conn.createItemFromInt(4,xsDecimal);
+  items[5]=conn.createItemFromInt(5,xsLong);
+  try {
+    items[6]=conn.createItemFromInt(1000,xsByte);
+  }
+ catch (  final XQException e) {
+    System.out.println(e.getMessage());
+  }
+  for (  XQItem it : items) {
+    if (it != null)     it.writeItem(System.out,null);
+    System.out.print(' ');
+  }
+  System.out.println();
+  info("Create items from atomic values");
+  XQItemType date=conn.createAtomicType(XQItemType.XQBASETYPE_DATE);
+  XQItemType hex=conn.createAtomicType(XQItemType.XQBASETYPE_HEXBINARY);
+  XQItem dateValue=conn.createItemFromAtomicValue("2007-01-23",date);
+  XQItem binaryData=conn.createItemFromAtomicValue("48656C6C6F",hex);
+  dateValue.writeItem(System.out,null);
+  System.out.println();
+  binaryData.writeItem(System.out,null);
+  System.out.println();
+  info("Create items from atomic values");
+  items=new XQItem[3];
+  items[0]=conn.createItemFromObject(new Integer(5),null);
+  items[1]=conn.createItemFromObject(new Float(123.4f),null);
+  items[2]=conn.createItemFromObject(new byte[]{1,2,3,4},null);
+  for (  XQItem it : items) {
+    if (it != null)     System.out.println(it.getAtomicValue());
+  }
+  info("Create and bind XQuery sequences");
+  List<Object> list=new ArrayList<Object>();
+  list.add(conn.createItemFromInt(1,null));
+  list.add(conn.createItemFromInt(2,null));
+  list.add(conn.createItemFromInt(3,null));
+  list.add(new Integer(4));
+  list.add(new Integer(5));
+  list.add(new Integer(6));
+  XQSequence sequence=conn.createSequence(list.iterator());
+  XQPreparedExpression xqpe=conn.prepareExpression("declare variable $x as xs:int+ external; $x");
+  xqpe.bindSequence(new QName("x"),sequence);
+  XQResultSequence rs=xqpe.executeQuery();
+  while (rs.next())   System.out.println(rs.getItemAsString(null) + ", " + rs.getItemType());
+  info("Bind XQResultSequences to XQuery Expressions");
+  XQExpression expr=conn.createExpression();
+  String xqueryString="for $x in doc('etc/xml/books.xml')//book/@isbn return xs:string($x)";
+  rs=expr.executeQuery(xqueryString);
+  sequence=conn.createSequence(rs);
+  expr.bindSequence(new QName("isbnCodes"),sequence);
+  xqueryString="declare variable $isbnCodes external; $isbnCodes";
+  rs=expr.executeQuery(xqueryString);
+  while (rs.next()) {
+    System.out.println(rs.getItemAsString(null));
+  }
+  info("Retrieve XML nodes");
+  expr=conn.createExpression();
+  xqueryString="doc('etc/xml/books.xml')//book";
+  rs=expr.executeQuery(xqueryString);
+  while (rs.next()) {
+    Node book=rs.getNode();
+    System.out.println(book);
+  }
+  info("Create XML nodes");
+  DocumentBuilderFactory factory=DocumentBuilderFactory.newInstance();
+  DocumentBuilder builder=factory.newDocumentBuilder();
+  Document docObj=builder.newDocument();
+  Element elementObj=docObj.createElement("e");
+  XQItem item1=conn.createItemFromObject(elementObj,null);
+  XQItem items2=conn.createItemFromObject(docObj,null);
+  System.out.println(item1.getItemType());
+  System.out.println(items2.getItemType());
+  info("Retrieve date values");
+  xqueryString="for $x in doc('etc/xml/books.xml')//publish_date return xs:date($x)";
+  rs=expr.executeQuery(xqueryString);
+  while (rs.next()) {
+    XMLGregorianCalendar cal=(XMLGregorianCalendar)rs.getObject();
+    int day=cal.getDay();
+    int month=cal.getMonth();
+    int year=cal.getYear();
+    System.out.println(year + "/" + month+ "/"+ day);
+  }
+  close(conn);
+}

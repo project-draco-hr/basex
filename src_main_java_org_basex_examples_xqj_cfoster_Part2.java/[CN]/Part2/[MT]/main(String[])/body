@@ -1,0 +1,18 @@
+{
+  init("2: Executing XQuery in Java");
+  XQConnection conn=connect();
+  info("Return book titles from 'books.xml'");
+  String xqueryString="for $x in doc('etc/xml/books.xml')//book return $x/title/text()";
+  XQExpression xqe=conn.createExpression();
+  XQResultSequence rs=xqe.executeQuery(xqueryString);
+  while (rs.next())   System.out.println(rs.getItemAsString(null));
+  info("Get book prices");
+  xqueryString="for $x in doc('etc/xml/books.xml')//book return xs:float($x/price)";
+  rs=xqe.executeQuery(xqueryString);
+  while (rs.next()) {
+    float price=rs.getFloat();
+    System.out.println("price = " + price);
+  }
+  conn.close();
+  close(conn);
+}

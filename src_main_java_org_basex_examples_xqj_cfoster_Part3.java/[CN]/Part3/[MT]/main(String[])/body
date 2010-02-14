@@ -1,0 +1,26 @@
+{
+  init("3: Binding Java variables to XQuery");
+  XQConnection conn=connect();
+  String isbnID=args.length > 0 ? args[0] : DEFAULT_ISBN;
+  info("Lookup books by ISBN '" + isbnID + "'");
+  XQExpression xqe=conn.createExpression();
+  xqe.bindString(new QName("userisbn"),isbnID,null);
+  String xqueryString="declare variable $userisbn external; " + "for $x in doc('etc/xml/books.xml')//book " + "where $x/@isbn = $userisbn "+ "return $x/title/text()";
+  XQResultSequence rs=xqe.executeQuery(xqueryString);
+  while (rs.next())   System.out.println(rs.getItemAsString(null));
+  info("Lookup books by date range");
+  xqueryString="declare variable $fromDate as xs:date external; " + "declare variable $toDate as xs:date external; " + "for $x in doc('etc/xml/books.xml')//book "+ "let $publishDate := xs:date($x/publish_date) "+ "where $publishDate > $fromDate and $publishDate < $toDate "+ "return $x/title/text()";
+  XQPreparedExpression xqpe=conn.prepareExpression(xqueryString);
+  XQItemType dateType=conn.createAtomicType(XQItemType.XQBASETYPE_DATE);
+  try {
+    xqpe.bindAtomicValue(new QName("fromDate"),"2008-01-32",dateType);
+  }
+ catch (  XQException e) {
+    System.out.println(e.getMessage());
+    xqpe.bindAtomicValue(new QName("fromDate"),"2008-01-01",dateType);
+  }
+  xqpe.bindAtomicValue(new QName("toDate"),"2011-01-01",dateType);
+  rs=xqpe.executeQuery();
+  while (rs.next())   System.out.println(rs.getItemAsString(null));
+  close(conn);
+}
