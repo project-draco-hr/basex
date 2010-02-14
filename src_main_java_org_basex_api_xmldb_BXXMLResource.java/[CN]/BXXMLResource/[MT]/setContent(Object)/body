@@ -1,5 +1,19 @@
 {
-  if (value instanceof byte[])   content=value;
- else   if (value instanceof String)   content=token(value.toString());
- else   throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_CONT);
+  if (value instanceof byte[]) {
+    content=value;
+  }
+ else   if (value instanceof String) {
+    content=token(value.toString());
+  }
+ else   if (value instanceof File) {
+    try {
+      content=new IOFile((File)value).content();
+    }
+ catch (    final IOException ex) {
+      throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_CONT + "\n" + ex.getMessage());
+    }
+  }
+ else {
+    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_CONT);
+  }
 }
