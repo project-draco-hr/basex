@@ -1,0 +1,23 @@
+{
+  System.out.println("=== ServerExample ===");
+  new Thread(){
+    @Override public void run(){
+      new BaseXServer();
+    }
+  }
+.start();
+  Thread.sleep(1000);
+  System.out.println("\n* Create a client session.");
+  session=new ClientSession("localhost",1984,"admin","admin");
+  System.out.println("\n* Create a database.");
+  send("SET INFO true");
+  send("CREATE DB \"etc/xml/input.xml\" input");
+  System.out.println("\n* Run a query:");
+  send("XQUERY //li");
+  System.out.println("\n* Close and drop the database:");
+  send("DROP DB input");
+  System.out.println("\n* Close the client session.");
+  session.close();
+  System.out.println("\n* Stop the server:");
+  new BaseXServer("STOP");
+}

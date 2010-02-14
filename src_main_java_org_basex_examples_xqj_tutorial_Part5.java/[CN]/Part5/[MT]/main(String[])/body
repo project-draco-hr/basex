@@ -1,0 +1,13 @@
+{
+  init("5: Serializing Results");
+  XQConnection xqc=connect();
+  XQExpression xqe=xqc.createExpression();
+  info("Serialize output to disk");
+  FileOutputStream fos=new FileOutputStream("result.xml");
+  XQSequence xqs=xqe.executeQuery("doc('etc/xml/orders.xml')//order[id='174']");
+  xqs.writeSequence(fos,new Properties());
+  fos.close();
+  info("Delete result file");
+  new File("result.xml").delete();
+  close(xqc);
+}

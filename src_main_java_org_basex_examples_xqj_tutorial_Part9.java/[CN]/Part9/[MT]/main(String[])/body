@@ -1,0 +1,32 @@
+{
+  init("9: Creating XDM Instances");
+  XQConnection xqc=connect();
+  info("Test item instances");
+  XQItemType xqt=xqc.createNodeType();
+  XQExpression xqe=xqc.createExpression();
+  XQSequence xqs=xqe.executeQuery("1, 'hello', <xml/>");
+  while (xqs.next()) {
+    if (xqs.instanceOf(xqt)) {
+      System.out.println("Node: " + xqs.getNode());
+    }
+ else {
+      System.out.println("Atomic Value: " + xqs.getAtomicValue());
+    }
+  }
+  info("Override data types");
+  xqt=xqc.createAtomicType(XQItemType.XQBASETYPE_SHORT);
+  XQPreparedExpression xqp=xqc.prepareExpression("declare variable $v as xs:short external; $v + 1");
+  xqp.bindInt(new QName("v"),22,xqt);
+  print("Override default type mappings",xqp);
+  info("Create decimal item instance");
+  XQItem xqi=xqc.createItemFromObject(new BigDecimal("174"),null);
+  xqi.writeItem(System.out,null);
+  System.out.println();
+  info("Create item from query result");
+  xqs=xqe.executeQuery("doc('etc/xml/orders.xml')//order");
+  xqs.next();
+  xqi=xqc.createItem(xqs.getItem());
+  close(xqc);
+  xqi.writeItem(System.out,null);
+  System.out.println();
+}

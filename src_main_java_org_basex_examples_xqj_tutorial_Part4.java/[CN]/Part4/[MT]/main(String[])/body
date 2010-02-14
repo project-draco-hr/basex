@@ -1,0 +1,49 @@
+{
+  init("4: Processing Results");
+  XQConnection xqc=connect();
+  XQExpression xqe=xqc.createExpression();
+  info("Iterate through query results");
+  XQSequence xqs=xqe.executeQuery("doc('etc/xml/employees.xml')//employee");
+  while (xqs.next()) {
+    Element employee=(Element)xqs.getObject();
+    System.out.println(employee);
+  }
+  info("Iterate through numeric values");
+  xqs=xqe.executeQuery("doc('etc/xml/orders.xml')/orders/order/xs:decimal(total_price)");
+  while (xqs.next()) {
+    BigDecimal price=(BigDecimal)xqs.getObject();
+    System.out.println(price);
+  }
+  info("Print atomic values");
+  xqs=xqe.executeQuery("'Hello world!', 123, 1E1, xs:QName('abc')");
+  while (xqs.next()) {
+    System.out.println(xqs.getAtomicValue());
+  }
+  info("Return single items via SAX");
+  ContentHandler ch=new DefaultHandler(){
+    @Override public void characters(    final char[] c,    final int s,    final int l){
+      System.out.println("Characters/SAX: '" + new String(c,s,l) + "'");
+    }
+  }
+;
+  xqs=xqe.executeQuery("doc('etc/xml/employees.xml')//employee");
+  while (xqs.next()) {
+    xqs.writeItemToSAX(ch);
+  }
+  info("Return sequence via SAX");
+  xqs=xqe.executeQuery("doc('etc/xml/employees.xml')//employee");
+  xqs.writeSequenceToSAX(ch);
+  info("Return single items via StAX");
+  xqs=xqe.executeQuery("doc('etc/xml/employees.xml')//employee");
+  XMLStreamReader xmlReader=xqs.getSequenceAsStream();
+  while (true) {
+    int type=xmlReader.next();
+    if (type == XMLStreamConstants.CHARACTERS) {
+      System.out.println("Characters/StAX: '" + xmlReader.getText());
+    }
+ else     if (type == XMLStreamConstants.END_DOCUMENT) {
+      break;
+    }
+  }
+  close(xqc);
+}

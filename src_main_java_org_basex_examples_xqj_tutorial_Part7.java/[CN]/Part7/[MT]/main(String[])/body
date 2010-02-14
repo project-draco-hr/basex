@@ -1,0 +1,41 @@
+{
+  init("7: XQuery Type System");
+  XQConnection xqc=connect();
+  info("Check sequence types");
+  XQExpression xqe=xqc.createExpression();
+  XQSequence xqs=xqe.executeQuery("1, 'hello', <xml/>");
+  while (xqs.next()) {
+    XQItemType xqit=xqs.getItemType();
+    if (xqit.getItemKind() == XQItemType.XQITEMKIND_ATOMIC) {
+switch (xqit.getBaseType()) {
+case XQItemType.XQBASETYPE_INTEGER:
+        long l=xqs.getLong();
+      System.out.println("Integer: " + l);
+    break;
+case XQItemType.XQBASETYPE_STRING:
+  String s=(String)xqs.getObject();
+System.out.println("String: " + s);
+break;
+default :
+String a=xqs.getAtomicValue();
+System.out.println("Atomic Value: " + a);
+break;
+}
+}
+ else {
+System.out.println("Node: " + xqs.getNode());
+}
+}
+info("Retrieve static result type");
+XQPreparedExpression xqp=xqc.prepareExpression("1 + 2");
+XQSequenceType xqst=xqp.getStaticResultType();
+System.out.println("Type: " + xqst);
+info("Retrieve type of external variables");
+xqp=xqc.prepareExpression("declare variable $i as xs:integer external; $i+1");
+QName[] variables=xqp.getAllExternalVariables();
+for (int i=0; i < variables.length; i++) {
+xqst=xqp.getStaticVariableType(variables[i]);
+System.out.println("Variable $" + variables[i] + ": "+ xqst);
+}
+close(xqc);
+}
