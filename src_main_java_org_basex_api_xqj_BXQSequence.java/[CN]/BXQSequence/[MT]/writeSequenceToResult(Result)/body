@@ -2,14 +2,16 @@
   valid(res,Result.class);
   if (it != null && !next)   throw new BXQException(TWICE);
   if (res instanceof StreamResult) {
-    writeSequence(((StreamResult)res).getWriter(),null);
+    final StreamResult sr=(StreamResult)res;
+    if (sr.getWriter() != null)     writeSequence(sr.getWriter(),null);
+ else     writeSequence(sr.getOutputStream(),null);
   }
  else   if (res instanceof SAXResult) {
     final SAXSerializer ser=new SAXSerializer(null);
     final SAXResult sax=(SAXResult)res;
     ser.setContentHandler(sax.getHandler());
     ser.setLexicalHandler(sax.getLexicalHandler());
-    while (next())     serialize(item().it,qctx,ser);
+    while (next())     serialize(item().it,ser);
   }
  else {
     Main.notimplemented();

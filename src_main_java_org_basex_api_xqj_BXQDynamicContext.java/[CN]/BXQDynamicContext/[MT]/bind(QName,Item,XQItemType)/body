@@ -1,20 +1,34 @@
 {
   opened();
   valid(var,QName.class);
-  final QNm name=new QNm(Token.token(var.getLocalPart()));
-  Var v=new Var(name,true);
-  if (this instanceof BXQPreparedExpression) {
-    v=query.ctx.vars.get(v);
-    if (v == null)     throw new BXQException(VAR,var);
+  final Type tt=check(it.type,t);
+  Item i=it;
+  if (tt != it.type) {
+    try {
+      i=tt.e(it,null);
+    }
+ catch (    final QueryException ex) {
+      throw new BXQException(ex);
+    }
+  }
+  if (var == XQConstants.CONTEXT_ITEM) {
+    query.ctx.item=i;
   }
  else {
-    query.ctx.vars.addGlobal(v);
-  }
-  try {
-    final Type tt=check(it.type,t);
-    v.bind(tt == it.type ? it : tt.e(it,null),null);
-  }
- catch (  final QueryException ex) {
-    throw new BXQException(ex);
+    final QNm name=new QNm(Token.token(var.getLocalPart()));
+    Var v=new Var(name,true);
+    if (this instanceof BXQPreparedExpression) {
+      v=query.ctx.vars.get(v);
+      if (v == null)       throw new BXQException(VAR,var);
+    }
+ else {
+      query.ctx.vars.addGlobal(v);
+    }
+    try {
+      v.bind(i,null);
+    }
+ catch (    final QueryException ex) {
+      throw new BXQException(ex);
+    }
   }
 }
