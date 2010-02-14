@@ -1,27 +1,14 @@
 def console(self):
-    if (self.session() == True):
-        session.execute('SET INFO ON')
-        session.result()
-        while True:
-            com = self.readCommand()
-            if (com == 'exit'):
-                session.execute('exit')
-                break
-            if (session.execute(com) == '\x00'):
-                res = session.result()
-                if (res != ''):
-                    print res
-                inf = session.info()
-                if (inf != ''):
-                    print inf
-            else:
-                session.result()
-                print session.info()
-        try:
-            session.execute('exit')
-        except:
-            session.close()
-        print 'See you.'
-    else:
-        print 'Access denied.'
+    out = sys.stdout
+    session.execute('SET INFO ON', out)
+    while True:
+        com = self.readCommand()
+        if (com == 'exit'):
+            break
+        session.execute(com, out)
+    try:
         session.close()
+    except:
+        print 'See you.'
+        sys.exit()
+    print 'See you.'

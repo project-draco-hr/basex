@@ -1,5 +1,19 @@
 def __init__(self, host, port, user, pw):
-    self.host = host
-    self.port = port
-    self.user = user
-    self.pw = pw
+    global s
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.connect((host, port))
+    except:
+        print "Can't communicate with the server."
+    ts = self.readString()
+    pwmd5 = hashlib.md5(pw).hexdigest()
+    m = hashlib.md5()
+    m.update(pwmd5)
+    m.update(ts)
+    complete = m.hexdigest()
+    s.send(str.encode(user))
+    s.send('\x00')
+    s.send(str.encode(complete))
+    s.send('\x00')
+    if ('\x00' != s.recv(1)):
+        raise NameError()
