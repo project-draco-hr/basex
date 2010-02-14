@@ -1,0 +1,39 @@
+{
+  start();
+  process(new DropDB("factbook"),session1);
+  conCreate();
+  Main.outln(server.context.pool.info());
+  if (server.context.pool.pins("factbook") == 2) {
+    Main.outln("--> Test 1 successful, Test 2 started...");
+  }
+ else {
+    Main.errln("test failed conCreate");
+  }
+  runTest(true,true);
+  Main.outln("--> Test 2 successful, Test 3 started...");
+  done=false;
+  runTest(false,false);
+  if (!checkRes(new XQuery("count(//aa)"),session1).equals("0")) {
+    Main.errln("test failed write write");
+  }
+ else {
+    Main.outln("--> Test 3 successful, Test 4 started...");
+  }
+  done=false;
+  runTest(false,true);
+  Main.outln("--> Test 4 successful, Test 5 started...");
+  done=false;
+  runTest(true,false);
+  Main.outln("--> Test 5 successful, last check...");
+  if (!checkRes(new XQuery("count(//aa)"),session1).equals("0")) {
+    Main.errln("test failed write read / read write");
+  }
+ else {
+    Main.outln("--> All Locking Tests done...," + " efficiency test started...");
+  }
+  for (int i=0; i < TESTS; i++) {
+    startQueryT(createSession());
+  }
+  while (tdone < TESTS)   Performance.sleep(200);
+  stop();
+}

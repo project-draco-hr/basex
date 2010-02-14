@@ -1,0 +1,49 @@
+{
+  for (  final String arg : args) {
+    if (arg.equals("-v")) {
+      verbose=true;
+    }
+ else {
+      Main.outln("\nXML Conformance Tests\n -v verbose output");
+      return;
+    }
+  }
+  context=new Context();
+  context.prop.set(Prop.TEXTINDEX,false);
+  context.prop.set(Prop.ATTRINDEX,false);
+  new CreateDB(FILE).exec(context);
+  data=context.data;
+  int ok=0;
+  int wrong=0;
+  final Nodes root=new Nodes(0,data);
+  Main.outln("\nXML Conformance Tests\n");
+  Main.outln("file = (expected result) -> " + NAME + " result");
+  for (  final int t : nodes("//*:TEST",root).nodes) {
+    final Nodes srcRoot=new Nodes(t,data);
+    final String uri=text("@URI",srcRoot);
+    final boolean valid=text("@TYPE",srcRoot).equals("valid");
+    context.prop.set(Prop.INTPARSE,true);
+    Proc proc=new CreateDB(PATH + uri);
+    final boolean success=proc.exec(context);
+    final boolean correct=valid == success;
+    if (verbose || !correct) {
+      Main.outln(uri + " = " + (valid ? "correct" : "wrong")+ " -> "+ (success ? "correct" : "wrong")+ (correct ? " (OK)" : " (WRONG)"));
+      if (verbose) {
+        String inf=proc.info();
+        if (!inf.isEmpty())         Main.outln("[BASEX ] " + inf);
+        context.prop.set(Prop.INTPARSE,false);
+        new Close().exec(context);
+        proc=new CreateDB(PATH + uri);
+        proc.exec(context);
+        inf=proc.info();
+        if (!inf.isEmpty())         Main.outln("[XERCES] " + inf);
+      }
+    }
+    if (correct)     ok++;
+ else     wrong++;
+    new Close().exec(context);
+  }
+  Main.outln("\nResult of Test \"" + new File(FILE).getName() + "\":");
+  Main.outln("Successful: " + ok);
+  Main.outln("Wrong: " + wrong);
+}

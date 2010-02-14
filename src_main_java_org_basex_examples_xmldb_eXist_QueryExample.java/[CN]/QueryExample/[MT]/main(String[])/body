@@ -1,0 +1,13 @@
+{
+  Class<?> cl=Class.forName(DRIVER);
+  Database database=(Database)cl.newInstance();
+  DatabaseManager.registerDatabase(database);
+  Collection col=DatabaseManager.getCollection(URI);
+  XPathQueryService service=(XPathQueryService)col.getService("XPathQueryService","1.0");
+  ResourceSet result=service.query("//*[text()]");
+  ResourceIterator i=result.getIterator();
+  while (i.hasMoreResources()) {
+    Resource r=i.nextResource();
+    System.out.println(r.getContent());
+  }
+}

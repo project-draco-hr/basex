@@ -1,0 +1,33 @@
+{
+  final Args arg=new Args(args);
+  boolean ok=true;
+  try {
+    while (arg.more() && ok) {
+      if (arg.dash()) {
+        final char ca=arg.next();
+        if (ca == 'u') {
+          updateTimes(Arrays.copyOfRange(args,1,args.length));
+          return false;
+        }
+ else         if (ca == 'x') {
+          convertTopics();
+          return false;
+        }
+        ok=false;
+      }
+    }
+    if (ok) {
+      session=new ClientSession(ctx,ADMIN,ADMIN);
+      session.execute(new Set(Prop.INFO,true));
+    }
+ else {
+      Main.outln("Usage: " + Main.name(this) + " [options]"+ NL+ "  -u[...] update submission times"+ NL+ "  -x      convert queries");
+    }
+  }
+ catch (  final Exception ex) {
+    ok=false;
+    Main.errln("Please run BaseXServer for using server mode.");
+    ex.printStackTrace();
+  }
+  return ok;
+}
