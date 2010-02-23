@@ -1,6 +1,13 @@
 def execute(self, com, out):
-    s.send(str.encode(com))
+    s.send(com)
     s.send('\x00')
-    out.write(self.readString())
-    self.info = self.readString()
+    count = 0
+    while True:
+        data = s.recv(1)
+        if (data != '\x00'):
+            out.write(data)
+        elif (count != 0):
+            break
+        else:
+            count += 1
     return s.recv(1)

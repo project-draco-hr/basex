@@ -5,15 +5,21 @@ def __init__(self, host, port, user, pw):
         s.connect((host, port))
     except:
         print "Can't communicate with the server."
-    ts = self.readString()
+    ts = ''
+    while True:
+        data = s.recv(1)
+        if (data != '\x00'):
+            ts += data
+        else:
+            break
     pwmd5 = hashlib.md5(pw).hexdigest()
     m = hashlib.md5()
     m.update(pwmd5)
     m.update(ts)
     complete = m.hexdigest()
-    s.send(str.encode(user))
+    s.send(user)
     s.send('\x00')
-    s.send(str.encode(complete))
+    s.send(complete)
     s.send('\x00')
     if ('\x00' != s.recv(1)):
         raise NameError()
