@@ -18,7 +18,9 @@ fill=FILL_RECTANGLES;
 break;
 case DRAW_HIGHLIGHT:
 borderColor=color6;
-fillColor=GUIConstants.COLORCELL;
+final int alpha=0xDD000000;
+final int rgb=GUIConstants.COLORCELL.getRGB();
+fillColor=new Color(rgb + alpha,true);
 border=true;
 fill=!br;
 break;
@@ -27,28 +29,38 @@ borderColor=h > 2 && r.w > 4 ? colormarkA : colormark1;
 fillColor=colormark1;
 fill=border=true;
 break;
-case DRAW_DESCENDANT:
-if (h > 2) {
-fillColor=COLORS[6];
+case DRAW_DESCENDANTS:
+final int alphaD=0xDD000000;
+final int rgbD=COLORS[6].getRGB();
+fillColor=new Color(rgbD + alphaD,true);
+borderColor=COLORS[8];
 textColor=Color.WHITE;
 fill=true;
-}
- else {
-borderColor=colormark1;
 border=true;
+if (h < 2 || r.w < 4) {
+borderColor=COLORS[6];
+txt=false;
 }
 break;
 case DRAW_PARENT:
 fillColor=COLORS[6];
 textColor=Color.WHITE;
 fill=!br;
+if (h < 2 || r.w < 4) {
+borderColor=COLORS[6];
+border=true;
+txt=false;
+}
+break;
+case DRAW_CONN:
+txt=false;
+break;
 }
 if (border) {
 final int xx=r.x + BORDER_PADDING;
 final int ww=r.w - BORDER_PADDING;
 g.setColor(borderColor);
 g.drawRect(xx,y,ww,h);
-if (type == DRAW_HIGHLIGHT) g.drawRect(xx + 1,y + 1,ww - 2,h - 2);
 }
 if (fill) {
 final int xx=r.x + BORDER_PADDING + 1;

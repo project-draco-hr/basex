@@ -1,7 +1,8 @@
 {
   super.paintComponent(g);
-  g.setFont(GUIConstants.font);
   nodeHeight=MAX_NODE_HEIGHT;
+  smooth(g);
+  g.setFont(font);
   fontHeight=g.getFontMetrics().getHeight();
   if (windowSizeChanged()) {
     if (markedImage != null) {
@@ -16,10 +17,11 @@
  else   setLevelDistance();
   g.drawImage(treeImage,0,0,getWidth(),getHeight(),this);
   if (refreshedMark)   markNodes();
+  if (selection)   markSelektedNodes(g);
   if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
   if (focus()) {
     final int focused=gui.context.focused;
-    highlightNode(g,frn,focused,focusedRect,focusedRectLevel,-1,DRAW_HIGHLIGHT,SHOW_ANCESTORS,SHOW_DESCENDANTS);
+    highlightNode(g,frn,focused,focusedRect,focusedRectLevel,-1,DRAW_HIGHLIGHT);
     if (SHOW_EXTRA_INFO) {
       g.setColor(new Color(0xeeeeee));
       g.fillRect(0,getHeight() - fontHeight - 6,getWidth(),fontHeight + 6);
@@ -31,5 +33,4 @@
       g.drawString("level: " + focusedRectLevel + "  level-size: "+ cache.getLevelSize(0,focusedRectLevel)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused))+ "  pre: "+ focused,2,getHeight() - 6);
     }
   }
-  if (selection)   markSelektedNodes(g);
 }
