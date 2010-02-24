@@ -2,9 +2,11 @@ import BaseX, sys, time
 start = time.clock()
 out = open('result.tmp', 'w')
 cmd = "xquery doc('11MB')//item"
-cs = BaseX.Session('localhost', 1984, 'admin', 'admin')
-if (not cs.execute(cmd, out)):
-    print cs.info()
-cs.close()
-print 
-print ((time.clock() - start) * 1000), 'ms'
+try:
+    cs = BaseX.Session('localhost', 1984, 'admin', 'admin')
+    if (not cs.execute(cmd, out)):
+        print cs.info()
+    print ((time.clock() - start) * 1000), 'ms'
+    cs.close()
+except IOError as e:
+    print e
