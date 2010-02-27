@@ -1,0 +1,21 @@
+{
+  try {
+    session=new ClientSession("localhost",1984,"admin","admin");
+    for (int i=0; i < NRUNS; i++) {
+      Thread.sleep((long)(50 * generator.nextDouble()));
+      int n=(generator.nextInt() & 0xFF) + 1;
+      String query="xquery basex:db('factbook')/descendant::text()" + "[position() = " + n + "]";
+      ByteArrayOutputStream buffer=new ByteArrayOutputStream();
+      String result=session.execute(query,buffer) ? buffer.toString() : session.info();
+      System.out.println("[" + counter + "] Thread "+ getId()+ ", Pos "+ n+ ": "+ result);
+      counter++;
+    }
+    session.close();
+    if (++finished == StressTest.NTHREADS) {
+      new BaseXServer("stop");
+    }
+  }
+ catch (  Exception e) {
+    System.out.printf("\n******************* Exception: %s\n\n",e.getMessage());
+  }
+}

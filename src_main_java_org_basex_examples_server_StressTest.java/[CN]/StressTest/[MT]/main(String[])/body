@@ -1,0 +1,18 @@
+{
+  System.out.println("=== ServerTest ===");
+  new Thread(){
+    @Override public void run(){
+      server=new BaseXServer();
+    }
+  }
+.start();
+  Thread.sleep(1000);
+  ClientSession session=new ClientSession("localhost",1984,"admin","admin");
+  session.execute("set info on");
+  session.execute("create db etc/xml/factbook.xml");
+  System.out.println(session.info());
+  session.close();
+  for (int i=0; i < NTHREADS; i++) {
+    new ClientTest().start();
+  }
+}
