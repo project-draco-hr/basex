@@ -1,18 +1,17 @@
 {
-  System.out.println("=== ServerTest ===");
+  System.out.println("=== StressTest ===");
   new Thread(){
     @Override public void run(){
-      server=new BaseXServer();
+      new BaseXServer();
     }
   }
 .start();
-  Thread.sleep(1000);
-  ClientSession session=new ClientSession("localhost",1984,"admin","admin");
-  session.execute("set info on");
-  session.execute("create db etc/xml/factbook.xml");
-  System.out.println(session.info());
-  session.close();
+  Performance.sleep(1000);
+  client=newSession();
+  client.execute("set info on");
+  client.execute("create db etc/xml/factbook.xml");
+  System.out.println(client.info());
   for (int i=0; i < NTHREADS; i++) {
-    new ClientTest().start();
+    new Client().start();
   }
 }
