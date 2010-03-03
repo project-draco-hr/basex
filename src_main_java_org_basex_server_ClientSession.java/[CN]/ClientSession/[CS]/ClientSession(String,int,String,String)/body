@@ -1,13 +1,11 @@
 {
-  final Socket socket=new Socket();
+  socket=new Socket();
   socket.connect(new InetSocketAddress(host,port),5000);
   in=socket.getInputStream();
   final String ts=new BufferInput(in).readString();
   out=new PrintOutput(socket.getOutputStream());
-  out.print(user);
-  out.write(0);
-  out.print(Token.md5(Token.md5(pw) + ts));
-  out.write(0);
+  send(user);
+  send(Token.md5(Token.md5(pw) + ts));
   out.flush();
   if (in.read() != 0)   throw new LoginException();
 }
