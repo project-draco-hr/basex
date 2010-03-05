@@ -8,7 +8,6 @@ def __init__(self, host, port, user, pw):
     m = hashlib.md5()
     m.update(hashlib.md5(pw).hexdigest())
     m.update(ts)
-    s.send((user + '\x00'))
-    s.send((m.hexdigest() + '\x00'))
+    s.send((((user + '\x00') + m.hexdigest()) + '\x00'))
     if (s.recv(1) != '\x00'):
         raise IOError('Access Denied.')
