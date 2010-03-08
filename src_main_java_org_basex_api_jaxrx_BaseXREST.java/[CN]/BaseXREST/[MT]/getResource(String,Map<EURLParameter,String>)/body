@@ -1,22 +1,18 @@
 {
   final StreamingOutput sOutput=new StreamingOutput(){
-    @Override public void write(    final OutputStream output) throws WebApplicationException {
+    @Override public void write(    final OutputStream output){
       final Context context=new Context();
-      String xQuery=".";
-      boolean surrounding=false;
-      Integer max=null;
-      Integer start=null;
       final String query=parameters.get(EURLParameter.QUERY);
       final String wrap=parameters.get(EURLParameter.WRAP);
       final String count=parameters.get(EURLParameter.COUNT);
       final String startCount=parameters.get(EURLParameter.START);
-      if (wrap != null)       surrounding=Boolean.parseBoolean(wrap);
-      if (query != null)       xQuery=query;
-      if (count != null)       max=Integer.valueOf(count);
-      if (startCount != null)       start=Integer.valueOf(startCount);
+      final boolean sur=wrap != null && Boolean.parseBoolean(wrap);
+      final String xQuery=query != null ? query : ".";
+      final int max=count != null ? Integer.valueOf(count) : Integer.MAX_VALUE;
+      final int start=startCount != null ? Integer.valueOf(startCount) : 0;
       final boolean opened=new Open(resourceName).exec(context);
       if (opened) {
-        doXQuery(xQuery,output,context,surrounding,start,max);
+        doXQuery(xQuery,output,context,sur,start,max);
         new Close().exec(context);
       }
       context.close();

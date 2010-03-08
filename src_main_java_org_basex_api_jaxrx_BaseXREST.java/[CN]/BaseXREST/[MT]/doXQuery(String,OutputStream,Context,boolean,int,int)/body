@@ -1,0 +1,28 @@
+{
+  XMLSerializer xml=null;
+  QueryProcessor proc=null;
+  try {
+    xml=new XMLSerializer(out,sur,true);
+    proc=new QueryProcessor(query,ctx);
+    final Iter iter=proc.iter();
+    for (int c=0; c < count; c++) {
+      final Item it=iter.next();
+      if (it == null)       break;
+      if (c < start)       continue;
+      xml.openResult();
+      it.serialize(xml);
+      xml.closeResult();
+    }
+  }
+ catch (  final Exception ex) {
+    throw new WebApplicationException(ex);
+  }
+ finally {
+    try {
+      if (xml != null)       xml.close();
+      if (proc != null)       proc.close();
+    }
+ catch (    final Exception ex) {
+    }
+  }
+}
