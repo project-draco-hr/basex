@@ -1,0 +1,34 @@
+{
+  final StreamingOutput sOutput=new StreamingOutput(){
+    @Override public void write(    final OutputStream output) throws WebApplicationException {
+      Document document;
+      try {
+        document=createSurroundingXMLResp();
+        final Element resElement=ResponseBuilder.createResultElement(document);
+        final List<Element> collOrRes=ResponseBuilder.createCollectionOrResourceEl(availableResources,document);
+        for (        final Element resource : collOrRes) {
+          resElement.appendChild(resource);
+        }
+        document.appendChild(resElement);
+        final DOMSource domSource=new DOMSource(document);
+        final StreamResult streamResult=new StreamResult(output);
+        final Transformer transformer=TransformerFactory.newInstance().newTransformer();
+        transformer.transform(domSource,streamResult);
+      }
+ catch (      final ParserConfigurationException exce) {
+        throw new WebApplicationException(exce);
+      }
+catch (      final TransformerConfigurationException exce) {
+        throw new WebApplicationException(exce);
+      }
+catch (      final TransformerFactoryConfigurationError exce) {
+        throw new WebApplicationException(exce);
+      }
+catch (      final TransformerException exce) {
+        throw new WebApplicationException(exce);
+      }
+    }
+  }
+;
+  return sOutput;
+}

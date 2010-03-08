@@ -1,0 +1,22 @@
+{
+  final Map<String,String> resources=new HashMap<String,String>();
+  final Context context=new Context();
+  final StringList stringList=org.basex.core.proc.List.list(context);
+  context.close();
+  for (  final String res : stringList) {
+    final Context dbContext=new Context();
+    final boolean opened=new Open(res).exec(dbContext);
+    if (opened) {
+      final Nodes nodes=dbContext.current;
+      if (nodes.size() > 1) {
+        resources.put(res,"collection");
+      }
+ else {
+        resources.put(res,"resource");
+      }
+      new Close().exec(dbContext);
+      dbContext.close();
+    }
+  }
+  return buildDBResponse(resources);
+}

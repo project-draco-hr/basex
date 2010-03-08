@@ -1,0 +1,54 @@
+{
+  StreamingOutput sOutput=null;
+  if (isQuery) {
+    final Document pvDoc=(Document)input;
+    sOutput=new StreamingOutput(){
+      @Override public void write(      final OutputStream output) throws WebApplicationException {
+        final OutputStream out=output;
+        final Context context=new Context();
+        final boolean opened=new Open(resourceName).exec(context);
+        if (opened) {
+          final Map<String,String> postQuery=getQueryOutOfXML(pvDoc);
+          final String xquery=postQuery.get("query");
+          final String wrap=postQuery.get("wrap");
+          final String count=postQuery.get("count");
+          final String startCount=postQuery.get("start");
+          boolean doWrap=false;
+          Integer start=null;
+          Integer max=null;
+          if (count != null)           max=Integer.valueOf(count);
+          if (startCount != null)           start=Integer.valueOf(startCount);
+          if (wrap != null)           doWrap=Boolean.parseBoolean(wrap);
+          doXQuery(xquery,out,context,doWrap,start,max);
+          new Close().exec(context);
+          context.close();
+        }
+ else {
+          throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+      }
+    }
+;
+  }
+ else {
+    final InputStream inputStream=(InputStream)input;
+    final Context dbContext=new Context();
+    final boolean opened=new Open(resourceName).exec(dbContext);
+    if (opened) {
+      try {
+        final SAXSource saxSource=new SAXSource(new InputSource(inputStream));
+        final Parser parser=new SAXWrapper(saxSource,dbContext.prop);
+        final Data data=dbContext.data;
+        data.insert(data.meta.size,-1,new MemBuilder(parser).build(new Date() + ".xml"));
+        data.flush();
+        dbContext.update();
+        new Close().exec(dbContext);
+      }
+ catch (      final IOException exce) {
+        throw new WebApplicationException(exce);
+      }
+    }
+    dbContext.close();
+  }
+  return Response.ok(sOutput).build();
+}
