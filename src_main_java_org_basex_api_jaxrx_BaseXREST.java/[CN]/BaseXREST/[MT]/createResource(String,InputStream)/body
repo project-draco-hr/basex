@@ -1,17 +1,19 @@
 {
-  final Context context=new Context();
-  boolean created=false;
+  final Context ctx=new Context();
+  final SAXSource saxSource=new SAXSource(new InputSource(input));
+  final Parser parser=new SAXWrapper(saxSource,ctx.prop);
   try {
-    final SAXSource saxSource=new SAXSource(new InputSource(input));
-    final Parser parser=new SAXWrapper(saxSource,context.prop);
-    final Data data=CreateDB.xml(context,parser,resourceName);
-    Close.close(context,data);
-    context.close();
-    created=true;
+    CreateDB.xml(ctx,parser,resource);
+    return true;
   }
  catch (  final IOException exce) {
     throw new WebApplicationException(exce);
   }
-  context.close();
-  return created;
+ finally {
+    try {
+      ctx.close();
+    }
+ catch (    final Exception ex) {
+    }
+  }
 }

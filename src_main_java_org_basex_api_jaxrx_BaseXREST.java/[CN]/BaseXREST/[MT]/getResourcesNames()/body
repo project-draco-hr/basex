@@ -1,22 +1,11 @@
 {
   final Map<String,String> resources=new HashMap<String,String>();
-  final Context context=new Context();
-  final StringList stringList=org.basex.core.proc.List.list(context);
-  context.close();
-  for (  final String res : stringList) {
-    final Context dbContext=new Context();
-    final boolean opened=new Open(res).exec(dbContext);
-    if (opened) {
-      final Nodes nodes=dbContext.current;
-      if (nodes.size() > 1) {
-        resources.put(res,"collection");
-      }
- else {
-        resources.put(res,"resource");
-      }
-      new Close().exec(dbContext);
-      dbContext.close();
+  final Context ctx=new Context();
+  for (  final String db : List.list(ctx)) {
+    if (new Open(db).exec(ctx)) {
+      resources.put(db,ctx.current.size() > 1 ? "collection" : "resource");
     }
   }
-  return buildDBResponse(resources);
+  ctx.close();
+  return ResponseBuilder.buildResponse(resources);
 }

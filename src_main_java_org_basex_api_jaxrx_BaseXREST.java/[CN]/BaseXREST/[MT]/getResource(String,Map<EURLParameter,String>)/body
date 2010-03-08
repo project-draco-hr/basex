@@ -1,23 +1,12 @@
 {
-  final StreamingOutput sOutput=new StreamingOutput(){
+  return new StreamingOutput(){
     @Override public void write(    final OutputStream output){
-      final Context context=new Context();
-      final String query=parameters.get(EURLParameter.QUERY);
-      final String wrap=parameters.get(EURLParameter.WRAP);
-      final String count=parameters.get(EURLParameter.COUNT);
-      final String startCount=parameters.get(EURLParameter.START);
-      final boolean sur=wrap != null && Boolean.parseBoolean(wrap);
-      final String xQuery=query != null ? query : ".";
-      final int max=count != null ? Integer.valueOf(count) : Integer.MAX_VALUE;
-      final int start=startCount != null ? Integer.valueOf(startCount) : 0;
-      final boolean opened=new Open(resourceName).exec(context);
-      if (opened) {
-        doXQuery(xQuery,output,context,sur,start,max);
-        new Close().exec(context);
+      final Context ctx=new Context();
+      if (new Open(resource).exec(ctx)) {
+        query(params.get(EURLParameter.QUERY),output,ctx,params.get(EURLParameter.WRAP),params.get(EURLParameter.START),params.get(EURLParameter.COUNT));
       }
-      context.close();
+      ctx.close();
     }
   }
 ;
-  return sOutput;
 }
