@@ -1,12 +1,21 @@
 {
-  final int s=sta != null ? Integer.valueOf(sta) : 0;
-  final int m=cnt != null ? Integer.valueOf(cnt) : Integer.MAX_VALUE - s;
-  final boolean surround=sur != null && Boolean.parseBoolean(sur);
   final String xquery=query != null ? query : ".";
-  XMLSerializer xml=null;
+  final int s=start != null ? Integer.valueOf(start) : 0;
+  final int m=count != null ? Integer.valueOf(count) : Integer.MAX_VALUE - s;
+  final Properties props=new Properties();
+  if (wrap != null && Boolean.parseBoolean(wrap)) {
+    props.setProperty("wrap-prefix",JAXRX);
+    props.setProperty("wrap-uri",URL);
+  }
+  if (serialize != null) {
+    for (    final String ser : serialize.split(",")) {
+      final String[] sprop=ser.split(":");
+      props.setProperty(sprop[0],sprop[1]);
+    }
+  }
   QueryProcessor proc=null;
   try {
-    xml=new XMLSerializer(out,surround,true);
+    XMLSerializer xml=new XMLSerializer(out,props);
     proc=new QueryProcessor(xquery,ctx);
     final Iter iter=proc.iter();
     for (int c=0; c < s + m; c++) {
@@ -17,16 +26,12 @@
       it.serialize(xml);
       xml.closeResult();
     }
+    xml.close();
   }
  catch (  final Exception ex) {
     throw new WebApplicationException(ex);
   }
  finally {
-    try {
-      if (xml != null)       xml.close();
-    }
- catch (    final Exception ex) {
-    }
     try {
       if (proc != null)       proc.close();
     }

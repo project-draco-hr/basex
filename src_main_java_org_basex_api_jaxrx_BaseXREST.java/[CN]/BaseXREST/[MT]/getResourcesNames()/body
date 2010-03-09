@@ -1,11 +1,30 @@
 {
-  final Map<String,String> resources=new HashMap<String,String>();
-  final Context ctx=new Context();
-  for (  final String db : List.list(ctx)) {
-    if (new Open(db).exec(ctx)) {
-      resources.put(db,ctx.current.size() > 1 ? "collection" : "resource");
+  return new StreamingOutput(){
+    @Override public void write(    final OutputStream out){
+      final Context ctx=new Context();
+      try {
+        final XMLSerializer xml=new XMLSerializer(out);
+        xml.openElement(token(JAXRX + ":results"));
+        xml.namespace(token(JAXRX),token(URL));
+        for (        final String db : List.list(ctx)) {
+          if (new Open(db).exec(ctx)) {
+            xml.emptyElement(token(JAXRX + ":" + (ctx.current.size() > 1 ? "collection" : "resource")),token("name"),token(db));
+          }
+        }
+        xml.closeElement();
+        xml.close();
+      }
+ catch (      final Exception ex) {
+        throw new WebApplicationException(ex);
+      }
+ finally {
+        try {
+          ctx.close();
+        }
+ catch (        final Exception ex) {
+        }
+      }
     }
   }
-  ctx.close();
-  return ResponseBuilder.buildResponse(resources);
+;
 }
