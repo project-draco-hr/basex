@@ -4,10 +4,13 @@
   if (docs.length != 1)   io.md();
   for (  final int pre : docs) {
     final IO file=io.merge(docs.length == 1 && name != null ? name : Token.string(data.text(pre,true)));
+    final Properties props=new Properties();
+    props.setProperty("indent",Boolean.toString(prop.is(Prop.XMLFORMAT)));
+    props.setProperty("encoding",prop.get(Prop.XMLENCODING));
     final PrintOutput po=new PrintOutput(file.path());
-    final XMLSerializer xml=new XMLSerializer(po,false,prop.is(Prop.XMLFORMAT));
-    xml.encoding(prop.get(Prop.XMLENCODING));
+    final XMLSerializer xml=new XMLSerializer(po,props);
     xml.node(data,pre);
+    xml.close();
     po.close();
   }
 }

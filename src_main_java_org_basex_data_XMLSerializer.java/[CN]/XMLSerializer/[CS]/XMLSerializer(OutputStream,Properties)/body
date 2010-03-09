@@ -1,0 +1,29 @@
+{
+  out=o instanceof PrintOutput ? (PrintOutput)o : new PrintOutput(o);
+  boolean omit=true;
+  if (p != null) {
+    String val=p.getProperty("indent");
+    if (val != null)     indent=Boolean.parseBoolean(val);
+    val=p.getProperty("encoding");
+    omit=val == null;
+    if (!omit)     enc=enc(val);
+    val=p.getProperty("omit-xml-declaration");
+    if (val != null)     omit=Boolean.parseBoolean(val);
+    val=p.getProperty("wrap-prefix");
+    if (val != null)     wrapPre=token(val);
+    val=p.getProperty("wrap-uri");
+    if (val != null)     wrapUri=token(val);
+  }
+  if (!omit) {
+    print(PI1);
+    print(DOCDECL);
+    print(enc);
+    print('\'');
+    print(PI2);
+    print(NL);
+  }
+  if (wrapPre != null) {
+    openElement(concat(wrapPre,COL,RESULTS));
+    attribute(concat(XMLNSC,wrapPre),wrapUri);
+  }
+}
