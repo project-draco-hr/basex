@@ -1,0 +1,29 @@
+{
+  return new StreamingOutput(){
+    @Override public void write(    final OutputStream out){
+      final Context ctx=new Context();
+      try {
+        final XMLSerializer xml=new XMLSerializer(out);
+        xml.openElement(token(JAXRX + ":results"));
+        xml.namespace(token(JAXRX),token(URL));
+        for (        final String db : List.list(ctx)) {
+          try {
+            new Open(db).execute(ctx);
+            xml.emptyElement(token(JAXRX + ":" + (ctx.current.size() > 1 ? "collection" : "resource")),token("name"),token(db));
+          }
+ catch (          final BaseXException ex) {
+          }
+        }
+        xml.closeElement();
+        xml.close();
+      }
+ catch (      final IOException ex) {
+        BXUtil.error(ex);
+      }
+ finally {
+        ctx.close();
+      }
+    }
+  }
+;
+}
