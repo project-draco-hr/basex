@@ -1,0 +1,24 @@
+{
+  out=o instanceof PrintOutput ? (PrintOutput)o : new PrintOutput(o);
+  boolean omit=true;
+  if (p != null) {
+    indent=p.is(SerializeProp.INDENT);
+    enc=enc(p.get(SerializeProp.ENCODING));
+    omit=p.is(SerializeProp.OMIT_XML_DECLARATION);
+    wrapPre=token(p.get(SerializeProp.WRAP_PRE));
+    wrapUri=token(p.get(SerializeProp.WRAP_URI));
+    wrap=wrapPre.length != 0;
+  }
+  if (!omit) {
+    print(PI1);
+    print(DOCDECL);
+    print(enc);
+    print('\'');
+    print(PI2);
+    print(NL);
+  }
+  if (wrap) {
+    openElement(concat(wrapPre,COL,RESULTS));
+    namespace(wrapPre,wrapUri);
+  }
+}
