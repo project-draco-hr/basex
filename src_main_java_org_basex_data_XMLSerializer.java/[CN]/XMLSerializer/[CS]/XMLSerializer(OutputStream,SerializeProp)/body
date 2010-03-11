@@ -1,30 +1,32 @@
 {
   out=o instanceof PrintOutput ? (PrintOutput)o : new PrintOutput(o);
   boolean omit=true;
-  String sa=SerializeProp.OMIT;
+  String sa=OMIT;
   if (p != null) {
-    indent=p.is(SerializeProp.INDENT);
-    enc=enc(p.get(SerializeProp.ENCODING));
-    if (!Charset.isSupported(enc))     error(SERENCODING,enc);
-    version=p.get(SerializeProp.VERSION);
-    if (!version.equals("1.0") && !version.equals("1.1"))     error(SERVERSION);
-    final String s=p.get(SerializeProp.CDATA_SECTION_ELEMENTS).trim();
-    if (s.length() != 0) {
-      for (      final String c : s.split(" "))       cdata.add(token(c));
+    for (    final String c : p.get(S_CDATA_SECTION_ELEMENTS).split("\\s+")) {
+      if (c.length() != 0)       cdata.add(token(c));
     }
-    omit=p.is(SerializeProp.OMIT_XML_DECLARATION);
-    sa=p.get(SerializeProp.STANDALONE);
-    if (omit && !sa.equals(SerializeProp.OMIT))     error(SERSTAND);
-    wrapPre=token(p.get(SerializeProp.WRAP_PRE));
-    wrapUri=token(p.get(SerializeProp.WRAP_URI));
+    enc=enc(p.get(S_ENCODING));
+    indent=check(p,S_INDENT,YES,NO).equals(YES);
+    omit=check(p,S_OMIT_XML_DECLARATION,YES,NO).equals(YES);
+    sa=check(p,S_STANDALONE,YES,NO,OMIT);
+    version=check(p,S_VERSION,"1.0","1.1");
+    wrapPre=token(p.get(S_WRAP_PRE));
+    wrapUri=token(p.get(S_WRAP_URI));
     wrap=wrapPre.length != 0;
   }
+  if (!Charset.isSupported(enc))   error(SERENCODING,enc);
+  if (omit && !sa.equals(OMIT))   error(SERSTAND);
   if (!omit) {
     print(PI1);
     print(DOCDECL1);
     print(version);
     print(DOCDECL2);
     print(enc);
+    if (!sa.equals(OMIT)) {
+      print(DOCDECL3);
+      print(sa);
+    }
     print('\'');
     print(PI2);
     ind=indent;
