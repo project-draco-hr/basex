@@ -4,6 +4,13 @@
   if (p != null) {
     indent=p.is(SerializeProp.INDENT);
     enc=enc(p.get(SerializeProp.ENCODING));
+    if (!Charset.isSupported(enc))     error(SERENCODING,enc);
+    version=p.get(SerializeProp.VERSION);
+    if (!version.equals("1.0") && !version.equals("1.1"))     error(SERVERSION);
+    final String s=p.get(SerializeProp.CDATA_SECTION_ELEMENTS).trim();
+    if (s.length() != 0) {
+      for (      final String c : s.split(" "))       cdata.add(token(c));
+    }
     omit=p.is(SerializeProp.OMIT_XML_DECLARATION);
     wrapPre=token(p.get(SerializeProp.WRAP_PRE));
     wrapUri=token(p.get(SerializeProp.WRAP_URI));
@@ -11,11 +18,13 @@
   }
   if (!omit) {
     print(PI1);
-    print(DOCDECL);
+    print(DOCDECL1);
+    print(version);
+    print(DOCDECL2);
     print(enc);
     print('\'');
     print(PI2);
-    print(NL);
+    ind=indent;
   }
   if (wrap) {
     openElement(concat(wrapPre,COL,RESULTS));
