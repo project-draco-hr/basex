@@ -1,0 +1,16 @@
+{
+  final String path=IOFile.file(BaseXServer.class.getProtectionDomain().getCodeSource().getLocation().toString());
+  final String mem="-Xmx" + Runtime.getRuntime().maxMemory();
+  final String clazz=BaseXServer.class.getName();
+  try {
+    new ProcessBuilder(new String[]{"java",mem,"-cp",path,clazz,"-p",String.valueOf(port)}).start();
+    for (int c=0; c < 6; c++) {
+      if (ping("localhost",port))       return true;
+      Performance.sleep(500);
+    }
+  }
+ catch (  final IOException ex) {
+    Main.debug(ex);
+  }
+  return false;
+}
