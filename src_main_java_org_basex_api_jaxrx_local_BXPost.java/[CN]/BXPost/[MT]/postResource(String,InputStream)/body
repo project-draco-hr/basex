@@ -1,0 +1,21 @@
+{
+  final Context ctx=new Context();
+  try {
+    new Open(resource).execute(ctx);
+  }
+ catch (  BaseXException ex) {
+    BXUtil.notFound(ex.getMessage());
+  }
+  try {
+    final SAXSource saxSource=new SAXSource(new InputSource(in));
+    final Parser parser=new SAXWrapper(saxSource,ctx.prop);
+    final MemData data=new MemBuilder(parser).build(new Date() + ".xml");
+    ctx.data.insert(ctx.data.meta.size,-1,data);
+  }
+ catch (  final IOException ex) {
+    BXUtil.error(ex);
+  }
+ finally {
+    ctx.close();
+  }
+}

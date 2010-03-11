@@ -1,21 +1,13 @@
 {
-  final Context ctx=new Context();
-  try {
-    new Open(resource).execute(ctx);
+  final ClientSession cs=session();
+  run(cs,new Code(){
+    @Override public void run() throws IOException {
+      if (!cs.execute(new Open(resource)))       notFound(cs.info());
+      final File file=cache(in);
+      final boolean ok=cs.execute(new Add(file.toString()));
+      file.delete();
+      if (!ok)       badRequest(cs.info());
+    }
   }
- catch (  BaseXException ex) {
-    BXUtil.notFound(ex.getMessage());
-  }
-  try {
-    final SAXSource saxSource=new SAXSource(new InputSource(in));
-    final Parser parser=new SAXWrapper(saxSource,ctx.prop);
-    final MemData data=new MemBuilder(parser).build(new Date() + ".xml");
-    ctx.data.insert(ctx.data.meta.size,-1,data);
-  }
- catch (  final IOException ex) {
-    BXUtil.error(ex);
-  }
- finally {
-    ctx.close();
-  }
+);
 }

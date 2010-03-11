@@ -1,53 +1,23 @@
 {
-  final String xquery=query != null ? query : ".";
-  final int s=start != null ? Integer.valueOf(start) : 0;
+  final int s=start != null ? Integer.valueOf(start) : 1;
   final int m=count != null ? Integer.valueOf(count) : Integer.MAX_VALUE - s;
-  final SerializeProp props=new SerializeProp(serialize);
-  String log=props.log();
-  if (wrap != null) {
-    if (wrap.equals(SerializeProp.YES)) {
-      props.set(SerializeProp.WRAP_PRE,JAXRX);
-      props.set(SerializeProp.WRAP_URI,URL);
+  final String xquery="(" + (query != null ? query : ".") + ")[position() = "+ s+ " to "+ (s + m - 1)+ "]";
+  final ClientSession cs=session();
+  run(cs,new Code(){
+    @Override public void run() throws IOException {
+      String ser=serialize;
+      if (wrap != null) {
+        if (wrap.equals(SerializeProp.YES)) {
+          ser+="," + SerializeProp.WRAP_PRE[0] + "="+ JAXRX+ ","+ SerializeProp.WRAP_URI[0]+ "="+ URL;
+        }
+ else         if (!wrap.equals(SerializeProp.NO)) {
+          badRequest(Main.info(Text.SETVAL + Text.NL,EURLParameter.WRAP,wrap));
+        }
+      }
+      if (!cs.execute(new Open(resource)))       notFound(cs.info());
+      if (!cs.execute(new Set(Prop.SERIALIZER,ser)))       badRequest(cs.info());
+      if (!cs.execute(new XQuery(xquery),out))       badRequest(cs.info());
     }
- else     if (!wrap.equals(SerializeProp.NO)) {
-      log+=Main.info(Text.SETVAL + Text.NL,EURLParameter.WRAP,wrap);
-    }
   }
-  if (log.length() != 0)   badRequest(log.toString());
-  final Context ctx=new Context();
-  try {
-    new Open(resource).execute(ctx);
-  }
- catch (  BaseXException ex) {
-    notFound(ex.getMessage());
-  }
-  QueryProcessor qp=null;
-  try {
-    final XMLSerializer xml=new XMLSerializer(out,props);
-    qp=new QueryProcessor(xquery,ctx);
-    final Iter iter=qp.iter();
-    for (int c=0; c < s + m; c++) {
-      final Item it=iter.next();
-      if (it == null)       break;
-      if (c < s)       continue;
-      xml.openResult();
-      it.serialize(xml);
-      xml.closeResult();
-    }
-    xml.close();
-  }
- catch (  final QueryException ex) {
-    badRequest(ex.getMessage());
-  }
-catch (  final IOException ex) {
-    error(ex);
-  }
- finally {
-    try {
-      if (qp != null)       qp.close();
-    }
- catch (    final Exception ex) {
-    }
-    ctx.close();
-  }
+);
 }

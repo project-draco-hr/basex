@@ -1,15 +1,13 @@
 {
-  final Context ctx=new Context();
-  final SAXSource source=new SAXSource(new InputSource(in));
-  final Parser parser=new SAXWrapper(source,ctx.prop);
-  try {
-    CreateDB.xml(ctx,parser,resource);
+  final ClientSession cs=session();
+  run(cs,new Code(){
+    @Override public void run() throws IOException {
+      final File file=cache(in);
+      final boolean ok=cs.execute(new CreateDB(file.toString(),resource));
+      file.delete();
+      if (!ok)       badRequest(cs.info());
+    }
   }
- catch (  final IOException ex) {
-    BXUtil.error(ex);
-  }
- finally {
-    ctx.close();
-  }
+);
   return true;
 }
