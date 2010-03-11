@@ -1,11 +1,7 @@
 {
-  final PrintOutput po=out instanceof PrintOutput ? (PrintOutput)out : new PrintOutput(out);
-  perf=new Performance();
-  context=ctx;
-  prop=ctx.prop;
-  final Data data=context.data;
+  final Data data=ctx.data;
   if (data == null && (flags & DATAREF) != 0)   return error(PROCNODB);
-  if (!context.perm(flags & 0xFF,data != null ? data.meta : null)) {
+  if (!ctx.perm(flags & 0xFF,data != null ? data.meta : null)) {
     final CmdPerm[] perms=CmdPerm.values();
     int i=perms.length;
     final int f=flags & 0xFF;
@@ -13,23 +9,9 @@
     return error(PERMNO,perms[i]);
   }
   boolean ok=false;
-  try {
-    ok=exec(po);
-  }
- catch (  final ProgressException ex) {
-    abort();
-    return error(PROGERR);
-  }
-catch (  final Throwable ex) {
-    Performance.gc(2);
-    Main.debug(ex);
-    abort();
-    if (ex instanceof OutOfMemoryError)     return error(PROCOUTMEM);
-    final Object[] st=ex.getStackTrace();
-    final Object[] obj=new Object[st.length + 1];
-    obj[0]=ex.toString();
-    System.arraycopy(st,0,obj,1,st.length);
-    return error(Main.bug(obj));
-  }
+  final boolean writing=(flags & (User.CREATE | User.WRITE)) != 0 || updating(ctx);
+  ctx.sema.before(writing);
+  ok=run(ctx,os);
+  ctx.sema.after(writing);
   return ok;
 }

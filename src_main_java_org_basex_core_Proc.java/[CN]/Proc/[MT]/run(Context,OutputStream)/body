@@ -1,0 +1,24 @@
+{
+  try {
+    perf=new Performance();
+    context=ctx;
+    prop=ctx.prop;
+    out=os == null ? new NullOutput() : os instanceof PrintOutput ? (PrintOutput)os : new PrintOutput(os);
+    return run();
+  }
+ catch (  final ProgressException ex) {
+    abort();
+    return error(PROGERR);
+  }
+catch (  final Throwable ex) {
+    Performance.gc(2);
+    Main.debug(ex);
+    abort();
+    if (ex instanceof OutOfMemoryError)     return error(PROCOUTMEM);
+    final Object[] st=ex.getStackTrace();
+    final Object[] obj=new Object[st.length + 1];
+    obj[0]=ex.toString();
+    System.arraycopy(st,0,obj,1,st.length);
+    return error(Main.bug(obj));
+  }
+}

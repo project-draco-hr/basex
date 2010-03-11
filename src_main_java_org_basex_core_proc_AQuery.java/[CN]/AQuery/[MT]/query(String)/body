@@ -1,0 +1,68 @@
+{
+  final int runs=Math.max(1,prop.num(Prop.RUNS));
+  String err=null;
+  try {
+    final SerializeProp sprop=new SerializeProp(prop.get(Prop.SERIALIZER));
+    if (prop.is(Prop.WRAPOUTPUT)) {
+      sprop.set(SerializeProp.WRAP_PRE,NAMELC);
+      sprop.set(SerializeProp.WRAP_URI,URL);
+    }
+    final boolean ser=prop.is(Prop.SERIALIZE);
+    int s=0;
+    for (int i=0; i < runs; i++) {
+      final Performance per=new Performance();
+      qp=new QueryProcessor(query,context);
+      progress(qp);
+      qp.parse();
+      pars+=per.getTime();
+      if (i == 0)       plan(qp,false);
+      qp.compile();
+      comp+=per.getTime();
+      if (i == 0)       plan(qp,true);
+      final XMLSerializer xml=new XMLSerializer(i == 0 && ser ? out : new NullOutput(!ser),sprop);
+      if (context.prop.is(Prop.CACHEQUERY)) {
+        result=qp.query();
+        eval+=per.getTime();
+        result.serialize(xml);
+        s=result.size();
+      }
+ else {
+        final Iter ir=qp.iter();
+        eval+=per.getTime();
+        s=0;
+        Item it;
+        while ((it=ir.next()) != null) {
+          checkStop();
+          xml.openResult();
+          it.serialize(xml);
+          xml.closeResult();
+          s++;
+        }
+      }
+      xml.close();
+      qp.close();
+      prnt+=per.getTime();
+    }
+    evalInfo(s,runs);
+    if (ser && (prop.is(Prop.INFO) || prop.is(Prop.XMLPLAN)))     out.println();
+    out.flush();
+    return true;
+  }
+ catch (  final QueryException ex) {
+    Main.debug(ex);
+    err=ex.getMessage();
+  }
+catch (  final IOException ex) {
+    Main.debug(ex);
+    err=ex.getMessage();
+  }
+catch (  final ProgressException ex) {
+    err=PROGERR;
+  }
+  try {
+    if (qp != null)     qp.close();
+  }
+ catch (  final IOException ex) {
+  }
+  return error(err);
+}

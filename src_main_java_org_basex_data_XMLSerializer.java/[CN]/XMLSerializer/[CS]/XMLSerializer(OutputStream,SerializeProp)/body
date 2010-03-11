@@ -1,6 +1,7 @@
 {
   out=o instanceof PrintOutput ? (PrintOutput)o : new PrintOutput(o);
   boolean omit=true;
+  String sa=SerializeProp.OMIT;
   if (p != null) {
     indent=p.is(SerializeProp.INDENT);
     enc=enc(p.get(SerializeProp.ENCODING));
@@ -12,6 +13,8 @@
       for (      final String c : s.split(" "))       cdata.add(token(c));
     }
     omit=p.is(SerializeProp.OMIT_XML_DECLARATION);
+    sa=p.get(SerializeProp.STANDALONE);
+    if (omit && !sa.equals(SerializeProp.OMIT))     error(SERSTAND);
     wrapPre=token(p.get(SerializeProp.WRAP_PRE));
     wrapUri=token(p.get(SerializeProp.WRAP_URI));
     wrap=wrapPre.length != 0;

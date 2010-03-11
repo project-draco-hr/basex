@@ -28,8 +28,6 @@
         break;
       }
       startTimer(proc);
-      w=sema.writing(proc,context);
-      sema.before(w);
       final boolean ok=proc.exec(context,out);
       out.write(0);
       final String inf=proc.info();
@@ -37,7 +35,6 @@
       out.write(0);
       send(ok);
       stopTimer();
-      sema.after(w);
       final String pr=proc.toString().replaceAll("\\r|\\n"," ");
       log.write(this,pr,ok ? "OK" : INFOERROR + inf,perf);
     }
@@ -46,7 +43,6 @@
  catch (  final IOException ex) {
     log.write(this,input,INFOERROR + ex.getMessage());
     ex.printStackTrace();
-    sema.after(w);
     exit();
   }
 }
