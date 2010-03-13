@@ -1,0 +1,25 @@
+{
+  return new StreamingOutput(){
+    @Override public void write(    final OutputStream out){
+      final ClientSession cs=session();
+      run(cs,new Code(){
+        @Override public void run() throws IOException {
+          if (db != null && !cs.execute(new Open(db)))           notFound(cs.info());
+          final String par=params(p);
+          if (!cs.execute(new Set(Prop.SERIALIZER,par)))           badRequest(cs.info());
+          if (p.get(EURLParameter.COMMAND) != null) {
+            command(cs,out,p);
+          }
+ else           if (p.get(EURLParameter.QUERY) != null || db != null) {
+            query(cs,out,p);
+          }
+ else {
+            list(cs,out,p);
+          }
+        }
+      }
+);
+    }
+  }
+;
+}

@@ -1,10 +1,18 @@
 {
-  final Map<String,String> params=new HashMap<String,String>();
-  params.put("query",doc.getElementsByTagName("text").item(0).getTextContent());
+  final Map<EURLParameter,String> params=new HashMap<EURLParameter,String>();
+  params.put(EURLParameter.QUERY,doc.getElementsByTagName("text").item(0).getTextContent());
+  params.put(EURLParameter.COMMAND,doc.getElementsByTagName("text").item(0).getTextContent());
   final NodeList props=doc.getElementsByTagName("property");
   for (int i=0; i < props.getLength(); i++) {
-    final Node prop=props.item(i);
-    params.put(prop.getAttributes().getNamedItem("name").getTextContent(),prop.getAttributes().getNamedItem("value").getTextContent());
+    final Node nl=props.item(i);
+    final String key=nl.getAttributes().getNamedItem("name").getNodeValue();
+    try {
+      final EURLParameter ep=EURLParameter.valueOf(key.toUpperCase());
+      params.put(ep,nl.getAttributes().getNamedItem("value").getNodeValue());
+    }
+ catch (    IllegalArgumentException ex) {
+      badRequest(ex.getMessage());
+    }
   }
   return params;
 }

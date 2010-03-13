@@ -1,24 +1,3 @@
 {
-  return new StreamingOutput(){
-    @Override public void write(    final OutputStream out){
-      final ClientSession cs=session();
-      run(cs,new Code(){
-        @Override public void run() throws IOException {
-          final XMLSerializer xml=new XMLSerializer(out);
-          xml.openElement(token(JAXRX + ":results"));
-          xml.namespace(token(JAXRX),token(URL));
-          final CachedOutput co=new CachedOutput();
-          cs.execute(new List(),co);
-          final Table table=new Table(co.toString());
-          for (          final TokenList l : table.contents) {
-            xml.emptyElement(token(JAXRX + ":" + "resource"),token("name"),l.get(0),token("documents"),l.get(1),token("size"),l.get(2));
-          }
-          xml.closeElement();
-          xml.close();
-        }
-      }
-);
-    }
-  }
-;
+  return getResource(null,new HashMap<EURLParameter,String>());
 }
