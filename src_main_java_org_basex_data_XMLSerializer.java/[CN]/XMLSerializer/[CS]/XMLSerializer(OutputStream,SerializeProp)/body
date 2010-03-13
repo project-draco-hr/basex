@@ -1,28 +1,49 @@
 {
   out=o instanceof PrintOutput ? (PrintOutput)o : new PrintOutput(o);
-  boolean omit=true;
-  String sa=OMIT;
-  if (p != null) {
-    for (    final String c : p.get(S_CDATA_SECTION_ELEMENTS).split("\\s+")) {
-      if (c.length() != 0)       cdata.add(token(c));
-    }
-    enc=enc(p.get(S_ENCODING));
-    indent=check(p,S_INDENT,YES,NO).equals(YES);
-    omit=check(p,S_OMIT_XML_DECLARATION,YES,NO).equals(YES);
-    sa=check(p,S_STANDALONE,YES,NO,OMIT);
-    version=check(p,S_VERSION,"1.0","1.1");
-    wrapPre=token(p.get(S_WRAP_PRE));
-    wrapUri=token(p.get(S_WRAP_URI));
-    wrap=wrapPre.length != 0;
+  for (  final String c : p.get(S_CDATA_SECTION_ELEMENTS).split("\\s+"))   if (c.length() != 0)   cdata.add(token(c));
+  boolean docdecl=check(p,S_OMIT_XML_DECLARATION,YES,NO).equals(NO);
+  boolean bom=check(p,S_BYTE_ORDER_MARK,YES,NO).equals(YES);
+  String sa=check(p,S_STANDALONE,YES,NO,OMIT);
+  check(p,S_NORMALIZATION_FORM,"NFC","none");
+  final String m=check(p,S_METHOD,M_XML,M_XHTML,M_HTML,M_TEXT);
+  method=m.equals(M_XML) ? M_XML : m.equals(M_XHTML) ? M_XHTML : m.equals(M_HTML) ? M_HTML : M_TEXT;
+  version=method == M_HTML ? V40 : V10;
+  enc=enc(p.get(S_ENCODING));
+  indent=check(p,S_INDENT,YES,NO).equals(YES);
+  version=method == M_TEXT ? p.get(S_VERSION) : method == M_HTML ? check(p,S_VERSION,V40,V401) : check(p,S_VERSION,V10,V11);
+  docsys=p.get(S_DOCTYPE_SYSTEM);
+  docpub=p.get(S_DOCTYPE_PUBLIC);
+  undecl=check(p,S_UNDECLARE_PREFIXES,YES,NO).equals(YES);
+  wrapPre=token(p.get(S_WRAP_PRE));
+  wrapUri=token(p.get(S_WRAP_URI));
+  wrap=wrapPre.length != 0;
+  if (docsys.length() == 0) {
+    docsys=null;
+    docpub=null;
   }
   if (!Charset.isSupported(enc))   error(SERENCODING,enc);
-  if (omit && !sa.equals(OMIT))   error(SERSTAND);
-  if (!omit) {
+  if (undecl && version.equals(V10))   error(SERUNDECL);
+  if (bom) {
+    if (enc == UTF8) {
+      out.write(0xEF);
+      out.write(0xBB);
+      out.write(0xBF);
+    }
+ else     if (enc == UTF16LE) {
+      out.write(0xFF);
+      out.write(0xFE);
+    }
+ else     if (enc == UTF16BE) {
+      out.write(0xFE);
+      out.write(0xFF);
+    }
+  }
+  if (docdecl && method != M_HTML && method != M_TEXT) {
     print(PI1);
     print(DOCDECL1);
     print(version);
     print(DOCDECL2);
-    print(enc);
+    print(p.get(S_ENCODING));
     if (!sa.equals(OMIT)) {
       print(DOCDECL3);
       print(sa);
@@ -30,6 +51,9 @@
     print('\'');
     print(PI2);
     ind=indent;
+  }
+ else   if (!sa.equals(OMIT) || version.equals(V11) && docsys != null) {
+    error(SERSTAND);
   }
   if (wrap) {
     openElement(concat(wrapPre,COL,RESULTS));
