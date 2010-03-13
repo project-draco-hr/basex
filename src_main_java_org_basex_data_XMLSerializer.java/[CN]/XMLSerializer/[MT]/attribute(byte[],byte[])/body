@@ -2,11 +2,13 @@
   if (method == M_TEXT)   return;
   print(' ');
   print(n);
-  if (method == M_HTML && BOOLEAN.id(concat(lc(tags.get(tags.size() - 1)),COL,lc(n))) != 0)   return;
+  final byte[] tagatt=concat(lc(tags.get(tags.size() - 1)),COL,lc(n));
+  if (method == M_HTML && BOOLEAN.id(tagatt) != 0)   return;
+  final byte[] val=escape && (method == M_HTML || method == M_XHTML) && URIS.id(tagatt) != 0 ? escape(v) : v;
   print(ATT1);
-  for (int k=0; k < v.length; k+=cl(v[k])) {
-    final int ch=cp(v,k);
-    if (method == M_HTML && (ch == '<' || ch == '&' && v[Math.min(k + 1,v.length - 1)] == '{')) {
+  for (int k=0; k < val.length; k+=cl(val[k])) {
+    final int ch=cp(val,k);
+    if (method == M_HTML && (ch == '<' || ch == '&' && val[Math.min(k + 1,val.length - 1)] == '{')) {
       print(ch);
     }
  else {
