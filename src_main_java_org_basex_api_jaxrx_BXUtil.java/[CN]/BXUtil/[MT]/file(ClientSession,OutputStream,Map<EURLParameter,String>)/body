@@ -1,0 +1,15 @@
+{
+  final String root=System.getProperty("org.jaxrx.webpath") + "/";
+  String file=root + par.get(EURLParameter.RUN);
+  if (!file.endsWith(".xq"))   file+=".xq";
+  final IO io=IO.get(file);
+  if (!io.exists())   notFound("Not found: " + file);
+  try {
+    final String query=new XMLInput(io).content().toString().trim();
+    par.put(EURLParameter.QUERY,query);
+    query(cs,out,par);
+  }
+ catch (  final IOException ex) {
+    badRequest(ex.getMessage());
+  }
+}
