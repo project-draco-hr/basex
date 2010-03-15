@@ -1,0 +1,12 @@
+{
+  System.out.println("=== QueryBindExample ===");
+  final String query="declare variable $var external; $var";
+  final QueryProcessor processor=new QueryProcessor(query,CONTEXT);
+  final Item string=Str.get("Hello World!\n");
+  final Var var=new Var(new QNm(Token.token("var")),true);
+  var.bind(string,processor.ctx);
+  processor.ctx.vars.addGlobal(var);
+  final Result result=processor.query();
+  result.serialize(new XMLSerializer(OUT));
+  processor.close();
+}
