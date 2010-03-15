@@ -3,13 +3,13 @@
   String file=root + par.get(EURLParameter.RUN);
   if (!file.endsWith(".xq"))   file+=".xq";
   final IO io=IO.get(file);
-  if (!io.exists())   notFound("Not found: " + file);
+  if (!io.exists())   throw JAXRXException.notFound("Not found: " + par.get(EURLParameter.RUN));
   try {
     final String query=new XMLInput(io).content().toString().trim();
     par.put(EURLParameter.QUERY,query);
     query(cs,out,par);
   }
  catch (  final IOException ex) {
-    badRequest(ex.getMessage());
+    throw JAXRXException.badRequest(ex.getMessage());
   }
 }

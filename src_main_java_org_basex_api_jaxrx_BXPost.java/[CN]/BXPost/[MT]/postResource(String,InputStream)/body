@@ -2,11 +2,11 @@
   final ClientSession cs=session();
   run(cs,new Code(){
     @Override public void run() throws IOException {
-      if (!cs.execute(new Open(resource)))       notFound(cs.info());
+      if (!cs.execute(new Open(resource)))       throw JAXRXException.notFound(cs.info());
       final File file=cache(in);
       final boolean ok=cs.execute(new Add(file.toString()));
       file.delete();
-      if (!ok)       badRequest(cs.info());
+      if (!ok)       throw JAXRXException.badRequest(cs.info());
     }
   }
 );
