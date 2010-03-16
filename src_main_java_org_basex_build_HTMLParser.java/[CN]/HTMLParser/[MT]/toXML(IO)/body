@@ -1,0 +1,29 @@
+{
+  if (!io.path().endsWith(".htm") && !io.path().endsWith(".html"))   return io;
+  try {
+    byte[] content=io.content();
+    final BufferInput bi=new CachedInput(content);
+    String enc=bi.encoding();
+    content=bi.content().finish();
+    byte[] encoding=token("charset=");
+    int cs=indexOf(content,encoding);
+    if (cs > 0) {
+      cs+=encoding.length;
+      int ce=cs;
+      while (++ce < content.length && content[ce] > 0x28)       ;
+      enc=string(substring(content,cs,ce));
+    }
+    final ByteArrayInputStream bais=new ByteArrayInputStream(content);
+    final InputSource is=new InputSource(bais);
+    is.setEncoding(Charset.isSupported(enc) ? enc(enc) : UTF8);
+    final StringWriter sw=new StringWriter();
+    final XMLReader parser=getHTMLReader();
+    parser.setContentHandler((ContentHandler)Class.forName("org.ccil.cowan.tagsoup.XMLWriter").getConstructor(new Class[]{Writer.class}).newInstance(sw));
+    parser.parse(is);
+    return new IOContent(token(sw.toString()));
+  }
+ catch (  final Exception ex) {
+    Main.debug(ex);
+    return io;
+  }
+}
