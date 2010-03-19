@@ -25,18 +25,19 @@
  else {
     final int rn=frn=getTreePerX(mousePosX);
     final int lv=getLevelPerY(mousePosY);
-    if (lv < 0 || cache.getHeight(rn) == -1 || lv >= cache.getHeight(rn))     return false;
+    if (lv < 0 || cache.getHeight(rn) < 0 || lv >= cache.getHeight(rn))     return false;
     final TreeRect[] rL=cache.getTreeRectsPerLevel(rn,lv);
     for (int i=0; i < rL.length; i++) {
       final TreeRect r=rL[i];
       if (r.contains(mousePosX)) {
         focusedRect=r;
         focusedRectLevel=lv;
-        int pre=cache.getPrePerIndex(rn,lv,i);
+        int pre=-1;
         if (cache.isBigRectangle(rn,lv)) {
-          final double ratio=mousePosX / (double)r.w;
-          final int index=(int)(cache.getLevelSize(0,lv) * ratio);
-          pre=cache.getPrePerIndex(0,lv,index);
+          pre=cache.getPrePerXPos(rn,lv,mousePosX);
+        }
+ else {
+          pre=cache.getPrePerIndex(rn,lv,i);
         }
         gui.notify.focus(pre,this);
         refreshedFocus=false;

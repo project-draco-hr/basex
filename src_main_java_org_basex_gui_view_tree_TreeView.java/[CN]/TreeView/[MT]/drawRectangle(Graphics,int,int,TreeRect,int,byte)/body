@@ -3,8 +3,8 @@
   final int h=nodeHeight;
   final boolean br=cache.isBigRectangle(rn,lv);
   boolean txt=!br && fontHeight <= h;
-  boolean fill=false;
-  boolean border=false;
+  boolean fill=true;
+  boolean border=true;
   Color borderColor=null;
   Color fillColor=null;
   Color textColor=Color.BLACK;
@@ -27,7 +27,6 @@ break;
 case DRAW_MARK:
 borderColor=h > 2 && r.w > 4 ? colormarkA : colormark1;
 fillColor=colormark1;
-fill=border=true;
 break;
 case DRAW_DESCENDANTS:
 final int alphaD=0xDD000000;
@@ -38,7 +37,7 @@ textColor=Color.WHITE;
 fill=true;
 border=true;
 if (h < 2 || r.w < 4) {
-borderColor=COLORS[6];
+borderColor=fillColor;
 txt=false;
 }
 break;
@@ -52,21 +51,16 @@ border=true;
 txt=false;
 }
 break;
-case DRAW_CONN:
-txt=false;
-break;
 }
+final int xx=r.x;
+final int ww=r.w;
 if (border) {
-final int xx=r.x + BORDER_PADDING;
-final int ww=r.w - BORDER_PADDING;
 g.setColor(borderColor);
 g.drawRect(xx,y,ww,h);
 }
 if (fill) {
-final int xx=r.x + BORDER_PADDING + 1;
-final int ww=r.w - BORDER_PADDING - 1;
 g.setColor(fillColor);
-g.fillRect(xx,y + 1,ww,h - 1);
+g.fillRect(xx + 1,y + 1,ww - 1,h - 1);
 }
 if (txt && (fill || !FILL_RECTANGLES)) {
 g.setColor(textColor);

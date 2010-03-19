@@ -1,9 +1,9 @@
 {
   final Data d=gui.context.current.data;
-  drawRectangle(g,rn,l,r,pre,t);
+  if (!cache.isBigRectangle(rn,l) && t != DRAW_CONN)   drawRectangle(g,rn,l,r,pre,t);
   final int lv=l + 1;
   final TreeBorder[] sbo=cache.generateSubtreeBorders(d,pre);
-  if (sbo.length < 2)   return;
+  if (cache.getHeight(rn) <= lv || sbo.length < 2)   return;
   final int parc=px == -1 ? (2 * r.x + r.w) / 2 : px;
   if (cache.isBigRectangle(rn,lv)) {
     drawBigRectDescendants(g,rn,lv,sbo,parc,t);
@@ -13,7 +13,8 @@
     final TreeBorder bos=cache.getTreeBorder(rn,lv);
     for (int j=0; j < bo.size; j++) {
       int pi=cache.getPrePerIndex(bo,j);
-      final TreeRect sr=cache.getTreeRectPerIndex(rn,lv,j + bo.start - bos.start);
+      final int start=bo.start >= bos.start ? bo.start - bos.start : bo.start;
+      final TreeRect sr=cache.getTreeRectPerIndex(rn,lv,j + start);
       if (SHOW_DESCENDANTS_CONN && levelDistance >= MIN_NODE_DIST_CONN) {
         drawDescendantsConn(g,lv,sr,parc,t);
       }
