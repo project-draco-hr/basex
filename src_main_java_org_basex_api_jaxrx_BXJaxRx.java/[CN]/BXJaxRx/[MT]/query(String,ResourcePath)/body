@@ -1,0 +1,16 @@
+{
+  return new BXOutput(rp){
+    @Override void code() throws IOException {
+      final String st=path.get(QueryParameter.START);
+      final String ct=path.get(QueryParameter.COUNT);
+      String xquery=query != null ? query : ".";
+      if (st != null || ct != null) {
+        final int s=st != null ? Integer.valueOf(st) : 1;
+        final int m=ct != null ? Integer.valueOf(ct) : Integer.MAX_VALUE - s;
+        xquery="(" + query + ")[position() = "+ s+ " to "+ (s + m - 1)+ "]";
+      }
+      exec(new XQuery(xquery),out);
+    }
+  }
+;
+}

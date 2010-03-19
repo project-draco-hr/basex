@@ -1,0 +1,16 @@
+{
+  if (rp.depth() != 0)   return query(".",rp);
+  return new BXOutput(null){
+    @Override void code() throws IOException {
+      final CachedOutput co=new CachedOutput();
+      exec(new List(),co);
+      final Table table=new Table(co.toString());
+      final XMLSerializer xml=new XMLSerializer(out,new SerializerProp(params(rp)));
+      for (      final TokenList l : table.contents) {
+        xml.emptyElement(Token.token(JAXRX + ":" + "resource"),Token.token("name"),l.get(0),Token.token("documents"),l.get(1),Token.token("size"),l.get(2));
+      }
+      xml.close();
+    }
+  }
+;
+}
