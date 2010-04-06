@@ -5,11 +5,6 @@
     step[i]=(Step)e;
   }
   mergeDesc(ctx);
-  boolean pos=false;
-  for (  final Step s : step) {
-    if (s.uses(Use.VAR,ctx))     return this;
-    pos=pos || s.uses(Use.POS,ctx);
-  }
   final Data data=ctx.data();
   if (data != null) {
     boolean doc=true;
@@ -17,17 +12,15 @@
     if (item.size(ctx) != ctx.docs || !(item instanceof Seq) || ((Seq)item).val != ctx.doc) {
       final Iter iter=item.iter();
       Item it;
-      while ((it=iter.next()) != null)       doc&=it.type == Type.DOC;
+      while ((it=iter.next()) != null)       doc=doc && it.type == Type.DOC;
     }
     if (doc) {
-      if (!pos && root != null) {
-        final Expr e=index(ctx,data);
-        if (e != this)         return e;
-      }
-      final Expr e=children(ctx,data);
-      if (e != this)       return e;
+      Expr e=this;
+      if (root != null && !uses(Use.POS,ctx))       e=index(ctx,data);
+      if (e == this)       e=children(ctx,data);
+      if (e != this)       return e.comp(ctx);
     }
   }
-  cache=root != null && !root.uses(Use.VAR,ctx);
+  cache=root != null && !uses(Use.VAR,ctx);
   return iterator(ctx);
 }

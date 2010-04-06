@@ -1,0 +1,21 @@
+{
+  final Data data=ictx.data;
+  return term.length <= MAXLEN ? new Iter(){
+    final IndexIterator ii=data.ids(new ValuesToken(type,term));
+    @Override public Item next(){
+      return ii.more() ? new DBNode(data,ii.next()) : null;
+    }
+  }
+ : new Iter(){
+    final boolean text=type == IndexType.TXT;
+    int pre=-1;
+    @Override public Item next(){
+      while (++pre != data.meta.size) {
+        final int k=data.kind(pre);
+        if ((text ? k == Data.TEXT : k == Data.ATTR) && eq(data.text(pre,text),term))         return new DBNode(data,pre);
+      }
+      return null;
+    }
+  }
+;
+}

@@ -1,10 +1,7 @@
 {
-  return new Iter(){
-    final ValuesToken ind=new ValuesToken(type,expr.atomic(ctx).str());
-    final IndexIterator it=ictx.data.ids(ind);
-    @Override public Item next(){
-      return it.more() ? new DBNode(ictx.data,it.next()) : null;
-    }
-  }
-;
+  Iter[] iter={};
+  final Iter ir=expr.iter(ctx);
+  Item it;
+  while ((it=ir.next()) != null)   iter=Array.add(iter,index(it.str()));
+  return iter.length == 0 ? Iter.EMPTY : iter.length == 1 ? iter[0] : new Union(new Expr[]{expr}).eval(iter);
 }
