@@ -23,8 +23,10 @@
       curr=new Nodes(d.doc(),d);
       curr.doc=true;
     }
+    context.prop.set(Prop.ALLINFO,compile);
     final QueryProcessor xq=new QueryProcessor(in,curr,context);
     final QueryContext qctx=xq.ctx;
+    context.prop.set(Prop.ALLINFO,false);
     try {
       files.add(file(nodes("*:input-file",state),nodes("*:input-file/@variable",state),qctx,n == 0));
       files.add(file(nodes("*:defaultCollection",state),null,qctx,n == 0));
@@ -60,6 +62,11 @@ catch (    final Exception ex) {
       error=ex.getMessage() != null ? ex.getMessage() : ex.toString();
       System.err.print("\n" + inname + ": ");
       ex.printStackTrace();
+    }
+    if (compile) {
+      Main.errln("---------------------------------------------------------");
+      Main.err(xq.info(false));
+      Main.errln(in);
     }
     final Nodes outFiles=nodes("*:output-file/text()",state);
     final Nodes cmpFiles=nodes("*:output-file/@compare",state);
@@ -128,7 +135,7 @@ catch (    final Exception ex) {
               si.add(new DBNode(rdata,pre));
               pre+=rdata.size(pre,rdata.kind(pre));
             }
-            final boolean eq=FNSeq.deep(iter,si);
+            final boolean eq=FNSimple.deep(iter,si);
             if (!eq && debug) {
               iter.reset();
               si.reset();
