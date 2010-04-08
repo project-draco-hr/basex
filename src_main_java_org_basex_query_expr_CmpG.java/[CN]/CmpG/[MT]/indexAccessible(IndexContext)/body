@@ -7,8 +7,8 @@
   final IndexType type=text ? IndexType.TXT : IndexType.ATV;
   final Expr arg=expr[1];
   if (!(arg.i() || arg instanceof Seq)) {
-    final Return ret=arg.returned(ic.ctx);
-    if (ret != Return.STR && ret != Return.STRSEQ && ret != Return.NOD && ret != Return.NODSEQ)     return false;
+    final SeqType ret=arg.returned(ic.ctx);
+    if (!ret.type.str && !ret.type.node())     return false;
     ic.is+=Math.max(1,ic.data.meta.size / 10);
     iacc=Array.add(iacc,new IndexAccess(arg,type,ic));
     return true;
@@ -17,8 +17,8 @@
   Item it;
   ic.is=0;
   while ((it=ir.next()) != null) {
-    final Return ret=it.returned(ic.ctx);
-    if (ret != Return.STR && ret != Return.NOD)     return false;
+    final SeqType ret=it.returned(ic.ctx);
+    if (!ret.type.str && !ret.type.node())     return false;
     ic.is+=ic.data.nrIDs(new ValuesToken(type,it.str()));
     iacc=Array.add(iacc,new IndexAccess(it,type,ic));
   }
