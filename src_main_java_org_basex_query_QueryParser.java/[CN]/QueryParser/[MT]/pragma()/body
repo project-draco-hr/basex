@@ -1,6 +1,6 @@
 {
-  if (!consumeWS2(PRAGMA))   return false;
-  do {
+  Expr[] pragmas={};
+  while (consumeWS(PRAGMA)) {
     final QNm name=new QNm(qName(PRAGMAINCOMPLETE),ctx);
     if (!name.ns())     error(NSMISS,name);
     char c=curr();
@@ -11,9 +11,9 @@
       tok.add(consume());
       c=curr();
     }
-    tok.finish();
+    tok.chop();
+    pragmas=add(pragmas,new Pragma(name,tok.finish()));
     qp+=2;
   }
- while (consumeWS(PRAGMA));
-  return true;
+  return pragmas;
 }
