@@ -1,0 +1,45 @@
+{
+  if (w) {
+    final Lock l=new Lock(true);
+synchronized (l) {
+      if (waiting.size() == 0 && activeR == 0 && !activeW) {
+        activeW=true;
+        return;
+      }
+      waiting.add(l);
+      try {
+        l.wait();
+      }
+ catch (      final InterruptedException ex) {
+        ex.printStackTrace();
+      }
+    }
+  }
+ else {
+    Lock l=new Lock(false);
+synchronized (l) {
+      if (!activeW && waiting.size() == 0) {
+        activeR++;
+        return;
+      }
+      if (waiting.size() > 0) {
+        if (!waiting.getLast().isWriter()) {
+          l=waiting.getLast();
+          l.inc();
+        }
+ else {
+          waiting.add(l);
+        }
+      }
+ else {
+        waiting.add(l);
+      }
+      try {
+        l.wait();
+      }
+ catch (      final InterruptedException ex) {
+        ex.printStackTrace();
+      }
+    }
+  }
+}
