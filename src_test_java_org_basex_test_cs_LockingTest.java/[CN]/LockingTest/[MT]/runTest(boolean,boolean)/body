@@ -1,0 +1,28 @@
+{
+  new Thread(){
+    @Override public void run(){
+      Performance.sleep(200);
+      if (read2) {
+        final String res=checkRes(new XQuery(READ1),session2);
+        if (!res.equals("192000"))         fail("test failed: " + res);
+      }
+ else {
+        final String res=exec(new XQuery(WRITE2),session2);
+        if (res != null)         fail("test failed: " + res);
+      }
+      done=true;
+    }
+  }
+.start();
+  if (read1) {
+    final String res=checkRes(new XQuery(READ1),session1);
+    if (!res.equals("192000"))     fail("test failed: " + res);
+  }
+ else {
+    exec(new XQuery(WRITE1),session1);
+  }
+  while (!done) {
+    Performance.sleep(200);
+  }
+  done=false;
+}
