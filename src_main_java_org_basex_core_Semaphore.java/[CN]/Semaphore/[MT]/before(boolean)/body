@@ -1,16 +1,14 @@
 {
   if (w) {
-    final Object o=new Object();
-synchronized (o) {
-synchronized (this) {
-        if (waitingW.size() == 0 && activeR == 0 && !activeW) {
-          activeW=true;
-          return;
-        }
-        waitingW.add(o);
+    final Lock l=new Lock(true);
+synchronized (l) {
+      if (waiting.size() == 0 && activeR == 0 && !activeW) {
+        activeW=true;
+        return;
       }
+      waiting.add(l);
       try {
-        o.wait();
+        l.wait();
       }
  catch (      final InterruptedException ex) {
         ex.printStackTrace();
@@ -18,14 +16,24 @@ synchronized (this) {
     }
   }
  else {
-synchronized (this) {
-      if (!activeW && waitingW.size() == 0) {
-        ++activeR;
+    Lock l=null;
+    boolean add=false;
+    if (waiting.size() > 0 && !waiting.getLast().writer) {
+      l=waiting.getLast();
+      l.number++;
+    }
+ else {
+      l=new Lock(false);
+      add=true;
+    }
+synchronized (l) {
+      if (!activeW && waiting.size() == 0) {
+        activeR++;
         return;
       }
-      ++waitingR;
+      if (add)       waiting.add(l);
       try {
-        wait();
+        l.wait();
       }
  catch (      final InterruptedException ex) {
         ex.printStackTrace();
