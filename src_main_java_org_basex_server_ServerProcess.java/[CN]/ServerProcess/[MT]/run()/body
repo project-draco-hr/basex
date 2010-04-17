@@ -13,7 +13,9 @@
       final Performance perf=new Performance();
       proc=null;
       try {
-        proc=new CommandParser(input,context,true).parse()[0];
+        final Proc[] procs=new CommandParser(input,context,true).parse();
+        if (procs.length != 1)         throw new QueryException(SERVERPROC,procs.length);
+        proc=procs[0];
       }
  catch (      final QueryException ex) {
         log.write(this,input,perf,INFOERROR + ex.extended());

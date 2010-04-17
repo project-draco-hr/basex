@@ -1,24 +1,21 @@
 {
-  for (int n=1; n <= 6; n++) {
+  for (int n=1; n <= q.length; n++) {
     final int j=n;
-    try {
-      Thread.sleep(2000);
-    }
- catch (    InterruptedException e1) {
-      e1.printStackTrace();
-    }
+    Performance.sleep(2000);
     new Thread(){
       @Override public void run(){
         try {
-          ClientSession session=new ClientSession("localhost",1984,"admin","admin");
-          session.execute(q[j - 1]);
+          final ClientSession cs=new ClientSession("localhost",1984,"admin","admin");
+          cs.execute(q[j - 1]);
           System.out.println("=== Client Done: " + j + " ===");
+          tdone++;
         }
- catch (        IOException e) {
+ catch (        final IOException e) {
           e.printStackTrace();
         }
       }
     }
 .start();
   }
+  while (tdone < q.length)   Performance.sleep(200);
 }
