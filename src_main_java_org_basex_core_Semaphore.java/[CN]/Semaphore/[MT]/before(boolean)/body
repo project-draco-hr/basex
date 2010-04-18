@@ -16,22 +16,20 @@ synchronized (l) {
     }
   }
  else {
-    Lock l=null;
-    boolean add=false;
-    if (waiting.size() > 0 && !waiting.getLast().writer) {
-      l=waiting.getLast();
-      l.number++;
-    }
- else {
-      l=new Lock(false);
-      add=true;
-    }
-synchronized (l) {
+synchronized (this) {
       if (!activeW && waiting.size() == 0) {
         activeR++;
         return;
       }
-      if (add)       waiting.add(l);
+      Lock l=null;
+      if (waiting.size() > 0 && !waiting.getLast().writer) {
+        l=waiting.getLast();
+        l.waitingReaders++;
+      }
+ else {
+        l=new Lock(false);
+        waiting.add(l);
+      }
       try {
         l.wait();
       }
