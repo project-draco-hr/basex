@@ -21,12 +21,7 @@
   if (aList.size() > 0) {
     final Nod targ=before || after ? par : n;
     if (targ.type != Type.ELM)     Err.or(before || after ? UPATTELM : UPATTELM2,this);
-    for (int a=0; a < aList.size(); a++) {
-      final QNm name=aList.get(a).qname();
-      final byte[] uri=targ.uri(name.pref(),ctx);
-      if (uri != null && !eq(name.uri.str(),uri))       Err.or(UPNSCONFL);
-    }
-    up=new InsertAttribute(targ,aList);
+    up=new InsertAttribute(targ,checkNS(aList,targ,ctx));
     ctx.updates.add(up,ctx);
   }
   if (cList.size() > 0) {

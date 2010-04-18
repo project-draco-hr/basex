@@ -2,11 +2,13 @@
   if (w) {
     final Lock l=new Lock(true);
 synchronized (l) {
-      if (waiting.size() == 0 && activeR == 0 && !activeW) {
-        activeW=true;
-        return;
+synchronized (this) {
+        if (waiting.size() == 0 && activeR == 0 && !activeW) {
+          activeW=true;
+          return;
+        }
+        waiting.add(l);
       }
-      waiting.add(l);
       try {
         l.wait();
       }
