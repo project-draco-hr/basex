@@ -3,8 +3,8 @@
   final int h=nodeHeight;
   final boolean br=cache.isBigRectangle(rn,lv);
   boolean txt=!br && fontHeight <= h;
-  boolean fill=true;
-  boolean border=true;
+  boolean fill=false;
+  boolean border=false;
   Color borderColor=null;
   Color fillColor=null;
   Color textColor=Color.BLACK;
@@ -21,12 +21,14 @@ borderColor=color6;
 final int alpha=0xDD000000;
 final int rgb=GUIConstants.COLORCELL.getRGB();
 fillColor=new Color(rgb + alpha,true);
-border=true;
+if (h > 8) border=true;
 fill=!br;
 break;
 case DRAW_MARK:
 borderColor=h > 2 && r.w > 4 ? colormarkA : colormark1;
 fillColor=colormark1;
+border=true;
+fill=true;
 break;
 case DRAW_DESCENDANTS:
 final int alphaD=0xDD000000;
@@ -36,8 +38,9 @@ borderColor=COLORS[8];
 textColor=Color.WHITE;
 fill=true;
 border=true;
-if (h < 2 || r.w < 4) {
-borderColor=fillColor;
+if (h < 4 || r.w < 4) {
+fillColor=SMALL_SPACE_COLOR;
+if (h < 2) borderColor=fillColor;
 txt=false;
 }
 break;
@@ -45,7 +48,7 @@ case DRAW_PARENT:
 fillColor=COLORS[6];
 textColor=Color.WHITE;
 fill=!br;
-if (h < 2 || r.w < 4) {
+if (h > 8 || r.w < 4) {
 borderColor=COLORS[6];
 border=true;
 txt=false;
