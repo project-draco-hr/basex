@@ -13,17 +13,19 @@
     final IntList[] li=new IntList[maxLevel];
     for (int i=0; i < maxLevel; i++)     li[i]=new IntList();
     final int ts=data.meta.size;
-    final int[] lvlPre=new int[maxLevel];
-    li[0].add(0);
-    lvlPre[0]=0;
-    for (int p=1; p < ts; p++) {
-      final int k=data.kind(p);
-      if (!SHOW_ATTR && k == Data.ATTR)       continue;
-      int lv=0;
-      final int par=data.parent(p,k);
-      while (par != lvlPre[lv])       lv++;
-      lvlPre[lv + 1]=p;
-      li[lv + 1].add(p);
+    final int[] roots=data.doc();
+    for (int i=0; i < roots.length; i++) {
+      final int root=roots[i];
+      li[0].add(root);
+      final int sh=i + 1 == roots.length ? ts : roots[i + 1];
+      for (int p=root + 1; p < sh; p++) {
+        final int k=data.kind(p);
+        if (!SHOW_ATTR && k == Data.ATTR)         continue;
+        int lv=0;
+        final int par=data.parent(p,k);
+        while (par != li[lv].get(li[lv].size() - 1))         lv++;
+        li[lv + 1].add(p);
+      }
     }
     nodes=li;
   }
