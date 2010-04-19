@@ -3,8 +3,8 @@
     final Lock l=new Lock(true);
 synchronized (l) {
 synchronized (this) {
-        if (waiting.size() == 0 && activeR == 0 && !activeW) {
-          activeW=true;
+        if (lock == 0) {
+          lock=2;
           return;
         }
         waiting.add(l);
@@ -19,7 +19,8 @@ synchronized (this) {
   }
  else {
 synchronized (this) {
-      if (!activeW && waiting.size() == 0) {
+      if (lock < 2 && waiting.size() == 0) {
+        lock=1;
         activeR++;
         return;
       }
