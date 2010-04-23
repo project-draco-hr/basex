@@ -1,3 +1,30 @@
 {
-  obj.deepFile.addMeta(MetaElem.ENCODER,obj.readText(size));
+  final long pos=obj.bfc.position();
+  obj.bfc.buffer(9);
+  obj.skipEncBytes();
+  final StringBuilder sb=new StringBuilder();
+  int b;
+  while ((b=obj.bfc.get()) != 0)   sb.append((char)b);
+  String string=sb.toString();
+  if (string.startsWith("image/")) {
+    string=string.substring(6);
+  }
+  String[] suffixes;
+  if (string.equals("jpeg"))   string="jpg";
+  if (string.length() != 3)   suffixes=new String[]{"png","jpg"};
+ else   suffixes=new String[]{string};
+  obj.bfc.buffer(1);
+  final int typeId=obj.bfc.get() & 0xFF;
+  String name=null;
+  if (typeId >= 0 && typeId < PICTURE_TYPE.length)   name=PICTURE_TYPE[typeId];
+  while (true) {
+    try {
+      if (obj.bfc.get() == 0)       break;
+    }
+ catch (    final BufferUnderflowException ex) {
+      obj.bfc.buffer(1);
+    }
+  }
+  final int size=(int)(s - (obj.bfc.position() - pos));
+  obj.deepFile.subfile(name,size,suffixes);
 }
