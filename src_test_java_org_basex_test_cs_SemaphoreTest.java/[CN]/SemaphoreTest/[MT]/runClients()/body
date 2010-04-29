@@ -1,8 +1,8 @@
 {
-  for (int n=1; n <= 10; n++) {
+  for (int n=0; n < TESTS; n++) {
     final int j=n;
     try {
-      Thread.sleep(2000);
+      Thread.sleep(500);
     }
  catch (    final InterruptedException e1) {
       e1.printStackTrace();
@@ -10,10 +10,12 @@
     new Thread(){
       @Override public void run(){
         try {
-          final ClientSession session=new ClientSession("localhost",1984,"admin","admin");
           final int t=rand.nextInt(2);
-          session.execute(q[t]);
-          System.out.println("=== Client " + j + " with query "+ t+ " done ===");
+          sessions.get(j).execute(q[t]);
+          String w="write";
+          if (t == 1)           w="read";
+          System.out.println("=== Client " + j + " with "+ w+ " query done ===");
+          tdone++;
         }
  catch (        final IOException e) {
           e.printStackTrace();
@@ -22,4 +24,5 @@
     }
 .start();
   }
+  while (tdone < TESTS)   Performance.sleep(200);
 }
