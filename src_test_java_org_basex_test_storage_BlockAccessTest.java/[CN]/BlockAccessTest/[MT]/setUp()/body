@@ -4,7 +4,7 @@
     data=new DiskBuilder(parser).build(DBNAME);
     size=data.meta.size;
     data.close();
-    tba=new TableDiskAccess(data.meta,DATATBL);
+    tda=new TableDiskAccess(data.meta,DATATBL);
   }
  catch (  final Exception ex) {
     ex.printStackTrace();
@@ -12,7 +12,7 @@
   final int bytecount=size * (1 << IO.NODEPOWER);
   storage=new byte[bytecount];
   for (int i=0; i < bytecount; i++) {
-    storage[i]=(byte)tba.read1(i >> IO.NODEPOWER,i % (1 << IO.NODEPOWER));
+    storage[i]=(byte)tda.read1(i >> IO.NODEPOWER,i % (1 << IO.NODEPOWER));
   }
   entries=IO.BLOCKSIZE >>> IO.NODEPOWER;
   blocks=(int)Math.ceil(size / Math.floor(entries * IO.BLOCKFILL));
