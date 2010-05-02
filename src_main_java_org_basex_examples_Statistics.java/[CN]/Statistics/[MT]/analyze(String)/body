@@ -1,0 +1,22 @@
+{
+  try {
+    System.out.println("- " + input);
+    exec(new CreateDB(input));
+    final Data data=ctx.data;
+    final TokenList tl=new TokenList();
+    tl.add(data.meta.file.toString().replace(abs,""));
+    tl.add(data.meta.filesize);
+    tl.add(data.meta.size);
+    add(tl,"max(for $d in //* return count($d/@*))");
+    add(tl,"sum(for $d in //text() return string-length($d) + 1)");
+    add(tl,"sum(for $d in //@* return string-length($d) + 1)");
+    add(tl,"count(distinct-values(for $d in //* return name($d)))");
+    add(tl,"count(distinct-values(for $d in //@* return name($d)))");
+    tl.add(data.ns.size());
+    table.contents.add(tl);
+    exec(new DropDB(data.meta.name));
+  }
+ catch (  BaseXException ex) {
+    err.println("- " + ex.getMessage());
+  }
+}
