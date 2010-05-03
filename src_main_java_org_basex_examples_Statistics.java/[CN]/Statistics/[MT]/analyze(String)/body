@@ -1,7 +1,6 @@
 {
   try {
-    System.out.println("- " + input);
-    exec(new CreateDB(input));
+    exec(new Check(input));
     final Data data=ctx.data;
     final TokenList tl=new TokenList();
     tl.add(data.meta.file.toString().replace(abs,""));
@@ -13,10 +12,20 @@
     add(tl,"count(distinct-values(for $d in //* return name($d)))");
     add(tl,"count(distinct-values(for $d in //@* return name($d)))");
     tl.add(data.ns.size());
-    table.contents.add(tl);
-    exec(new DropDB(data.meta.name));
+    tl.add(data.meta.height);
+    if (tab) {
+      for (int u=0; u < tl.size(); u++) {
+        Main.out(tl.get(u));
+        Main.out('\t');
+      }
+      Main.outln();
+    }
+ else {
+      table.contents.add(tl);
+    }
+    if (drop)     exec(new DropDB(data.meta.name));
   }
  catch (  BaseXException ex) {
-    err.println("- " + ex.getMessage());
+    err.println("- " + input + ": "+ ex.getMessage());
   }
 }
