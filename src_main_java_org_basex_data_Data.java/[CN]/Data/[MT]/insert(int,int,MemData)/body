@@ -6,6 +6,7 @@
   final int buf=Math.min(ms,IO.BLOCKSIZE >> IO.NODEPOWER);
   buffer(buf);
   int mpre=-1;
+  final NSNode t=ns.root;
   while (++mpre != ms) {
     if (mpre != 0 && mpre % buf == 0)     insert(ipre + mpre - buf);
     final int mk=md.kind(mpre);
@@ -13,6 +14,7 @@
     final int pre=ipre + mpre;
     final int dis=mpar >= 0 ? mpre - mpar : pre - ipar;
     final int par=pre - dis;
+    if (mpre == 0)     ns.setRoot(ns.findAncestor(par));
     while (l > 0 && preStack[l - 1] > par)     ns.close(preStack[--l]);
 switch (mk) {
 case DOC:
@@ -23,7 +25,6 @@ preStack[l++]=pre;
 break;
 case ELEM:
 final boolean ne=md.nsFlag(mpre);
-if (mpre == 0) ns.setRoot(ns.findAncestor(par));
 ns.open();
 if (ne) {
 final Atts at=md.ns(mpre);
@@ -49,6 +50,7 @@ break;
 }
 }
 while (l > 0) ns.close(preStack[--l]);
+ns.setRoot(t);
 if (bp != 0) insert(ipre + mpre - 1 - (mpre - 1) % buf);
 buffer(1);
 int p=ipar;
