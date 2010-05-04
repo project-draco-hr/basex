@@ -3,54 +3,48 @@
     final Lock p=new Lock(true);
 synchronized (p) {
 synchronized (this) {
-switch (state) {
-case IDLE:
+        if (state == State.IDLE) {
           state=State.WRITE;
-        return;
-default :
-      waiting.add(p);
-    break;
-}
-}
-try {
-p.wait();
-}
- catch (final InterruptedException ex) {
-ex.printStackTrace();
-}
-}
-}
+          return;
+        }
+        waiting.add(p);
+      }
+      try {
+        p.wait();
+      }
+ catch (      final InterruptedException ex) {
+        ex.printStackTrace();
+      }
+    }
+  }
  else {
-Lock l=null;
+    Lock l=null;
 synchronized (this) {
-switch (state) {
-case IDLE:
-activeR++;
-return;
-case READ:
-if (waiting.size() == 0) {
-activeR++;
-return;
-}
-default :
-if (waiting.size() > 0 && !waiting.getLast().writer) {
-l=waiting.getLast();
-l.waitingReaders++;
-}
+      if (state == State.IDLE) {
+        state=State.READ;
+        activeR++;
+        return;
+      }
+ else       if (state == State.READ && waiting.size() == 0) {
+        activeR++;
+        return;
+      }
+      if (waiting.size() > 0 && !waiting.getLast().writer) {
+        l=waiting.getLast();
+        l.waitingReaders++;
+      }
  else {
-l=new Lock(false);
-waiting.add(l);
-}
-break;
-}
-}
+        l=new Lock(false);
+        waiting.add(l);
+      }
+    }
 synchronized (l) {
-try {
-l.wait();
-}
- catch (final InterruptedException ex) {
-ex.printStackTrace();
-}
-}
-}
+      try {
+        l.wait();
+      }
+ catch (      final InterruptedException ex) {
+        ex.printStackTrace();
+      }
+    }
+  }
 }
