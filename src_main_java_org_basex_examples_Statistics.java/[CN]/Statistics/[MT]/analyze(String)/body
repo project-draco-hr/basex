@@ -4,14 +4,15 @@
     final Data data=ctx.data;
     final TokenList tl=new TokenList();
     tl.add(data.meta.file.toString().replace(abs,""));
-    tl.add(data.meta.filesize);
+    tl.add(Performance.format(data.meta.filesize));
     tl.add(data.meta.size);
-    add(tl,"max(for $d in //* return count($d/@*))");
-    add(tl,"count(distinct-values(for $d in //* return name($d)))");
-    add(tl,"count(distinct-values(for $d in //@* return name($d)))");
+    tl.add("");
+    tl.add(data.tags.size());
+    tl.add(data.atts.size());
     tl.add(data.ns.size());
-    add(tl,"sum(for $d in //text() return string-length($d) + 1)");
-    add(tl,"sum(for $d in //@* return string-length($d) + 1)");
+    tl.add(ctx.data.meta.file(DATATXT).length());
+    tl.add(ctx.data.meta.file(DATAATV).length());
+    tl.add(Performance.format(data.meta.dbsize()));
     tl.add(data.meta.height);
     tl.add(data.meta.ndocs);
     if (tab) {
