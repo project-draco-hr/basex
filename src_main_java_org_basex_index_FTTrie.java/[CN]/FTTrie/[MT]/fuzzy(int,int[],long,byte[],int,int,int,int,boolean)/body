@@ -13,11 +13,9 @@
       if (vsn.length == i) {
         if (c < d + p + r)         return FTIndexIterator.EMP;
         FTIndexIterator ld=FTIndexIterator.EMP;
-        ld=iter(cdid,cne[cne.length - 1],inD,f);
-        if (hasNextNodes(cne)) {
-          for (int t=cne[0] + 1; t < cne.length - 1; t+=2) {
-            ld=FTIndexIterator.union(fuzzy(cne[t],null,-1,new byte[]{(byte)cne[t + 1]},d,p + 1,r,c,f),ld);
-          }
+        ld=iter(cdid,cne[cne.length - 1],inB,f);
+        for (int t=cne[0] + 1; t < cne.length - 1; t+=2) {
+          ld=FTIndexIterator.union(fuzzy(cne[t],null,-1,new byte[]{(byte)cne[t + 1]},d,p + 1,r,c,f),ld);
         }
         return ld;
       }
@@ -33,33 +31,31 @@
       vsn=tmp;
       int[] ne=null;
       long tdid=-1;
-      if (hasNextNodes(cne)) {
-        for (int k=cne[0] + 1; k < cne.length - 1; k+=2) {
-          if (cne[k + 1] == vsn[0]) {
+      for (int k=cne[0] + 1; k < cne.length - 1; k+=2) {
+        if (cne[k + 1] == vsn[0]) {
+          ne=entry(cne[k]);
+          tdid=did;
+          b=new byte[vsn.length];
+          System.arraycopy(vsn,0,b,0,vsn.length);
+          ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r,c,f),ld);
+        }
+        if (c > d + p + r) {
+          if (ne == null) {
             ne=entry(cne[k]);
             tdid=did;
-            b=new byte[vsn.length];
-            System.arraycopy(vsn,0,b,0,vsn.length);
-            ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r,c,f),ld);
           }
-          if (c > d + p + r) {
-            if (ne == null) {
-              ne=entry(cne[k]);
-              tdid=did;
-            }
-            b=new byte[vsn.length + 1];
-            b[0]=(byte)cne[k + 1];
-            System.arraycopy(vsn,0,b,1,vsn.length);
-            ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p + 1,r,c,f),ld);
-            if (vsn.length > 0) {
-              b=new byte[vsn.length - 1];
-              System.arraycopy(vsn,1,b,0,b.length);
-              ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d + 1,p,r,c,f),ld);
-              b=new byte[vsn.length];
-              System.arraycopy(vsn,1,b,1,vsn.length - 1);
-              b[0]=(byte)ne[1];
-              ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r + 1,c,f),ld);
-            }
+          b=new byte[vsn.length + 1];
+          b[0]=(byte)cne[k + 1];
+          System.arraycopy(vsn,0,b,1,vsn.length);
+          ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p + 1,r,c,f),ld);
+          if (vsn.length > 0) {
+            b=new byte[vsn.length - 1];
+            System.arraycopy(vsn,1,b,0,b.length);
+            ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d + 1,p,r,c,f),ld);
+            b=new byte[vsn.length];
+            System.arraycopy(vsn,1,b,1,vsn.length - 1);
+            b[0]=(byte)ne[1];
+            ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r + 1,c,f),ld);
           }
         }
       }
@@ -91,33 +87,31 @@
   long tdid=-1;
   FTIndexIterator ld=FTIndexIterator.EMP;
   byte[] b;
-  if (hasNextNodes(cne)) {
-    for (int k=cne[0] + 1; k < cne.length - 1; k+=2) {
-      if (cne[k + 1] == vsn[0]) {
+  for (int k=cne[0] + 1; k < cne.length - 1; k+=2) {
+    if (cne[k + 1] == vsn[0]) {
+      ne=entry(cne[k]);
+      tdid=did;
+      b=new byte[vsn.length];
+      System.arraycopy(vsn,0,b,0,vsn.length);
+      ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r,c,f),ld);
+    }
+    if (c > d + p + r) {
+      if (ne == null) {
         ne=entry(cne[k]);
         tdid=did;
-        b=new byte[vsn.length];
-        System.arraycopy(vsn,0,b,0,vsn.length);
-        ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r,c,f),ld);
       }
-      if (c > d + p + r) {
-        if (ne == null) {
-          ne=entry(cne[k]);
-          tdid=did;
-        }
-        b=new byte[vsn.length + 1];
+      b=new byte[vsn.length + 1];
+      b[0]=(byte)ne[1];
+      System.arraycopy(vsn,0,b,1,vsn.length);
+      ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p + 1,r,c,f),ld);
+      if (vsn.length > 0) {
+        b=new byte[vsn.length - 1];
+        System.arraycopy(vsn,1,b,0,b.length);
+        ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d + 1,p,r,c,f),ld);
+        b=new byte[vsn.length];
+        System.arraycopy(vsn,1,b,1,vsn.length - 1);
         b[0]=(byte)ne[1];
-        System.arraycopy(vsn,0,b,1,vsn.length);
-        ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p + 1,r,c,f),ld);
-        if (vsn.length > 0) {
-          b=new byte[vsn.length - 1];
-          System.arraycopy(vsn,1,b,0,b.length);
-          ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d + 1,p,r,c,f),ld);
-          b=new byte[vsn.length];
-          System.arraycopy(vsn,1,b,1,vsn.length - 1);
-          b[0]=(byte)ne[1];
-          ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r + 1,c,f),ld);
-        }
+        ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r + 1,c,f),ld);
       }
     }
   }

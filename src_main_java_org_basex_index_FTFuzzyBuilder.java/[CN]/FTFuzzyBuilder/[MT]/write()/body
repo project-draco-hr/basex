@@ -8,17 +8,16 @@
   final int[][] prs=new int[csize][];
   final int[][] pos=new int[csize][];
   final IntList ind=new IntList();
-  final FTFuzzy[] v=new FTFuzzy[csize];
+  final FTList[] v=new FTList[csize];
   for (int b=0; b < csize; b++) {
-    v[b]=new FTFuzzy(data,b);
-    tok[b]=v[b].nextTok();
-    prs[b]=v[b].nextPreValues();
-    pos[b]=v[b].nextPosValues();
+    v[b]=new FTFuzzyList(data,b);
+    tok[b]=v[b].next();
+    prs[b]=v[b].pres();
+    pos[b]=v[b].poss();
   }
-  int min;
   final IntList mer=new IntList();
   while (check(tok)) {
-    min=0;
+    int min=0;
     mer.reset();
     mer.add(min);
     for (int i=0; i < csize; i++) {
@@ -49,10 +48,10 @@
       final int m=mer.get(j);
       for (      final int p : prs[m])       tbp.add(Num.num(p));
       for (      final int p : pos[m])       tbo.add(Num.num(p));
-      s+=v[m].nextFTDataSize();
+      s+=v[m].size();
       tok[m]=nextToken(v,m);
-      prs[m]=tok[m].length > 0 ? v[m].nextPreValues() : new int[0];
-      pos[m]=tok[m].length > 0 ? v[m].nextPosValues() : new int[0];
+      prs[m]=tok[m].length > 0 ? v[m].pres() : new int[0];
+      pos[m]=tok[m].length > 0 ? v[m].poss() : new int[0];
     }
     outy.writeInt(s);
     final byte[] pr=tbp.finish();
