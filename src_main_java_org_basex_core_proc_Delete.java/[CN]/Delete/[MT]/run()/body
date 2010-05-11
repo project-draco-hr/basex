@@ -1,10 +1,15 @@
 {
-  final IO io=IO.get(args[0]);
-  final int pre=findDoc(Token.token(io.name()));
-  if (pre == -1)   return error(DBNODOC,args[0]);
-  final Data data=context.data;
-  data.delete(pre);
-  data.flush();
-  context.update();
-  return info(DOCDELETED,io.name(),perf);
+  final byte[] del=IO.get(args[0]).exists() ? Token.token(IO.get(args[0]).name()) : Token.token(args[0]);
+  int pre=-1, count=-1;
+  do {
+    pre=findDoc(del);
+    count++;
+    if (pre == -1)     break;
+    final Data data=context.data;
+    data.delete(pre);
+    data.flush();
+    context.update();
+  }
+ while (true);
+  return (count == 0) ? error(DBNODOC,args[0]) : info(DOCDELETED,del,perf);
 }
