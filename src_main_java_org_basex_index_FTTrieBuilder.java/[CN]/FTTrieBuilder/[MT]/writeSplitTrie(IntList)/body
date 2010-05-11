@@ -1,43 +1,41 @@
 {
-  final DataAccess outt=new DataAccess(data.meta.file(DATAFTX + 't'));
   final DataOutput outa=new DataOutput(data.meta.file(DATAFTX + 'a'));
   final DataOutput outc=new DataOutput(data.meta.file(DATAFTX + 'c'));
+  final DataAccess tmp=new DataAccess(data.meta.file(DATAFTX + 't'));
   final int[] root=new int[roots.size()];
   int rp=0;
-  outa.write((byte)1);
-  outa.write((byte)-1);
+  outa.write1(1);
+  outa.write1(-1);
   for (int j=0; j < roots.size(); j++) {
-    outa.writeInt(0);
-    outa.write(roots.get(j));
+    outa.write4(0);
+    outa.write1(roots.get(j));
   }
-  outa.writeInt(0);
+  outa.write4(0);
   outa.write5(-1);
-  outc.writeInt(0);
+  outc.write4(0);
   int siz=(int)(2L + roots.size() * 5L + 9L);
-  byte tl=outt.read1();
-  while (tl > 0) {
-    final long pos=outt.pos();
-    final byte[] tok=outt.readBytes(pos,tl);
-    final int s=outt.read4();
-    final long off=outt.read5();
+  while (true) {
+    final byte[] tok=tmp.readToken();
+    if (tok.length == 0)     break;
+    final int s=tmp.read4();
+    final long off=tmp.read5();
     if (rp < roots.size() && tok[0] != roots.get(rp)) {
       siz=writeSubTree(root,outa,outc,rp,siz);
       rp++;
       index=new FTArray(128);
     }
     index.insertSorted(tok,s,off);
-    tl=outt.read1();
   }
   writeSubTree(root,outa,outc,rp,siz);
-  outt.close();
+  tmp.close();
   outa.close();
   outc.close();
   final RandomAccessFile a=new RandomAccessFile(data.meta.file(DATAFTX + 'a'),"rw");
   a.seek(2);
-  for (  final int element : root) {
-    a.writeInt(element);
+  for (  final int r : root) {
+    a.writeInt(r);
     a.seek(a.getFilePointer() + 1);
   }
   a.close();
-  DropDB.delete(data.meta.name,DATAFTX + "\\d+." + IO.BASEXSUFFIX,data.meta.prop);
+  DropDB.delete(data.meta.name,DATAFTX + 't' + IO.BASEXSUFFIX,data.meta.prop);
 }

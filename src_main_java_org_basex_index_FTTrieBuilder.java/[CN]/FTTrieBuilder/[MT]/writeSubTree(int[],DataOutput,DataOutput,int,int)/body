@@ -1,29 +1,30 @@
 {
   final TokenList tokens=index.tokens;
   final IntArrayList next=index.next;
-  if (root != null)   root[rp]=next.get(0)[1] + o;
+  if (root != null)   root[rp]=next.get(0)[1] + offset;
   int s=siz;
   final int il=next.size();
   for (int i=1; i < il; i++) {
     final int[] nxt=next.get(i);
-    final int lp=nxt[nxt.length - 1] > -1 ? 0 : -1;
-    outa.write((byte)tokens.get(nxt[0]).length);
-    outa.write(tokens.get(nxt[0]));
+    final int lp=nxt[nxt.length - 1] >= 0 ? 0 : -1;
+    outa.write1(tokens.get(nxt[0]).length);
+    outa.writeBytes(tokens.get(nxt[0]));
     int j=1;
     for (; j < nxt.length - 2 + lp; j++) {
-      outa.writeInt(nxt[j] + o);
-      outa.write(tokens.get(next.get(nxt[j])[0])[0]);
+      outa.write4(nxt[j] + offset);
+      outa.write1(tokens.get(next.get(nxt[j])[0])[0]);
     }
-    outa.writeInt(nxt[j]);
+    outa.write4(nxt[j]);
     if (nxt[j] == 0 && nxt[j + 1] == 0 || lp == 0) {
       outa.write5(nxt[j + 1]);
     }
  else {
-      outa.write5(toLong(nxt,nxt.length - 2));
+      int n=nxt.length - 2;
+      outa.write5((long)nxt[n] << 16 + (-nxt[n + 1] & 0xFFFF));
     }
-    outc.writeInt(s);
+    outc.write4(s);
     s+=tokens.get(nxt[0]).length + (nxt.length - 3 + lp) * 5 + 10;
   }
-  o+=next.size() - 1;
+  offset+=next.size() - 1;
   return s;
 }

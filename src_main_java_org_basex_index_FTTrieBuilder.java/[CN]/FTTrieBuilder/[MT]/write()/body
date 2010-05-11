@@ -3,64 +3,39 @@
     writeAll();
     return;
   }
-  writeList(csize++);
+  writeIndex(csize++);
   final DataOutput outb=new DataOutput(data.meta.file(DATAFTX + 'b'));
-  final DataOutput outt=new DataOutput(data.meta.file(DATAFTX + 't'));
-  final IntList root=new IntList();
-  final byte[][] tok=new byte[csize][];
-  final int[][] prs=new int[csize][];
-  final int[][] pos=new int[csize][];
+  final DataOutput tmp=new DataOutput(data.meta.file(DATAFTX + 't'));
+  final IntList ind=new IntList();
   final FTList[] v=new FTList[csize];
-  for (int b=0; b < csize; b++) {
-    v[b]=new FTTrieList(data,b);
-    tok[b]=v[b].next();
-    prs[b]=v[b].pres();
-    pos[b]=v[b].poss();
-  }
-  final IntList mer=new IntList();
-  while (check(tok)) {
+  for (int b=0; b < csize; b++)   v[b]=new FTTrieList(data,b);
+  final IntList il=new IntList();
+  while (check(v)) {
     int min=0;
-    mer.reset();
-    mer.add(min);
+    il.reset();
+    il.add(min);
     for (int i=0; i < csize; i++) {
-      if (min == i || tok[i].length == 0)       continue;
-      final int d=diff(tok[min],tok[i]);
-      if (d > 0 || tok[min].length == 0) {
+      if (min == i || v[i].tok.length == 0)       continue;
+      final int d=diff(v[min].tok,v[i].tok);
+      if (d > 0 || v[min].tok.length == 0) {
         min=i;
-        mer.reset();
-        mer.add(min);
+        il.reset();
+        il.add(min);
       }
- else       if (d == 0 && tok[i].length > 0) {
-        mer.add(i);
+ else       if (d == 0 && v[i].tok.length > 0) {
+        il.add(i);
       }
     }
-    if (root.size() == 0 || root.get(root.size() - 1) != tok[min][0])     root.add(tok[min][0]);
-    outt.write(tok[min].length);
-    outt.write(tok[min]);
-    int s=0;
-    final TokenBuilder tbp=new TokenBuilder();
-    final TokenBuilder tbo=new TokenBuilder();
-    tbp.add(new byte[4]);
-    tbo.add(new byte[4]);
-    for (int j=0; j < mer.size(); j++) {
-      final int m=mer.get(j);
-      for (      final int p : prs[m])       tbp.add(Num.num(p));
-      for (      final int p : pos[m])       tbo.add(Num.num(p));
-      s+=v[m].size();
-      tok[m]=nextToken(v,m);
-      prs[m]=tok[m].length > 0 ? v[m].pres() : new int[0];
-      pos[m]=tok[m].length > 0 ? v[m].poss() : new int[0];
+    if (ind.size() == 0 || ind.get(ind.size() - 1) != v[min].tok[0]) {
+      ind.add(v[min].tok[0]);
     }
-    outt.writeInt(s);
-    outt.write5(outb.size());
-    final byte[] pr=tbp.finish();
-    Num.size(pr,pr.length);
-    final byte[] po=tbo.finish();
-    Num.size(po,po.length);
-    writeFTData(outb,pr,po);
+    tmp.writeToken(v[min].tok);
+    int s=merge(outb,il,v);
+    tmp.write4(s);
+    tmp.write5(outb.size());
   }
-  outt.write(0);
-  outt.close();
+  tmp.writeToken(EMPTY);
+  tmp.close();
   outb.close();
-  writeSplitTrie(root);
+  writeSplitTrie(ind);
 }

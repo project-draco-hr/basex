@@ -1,5 +1,6 @@
 {
-  if (!io.path().endsWith(".htm") && !io.path().endsWith(".html"))   return io;
+  final String path=io.path();
+  if (!path.endsWith(".htm") && !path.endsWith(".html"))   return io;
   try {
     byte[] content=io.content();
     final BufferInput bi=new CachedInput(content);
@@ -19,7 +20,7 @@
     final XMLReader parser=getHTMLReader();
     parser.setContentHandler((ContentHandler)Class.forName("org.ccil.cowan.tagsoup.XMLWriter").getConstructor(new Class[]{Writer.class}).newInstance(sw));
     parser.parse(is);
-    return new IOContent(token(sw.toString()));
+    return new IOContent(token(sw.toString()),io.name());
   }
  catch (  final Exception ex) {
     Main.debug(ex);
