@@ -3,12 +3,12 @@
     for (    final IO f : path.children())     parse(b,f);
   }
  else {
-    io=path;
+    file=path;
     while (path.more()) {
       if (!path.name().matches(filter))       continue;
-      b.meta.filesize+=io.length();
-      final String t2=buildTargetPath();
-      parser=Parser.xmlParser(io,prop,t2);
+      b.meta.filesize+=file.length();
+      final String trg=(target + '/' + file.path().replaceAll("^" + root + "|"+ file.name()+ "$","")).replaceAll("^/","");
+      parser=Parser.xmlParser(file,prop,trg);
       parser.doc=doc;
       parser.parse(b);
       if (Prop.debug && ++c % 100 == 0)       Main.err(";");

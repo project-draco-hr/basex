@@ -1,19 +1,9 @@
 {
-  IO io;
-  String name;
-  String dbname;
-  if (args.length == 2) {
-    io=IO.get(args[1]);
-    name=args[0];
-    dbname=name;
-  }
- else {
-    io=IO.get(args[0]);
-    name=io.name();
-    dbname=io.dbname();
-  }
+  final IO io=IO.get(args[0]);
   if (!io.exists())   return error(FILEWHICH,io);
-  final DirParser p=new DirParser(io,context.prop,target);
+  final String name=io.name();
+  final String dbname=io.dbname();
+  final DirParser p=new DirParser(io,context.prop,path(args[1]));
   MemData d=null;
   try {
     d=new MemBuilder(p).build(dbname);
@@ -27,5 +17,5 @@
   data.insert(data.meta.size,-1,d);
   data.flush();
   context.update();
-  return info(DOCADDED,name,perf);
+  return info(PATHADDED,name,perf);
 }
