@@ -1,20 +1,19 @@
 {
   String input=in.readString();
-  OutputStream o=socket.getOutputStream();
   QueryProcessor processor=new QueryProcessor(input,context);
   try {
     Iter iter=processor.iter();
-    XMLSerializer serializer=new XMLSerializer(o);
-    o.write(0);
+    XMLSerializer serializer=new XMLSerializer(out);
+    send(true);
     Item item;
     while (in.read() == 0) {
       if ((item=iter.next()) != null) {
-        o.write(0);
+        send(true);
         item.serialize(serializer);
-        o.write(0);
+        send(true);
       }
  else {
-        o.write(1);
+        send(false);
       }
     }
     serializer.close();
@@ -22,9 +21,8 @@
   }
  catch (  QueryException ex) {
     log.write(this,input,INFOERROR + ex.extended());
-    o.write(1);
+    send(false);
     out.print(ex.extended());
-    out.flush();
-    o.write(0);
+    send(true);
   }
 }
