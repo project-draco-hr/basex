@@ -3,15 +3,14 @@
   final Graphics tg=treeImage.getGraphics();
   tg.setFont(font);
   smooth(tg);
-  final int[] roots=gui.context.current.nodes;
   for (int rn=0; rn < numRoots; rn++) {
-    final int h=cache.getHeight(rn);
+    final int h=sub.getSubtreeHeight(rn);
     for (int lv=0; lv < h; lv++) {
-      final boolean br=cache.isBigRectangle(rn,lv);
-      final TreeRect[] lr=cache.getTreeRectsPerLevel(rn,lv);
+      final boolean br=tr.isBigRectangle(sub,rn,lv);
+      final TreeRect[] lr=tr.getTreeRectsPerLevel(rn,lv);
       for (int i=0; i < lr.length; i++) {
         final TreeRect r=lr[i];
-        final int pre=cache.getPrePerIndex(rn,lv,i);
+        final int pre=sub.getPrePerIndex(rn,lv,i);
         drawRectangle(tg,rn,lv,r,pre,DRAW_RECTANGLE);
       }
       if (br) {
@@ -33,6 +32,9 @@
         }
       }
     }
-    if (SHOW_CONN_MI)     highlightNode(tg,rn,roots[rn],cache.getTreeRectPerIndex(rn,0,0),0,-1,DRAW_CONN);
+    if (SHOW_CONN_MI) {
+      final TreeRect rr=tr.getTreeRectPerIndex(rn,0,0);
+      highlightDescendants(tg,rn,0,rr,roots[rn],getRectCenter(rr),DRAW_CONN);
+    }
   }
 }

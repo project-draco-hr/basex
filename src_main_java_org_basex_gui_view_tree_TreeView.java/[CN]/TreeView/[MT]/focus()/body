@@ -1,21 +1,21 @@
 {
   if (refreshedFocus) {
     final int pre=gui.context.focused;
-    for (int i=0; i < cache.getHeight(frn); i++) {
-      if (cache.isBigRectangle(frn,i)) {
-        final int index=cache.getPreIndex(frn,i,pre);
+    for (int i=0; i < sub.getSubtreeHeight(frn); i++) {
+      if (tr.isBigRectangle(sub,frn,i)) {
+        final int index=sub.getPreIndex(frn,i,pre);
         if (index > -1) {
-          focusedRect=cache.getTreeRectsPerLevel(frn,i)[0];
-          focusedRectLevel=i;
+          frect=tr.getTreeRectsPerLevel(frn,i)[0];
+          flv=i;
           refreshedFocus=false;
           return true;
         }
       }
  else {
-        final TreeRect rect=cache.searchRect(frn,i,pre);
+        final TreeRect rect=tr.searchRect(sub,frn,i,pre);
         if (rect != null) {
-          focusedRect=rect;
-          focusedRectLevel=i;
+          frect=rect;
+          flv=i;
           refreshedFocus=false;
           return true;
         }
@@ -25,19 +25,20 @@
  else {
     final int rn=frn=getTreePerX(mousePosX);
     final int lv=getLevelPerY(mousePosY);
-    if (lv < 0 || cache.getHeight(rn) < 0 || lv >= cache.getHeight(rn))     return false;
-    final TreeRect[] rL=cache.getTreeRectsPerLevel(rn,lv);
+    final int h=sub.getSubtreeHeight(rn);
+    if (lv < 0 || h < 0 || lv >= h)     return false;
+    final TreeRect[] rL=tr.getTreeRectsPerLevel(rn,lv);
     for (int i=0; i < rL.length; i++) {
       final TreeRect r=rL[i];
       if (r.contains(mousePosX)) {
-        focusedRect=r;
-        focusedRectLevel=lv;
+        frect=r;
+        flv=lv;
         int pre=-1;
-        if (cache.isBigRectangle(rn,lv)) {
-          pre=cache.getPrePerXPos(rn,lv,mousePosX);
+        if (tr.isBigRectangle(sub,rn,lv)) {
+          pre=tr.getPrePerXPos(sub,rn,lv,mousePosX);
         }
  else {
-          pre=cache.getPrePerIndex(rn,lv,i);
+          pre=sub.getPrePerIndex(rn,lv,i);
         }
         gui.notify.focus(pre,this);
         refreshedFocus=false;

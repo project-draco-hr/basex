@@ -2,31 +2,37 @@
   markedImage=createImage();
   final Graphics mg=markedImage.getGraphics();
   smooth(mg);
-  final int size=gui.context.marked.size();
-  if (size == 0)   return;
-  final int[] marked=Arrays.copyOf(gui.context.marked.nodes,size);
+  mg.setFont(font);
+  final int[] mark=gui.context.marked.nodes;
+  if (mark.length == 0)   return;
   int rn=0;
   while (rn < numRoots) {
-    for (int i=0; i < cache.getHeight(rn); i++) {
-      final int y=getYperLevel(i);
-      if (cache.isBigRectangle(rn,i)) {
-        for (int j=0; j < size; j++) {
-          final int pre=marked[j];
-          final TreeRect rect=cache.searchRect(rn,i,pre);
-          final int ix=cache.getPreIndex(rn,i,pre);
+    final LinkedList<Integer> marklink=new LinkedList<Integer>();
+    for (int i=0; i < mark.length; i++)     marklink.add(i,mark[i]);
+    for (int lv=0; lv < sub.getSubtreeHeight(rn); lv++) {
+      final int y=getYperLevel(lv);
+      final ListIterator<Integer> li=marklink.listIterator();
+      if (tr.isBigRectangle(sub,rn,lv)) {
+        while (li.hasNext()) {
+          final int pre=li.next();
+          final TreeRect rect=tr.searchRect(sub,rn,lv,pre);
+          final int ix=sub.getPreIndex(rn,lv,pre);
           if (ix > -1) {
-            final int x=(int)(rect.w * ix / (double)cache.getLevelSize(rn,i));
+            li.remove();
+            final int x=(int)(rect.w * ix / (double)sub.getLevelSize(rn,lv));
             mg.setColor(colormark1);
             mg.fillRect(rect.x + x,y,2,nodeHeight + 1);
           }
         }
       }
  else {
-        for (int j=0; j < size; j++) {
-          final int pre=marked[j];
-          final TreeRect rect=cache.searchRect(rn,i,pre);
+        while (li.hasNext()) {
+          final int pre=li.next();
+          ;
+          final TreeRect rect=tr.searchRect(sub,rn,lv,pre);
           if (rect != null) {
-            drawRectangle(mg,rn,i,rect,pre,DRAW_MARK);
+            li.remove();
+            drawRectangle(mg,rn,lv,rect,pre,DRAW_MARK);
           }
         }
       }

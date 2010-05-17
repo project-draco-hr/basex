@@ -1,47 +1,28 @@
 {
-  if (l == -1)   return;
-  final int y=getYperLevel(l);
-  final int h=nodeHeight;
-  final boolean br=cache.isBigRectangle(rn,l);
-  final boolean root=gui.context.current.nodes[rn] == pre;
-  final int height=cache.getHeight(rn);
+  if (lv == -1)   return;
+  final boolean br=tr.isBigRectangle(sub,rn,lv);
+  final boolean isRoot=roots[rn] == pre;
+  final int height=sub.getSubtreeHeight(rn);
   final Data d=gui.context.data;
   final int k=d.kind(pre);
   final int size=d.size(pre,k);
-  int brx=-1;
-  if (t != DRAW_CONN)   drawRectangle(g,rn,l,r,pre,t);
+  int rc=-1;
   if (br) {
-    final int index=cache.getPreIndex(rn,l,pre);
-    if (t == DRAW_HIGHLIGHT)     fix=index;
-    final double ratio=index / (double)(cache.getLevelSize(rn,l) - 1);
-    brx=r.x + (int)(r.w * ratio);
-    g.setColor(nodeHeight < 4 ? SMALL_SPACE_COLOR : COLORS[7]);
-    g.drawLine(brx,y,brx,y + nodeHeight);
-  }
-  if (cx > -1 && MIN_NODE_DIST_CONN <= levelDistance) {
-    g.setColor(COLORS[7]);
-    g.drawLine(cx,getYperLevel(l + 1) - 1,brx == -1 ? (2 * r.x + r.w) / 2 : brx,y + nodeHeight + 1);
-  }
-  if ((t == DRAW_HIGHLIGHT || t == DRAW_PARENT) && !root) {
-    final int par=d.parent(pre,k);
-    final int lv=l - 1;
-    final TreeRect parRect=cache.searchRect(rn,lv,par);
-    if (parRect == null)     return;
-    highlightNode(g,rn,par,parRect,lv,brx == -1 ? (2 * r.x + r.w) / 2 : brx,DRAW_PARENT);
-  }
-  if ((t == DRAW_CONN || t == DRAW_HIGHLIGHT || t == DRAW_DESCENDANTS) && size > 1 && l + 1 < height)   highlightDescendants(g,rn,pre,r,l,brx,t);
-  if (t != DRAW_HIGHLIGHT)   return;
-  final String s=Token.string(cache.getText(gui.context,rn,pre));
-  final int w=BaseXLayout.width(g,s);
-  g.setColor(COLORS[l + 5]);
-  if (root) {
-    g.fillRect(r.x,y + h + 2,w + 2,fontHeight);
-    g.setColor(Color.WHITE);
-    g.drawString(s,r.x + 1,(int)(y + h + (float)fontHeight) - 2);
+    rc=drawNodeInBigRectangle(g,rn,lv,r,pre);
   }
  else {
-    g.fillRect(r.x,y - fontHeight,w + 2,fontHeight);
-    g.setColor(Color.WHITE);
-    g.drawString(s,r.x + 1,(int)(y - h / (float)fontHeight) - 2);
+    drawRectangle(g,rn,lv,r,pre,t);
+    rc=getRectCenter(r);
   }
+  System.out.println(rc);
+  if (px > -1)   drawParentConnection(g,lv,r,px,rc);
+  if (!isRoot && MIN_NODE_DIST_CONN <= levelDistance) {
+    final int par=d.parent(pre,k);
+    final int lvp=lv - 1;
+    final TreeRect parRect=tr.searchRect(sub,rn,lvp,par);
+    if (parRect == null)     return;
+    highlightNode(g,rn,lvp,parRect,par,rc,DRAW_PARENT);
+  }
+  if ((t == DRAW_CONN || t == DRAW_HIGHLIGHT) && size > 1 && lv + 1 < height)   highlightDescendants(g,rn,lv,r,pre,rc,t);
+  if (t == DRAW_HIGHLIGHT)   drawThumbnails(g,rn,lv,pre,r,isRoot);
 }

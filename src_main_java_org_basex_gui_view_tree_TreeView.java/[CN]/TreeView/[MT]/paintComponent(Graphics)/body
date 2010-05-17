@@ -1,26 +1,27 @@
 {
-  final Data data=gui.context.data;
+  final Context c=gui.context;
+  final Data data=c.data;
   if (data == null)   return;
   super.paintComponent(g);
   gui.painting=true;
   smooth(g);
   g.setFont(font);
   fontHeight=g.getFontMetrics().getHeight();
-  if (newInit) {
-    cache=new TreeCaching(data,gui.prop);
-    newInit=false;
+  roots=gui.context.current.nodes;
+  if (paintType == PAINT_NEW_INIT) {
+    sub=new TreeSubtree(data);
+    tr=new TreeRects(gui.prop);
   }
-  if (windowSizeChanged()) {
+  if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT)   numRoots=sub.generateBorders(c);
+  if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT || paintType == PAINT_NEW_WINDOW_SIZE || paintType == -1 && windowSizeChanged()) {
+    treedist=tr.generateRects(sub,g,c,getWidth());
     if (markedImage != null) {
       markedImage=null;
     }
-    focusedRect=null;
-    if ((treedist=cache.generateBordersAndRects(g,gui.context,getWidth())) == -1)     return;
     setLevelDistance();
     createNewMainImage();
     if (gui.context.marked.size() > 0)     markNodes();
   }
- else   setLevelDistance();
   g.drawImage(treeImage,0,0,getWidth(),getHeight(),this);
   if (selection) {
     if (selectRect != null) {
@@ -36,7 +37,7 @@
   if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
   if (focus()) {
     final int focused=gui.context.focused;
-    highlightNode(g,frn,focused,focusedRect,focusedRectLevel,-1,DRAW_HIGHLIGHT);
+    highlightNode(g,frn,flv,frect,focused,-1,DRAW_HIGHLIGHT);
     if (SHOW_EXTRA_INFO) {
       g.setColor(new Color(0xeeeeee));
       g.fillRect(0,getHeight() - fontHeight - 6,getWidth(),fontHeight + 6);
@@ -45,8 +46,10 @@
       final int s=d.size(focused,k);
       final int as=d.attSize(focused,k);
       g.setColor(Color.BLACK);
-      g.drawString("pre: " + focused + "level: "+ focusedRectLevel+ "  level-size: "+ cache.getLevelSize(frn,focusedRectLevel)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused)),2,getHeight() - 6);
+      g.drawString("pre: " + focused + " level: "+ flv+ "  level-size: "+ sub.getLevelSize(frn,flv)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused)),2,getHeight() - 6);
     }
   }
+  if (roots[0] > 0)   System.out.println();
+  paintType=-1;
   gui.painting=false;
 }
