@@ -4,8 +4,7 @@
   for (int f=0; f != fl.length; f++) {
     final boolean fast=ctx.ftfast;
     ctx.ftfast=ctx.ftfast && fl[f].standard();
-    final Expr e=fl[f].comp(ctx);
-    fl[f]=e == Seq.EMPTY ? null : (ForLet)e;
+    fl[f]=fl[f].comp(ctx);
     ctx.ftfast=fast;
   }
   boolean em=false;
@@ -28,8 +27,8 @@
     ctx.compInfo(OPTFALSE,where);
     return Seq.EMPTY;
   }
-  for (  final ForLet e : fl) {
-    if (e == null) {
+  for (int f=0; f != fl.length; f++) {
+    if (fl[f].expr.e() && (f == 0 || fl[f] instanceof For)) {
       ctx.compInfo(OPTFLWOR);
       return Seq.EMPTY;
     }
