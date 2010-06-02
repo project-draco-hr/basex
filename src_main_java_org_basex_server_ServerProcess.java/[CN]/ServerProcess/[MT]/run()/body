@@ -6,17 +6,16 @@
       try {
         byte b=in.readByte();
         if (b == 0) {
-          id++;
-          QueryProcess query=new QueryProcess(id,out,log);
+          QueryProcess query=new QueryProcess(id++,out,this);
           queries.add(query);
           query.start(in.readString(),context);
           continue;
         }
  else         if (b == 1) {
           QueryProcess tmp=null;
-          byte bid=in.readByte();
+          int t=Integer.valueOf(in.readString());
           for (          QueryProcess q : queries) {
-            if (q.id + 48 == bid) {
+            if (q.id == t) {
               tmp=q;
               break;
             }
@@ -25,12 +24,7 @@
             tmp.close();
           }
  else {
-            try {
-              tmp.more();
-            }
- catch (            QueryException e) {
-              e.printStackTrace();
-            }
+            tmp.more();
           }
           continue;
         }

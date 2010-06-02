@@ -1,14 +1,18 @@
 {
+  ctx=c;
   processor=new QueryProcessor(s,ctx);
+  updating=processor.ctx.updating;
+  ctx.sema.before(updating);
   try {
     iter=processor.iter();
     serializer=new XMLSerializer(out);
   }
  catch (  QueryException ex) {
-    log.write(this,s,INFOERROR + ex.extended());
+    serverProc.log.write(this,s,INFOERROR + ex.extended());
     send(false);
     out.print(ex.extended());
     send(true);
+    close();
   }
   out.print(String.valueOf(id));
   send(true);
