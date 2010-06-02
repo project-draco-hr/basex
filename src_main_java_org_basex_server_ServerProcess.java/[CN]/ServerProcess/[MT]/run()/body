@@ -6,8 +6,33 @@
       try {
         byte b=in.readByte();
         if (b == 0) {
-          iterate();
-          return;
+          id++;
+          QueryProcess query=new QueryProcess(id,out,log);
+          queries.add(query);
+          query.start(in.readString(),context);
+          continue;
+        }
+ else         if (b == 1) {
+          QueryProcess tmp=null;
+          byte bid=in.readByte();
+          for (          QueryProcess q : queries) {
+            if (q.id + 48 == bid) {
+              tmp=q;
+              break;
+            }
+          }
+          if (in.readByte() == 1) {
+            tmp.close();
+          }
+ else {
+            try {
+              tmp.more();
+            }
+ catch (            QueryException e) {
+              e.printStackTrace();
+            }
+          }
+          continue;
         }
         input=in.readString(b);
       }
