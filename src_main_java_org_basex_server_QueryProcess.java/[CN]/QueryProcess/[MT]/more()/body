@@ -1,17 +1,28 @@
 {
   Item item;
   try {
-    if ((item=iter.next()) != null) {
+    if (!running) {
+      send(false);
       send(true);
-      item.serialize(serializer);
+      out.print(SERVERTIME);
       send(true);
+      close();
     }
  else {
-      send(false);
-      close();
+      if ((item=iter.next()) != null) {
+        send(true);
+        item.serialize(serializer);
+        send(true);
+      }
+ else {
+        send(false);
+        send(false);
+        close();
+      }
     }
   }
  catch (  Exception ex) {
+    send(false);
     send(false);
     close();
   }
