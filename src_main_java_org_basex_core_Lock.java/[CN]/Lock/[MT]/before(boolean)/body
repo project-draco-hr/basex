@@ -1,0 +1,42 @@
+{
+  if (w) {
+    if (state == State.IDLE) {
+      state=State.WRITE;
+      return;
+    }
+    final Resource lx=new Resource(true);
+synchronized (lx) {
+      waiting.add(lx);
+      while (!lx.valid) {
+        try {
+          lx.wait();
+        }
+ catch (        InterruptedException e) {
+          e.printStackTrace();
+        }
+      }
+      state=State.WRITE;
+    }
+  }
+ else {
+    if (state != State.WRITE && waiting.size() == 0) {
+      state=State.READ;
+      activeR++;
+      return;
+    }
+    final Resource ls=new Resource(false);
+synchronized (ls) {
+      waiting.add(ls);
+      while (!ls.valid) {
+        try {
+          ls.wait();
+        }
+ catch (        final InterruptedException ex) {
+          ex.printStackTrace();
+        }
+      }
+      activeR++;
+      state=State.READ;
+    }
+  }
+}

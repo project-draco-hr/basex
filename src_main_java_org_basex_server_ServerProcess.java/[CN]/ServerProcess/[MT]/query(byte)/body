@@ -1,0 +1,36 @@
+{
+  String arg=in.readString();
+  QueryProcess qp=null;
+  if (c == 0) {
+    qp=new QueryProcess(arg,out,this);
+    arg=Integer.toString(id++);
+    queries.put(arg,qp);
+  }
+ else {
+    qp=queries.get(arg);
+  }
+  try {
+    if (c == 0) {
+      if (qp != null)       qp.init();
+      out.writeString(arg);
+      out.write(0);
+    }
+ else     if (c == 1) {
+      if (qp != null)       qp.next();
+      out.write(0);
+      out.write(0);
+    }
+ else     if (c == 2) {
+      if (qp != null)       qp.close();
+    }
+  }
+ catch (  final QueryException ex) {
+    qp.close();
+    final String msg=ex.extended();
+    log.write(this,arg,INFOERROR + msg);
+    out.write(0);
+    out.write(1);
+    out.writeString(msg);
+  }
+  out.flush();
+}

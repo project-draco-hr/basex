@@ -5,17 +5,11 @@
     while (true) {
       try {
         final byte b=in.readByte();
-        if (b == 0) {
-          id++;
-          QueryProcess query=new QueryProcess(id,in.readString(),out,this);
-          queries.add(query);
+        if (b < ' ') {
+          query(b);
           continue;
         }
- else         if (b == 1) {
-          getNext();
-          continue;
-        }
-        input=in.readString(b);
+        input=new TokenBuilder().add(b).add(in.content()).toString();
       }
  catch (      final IOException ex) {
         exit();
@@ -29,10 +23,10 @@
         proc=procs[0];
       }
  catch (      final QueryException ex) {
-        log.write(this,input,perf,INFOERROR + ex.extended());
+        final String msg=ex.extended();
+        log.write(this,input,INFOERROR + msg);
         out.write(0);
-        out.print(ex.extended());
-        out.write(0);
+        out.writeString(msg);
         send(false);
         continue;
       }
@@ -40,15 +34,14 @@
         exit();
         break;
       }
-      startTimer(proc);
+      proc.startTimeout(context.prop.num(Prop.TIMEOUT));
       final boolean ok=proc.exec(context,out);
-      out.write(0);
       final String inf=proc.info();
-      out.print(inf.equals(PROGERR) ? SERVERTIME : inf);
       out.write(0);
+      out.writeString(inf.equals(PROGERR) ? SERVERTIMEOUT : inf);
       send(ok);
-      stopTimer();
-      final String pr=proc.toString().replaceAll("\\r|\\n"," ");
+      proc.stopTimeout();
+      final String pr=proc.toString().replace('\r',' ').replace('\n',' ');
       log.write(this,pr,ok ? "OK" : INFOERROR + inf,perf);
     }
     log.write(this,"LOGOUT " + context.user.name,"OK");
