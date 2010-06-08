@@ -1,18 +1,16 @@
 {
+  final StringBuilder sb=new StringBuilder();
   try {
     final MessageDigest md=MessageDigest.getInstance("MD5");
     md.update(pw.getBytes());
-    ByteArrayOutputStream baos=new ByteArrayOutputStream();
-    DataOutputStream dos=new DataOutputStream(baos);
     for (    final byte b : md.digest()) {
-      final int h=b >> 4 & 0x0F;
-      dos.write((byte)(h + (h > 9 ? 0x57 : 0x30)));
-      final int l=b & 0x0F;
-      dos.write((byte)(l + (l > 9 ? 0x57 : 0x30)));
+      final String s=Integer.toHexString(b & 0xFF);
+      if (s.length() == 1)       sb.append('0');
+      sb.append(s);
     }
-    return baos.toString();
   }
- catch (  final Exception ex) {
-    return pw;
+ catch (  final NoSuchAlgorithmException ex) {
+    ex.printStackTrace();
   }
+  return sb.toString();
 }
