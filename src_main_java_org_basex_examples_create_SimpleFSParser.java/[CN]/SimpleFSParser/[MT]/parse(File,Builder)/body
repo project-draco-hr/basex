@@ -1,0 +1,22 @@
+{
+  atts.reset();
+  atts.add(DeepFS.NAME,token(dir.getName()));
+  atts.add(DeepFS.MTIME,token(dir.lastModified()));
+  b.startElem(DeepFS.DIR,atts);
+  for (  final File f : dir.listFiles()) {
+    if (f.isDirectory()) {
+      parse(f,b);
+    }
+ else {
+      atts.reset();
+      final String name=f.getName();
+      atts.add(DeepFS.NAME,token(name));
+      atts.add(DeepFS.SIZE,token(f.length()));
+      atts.add(DeepFS.MTIME,token(f.lastModified()));
+      int i=name.lastIndexOf('.');
+      if (i != -1)       atts.add(DeepFS.SUFFIX,token(name.substring(i + 1)));
+      b.emptyElem(DeepFS.FILE,atts);
+    }
+  }
+  b.endElem(DeepFS.DIR);
+}
