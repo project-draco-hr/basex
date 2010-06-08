@@ -1,0 +1,50 @@
+{
+  builder.startElem(CSV,atts);
+  boolean quoted=false;
+  boolean nl=true;
+  final TokenBuilder tb=new TokenBuilder();
+  final BufferInput bi=new BufferInput(file.path());
+  bi.encoding(encoding);
+  int r=0;
+  int c=0;
+  int ch=0;
+  while (true) {
+    if (ch == 0)     ch=bi.readChar();
+    if (ch == 0)     break;
+    if (quoted) {
+      if (ch == '"') {
+        ch=bi.readChar();
+        if (ch != '"') {
+          quoted=false;
+          continue;
+        }
+      }
+      if (ch != 0x0D)       tb.addUTF(ch);
+    }
+ else {
+      if (ch == separator) {
+        if (nl) {
+          record(r++);
+          nl=false;
+        }
+        field(tb,c++);
+      }
+ else       if (ch == 0x0A) {
+        field(tb,c++);
+        builder.endElem(RECORD);
+        c=0;
+        nl=true;
+      }
+ else       if (ch == '"') {
+        quoted=true;
+      }
+ else       if (ch != 0x0D) {
+        tb.addUTF(ch);
+      }
+    }
+    ch=0;
+  }
+  bi.close();
+  if (!nl)   builder.endElem(RECORD);
+  builder.endElem(CSV);
+}

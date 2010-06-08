@@ -1,0 +1,34 @@
+{
+  final InputSource is=wrap(source.getInputSource());
+  try {
+    XMLReader r=source.getXMLReader();
+    if (r == null) {
+      final SAXParserFactory f=SAXParserFactory.newInstance();
+      f.setNamespaceAware(true);
+      f.setValidating(false);
+      r=f.newSAXParser().getXMLReader();
+    }
+    sax=new SAXHandler(builder);
+    sax.doc=doc;
+    r.setDTDHandler(sax);
+    r.setContentHandler(sax);
+    r.setProperty("http://xml.org/sax/properties/lexical-handler",sax);
+    r.setErrorHandler(sax);
+    if (is != null)     r.parse(is);
+ else     r.parse(source.getSystemId());
+  }
+ catch (  final SAXParseException ex) {
+    final String msg=Main.info(SCANPOS,ex.getSystemId(),ex.getLineNumber(),ex.getColumnNumber()) + ": " + ex.getMessage();
+    final IOException ioe=new IOException(msg);
+    ioe.setStackTrace(ex.getStackTrace());
+    throw ioe;
+  }
+catch (  final ProgressException ex) {
+    throw ex;
+  }
+catch (  final Exception ex) {
+    final IOException ioe=new IOException(ex.getMessage());
+    ioe.setStackTrace(ex.getStackTrace());
+    throw ioe;
+  }
+}
