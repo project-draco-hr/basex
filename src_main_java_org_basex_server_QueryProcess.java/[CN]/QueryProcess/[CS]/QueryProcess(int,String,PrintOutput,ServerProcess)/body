@@ -1,9 +1,11 @@
 {
-  ctx=c;
-  processor=new QueryProcessor(s,ctx);
+  id=i;
+  sp=s;
+  out=o;
+  processor=new QueryProcessor(q,sp.context);
   serializer=new XMLSerializer(out);
   updating=processor.ctx.updating;
-  ctx.sema.before(updating);
+  sp.context.sema.before(updating);
   try {
     iter=processor.iter();
     out.print(String.valueOf(id));
@@ -11,12 +13,12 @@
     startTimer();
   }
  catch (  final QueryException ex) {
-    ctx.sema.after(updating);
-    serverProc.log.write(this,s,INFOERROR + ex.extended());
+    sp.context.sema.after(updating);
+    sp.log.write(this,s,INFOERROR + ex.extended());
     out.print(String.valueOf(0));
     send(true);
     out.print(ex.extended());
     send(true);
-    serverProc.queries.remove(this);
+    sp.queries.remove(this);
   }
 }
