@@ -1,8 +1,6 @@
 def __init__(self, session, q):
     self.__session = session
-    self.__id = self.__session.executeIter(q)
-    self.__next = ''
-    if (self.__id != '0'):
-        self.__open = True
-    else:
-        raise IOError(self.__session.res())
+    self.__session.send(('\x00' + q))
+    self.__id = self.__session.receive()
+    if (not self.__session.ok()):
+        raise IOError(self.__session.readString())
