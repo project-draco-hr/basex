@@ -1,11 +1,14 @@
 {
-  super(f,t);
+  super(path,t);
   prop=pr;
-  root=f.getDir();
+  root=path.getDir();
   if (!root.endsWith("/"))   root+="/";
-  if (f.isDir()) {
-    filter=pr.get(Prop.CREATEFILTER).replaceAll("\\*",".*");
-    if (!filter.contains("."))     filter=".*" + filter + ".*";
+  if (path.isDir()) {
+    final StringBuilder sb=new StringBuilder();
+    for (    final String s : pr.get(Prop.CREATEFILTER).replaceAll("\\.","\\\\.").replaceAll("\\*",".*").split(",")) {
+      sb.append("|" + (s.contains(".") ? s : ".*"));
+    }
+    filter=sb.toString().substring(1);
   }
  else {
     filter=".*";
