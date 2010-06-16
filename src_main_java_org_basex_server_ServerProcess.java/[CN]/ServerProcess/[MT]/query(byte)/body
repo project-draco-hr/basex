@@ -9,6 +9,7 @@
  else {
     qp=queries.get(arg);
   }
+  boolean close=false;
   try {
     if (c == 0) {
       if (qp != null)       qp.init();
@@ -16,16 +17,16 @@
       out.write(0);
     }
  else     if (c == 1) {
-      if (qp != null)       qp.next();
+      if (qp != null)       close=qp.next();
       out.write(0);
       out.write(0);
     }
  else     if (c == 2) {
-      if (qp != null)       qp.close();
+      close=true;
     }
   }
  catch (  final QueryException ex) {
-    qp.close();
+    close=true;
     final String msg=ex.extended();
     log.write(this,arg,INFOERROR + msg);
     out.write(0);
@@ -33,4 +34,8 @@
     out.writeString(msg);
   }
   out.flush();
+  if (close && qp != null) {
+    qp.close();
+    queries.remove(arg);
+  }
 }
