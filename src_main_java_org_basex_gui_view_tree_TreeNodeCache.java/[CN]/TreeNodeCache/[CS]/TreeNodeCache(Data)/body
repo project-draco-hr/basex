@@ -1,4 +1,33 @@
 {
   maxLevel=data.meta.height + 1;
-  cacheNodes(data);
+  if (USE_CHILDITERATOR) {
+    IntList parList=new IntList(1);
+    parList.add(0);
+    nodes=new IntList[maxLevel];
+    int l=0;
+    while (maxLevel > l) {
+      nodes[l++]=parList;
+      parList=getNextNodeLine(parList,data);
+    }
+  }
+ else {
+    final IntList[] li=new IntList[maxLevel];
+    for (int i=0; i < maxLevel; i++)     li[i]=new IntList();
+    final int ts=data.meta.size;
+    final int[] roots=data.doc();
+    for (int i=0; i < roots.length; i++) {
+      final int root=roots[i];
+      li[0].add(root);
+      final int sh=i + 1 == roots.length ? ts : roots[i + 1];
+      for (int p=root + 1; p < sh; p++) {
+        final int k=data.kind(p);
+        if ((!SHOW_ATTR && k == Data.ATTR) || (ONLY_ELEMENT_NODES & k != Data.ELEM))         continue;
+        int lv=0;
+        final int par=data.parent(p,k);
+        while (par != li[lv].get(li[lv].size() - 1))         lv++;
+        li[lv + 1].add(p);
+      }
+    }
+    nodes=li;
+  }
 }

@@ -1,9 +1,11 @@
 {
-  String path=new String(checkStr(expr[0].atomic(ctx)));
-  String[] files=(new File(path).list());
-  final SeqIter si=new SeqIter();
-  for (int i=0; i < files.length; i++) {
-    si.add(Str.get(files[i]));
+  return new Iter(){
+    final String path=new String(checkStr(expr[0].atomic(ctx)));
+    final String[] files=new File(path).list();
+    int c=-1;
+    @Override public Item next(){
+      return ++c < files.length ? Str.get(files[c]) : null;
+    }
   }
-  return si;
+;
 }

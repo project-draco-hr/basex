@@ -8,7 +8,7 @@
   final boolean file=fs.isFile(pre);
   final Nodes current=context.current;
   final byte[] name=kind == Data.DOC ? ViewData.content(data,pre,true) : current.size() == 1 && pre != 0 && !file && pre == current.nodes[0] ? ViewData.path(data,pre) : ViewData.tag(prop,data,pre);
-  final boolean isImage=GUIFS.mime(name) == GUIFS.Type.IMAGE;
+  final boolean isImage=gfs.mime(name) == GUIFS.Type.IMAGE;
   if (isImage) {
     final Image image=images.get(pre);
     if (image != null) {
@@ -30,7 +30,7 @@
   final int off=(16 << fullsize) + fullsize * 8;
   final byte[] text=tag ? name : data.text(pre,true);
   g.setFont(tag ? fullsize == 1 ? lfont : font : mfont);
-  final Image icon=file ? GUIFS.images(name,fullsize) : null;
+  final Image icon=file ? gfs.images(name,fullsize) : null;
   final int fh=g.getFontMetrics().getHeight();
   if (fullsize == 0) {
     if (icon != null) {
@@ -51,7 +51,7 @@
   }
  else {
     if (tag) {
-      if (GUIFS.mime(name) == GUIFS.Type.IMAGE)       return false;
+      if (gfs.mime(name) == GUIFS.Type.IMAGE)       return false;
       g.setColor(COLORS[rect.level + 2]);
       g.fillRect(rect.x + 2,rect.y + 2,rect.w - 5,fh + 12);
       g.drawImage(icon,rect.x + 6,rect.y + 6,view);
@@ -102,7 +102,7 @@
   rect.pos=null;
   byte[] fileBuf=EMPTY;
   if (file) {
-    if (GUIFS.mime(name) != GUIFS.Type.IMAGE)     fileBuf=content(data,rect);
+    if (gfs.mime(name) != GUIFS.Type.IMAGE)     fileBuf=content(data,rect);
     if (fileBuf.length == 0)     fileBuf=MAPBINARY;
   }
   g.setColor(Color.black);

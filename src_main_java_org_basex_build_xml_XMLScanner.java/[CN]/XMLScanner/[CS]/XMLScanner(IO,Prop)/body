@@ -9,14 +9,14 @@
   pents=new TokenMap();
   entity=pr.is(Prop.ENTITY);
   dtd=pr.is(Prop.DTD);
+  String enc=null;
   if (consume(DOCDECL)) {
     checkS();
     if (!version())     error(DECLSTART);
     boolean s=s();
-    final String enc=encoding();
+    enc=encoding();
     if (enc != null) {
       if (!s)       error(WSERROR);
-      encoding=enc;
       s=s();
     }
     if (sddecl() != null && !s)     error(WSERROR);
@@ -24,5 +24,6 @@
     final int ch=nextChar();
     if (ch != '?' || nextChar() != '>')     error(DECLWRONG);
   }
+  encoding=enc == null ? UTF8 : enc;
   if (!s(consume()))   prev(1);
 }
