@@ -1,20 +1,11 @@
 {
   final int id=id(name);
   if (id != 0) {
-    try {
-      final FunDef fl=funcs[id];
-      if (!eq(fl.uri,uri))       return null;
-      final Fun f=fl.func.newInstance();
-      f.init(fl,args);
-      if (args.length < fl.min || fl.max >= fl.min && args.length > fl.max)       Err.or(XPARGS,fl);
-      return f;
-    }
- catch (    final QueryException ex) {
-      throw ex;
-    }
-catch (    final Exception ex) {
-      Main.notexpected("Can't run " + string(name));
-    }
+    final FunDef fl=funcs[id];
+    if (!eq(fl.uri,uri))     return null;
+    final Fun f=Fun.create(fl,args);
+    if (args.length < fl.min || fl.max >= fl.min && args.length > fl.max)     Err.or(XPARGS,fl);
+    return f;
   }
   return null;
 }
