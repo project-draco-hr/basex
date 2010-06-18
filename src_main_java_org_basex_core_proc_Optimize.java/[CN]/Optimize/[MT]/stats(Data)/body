@@ -7,7 +7,7 @@
   final int[] tagStack=new int[IO.MAXHEIGHT];
   final boolean path=prop.is(Prop.PATHINDEX);
   int level=0;
-  int h=0;
+  int h=0, d=0;
   size=data.meta.size;
   for (pre=0; pre < size; pre++) {
     final byte kind=(byte)data.kind(pre);
@@ -16,6 +16,7 @@
     if (kind == Data.DOC) {
       parStack[level++]=pre;
       if (path)       data.path.add(0,level,kind);
+      d++;
     }
  else     if (kind == Data.ELEM) {
       final int id=data.name(pre);
@@ -37,6 +38,7 @@
     if (h < level)     h=level;
   }
   data.meta.height=h;
+  data.meta.ndocs=d;
   data.meta.uptodate=true;
   try {
     data.meta.pthindex|=prop.is(Prop.PATHINDEX);
