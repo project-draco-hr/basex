@@ -15,45 +15,45 @@
     min=0;
     ml.reset();
     for (int i=0; i < csize; i++) {
-      if (min == i || vm[i].t.length == 0)       continue;
-      final int d=diff(vm[min].t,vm[i].t);
-      if (d > 0 || vm[min].t.length == 0) {
+      if (min == i || vm[i].token.length == 0)       continue;
+      final int d=diff(vm[min].token,vm[i].token);
+      if (d > 0 || vm[min].token.length == 0) {
         min=i;
         ml.reset();
       }
- else       if (d == 0 && vm[i].t.length > 0) {
+ else       if (d == 0 && vm[i].token.length != 0) {
         if (ml.size() == 0)         ml.add(min);
         ml.add(i);
       }
     }
-    if (ml.size() == 0) {
-      writeWithNum(outl,vm[min].p);
+    final int ms=ml.size();
+    if (ms == 0) {
+      write(outl,vm[min].pre);
       vm[min].next();
     }
  else {
       final TokenBuilder tb=new TokenBuilder();
       tb.add(new byte[4]);
-      int npre=0;
-      int opre=0;
-      for (int j=0; j < ml.size(); j++) {
+      int opre=0, npre=0;
+      for (int j=0; j < ms; j++) {
         final int m=ml.get(j);
         if (j == 0) {
           int l=4;
-          while (l < vm[m].p.length) {
-            final int diff=Num.read(vm[m].p,l);
+          while (l < vm[m].pre.length) {
+            final int diff=Num.read(vm[m].pre,l);
             opre+=diff;
             l+=Num.len(diff);
           }
-          tb.add(substring(vm[m].p,4));
+          tb.add(substring(vm[m].pre,4));
         }
  else {
-          npre=Num.read(vm[m].p,4);
+          npre=Num.read(vm[m].pre,4);
           tb.add(Num.num(npre - opre));
           int l=4 + Num.len(npre);
-          tb.add(substring(vm[m].p,l));
+          tb.add(substring(vm[m].pre,l));
           opre=npre;
-          while (l < vm[m].p.length) {
-            final int diff=Num.read(vm[m].p,l);
+          while (l < vm[m].pre.length) {
+            final int diff=Num.read(vm[m].pre,l);
             opre+=diff;
             l+=Num.len(diff);
           }
@@ -62,7 +62,7 @@
       }
       final byte[] tmp=tb.finish();
       Num.size(tmp,tmp.length);
-      writeWithNum(outl,tmp);
+      write(outl,tmp);
     }
   }
   outr.close();

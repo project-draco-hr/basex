@@ -5,7 +5,7 @@
   }
   writeIndex(csize++);
   final DataOutput outb=new DataOutput(data.meta.file(DATAFTX + 'b'));
-  final DataOutput tmp=new DataOutput(data.meta.file(DATAFTX + 't'));
+  final DataOutput outt=new DataOutput(data.meta.file(DATAFTX + 't'));
   final IntList ind=new IntList();
   final FTList[] v=new FTList[csize];
   for (int b=0; b < csize; b++)   v[b]=new FTTrieList(data,b);
@@ -29,13 +29,13 @@
     if (ind.size() == 0 || ind.get(ind.size() - 1) != v[min].tok[0]) {
       ind.add(v[min].tok[0]);
     }
-    tmp.writeToken(v[min].tok);
+    outt.writeToken(v[min].tok);
     int s=merge(outb,il,v);
-    tmp.write4(s);
-    tmp.write5(outb.size());
+    outt.write4(s);
+    outt.write5(outb.size());
   }
-  tmp.writeToken(EMPTY);
-  tmp.close();
+  outt.writeToken(EMPTY);
+  outt.close();
   outb.close();
   writeSplitTrie(ind);
 }

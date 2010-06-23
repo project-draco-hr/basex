@@ -1,24 +1,25 @@
 {
   final Performance perf=Prop.debug ? new Performance() : null;
-  Main.debug((text ? "Texts" : "Attributes") + ": ");
+  Main.debug(det() + COL);
   final String f=text ? DATATXT : DATAATV;
-  final int type=text ? Data.TEXT : Data.ATTR;
+  DropDB.drop(data.meta.name,f + ".*" + IO.BASEXSUFFIX,data.meta.prop);
+  final int k=text ? Data.TEXT : Data.ATTR;
   for (pre=0; pre < size; pre++) {
     if ((pre & 0x0FFF) == 0) {
       check();
       if (memFull()) {
-        write(f + csize++);
+        write(f + csize++,false);
         index=new ValueTree();
         Performance.gc(2);
       }
     }
-    if (data.kind(pre) == type && data.textLen(pre,text) <= MAXLEN)     index.index(data.text(pre,text),pre);
+    if (data.kind(pre) == k && data.textLen(pre,text) <= MAXLEN)     index.index(data.text(pre,text),pre);
   }
   if (csize == 0) {
-    writeSingle(f);
+    write(f,true);
   }
  else {
-    write(f + csize);
+    write(f + csize,false);
     index=null;
     Performance.gc(1);
     csize++;

@@ -1,6 +1,7 @@
 {
   final Performance perf=Prop.debug ? new Performance() : null;
-  Main.debug("Full-texts:");
+  Main.debug(det() + COL);
+  DropDB.drop(data.meta.name,DATAFTX + ".*" + IO.BASEXSUFFIX,data.meta.prop);
   for (pre=0; pre < size; pre++) {
     if ((pre & 0xFFFF) == 0)     check();
     final int k=data.kind(pre);
@@ -12,14 +13,20 @@
     wp.init(data.text(pre,true));
     while (wp.more()) {
       final byte[] tok=wp.get();
-      if (tok.length <= MAXLEN && sw.id(tok) == 0)       index(tok);
+      if (tok.length <= MAXLEN && (sw.size() == 0 || sw.id(tok) == 0)) {
+        if ((ntok++ & 0xFFF) == 0 && scm == 0 && memFull()) {
+          writeIndex(csize++);
+          Performance.gc(2);
+        }
+        index(tok);
+      }
     }
   }
   if (scm > 0) {
     maxfreq=new int[unit.size() + 1];
     ntoken=new int[nrTokens()];
     token=0;
-    getFreq();
+    calcFreq();
   }
   token=0;
   write();
