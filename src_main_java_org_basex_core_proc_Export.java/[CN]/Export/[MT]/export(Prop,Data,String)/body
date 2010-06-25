@@ -1,13 +1,11 @@
 {
-  final int[] docs=data.doc();
+  final SerializerProp sp=new SerializerProp(prop.get(Prop.EXPORTER));
   final IO root=IO.get(target);
-  for (  final int pre : docs) {
-    final String dName=data.text(pre,true).length > 0 ? Token.string(data.text(pre,true)) : data.meta.name;
-    final IO file=IO.get(root + "/" + dName);
+  for (  final int pre : data.doc()) {
+    final IO file=root.merge(Token.string(data.text(pre,true)));
     final IO dir=IO.get(file.dir());
     if (!dir.exists())     dir.md();
     final PrintOutput po=new PrintOutput(file.path());
-    final SerializerProp sp=new SerializerProp(prop.get(Prop.EXPORTER));
     final XMLSerializer xml=new XMLSerializer(po,sp);
     xml.node(data,pre);
     xml.close();

@@ -1,13 +1,13 @@
 {
-  final IO io=IO.get(args[2]);
+  final String input=args[0];
+  final IO io=IO.get(input);
   if (!io.exists())   return error(FILEWHICH,io);
-  final String name=args[0];
-  final String db=args[0];
-  io.setName(name);
-  final DirParser p=new DirParser(io,context.prop,path(args[1]));
+  final String name=args[1] != null ? args[1] : io.name();
+  final String target=path(args[2]);
+  final DirParser p=new DirParser(io,context.prop,target);
   try {
     final Data data=context.data;
-    data.insert(data.meta.size,-1,MemBuilder.build(p,context.prop,db));
+    data.insert(data.meta.size,-1,MemBuilder.build(p,context.prop,name));
     data.flush();
   }
  catch (  final IOException ex) {
