@@ -1,4 +1,15 @@
 {
-  obj.parseMailAddresses(MetaElem.COPY_RECEIVER_NAME,MetaElem.COPY_RECEIVER_EMAIL);
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(obj.mCurrLine);
+  while (obj.readLine() && !obj.mCurrLine.isEmpty() && !obj.mCurrLine.contains(": ")) {
+    tb.add(obj.mCurrLine);
+  }
+  final byte[] text=tb.finish();
+  try {
+    obj.deepFile.addMeta(MetaElem.SUBJECT,obj.decode(text));
+  }
+ catch (  final DecodingException ex) {
+    obj.deepFile.debug("EMLParser: Failed to decode subject (%)",ex);
+  }
   return false;
 }

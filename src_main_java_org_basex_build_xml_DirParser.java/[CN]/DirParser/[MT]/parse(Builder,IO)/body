@@ -1,14 +1,19 @@
 {
-  if (path.isDir()) {
-    for (    final IO f : path.children())     parse(b,f);
+  if (io.isDir()) {
+    for (    final IO f : io.children())     parse(b,f);
   }
  else {
-    file=path;
-    while (path.more()) {
-      if (!path.name().matches(filter))       continue;
+    file=io;
+    while (io.more()) {
+      if (!io.name().matches(filter))       continue;
       b.meta.filesize+=file.length();
-      final String trg=(target + '/' + file.path().replaceAll("^" + root + "|"+ file.name()+ "$","")).replaceAll("^/","").replaceAll(file.rname + "$","");
-      parser=Parser.fileParser(file,prop,trg);
+      String targ=target.length() != 0 ? target + '/' : "";
+      final String path=file.path();
+      final String name=file.name();
+      if (path.endsWith('/' + name)) {
+        targ+=path.replaceAll("^" + root,"").replaceAll(name + "$","");
+      }
+      parser=Parser.fileParser(file,prop,targ);
       parser.parse(b);
       if (Prop.debug && ++c % 1000 == 0)       Main.err(";");
     }
