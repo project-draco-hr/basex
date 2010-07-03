@@ -1,0 +1,18 @@
+{
+  System.out.println("* Query: " + query);
+  double time=Double.MAX_VALUE;
+  String updated="";
+  for (int r=0; r < runs; r++) {
+    new CreateDB(Main.name(this),input).execute(context);
+    perf.getTime();
+    final Command cmd=new XQuery(query);
+    cmd.execute(context);
+    final String inf=cmd.info().replaceAll("\\r?\\n"," ");
+    final double t=Double.parseDouble(inf.replaceAll(".*Time: ([^ ]+).*","$1"));
+    if (time > t)     time=t;
+    updated=inf.replaceAll(".*Updated: (\\d+).*","$1");
+  }
+  System.out.println("* Nodes: " + updated);
+  System.out.println("* MS: " + time);
+  System.out.println();
+}
