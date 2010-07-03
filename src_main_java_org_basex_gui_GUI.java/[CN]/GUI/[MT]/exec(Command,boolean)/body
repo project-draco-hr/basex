@@ -14,12 +14,22 @@
     final CachedOutput co=new CachedOutput(context.prop.num(Prop.MAXTEXT));
     final boolean up=c.writing(context);
     updating=up;
-    final boolean ok=c.exec(context,co);
-    final String inf=c.info();
-    updating=false;
-    if (!ok && inf.equals(PROGERR)) {
-      cmd=null;
-      return false;
+    boolean ok=true;
+    String inf=null;
+    try {
+      c.execute(context,co);
+      inf=c.info();
+    }
+ catch (    final BaseXException ex) {
+      ok=false;
+      inf=ex.getMessage();
+      if (!ok && inf.equals(PROGERR)) {
+        cmd=null;
+        return false;
+      }
+    }
+ finally {
+      updating=false;
     }
     info.setInfo(inf,ok);
     boolean feedback=main;

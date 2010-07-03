@@ -1,8 +1,14 @@
 {
-  send(cmd);
-  final BufferInput bi=new BufferInput(in);
-  int l;
-  while ((l=bi.read()) != 0)   o.write(l);
-  info=bi.readString();
-  return bi.read() == 0;
+  try {
+    send(cmd);
+    final BufferInput bi=new BufferInput(in);
+    int l;
+    while ((l=bi.read()) != 0)     o.write(l);
+    final String inf=bi.readString();
+    if (bi.read() != 0)     throw new BaseXException(inf);
+    info=inf;
+  }
+ catch (  final IOException ex) {
+    throw new BaseXException(ex.getMessage());
+  }
 }

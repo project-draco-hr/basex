@@ -11,7 +11,7 @@
       final String uname=table.getModel().getValueAt((Integer)o[1],0).toString();
       final boolean confirm=!g && uname.equals(dia.loguser.getText());
       if (confirm && !Dialog.confirm(this,Main.info(DBREVOKE)))       return;
-      ok=sess.execute(new Grant(perm,uname,db));
+      sess.execute(new Grant(perm,uname,db));
       msg=sess.info();
       if (confirm) {
         if (perm == CmdPerm.ADMIN) {
@@ -35,7 +35,7 @@
  else     if (cmp == create || cmp == user || cmp == pass) {
       final String u=user.getText();
       final String p=new String(pass.getPassword());
-      ok=sess.execute(new CreateUser(u,p));
+      sess.execute(new CreateUser(u,p));
       msg=sess.info();
       setData();
       user.setText("");
@@ -47,7 +47,7 @@
       final int[] rows=table.getSelectedRows();
       if (Dialog.confirm(this,Main.info(DRQUESTION,rows.length))) {
         for (        final int r : rows) {
-          ok=sess.execute(new DropUser(table.data.value(r,0),db));
+          sess.execute(new DropUser(table.data.value(r,0),db));
           if (msg == null)           msg=sess.info();
  else           if (msg2.isEmpty())           msg2=" (...)";
           if (!ok)           break;
@@ -59,7 +59,7 @@
  else     if (cmp == alter) {
       final DialogPass dp=new DialogPass(dia.gui);
       if (dp.ok()) {
-        ok=sess.execute(new AlterUser(table.getValueAt(table.getSelectedRow(),0).toString(),dp.pass()));
+        sess.execute(new AlterUser(table.getValueAt(table.getSelectedRow(),0).toString(),dp.pass()));
         msg=sess.info();
       }
     }
@@ -70,7 +70,7 @@
         int c=3;
         while (--c >= 0 && users.value(r,c).isEmpty())         ;
         final String perm=CmdPerm.values()[c].toString();
-        ok=sess.execute(new Grant(perm,us,db));
+        sess.execute(new Grant(perm,us,db));
         msg=sess.info();
         if (!ok)         break;
       }
@@ -78,7 +78,7 @@
       addUser.requestFocusInWindow();
     }
   }
- catch (  final IOException ex) {
+ catch (  final BaseXException ex) {
     msg=Main.server(ex);
     ok=false;
   }

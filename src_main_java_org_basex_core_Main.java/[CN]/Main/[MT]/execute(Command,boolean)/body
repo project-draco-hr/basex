@@ -1,18 +1,17 @@
 {
   final Session ss=session();
   if (ss == null)   return false;
-  final boolean ok=ss.execute(cmd,out);
-  if (cmd instanceof Exit)   return true;
-  if (v || !ok) {
-    final String inf=ss.info();
-    if (!inf.isEmpty()) {
-      if (!ok) {
-        error(null,inf);
-      }
- else {
-        out(inf);
-      }
+  try {
+    ss.execute(cmd,out);
+    if (cmd instanceof Exit)     return true;
+    if (v) {
+      final String inf=ss.info();
+      if (!inf.isEmpty())       out(inf);
     }
+    return true;
   }
-  return ok;
+ catch (  final BaseXException ex) {
+    error(null,ex.getMessage());
+    return false;
+  }
 }

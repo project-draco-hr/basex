@@ -1,5 +1,15 @@
 {
   final Context ctx=new Context();
-  if (!new Open(name).exec(ctx))   new CreateDB(name,"<" + S_DEEPFS + " "+ "mountpoint=\""+ mp+ "\"/>").exec(ctx);
+  try {
+    new Open(name).execute(ctx);
+  }
+ catch (  final BaseXException ex) {
+    try {
+      new CreateDB(name,"<" + S_DEEPFS + " "+ "mountpoint=\""+ mp+ "\"/>").execute(ctx);
+    }
+ catch (    final BaseXException exx) {
+      Main.notexpected(exx);
+    }
+  }
   return ctx;
 }

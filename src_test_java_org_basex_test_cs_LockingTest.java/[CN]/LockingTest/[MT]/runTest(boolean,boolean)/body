@@ -7,8 +7,12 @@
         if (!res.equals("192000"))         fail("test failed: " + res);
       }
  else {
-        final String res=exec(new XQuery(WRITE2),session2);
-        if (res != null)         fail("test failed: " + res);
+        try {
+          session2.execute(new XQuery(WRITE2));
+        }
+ catch (        final BaseXException bx) {
+          fail("test failed: " + bx.getMessage());
+        }
       }
       done=true;
     }
@@ -19,7 +23,7 @@
     if (!res.equals("192000"))     fail("test failed: " + res);
   }
  else {
-    exec(new XQuery(WRITE1),session1);
+    session1.execute(new XQuery(WRITE1));
   }
   while (!done) {
     Performance.sleep(200);

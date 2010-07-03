@@ -1,15 +1,19 @@
 {
-  exec(new DropDB("factbook"),session1);
+  session1.execute(new DropDB("factbook"));
   new Thread(){
     @Override public void run(){
       Performance.sleep(200);
-      final String result=exec(new CreateDB(NAME,FILE),session2);
-      if (result == null)       fail(FILE + " should still be locked.");
+      try {
+        session2.execute(new CreateDB(NAME,FILE));
+        fail(FILE + " should still be locked.");
+      }
+ catch (      final BaseXException ex) {
+      }
     }
   }
 .start();
-  exec(new CreateDB(NAME,FILE),session1);
-  exec(new Open(NAME),session2);
+  session1.execute(new CreateDB(NAME,FILE));
+  session2.execute(new Open(NAME));
   if (server.context.pool.pins("factbook") != 2) {
     fail("test failed conCreate");
   }

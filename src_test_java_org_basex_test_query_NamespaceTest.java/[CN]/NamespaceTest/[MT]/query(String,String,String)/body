@@ -1,8 +1,12 @@
 {
-  if (first != null)   exec(new XQuery(first));
-  final CachedOutput co=new CachedOutput();
-  exec(new XQuery(second),co);
-  final String res=co.toString().replaceAll("\\\"","'");
-  final String exp=expected.replaceAll("\\\"","'");
-  if (!exp.equals(res))   fail("\n" + res + "\n"+ exp+ " expected");
+  try {
+    if (first != null)     new XQuery(first).execute(context);
+    final String result=new XQuery(second).execute(context);
+    final String res=result.replaceAll("\\\"","'");
+    final String exp=expected.replaceAll("\\\"","'");
+    if (!exp.equals(res))     fail("\n" + res + "\n"+ exp+ " expected");
+  }
+ catch (  final BaseXException ex) {
+    fail(ex.getMessage());
+  }
 }
