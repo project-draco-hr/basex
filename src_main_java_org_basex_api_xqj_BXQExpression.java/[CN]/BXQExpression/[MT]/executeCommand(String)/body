@@ -2,7 +2,12 @@
   opened();
   try {
     for (    final Command c : new CommandParser(cmd,sc.context).parse()) {
-      if (!c.exec(sc.context))       throw new BXQException(c.info());
+      try {
+        c.execute(sc.context);
+      }
+ catch (      final BaseXException ex) {
+        throw new BXQException(ex.getMessage());
+      }
     }
   }
  catch (  final QueryException ex) {

@@ -1,9 +1,19 @@
 {
   out=os;
   if (path != null) {
-    if (path.getDepth() != 0 && !cs.execute(new Open(root(path))))     throw new JaxRxException(404,cs.info());
-    final String par=params(path);
-    if (!cs.execute(new org.basex.core.cmd.Set(Prop.SERIALIZER,par)))     throw new JaxRxException(400,cs.info());
+    try {
+      if (path.getDepth() != 0)       cs.execute(new Open(root(path)));
+    }
+ catch (    final BaseXException ex) {
+      throw new JaxRxException(404,ex.getMessage());
+    }
+    try {
+      final String par=params(path);
+      cs.execute(new Set(Prop.SERIALIZER,par));
+    }
+ catch (    final BaseXException ex) {
+      throw new JaxRxException(400,ex.getMessage());
+    }
   }
   run();
 }

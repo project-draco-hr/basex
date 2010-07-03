@@ -1,11 +1,21 @@
 {
   new BXCode(){
     @Override void code() throws IOException {
-      if (!cs.execute(new Open(root(rp))))       throw new JaxRxException(404,cs.info());
+      try {
+        cs.execute(new Open(root(rp)));
+      }
+ catch (      final BaseXException ex) {
+        throw new JaxRxException(404,ex.getMessage());
+      }
       final File file=cache(input);
-      final boolean ok=cs.execute(new Add(file.toString()));
+      try {
+        cs.execute(new Add(file.toString()));
+      }
+ catch (      final BaseXException ex) {
+        file.delete();
+        throw new JaxRxException(404,ex.getMessage());
+      }
       file.delete();
-      if (!ok)       throw new JaxRxException(400,cs.info());
     }
   }
 .run();
