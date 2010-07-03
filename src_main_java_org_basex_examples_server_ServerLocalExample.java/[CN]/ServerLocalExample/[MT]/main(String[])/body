@@ -4,13 +4,12 @@
   System.out.println("\n* Create a client session.");
   session=new ClientSession("localhost",1984,"admin","admin");
   System.out.println("\n* Cache server-side query results.");
-  CachedOutput result=new CachedOutput();
-  send("XQUERY for $x in doc('etc/xml/input.xml') return $x",result);
+  String result=send("XQUERY for $x in doc('etc/xml/input.xml') return $x");
   System.out.println("\n* Create a local database.");
-  new CreateDB("LocalDB",result.toString()).execute(CONTEXT,System.out);
+  new CreateDB("LocalDB",result).execute(CONTEXT);
   System.out.println("\n* Run a local query:");
-  new XQuery("//title").execute(CONTEXT,System.out);
-  System.out.println("\n\n* Close the client session.");
+  System.out.println(new XQuery("//title").execute(CONTEXT));
+  System.out.println("\n* Close the client session.");
   session.close();
   System.out.println("\n* Stop the server:");
   new BaseXServer("STOP");

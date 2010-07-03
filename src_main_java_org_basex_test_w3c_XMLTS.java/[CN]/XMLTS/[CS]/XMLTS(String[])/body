@@ -11,7 +11,7 @@
   context=new Context();
   context.prop.set(Prop.TEXTINDEX,false);
   context.prop.set(Prop.ATTRINDEX,false);
-  new CreateDB("oasis",FILE).exec(context);
+  new CreateDB("oasis",FILE).execute(context);
   data=context.data;
   int ok=0;
   int wrong=0;
@@ -24,7 +24,13 @@
     final boolean valid=text("@TYPE",srcRoot).equals("valid");
     context.prop.set(Prop.INTPARSE,true);
     Command cmd=new CreateDB(uri,PATH + uri);
-    final boolean success=cmd.exec(context);
+    boolean success=true;
+    try {
+      cmd.execute(context);
+    }
+ catch (    final BaseXException ex) {
+      success=false;
+    }
     final boolean correct=valid == success;
     if (verbose || !correct) {
       Main.outln(uri + " = " + (valid ? "correct" : "wrong")+ " -> "+ (success ? "correct" : "wrong")+ (correct ? " (OK)" : " (WRONG)"));
@@ -32,16 +38,16 @@
         String inf=cmd.info();
         if (!inf.isEmpty())         Main.outln("[BASEX ] " + inf);
         context.prop.set(Prop.INTPARSE,false);
-        new Close().exec(context);
+        new Close().execute(context);
         cmd=new CreateDB(uri,PATH + uri);
-        cmd.exec(context);
+        cmd.execute(context);
         inf=cmd.info();
         if (!inf.isEmpty())         Main.outln("[XERCES] " + inf);
       }
     }
     if (correct)     ok++;
  else     wrong++;
-    new Close().exec(context);
+    new Close().execute(context);
   }
   Main.outln("\nResult of Test \"" + new File(FILE).getName() + "\":");
   Main.outln("Successful: " + ok);

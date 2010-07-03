@@ -1,20 +1,22 @@
 {
+  final Context context=new Context();
   System.out.println("=== AdministrationExample ===");
   System.out.println("\n* Create a database.");
-  new CreateDB("input","etc/xml/input.xml").execute(CONTEXT);
+  new CreateDB("input","etc/xml/input.xml").execute(context);
   System.out.println("\n* Create a user.");
-  new CreateUser("testuser","password").execute(CONTEXT);
+  new CreateUser("testuser","password").execute(context);
   System.out.println("\n* Remove global user rights.");
-  new Grant("NONE","testuser").execute(CONTEXT);
+  new Grant("NONE","testuser").execute(context);
   System.out.println("\n* Grant local user rights.");
-  new Grant("WRITE","testuser","input").execute(CONTEXT);
+  new Grant("WRITE","testuser","input").execute(context);
   System.out.println("\n* Show global users.");
-  new ShowUsers().execute(CONTEXT,OUT);
-  System.out.println("\n* Show local users.");
-  new ShowUsers("input").execute(CONTEXT,OUT);
-  System.out.println("\n* Alter a user's password.");
-  new AlterUser("testuser","newpass").execute(CONTEXT);
+  System.out.println(new ShowUsers().execute(context));
+  System.out.println("* Show local users.");
+  System.out.println(new ShowUsers("input").execute(context));
+  System.out.println("* Alter a user's password.");
+  new AlterUser("testuser","newpass").execute(context);
   System.out.println("\n* Drop the user and database.");
-  new DropUser("testuser").execute(CONTEXT);
-  new DropDB("input").execute(CONTEXT);
+  new DropUser("testuser").execute(context);
+  new DropDB("input").execute(context);
+  context.close();
 }

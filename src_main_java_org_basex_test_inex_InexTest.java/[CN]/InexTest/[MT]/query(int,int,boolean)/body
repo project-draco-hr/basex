@@ -10,7 +10,8 @@
     }
   }
   session.execute(new Set(Prop.SERIALIZE,false));
-  if (session.execute(new XQuery(queries.get(qu)),new CachedOutput())) {
+  try {
+    session.execute(new XQuery(queries.get(qu)));
     if (!store)     return;
     final String str=session.info();
     final String time=find(str,"Total Time: (.*) ms");
@@ -20,7 +21,7 @@
     rqt[qu]+=Double.parseDouble(time);
     if (res != null)     res.println(time + ";" + items);
   }
- else {
+ catch (  final BaseXException ex) {
     Main.outln(session.info());
     if (res != null)     res.println("-1;-1");
   }
