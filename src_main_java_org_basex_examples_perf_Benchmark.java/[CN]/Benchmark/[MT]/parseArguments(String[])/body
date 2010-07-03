@@ -1,12 +1,23 @@
 {
-  final Args arg=new Args(args,this," doc\n -r  number of runs");
+  final Args arg=new Args(args,this," [-lr] document\n" + " -l        use local session\n" + " -m<max>   maximum #ms for a single query\n"+ " -M<max>   total maximum #ms\n"+ " -r<runs>  number of runs");
   while (arg.more()) {
     if (arg.dash()) {
-      arg.check(false);
       final char ch=arg.next();
       if (ch == 'r') {
         runs=arg.num();
-        System.out.println("* Runs: " + runs);
+        out.println("- number of runs: " + runs);
+      }
+ else       if (ch == 'l') {
+        local=true;
+        out.println("- local session");
+      }
+ else       if (ch == 'm') {
+        max=arg.num();
+        out.println("- maximum #ms: " + max);
+      }
+ else       if (ch == 'M') {
+        totalMax=arg.num();
+        out.println("- total maximum #ms: " + totalMax);
       }
  else {
         arg.check(false);
@@ -16,6 +27,12 @@
       input=arg.string();
     }
   }
-  if (input == null)   arg.check(false);
+  if (input == null) {
+    arg.check(false);
+  }
+ else {
+    out.println("- Document: " + input);
+    out.println();
+  }
   return arg.finish();
 }

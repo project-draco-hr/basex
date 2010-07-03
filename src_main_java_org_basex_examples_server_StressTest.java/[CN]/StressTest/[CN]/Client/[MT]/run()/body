@@ -3,11 +3,11 @@
     session=newSession();
     for (int i=0; i < NQUERIES; i++) {
       Performance.sleep((long)(50 * RND.nextDouble()));
-      int n=(RND.nextInt() & 0xFF) + 1;
-      String qu="xquery basex:db('factbook')/descendant::text()" + "[position() = " + n + "]";
-      ByteArrayOutputStream buffer=new ByteArrayOutputStream();
-      String result=session.execute(qu,buffer) ? buffer.toString() : session.info();
-      System.out.println("[" + counter + "] Thread "+ getId()+ ", Pos "+ n+ ": "+ result);
+      final int n=(RND.nextInt() & 0xFF) + 1;
+      final String qu="xquery basex:db('factbook')/descendant::text()" + "[position() = " + n + "]";
+      final ByteArrayOutputStream buffer=new ByteArrayOutputStream();
+      final String result=session.execute(qu,buffer) ? buffer.toString() : session.info();
+      if (VERBOSE)       System.out.print("[" + counter + "] Thread "+ getId()+ ", Pos "+ n+ ": "+ result);
       counter++;
     }
     session.close();
