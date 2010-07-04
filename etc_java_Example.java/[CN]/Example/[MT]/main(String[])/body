@@ -1,15 +1,13 @@
 {
-  long time=System.nanoTime();
-  String cmd="xquery 1 to 10";
   try {
+    long time=System.nanoTime();
     BaseXClient session=new BaseXClient("localhost",1984,"admin","admin");
-    System.out.println("=== 1st version with output stream ===");
-    if (!session.execute(cmd,System.out))     System.out.println(session.info());
-    System.out.println("\n\n=== 2nd version without output stream ===");
-    System.out.println(session.execute(cmd));
+    System.out.println(session.execute("info"));
+    OutputStream out=System.out;
+    session.execute("xquery 1 to 10",out);
     session.close();
     double ms=(System.nanoTime() - time) / 1000000d;
-    System.out.println("\n" + ms + " ms");
+    System.out.println("\n\n" + ms + " ms");
   }
  catch (  IOException ex) {
     ex.printStackTrace();

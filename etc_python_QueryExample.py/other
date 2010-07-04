@@ -1,17 +1,14 @@
 import BaseXClient, time
-start = time.clock()
-cmd = '1 to 10'
 try:
     session = BaseXClient.Session('localhost', 1984, 'admin', 'admin')
     try:
-        query = session.query(cmd)
+        input = 'for $i in 1 to 10 return <xml>Text { $i }</xml>'
+        query = session.query(input)
         while query.more():
-            print '- ', query.next()
+            print query.next()
         query.close()
     except IOError as e:
         print e
     session.close()
-    time = ((time.clock() - start) * 1000)
-    print time, 'ms.'
 except IOError as e:
     print e
