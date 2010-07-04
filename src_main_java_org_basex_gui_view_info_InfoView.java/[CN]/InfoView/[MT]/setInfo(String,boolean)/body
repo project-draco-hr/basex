@@ -1,10 +1,12 @@
 {
-  final IntList il=new IntList();
-  final StringList sl=new StringList();
-  final StringList cmp=new StringList();
   final StringList eval=new StringList();
-  final StringList pln=new StringList();
+  final StringList comp=new StringList();
+  final StringList plan=new StringList();
+  final StringList sl=new StringList();
+  final IntList il=new IntList();
   String err="";
+  String qu="";
+  String res="";
   final String[] split=inf.split(NL);
   for (int i=0; i < split.length; i++) {
     final String line=split[i];
@@ -15,15 +17,15 @@
       il.add((int)(Double.parseDouble(line.substring(s + 1,t)) * 100));
     }
  else     if (line.startsWith(QUERYSTRING)) {
-      query=line.substring(s + 1).trim();
+      qu=line.substring(s + 1).trim();
     }
  else     if (line.startsWith(QUERYPLAN)) {
-      while (++i < split.length && split[i].length() != 0)       pln.add(split[i]);
+      while (++i < split.length && split[i].length() != 0)       plan.add(split[i]);
       --i;
     }
  else     if (line.startsWith(QUERYCOMP)) {
-      while (!split[++i].contains(QUERYRESULT))       cmp.add(split[i]);
-      result=split[i].substring(split[i].indexOf(':') + 1).trim();
+      while (++i < split.length && split[i].length() != 0)       comp.add(split[i]);
+      res=split[i].substring(split[i].indexOf(':') + 1).trim();
     }
  else     if (line.startsWith(QUERYEVAL)) {
       while (split[++i].startsWith(QUERYSEP))       eval.add(split[i]);
@@ -34,27 +36,24 @@
     }
   }
   final TokenBuilder tb=new TokenBuilder();
-  String tm="";
-  stat=il;
-  strings=sl;
-  compile=cmp;
-  evaluate=eval;
-  plan=pln;
+  String time="";
   final int runs=Math.max(1,gui.context.prop.num(Prop.RUNS));
   if (sl.size() != 0) {
-    add(tb,QUERYQU,query);
-    add(tb,QUERYCOMP,compile);
-    if (compile.size() != 0)     add(tb,QUERYRESULT,result);
+    add(tb,QUERYQU,qu);
+    add(tb,QUERYCOMP,comp);
+    if (comp.size() != 0)     add(tb,QUERYRESULT,res);
     add(tb,QUERYPLAN,plan);
-    add(tb,QUERYEVAL,evaluate);
-    add(tb,QUERYTIME,strings);
-    tm=strings.get(il.size() - 1) + ": " + Performance.getTimer(stat.get(il.size() - 1) * 10000L * runs,runs);
+    add(tb,QUERYEVAL,eval);
+    add(tb,QUERYTIME,sl);
+    time=sl.get(il.size() - 1) + COLS + Performance.getTimer(il.get(il.size() - 1) * 10000L * runs,runs);
   }
  else   if (!ok) {
     add(tb,INFOERROR,err.replaceAll(STOPPED + ".*\\r?\\n",""));
-    tm="";
+    time="";
   }
+  stat=il;
+  strings=sl;
   area.setText(tb.finish());
-  timer.setText(tm);
+  timer.setText(time);
   repaint();
 }

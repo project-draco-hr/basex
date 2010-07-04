@@ -5,8 +5,12 @@
     while (true) {
       try {
         final byte b=in.readByte();
-        if (b < ' ') {
-          handle(b);
+        if (b < 3) {
+          query(b);
+          continue;
+        }
+        if (b == 3) {
+          create();
           continue;
         }
         input=new TokenBuilder().add(b).add(in.content()).toString();
@@ -48,8 +52,8 @@
       out.write(0);
       out.writeString(info);
       send(ok);
-      final String pr=cmd.toString().replace('\r',' ').replace('\n',' ');
-      log.write(this,pr,ok ? "OK" : INFOERROR + info,perf);
+      final String c=cmd.toString().replace('\r',' ').replace('\n',' ');
+      log.write(this,c,ok ? "OK" : INFOERROR + info,perf);
     }
     log.write(this,"LOGOUT " + context.user.name,"OK");
   }

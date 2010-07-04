@@ -1,9 +1,11 @@
 {
-  if (ctx.prop.is(Prop.MAINMEM))   return MemBuilder.build(parser,ctx.prop,db);
-  if (ctx.pinned(db))   throw new IOException(Main.info(DBLOCKED,db));
+  if (ctx.prop.is(Prop.MAINMEM)) {
+    return MemBuilder.build(parser,ctx.prop,name);
+  }
+  if (ctx.pinned(name))   throw new IOException(Main.info(DBLOCKED,name));
   final Builder builder=new DiskBuilder(parser,ctx.prop);
   try {
-    final Data data=builder.build(db);
+    final Data data=builder.build(name);
     if (data.meta.txtindex)     data.setIndex(IndexType.TXT,new ValueBuilder(data,true).build());
     if (data.meta.atvindex)     data.setIndex(IndexType.ATV,new ValueBuilder(data,false).build());
     if (data.meta.ftxindex)     data.setIndex(IndexType.FTX,FTBuilder.get(data,data.meta.wildcards).build());
@@ -18,5 +20,5 @@
     }
     throw ex;
   }
-  return Open.open(ctx,db);
+  return Open.open(name,ctx);
 }

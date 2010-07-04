@@ -23,7 +23,7 @@
       final PrintOutput po=i == 0 && ser ? out : new NullOutput(!ser);
       XMLSerializer xml;
       if (context.prop.is(Prop.CACHEQUERY)) {
-        result=qp.query();
+        result=qp.execute();
         eval+=per.getTime();
         xml=new XMLSerializer(po,sp);
         result.serialize(xml);
@@ -49,10 +49,9 @@
       qp.close();
       prnt+=per.getTime();
     }
-    evalInfo(hits,updates,runs);
-    if (ser && (prop.is(Prop.INFO) || prop.is(Prop.XMLPLAN)))     out.println("");
+    if (prop.is(Prop.QUERYINFO))     evalInfo(hits,updates,runs);
     out.flush();
-    return true;
+    return info(NL + QUERYEXEC,perf.getTimer(runs));
   }
  catch (  final QueryException ex) {
     Main.debug(ex);

@@ -11,13 +11,16 @@
     }
  else {
       d.close();
-      final Open pr=new Open(db);
-      if (!pr.run(context))       return error(pr.info());
+      final Open cmd=new Open(db);
+      if (!cmd.run(context))       return error(cmd.info());
       index(context.data);
     }
     return info(DBCREATED,db,perf);
   }
- catch (  final Exception ex) {
+ catch (  final ProgressException ex) {
+    throw ex;
+  }
+catch (  final Exception ex) {
     Main.debug(ex);
     abort();
     final String msg=ex instanceof IOException ? ex.getMessage() : Main.info(PARSEERR,p.file);
