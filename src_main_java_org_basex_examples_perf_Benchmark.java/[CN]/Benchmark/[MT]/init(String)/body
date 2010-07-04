@@ -2,8 +2,10 @@
   out.println("=== " + Main.name(this) + " Test ===\n");
   if (!parseArguments(args))   return false;
   final Context ctx=new Context();
+  start=!local && !BaseXServer.ping("localhost",ctx.prop.num(Prop.SERVERPORT));
+  if (start)   new BaseXServer();
   session=local ? new LocalSession(ctx) : new ClientSession(ctx,"admin","admin");
-  session.execute(new Set("info","all"));
+  session.execute(new Set(Prop.QUERYINFO,true));
   drop();
   return true;
 }
