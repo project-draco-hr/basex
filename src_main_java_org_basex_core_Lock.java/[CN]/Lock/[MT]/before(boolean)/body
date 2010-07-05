@@ -20,10 +20,12 @@ synchronized (lx) {
     }
   }
  else {
-    if (state != State.WRITE && waiting.size() == 0) {
-      state=State.READ;
-      activeR++;
-      return;
+synchronized (this) {
+      if (state != State.WRITE && waiting.size() == 0) {
+        state=State.READ;
+        activeR++;
+        return;
+      }
     }
     final Resource ls=new Resource(false);
 synchronized (ls) {
