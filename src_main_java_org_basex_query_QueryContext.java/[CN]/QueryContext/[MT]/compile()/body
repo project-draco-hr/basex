@@ -4,11 +4,11 @@
     if (nodes != null) {
       final Data data=nodes.data;
       if (!context.perm(User.READ,data.meta))       throw new QueryException(PERMNO,CmdPerm.READ);
+      final int s=(int)nodes.size();
       if (nodes.doc) {
-        doc=new DBNode[nodes.size()];
-        final int dl=nodes.size();
-        for (int d=0; d < dl; d++) {
-          addDoc(new DBNode(data,nodes.nodes[d],Data.DOC));
+        doc=new DBNode[s];
+        for (int n=0; n < s; n++) {
+          addDoc(new DBNode(data,nodes.nodes[n],Data.DOC));
         }
       }
  else {
@@ -19,8 +19,8 @@
         item=Seq.get(doc,docs);
       }
  else {
-        final SeqIter si=new SeqIter(nodes.size());
-        for (int n=0; n < nodes.size(); n++) {
+        final SeqIter si=new SeqIter(s);
+        for (int n=0; n < s; n++) {
           si.add(new DBNode(data,nodes.nodes[n]));
         }
         item=si.finish();

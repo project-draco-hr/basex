@@ -1,0 +1,34 @@
+{
+  if (expr[0].e())   return Str.ZERO;
+  long num=checkItr(expr[0],ctx);
+  final byte[] pic=checkStr(expr[1],ctx);
+  if (pic.length == 0 || num == 0)   return Str.get(token(num));
+  byte[] ord=ord(pic,1);
+  final boolean sign=num < 0;
+  if (sign)   num=-num;
+  final byte ch=pic[0];
+  Case cs=(ch & 0x20) != 0 ? Case.LOWER : Case.STANDARD;
+  final TokenBuilder tb=new TokenBuilder();
+  if ((ch & 0xDF) == 'A') {
+    latin(tb,num);
+  }
+ else   if ((ch & 0xDF) == 'I') {
+    roman(tb,num);
+  }
+ else   if ((ch & 0xDF) == 'W') {
+    if (pic.length == 1 || pic[1] != 'w')     cs=Case.UPPER;
+ else     ord=ord(pic,2);
+    word(tb,num,ord != null);
+    ord=null;
+  }
+ else   if (digit(ch)) {
+    number(tb,ch);
+  }
+  if (ord != null) {
+  }
+  byte[] result=tb.finish();
+  if (sign)   result=concat(new byte[]{'-'},result);
+  if (cs == Case.LOWER)   result=lc(result);
+  if (cs == Case.UPPER)   result=uc(result);
+  return Str.get(result);
+}

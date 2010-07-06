@@ -1,14 +1,16 @@
 {
   final Iter iter=ctx.iter(expr[0]);
+  if (iter.size() == 1)   return iter;
   if (iter.reverse())   return iter;
   return new Iter(){
     final Iter si=iter.size() != -1 ? iter : SeqIter.get(iter);
-    long c=si.size();
-    @Override public int size(){
-      return si.size();
+    final long s=si.size();
+    long c=s;
+    @Override public long size(){
+      return s;
     }
     @Override public Item get(    final long i){
-      return si.get(si.size() - i - 1);
+      return si.get(s - i - 1);
     }
     @Override public Item next(){
       return --c < 0 ? null : si.get(c);
