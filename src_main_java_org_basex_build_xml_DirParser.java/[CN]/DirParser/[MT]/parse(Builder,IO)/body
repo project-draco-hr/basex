@@ -8,10 +8,12 @@
       if (!io.name().matches(filter))       continue;
       b.meta.filesize+=file.length();
       String targ=target.length() != 0 ? target + '/' : "";
-      final String path=file.path();
       final String name=file.name();
+      String path=file.path();
       if (path.endsWith('/' + name)) {
-        targ+=path.replaceAll("^" + root,"").replaceAll(name + "$","");
+        path=path.substring(0,path.length() - name.length());
+        if (path.startsWith(root))         path=path.substring(root.length());
+        targ=(targ + path).replace("//","/");
       }
       parser=Parser.fileParser(file,prop,targ);
       parser.parse(b);
