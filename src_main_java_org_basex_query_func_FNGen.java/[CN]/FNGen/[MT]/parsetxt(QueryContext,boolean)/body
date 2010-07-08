@@ -1,0 +1,17 @@
+{
+  final IO io=checkIO(expr[0],ctx);
+  final String enc=expr.length < 2 ? null : string(checkStr(expr[1],ctx));
+  try {
+    final byte[] path=token(io.path());
+    byte[] cont=contents.get(path);
+    if (cont == null) {
+      cont=TextInput.content(io,enc).finish();
+      if (cache)       contents.add(path,cont);
+    }
+    return Str.get(cont);
+  }
+ catch (  final IOException ex) {
+    Err.or(NODOC,ex.getMessage() != null ? ex.getMessage() : ex.toString());
+    return null;
+  }
+}

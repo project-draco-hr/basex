@@ -1,21 +1,11 @@
 {
 switch (func) {
 case DATA:
-    return data(ctx.iter(expr.length != 0 ? expr[0] : checkCtx(ctx)));
+    return data(ctx);
 case COLL:
-  if (expr.length == 0)   return ctx.coll(null);
-Item it=expr[0].atomic(ctx);
-if (it == null) Err.empty(this);
-return ctx.coll(checkStr(it));
+  return coll(ctx);
 case PUT:
-checkAdmin(ctx);
-final byte[] file=checkStr(expr[1],ctx);
-it=expr[0].atomic(ctx);
-if (it == null || it.type != Type.DOC && it.type != Type.ELM) Err.or(UPFOTYPE,expr[0]);
-final Uri u=Uri.uri(file);
-if (u == Uri.EMPTY || !u.valid()) Err.or(UPFOURI,file);
-ctx.updates.add(new Put((Nod)it,u),ctx);
-return Iter.EMPTY;
+return put(ctx);
 default :
 return super.iter(ctx);
 }
