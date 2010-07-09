@@ -1,10 +1,20 @@
 {
-  final byte[] str=checkStr(expr[0],ctx);
-  final Item is=expr[1].atomic(ctx);
-  if (is == null)   Err.empty(this);
-  final byte[] sea=checkStr(is);
-  final Item ir=expr[2].atomic(ctx);
-  if (ir == null)   Err.empty(this);
-  final byte[] rep=checkStr(ir);
-  return Str.get(translate(string(str),string(sea),string(rep)));
+  final String tok=string(checkStr(expr[0],ctx));
+  final String srch=string(checkEmptyStr(expr[1],ctx));
+  final String rep=string(checkEmptyStr(expr[2],ctx));
+  final int l=tok.length();
+  final TokenBuilder tmp=new TokenBuilder(l);
+  for (int i=0; i < l; i++) {
+    final char b=tok.charAt(i);
+    int j=-1;
+    while (++j < srch.length() && b != srch.charAt(j))     ;
+    if (j < srch.length()) {
+      if (j >= rep.length())       continue;
+      tmp.add(rep.charAt(j));
+    }
+ else {
+      tmp.add(tok.charAt(i));
+    }
+  }
+  return Str.get(tmp.finish());
 }

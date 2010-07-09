@@ -1,7 +1,5 @@
 {
-  final Item repl=expr[2].atomic(ctx);
-  if (repl == null)   Err.empty(this);
-  final byte[] rep=checkStr(repl);
+  final byte[] rep=checkEmptyStr(expr[2],ctx);
   for (int i=0; i < rep.length; i++) {
     if (rep[i] == '\\') {
       if (i + 1 == rep.length || rep[i + 1] != '\\' && rep[i + 1] != '$')       Err.or(FUNREGREP);
@@ -9,12 +7,12 @@
     }
   }
   final Pattern p=pattern(expr[1],expr.length == 4 ? expr[3] : null,ctx);
-  String r=Token.string(rep);
+  String r=string(rep);
   if ((p.flags() & Pattern.LITERAL) != 0) {
     r=r.replaceAll("\\\\","\\\\\\\\").replaceAll("\\$","\\\\\\$");
   }
   try {
-    return Str.get(p.matcher(Token.string(val)).replaceAll(r));
+    return Str.get(p.matcher(string(val)).replaceAll(r));
   }
  catch (  final Exception ex) {
     final String m=ex.getMessage();

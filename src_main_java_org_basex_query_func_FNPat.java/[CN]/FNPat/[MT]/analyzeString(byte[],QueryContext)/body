@@ -1,0 +1,17 @@
+{
+  final Pattern p=pattern(expr[1],expr.length == 3 ? expr[2] : null,ctx);
+  final String str=string(val);
+  final Matcher m=p.matcher(str);
+  final NodIter ch=new NodIter();
+  final FElem root=new FElem(new QNm(ANALYZE),ch,null);
+  int s=0;
+  while (m.find()) {
+    if (s != m.start()) {
+      ch.add(node(NONMATCH,str.substring(s,m.start()),root));
+    }
+    s=m.end();
+    ch.add(node(MATCH,m.group(),root));
+  }
+  if (s != str.length())   ch.add(node(NONMATCH,str.substring(s),root));
+  return root;
+}
