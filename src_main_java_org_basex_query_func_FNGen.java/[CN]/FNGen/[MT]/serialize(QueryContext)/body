@@ -1,0 +1,23 @@
+{
+  final Item it=expr[0].atomic(ctx);
+  if (it == null)   Err.empty(this);
+  final Nod nod=checkNode(it);
+  final TokenBuilder tb=new TokenBuilder();
+  if (expr.length == 2) {
+    final Iter ir=expr[1].iter(ctx);
+    Item n;
+    while ((n=ir.next()) != null) {
+      final Nod p=checkNode(n);
+      if (tb.size() != 0)       tb.add(',');
+      tb.add(p.nname()).add('=').add(p.str());
+    }
+  }
+  try {
+    final CachedOutput co=new CachedOutput();
+    nod.serialize(new XMLSerializer(co,new SerializerProp(tb.toString())));
+    return Str.get(co.finish());
+  }
+ catch (  final IOException ex) {
+    throw new QueryException(ex.getMessage());
+  }
+}

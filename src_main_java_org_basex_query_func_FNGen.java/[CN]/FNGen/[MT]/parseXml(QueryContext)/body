@@ -1,0 +1,18 @@
+{
+  final byte[] cont=checkStr(expr[0],ctx);
+  Uri base=ctx.baseURI;
+  if (expr.length == 2) {
+    base=Uri.uri(checkStr(expr[1],ctx));
+    if (!base.valid())     Err.or(DOCBASE,base);
+  }
+  final Prop prop=ctx.context.prop;
+  final IO io=new IOContent(cont,string(base.str()));
+  try {
+    final Parser p=Parser.fileParser(io,prop,"");
+    return new DBNode(MemBuilder.build(p,prop,""),0);
+  }
+ catch (  final IOException ex) {
+    Err.or(DOCWF,cont);
+    return null;
+  }
+}

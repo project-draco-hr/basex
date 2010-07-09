@@ -25,7 +25,9 @@
     }
  else     if (line.startsWith(QUERYCOMP)) {
       while (++i < split.length && split[i].length() != 0)       comp.add(split[i]);
-      res=split[i].substring(split[i].indexOf(':') + 1).trim();
+    }
+ else     if (line.startsWith(QUERYRESULT)) {
+      res=line.substring(s + 1).trim();
     }
  else     if (line.startsWith(QUERYEVAL)) {
       while (split[++i].startsWith(QUERYSEP))       eval.add(split[i]);
@@ -37,6 +39,8 @@
   }
   final TokenBuilder tb=new TokenBuilder();
   String time="";
+  stat=il;
+  strings=sl;
   final int runs=Math.max(1,gui.context.prop.num(Prop.RUNS));
   if (sl.size() != 0) {
     add(tb,QUERYQU,qu);
@@ -51,8 +55,6 @@
     add(tb,INFOERROR,err.replaceAll(STOPPED + ".*\\r?\\n",""));
     time="";
   }
-  stat=il;
-  strings=sl;
   area.setText(tb.finish());
   timer.setText(time);
   repaint();
