@@ -1,0 +1,39 @@
+{
+  final Picture[] pics=new Picture[patterns.length];
+  for (int s=0; s < patterns.length; s++) {
+    final String pat=patterns[s];
+    final Picture pic=new Picture();
+    int pos=0;
+    boolean act=false;
+    int[] opt=new int[2];
+    for (int i=0; i < pat.length(); i++) {
+      final char ch=pat.charAt(i);
+      final boolean a=ACTIVE.indexOf(ch) != -1;
+      if (ch == DECIMAL) {
+        pos++;
+        act=false;
+      }
+ else       if (ch == OPTIONAL) {
+        opt[pos]++;
+      }
+ else       if (ch == GROUP) {
+        pic.group[pos]=Array.add(pic.group[pos],pic.min[pos] + opt[pos]);
+      }
+ else       if (DIGITS.indexOf(ch) != -1) {
+        pic.min[pos]++;
+      }
+ else {
+        pic.pc|=ch == PERCENT;
+        pic.pm|=ch == PERMILLE;
+        if (pos == 0 ^ act)         pic.fix[pos]+=ch;
+      }
+      act|=a;
+    }
+    for (int g=0; g < pic.group[0].length; g++) {
+      pic.group[0][g]=pic.min[0] + opt[0] - pic.group[0][g];
+    }
+    pic.maxFrac=pic.min[1] + opt[1];
+    pics[s]=pic;
+  }
+  return pics;
+}

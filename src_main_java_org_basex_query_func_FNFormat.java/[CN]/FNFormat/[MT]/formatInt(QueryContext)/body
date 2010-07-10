@@ -1,6 +1,7 @@
 {
   final byte[] pic=checkStr(expr[1],ctx);
   if (expr[0].e())   return Str.ZERO;
+  final Formatter f=Formatter.get(string(expr.length == 2 ? EMPTY : checkStr(expr[2],ctx)));
   long num=checkItr(expr[0],ctx);
   if (pic.length == 0 || num == 0)   return Str.get(token(num));
   final boolean sign=num < 0;
@@ -15,12 +16,11 @@
     roman(tb,num);
   }
  else   if ((ch & 0xDF) == 'W') {
-    final boolean up=pic.length == 1 || pic[1] != 'w';
-    if (up)     cs=Case.UPPER;
-    word(tb,num,ord(pic,up ? 1 : 2));
+    if (ch == 'W' && charAt(pic,1) != 'w')     cs=Case.UPPER;
+    tb.add(f.word(num,ord(pic,cs == Case.STANDARD ? 2 : 1)));
   }
  else {
-    number(tb,num,pic);
+    number(tb,num,pic,f);
   }
   byte[] result=tb.finish();
   if (sign)   result=concat(new byte[]{'-'},result);

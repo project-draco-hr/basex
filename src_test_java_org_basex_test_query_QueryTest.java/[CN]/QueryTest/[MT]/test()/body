@@ -3,13 +3,13 @@
   final String name=Main.name(this);
   final boolean up=this instanceof XQUPTest;
   new CreateDB(name,file).execute(context);
+  final StringBuilder sb=new StringBuilder();
   for (  final Object[] qu : queries) {
     if (up && ((String)qu[0]).startsWith("xxx")) {
       new CreateDB(name,file).execute(context);
     }
     final boolean correct=qu.length == 3;
     final String query=qu[correct ? 2 : 1].toString();
-    final String cmd=qu[0] + ": " + query;
     final Command c=new XQuery(query);
     try {
       c.execute(context);
@@ -19,11 +19,14 @@
         ((Nodes)cmp).data=((Nodes)val).data;
       }
       if (!correct || !val.same(cmp)) {
-        fail(cmd + ": Right: " + (correct ? qu[1] : "error")+ "\n  Found: "+ val+ "\n"+ details());
+        sb.append("-- " + qu[0] + ": "+ query+ "\nExpected: "+ (correct ? qu[1] : "error")+ "\nFound: "+ val+ " "+ details()+ "\n");
       }
     }
  catch (    final BaseXException ex) {
-      if (correct)       fail(qu[0] + ": " + ex.getMessage()+ details());
+      if (correct) {
+        sb.append("-- " + qu[0] + ": "+ query+ "\n"+ ex.getMessage()+ " "+ details()+ "\n");
+      }
     }
   }
+  if (sb.length() != 0)   fail("\n" + sb.toString().trim());
 }
