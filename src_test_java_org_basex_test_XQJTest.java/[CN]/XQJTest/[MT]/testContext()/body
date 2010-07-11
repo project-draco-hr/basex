@@ -1,0 +1,12 @@
+{
+  final XQConnection conn=conn(drv);
+  final XQExpression expr=conn.createExpression();
+  XQResultSequence result=expr.executeQuery("doc('input')//title/text()");
+  result.next();
+  XQItem item=conn.createItem(result.getItem());
+  final XQPreparedExpression pe=conn.prepareExpression(".");
+  pe.bindItem(XQConstants.CONTEXT_ITEM,item);
+  result=pe.executeQuery();
+  result.next();
+  assertEquals("XML",result.getItemAsString(null));
+}
