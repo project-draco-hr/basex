@@ -1,0 +1,23 @@
+{
+  if (number == 0)   return token(number);
+  long num=number;
+  final boolean sign=num < 0;
+  if (sign)   num=-num;
+  final TokenBuilder tb=new TokenBuilder();
+  if (mp.pres.equals("a")) {
+    latin(tb,num);
+  }
+ else   if (mp.pres.equals("i")) {
+    roman(tb,num);
+  }
+ else   if (mp.pres.startsWith("w")) {
+    tb.add(form.word(num,mp.ord));
+  }
+ else   if (digit(cp(mp.pres,0)) || cp(mp.pres,0) == '#') {
+    number(tb,num,mp,form);
+  }
+  byte[] in=tb.finish();
+  if (mp.cs == Case.LOWER)   in=lc(in);
+  if (mp.cs == Case.UPPER)   in=uc(in);
+  return sign ? concat(new byte[]{'-'},in) : in;
+}

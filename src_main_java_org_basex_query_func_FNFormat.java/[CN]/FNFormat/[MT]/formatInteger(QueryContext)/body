@@ -1,30 +1,7 @@
 {
-  final byte[] pic=checkStr(expr[1],ctx);
+  final String pic=string(checkStr(expr[1],ctx));
   if (expr[0].e())   return Str.ZERO;
-  final Formatter f=Formatter.get(string(expr.length == 2 ? EMPTY : checkStr(expr[2],ctx)));
-  long num=checkItr(expr[0],ctx);
-  if (pic.length == 0 || num == 0)   return Str.get(token(num));
-  final boolean sign=num < 0;
-  if (sign)   num=-num;
-  final int ch=cp(pic,0);
-  Case cs=(ch & 0x20) != 0 ? Case.LOWER : Case.STANDARD;
-  final TokenBuilder tb=new TokenBuilder();
-  if ((ch & 0xDF) == 'A') {
-    latin(tb,num);
-  }
- else   if ((ch & 0xDF) == 'I') {
-    roman(tb,num);
-  }
- else   if ((ch & 0xDF) == 'W') {
-    if (ch == 'W' && charAt(pic,1) != 'w')     cs=Case.UPPER;
-    tb.add(f.word(num,ord(pic,cs == Case.STANDARD ? 2 : 1)));
-  }
- else {
-    number(tb,num,pic,f);
-  }
-  byte[] result=tb.finish();
-  if (sign)   result=concat(new byte[]{'-'},result);
-  if (cs == Case.LOWER)   result=lc(result);
-  if (cs == Case.UPPER)   result=uc(result);
-  return Str.get(result);
+  final byte[] lang=expr.length == 2 ? EMPTY : checkStr(expr[2],ctx);
+  final long num=checkItr(expr[0],ctx);
+  return Str.get(IntFormatter.format(num,pic,string(lang)));
 }
