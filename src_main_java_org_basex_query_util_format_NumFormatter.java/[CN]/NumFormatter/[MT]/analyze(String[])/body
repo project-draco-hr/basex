@@ -3,29 +3,29 @@
   for (int s=0; s < patterns.length; s++) {
     final String pat=patterns[s];
     final Picture pic=new Picture();
-    int pos=0;
+    int p=0;
     boolean act=false;
-    int[] opt=new int[2];
+    final int[] opt=new int[2];
     for (int i=0; i < pat.length(); i++) {
       final char ch=pat.charAt(i);
       final boolean a=ACTIVE.indexOf(ch) != -1;
       if (ch == DECIMAL) {
-        pos++;
+        p++;
         act=false;
       }
  else       if (ch == OPTIONAL) {
-        opt[pos]++;
+        opt[p]++;
       }
  else       if (ch == GROUP) {
-        pic.group[pos]=Array.add(pic.group[pos],pic.min[pos] + opt[pos]);
+        pic.group[p]=Array.add(pic.group[p],pic.min[p] + opt[p]);
       }
  else       if (DIGITS.indexOf(ch) != -1) {
-        pic.min[pos]++;
+        pic.min[p]++;
       }
  else {
         pic.pc|=ch == PERCENT;
         pic.pm|=ch == PERMILLE;
-        if (pos == 0 ^ act)         pic.fix[pos]+=ch;
+        pic.fix[p == 0 && act ? p + 1 : p]+=ch;
       }
       act|=a;
     }
