@@ -1,0 +1,32 @@
+{
+  Item[] its=new Item[gv.length];
+  for (int i=0; i < gv.length; i++) {
+    its[i]=ctx.vars.get(gv[i]).item;
+  }
+  final GroupNode cand=new GroupNode(gv,its);
+  boolean found=false;
+  int p=0;
+  final int chash=cand.hashCode();
+  if (hashes.containsKey(chash)) {
+    p=hashes.get(chash);
+    found=true;
+  }
+  if (!found) {
+    partitions.add(cand);
+    p=partitions.size() - 1;
+    hashes.put(chash,hashes.size());
+  }
+  if (items.size() <= p)   items.add(new HashMap<Var,ItemList>());
+  HashMap<Var,ItemList> sq=items.get(p);
+  for (  Var v : fl) {
+    boolean skip=false;
+    for (    Var g : gv)     if (v.eq(g)) {
+      skip=true;
+      break;
+    }
+    if (skip)     continue;
+    if (sq == null)     sq=new HashMap<Var,ItemList>();
+    if (sq.get(v) == null)     sq.put(v,new ItemList());
+    sq.get(v).add(ctx.vars.get(v).item);
+  }
+}
