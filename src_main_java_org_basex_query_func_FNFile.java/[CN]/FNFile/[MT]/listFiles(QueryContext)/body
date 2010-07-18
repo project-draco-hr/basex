@@ -1,10 +1,27 @@
 {
+  final String path=Token.string(checkEmptyStr(expr[0],ctx));
+  final Pattern pattern;
+  try {
+    pattern=expr.length == 2 ? Pattern.compile(Token.string(checkEmptyStr(expr[1],ctx))) : null;
+  }
+ catch (  PatternSyntaxException ex) {
+    Err.or(QueryText.FILEPATTERN,expr[1]);
+    return null;
+  }
+  final File[] files=new File(path).listFiles(new FileFilter(){
+    @Override public boolean accept(    final File pathname){
+      if (pathname.isHidden())       return false;
+      return pattern == null ? true : (pattern.matcher(pathname.getName()).matches());
+    }
+  }
+);
+  if (files == null) {
+    Err.or(QueryText.FILELIST,path);
+  }
   return new Iter(){
-    final String path=Token.string(checkEmptyStr(expr[0],ctx));
-    final String[] files=new File(path).list();
     int c=-1;
     @Override public Item next(){
-      return ++c < files.length ? Str.get(files[c]) : null;
+      return ++c < files.length ? Str.get(files[c].getName()) : null;
     }
   }
 ;
