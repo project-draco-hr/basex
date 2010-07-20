@@ -1,0 +1,20 @@
+{
+  if (!consumeWS(SWITCH,PAR1,TYPEPAR))   return null;
+  check(PAR1);
+  Expr[] exprs={check(expr(),NOSWITCH)};
+  check(PAR2);
+  Expr[] cases;
+  while (true) {
+    cases=new Expr[0];
+    while (consumeWS(CASE))     cases=add(cases,single());
+    if (cases.length == 0)     break;
+    check(RETURN);
+    final Expr ret=single();
+    for (    final Expr c : cases)     exprs=add(add(exprs,c),ret);
+  }
+  if (exprs.length == 1)   error(WRONGEND,CASE);
+  check(DEFAULT);
+  check(RETURN);
+  exprs=add(exprs,single());
+  return new Switch(exprs);
+}
