@@ -7,7 +7,7 @@
   String err="";
   String qu="";
   String res="";
-  final String[] split=inf.split(NL);
+  final String[] split=info.split(NL);
   for (int i=0; i < split.length; i++) {
     final String line=split[i];
     final int s=line.indexOf(':');
@@ -37,25 +37,37 @@
       err+=line + NL;
     }
   }
-  final TokenBuilder tb=new TokenBuilder();
-  String time="";
   stat=il;
   strings=sl;
-  final int runs=Math.max(1,gui.context.prop.num(Prop.RUNS));
-  if (sl.size() != 0) {
-    add(tb,QUERYQU,qu);
-    add(tb,QUERYCOMP,comp);
-    if (comp.size() != 0)     add(tb,QUERYRESULT,res);
-    add(tb,QUERYPLAN,plan);
-    add(tb,QUERYEVAL,eval);
-    add(tb,QUERYTIME,sl);
-    time=sl.get(il.size() - 1) + COLS + Performance.getTimer(il.get(il.size() - 1) * 10000L * runs,runs);
+  String total=time;
+  final boolean q=cmd instanceof XQuery;
+  if (!ok || !q) {
+    text.high();
+    if (q) {
+      add(QUERYQU,cmd.toString().replaceAll("^.*? ","").trim());
+    }
+ else     if (cmd != null) {
+      text.high().add(BUTTONCMD + COLS).norm().add(cmd).nl();
+    }
+    if (ok) {
+      text.add(info).nl();
+    }
+ else {
+      add(INFOERROR,err.replaceAll(STOPPED + ".*\\r?\\n",""));
+    }
   }
- else   if (!ok) {
-    add(tb,INFOERROR,err.replaceAll(STOPPED + ".*\\r?\\n",""));
-    time="";
+ else   if (sl.size() != 0) {
+    text.reset();
+    add(QUERYQU,qu);
+    add(QUERYCOMP,comp);
+    if (comp.size() != 0)     add(QUERYRESULT,res);
+    add(QUERYPLAN,plan);
+    add(QUERYEVAL,eval);
+    add(QUERYTIME,sl);
+    final int runs=Math.max(1,gui.context.prop.num(Prop.RUNS));
+    total=Performance.getTimer(il.get(il.size() - 1) * 10000L * runs,runs);
   }
-  area.setText(tb.finish());
-  timer.setText(time);
+  area.setText(text.finish());
+  if (total != null)   timer.setText(QUERYTOTAL + total);
   repaint();
 }

@@ -1,7 +1,7 @@
 {
   final int thread=++threadID;
-  while (cmd != null) {
-    cmd.stop();
+  while (command != null) {
+    command.stop();
     Performance.sleep(50);
     if (threadID != thread)     return true;
   }
@@ -10,7 +10,7 @@
     final Performance perf=new Performance();
     final Nodes current=context.current;
     final Data data=context.data;
-    cmd=c;
+    command=c;
     final CachedOutput co=new CachedOutput(context.prop.num(Prop.MAXTEXT));
     final boolean up=c.writing(context);
     updating=up;
@@ -24,14 +24,16 @@
       ok=false;
       inf=ex.getMessage();
       if (!ok && inf.equals(PROGERR)) {
-        cmd=null;
+        command=null;
         return false;
       }
     }
  finally {
       updating=false;
     }
-    info.setInfo(inf,ok);
+    final String time=perf.getTimer();
+    info.setInfo(inf,c,time,ok);
+    info.reset();
     boolean feedback=main;
     if (!main && query.visible() && c instanceof XQuery) {
       query.info(inf,ok);
@@ -48,7 +50,6 @@
         text.setText(co,c);
       }
       final Data ndata=context.data;
-      final String time=perf.getTimer();
       Nodes marked=context.marked;
       if (ndata != data) {
         notify.init();
@@ -71,7 +72,7 @@
           }
           notify.mark(marked,null);
           if (thread != threadID) {
-            cmd=null;
+            command=null;
             return true;
           }
         }
@@ -86,6 +87,6 @@
     updating=false;
   }
   cursor(CURSORARROW,true);
-  cmd=null;
+  command=null;
   return true;
 }

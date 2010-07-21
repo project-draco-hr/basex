@@ -2,7 +2,21 @@
   final Nodes marked=context.marked;
   if (marked != null)   setHits(marked.size());
   filter.setEnabled(marked != null && marked.size() != 0);
-  refreshMode();
+  final boolean inf=prop.is(GUIProp.SHOWINFO);
+  context.prop.set(Prop.QUERYINFO,inf);
+  context.prop.set(Prop.XMLPLAN,inf);
+  final Data data=context.data;
+  final boolean db=data != null;
+  final int t=mode.getSelectedIndex();
+  final int s=!db ? 2 : prop.num(GUIProp.SEARCHMODE);
+  input.help(s == 0 ? data.fs != null ? HELPSEARCHFS : HELPSEARCHXML : s == 1 ? HELPXPATH : HELPCMD);
+  mode.setEnabled(db);
+  go.setEnabled(s == 2 || !prop.is(GUIProp.EXECRT));
+  if (s != t) {
+    mode.setSelectedIndex(s);
+    input.setText("");
+    input.requestFocusInWindow();
+  }
   toolbar.refresh();
   menu.refresh();
   final int i=context.data == null ? 2 : prop.num(GUIProp.SEARCHMODE);
