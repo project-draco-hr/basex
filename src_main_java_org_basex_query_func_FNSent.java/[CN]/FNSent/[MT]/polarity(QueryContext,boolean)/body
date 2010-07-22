@@ -1,0 +1,25 @@
+{
+  final byte[] str=checkEmptyStr(expr[0],ctx);
+  final String uri=string(checkEmptyStr(expr[1],ctx));
+  SentList list=LISTS.get(uri);
+  if (list == null) {
+    list=new SentList(uri);
+    LISTS.put(uri,list);
+  }
+  double pos=0, neg=0;
+  byte[] token1=EMPTY, token2=EMPTY, token3=EMPTY, token4=EMPTY;
+  final Tokenizer tk=new Tokenizer(str,null);
+  while (tk.more()) {
+    token4=token3;
+    token3=token2;
+    token2=token1;
+    token1=tk.get();
+    double v=list.polarity(token1);
+    if (list.negates(token2) || list.negates(token3) || list.negates(token4))     v=-v;
+    if (v > 0)     pos+=v;
+ else     if (v < 0)     neg-=v;
+  }
+  double result=pos - neg;
+  if (norm && result != 0)   result=-1 + pos * 2 / (pos + neg);
+  return Dbl.get(result);
+}
