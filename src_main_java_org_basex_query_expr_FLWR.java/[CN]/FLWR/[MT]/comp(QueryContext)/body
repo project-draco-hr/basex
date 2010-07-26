@@ -1,25 +1,23 @@
 {
   if (where != null) {
     final ForLet f=fl[fl.length - 1];
-    if (f instanceof For && f.standard() && where.removable(f.var,ctx)) {
-      if (!where.returned(ctx).mayBeNum()) {
-        ctx.compInfo(OPTWHERE);
-        final Expr w=where.remove(f.var);
-        if (f.expr instanceof AxisPath) {
-          AxisPath ap=(AxisPath)f.expr;
-          if (w instanceof And) {
-            for (            final Expr e : ((And)w).expr)             ap=ap.addPred(e);
-          }
- else {
-            ap=ap.addPred(w);
-          }
-          f.expr=ap;
+    if (f instanceof For && f.simple() && where.removable(f.var,ctx)&& !where.returned(ctx).mayBeNum()) {
+      ctx.compInfo(OPTWHERE);
+      final Expr w=where.remove(f.var);
+      if (f.expr instanceof AxisPath) {
+        AxisPath ap=(AxisPath)f.expr;
+        if (w instanceof And) {
+          for (          final Expr e : ((And)w).expr)           ap=ap.addPred(e);
         }
  else {
-          fl[fl.length - 1].expr=new Pred(f.expr,w);
+          ap=ap.addPred(w);
         }
-        where=null;
+        f.expr=ap;
       }
+ else {
+        fl[fl.length - 1].expr=new Pred(f.expr,w);
+      }
+      where=null;
     }
   }
   final Expr ex=super.comp(ctx);
@@ -34,7 +32,7 @@
     ctx.compInfo(OPTFLWOR);
     return where != null ? new If(where,ret,Seq.EMPTY) : ret;
   }
-  if (where == null && fl.length == 1 && fl[0].standard() && ret instanceof VarCall) {
+  if (fl.length == 1 && where == null && fl[0].simple() && ret instanceof VarCall) {
     final Var v=((VarCall)ret).var;
     if (v.type == null && fl[0].var.eq(v)) {
       ctx.compInfo(OPTFLWOR);
