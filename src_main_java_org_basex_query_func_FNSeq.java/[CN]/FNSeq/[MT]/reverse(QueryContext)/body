@@ -3,17 +3,19 @@
   if (iter.size() == 1)   return iter;
   if (iter.reverse())   return iter;
   return new Iter(){
-    final Iter si=iter.size() != -1 ? iter : SeqIter.get(iter);
-    final long s=si.size();
+    final Iter ir=iter.size() != -1 ? iter : SeqIter.get(iter);
+    final long s=ir.size();
     long c=s;
     @Override public long size(){
       return s;
     }
     @Override public Item get(    final long i) throws QueryException {
-      return si.get(s - i - 1);
+      return ir.get(s - i - 1);
     }
     @Override public Item next() throws QueryException {
-      return --c < 0 ? null : si.get(c);
+      if (--c >= 0)       return ir.get(c);
+      ir.reset();
+      return null;
     }
   }
 ;

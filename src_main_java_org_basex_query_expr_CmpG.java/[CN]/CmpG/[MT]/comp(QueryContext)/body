@@ -1,7 +1,7 @@
 {
   super.comp(ctx);
   for (int e=0; e != expr.length; e++)   expr[e]=expr[e].addText(ctx);
-  if (expr[0] instanceof AxisPath && expr[1] instanceof AxisPath && ((AxisPath)expr[0]).root != null || expr[0].i() && !expr[1].i()) {
+  if (expr[0] instanceof AxisPath && expr[1] instanceof AxisPath && ((AxisPath)expr[0]).root != null || expr[0].item() && !expr[1].item()) {
     final Expr tmp=expr[0];
     expr[0]=expr[1];
     expr[1]=tmp;
@@ -10,10 +10,10 @@
   final Expr e1=expr[0];
   final Expr e2=expr[1];
   Expr e=this;
-  if (e1.i() && e2.i()) {
+  if (e1.item() && e2.item()) {
     e=Bln.get(eval((Item)e1,(Item)e2));
   }
- else   if (e1.e() || e2.e()) {
+ else   if (e1.empty() || e2.empty()) {
     e=Bln.FALSE;
   }
   if (e != this) {
@@ -32,7 +32,7 @@
       if (e != this)       ctx.compInfo(OPTWRITE,this);
     }
  else     if (fun.func == FunDef.COUNT) {
-      if (e2.i() && ((Item)e2).n() && ((Item)e2).dbl() == 0) {
+      if (e2.item() && ((Item)e2).num() && ((Item)e2).dbl() == 0) {
         if (cmp == Comp.LT || cmp == Comp.GE) {
           ctx.compInfo(OPTPRE,this);
           e=Bln.get(cmp == Comp.GE);

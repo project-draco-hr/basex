@@ -58,13 +58,13 @@
     if (tb.size() != 0)     attv=add(attv,Str.get(tb.finish()));
     if (eq(atn,XMLNS)) {
       if (!simple)       error(NSCONS);
-      final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).str();
+      final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
       if (!open.ns())       open.uri=Uri.uri(v);
       addNS(ns,atn,v);
     }
  else     if (startsWith(atn,XMLNS)) {
       if (!simple)       error(NSCONS);
-      final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).str();
+      final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
       if (v.length == 0)       error(NSEMPTYURI);
       ctx.ns.add(new QNm(atn,Uri.uri(v)));
       addNS(ns,atn,v);
@@ -89,7 +89,7 @@
     final byte[] close=qName(NOTAGNAME);
     consumeWSS();
     check('>');
-    if (!eq(open.str(),close))     error(TAGWRONG,open.str(),close);
+    if (!eq(open.atom(),close))     error(TAGWRONG,open.atom(),close);
   }
   ctx.ns.size(s);
   return new CElem(open,cont,ns);

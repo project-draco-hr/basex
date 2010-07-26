@@ -1,6 +1,6 @@
 {
-  final byte[] tag=name.str();
-  final byte[] uri=name.uri.str();
+  final byte[] tag=name.atom();
+  final byte[] uri=name.uri.atom();
   ser.openElement(tag);
   final byte[] dn=ser.dn;
   boolean xmlns=false;
@@ -39,13 +39,13 @@
     final Nod nod=atts.get(n);
     final QNm atn=nod.qname();
     if (atn.ns()) {
-      if (!NSGlobal.standard(atn.uri.str())) {
+      if (!NSGlobal.standard(atn.uri.atom())) {
         final byte[] pre=atn.pref();
         final int i=ser.ns.get(pre);
-        if (i == -1)         ser.namespace(pre,atn.uri.str());
+        if (i == -1)         ser.namespace(pre,atn.uri.atom());
       }
     }
-    ser.attribute(atn.str(),nod.str());
+    ser.attribute(atn.atom(),nod.atom());
   }
   for (int n=0; n < children.size(); n++)   children.get(n).serialize(ser);
   ser.closeElement();
