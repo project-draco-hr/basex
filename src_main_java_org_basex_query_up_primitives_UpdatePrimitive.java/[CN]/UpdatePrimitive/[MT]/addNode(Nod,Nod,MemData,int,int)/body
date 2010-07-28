@@ -34,16 +34,19 @@ return pre + 1;
 default :
 q=nd.qname();
 m.ns.open();
+ne=false;
 final Atts ns=par == 0 ? nd.nsScope() : nd.ns();
-if (ndPar != null) {
+if (ns != null) {
+if (ns.size > 0 && ndPar != null) {
 final Atts nsPar=ndPar.nsScope();
-if (nsPar != null) for (int j=0; j < nsPar.size; j++) {
+for (int j=0; j < nsPar.size; j++) {
 final byte[] key=nsPar.key[j];
 final int ki=ns.get(key);
 if (ki > -1 && eq(nsPar.val[j],ns.val[ki])) ns.delete(ki);
 }
 }
-ne=ns != null && ns.size > 0;
+ne=ns.size > 0;
+}
 for (int a=0; ne && a < ns.size; a++) {
 m.ns.add(ns.key[a],ns.val[a],ms);
 }
