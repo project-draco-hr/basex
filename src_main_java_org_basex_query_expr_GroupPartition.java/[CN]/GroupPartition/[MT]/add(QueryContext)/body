@@ -3,13 +3,18 @@
   for (int i=0; i < gv.length; i++) {
     its[i]=ctx.vars.get(gv[i]).item;
   }
-  final GroupNode cand=new GroupNode(gv,its);
+  final GroupNode cand=new GroupNode(its);
   boolean found=false;
   int p=0;
   final int chash=cand.hashCode();
   if (hashes.containsKey(chash)) {
-    p=hashes.get(chash);
-    found=true;
+    p=hashes.get(cand.hash);
+    if (cand.equals(partitions.get(p))) {
+      found=true;
+    }
+ else {
+      System.out.println("Possible collision cand" + cand + " and "+ partitions.get(p));
+    }
   }
   if (!found) {
     partitions.add(cand);
