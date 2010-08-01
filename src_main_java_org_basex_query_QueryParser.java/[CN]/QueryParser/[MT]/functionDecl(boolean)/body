@@ -10,7 +10,7 @@
   while (curr() == '$') {
     final QNm arg=varName();
     final SeqType argType=consumeWS(AS) ? sequenceType() : null;
-    final Var var=new Var(arg,argType,true);
+    final Var var=new Var(info(),arg,argType).global();
     ctx.vars.add(var);
     for (    final Var v : args)     if (v.name.eq(arg))     error(FUNCDUPL,arg);
     args=Array.add(args,var);
@@ -19,7 +19,7 @@
   }
   check(PAR2);
   final SeqType type=consumeWS(AS) ? sequenceType() : null;
-  final Func func=new Func(new Var(name,type,true),args,true);
+  final Func func=new Func(info(),new Var(info(),name,type).global(),args,true);
   func.updating=up;
   ctx.fun.add(func);
   if (!consumeWS(EXTERNAL))   func.expr=enclosed(NOFUNBODY);

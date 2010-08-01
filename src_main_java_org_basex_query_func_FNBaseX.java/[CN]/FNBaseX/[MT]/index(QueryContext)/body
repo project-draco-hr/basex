@@ -1,20 +1,20 @@
 {
   final Data data=ctx.data();
-  if (data == null)   Err.or(XPNOCTX,this);
+  if (data == null)   error(XPNOCTX,this);
   final IndexContext ic=new IndexContext(ctx,data,null,true);
   final String type=string(checkStr(expr[1],ctx)).toLowerCase();
   if (type.equals(FULLTEXT)) {
-    if (!data.meta.ftxindex)     Err.or(NOIDX,FULLTEXT);
-    return new FTIndexAccess(new FTWords(data,checkStr(expr[0],ctx),ctx.ftpos == null),ic).iter(ctx);
+    if (!data.meta.ftxindex)     error(NOIDX,FULLTEXT);
+    return new FTIndexAccess(info,new FTWords(info,data,checkStr(expr[0],ctx),ctx.ftpos == null),ic).iter(ctx);
   }
   if (type.equals(TEXT)) {
-    if (!data.meta.txtindex)     Err.or(NOIDX,TEXT);
-    return new IndexAccess(expr[0],IndexType.TXT,ic).iter(ctx);
+    if (!data.meta.txtindex)     error(NOIDX,TEXT);
+    return new IndexAccess(info,expr[0],IndexType.TXT,ic).iter(ctx);
   }
   if (type.equals(ATTRIBUTE)) {
-    if (!data.meta.atvindex)     Err.or(NOIDX,ATTRIBUTE);
-    return new IndexAccess(expr[0],IndexType.ATV,ic).iter(ctx);
+    if (!data.meta.atvindex)     error(NOIDX,ATTRIBUTE);
+    return new IndexAccess(info,expr[0],IndexType.ATV,ic).iter(ctx);
   }
-  Err.or(WHICHIDX,type);
+  error(WHICHIDX,type);
   return null;
 }

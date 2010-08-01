@@ -10,9 +10,9 @@
       if (comma && !fr)       score=consumeWS(SCORE);
       final QNm name=varName();
       final SeqType type=!score && consumeWS(AS) ? sequenceType() : null;
-      final Var var=new Var(name,type,false);
-      final Var at=fr && consumeWS(AT) ? new Var(varName()) : null;
-      final Var sc=fr && consumeWS(SCORE) ? new Var(varName()) : null;
+      final Var var=new Var(info(),name,type);
+      final Var at=fr && consumeWS(AT) ? new Var(info(),varName()) : null;
+      final Var sc=fr && consumeWS(SCORE) ? new Var(info(),varName()) : null;
       check(fr ? IN : ASSIGN);
       final Expr e=check(single(),VARMISSING);
       ctx.vars.add(var);
@@ -26,7 +26,7 @@
         if (name.eq(at.name))         error(VARDEFINED,at);
         ctx.vars.add(at);
       }
-      fl[fl.length - 1]=fr ? new For(e,var,at,sc) : new Let(e,var,score);
+      fl[fl.length - 1]=fr ? new For(info(),e,var,at,sc) : new Let(info(),e,var,score);
       score=false;
       comma=true;
     }

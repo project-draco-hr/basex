@@ -1,15 +1,15 @@
 {
   Item res=it.unt() ? Dbl.get(it.atom()) : it;
-  if (!res.num() && (!res.dur() || res.type == Type.DUR))   Err.or(SUMTYPE,this,res.type);
+  if (!res.num() && (!res.dur() || res.type == Type.DUR))   error(SUMTYPE,this,res.type);
   final boolean n=res.num();
   int c=1;
   Item i;
   while ((i=iter.next()) != null) {
     final boolean un=i.unt() || i.num();
-    if (n && !un)     Err.or(FUNNUM,this,i.type);
-    if (!n && un)     Err.or(FUNDUR,this,i.type);
-    res=Calc.PLUS.ev(res,i);
+    if (n && !un)     error(FUNNUM,this,i.type);
+    if (!n && un)     error(FUNDUR,this,i.type);
+    res=Calc.PLUS.ev(this,res,i);
     c++;
   }
-  return avg ? Calc.DIV.ev(res,Itr.get(c)) : res;
+  return avg ? Calc.DIV.ev(this,res,Itr.get(c)) : res;
 }

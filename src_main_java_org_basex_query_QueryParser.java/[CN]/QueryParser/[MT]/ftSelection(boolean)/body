@@ -4,25 +4,25 @@
   do {
     old=expr;
     if (consumeWS(ORDERED)) {
-      expr=new FTOrder(expr);
+      expr=new FTOrder(info(),expr);
     }
  else     if (consumeWS(WINDOW)) {
-      expr=new FTWindow(expr,additive(),ftUnit());
+      expr=new FTWindow(info(),expr,additive(),ftUnit());
     }
  else     if (consumeWS(DISTANCE)) {
       final Expr[] r=ftRange();
       if (r == null)       error(FTRANGE);
-      expr=new FTDistance(expr,r,ftUnit());
+      expr=new FTDistance(info(),expr,r,ftUnit());
     }
  else     if (consumeWS(AT)) {
       final boolean start=consumeWS(START);
       final boolean end=!start && consumeWS(END);
       if (!start && !end)       error(INCOMPLETE);
-      expr=new FTContent(expr,start,end);
+      expr=new FTContent(info(),expr,start,end);
     }
  else     if (consumeWS(ENTIRE)) {
       check(CONTENT);
-      expr=new FTContent(expr,false,false);
+      expr=new FTContent(info(),expr,false,false);
     }
  else {
       final boolean same=consumeWS(SAME);
@@ -32,7 +32,7 @@
         if (consumeWS(SENTENCE))         unit=FTUnit.SENTENCE;
  else         if (consumeWS(PARAGRAPH))         unit=FTUnit.PARAGRAPH;
  else         error(INCOMPLETE);
-        expr=new FTScope(expr,unit,same);
+        expr=new FTScope(info(),expr,unit,same);
       }
     }
   }
