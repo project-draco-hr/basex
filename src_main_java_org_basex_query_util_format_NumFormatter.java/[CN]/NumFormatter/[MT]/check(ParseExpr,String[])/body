@@ -1,0 +1,42 @@
+{
+  for (  final String pat : patterns) {
+    boolean frac=false, pas=false, act=false;
+    boolean dig=false, opt1=false, opt2=false;
+    int pc=0, pm=0;
+    for (int i=0; i < pat.length(); i++) {
+      final char ch=pat.charAt(i);
+      final boolean a=ACTIVE.indexOf(ch) != -1;
+      if (ch == DECIMAL) {
+        if (frac)         e.error(PICNUM,pat);
+        frac=true;
+      }
+ else       if (ch == GROUP) {
+        if (cp(pat,i - 1) == DECIMAL || cp(pat,i + 1) == DECIMAL)         e.error(PICNUM,pat);
+      }
+ else       if (ch == PERCENT) {
+        pc++;
+      }
+ else       if (ch == PERMILLE) {
+        pm++;
+      }
+ else       if (ch == OPTIONAL) {
+        if (!frac) {
+          if (dig)           e.error(PICNUM,pat);
+          opt1=true;
+        }
+ else {
+          opt2=true;
+        }
+      }
+ else       if (DIGITS.indexOf(ch) != -1) {
+        if (frac && opt2)         e.error(PICNUM,pat);
+        dig=true;
+      }
+      if (a && pas && act)       e.error(PICNUM,pat);
+      if (act)       pas|=!a;
+      act|=a;
+    }
+    if (pc > 1 || pm > 1 || pc + pm > 1)     e.error(PICNUM,pat);
+    if (!opt1 && !opt2 && !dig)     e.error(PICNUM,pat);
+  }
+}
