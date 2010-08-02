@@ -3,15 +3,14 @@
   final Item it2=expr.length == 2 ? expr[1].atomic(ctx) : null;
 switch (func) {
 case RESQNAME:
-    if (it2 == null)     emptyError();
-  return it == null ? null : resolve(ctx,it,it2);
+    return it == null ? null : resolve(ctx,it,checkEmpty(it2));
 case QNAME:
-final Uri uri=Uri.uri(it == null ? EMPTY : checkType(it,Type.STR).atom());
+  final Uri uri=Uri.uri(it == null ? EMPTY : checkType(it,Type.STR).atom());
 final Item it3=it2 == null ? Str.ZERO : checkType(it2,Type.STR);
 final byte[] str=it3.atom();
-if (!XMLToken.isQName(str)) Err.value(Type.QNM,it3);
+if (!XMLToken.isQName(str)) Err.or(input,INVALUE,Type.QNM,it3);
 QNm nm=new QNm(str,uri);
-if (nm.ns() && uri == Uri.EMPTY) Err.value(Type.URI,uri);
+if (nm.ns() && uri == Uri.EMPTY) Err.or(input,INVALUE,Type.URI,uri);
 return nm;
 case LOCNAMEQNAME:
 if (it == null) return null;
@@ -21,16 +20,16 @@ if (it == null) return null;
 nm=(QNm)checkType(it,Type.QNM);
 return !nm.ns() ? null : new NCN(nm.pref());
 case NSURIPRE:
-final byte[] pre=checkStr(it);
+final byte[] pre=checkStrEmp(it);
 final Atts at=((Nod)checkType(it2,Type.ELM)).ns();
 final int i=at != null ? at.get(pre) : -1;
 return i != -1 ? Uri.uri(at.val[i]) : null;
 case RESURI:
 if (it == null) return null;
-final Uri rel=Uri.uri(checkStr(it));
-if (!rel.valid()) error(URIINV,it);
-final Uri base=it2 == null ? ctx.baseURI : Uri.uri(checkStr(it2));
-if (!base.valid()) error(URIINV,base);
+final Uri rel=Uri.uri(checkStrEmp(it));
+if (!rel.valid()) Err.or(input,URIINV,it);
+final Uri base=it2 == null ? ctx.baseURI : Uri.uri(checkStrEmp(it2));
+if (!base.valid()) Err.or(input,URIINV,base);
 return base.resolve(rel);
 default :
 return super.atomic(ctx);

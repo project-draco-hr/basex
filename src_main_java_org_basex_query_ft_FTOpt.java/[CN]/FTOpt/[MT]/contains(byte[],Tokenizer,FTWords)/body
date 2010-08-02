@@ -14,6 +14,9 @@
   qu.wc=is(WC);
   qu.fz=is(FZ);
   if (qu.fz && ls == null)   ls=new Levenshtein();
+  query.reset();
+  qu.init();
+  while (qu.more())   query.add(qu.get());
   int c=0;
   while (tk.more()) {
     final int tp=tk.p;
@@ -22,7 +25,8 @@
     boolean f=false;
     boolean m=false;
     qu.init();
-    while (qu.more()) {
+    int i=-1;
+    while (++i < query.size()) {
       if (m) {
         tk.more();
         t=tk.get();
@@ -30,24 +34,23 @@
  else {
         m=true;
       }
-      final byte[] s=qu.get();
+      final byte[] s=query.get(i);
       if (sw != null && sw.id(s) != 0)       continue;
-      f=qu.fz ? ls.similar(t,s,lserr) : qu.wc ? wc(t,s,0,0) : eq(t,s);
+      f=qu.fz ? ls.similar(t,s,lserr) : qu.wc ? wc(words.input,t,s,0,0) : eq(t,s);
       if (!f)       break;
     }
     if (!f && th != null) {
-      final byte[] tmp=qu.text;
-      for (      final byte[] txt : th.find(qu)) {
+      i=0;
+      for (      final byte[] txt : th.find(words.input,qu)) {
         qu.init(txt);
         qu.more();
         f|=eq(qu.get(),t);
         if (f)         break;
       }
-      qu.text=tmp;
     }
     if (f) {
       c++;
-      if (words.add(tpos,tpos + qu.pos - 1))       break;
+      if (words.add(tpos,tpos + i - 1))       break;
     }
     tk.p=tp;
     tk.pos=tpos;

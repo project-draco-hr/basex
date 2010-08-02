@@ -8,18 +8,18 @@ String msg=FUNERR1;
 if (al != 0) {
 final Item it=expr[0].atomic(ctx);
 if (it == null) {
-if (al == 1) emptyError();
+if (al == 1) Err.or(input,XPEMPTY,desc());
 }
  else {
 code=Token.string(((QNm)checkType(it,Type.QNM)).ln());
 num=null;
 }
 if (al > 1) {
-msg=Token.string(checkStr(expr[1],ctx));
+msg=Token.string(checkEStr(expr[1],ctx));
 }
 }
 try {
-error(new Object[]{code,num,msg});
+Err.or(input,new Object[]{code,num,msg});
 return null;
 }
  catch (final QueryException ex) {
@@ -28,7 +28,7 @@ throw ex;
 }
 case TRACE:
 final Iter ir=SeqIter.get(expr[0].iter(ctx));
-msg=Token.string(checkStr(expr[1],ctx)) + " " + ir;
+msg=Token.string(checkEStr(expr[1],ctx)) + " " + ir;
 ctx.evalInfo(msg);
 return ir;
 case ENVS:

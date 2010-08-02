@@ -1,11 +1,11 @@
 {
-  final String path=Token.string(checkEmptyStr(expr[0],ctx));
+  final String path=Token.string(checkStr(expr[0],ctx));
   final Pattern pattern;
   try {
-    pattern=expr.length == 2 ? Pattern.compile(Token.string(checkEmptyStr(expr[1],ctx))) : null;
+    pattern=expr.length == 2 ? Pattern.compile(Token.string(checkStr(expr[1],ctx))) : null;
   }
  catch (  PatternSyntaxException ex) {
-    error(QueryText.FILEPATTERN,expr[1]);
+    Err.or(input,QueryText.FILEPATTERN,expr[1]);
     return null;
   }
   final File[] files=new File(path).listFiles(new FileFilter(){
@@ -16,7 +16,7 @@
   }
 );
   if (files == null) {
-    error(QueryText.FILELIST,path);
+    Err.or(input,QueryText.FILELIST,path);
   }
   return new Iter(){
     int c=-1;

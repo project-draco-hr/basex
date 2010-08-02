@@ -1,9 +1,9 @@
 {
-  final Item it=checkEmpty(expr[0],ctx);
-  if (!it.unt() && !it.str() && it.type != Type.QNM)   error(CPIWRONG,it.type,it);
+  final Item it=checkItem(expr[0],ctx);
+  if (!it.unt() && !it.str() && it.type != Type.QNM)   Err.or(input,CPIWRONG,it.type,it);
   final byte[] nm=trim(it.atom());
-  if (eq(lc(nm),XML))   error(CPIXML,nm);
-  if (!XMLToken.isNCName(nm))   error(CPIINVAL,nm);
+  if (eq(lc(nm),XML))   Err.or(input,CPIXML,nm);
+  if (!XMLToken.isNCName(nm))   Err.or(input,CPIINVAL,nm);
   final Iter iter=ctx.iter(expr[1]);
   final TokenBuilder tb=new TokenBuilder();
   CText.add(tb,iter);
@@ -11,5 +11,5 @@
   int i=-1;
   while (++i != v.length && v[i] >= 0 && v[i] <= ' ')   ;
   v=substring(v,i);
-  return new FPI(new QNm(nm),check(this,v),null);
+  return new FPI(new QNm(nm),FPI.parse(v,input),null);
 }

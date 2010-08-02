@@ -1,9 +1,9 @@
 {
-  final byte[] cont=checkStr(expr[0],ctx);
+  final byte[] cont=checkEStr(expr[0],ctx);
   Uri base=ctx.baseURI;
   if (expr.length == 2) {
-    base=Uri.uri(checkStr(expr[1],ctx));
-    if (!base.valid())     error(DOCBASE,base);
+    base=Uri.uri(checkEStr(expr[1],ctx));
+    if (!base.valid())     Err.or(input,DOCBASE,base);
   }
   final Prop prop=ctx.context.prop;
   final IO io=new IOContent(cont,string(base.atom()));
@@ -12,7 +12,7 @@
     return new DBNode(MemBuilder.build(p,prop,""),0);
   }
  catch (  final IOException ex) {
-    error(DOCWF,ex.getMessage());
+    Err.or(input,DOCWF,ex.getMessage());
     return null;
   }
 }

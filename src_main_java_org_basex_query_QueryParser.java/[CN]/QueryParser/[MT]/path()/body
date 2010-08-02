@@ -9,14 +9,14 @@
       if (more())       checkInit();
       error(PATHMISS);
     }
-    return s == 1 ? new Root(info()) : null;
+    return s == 1 ? new Root(input()) : null;
   }
   final boolean slash=consume('/');
   final boolean step=ex instanceof Step;
   if (!slash && s == 0 && !step)   return ex;
   Expr[] list={};
   if (s == 2)   list=add(list,descOrSelf());
-  final Expr root=s > 0 ? new Root(info()) : !step ? ex : null;
+  final Expr root=s > 0 ? new Root(input()) : !step ? ex : null;
   if (root != ex)   list=add(list,ex);
   if (slash) {
     do {
@@ -30,12 +30,12 @@
     }
  while (consume('/'));
   }
-  if (list.length == 0)   return new MixedPath(info(),root,new Context(info()));
+  if (list.length == 0)   return new MixedPath(input(),root,new Context(input()));
   boolean axes=true;
   final Step[] tmp=new Step[list.length];
   for (int l=0; l < list.length; l++) {
     axes&=list[l] instanceof Step;
     if (axes)     tmp[l]=(Step)list[l];
   }
-  return axes ? AxisPath.get(info(),root,tmp) : new MixedPath(info(),root,list);
+  return axes ? AxisPath.get(input(),root,tmp) : new MixedPath(input(),root,list);
 }
