@@ -1,0 +1,29 @@
+{
+  try {
+    ZipFile zip=new ZipFile(new File(pr.get(Prop.DBPATH) + Prop.SEP + file));
+    Enumeration<? extends ZipEntry> files=zip.entries();
+    String destDir="";
+    byte[] buf=new byte[1024];
+    while (files.hasMoreElements()) {
+      ZipEntry entry=files.nextElement();
+      if (entry.isDirectory()) {
+        destDir=pr.get(Prop.DBPATH) + Prop.SEP + entry.getName();
+        new File(destDir).mkdir();
+      }
+ else {
+        File f=new File(pr.get(Prop.DBPATH) + Prop.SEP,entry.getName());
+        InputStream in=zip.getInputStream(entry);
+        FileOutputStream out=new FileOutputStream(f);
+        int len;
+        while ((len=in.read(buf)) > 0) {
+          out.write(buf,0,len);
+        }
+      }
+    }
+    zip.close();
+  }
+ catch (  IOException io) {
+    return false;
+  }
+  return true;
+}
