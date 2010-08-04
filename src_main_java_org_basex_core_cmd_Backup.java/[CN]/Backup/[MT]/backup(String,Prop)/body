@@ -1,25 +1,28 @@
 {
-  String[] filenames=pr.dbpath(db).list();
+  File inFolder=pr.dbpath(db);
   final Date now=new Date();
-  byte[] buf=new byte[1024];
   try {
-    File zip=new File(pr.get(Prop.DBPATH) + Prop.SEP + db+ "-"+ DATE.format(now)+ "-"+ TIME.format(now)+ ".zip");
-    ZipOutputStream out=new ZipOutputStream(new FileOutputStream(zip));
-    out.putNextEntry(new ZipEntry(db + "/"));
-    for (    String file : filenames) {
-      FileInputStream in=new FileInputStream(pr.dbpath(db) + Prop.SEP + file);
-      out.putNextEntry(new ZipEntry(db + "/" + file));
-      int len;
-      while ((len=in.read(buf)) > 0) {
-        out.write(buf,0,len);
+    File outFile=new File(pr.get(Prop.DBPATH) + Prop.SEP + db+ "-"+ DATE.format(now)+ "-"+ TIME.format(now)+ ".zip");
+    ZipOutputStream out=new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
+    byte[] data=new byte[SIZE];
+    String[] files=inFolder.list();
+    out.putNextEntry(new ZipEntry(inFolder.getName() + "/"));
+    out.closeEntry();
+    for (    String s : files) {
+      BufferedInputStream in=new BufferedInputStream(new FileInputStream(inFolder.getPath() + Prop.SEP + s),SIZE);
+      out.putNextEntry(new ZipEntry(inFolder.getName() + "/" + s));
+      int count;
+      while ((count=in.read(data,0,SIZE)) != -1) {
+        out.write(data,0,count);
       }
       out.closeEntry();
       in.close();
     }
+    out.flush();
     out.close();
     return true;
   }
- catch (  IOException e) {
+ catch (  Exception e) {
     return false;
   }
 }

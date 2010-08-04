@@ -1,12 +1,31 @@
 {
-  final String file=args[0];
+  String filename=args[0];
+  File file=null;
   String db="";
-  try {
-    db=file.substring(0,file.indexOf("-"));
+  int i=filename.indexOf("-");
+  if (i == -1) {
+    File folder=new File(prop.get(Prop.DBPATH));
+    String[] files=folder.list();
+    File newest=null;
+    int c=0;
+    for (    String n : files) {
+      if (n.startsWith(filename) && n.endsWith(".zip")) {
+        db=filename;
+        if (c == 0)         newest=new File(prop.get(Prop.DBPATH) + Prop.SEP + n);
+        File tmp=new File(prop.get(Prop.DBPATH) + Prop.SEP + n);
+        if (tmp.lastModified() < newest.lastModified())         newest=tmp;
+        c++;
+      }
+    }
+    file=newest;
+    if (file == null)     return error("No Backup found for '" + filename + "'");
   }
- catch (  Exception e) {
-    return error("Not a valid backup file.");
+ else {
+    db=filename.substring(0,i);
+    if (!filename.endsWith(".zip"))     filename=filename.concat(".zip");
+    file=new File(prop.get(Prop.DBPATH) + Prop.SEP + filename);
   }
+  if (!file.exists())   return error(FILEWHICH,filename);
   if (context.pinned(db))   return error(DBLOCKED,db);
   return restore(file,prop) ? info(DBRESTORE,db) : error(DBNORESTORE,db);
 }

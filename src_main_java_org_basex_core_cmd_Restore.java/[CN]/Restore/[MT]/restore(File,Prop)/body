@@ -1,0 +1,26 @@
+{
+  try {
+    InputStream is=new BufferedInputStream(new FileInputStream(file));
+    ZipInputStream zis=new ZipInputStream(is);
+    ZipEntry e;
+    while ((e=zis.getNextEntry()) != null) {
+      if (e.isDirectory()) {
+        new File(pr.get(Prop.DBPATH) + Prop.SEP + e.getName()).mkdir();
+      }
+ else {
+        BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream(pr.get(Prop.DBPATH) + Prop.SEP + e.getName()));
+        byte[] data=new byte[SIZE];
+        int count;
+        while ((count=zis.read(data,0,SIZE)) != -1) {
+          bos.write(data,0,count);
+        }
+        bos.close();
+      }
+    }
+    zis.close();
+  }
+ catch (  IOException io) {
+    return false;
+  }
+  return true;
+}
