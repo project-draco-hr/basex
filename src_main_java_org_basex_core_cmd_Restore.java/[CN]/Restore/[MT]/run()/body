@@ -1,31 +1,22 @@
 {
-  String filename=args[0];
+  String db=args[0];
   File file=null;
-  String db="";
-  int i=filename.indexOf("-");
+  final int i=db.indexOf("-");
   if (i == -1) {
-    File folder=new File(prop.get(Prop.DBPATH));
-    String[] files=folder.list();
-    File newest=null;
-    int c=0;
-    for (    String n : files) {
-      if (n.startsWith(filename) && n.endsWith(".zip")) {
-        db=filename;
-        if (c == 0)         newest=new File(prop.get(Prop.DBPATH) + Prop.SEP + n);
-        File tmp=new File(prop.get(Prop.DBPATH) + Prop.SEP + n);
-        if (tmp.lastModified() < newest.lastModified())         newest=tmp;
-        c++;
+    for (    final File f : new File(prop.get(Prop.DBPATH)).listFiles()) {
+      final String n=f.getName();
+      if (n.startsWith(db) && n.endsWith(IO.ZIPSUFFIX)) {
+        if (file == null || file.lastModified() < f.lastModified())         file=f;
       }
     }
-    file=newest;
-    if (file == null)     return error("No Backup found for '" + filename + "'");
+    if (file == null)     return error("No Backup found for '" + db + "'");
   }
  else {
-    db=filename.substring(0,i);
-    if (!filename.endsWith(".zip"))     filename=filename.concat(".zip");
-    file=new File(prop.get(Prop.DBPATH) + Prop.SEP + filename);
+    if (!db.endsWith(IO.ZIPSUFFIX))     db+=IO.ZIPSUFFIX;
+    file=new File(prop.get(Prop.DBPATH) + Prop.SEP + db);
+    db=db.substring(0,i);
   }
-  if (!file.exists())   return error(FILEWHICH,filename);
+  if (!file.exists())   return error(FILEWHICH,db);
   if (context.pinned(db))   return error(DBLOCKED,db);
   return restore(file,prop) ? info(DBRESTORE,db) : error(DBNORESTORE,db);
 }
