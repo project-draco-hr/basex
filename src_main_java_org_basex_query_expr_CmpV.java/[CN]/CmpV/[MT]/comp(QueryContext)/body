@@ -11,31 +11,20 @@
   final Expr e2=expr[1];
   Expr e=this;
   if (e1.item() && e2.item()) {
-    e=atomic(ctx,input);
+    e=preEval(ctx);
   }
  else   if (e1.empty() || e2.empty()) {
-    e=Seq.EMPTY;
-  }
-  if (e != this) {
-    ctx.compInfo(OPTPRE,this);
+    e=optPre(Seq.EMPTY,ctx);
   }
  else   if (e1 instanceof Fun) {
     final Fun fun=(Fun)expr[0];
-    if (fun.func == FunDef.POS) {
+    if (fun.func == FunDef.COUNT) {
+      e=count(this,cmp);
+      if (e != this)       ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
+    }
+ else     if (fun.func == FunDef.POS) {
       e=Pos.get(cmp,e2,e,input);
       if (e != this)       ctx.compInfo(OPTWRITE,this);
-    }
- else     if (fun.func == FunDef.COUNT) {
-      if (e2.item() && ((Item)e2).num() && ((Item)e2).dbl(input) == 0) {
-        if (cmp == Comp.LT || cmp == Comp.GE) {
-          ctx.compInfo(OPTPRE,this);
-          e=Bln.get(cmp == Comp.GE);
-        }
- else {
-          ctx.compInfo(OPTWRITE,this);
-          e=Fun.create(input,cmp == Comp.EQ || cmp == Comp.LE ? FunDef.EMPTY : FunDef.EXISTS,fun.expr);
-        }
-      }
     }
   }
   return e;

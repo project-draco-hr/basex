@@ -1,21 +1,20 @@
 {
-  checkUp(where,ctx);
   boolean grp=ctx.grouping;
   ctx.grouping=group != null;
   final int vs=ctx.vars.size();
   for (int f=0; f != fl.length; f++) {
     final boolean fast=ctx.ftfast;
-    ctx.ftfast=ctx.ftfast && fl[f].simple();
+    ctx.ftfast&=fl[f].simple();
     fl[f]=fl[f].comp(ctx);
     ctx.ftfast=fast;
   }
-  boolean ii=false;
+  boolean empty=false;
   if (where != null) {
-    where=checkUp(where,ctx).comp(ctx);
-    ii=where.empty();
-    if (!ii && where.item()) {
-      ii=!((Item)where).bool(input);
-      if (!ii) {
+    where=checkUp(where.comp(ctx),ctx);
+    empty=where.empty();
+    if (!empty && where.item()) {
+      empty=!((Item)where).bool(input);
+      if (!empty) {
         ctx.compInfo(OPTTRUE,where);
         where=null;
       }
@@ -26,7 +25,7 @@
   ret=ret.comp(ctx);
   ctx.vars.reset(vs);
   ctx.grouping=grp;
-  if (ii) {
+  if (empty) {
     ctx.compInfo(OPTFALSE,where);
     return Seq.EMPTY;
   }

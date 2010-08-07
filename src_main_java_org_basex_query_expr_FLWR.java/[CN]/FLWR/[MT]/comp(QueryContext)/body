@@ -1,4 +1,6 @@
 {
+  final Expr ex=super.comp(ctx);
+  if (ex != this)   return ex;
   if (where != null) {
     final ForLet f=fl[fl.length - 1];
     if (f instanceof For && f.simple() && where.removable(f.var,ctx)&& !where.returned(ctx).mayBeNum()) {
@@ -15,13 +17,11 @@
         f.expr=ap;
       }
  else {
-        fl[fl.length - 1].expr=new Pred(input,f.expr,w);
+        f.expr=new Filter(input,f.expr,w);
       }
       where=null;
     }
   }
-  final Expr ex=super.comp(ctx);
-  if (ex != this)   return ex;
   for (int f=0; f != fl.length; f++) {
     if (fl[f].var.expr != null) {
       ctx.compInfo(OPTVAR,fl[f].var);

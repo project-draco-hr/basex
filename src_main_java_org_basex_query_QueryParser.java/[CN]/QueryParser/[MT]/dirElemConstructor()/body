@@ -1,6 +1,6 @@
 {
   if (skipWS())   error(NOTAGNAME);
-  final QNm open=new QNm(qName(NOTAGNAME));
+  final QNm tag=new QNm(qName(NOTAGNAME));
   consumeWSS();
   Expr[] cont={};
   final Atts ns=new Atts();
@@ -59,7 +59,7 @@
     if (eq(atn,XMLNS)) {
       if (!simple)       error(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
-      if (!open.ns())       open.uri=Uri.uri(v);
+      if (!tag.ns())       tag.uri=Uri.uri(v);
       addNS(ns,atn,v);
     }
  else     if (startsWith(atn,XMLNS)) {
@@ -70,7 +70,7 @@
       addNS(ns,atn,v);
     }
  else {
-      cont=add(cont,new CAttr(input(),new QNm(atn),attv,false));
+      cont=add(cont,new CAttr(input(),false,new QNm(atn),attv));
     }
     if (!consumeWSS())     break;
   }
@@ -80,7 +80,7 @@
  else {
     check('>');
     while (curr() != '<' || next() != '/') {
-      final Expr e=dirElemContent(open);
+      final Expr e=dirElemContent(tag);
       if (e == null)       continue;
       cont=add(cont,e);
     }
@@ -89,8 +89,8 @@
     final byte[] close=qName(NOTAGNAME);
     consumeWSS();
     check('>');
-    if (!eq(open.atom(),close))     error(TAGWRONG,open.atom(),close);
+    if (!eq(tag.atom(),close))     error(TAGWRONG,tag.atom(),close);
   }
   ctx.ns.size(s);
-  return new CElem(input(),open,cont,ns);
+  return new CElem(input(),tag,ns,cont);
 }

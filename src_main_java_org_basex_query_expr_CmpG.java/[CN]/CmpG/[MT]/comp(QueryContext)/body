@@ -11,46 +11,32 @@
   final Expr e2=expr[1];
   Expr e=this;
   if (e1.item() && e2.item()) {
-    e=Bln.get(eval((Item)e1,(Item)e2));
+    e=optPre(Bln.get(eval((Item)e1,(Item)e2)),ctx);
   }
  else   if (e1.empty() || e2.empty()) {
-    e=Bln.FALSE;
-  }
-  if (e != this) {
-    ctx.compInfo(OPTPRE,this);
+    e=optPre(Bln.FALSE,ctx);
   }
  else   if (e1 instanceof Fun) {
     final Fun fun=(Fun)expr[0];
-    if (fun.func == FunDef.POS) {
+    if (fun.func == FunDef.COUNT) {
+      e=CmpV.count(this,cmp.cmp);
+      if (e != this)       ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
+    }
+ else     if (fun.func == FunDef.POS) {
       if (e2 instanceof Range) {
         final long[] rng=((Range)e2).range(ctx);
-        if (rng != null)         e=Pos.get(rng[0],rng[1],input);
+        e=rng == null ? this : Pos.get(rng[0],rng[1],input);
       }
  else {
-        e=Pos.get(cmp.cmp,e2,e,input);
+        e=Pos.get(cmp.cmp,e2,this,input);
       }
       if (e != this)       ctx.compInfo(OPTWRITE,this);
     }
- else     if (fun.func == FunDef.COUNT) {
-      if (e2.item() && ((Item)e2).num() && ((Item)e2).dbl(input) == 0) {
-        if (cmp == Comp.LT || cmp == Comp.GE) {
-          ctx.compInfo(OPTPRE,this);
-          e=Bln.get(cmp == Comp.GE);
-        }
- else {
-          ctx.compInfo(OPTWRITE,this);
-          e=Fun.create(input,cmp == Comp.EQ || cmp == Comp.LE ? FunDef.EMPTY : FunDef.EXISTS,fun.expr);
-        }
-      }
-    }
   }
- else   if (pathAndItem(true)) {
+ else {
     e=CmpR.get(this);
-    if (e == null)     e=this;
- else     ctx.compInfo(OPTWRITE,this);
-  }
- else {
-    atom=expr[0].returned(ctx).one() && expr[1].returned(ctx).one();
+    if (e != this)     ctx.compInfo(OPTWRITE,this);
+ else     atom=expr[0].returned(ctx).one() && expr[1].returned(ctx).one();
   }
   return e;
 }

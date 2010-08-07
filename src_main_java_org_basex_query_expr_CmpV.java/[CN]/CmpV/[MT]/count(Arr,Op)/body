@@ -1,0 +1,12 @@
+{
+  final Expr a=e.expr[1];
+  if (!a.item())   return e;
+  final Item it=(Item)a;
+  if (!it.num() && !it.unt())   return e;
+  final double d=it.dbl(e.input);
+  if (op == Op.GT && d < 0 || (op == Op.GE || op == Op.NE) && d <= 0 || op == Op.NE && d != (int)d)   return Bln.TRUE;
+  if (op == Op.LT && d <= 0 || (op == Op.LE || op == Op.EQ) && d < 0 || op == Op.EQ && d != (int)d)   return Bln.FALSE;
+  if (op == Op.GT && d < 1 || op == Op.GE && d <= 1 || op == Op.NE && d == 0)   return Fun.create(e.input,FunDef.EXISTS,((Fun)e.expr[0]).expr);
+  if (op == Op.LT && d <= 1 || op == Op.LE && d < 1 || op == Op.EQ && d == 0)   return Fun.create(e.input,FunDef.EMPTY,((Fun)e.expr[0]).expr);
+  return e;
+}
