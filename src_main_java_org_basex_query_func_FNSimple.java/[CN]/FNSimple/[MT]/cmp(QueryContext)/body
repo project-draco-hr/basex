@@ -1,0 +1,28 @@
+{
+  final SeqType s=expr.length == 1 ? expr[0].returned(ctx) : null;
+switch (func) {
+case NOT:
+    if (expr[0] instanceof Fun) {
+      final Fun fs=(Fun)expr[0];
+      if (fs.func == FunDef.EMPTY) {
+        expr=fs.expr;
+        func=FunDef.EXISTS;
+      }
+ else       if (fs.func == FunDef.EXISTS) {
+        expr=fs.expr;
+        func=FunDef.EMPTY;
+      }
+    }
+  return this;
+case ZEROORONE:
+return s.zeroOrOne() ? expr[0] : this;
+case EXACTLYONE:
+return s.one() ? expr[0] : this;
+case ONEORMORE:
+return !s.mayBeZero() ? expr[0] : this;
+case UNORDER:
+return expr[0];
+default :
+return this;
+}
+}

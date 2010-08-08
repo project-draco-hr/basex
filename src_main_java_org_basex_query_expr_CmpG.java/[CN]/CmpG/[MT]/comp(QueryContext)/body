@@ -1,7 +1,7 @@
 {
   super.comp(ctx);
   for (int e=0; e != expr.length; e++)   expr[e]=expr[e].addText(ctx);
-  if (expr[0] instanceof AxisPath && expr[1] instanceof AxisPath && ((AxisPath)expr[0]).root != null || expr[0].item() && !expr[1].item()) {
+  if (expr[0].value() && !expr[1].value() || expr[0] instanceof AxisPath && ((AxisPath)expr[0]).root != null && expr[1] instanceof AxisPath) {
     final Expr tmp=expr[0];
     expr[0]=expr[1];
     expr[1]=tmp;
@@ -9,15 +9,13 @@
   }
   final Expr e1=expr[0];
   final Expr e2=expr[1];
+  atom=e1.returned(ctx).one() && e2.returned(ctx).one();
   Expr e=this;
-  if (e1.item() && e2.item()) {
-    e=optPre(Bln.get(eval((Item)e1,(Item)e2)),ctx);
-  }
- else   if (e1.empty() || e2.empty()) {
-    e=optPre(Bln.FALSE,ctx);
+  if (e1.value() && e2.value()) {
+    e=preEval(ctx);
   }
  else   if (e1 instanceof Fun) {
-    final Fun fun=(Fun)expr[0];
+    final Fun fun=(Fun)e1;
     if (fun.func == FunDef.COUNT) {
       e=CmpV.count(this,cmp.cmp);
       if (e != this)       ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
@@ -36,7 +34,6 @@
  else {
     e=CmpR.get(this);
     if (e != this)     ctx.compInfo(OPTWRITE,this);
- else     atom=expr[0].returned(ctx).one() && expr[1].returned(ctx).one();
   }
   return e;
 }

@@ -3,6 +3,7 @@
   final char ch=curr();
   if (XMLToken.isXMLLetter(ch)) {
     final byte[] name=qName(null);
+    final int p2=qp;
     if (consumeWS(PAR1)) {
       final Type type=Type.node(new QNm(name));
       if (type != null) {
@@ -17,6 +18,7 @@
       }
     }
  else {
+      qp=p2;
       if (contains(name,':')) {
         skipWS();
         return new NameTest(new QNm(name,ctx,input()),NameTest.Kind.STD,att,input());
@@ -34,7 +36,7 @@
   }
  else   if (consume('*')) {
     if (!consume(':'))     return new NameTest(att,input());
-    return new NameTest(new QNm(qName(null)),NameTest.Kind.NAME,att,input());
+    return new NameTest(new QNm(qName(QNAMEINV)),NameTest.Kind.NAME,att,input());
   }
   qp=p;
   return null;

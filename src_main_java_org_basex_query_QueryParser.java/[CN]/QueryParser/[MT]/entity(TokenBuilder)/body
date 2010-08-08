@@ -8,14 +8,14 @@
         final char c=curr();
         final boolean m=digit(c);
         final boolean h=b == 16 && (c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F');
-        if (!m && !h)         invalidEnt(p);
+        if (!m && !h)         invalidEnt(p,INVENTITY);
         final long nn=n;
         n=n * b + (consume() & 15);
-        if (n < nn)         invalidEnt(p);
+        if (n < nn)         invalidEnt(p,INVCHARREF);
         if (!m)         n+=9;
       }
  while (!consume(';'));
-      if (!XMLToken.valid(n))       error(INVCHARREF,n);
+      if (!XMLToken.valid(n))       invalidEnt(p,INVCHARREF);
       tb.addUTF((int)n);
     }
  else {
@@ -35,9 +35,9 @@
         tb.add('\'');
       }
  else {
-        invalidEnt(p);
+        invalidEnt(p,INVENTITY);
       }
-      if (!consume(';'))       invalidEnt(p);
+      if (!consume(';'))       invalidEnt(p,INVENTITY);
     }
     tb.ent=true;
   }
