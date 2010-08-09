@@ -1,5 +1,5 @@
 {
-  final Var v=var.copy();
+  final Var vr=var.copy();
   return new Iter(){
     /** 
  * Variable stack size. 
@@ -13,22 +13,23 @@
       if (!more) {
         vs=ctx.vars.size();
         final Iter ir=ctx.iter(expr);
-        Item it;
+        Value v;
         if (score) {
           double s=0;
           int c=0;
+          Item it;
           while ((it=ir.next()) != null) {
             s+=it.score();
             c++;
           }
-          it=Dbl.get(ctx.score.let(s,c));
+          v=Dbl.get(ctx.score.let(s,c));
         }
  else {
-          it=ir.finish();
+          v=ir.finish();
         }
-        ctx.vars.add(v.bind(it,ctx));
+        ctx.vars.add(vr.bind(v,ctx));
         more=true;
-        return it;
+        return Bln.TRUE;
       }
       reset();
       return null;

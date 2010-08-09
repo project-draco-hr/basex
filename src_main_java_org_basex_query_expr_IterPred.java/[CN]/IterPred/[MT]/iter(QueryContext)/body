@@ -14,11 +14,12 @@
           if (s == 0)           return null;
           if (s != -1) {
             p=last ? s : pos.min;
+            if (p > s)             return null;
             direct=true;
           }
         }
       }
-      final Item ci=ctx.item;
+      final Value cv=ctx.value;
       final long cp=ctx.pos;
       Item it=null;
       if (direct) {
@@ -28,7 +29,7 @@
  else {
         Item old=null;
         while ((it=iter.next()) != null) {
-          ctx.item=it;
+          ctx.value=it;
           ctx.pos=p++;
           old=it;
           final Item i=pred[0].test(ctx,input);
@@ -41,7 +42,7 @@
       }
       finish=last || pos != null && pos.last(ctx);
       if (finish && direct)       iter.reset();
-      ctx.item=ci;
+      ctx.value=cv;
       ctx.pos=cp;
       return it;
     }

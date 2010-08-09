@@ -12,7 +12,7 @@
   if (where != null) {
     where=checkUp(where.comp(ctx),ctx);
     if (where.value()) {
-      empty=!((Item)where).ebv(ctx,input).bool(input);
+      empty=!where.ebv(ctx,input).bool(input);
       if (!empty) {
         ctx.compInfo(OPTTRUE,where);
         where=null;
@@ -26,12 +26,12 @@
   ctx.grouping=grp;
   if (empty) {
     ctx.compInfo(OPTFALSE,where);
-    return Seq.EMPTY;
+    return Empty.SEQ;
   }
   for (int f=0; f != fl.length; f++) {
     if (fl[f].expr.empty() && fl[f] instanceof For) {
       ctx.compInfo(OPTFLWOR);
-      return Seq.EMPTY;
+      return Empty.SEQ;
     }
   }
   return this;

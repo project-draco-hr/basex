@@ -1,6 +1,6 @@
 {
   return new NodeIter(){
-    final Item ci=ctx.item;
+    final Value cv=ctx.value;
     final long cp=ctx.pos;
     boolean finish;
     NodeIter ir;
@@ -8,7 +8,7 @@
     @Override public Nod next() throws QueryException {
       if (finish)       return null;
       if (iter == null) {
-        iter=checkCtx(ctx).iter();
+        iter=checkCtx(ctx).iter(ctx);
         ctx.pos=0;
       }
       Nod temp=null;
@@ -23,7 +23,7 @@
         final Nod nod=ir.next();
         if (nod != null) {
           if (test.eval(nod)) {
-            ctx.item=nod;
+            ctx.value=nod;
             ctx.pos++;
             final Item i=pred[0].test(ctx,input);
             if (i != null) {
@@ -38,7 +38,7 @@
           ir=null;
         }
       }
-      ctx.item=ci;
+      ctx.value=cv;
       ctx.pos=cp;
       finish=last;
       return temp;

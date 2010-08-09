@@ -1,8 +1,8 @@
 {
   for (  final Expr p : pred)   checkUp(p,ctx);
-  final Item ci=ctx.item;
-  final Type ct=ci != null ? ci.type : null;
-  if (ct == Type.DOC)   ctx.item.type=Type.ELM;
+  final Value cv=ctx.value;
+  final Type ct=cv != null ? cv.type : null;
+  if (ct == Type.DOC)   ctx.value.type=Type.ELM;
   Expr e=this;
   for (int p=0; p < pred.length; p++) {
     Expr pr=pred[p].comp(ctx);
@@ -10,7 +10,7 @@
     if (pr.value()) {
       if (!pr.ebv(ctx,input).bool(input)) {
         ctx.compInfo(OPTFALSE,pr);
-        e=Seq.EMPTY;
+        e=Empty.SEQ;
         break;
       }
       ctx.compInfo(OPTTRUE,pr);
@@ -20,7 +20,7 @@
       pred[p]=pr;
     }
   }
-  ctx.item=ci;
-  if (ct != null)   ctx.item.type=ct;
+  ctx.value=cv;
+  if (ct != null)   ctx.value.type=ct;
   return e;
 }

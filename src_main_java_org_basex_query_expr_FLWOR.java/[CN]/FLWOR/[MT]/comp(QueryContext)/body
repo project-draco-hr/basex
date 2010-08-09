@@ -10,7 +10,7 @@
   if (where != null) {
     where=checkUp(where,ctx).comp(ctx);
     if (where.value()) {
-      empty=!((Item)where).ebv(ctx,input).bool(input);
+      empty=!where.ebv(ctx,input).bool(input);
       if (!empty) {
         ctx.compInfo(OPTTRUE,where);
         where=null;
@@ -22,12 +22,12 @@
   ctx.vars.reset(vs);
   if (empty) {
     ctx.compInfo(OPTFALSE,where);
-    return Seq.EMPTY;
+    return Empty.SEQ;
   }
   for (  final ForLet f : fl) {
     if (f.expr.empty() && f instanceof For) {
       ctx.compInfo(OPTFLWOR);
-      return Seq.EMPTY;
+      return Empty.SEQ;
     }
   }
   return this;
