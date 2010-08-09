@@ -13,7 +13,7 @@
     context.query=IO.get(queries + pth + inname+ IO.XQSUFFIX);
     final String in=read(context.query);
     String error=null;
-    SeqIter iter=null;
+    ItemIter iter=null;
     boolean doc=true;
     final TokenBuilder files=new TokenBuilder();
     final CachedOutput co=new CachedOutput();
@@ -42,7 +42,7 @@
       final SerializerProp sp=new SerializerProp();
       sp.set(SerializerProp.S_INDENT,context.prop.is(Prop.CHOP) ? DataText.YES : DataText.NO);
       final XMLSerializer xml=new XMLSerializer(co,sp);
-      iter=SeqIter.get(xq.iter());
+      iter=ItemIter.get(xq.iter());
       Item it;
       while ((it=iter.next()) != null) {
         doc&=it.type == Type.DOC;
@@ -131,19 +131,19 @@ catch (    final Exception ex) {
           }
           try {
             final Data rdata=CreateDB.xml(IO.get(ri),context);
-            final SeqIter si=new SeqIter();
+            final ItemIter ir=new ItemIter();
             for (int pre=doc ? 0 : 2; pre < rdata.meta.size; ) {
-              si.add(new DBNode(rdata,pre));
+              ir.add(new DBNode(rdata,pre));
               pre+=rdata.size(pre,rdata.kind(pre));
             }
-            final boolean eq=FNSimple.deep(null,iter,si);
+            final boolean eq=FNSimple.deep(null,iter,ir);
             if (!eq && debug) {
               iter.reset();
-              si.reset();
+              ir.reset();
               final XMLSerializer ser=new XMLSerializer(System.out);
               Item it;
               Main.outln(NL + "=== " + testid+ " ===");
-              while ((it=si.next()) != null)               it.serialize(ser);
+              while ((it=ir.next()) != null)               it.serialize(ser);
               Main.outln(NL + "=== " + NAME+ " ===");
               while ((it=iter.next()) != null)               it.serialize(ser);
               Main.outln();
