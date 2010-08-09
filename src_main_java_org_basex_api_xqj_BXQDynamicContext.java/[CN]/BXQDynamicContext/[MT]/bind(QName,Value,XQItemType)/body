@@ -1,31 +1,31 @@
 {
   opened();
   valid(var,QName.class);
-  final Type tt=check(it.type,t);
-  Item i=it;
-  if (tt != it.type) {
+  final Type tt=check(v.type,t);
+  Value vl=v;
+  if (tt != v.type && v instanceof Item) {
     try {
-      i=tt.e(it,ctx.ctx,null);
+      vl=tt.e((Item)v,ctx.ctx,null);
     }
  catch (    final QueryException ex) {
       throw new BXQException(ex);
     }
   }
   if (var == XQConstants.CONTEXT_ITEM) {
-    qp.ctx.item=i;
+    qp.ctx.value=vl;
   }
  else {
     final QNm name=new QNm(Token.token(var.getLocalPart()));
-    Var v=new Var(name);
+    Var vr=new Var(name);
     if (this instanceof BXQPreparedExpression) {
-      v=qp.ctx.vars.get(v);
-      if (v == null)       throw new BXQException(VAR,var);
+      vr=qp.ctx.vars.get(vr);
+      if (vr == null)       throw new BXQException(VAR,var);
     }
  else {
-      qp.ctx.vars.addGlobal(v);
+      qp.ctx.vars.addGlobal(vr);
     }
     try {
-      v.bind(i,null);
+      vr.bind(vl,null);
     }
  catch (    final QueryException ex) {
       throw new BXQException(ex);
