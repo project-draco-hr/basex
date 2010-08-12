@@ -1,11 +1,12 @@
 {
   final Item[] its=new Item[gv.length];
   for (int i=0; i < gv.length; i++) {
-    its[i]=(Item)ctx.vars.get(gv[i]).value;
+    if (ctx.vars.get(gv[i]).value.item())     its[i]=(Item)ctx.vars.get(gv[i]).value;
+ else     throw new QueryException(null,null);
   }
   boolean found=false;
   int p=0;
-  final GroupNode cand=new GroupNode(its,gv.length);
+  final GroupNode cand=new GroupNode(its);
   final Integer chash=cand.hashCode();
   if (hashes.containsKey(chash)) {
     final IntList ps=hashes.get(cand.hash);
@@ -20,7 +21,7 @@
   if (!found) {
     p=partitions.size();
     partitions.add(cand);
-    final IntList pos=hashes.get(chash) != null ? hashes.get(chash) : new IntList(2);
+    final IntList pos=hashes.get(chash) != null ? hashes.get(chash) : new IntList(8);
     pos.add(p);
     hashes.put(chash,pos);
   }
