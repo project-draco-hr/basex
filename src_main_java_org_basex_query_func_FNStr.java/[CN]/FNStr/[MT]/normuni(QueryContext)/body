@@ -1,10 +1,16 @@
 {
   final byte[] str=checkEStr(expr[0],ctx);
-  String nr=null;
+  Normalizer.Form nr=null;
   if (expr.length == 2) {
-    final String n=string(uc(trim(checkStr(expr[1],ctx))));
-    for (    final String nrm : NORMS)     if (nrm.equals(n))     nr=nrm;
-    if (nr == null)     Err.or(input,NORMUNI,n);
+    final byte[] n=uc(trim(checkStr(expr[1],ctx)));
+    if (n.length == 0)     return Str.get(str);
+    try {
+      nr=Normalizer.Form.valueOf(string(n));
+    }
+ catch (    final IllegalArgumentException e) {
+      Err.or(input,NORMUNI,n);
+    }
   }
-  return Str.get(str);
+  if (nr == null)   nr=Normalizer.Form.NFC;
+  return Str.get(Normalizer.normalize(string(str),nr));
 }
