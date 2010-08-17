@@ -1,13 +1,13 @@
 {
   final TokenBuilder tb=new TokenBuilder();
-  for (int c=0; c < nod.size(); c++) {
+  for (int c=0; c < nod.size(); ++c) {
     final byte[] nm=data.atom(nod.nodes[c]);
     String src=srcs.get(string(nm));
     if (tb.size() != 0)     tb.add(", ");
     tb.add(nm);
     Expr expr=null;
     if (src == null) {
-      expr=coll(nm,ctx);
+      expr=coll(nm,qp);
     }
  else {
       FunDef def=FunDef.DOC;
@@ -17,10 +17,7 @@
       }
       expr=Fun.create(null,def,Str.get(src));
     }
-    if (var != null) {
-      final Var v=new Var(new QNm(data.atom(var.nodes[c])));
-      ctx.vars.addGlobal(v.bind(expr,ctx));
-    }
+    if (var != null)     qp.bind(string(data.atom(var.nodes[c])),expr);
   }
   return tb.finish();
 }

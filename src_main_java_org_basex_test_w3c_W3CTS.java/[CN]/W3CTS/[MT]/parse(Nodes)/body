@@ -7,7 +7,7 @@
   boolean inspect=false;
   boolean correct=true;
   final Nodes nodes=states(root);
-  for (int n=0; n < nodes.size(); n++) {
+  for (int n=0; n < nodes.size(); ++n) {
     final Nodes state=new Nodes(nodes.nodes[n],nodes.data);
     final String inname=text("*:query/@name",state);
     context.query=IO.get(queries + pth + inname+ IO.XQSUFFIX);
@@ -16,7 +16,7 @@
     ItemIter iter=null;
     boolean doc=true;
     final TokenBuilder files=new TokenBuilder();
-    final CachedOutput co=new CachedOutput();
+    final CachedOutput co=new CachedOutput(1 << 19);
     final Nodes cont=nodes("*:contextItem",state);
     Nodes curr=null;
     if (cont.size() != 0) {
@@ -26,14 +26,13 @@
     }
     context.prop.set(Prop.QUERYINFO,compile);
     final QueryProcessor xq=new QueryProcessor(in,curr,context);
-    final QueryContext qctx=xq.ctx;
     context.prop.set(Prop.QUERYINFO,false);
     try {
-      files.add(file(nodes("*:input-file",state),nodes("*:input-file/@variable",state),qctx,n == 0));
-      files.add(file(nodes("*:defaultCollection",state),null,qctx,n == 0));
-      var(nodes("*:input-URI",state),nodes("*:input-URI/@variable",state),qctx);
-      eval(nodes("*:input-query/@name",state),nodes("*:input-query/@variable",state),pth,qctx);
-      parse(qctx,state);
+      files.add(file(nodes("*:input-file",state),nodes("*:input-file/@variable",state),xq,n == 0));
+      files.add(file(nodes("*:defaultCollection",state),null,xq,n == 0));
+      var(nodes("*:input-URI",state),nodes("*:input-URI/@variable",state),xq);
+      eval(nodes("*:input-query/@name",state),nodes("*:input-query/@variable",state),pth,xq);
+      parse(xq,state);
       for (      final int p : nodes("*:module",root).nodes) {
         final String ns=text("@namespace",new Nodes(p,data));
         final String f=mods.get(string(data.atom(p))) + IO.XQSUFFIX;
@@ -73,8 +72,8 @@ catch (    final Exception ex) {
     final Nodes cmpFiles=nodes("*:output-file/@compare",state);
     boolean xml=false;
     boolean frag=false;
-    final StringList result=new StringList();
-    for (int o=0; o < outFiles.size(); o++) {
+    final TokenList result=new TokenList();
+    for (int o=0; o < outFiles.size(); ++o) {
       final String resFile=string(data.atom(outFiles.nodes[o]));
       final IO exp=IO.get(expected + pth + resFile);
       result.add(read(exp));
@@ -121,10 +120,11 @@ catch (    final Exception ex) {
       final int rs=result.size();
       while (++s < rs) {
         inspect|=s < cmpFiles.nodes.length && eq(data.atom(cmpFiles.nodes[s]),INSPECT);
-        if (result.get(s).equals(co.toString()))         break;
+        final byte[] res=result.get(s);
+        if (res.length == co.size() && eq(res,co.toArray()))         break;
         if (xml || frag) {
           iter.reset();
-          String ri=result.get(s).trim();
+          String ri=string(res).trim();
           if (!doc) {
             if (ri.startsWith("<?xml"))             ri=ri.replaceAll("^<.*?>\\s*","");
             ri="<X>" + ri + "</X>";
@@ -161,7 +161,7 @@ catch (    final Exception ex) {
           if (outFiles.size() == 0)           result.add(error(pth + outname,expError));
           logErr.append(logStr);
           logErr.append("[" + testid + " ] ");
-          logErr.append(norm(result.get(0)));
+          logErr.append(norm(string(result.get(0))));
           logErr.append(NL);
           logErr.append("[Wrong] ");
           logErr.append(norm(co.toString()));
@@ -203,7 +203,7 @@ catch (    final Exception ex) {
         if (print) {
           logErr2.append(logStr);
           logErr2.append("[" + testid + " ] ");
-          logErr2.append(norm(result.get(0)));
+          logErr2.append(norm(string(result.get(0))));
           logErr2.append(NL);
           logErr2.append("[Wrong] ");
           logErr2.append(norm(error));
