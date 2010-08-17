@@ -1,14 +1,19 @@
 {
   final StringBuilder sb=new StringBuilder(length);
-  try {
-    for (int i=start; i < start + length; ) {
-      final int cl=cl(token,i);
-      for (int c=0; c < cl; c++)       U8C[c]=token[i++];
-      sb.append(Character.toChars(cp(U8C,0)));
+  final byte[] uc=new byte[4];
+  final int il=Math.min(start + length,token.length);
+  for (int i=start; i < il; ) {
+    final int cl=cl(token,i);
+    for (int c=0; c < cl && i < il; ++c, ++i)     uc[c]=token[i];
+    final int cp=cp(uc,0);
+    if (cp < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
+      sb.append((char)cp);
     }
-  }
- catch (  final ArrayIndexOutOfBoundsException ex) {
-    Main.debug(ex);
+ else {
+      final int o=cp - Character.MIN_SUPPLEMENTARY_CODE_POINT;
+      sb.append((char)((o >>> 10) + Character.MIN_HIGH_SURROGATE));
+      sb.append((char)((o & 0x3ff) + Character.MIN_LOW_SURROGATE));
+    }
   }
   return sb.toString();
 }

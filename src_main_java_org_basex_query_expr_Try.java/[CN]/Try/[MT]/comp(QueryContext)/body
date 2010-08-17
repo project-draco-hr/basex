@@ -1,13 +1,16 @@
 {
-  for (int c=0; c < ctch.length; c++) {
+  for (int c=0; c < ctch.length; ++c) {
     ctch[c]=((Catch)checkUp(ctch[c],ctx)).comp(ctx);
   }
   checkUp(expr,ctx);
+  Expr e=this;
   try {
-    return super.comp(ctx);
+    e=super.comp(ctx);
   }
  catch (  final QueryException ex) {
     qe=ex;
-    return this;
   }
+  type=expr.type();
+  for (  final Catch c : ctch)   type=type.intersect(c.type());
+  return e;
 }

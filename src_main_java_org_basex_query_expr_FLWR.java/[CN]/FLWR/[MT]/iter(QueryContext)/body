@@ -27,11 +27,11 @@
       }
     }
     @Override public long size() throws QueryException {
-      if (where != null || !ret.returned(ctx).one())       return -1;
+      if (where != null || !ret.type().one())       return -1;
       init();
       long s=1;
       sizes=new long[fl.length];
-      for (int f=0; f != fl.length; f++) {
+      for (int f=0; f != fl.length; ++f) {
         sizes[f]=iter[f].size();
         if (sizes[f] == -1)         return -1;
         s*=sizes[f];
@@ -40,9 +40,9 @@
     }
     @Override public Item get(    final long i) throws QueryException {
       long s=1;
-      for (int f=1; f != fl.length; f++)       s*=sizes[f];
+      for (int f=1; f != fl.length; ++f)       s*=sizes[f];
       long o=i;
-      for (int f=0; f != fl.length; f++) {
+      for (int f=0; f != fl.length; ++f) {
         if (f != 0)         s/=sizes[f];
         final long n=o / s;
         iter[f].get(n);
@@ -66,7 +66,7 @@
     private void init() throws QueryException {
       if (iter != null)       return;
       iter=new Iter[fl.length];
-      for (int f=0; f < fl.length; f++)       iter[f]=ctx.iter(fl[f]);
+      for (int f=0; f < fl.length; ++f)       iter[f]=ctx.iter(fl[f]);
     }
   }
 ;

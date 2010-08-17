@@ -1,10 +1,11 @@
 {
   super.comp(ctx);
-  final int el=expr.length;
-  for (int e=1; e < expr.length; e++) {
-    if (expr[e].empty())     expr=Array.delete(expr,e--);
+  if (expr[0].empty())   return optPre(Empty.SEQ,ctx);
+  for (int e=1; e < expr.length; ++e) {
+    if (expr[e].empty()) {
+      expr=Array.delete(expr,e--);
+      ctx.compInfo(OPTREMOVE,desc(),Type.EMP);
+    }
   }
-  final boolean ii=expr[0].empty();
-  if (el != expr.length || ii)   ctx.compInfo(OPTEMPTY);
-  return ii ? Empty.SEQ : this;
+  return expr.length == 1 && !duplicates() ? expr[0] : this;
 }

@@ -1,0 +1,11 @@
+{
+  super.comp(ctx);
+  final boolean and=this instanceof And;
+  for (int e=0; e < expr.length; ++e) {
+    if (!expr[e].value())     continue;
+    ctx.compInfo(OPTREMOVE,desc(),expr[e]);
+    if (expr[e].ebv(ctx,input).bool(input) ^ and)     return Bln.get(!and);
+    expr=Array.delete(expr,e--);
+  }
+  return expr.length == 0 ? Bln.get(and) : this;
+}

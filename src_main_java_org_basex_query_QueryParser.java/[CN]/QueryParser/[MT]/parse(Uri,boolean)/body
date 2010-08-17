@@ -1,26 +1,27 @@
 {
+  Expr expr=null;
   try {
     versionDecl();
-    Expr ex=null;
     if (u == null) {
-      ex=mainModule();
-      if (ex == null)       if (alter != null)       error();
+      expr=mainModule();
+      if (expr == null)       if (alter != null)       error();
  else       error(EXPREMPTY);
     }
  else {
       moduleDecl(u);
     }
-    if (end && more()) {
+    if (c && more()) {
       if (alter != null)       error();
       error(QUERYEND,rest());
     }
-    ctx.fun.check();
-    ctx.ns.finish(ctx.nsElem);
-    return ex;
   }
  catch (  final QueryException ex) {
     mark();
     ex.pos(this);
     throw ex;
   }
+  ctx.funcs.check();
+  ctx.vars.check();
+  ctx.ns.finish(ctx.nsElem);
+  return expr;
 }

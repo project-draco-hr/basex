@@ -1,9 +1,9 @@
 {
   final int vs=ctx.vars.size();
-  for (int f=0; f != fl.length; f++) {
+  for (  final ForLet f : fl) {
     final boolean fast=ctx.ftfast;
-    ctx.ftfast&=fl[f].simple();
-    fl[f].comp(ctx);
+    ctx.ftfast&=f.simple();
+    f.comp(ctx);
     ctx.ftfast=fast;
   }
   boolean empty=false;
@@ -12,7 +12,7 @@
     if (where.value()) {
       empty=!where.ebv(ctx,input).bool(input);
       if (!empty) {
-        ctx.compInfo(OPTTRUE,where);
+        ctx.compInfo(OPTREMOVE,desc(),where);
         where=null;
       }
     }
@@ -21,14 +21,60 @@
   ret=ret.comp(ctx);
   ctx.vars.reset(vs);
   if (empty) {
-    ctx.compInfo(OPTFALSE,where);
+    ctx.compInfo(OPTREMOVE,desc(),where);
     return Empty.SEQ;
   }
+  for (int f=0; f != fl.length; ++f) {
+    if (fl[f].var.expr() != null) {
+      ctx.compInfo(OPTVAR,fl[f].var);
+      fl=Array.delete(fl,f--);
+    }
+  }
+  if (fl.length == 0) {
+    ctx.compInfo(OPTFLWOR);
+    return where != null ? new If(input,where,ret,Empty.SEQ) : ret;
+  }
   for (  final ForLet f : fl) {
-    if (f.expr.empty() && f instanceof For) {
+    if (f instanceof For && (f.empty() || f.size() == 0)) {
       ctx.compInfo(OPTFLWOR);
       return Empty.SEQ;
     }
   }
+  if (where != null) {
+    final ForLet f=fl[fl.length - 1];
+    if (f instanceof For && f.simple() && where.removable(f.var)&& !where.type().mayBeNum()) {
+      ctx.compInfo(OPTWHERE);
+      final Expr w=where.remove(f.var);
+      if (f.expr instanceof AxisPath) {
+        AxisPath ap=(AxisPath)f.expr;
+        if (w instanceof And) {
+          for (          final Expr e : ((And)w).expr)           ap=ap.addPred(e);
+        }
+ else {
+          ap=ap.addPred(w);
+        }
+        f.expr=ap;
+      }
+ else {
+        f.expr=new Filter(input,f.expr,w);
+      }
+      where=null;
+      return comp(ctx);
+    }
+  }
+  if (where == null) {
+    size=ret.size();
+    if (size != -1) {
+      for (      final ForLet f : fl) {
+        final long s=f.size();
+        if (s == -1) {
+          size=s;
+          break;
+        }
+        size*=s;
+      }
+    }
+  }
+  type=new SeqType(ret.type().type,SeqType.Occ.ZM);
   return this;
 }

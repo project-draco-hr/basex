@@ -1,8 +1,10 @@
 {
   final char[] arr=string.toCharArray();
-  final TokenBuilder tb=new TokenBuilder(arr.length << 1);
-  for (int c=0; c < arr.length; c++) {
-    tb.addUTF(Character.isHighSurrogate(arr[c]) && c < arr.length - 1 && Character.isLowSurrogate(arr[c + 1]) ? Character.toCodePoint(arr[c],arr[++c]) : arr[c]);
+  final int al=arr.length;
+  final TokenBuilder tb=new TokenBuilder(al << 1);
+  for (int c=0; c < al; ++c) {
+    final char ch=arr[c];
+    tb.addUTF(Character.isHighSurrogate(ch) && c < al - 1 && Character.isLowSurrogate(arr[c + 1]) ? Character.toCodePoint(ch,arr[++c]) : ch);
   }
   return tb.finish();
 }

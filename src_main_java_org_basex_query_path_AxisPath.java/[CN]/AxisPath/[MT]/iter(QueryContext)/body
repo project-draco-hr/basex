@@ -2,22 +2,22 @@
   final Value c=ctx.value;
   final long cs=ctx.size;
   final long cp=ctx.pos;
-  Value v=root != null ? ctx.iter(root).finish() : c;
-  if (!cache || citer == null || lvalue.type != Type.DOC || v.type != Type.DOC || !((Nod)lvalue).is((Nod)v)) {
-    lvalue=v;
-    citer=new NodIter();
-    if (v != null && v.size(ctx) != 1) {
-      final Iter ir=ctx.iter(v);
-      while ((v=ir.next()) != null) {
-        ctx.value=v;
+  Value r=root != null ? ctx.iter(root).finish() : c;
+  if (!cache || citer == null || lvalue.type != Type.DOC || r.type != Type.DOC || !((Nod)lvalue).is((Nod)r)) {
+    lvalue=r;
+    citer=new NodIter(true);
+    if (r != null) {
+      final Iter ir=ctx.iter(r);
+      while ((r=ir.next()) != null) {
+        ctx.value=r;
         iter(0,citer,ctx);
       }
     }
  else {
-      ctx.value=v;
+      ctx.value=r;
       iter(0,citer,ctx);
     }
-    citer.sort(true);
+    citer.sort();
   }
  else {
     citer.reset();

@@ -1,6 +1,6 @@
 {
   b.encoding(ENCODING);
-  final String dir=file.getDir();
+  final String dir=file.dir();
   index(mediatypes,dir + "/mediatypes.dat");
   index(subjects,dir + "/subjects.dat");
   index(languages,dir + "/lang.dat");
@@ -9,7 +9,7 @@
   index(status,dir + "/status.dat");
   index(posters,dir + "/posters.dat");
   index(genres,dir + "/genres.dat");
-  for (int i=1; i <= mvids.size(); i++) {
+  for (int i=1; i <= mvids.size(); ++i) {
     final int id=toInt(mvids.value(i));
     if (maxid < id)     maxid=id;
   }
@@ -43,11 +43,11 @@
     }
   }
   if (Prop.debug)   Main.err("\nParse Offsets (%): %/%\n",ids.size(),p,Performance.getMem());
-  for (i=1; i <= ids.size(); i++) {
+  for (i=1; i <= ids.size(); ++i) {
     final MAB2Entry entry=ids.value(i);
     final long pos=entry.pos;
     final byte[] l=pos != 0 ? addEntry(input,pos,entry.size,null) : null;
-    for (int j=0; j < entry.size; j++) {
+    for (int j=0; j < entry.size; ++j) {
       addEntry(input,entry.children[j],0,l);
     }
     if (entry.size != 0 && pos != 0 && !flat)     builder.endElem(MEDIUM);
@@ -57,7 +57,7 @@
   builder.endDoc();
   input.close();
   final PrintOutput out=new PrintOutput(dir + "/mvids.dat");
-  for (i=1; i <= mvids.size(); i++) {
+  for (i=1; i <= mvids.size(); ++i) {
     out.print(mvids.key(i));
     out.write('\t');
     out.println(mvids.value(i));

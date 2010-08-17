@@ -1,32 +1,32 @@
 {
   super.comp(ctx);
-  for (int e=0; e != expr.length; e++)   expr[e]=expr[e].addText(ctx);
-  if (expr[0].value() && !expr[1].value() || expr[0] instanceof AxisPath && ((AxisPath)expr[0]).root != null && expr[1] instanceof AxisPath) {
-    final Expr tmp=expr[0];
-    expr[0]=expr[1];
-    expr[1]=tmp;
-    cmp=cmp.invert();
+  if (swap()) {
+    op=op.invert();
+    ctx.compInfo(OPTSWAP,this);
   }
+  for (int e=0; e != expr.length; ++e)   expr[e]=expr[e].addText(ctx);
   final Expr e1=expr[0];
   final Expr e2=expr[1];
-  atom=e1.returned(ctx).one() && e2.returned(ctx).one();
   Expr e=this;
-  if (e1.value() && e2.value()) {
+  if (oneEmpty()) {
+    e=optPre(Bln.FALSE,ctx);
+  }
+ else   if (values()) {
     e=preEval(ctx);
   }
  else   if (e1 instanceof Fun) {
     final Fun fun=(Fun)e1;
-    if (fun.func == FunDef.COUNT) {
-      e=CmpV.count(this,cmp.cmp);
+    if (fun.def == FunDef.COUNT) {
+      e=count(op.op);
       if (e != this)       ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
     }
- else     if (fun.func == FunDef.POS) {
+ else     if (fun.def == FunDef.POS) {
       if (e2 instanceof Range) {
         final long[] rng=((Range)e2).range(ctx);
         e=rng == null ? this : Pos.get(rng[0],rng[1],input);
       }
  else {
-        e=Pos.get(cmp.cmp,e2,this,input);
+        e=Pos.get(op.op,e2,e,input);
       }
       if (e != this)       ctx.compInfo(OPTWRITE,this);
     }
@@ -35,5 +35,7 @@
     e=CmpR.get(this);
     if (e != this)     ctx.compInfo(OPTWRITE,this);
   }
+  single=e1.type().one() && e2.type().one();
+  type=SeqType.BLN;
   return e;
 }

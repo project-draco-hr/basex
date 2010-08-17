@@ -1,24 +1,23 @@
 {
   root=checkUp(root,ctx).comp(ctx);
-  if (root instanceof AxisPath && !super.uses(Use.POS,ctx)) {
+  if (root instanceof AxisPath && !super.uses(Use.POS)) {
     AxisPath path=((AxisPath)root).copy();
     for (    final Expr p : pred)     path=path.addPred(p);
     return path.comp(ctx);
   }
+  if (root.empty())   return optPre(Empty.SEQ,ctx);
   final Value tmp=ctx.value;
   ctx.value=null;
   final Expr e=super.comp(ctx);
   ctx.value=tmp;
   if (e != this)   return e;
-  if (root.empty()) {
-    ctx.compInfo(OPTPRE,this);
-    return Empty.SEQ;
-  }
   if (pred.length == 0)   return root;
   final Expr p=pred[0];
+  final SeqType t=root.type();
+  type=new SeqType(t.type,t.zeroOrOne() ? SeqType.Occ.ZO : SeqType.Occ.ZM);
   final Pos pos=p instanceof Pos ? (Pos)p : null;
-  final boolean last=p instanceof Fun && ((Fun)p).func == FunDef.LAST;
-  if (pred.length == 1 && (last || pos != null || !uses(Use.POS,ctx)))   return new IterPred(input,root,pred,pos,last);
-  direct=pred.length == 1 && p.returned(ctx).num() && !p.uses(Use.CTX,ctx);
+  final boolean last=p instanceof Fun && ((Fun)p).def == FunDef.LAST;
+  if (pred.length == 1 && (last || pos != null || !uses(Use.POS)))   return new IterPred(this,pos,last);
+  direct=pred.length == 1 && p.type().num() && !p.uses(Use.CTX);
   return this;
 }

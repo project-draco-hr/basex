@@ -1,39 +1,8 @@
 {
   final Expr ex=super.comp(ctx);
   if (ex != this)   return ex;
-  if (where != null) {
-    final ForLet f=fl[fl.length - 1];
-    if (f instanceof For && f.simple() && where.removable(f.var,ctx)&& !where.returned(ctx).mayBeNum()) {
-      ctx.compInfo(OPTWHERE);
-      final Expr w=where.remove(f.var);
-      if (f.expr instanceof AxisPath) {
-        AxisPath ap=(AxisPath)f.expr;
-        if (w instanceof And) {
-          for (          final Expr e : ((And)w).expr)           ap=ap.addPred(e);
-        }
- else {
-          ap=ap.addPred(w);
-        }
-        f.expr=ap;
-      }
- else {
-        f.expr=new Filter(input,f.expr,w);
-      }
-      where=null;
-    }
-  }
-  for (int f=0; f != fl.length; f++) {
-    if (fl[f].var.expr != null) {
-      ctx.compInfo(OPTVAR,fl[f].var);
-      fl=Array.delete(fl,f--);
-    }
-  }
-  if (fl.length == 0) {
-    ctx.compInfo(OPTFLWOR);
-    return where != null ? new If(input,where,ret,Empty.SEQ) : ret;
-  }
-  if (fl.length == 1 && where == null && fl[0].simple() && ret instanceof VarCall) {
-    final Var v=((VarCall)ret).var;
+  if (fl.length == 1 && where == null && fl[0].simple() && ret instanceof VarRef) {
+    final Var v=((VarRef)ret).var;
     if (v.type == null && fl[0].var.eq(v)) {
       ctx.compInfo(OPTFLWOR);
       return fl[0].expr;

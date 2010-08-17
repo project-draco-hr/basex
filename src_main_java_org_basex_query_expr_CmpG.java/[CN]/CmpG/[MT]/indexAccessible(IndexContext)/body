@@ -1,26 +1,27 @@
 {
   final Step s=indexStep(expr[0]);
-  if (s == null || cmp != Op.EQ)   return false;
+  if (s == null || op != Op.EQ)   return false;
   final boolean text=ic.data.meta.txtindex && s.test.type == Type.TXT;
   final boolean attr=!text && ic.data.meta.atvindex && s.simple(Axis.ATTR,true);
   if (!text && !attr)   return false;
-  final IndexType type=text ? IndexType.TXT : IndexType.ATV;
+  final IndexType ind=text ? IndexType.TXT : IndexType.ATV;
   final Expr arg=expr[1];
   if (!arg.value()) {
-    final SeqType ret=arg.returned(ic.ctx);
-    if (!ret.type.str && !ret.type.node() || arg.uses(Use.CTX,ic.ctx))     return false;
+    final SeqType t=arg.type();
+    if (!t.type.str && !t.type.node() || arg.uses(Use.CTX))     return false;
     ic.is+=Math.max(1,ic.data.meta.size / 10);
-    iacc=Array.add(iacc,new IndexAccess(input,arg,type,ic));
+    iacc=Array.add(iacc,new IndexAccess(input,arg,ind,ic));
     return true;
   }
   final Iter ir=arg.iter(ic.ctx);
   Item it;
   ic.is=0;
   while ((it=ir.next()) != null) {
-    final SeqType ret=it.returned(ic.ctx);
-    if (!ret.type.str && !ret.type.node())     return false;
-    ic.is+=ic.data.nrIDs(new ValuesToken(type,it.atom()));
-    iacc=Array.add(iacc,new IndexAccess(input,it,type,ic));
+    final SeqType t=it.type();
+    if (!t.type.str && !t.type.node())     return false;
+    final int is=ic.data.nrIDs(new ValuesToken(ind,it.atom()));
+    if (is != 0)     iacc=Array.add(iacc,new IndexAccess(input,it,ind,ic));
+    ic.is+=is;
   }
   return true;
 }

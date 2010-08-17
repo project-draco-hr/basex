@@ -41,15 +41,15 @@
   }
   final Fun fun=FNIndex.get().get(ln,uri,args,qp);
   if (fun != null) {
-    ctx.updating|=fun.func == FunDef.PUT;
+    ctx.updating|=fun.def == FunDef.PUT;
     return fun;
   }
-  for (int l=0; l < size; l++) {
+  for (int l=0; l < func.length; ++l) {
     final QNm qn=func[l].var.name;
-    if (eq(ln,qn.ln()) && eq(uri,qn.uri.atom()) && args.length == func[l].args.length)     return new FunCall(qp.input(),qn,l,args);
+    if (eq(ln,qn.ln()) && eq(uri,qn.uri.atom()) && args.length == func[l].args.length)     return add(qp.input(),qn,l,args);
   }
   if (Type.find(name,true) == null) {
-    return new FunCall(qp.input(),name,add(new Func(qp.input(),new Var(name),new Var[args.length],false),qp),args);
+    return add(qp.input(),name,add(new Func(qp.input(),new Var(name),new Var[args.length],false),qp),args);
   }
   return null;
 }

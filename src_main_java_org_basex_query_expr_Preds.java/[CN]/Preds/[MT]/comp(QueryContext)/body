@@ -4,16 +4,16 @@
   final Type ct=cv != null ? cv.type : null;
   if (ct == Type.DOC)   ctx.value.type=Type.ELM;
   Expr e=this;
-  for (int p=0; p < pred.length; p++) {
+  for (int p=0; p < pred.length; ++p) {
     Expr pr=pred[p].comp(ctx);
     pr=Pos.get(CmpV.Op.EQ,pr,pr,input);
     if (pr.value()) {
       if (!pr.ebv(ctx,input).bool(input)) {
-        ctx.compInfo(OPTFALSE,pr);
+        ctx.compInfo(OPTREMOVE,desc(),pr);
         e=Empty.SEQ;
         break;
       }
-      ctx.compInfo(OPTTRUE,pr);
+      ctx.compInfo(OPTREMOVE,desc(),pr);
       pred=Array.delete(pred,p--);
     }
  else {

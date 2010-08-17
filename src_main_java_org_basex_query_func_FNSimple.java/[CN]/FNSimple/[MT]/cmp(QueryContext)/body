@@ -1,24 +1,32 @@
 {
-  final SeqType s=expr.length == 1 ? expr[0].returned(ctx) : null;
-switch (func) {
+  final SeqType s=expr.length == 1 ? expr[0].type() : null;
+switch (def) {
 case NOT:
     if (expr[0] instanceof Fun) {
-      final Fun fs=(Fun)expr[0];
-      if (fs.func == FunDef.EMPTY) {
-        expr=fs.expr;
-        func=FunDef.EXISTS;
+      final Fun fun=(Fun)expr[0];
+      if (fun.def == FunDef.EMPTY) {
+        expr=fun.expr;
+        def=FunDef.EXISTS;
       }
- else       if (fs.func == FunDef.EXISTS) {
-        expr=fs.expr;
-        func=FunDef.EMPTY;
+ else       if (fun.def == FunDef.EXISTS) {
+        expr=fun.expr;
+        def=FunDef.EMPTY;
+      }
+ else       if (fun.def == FunDef.BOOLEAN) {
+        expr=fun.expr;
       }
     }
   return this;
+case BOOLEAN:
+return expr[0].type().eq(SeqType.BLN) ? expr[0] : this;
 case ZEROORONE:
+type=new SeqType(s.type,SeqType.Occ.ZO);
 return s.zeroOrOne() ? expr[0] : this;
 case EXACTLYONE:
+type=new SeqType(s.type,SeqType.Occ.O);
 return s.one() ? expr[0] : this;
 case ONEORMORE:
+type=new SeqType(s.type,SeqType.Occ.OM);
 return !s.mayBeZero() ? expr[0] : this;
 case UNORDER:
 return expr[0];

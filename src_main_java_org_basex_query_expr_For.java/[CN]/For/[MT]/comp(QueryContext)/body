@@ -1,21 +1,12 @@
 {
   expr=checkUp(expr,ctx).comp(ctx);
-  final SeqType ret=expr.returned(ctx);
-  if (pos == null && score == null && ret.zeroOrOne() && !(expr.uses(Use.VAR,ctx) || expr.uses(Use.CTX,ctx) || expr.uses(Use.FRG,ctx)) && !ctx.grouping) {
-    ctx.compInfo(OPTBIND,var);
-    var.bind(expr,ctx);
-  }
- else {
-    var.ret=new SeqType(ret.type,SeqType.Occ.O);
+  type=expr.type();
+  if (pos != null || score != null || !type.one() || !bind(ctx)) {
+    var.ret=new SeqType(type.type,SeqType.Occ.O);
   }
   ctx.vars.add(var);
-  if (pos != null) {
-    ctx.vars.add(pos);
-    pos.ret=SeqType.ITR;
-  }
-  if (score != null) {
-    ctx.vars.add(score);
-    score.ret=SeqType.ITR;
-  }
+  if (pos != null)   ctx.vars.add(pos);
+  if (score != null)   ctx.vars.add(score);
+  size=expr.size();
   return this;
 }

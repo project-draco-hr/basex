@@ -1,31 +1,30 @@
 {
   super.comp(ctx);
-  for (int e=0; e != expr.length; e++)   expr[e]=expr[e].addText(ctx);
-  if (expr[0].value() && !expr[1].value()) {
-    final Expr tmp=expr[0];
-    expr[0]=expr[1];
-    expr[1]=tmp;
-    cmp=cmp.invert();
+  if (swap()) {
+    op=op.invert();
+    ctx.compInfo(OPTSWAP,this);
   }
+  for (int e=0; e != expr.length; ++e)   expr[e]=expr[e].addText(ctx);
   final Expr e1=expr[0];
   final Expr e2=expr[1];
   Expr e=this;
-  if (e1.empty() || e2.empty()) {
+  if (oneEmpty()) {
     e=optPre(Empty.SEQ,ctx);
   }
- else   if (e1.value() && e2.value()) {
+ else   if (values()) {
     e=preEval(ctx);
   }
  else   if (e1 instanceof Fun) {
-    final Fun fun=(Fun)expr[0];
-    if (fun.func == FunDef.COUNT) {
-      e=count(this,cmp);
+    final Fun fun=(Fun)e1;
+    if (fun.def == FunDef.COUNT) {
+      e=count(op);
       if (e != this)       ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
     }
- else     if (fun.func == FunDef.POS) {
-      e=Pos.get(cmp,e2,e,input);
+ else     if (fun.def == FunDef.POS) {
+      e=Pos.get(op,e2,e,input);
       if (e != this)       ctx.compInfo(OPTWRITE,this);
     }
   }
+  type=SeqType.BLN;
   return e;
 }
