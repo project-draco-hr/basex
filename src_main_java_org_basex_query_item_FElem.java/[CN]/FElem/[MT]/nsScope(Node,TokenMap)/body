@@ -1,20 +1,20 @@
 {
-  final Atts ns=new Atts();
   Node n=elem;
   while (n != null && n instanceof Element) {
     final NamedNodeMap atts=n.getAttributes();
+    final byte[] pre=token(n.getPrefix());
+    if (nss.get(pre) != null)     nss.add(pre,token(n.getNamespaceURI()));
     for (int i=0, len=atts.getLength(); i < len; ++i) {
       final Attr a=(Attr)atts.item(i);
-      final byte[] name=token(a.getName()), uri=token(a.getValue());
+      final byte[] name=token(a.getName()), val=token(a.getValue());
       if (Token.eq(name,XMLNS)) {
-        if (!ns.contains(EMPTY))         ns.add(EMPTY,uri);
+        if (nss.get(EMPTY) == null)         nss.add(EMPTY,val);
       }
  else       if (startsWith(name,XMLNS)) {
         final byte[] ln=ln(name);
-        if (!ns.contains(ln))         ns.add(ln,uri);
+        if (nss.get(ln) == null)         nss.add(ln,val);
       }
     }
     n=n.getParentNode();
   }
-  return ns;
 }

@@ -24,13 +24,17 @@
     }
   }
   atts=new NodIter(attArr,pos);
+  for (int i=0; i < ns.size; i++)   nss.add(ns.key[i],ns.val[i]);
   if (p == null) {
-    final Atts nss=nsScope(elem.getParentNode());
-    for (int i=0; i < nss.size; ++i) {
-      if (!ns.contains(nss.key[i])) {
-        ns.add(nss.key[i],nss.val[i]);
-      }
+    nsScope(elem.getParentNode(),nss);
+    for (    final byte[] key : nss.keys()) {
+      if (!ns.contains(key))       ns.add(key,nss.get(key));
     }
+  }
+  final byte[] pref=name.pref(), uri=name.uri.atom(), old=nss.get(pref);
+  if (old == null || !Token.eq(uri,old)) {
+    ns.add(pref,uri);
+    nss.add(pref,uri);
   }
   final NodeList ch=elem.getChildNodes();
   final int s=ch.getLength();
@@ -49,7 +53,7 @@ case Node.PROCESSING_INSTRUCTION_NODE:
 childArr[i]=new FPI((ProcessingInstruction)child,this);
 break;
 case Node.ELEMENT_NODE:
-childArr[i]=new FElem((Element)child,this);
+childArr[i]=new FElem((Element)child,this,nss);
 break;
 default :
 break;
