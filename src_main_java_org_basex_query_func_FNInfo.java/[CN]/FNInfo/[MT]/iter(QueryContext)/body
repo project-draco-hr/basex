@@ -27,12 +27,11 @@ if (al > 2) ex.iter=expr[2].iter(ctx);
 throw ex;
 }
 case TRACE:
-ItemIter ir=ItemIter.get(expr[0].iter(ctx));
-msg=Token.string(checkEStr(expr[1],ctx)) + " " + ir;
-ctx.evalInfo(msg);
-return ir;
+final Value val=expr[0].iter(ctx).finish();
+ctx.evalInfo(checkEStr(expr[1],ctx),val.toString());
+return val.iter();
 case ENVS:
-ir=new ItemIter();
+final ItemIter ir=new ItemIter();
 for (final Object k : System.getenv().keySet().toArray()) {
 ir.add(Str.get(k));
 }
