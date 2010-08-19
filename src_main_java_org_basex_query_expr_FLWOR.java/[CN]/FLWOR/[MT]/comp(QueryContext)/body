@@ -42,9 +42,10 @@
   }
   if (where != null) {
     final ForLet f=fl[fl.length - 1];
-    if (f instanceof For && f.simple() && where.removable(f.var)&& !where.type().mayBeNum()) {
+    if (f instanceof For && f.simple() && where.removable(f.var)) {
       ctx.compInfo(OPTWHERE);
-      final Expr w=where.remove(f.var);
+      Expr w=where.remove(f.var);
+      if (w.type().mayBeNum())       w=Fun.create(input,FunDef.BOOLEAN,w);
       if (f.expr instanceof AxisPath) {
         AxisPath ap=(AxisPath)f.expr;
         if (w instanceof And) {
