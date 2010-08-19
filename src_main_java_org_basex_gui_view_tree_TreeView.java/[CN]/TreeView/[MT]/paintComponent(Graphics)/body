@@ -12,12 +12,11 @@
     sub=new TreeSubtree(data);
     tr=new TreeRects(gui.prop);
   }
-  if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT)   numRoots=sub.generateBorders(c);
+  if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT)   sub.generateBorders(c);
   if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT || paintType == PAINT_NEW_WINDOW_SIZE || paintType == -1 && windowSizeChanged()) {
     treedist=tr.generateRects(sub,g,c,getWidth());
-    if (markedImage != null) {
-      markedImage=null;
-    }
+    rbr=treedist == -1;
+    markedImage=null;
     setLevelDistance();
     createNewMainImage();
     if (gui.context.marked.size() > 0)     markNodes();
@@ -37,7 +36,10 @@
   if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
   if (focus()) {
     int focused=gui.context.focused;
-    if (tr.isBigRectangle(sub,frn,flv))     focused=getMostSizedNode(data,frn,flv,frect,focused);
+    if (tr.isBigRectangle(sub,frn,flv)) {
+      final int f=getMostSizedNode(data,frn,flv,frect,focused);
+      if (f >= 0)       focused=f;
+    }
     highlightNode(g,frn,flv,frect,focused,-1,DRAW_HIGHLIGHT);
     if (SHOW_EXTRA_INFO) {
       g.setColor(new Color(0xeeeeee));

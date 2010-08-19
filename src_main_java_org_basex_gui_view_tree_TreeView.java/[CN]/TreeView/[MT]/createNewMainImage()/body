@@ -3,38 +3,46 @@
   final Graphics tg=treeImage.getGraphics();
   tg.setFont(font);
   smooth(tg);
-  for (int rn=0; rn < numRoots; ++rn) {
-    final int h=sub.getSubtreeHeight(rn);
-    for (int lv=0; lv < h; ++lv) {
-      final boolean br=tr.isBigRectangle(sub,rn,lv);
-      final TreeRect[] lr=tr.getTreeRectsPerLevel(rn,lv);
-      for (int i=0; i < lr.length; ++i) {
-        final TreeRect r=lr[i];
-        final int pre=sub.getPrePerIndex(rn,lv,i);
-        drawRectangle(tg,rn,lv,r,pre,DRAW_RECTANGLE);
+  if (!rbr) {
+    for (int rn=0; rn < roots.length; ++rn) {
+      final int h=sub.getSubtreeHeight(rn);
+      for (int lv=0; lv < h; ++lv) {
+        final boolean br=tr.isBigRectangle(sub,rn,lv);
+        final TreeRect[] lr=tr.getTreeRectsPerLevel(rn,lv);
+        for (int i=0; i < lr.length; ++i) {
+          final TreeRect r=lr[i];
+          final int pre=sub.getPrePerIndex(rn,lv,i);
+          drawRectangle(tg,rn,lv,r,pre,DRAW_RECTANGLE);
+        }
+        if (br) {
+          final TreeRect r=lr[0];
+          final int w=r.x + r.w - 1;
+          int x=r.x + 1;
+          drawBigRectSquares(tg,lv,x,w,4);
+        }
       }
-      if (br) {
-        final TreeRect r=lr[0];
-        int nh=nodeHeight;
-        final int w=r.x + r.w - 1;
-        int x=r.x + 1;
-        final int y=getYperLevel(lv);
-        final int box=4;
-        tg.setColor(GUIConstants.back);
-        while (nh > 0) {
-          nh=nh - box;
-          while (nh < 0)           nh++;
-          tg.drawLine(x,y + nh,w,y + nh);
-        }
-        while (x < w) {
-          x=x + box - 1 < w ? x + box : x + box - 1;
-          tg.drawLine(x,y,x,y + nodeHeight);
-        }
+      if (SHOW_CONN_MI) {
+        final TreeRect rr=tr.getTreeRectPerIndex(rn,0,0);
+        highlightDescendants(tg,rn,0,rr,roots[rn],getRectCenter(rr),DRAW_CONN);
       }
     }
-    if (SHOW_CONN_MI) {
-      final TreeRect rr=tr.getTreeRectPerIndex(rn,0,0);
-      highlightDescendants(tg,rn,0,rr,roots[rn],getRectCenter(rr),DRAW_CONN);
+  }
+ else {
+    final int w=getWidth();
+    final double factor=Math.round(2 / ((double)w));
+    tg.setColor(getColorPerLevel(0,false));
+    tg.drawRect(0,getYperLevel(0),getWidth() - 1,nodeHeight);
+    drawBigRectSquares(tg,0,1,getWidth() - 1,4);
+    for (int px=0; px < w; px+=2) {
+      int maxHeight=0;
+      for (int i=0; i < factor; ++i) {
+        int h=sub.getSubtreeHeight(i);
+        if (h > maxHeight)         maxHeight=h;
+      }
+      for (int i=1; i < 4; ++i) {
+        int y=getYperLevel(i);
+        tg.drawLine(px,y,px,y + nodeHeight);
+      }
     }
   }
 }
