@@ -1,12 +1,12 @@
 {
   final Step s=CmpG.indexStep(expr);
   if (s == null || ic.data instanceof MemData)   return false;
-  final boolean text=ic.data.meta.txtindex && s.test.type == Type.TXT;
-  final boolean attr=!text && ic.data.meta.atvindex && s.simple(Axis.ATTR,true);
+  final boolean text=s.test.type == Type.TXT && ic.data.meta.txtindex;
+  final boolean attr=s.test.type == Type.ATT && ic.data.meta.atvindex;
   if (!text && !attr || !mni || !mxi || min == Double.NEGATIVE_INFINITY || max == Double.POSITIVE_INFINITY)   return false;
   final StatsKey key=getKey(ic,text);
   if (key == null)   return false;
   rt=new RangeToken(text,Math.max(min,key.min),Math.min(max,key.max));
-  ic.is=rt.min > rt.max || rt.max < key.min || rt.min > key.max ? 0 : Math.max(1,ic.data.meta.size / 5);
+  ic.costs=rt.min > rt.max || rt.max < key.min || rt.min > key.max ? 0 : Math.max(1,ic.data.meta.size / 5);
   return true;
 }

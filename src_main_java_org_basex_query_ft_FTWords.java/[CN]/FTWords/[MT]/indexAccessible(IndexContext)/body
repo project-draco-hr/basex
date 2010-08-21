@@ -3,7 +3,7 @@
   final FTOpt fto=ic.ctx.ftopt;
   if (txt == null || occ != null || mode != FTMode.M_ANY && mode != FTMode.M_ALL && mode != FTMode.M_PHRASE || md.casesens != fto.is(FTOpt.CS) || md.diacritics != fto.is(FTOpt.DC) || md.stemming != fto.is(FTOpt.ST))   return false;
   if (txt.length == 0) {
-    ic.is=0;
+    ic.costs=0;
     return true;
   }
   if (fto.is(FTOpt.WC)) {
@@ -14,13 +14,13 @@
     }
   }
   final Tokenizer ft=new Tokenizer(txt,fto,fast,ic.ctx.context.prop);
-  ic.is=0;
+  ic.costs=0;
   while (ft.more()) {
     final byte[] tok=ft.get();
     if (tok.length > Token.MAXLEN)     return false;
     if (fto.sw != null && fto.sw.id(tok) != 0)     continue;
     final int s=ic.data.nrIDs(ft) + 3 >> 2;
-    if (ic.is > s || ic.is == 0)     ic.is=s;
+    if (ic.costs > s || ic.costs == 0)     ic.costs=s;
     if (s == 0)     break;
   }
   return true;
