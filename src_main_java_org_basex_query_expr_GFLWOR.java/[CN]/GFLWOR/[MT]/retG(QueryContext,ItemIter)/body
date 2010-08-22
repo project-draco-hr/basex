@@ -4,13 +4,13 @@
   for (int j=0; j < group.gp.gv.length; ++j)   pgvars[j]=ctx.vars.get(group.gp.gv[j]);
   for (int j=0; j < group.gp.ngv.length; ++j)   pgngvar[j]=ctx.vars.get(group.gp.ngv[j]);
   for (int i=0; i < group.gp.partitions.size(); ++i) {
-    final HashMap<Var,ItemList> ngvars=group.gp.items.get(i);
+    final HashMap<Var,ItemIter> ngvars=group.gp.items.get(i);
     final GroupNode gn=group.gp.partitions.get(i);
     for (int j=0; j < group.gp.gv.length; ++j)     pgvars[j].bind(gn.its[j],ctx);
     for (int j=0; j < group.gp.ngv.length; ++j) {
-      final ItemList its=ngvars.get(group.gp.ngv[j]);
-      if (its != null)       pgngvar[j].bind(Seq.get(its.list,its.size),ctx);
- else       pgngvar[j].bind(Seq.get(null,0),ctx);
+      final ItemIter its=ngvars.get(group.gp.ngv[j]);
+      if (its != null)       pgngvar[j].bind(its.finish(),ctx);
+ else       pgngvar[j].bind(Empty.SEQ,ctx);
     }
     ir.add(ctx.iter(ret));
   }
