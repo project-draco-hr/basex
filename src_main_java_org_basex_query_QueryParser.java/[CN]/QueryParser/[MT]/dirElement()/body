@@ -5,6 +5,7 @@
   Expr[] cont={};
   final Atts ns=new Atts();
   final int s=ctx.ns.size();
+  boolean xmlDef=false;
   while (XMLToken.isXMLLetter(curr())) {
     final byte[] atn=qName(null);
     Expr[] attv={};
@@ -60,14 +61,22 @@
       if (!simple)       error(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
       if (!tag.ns())       tag.uri=Uri.uri(v);
-      addNS(ns,atn,v);
+      addNS(ns,EMPTY,v);
     }
  else     if (startsWith(atn,XMLNS)) {
       if (!simple)       error(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
       if (v.length == 0)       error(NSEMPTYURI);
-      ctx.ns.add(new QNm(atn,Uri.uri(v)),input());
-      addNS(ns,atn,v);
+      final QNm nsd=new QNm(atn,Uri.uri(v));
+      final byte[] pref=nsd.ln();
+      if (!eq(pref,XML) || !eq(v,XMLURI)) {
+        ctx.ns.add(nsd,input());
+        addNS(ns,pref,v);
+      }
+ else {
+        if (xmlDef)         error(DUPLNSDEF,XML);
+        xmlDef=true;
+      }
     }
  else {
       cont=add(cont,new CAttr(input(),false,new QNm(atn),attv));
