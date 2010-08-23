@@ -1,36 +1,7 @@
 {
-  final NodIter nodes=new NodIter();
-  final Iter iter=ctx.iter(expr[0]);
-  final byte[] base=Token.EMPTY;
-  final TokenBuilder text=new TokenBuilder();
-  boolean more=false;
-  Item it;
-  while ((it=iter.next()) != null) {
-    if (it.node() && it.type != Type.TXT) {
-      if (it.type == Type.ATT)       Err.or(input,XPATT);
-      if (text.size() != 0) {
-        nodes.add(new FTxt(text.finish(),null));
-        text.reset();
-      }
-      if (it.type == Type.DOC) {
-        add(nodes,(Nod)it);
-      }
- else {
-        nodes.add(((Nod)it).copy());
-      }
-      more=false;
-    }
- else {
-      if (more && text.size() != 0 && it.type != Type.TXT)       text.add(' ');
-      text.add(it.atom());
-      more=it.type != Type.TXT;
-    }
-  }
-  if (text.size() != 0) {
-    nodes.add(new FTxt(text.finish(),null));
-    text.reset();
-  }
-  final FDoc doc=new FDoc(nodes,base);
-  for (int n=0; n < nodes.size(); ++n)   nodes.get(n).parent(doc);
+  final Constr con=new Constr(ctx,expr);
+  if (con.errAtt || con.ats.size() != 0)   Err.or(ii,XPATT);
+  final FDoc doc=new FDoc(con.children,con.base);
+  for (int n=0; n < con.children.size(); ++n)   con.children.get(n).parent(doc);
   return doc;
 }
