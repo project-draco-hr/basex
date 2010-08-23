@@ -3,9 +3,9 @@
   final File path=expr.length == 0 ? null : new File(string(checkStrEmp(expr[0].atomic(ctx,input))));
 switch (def) {
 case MKDIR:
-    return Bln.get(path.mkdir());
+    return makeDir(path,false);
 case MKDIRS:
-  return Bln.get(path.mkdirs());
+  return makeDir(path,true);
 case ISDIR:
 return Bln.get(path.isDirectory());
 case ISFILE:
@@ -17,9 +17,21 @@ return Bln.get(path.canWrite());
 case PATHSEP:
 return Str.get(Prop.SEP);
 case DELETE:
-return Bln.get(path.delete());
+return delete(path);
 case PATHTOFULL:
 return Str.get(path.getAbsolutePath());
+case READFILE:
+return readFile(ctx);
+case READBINARY:
+return readBinary(path);
+case WRITE:
+return writeFile(path,ctx);
+case COPY:
+return copy(ctx);
+case MOVE:
+return move(path,ctx);
+case LASTMOD:
+return new Dtm(path.lastModified(),input);
 default :
 return super.atomic(ctx,ii);
 }

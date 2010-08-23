@@ -1,25 +1,27 @@
 {
   final String path=string(checkStr(expr[0],ctx));
-  final Pattern pattern;
+  final String pattern;
   try {
-    pattern=expr.length == 1 ? null : Pattern.compile(string(checkStr(expr[1],ctx)));
+    pattern=expr.length == 2 ? string(checkStr(expr[1],ctx)).replaceAll("\\.","\\\\.").replaceAll("\\*",".*") : null;
   }
  catch (  final PatternSyntaxException ex) {
-    Err.or(input,FILEPATTERN,expr[1]);
+    Err.or(input,QueryText.FILEPATTERN,expr[1]);
     return null;
   }
+  final File[] files=new File(path).listFiles(new FileFilter(){
+    @Override public boolean accept(    final File pathname){
+      if (pathname.isHidden())       return false;
+      return pattern == null ? true : pathname.getName().matches(pattern);
+    }
+  }
+);
+  if (files == null) {
+    Err.or(input,QueryText.FILELIST,path);
+  }
   return new Iter(){
-    String[] files;
     int c=-1;
-    @Override public Item next() throws QueryException {
-      if (files == null) {
-        files=new File(path).list();
-        if (files == null)         Err.or(input,FILELIST,path);
-      }
-      while (++c < files.length) {
-        if (pattern == null || pattern.matcher(files[c]).matches())         return Str.get(files[c]);
-      }
-      return null;
+    @Override public Item next(){
+      return ++c < files.length ? Str.get(files[c].getName()) : null;
     }
   }
 ;

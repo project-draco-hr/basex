@@ -1,0 +1,29 @@
+{
+  final BufferedOutputStream out;
+  final Iter ir=expr[1].iter(ctx);
+  final TokenBuilder params=interpretSerialParams(ctx);
+  Item n;
+  try {
+    out=new BufferedOutputStream(new FileOutputStream(file,true));
+    try {
+      while ((n=ir.next()) != null) {
+        if (n instanceof Nod) {
+          final Nod nod=checkNode(checkItem(n,ctx));
+          Str str=FNGen.serialize(nod,params,input);
+          out.write(str.atom());
+        }
+ else {
+          out.write(checkItem(n,ctx).toString().getBytes());
+        }
+      }
+    }
+  finally {
+      out.close();
+    }
+  }
+ catch (  IOException e) {
+    Err.or(input,QueryText.FILEWRITE,file.getName());
+    return Bln.FALSE;
+  }
+  return Bln.TRUE;
+}

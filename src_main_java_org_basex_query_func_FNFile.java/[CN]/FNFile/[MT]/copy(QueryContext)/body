@@ -1,0 +1,20 @@
+{
+  final String src=string(checkStr(expr[0],ctx));
+  final String dest=string(checkStr(expr[1],ctx));
+  try {
+    final FileChannel srcChannel=new FileInputStream(new File(src)).getChannel();
+    final FileChannel destChannel=new FileOutputStream(new File(dest)).getChannel();
+    try {
+      destChannel.transferFrom(srcChannel,0,srcChannel.size());
+    }
+  finally {
+      srcChannel.close();
+      destChannel.close();
+    }
+  }
+ catch (  IOException ex) {
+    Err.or(input,QueryText.FILECOPY,src,dest);
+    return Bln.FALSE;
+  }
+  return Bln.TRUE;
+}
