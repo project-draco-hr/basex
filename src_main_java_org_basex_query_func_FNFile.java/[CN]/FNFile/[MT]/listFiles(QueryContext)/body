@@ -10,14 +10,11 @@
   }
   final File[] files=new File(path).listFiles(new FileFilter(){
     @Override public boolean accept(    final File pathname){
-      if (pathname.isHidden())       return false;
-      return pattern == null ? true : pathname.getName().matches(pattern);
+      return !pathname.isHidden() && (pattern == null || pathname.getName().matches(pattern));
     }
   }
 );
-  if (files == null) {
-    Err.or(input,QueryText.FILELIST,path);
-  }
+  if (files == null)   Err.or(input,QueryText.FILELIST,path);
   return new Iter(){
     int c=-1;
     @Override public Item next(){
