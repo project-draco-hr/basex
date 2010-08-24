@@ -2,5 +2,11 @@
   final Expr e=expr[0];
   if (e.item() || e.type().zeroOrOne())   return Iter.EMPTY;
   final Iter ir=e.iter(ctx);
-  return ir.next() == null ? Iter.EMPTY : ir;
+  if (ir.next() == null)   return Iter.EMPTY;
+  return new Iter(){
+    @Override public Item next() throws QueryException {
+      return ir.next();
+    }
+  }
+;
 }
