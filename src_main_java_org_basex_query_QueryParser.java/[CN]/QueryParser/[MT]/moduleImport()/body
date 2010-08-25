@@ -9,19 +9,19 @@
   }
   final byte[] uri=stringLiteral();
   if (uri.length == 0)   error(NSMODURI);
-  name.uri=Uri.uri(uri);
+  name.uri(uri);
   ctx.ns.add(name,input());
   final TokenList fl=new TokenList();
   if (consumeWS(AT))   do   fl.add(stringLiteral());
  while (consumeWS(COMMA));
-  if (modLoaded.contains(uri))   error(DUPLMODULE,name.uri);
+  if (modLoaded.contains(uri))   error(DUPLMODULE,name.uri());
   try {
     if (fl.size() == 0) {
       boolean found=false;
       final int ns=ctx.modules.size();
       for (int n=0; n < ns; n+=2) {
         if (ctx.modules.get(n).equals(string(uri))) {
-          module(ctx.modules.get(n + 1),name.uri);
+          module(ctx.modules.get(n + 1),name.uri());
           modLoaded.add(uri);
           found=true;
         }
@@ -29,7 +29,7 @@
       if (!found)       error(NOMODULE,uri);
     }
     for (int n=0; n < fl.size(); ++n) {
-      module(string(fl.get(n)),name.uri);
+      module(string(fl.get(n)),name.uri());
       modLoaded.add(uri);
     }
   }

@@ -60,10 +60,10 @@
     if (eq(atn,XMLNS)) {
       if (!simple)       error(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
-      if (!tag.ns())       tag.uri=Uri.uri(v);
+      if (!tag.ns())       tag.uri(v);
       addNS(ns,EMPTY,v);
     }
- else     if (startsWith(atn,XMLNS)) {
+ else     if (startsWith(atn,XMLNSC)) {
       if (!simple)       error(NSCONS);
       final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
       if (v.length == 0)       error(NSEMPTYURI);
@@ -72,6 +72,7 @@
       if (!eq(pref,XML) || !eq(v,XMLURI)) {
         ctx.ns.add(nsd,input());
         addNS(ns,pref,v);
+        if (eq(pref,tag.pref()))         tag.uri(v);
       }
  else {
         if (xmlDef)         error(DUPLNSDEF,XML);
@@ -79,7 +80,7 @@
       }
     }
  else {
-      cont=add(cont,new CAttr(input(),false,new QNm(atn),attv));
+      cont=add(cont,new CAttr(input(),false,new QNm(atn,contains(atn,':') ? null : Uri.EMPTY),attv));
     }
     if (!consumeWSS())     break;
   }

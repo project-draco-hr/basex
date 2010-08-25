@@ -1,36 +1,22 @@
 {
   final byte[] tag=name.atom();
-  final byte[] uri=name.uri.atom();
   ser.openElement(tag);
-  final byte[] dn=ser.dn;
+  if (name.hasUri())   ser.namespace(name.pref(),name.uri().atom());
   if (ser.level() == 1) {
     final Atts nns=nsScope();
-    for (int a=0; a < nns.size; ++a) {
-      if (nns.key[a].length == 0) {
-        if (Token.eq(ser.dn,nns.val[a]))         continue;
-        ser.dn=nns.val[a];
-      }
-      ser.namespace(nns.key[a],nns.val[a]);
-    }
-    final byte[] def=ser.ns(EMPTY);
-    if (def != null) {
-      ser.dn=def;
-      ser.namespace(EMPTY,def);
-    }
+    for (int a=0; a < nns.size; ++a)     ser.namespace(nns.key[a],nns.val[a]);
   }
  else   if (ns != null) {
     for (int p=ns.size - 1; p >= 0; p--)     ser.namespace(ns.key[p],ns.val[p]);
   }
-  ser.dn=uri;
   for (int n=0; n < atts.size(); ++n) {
     final Nod nod=atts.get(n);
     final QNm atn=nod.qname();
-    if (atn.ns() && !NSGlobal.standard(atn.uri.atom())) {
-      ser.namespace(atn.pref(),atn.uri.atom());
+    if (atn.ns() && !NSGlobal.standard(atn.uri().atom())) {
+      ser.namespace(atn.pref(),atn.uri().atom());
     }
     ser.attribute(atn.atom(),nod.atom());
   }
   for (int n=0; n < children.size(); ++n)   children.get(n).serialize(ser);
   ser.closeElement();
-  ser.dn=dn;
 }

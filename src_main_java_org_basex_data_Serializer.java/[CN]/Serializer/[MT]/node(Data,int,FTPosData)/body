@@ -2,7 +2,7 @@
   final TokenList nsp=data.ns.size() != 0 ? new TokenList() : null;
   final int[] parStack=new int[IO.MAXHEIGHT];
   final byte[][] names=new byte[IO.MAXHEIGHT][];
-  names[0]=dn;
+  names[0]=ns(EMPTY);
   int l=0;
   int p=pre;
   final int s=pre + data.size(pre,data.kind(p));
@@ -50,7 +50,7 @@
           }
           pp=data.parent(pp,data.kind(pp));
         }
- while (pp >= 0 && data.kind(pp) == Data.ELEM && l == 0 && tags.size() == 1);
+ while (pp >= 0 && data.kind(pp) == Data.ELEM && l == 0 && level() == 1);
         final byte[] key=pref(name);
         byte[] val=data.ns.uri(data.uri(p,k));
         if (val == null)         val=EMPTY;
@@ -62,7 +62,7 @@
           empty=val;
         }
       }
- else       if (l == 0 && dn != EMPTY) {
+ else       if (l == 0 && ns(EMPTY) != EMPTY) {
         namespace(EMPTY,EMPTY);
       }
       final int as=p + data.attSize(p,k);
