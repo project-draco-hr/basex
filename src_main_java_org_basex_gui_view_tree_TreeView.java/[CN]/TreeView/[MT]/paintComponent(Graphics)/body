@@ -4,10 +4,11 @@
   if (data == null)   return;
   super.paintComponent(g);
   gui.painting=true;
+  roots=gui.context.current.nodes;
+  if (roots.length == 0)   return;
   smooth(g);
   g.setFont(font);
   fontHeight=g.getFontMetrics().getHeight();
-  roots=gui.context.current.nodes;
   if (paintType == PAINT_NEW_INIT) {
     sub=new TreeSubtree(data);
     tr=new TreeRects(gui.prop);
@@ -34,7 +35,7 @@
     markNodes();
   }
   if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
-  inFocus=focus();
+  inFocus=paintType < 0 ? focus() : false;
   if (inFocus) {
     int focused=gui.context.focused;
     if (tr.isBigRectangle(sub,frn,flv)) {
