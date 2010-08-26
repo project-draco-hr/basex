@@ -1,0 +1,17 @@
+{
+  final Var[] pgvars=new Var[gp.gv.length];
+  final Var[] pgngvar=new Var[gp.ngv.length];
+  for (int j=0; j < gp.gv.length; ++j)   pgvars[j]=ctx.vars.get(gp.gv[j]);
+  for (int j=0; j < gp.ngv.length; ++j)   pgngvar[j]=ctx.vars.get(gp.ngv[j]);
+  for (int i=0; i < gp.partitions.size(); ++i) {
+    final HashMap<Var,ItemIter> ngvars=gp.items.get(i);
+    final GroupNode gn=gp.partitions.get(i);
+    for (int j=0; j < gp.gv.length; ++j)     pgvars[j].bind(gn.its[j],ctx);
+    for (int j=0; j < gp.ngv.length; ++j) {
+      final ItemIter its=ngvars.get(gp.ngv[j]);
+      if (its != null)       pgngvar[j].bind(its.finish(),ctx);
+ else       pgngvar[j].bind(Empty.SEQ,ctx);
+    }
+    ir.add(ctx.iter(ret));
+  }
+}

@@ -1,16 +1,14 @@
 {
-  final HashMap<Var,ItemIter> cache=new HashMap<Var,ItemIter>();
   final Iter[] iter=new Iter[fl.length];
-  for (int f=0; f < fl.length; ++f) {
-    iter[f]=ctx.iter(fl[f]);
-    if (group != null)     cache.put(fl[f].var,new ItemIter());
-  }
+  final int vss=ctx.vars.size();
+  buildIter(iter,ctx);
   group.initgroup(fl);
-  iter(ctx,cache,iter,0);
+  iter(ctx,iter,0);
+  ctx.vars.reset(vss);
   final int vs=ctx.vars.size();
   for (  final ForLet aFl : fl)   ctx.vars.add(aFl.var);
   final ItemIter ir=new ItemIter();
-  retG(ctx,ir);
+  group.ret(ctx,ir,ret);
   ctx.vars.reset(vs);
   return ir;
 }
