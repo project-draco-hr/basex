@@ -6,23 +6,25 @@
   final int t=y + h;
   final int size=sub.getMaxSubtreeHeight();
   final IntList list=new IntList();
-  for (int i=0; i < size; ++i) {
-    final int yL=getYperLevel(i);
-    if (i < sub.getSubtreeHeight(frn) && (yL >= y || yL + nodeHeight >= y) && (yL <= t || yL + nodeHeight <= t)) {
-      final TreeRect[] rlv=tr.getTreeRectsPerLevel(frn,i);
-      final int s=sub.getLevelSize(frn,i);
-      if (tr.isBigRectangle(sub,frn,i)) {
-        final TreeRect mRect=rlv[0];
-        int sPrePos=(int)(s * x / (double)mRect.w);
-        int ePrePos=(int)(s * (x + w) / (double)mRect.w);
-        if (sPrePos < 0)         sPrePos=0;
-        if (ePrePos >= s)         ePrePos=s - 1;
-        while (sPrePos++ < ePrePos)         list.add(sub.getPrePerIndex(frn,i,sPrePos));
-      }
+  for (int r=0; r < roots.length; ++r) {
+    for (int i=0; i < size; ++i) {
+      final int yL=getYperLevel(i);
+      if (i < sub.getSubtreeHeight(r) && (yL >= y || yL + nodeHeight >= y) && (yL <= t || yL + nodeHeight <= t)) {
+        final TreeRect[] rlv=tr.getTreeRectsPerLevel(r,i);
+        final int s=sub.getLevelSize(r,i);
+        if (tr.isBigRectangle(sub,r,i)) {
+          final TreeRect mRect=rlv[0];
+          int sPrePos=(int)(s * x / (double)mRect.w);
+          int ePrePos=(int)(s * (x + w) / (double)mRect.w);
+          if (sPrePos < 0)           sPrePos=0;
+          if (ePrePos >= s)           ePrePos=s - 1;
+          while (sPrePos++ < ePrePos)           list.add(sub.getPrePerIndex(r,i,sPrePos));
+        }
  else {
-        for (int j=0; j < s; ++j) {
-          final TreeRect rect=rlv[j];
-          if (rect.contains(x,w))           list.add(sub.getPrePerIndex(frn,i,j));
+          for (int j=0; j < s; ++j) {
+            final TreeRect rect=rlv[j];
+            if (rect.contains(x,w))             list.add(sub.getPrePerIndex(r,i,j));
+          }
         }
       }
     }

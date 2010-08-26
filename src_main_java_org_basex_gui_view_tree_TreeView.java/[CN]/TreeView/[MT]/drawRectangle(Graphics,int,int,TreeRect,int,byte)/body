@@ -5,6 +5,9 @@
   boolean txt=!br && fontHeight <= h;
   boolean fill=false;
   boolean border=false;
+  final int xx=r.x;
+  final int ww=r.w;
+  final boolean marked=isMarked(xx,y);
   Color borderColor=null;
   Color fillColor=null;
   Color textColor=Color.BLACK;
@@ -22,7 +25,7 @@ final int alpha=0xDD000000;
 final int rgb=GUIConstants.COLORCELL.getRGB();
 fillColor=new Color(rgb + alpha,true);
 if (h > 4) border=true;
-fill=!br;
+fill=!br && !marked;
 break;
 case DRAW_MARK:
 borderColor=h > 2 && r.w > 4 ? colormarkA : colormark1;
@@ -36,7 +39,7 @@ final int rgbD=COLORS[6].getRGB();
 fillColor=new Color(rgbD + alphaD,true);
 borderColor=COLORS[8];
 textColor=Color.WHITE;
-fill=true;
+fill=!marked;
 border=true;
 if (h < 4) {
 fillColor=SMALL_SPACE_COLOR;
@@ -47,17 +50,15 @@ break;
 case DRAW_PARENT:
 fillColor=COLORS[6];
 textColor=Color.WHITE;
-fill=!br;
+fill=!br && !marked;
+border=!br;
 if (h < 4) {
 fillColor=SMALL_SPACE_COLOR;
-borderColor=fillColor;
-border=!br;
+borderColor=COLORS[8];
 txt=false;
 }
 break;
 }
-final int xx=r.x;
-final int ww=r.w;
 if (border) {
 g.setColor(borderColor);
 g.drawRect(xx,y,ww,h);

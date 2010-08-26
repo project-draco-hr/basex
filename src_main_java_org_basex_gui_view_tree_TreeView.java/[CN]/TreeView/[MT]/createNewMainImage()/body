@@ -1,10 +1,11 @@
 {
   treeImage=createImage();
   final Graphics tg=treeImage.getGraphics();
+  final int rl=roots.length;
   tg.setFont(font);
   smooth(tg);
   if (!rbr) {
-    for (int rn=0; rn < roots.length; ++rn) {
+    for (int rn=0; rn < rl; ++rn) {
       final int h=sub.getSubtreeHeight(rn);
       for (int lv=0; lv < h; ++lv) {
         final boolean br=tr.isBigRectangle(sub,rn,lv);
@@ -16,9 +17,9 @@
         }
         if (br) {
           final TreeRect r=lr[0];
-          final int w=r.x + r.w - 1;
+          final int ww=r.x + r.w - 1;
           final int x=r.x + 1;
-          drawBigRectSquares(tg,lv,x,w,4);
+          drawBigRectSquares(tg,lv,x,ww,4);
         }
       }
       if (SHOW_CONN_MI) {
@@ -28,21 +29,6 @@
     }
   }
  else {
-    final int w=getWidth();
-    final double factor=Math.round(2 / (double)w);
-    tg.setColor(getColorPerLevel(0,false));
-    tg.drawRect(0,getYperLevel(0),getWidth() - 1,nodeHeight);
-    drawBigRectSquares(tg,0,1,getWidth() - 1,4);
-    for (int px=0; px < w; px+=2) {
-      int maxHeight=0;
-      for (int i=0; i < factor; ++i) {
-        final int h=sub.getSubtreeHeight(i);
-        if (h > maxHeight)         maxHeight=h;
-      }
-      for (int i=1; i < 4; ++i) {
-        final int y=getYperLevel(i);
-        tg.drawLine(px,y,px,y + nodeHeight);
-      }
-    }
+    drawRealBigRectangle(tg,DRAW_CONN);
   }
 }
