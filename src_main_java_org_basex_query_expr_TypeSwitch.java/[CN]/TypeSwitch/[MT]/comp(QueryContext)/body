@@ -3,20 +3,16 @@
   final Expr[] tmp=new Expr[cs.length];
   for (int i=0; i < cs.length; ++i)   tmp[i]=cs[i].expr;
   checkUp(ctx,tmp);
-  for (  final TypeCase c : cs)   c.comp(ctx);
-  boolean ii=true;
-  for (  final TypeCase c : cs)   ii&=c.empty();
-  if (ii)   return optPre(Empty.SEQ,ctx);
-  Expr e=this;
   if (ts.value()) {
     for (    final TypeCase c : cs) {
-      if (c.var.type == null || c.var.type.instance(ts.iter(ctx))) {
-        e=c.comp(ctx,(Value)ts).expr;
-        break;
-      }
+      if (c.var.type == null || c.var.type.instance(ts.iter(ctx)))       return optPre(c.comp(ctx,(Value)ts).expr,ctx);
     }
   }
+  for (  final TypeCase c : cs)   c.comp(ctx);
+  boolean eq=true;
+  for (int i=1; i < cs.length; ++i)   eq&=cs[i - 1].expr.sameAs(cs[i].expr);
+  if (eq)   return optPre(Empty.SEQ,ctx);
   type=cs[0].type();
   for (int l=1; l < cs.length; ++l)   type=type.intersect(cs[l].type());
-  return optPre(e,ctx);
+  return this;
 }
