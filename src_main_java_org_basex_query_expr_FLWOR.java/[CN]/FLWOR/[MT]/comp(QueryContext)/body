@@ -1,24 +1,5 @@
 {
-  if (where != null) {
-    final ForLet f=fl[fl.length - 1];
-    if (f instanceof For && f.simple() && where.removable(f.var)) {
-      ctx.compInfo(OPTWHERE);
-      final Expr e=where.remove(f.var);
-      final Expr[] pr=e instanceof And ? ((And)e).expr : new Expr[]{e};
-      for (int p=0; p < pr.length; p++) {
-        if (pr[p].type().mayBeNum()) {
-          pr[p]=FunDef.BOOLEAN.newInstance(input,pr[p]);
-        }
-      }
-      if (f.expr instanceof AxisPath) {
-        f.expr=((AxisPath)f.expr).addPreds(pr);
-      }
- else {
-        f.expr=new Filter(input,f.expr,pr);
-      }
-      where=null;
-    }
-  }
+  compWhere(ctx);
   final int vs=ctx.vars.size();
   for (  final ForLet f : fl) {
     final boolean fast=ctx.ftfast;

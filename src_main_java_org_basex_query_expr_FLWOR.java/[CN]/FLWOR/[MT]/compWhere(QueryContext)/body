@@ -1,0 +1,33 @@
+{
+  if (where == null)   return;
+  for (  final ForLet f : fl)   if (!f.simple() || !where.removable(f.var))   return;
+  final Expr[] preds=where instanceof And ? ((And)where).expr : new Expr[]{where};
+  final int[] pos=new int[preds.length];
+  for (int p=0; p < preds.length; ++p) {
+    int fr=fl.length;
+    for (int f=fr - 1; f >= 0; --f) {
+      if (fl[f] instanceof For)       fr=f;
+      if (preds[p].uses(fl[f].var)) {
+        if (fr == fl.length)         return;
+        pos[p]=fr;
+        break;
+      }
+    }
+  }
+  ctx.compInfo(OPTWHERE);
+  for (int p=0; p < preds.length; ++p) {
+    final ForLet f=fl[pos[p]];
+    Expr pr=preds[p].remove(f.var);
+    if (pr.type().mayBeNum())     pr=FunDef.BOOLEAN.newInstance(input,pr);
+    if (f.expr instanceof AxisPath) {
+      f.expr=((AxisPath)f.expr).addPreds(pr);
+    }
+ else     if (f.expr instanceof Filter) {
+      f.expr=((Filter)f.expr).addPred(pr);
+    }
+ else {
+      f.expr=new Filter(input,f.expr,pr);
+    }
+  }
+  where=null;
+}
