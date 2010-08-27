@@ -1,0 +1,18 @@
+{
+  final ItemIter ir=new ItemIter();
+  final ValueList vl=new ValueList();
+  final Var[] pgvars=new Var[gp.gv.length];
+  final Var[] pgngvar=new Var[gp.ngv.length];
+  for (int j=0; j < gp.gv.length; ++j)   pgvars[j]=ctx.vars.get(gp.gv[j]);
+  for (int j=0; j < gp.ngv.length; ++j)   pgngvar[j]=ctx.vars.get(gp.ngv[j]);
+  for (int i=0; i < gp.partitions.size(); ++i) {
+    collectValues(ctx,pgvars,pgngvar,i);
+    if (gp.order != null)     vl.add(ctx.iter(ret).finish());
+ else     ir.add(ctx.iter(ret));
+  }
+  if (gp.order != null) {
+    gp.order.vl=vl;
+    return ctx.iter(gp.order);
+  }
+  return ir;
+}
