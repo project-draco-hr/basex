@@ -8,18 +8,30 @@
     Err.or(input,QueryText.FILEPATTERN,expr[1]);
     return null;
   }
-  final File[] files=new File(path).listFiles(new FileFilter(){
-    @Override public boolean accept(    final File pathname){
-      return !pathname.isHidden() && (pattern == null || pathname.getName().matches(pattern));
-    }
-  }
+  try {
+    Iter i=new Iter(){
+      int c=-1;
+      final File[] files=new File(path).listFiles(new FileFilter(){
+        @Override public boolean accept(        final File pathname){
+          return !pathname.isHidden() && (pattern == null || pathname.getName().matches(pattern));
+        }
+      }
 );
-  if (files == null)   Err.or(input,QueryText.FILELIST,path);
-  return new Iter(){
-    int c=-1;
-    @Override public Item next(){
-      return ++c < files.length ? Str.get(files[c].getName()) : null;
+      @Override public Item next() throws QueryException {
+        try {
+          return ++c < files.length ? Str.get(files[c].getName()) : null;
+        }
+ catch (        Exception ex) {
+          Err.or(input,QueryText.FILELIST,path);
+          return null;
+        }
+      }
     }
-  }
 ;
+    return i;
+  }
+ catch (  Exception ex) {
+    Err.or(input,QueryText.FILELIST,path);
+    return null;
+  }
 }

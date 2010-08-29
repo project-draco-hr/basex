@@ -1,22 +1,9 @@
 {
-  if (file.length() > Integer.MAX_VALUE) {
+  try {
+    return new B64(new IOFile(file).content());
+  }
+ catch (  IOException e) {
     Err.or(input,QueryText.FILEREAD,file.getName());
     return null;
   }
-  final int cap=new Long(file.length()).intValue();
-  final ByteBuffer byteBuffer=ByteBuffer.allocate(cap);
-  try {
-    final BufferedInputStream bufferInput=new BufferedInputStream(new FileInputStream(file));
-    try {
-      int b;
-      while ((b=bufferInput.read()) != -1)       byteBuffer.put((byte)b);
-    }
-  finally {
-      bufferInput.close();
-    }
-  }
- catch (  final IOException ex) {
-    Err.or(input,QueryText.FILEREAD,file.getName());
-  }
-  return new B64(byteBuffer.array());
 }
