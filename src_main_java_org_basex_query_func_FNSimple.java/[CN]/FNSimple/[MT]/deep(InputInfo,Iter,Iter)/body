@@ -2,8 +2,10 @@
   Item it1=null;
   Item it2=null;
   while ((it1=iter1.next()) != null & (it2=iter2.next()) != null) {
-    if (!it1.equiv(ii,it2))     return false;
-    if (!it1.node() && !it2.node())     continue;
+    if (!it1.node() && !it2.node()) {
+      if (!it1.equiv(ii,it2))       return false;
+      continue;
+    }
     if (!(it1.node() && it2.node()))     return false;
     Nod sub1=(Nod)it1, sub2=(Nod)it2;
     final Stack<NodeIter[]> chld=new Stack<NodeIter[]>();
@@ -14,33 +16,22 @@
         sub1=ch[0].next();
         continue;
       }
- else       if (sub2 != null && (sub2.type == Type.PI || sub2.type == Type.COM)) {
+      if (sub2 != null && (sub2.type == Type.PI || sub2.type == Type.COM)) {
         sub2=ch[1].next();
         continue;
       }
-      if (sub1 == null) {
-        if (sub2 == null)         ch=chld.pop();
- else         return false;
-      }
- else       if (sub2 == null) {
-        return false;
+      if (sub1 == null || sub2 == null) {
+        if (sub1 != sub2)         return false;
+        ch=chld.pop();
       }
  else {
-        if (!sub1.equiv(ii,sub2))         return false;
-        if (!sub1.node() && !sub2.node())         continue;
         final QNm n1=sub1.qname(), n2=sub2.qname();
         if (n1 != null && n2 != null && !n1.eq(n2))         return false;
-        NodeIter att1=sub1.attr();
-        int s1=0;
-        while (att1.next() != null)         s1++;
-        NodeIter att2=sub2.attr();
-        int s2=0;
-        while (att2.next() != null)         s2++;
-        if (s1 != s2)         return false;
+        if (sub1.attr().finish().size() != sub2.attr().finish().size())         return false;
         Nod a1=null, a2=null;
-        att1=sub1.attr();
+        final NodeIter att1=sub1.attr();
         while ((a1=att1.next()) != null) {
-          att2=sub2.attr();
+          final NodeIter att2=sub2.attr();
           boolean found=false;
           while ((a2=att2.next()) != null) {
             if (a1.qname().eq(a2.qname())) {
