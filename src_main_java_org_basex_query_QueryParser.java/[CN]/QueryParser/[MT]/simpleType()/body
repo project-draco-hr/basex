@@ -4,12 +4,12 @@
   ctx.ns.uri(type);
   skipWS();
   final Occ occ=consume('?') ? Occ.ZO : Occ.O;
-  final SeqType seq=new SeqType(Type.find(type,false),occ);
-  if (seq.type == null) {
+  final Type t=Type.find(type,false);
+  if (t == null) {
     final byte[] uri=type.uri().atom();
     if (uri.length == 0 && type.ns())     error(PREUNKNOWN,type.pref());
     final String ln=string(type.ln());
     error(eq(uri,Type.NOT.uri) && ln.equals(Type.NOT.name) || ln.equals(Type.AAT.name) ? CASTUNKNOWN : TYPEUNKNOWN,type);
   }
-  return seq;
+  return SeqType.get(t,occ);
 }
