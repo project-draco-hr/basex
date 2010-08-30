@@ -1,17 +1,19 @@
 {
+  if (!cachedVars)   cacheVars(ctx);
   final Item[] its=new Item[gv.length];
   for (int i=0; i < gv.length; ++i) {
-    final Value val=ctx.vars.get(gv[i]).value(ctx);
+    final Value val=cgv[i].value(ctx);
     if (val.item())     its[i]=(Item)val;
  else     Err.or(input,QueryText.XGRP);
   }
   boolean found=false;
   int p=0;
-  final GroupNode cand=new GroupNode(its,gv.length);
-  final Integer chash=cand.hashCode();
-  if (hashes.containsKey(chash)) {
-    final IntList ps=hashes.get(cand.hash);
-    for (    final int pp : ps.toArray()) {
+  final GroupNode cand=new GroupNode(its);
+  final int chash=cand.hashCode();
+  IntList ps;
+  if (null != (ps=hashes.get(chash))) {
+    for (int i=0; i <= ps.size(); ++i) {
+      final int pp=ps.get(i);
       if (cand.eq(partitions.get(pp))) {
         found=true;
         p=pp;
@@ -23,9 +25,12 @@
     if (order != null)     order.add(ctx);
     p=partitions.size();
     partitions.add(cand);
-    final IntList pos=hashes.get(chash) != null ? hashes.get(chash) : new IntList(8);
+    IntList pos=hashes.get(chash);
+    if (pos == null) {
+      pos=new IntList(2);
+      hashes.add(chash,pos);
+    }
     pos.add(p);
-    hashes.put(chash,pos);
   }
   addNonGrpIts(ctx,p);
 }
