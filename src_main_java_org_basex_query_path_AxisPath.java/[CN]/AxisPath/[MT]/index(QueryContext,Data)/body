@@ -40,12 +40,12 @@
     for (int j=smin; j >= 0; j--) {
       final Axis a=step[j].axis.invert();
       if (a == null)       break;
-      if (j == 0) {
-        if (a != Axis.ANC && a != Axis.ANCORSELF)         inv=Array.add(inv,Step.get(input,a,new KindTest(Type.DOC)));
-      }
- else {
+      if (j != 0) {
         final Step prev=step[j - 1];
         inv=Array.add(inv,Step.get(input,a,prev.test,prev.pred));
+      }
+ else       if (a != Axis.ANC && a != Axis.ANCORSELF) {
+        inv=Array.add(inv,Step.get(input,a,KindTest.DOC));
       }
     }
     final boolean simple=inv.length == 0 && newPreds.length == 0;

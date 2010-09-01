@@ -1,34 +1,22 @@
 {
   gv=gvs;
-  cgv=gvs;
-  final int ns=ngvSize(gvs,fls);
-  ngv=new Var[ns];
-  int i=0;
+  ngv=new Var[ngvSize(gvs,fls)];
   order=ob;
+  int i=0;
   for (  final Var v : fls) {
-    boolean skip=false;
-    for (    final Var g : gv) {
-      if (v.eq(g)) {
-        skip=true;
-        break;
-      }
-    }
-    if (skip)     continue;
-    ngv[i++]=v;
+    boolean ng=true;
+    for (    final Var g : gv)     ng&=!v.eq(g);
+    if (ng)     ngv[i++]=v;
   }
+  boolean am=true;
   if (order != null) {
-    boolean[] ams=new boolean[order.ob.length - 1];
-    for (int ol=0; ol < ams.length; ++ol) {
-      for (      final Var g : gv) {
-        if (order.ob[ol].uses(g))         ams[ol]=true;
-      }
+    final boolean[] ams=new boolean[order.ob.length - 1];
+    for (int ol=0; ol < ams.length; ol++) {
+      for (      final Var g : gv)       if (order.ob[ol].uses(g))       ams[ol]=true;
     }
-    boolean am=true;
-    for (    boolean am1 : ams)     am&=am1;
-    among=am;
+    for (    final boolean a : ams)     am&=a;
   }
- else   among=true;
-  partitions=new ArrayList<GroupNode>();
+  among=am;
   items=ngv.length != 0 ? new ArrayList<ItemIter[]>() : null;
   input=ii;
 }

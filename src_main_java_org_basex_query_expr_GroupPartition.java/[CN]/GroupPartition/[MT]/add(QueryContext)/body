@@ -1,19 +1,20 @@
 {
   if (!cachedVars)   cacheVars(ctx);
-  final Value[] its=new Value[gv.length];
-  for (int i=0; i < gv.length; ++i) {
-    final Value val=cgv[i].value(ctx);
-    if (val.item() || val.empty())     its[i]=val;
- else     Err.or(input,QueryText.XGRP);
+  final int gl=gv.length;
+  final Value[] vals=new Value[gl];
+  for (int i=0; i < gl; ++i) {
+    final Value val=gv[i].value(ctx);
+    if (val.size() > 1)     Err.or(input,QueryText.XGRP);
+    vals[i]=val;
   }
+  final GroupNode gn=new GroupNode(vals);
+  final int h=gn.hashCode();
+  final IntList ps=hashes.get(h);
   int p=-1;
-  final GroupNode cand=new GroupNode(its);
-  final int chash=cand.hashCode();
-  IntList ps=hashes.get(chash);
   if (ps != null) {
     for (int i=0; i < ps.size(); ++i) {
       final int pp=ps.get(i);
-      if (cand.eq(partitions.get(pp))) {
+      if (gn.eq(part.get(pp))) {
         p=pp;
         break;
       }
@@ -21,14 +22,28 @@
   }
   if (p < 0) {
     if (order != null)     order.add(ctx);
-    p=partitions.size();
-    partitions.add(cand);
-    IntList pos=hashes.get(chash);
+    p=part.size();
+    part.add(gn);
+    IntList pos=hashes.get(h);
     if (pos == null) {
       pos=new IntList(1);
-      hashes.add(chash,pos);
+      hashes.add(h,pos);
     }
     pos.add(p);
   }
-  if (ngv.length != 0)   addNonGrpIts(ctx,p);
+  final int ngl=ngv.length;
+  if (ngl == 0)   return;
+  if (p == items.size())   items.add(new ItemIter[ngl]);
+  final ItemIter[] sq=items.get(p);
+  for (int i=0; i < ngl; ++i) {
+    ItemIter ir=sq[i];
+    if (ir == null) {
+      ir=new ItemIter();
+      sq[i]=ir;
+    }
+ else     if (!among && order.uses(ngv[i])) {
+      Err.or(input,QueryText.XPSORT);
+    }
+    ir.add(ngv[i].iter(ctx));
+  }
 }
