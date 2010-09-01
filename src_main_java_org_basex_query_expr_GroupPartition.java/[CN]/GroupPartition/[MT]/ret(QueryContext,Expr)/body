@@ -1,12 +1,17 @@
 {
   final ItemIter ir=new ItemIter();
   final ValueList vl=new ValueList();
-  final Var[] pgvars=new Var[gv.length];
-  final Var[] pgngvar=new Var[ngv.length];
-  for (int j=0; j < gv.length; ++j)   pgvars[j]=ctx.vars.get(gv[j]);
-  for (int j=0; j < ngv.length; ++j)   pgngvar[j]=ctx.vars.get(ngv[j]);
+  if (!cachedRet)   cacheRet(ctx);
   for (int i=0; i < partitions.size(); ++i) {
-    collectValues(ctx,pgvars,pgngvar,i);
+    final GroupNode gn=partitions.get(i);
+    for (int j=0; j < pgvars.length; ++j)     pgvars[j].bind(gn.its[j],ctx);
+    if (items != null) {
+      final ItemIter[] ngvars=items.get(i);
+      for (int j=0; j < ngvars.length; ++j) {
+        final ItemIter its=ngvars[j];
+        pgngvars[j].bind(its.finish(),ctx);
+      }
+    }
     if (order != null)     vl.add(ret.value(ctx));
  else     ir.add(ctx.iter(ret));
   }
