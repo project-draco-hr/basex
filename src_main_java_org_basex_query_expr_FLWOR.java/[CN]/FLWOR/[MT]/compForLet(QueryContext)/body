@@ -1,0 +1,18 @@
+{
+  boolean m=false;
+  for (int f=fl.length - 1; f >= 0; --f) {
+    ForLet t=fl[f];
+    if (t instanceof For)     continue;
+    for (int g=f - 1; g >= 0; --g) {
+      if (fl[g].shadows(t.var) || t.uses(fl[g].var))       break;
+      if (fl[g] instanceof Let || t.uses(Use.FRG))       continue;
+      final For fr=(For)fl[g];
+      if (fr.pos != null && t.uses(fr.pos) || fr.score != null && t.uses(fr.score))       break;
+      System.arraycopy(fl,g,fl,g + 1,f - g);
+      fl[g]=t;
+      t=fl[f];
+      if (!m)       ctx.compInfo(OPTFORLET);
+      m=true;
+    }
+  }
+}
