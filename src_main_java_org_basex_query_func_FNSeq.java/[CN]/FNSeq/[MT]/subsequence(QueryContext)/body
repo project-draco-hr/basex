@@ -5,8 +5,19 @@
   final long max=iter.size();
   return max != -1 ? new Iter(){
     long c=Math.max(1,s);
+    long m=Math.min(e,max + 1);
     @Override public Item next() throws QueryException {
-      return c < e && c <= max ? iter.get(c++ - 1) : null;
+      return c < m ? iter.get(c++ - 1) : null;
+    }
+    @Override public Item get(    final long i) throws QueryException {
+      return iter.get(c + i - 1);
+    }
+    @Override public long size(){
+      return Math.max(0,m - c);
+    }
+    @Override public boolean reset(){
+      c=Math.max(1,s);
+      return true;
     }
   }
  : new Iter(){
