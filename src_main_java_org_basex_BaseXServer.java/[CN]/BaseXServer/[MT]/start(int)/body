@@ -1,18 +1,17 @@
 {
-  if (!ping(LOCALHOST,port)) {
-    final String path=IOFile.file(BaseXServer.class.getProtectionDomain().getCodeSource().getLocation().toString());
-    final String mem="-Xmx" + Runtime.getRuntime().maxMemory();
-    final String clazz=BaseXServer.class.getName();
-    try {
-      new ProcessBuilder(new String[]{"java",mem,"-cp",path,clazz,"-p",String.valueOf(port)}).start();
-      for (int c=0; c < 10; ++c) {
-        if (ping(LOCALHOST,port))         return SERVERSTART;
-        Performance.sleep(200);
-      }
-    }
- catch (    final IOException ex) {
-      return server(ex);
+  if (ping(LOCALHOST,port))   return SERVERBIND;
+  final String path=Util.applicationPath();
+  final String mem="-Xmx" + Runtime.getRuntime().maxMemory();
+  final String clz=BaseXServer.class.getName();
+  try {
+    new ProcessBuilder(new String[]{"java",mem,"-cp",path,clz,"-p",String.valueOf(port)}).start();
+    for (int c=0; c < 25; ++c) {
+      if (ping(LOCALHOST,port))       return SERVERSTART;
+      Performance.sleep(200);
     }
   }
-  return SERVERBIND;
+ catch (  final IOException ex) {
+    Util.notexpected(ex);
+  }
+  return SERVERERROR;
 }

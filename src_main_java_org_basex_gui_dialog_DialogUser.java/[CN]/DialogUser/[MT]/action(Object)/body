@@ -10,7 +10,7 @@
       final CmdPerm perm=CmdPerm.values()[(Integer)o[2] - (g ? 0 : 1)];
       final String uname=table.getModel().getValueAt((Integer)o[1],0).toString();
       final boolean confirm=!g && uname.equals(dia.loguser.getText());
-      if (confirm && !Dialog.confirm(this,Main.info(DBREVOKE)))       return;
+      if (confirm && !Dialog.confirm(this,Util.info(DBREVOKE)))       return;
       sess.execute(new Grant(perm,uname,db));
       msg=sess.info();
       if (confirm) {
@@ -45,7 +45,7 @@
  else     if (cmp == drop) {
       String msg2="";
       final int[] rows=table.getSelectedRows();
-      if (Dialog.confirm(this,Main.info(DRQUESTION,rows.length))) {
+      if (Dialog.confirm(this,Util.info(DRQUESTION,rows.length))) {
         for (        final int r : rows) {
           sess.execute(new DropUser(table.data.value(r,0),db));
           if (msg == null)           msg=sess.info();
@@ -79,7 +79,7 @@
     }
   }
  catch (  final BaseXException ex) {
-    msg=Main.server(ex);
+    msg=Util.server(ex);
     ok=false;
   }
   final boolean valname=user.getText().matches("[\\w]*");
@@ -98,7 +98,7 @@
   valdrop|=table.getSelectedRows().length == 1;
   Msg icon=ok ? Msg.SUCCESS : Msg.ERROR;
   if (msg == null && !(valname && valpass && newname&& valdrop)) {
-    msg=!newname ? Main.info(USERKNOWN,user.getText()) : !valdrop ? USERADMIN : Main.info(INVALID,!valname ? SERVERUSER : SERVERPW);
+    msg=!newname ? Util.info(USERKNOWN,user.getText()) : !valdrop ? USERADMIN : Util.info(INVALID,!valname ? SERVERUSER : SERVERPW);
     icon=Msg.WARN;
   }
   info.setText(msg,icon);

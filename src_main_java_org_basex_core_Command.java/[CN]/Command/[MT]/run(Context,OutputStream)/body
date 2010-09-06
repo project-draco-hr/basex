@@ -1,9 +1,9 @@
 {
+  perf=new Performance();
+  context=ctx;
+  prop=ctx.prop;
+  out=PrintOutput.get(os);
   try {
-    perf=new Performance();
-    context=ctx;
-    prop=ctx.prop;
-    out=os instanceof PrintOutput ? (PrintOutput)os : new PrintOutput(os);
     return run();
   }
  catch (  final ProgressException ex) {
@@ -14,14 +14,21 @@ catch (  final Throwable ex) {
     Performance.gc(2);
     abort();
     if (ex instanceof OutOfMemoryError) {
-      ex.printStackTrace();
+      Util.stack(ex);
       return error(PROCMEM + ((flags & User.CREATE) != 0 ? PROCMEMCREATE : ""));
     }
-    Main.debug(ex);
+    Util.debug(ex);
     final Object[] st=ex.getStackTrace();
     final Object[] obj=new Object[st.length + 1];
     obj[0]=ex.toString();
     System.arraycopy(st,0,obj,1,st.length);
-    return error(Main.bug(obj));
+    return error(Util.bug(obj));
+  }
+ finally {
+    try {
+      out.flush();
+    }
+ catch (    final Exception ex) {
+    }
   }
 }
