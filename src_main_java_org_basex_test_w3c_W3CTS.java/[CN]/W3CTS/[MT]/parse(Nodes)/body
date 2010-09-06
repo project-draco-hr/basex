@@ -3,7 +3,7 @@
   final String outname=text("@name",root);
   if (single != null && !outname.startsWith(single))   return true;
   Performance perf=new Performance();
-  if (verbose)   Main.out("- " + outname);
+  if (verbose)   Util.out("- " + outname);
   boolean inspect=false;
   boolean correct=true;
   final Nodes nodes=states(root);
@@ -15,8 +15,6 @@
     String er=null;
     ItemIter iter=null;
     boolean doc=true;
-    final TokenBuilder files=new TokenBuilder();
-    final ArrayOutput ao=new ArrayOutput(1 << 20);
     final Nodes cont=nodes("*:contextItem",state);
     Nodes curr=null;
     if (cont.size() != 0) {
@@ -27,6 +25,8 @@
     context.prop.set(Prop.QUERYINFO,compile);
     final QueryProcessor xq=new QueryProcessor(in,curr,context);
     context.prop.set(Prop.QUERYINFO,false);
+    final ArrayOutput ao=new ArrayOutput();
+    final TokenBuilder files=new TokenBuilder();
     try {
       files.add(file(nodes("*:input-file",state),nodes("*:input-file/@variable",state),xq,n == 0));
       files.add(file(nodes("*:defaultCollection",state),null,xq,n == 0));
@@ -60,9 +60,9 @@
       if (er.startsWith("["))       er=er.replaceAll("\\[(.*?)\\] (.*)","$1 $2");
     }
     if (compile) {
-      Main.errln("---------------------------------------------------------");
-      Main.err(xq.info());
-      Main.errln(in);
+      Util.errln("---------------------------------------------------------");
+      Util.err(xq.info());
+      Util.errln(in);
     }
     final Nodes outFiles=nodes("*:output-file/text()",state);
     final Nodes cmpFiles=nodes("*:output-file/@compare",state);
@@ -138,11 +138,11 @@
               ir.reset();
               final XMLSerializer ser=new XMLSerializer(System.out);
               Item it;
-              Main.outln(NL + "=== " + testid+ " ===");
+              Util.outln(NL + "=== " + testid+ " ===");
               while ((it=ir.next()) != null)               it.serialize(ser);
-              Main.outln(NL + "=== " + NAME+ " ===");
+              Util.outln(NL + "=== " + NAME+ " ===");
               while ((it=iter.next()) != null)               it.serialize(ser);
-              Main.outln();
+              Util.outln();
             }
             rdata.close();
             if (eq)             break;
@@ -225,7 +225,7 @@
   }
   if (verbose) {
     final long t=perf.getTime();
-    if (t > 100000000)     Main.out(": " + Performance.getTimer(t,1));
+    if (t > 100000000)     Util.out(": " + Performance.getTimer(t,1));
   }
   return single == null || !outname.equals(single);
 }

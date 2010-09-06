@@ -46,20 +46,20 @@
   new Check(path + input).execute(context);
   data=context.data;
   final Nodes root=new Nodes(0,data);
-  Main.outln(NL + Main.name(this) + " Test Suite "+ text("/*:test-suite/@version",root));
-  Main.outln(NL + "Caching Sources...");
+  Util.outln(NL + Util.name(this) + " Test Suite "+ text("/*:test-suite/@version",root));
+  Util.outln(NL + "Caching Sources...");
   for (  final int s : nodes("//*:source",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
     final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
     srcs.put(text("@ID",srcRoot),val);
   }
-  Main.outln("Caching Modules...");
+  Util.outln("Caching Modules...");
   for (  final int s : nodes("//*:module",root).nodes) {
     final Nodes srcRoot=new Nodes(s,data);
     final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
     mods.put(text("@ID",srcRoot),val);
   }
-  Main.outln("Caching Collections...");
+  Util.outln("Caching Collections...");
   for (  final int c : nodes("//*:collection",root).nodes) {
     final Nodes nodes=new Nodes(c,data);
     final String cname=text("@ID",nodes);
@@ -72,21 +72,21 @@
   }
   init(root);
   if (reporting) {
-    Main.outln("Delete old results...");
+    Util.outln("Delete old results...");
     delete(new File[]{new File(results)});
   }
-  if (verbose)   Main.outln();
+  if (verbose)   Util.outln();
   final Nodes nodes=minimum ? nodes("//*:test-group[starts-with(@name, 'Minim')]//*:test-case",root) : nodes("//*:test-case",root);
   long total=nodes.size();
-  Main.out("Parsing " + total + " Queries");
+  Util.out("Parsing " + total + " Queries");
   for (int t=0; t < total; ++t) {
     if (!parse(new Nodes(nodes.nodes[t],data)))     break;
-    if (!verbose && t % 500 == 0)     Main.out(".");
+    if (!verbose && t % 500 == 0)     Util.out(".");
   }
-  Main.outln();
+  Util.outln();
   total=ok + ok2 + err+ err2;
   final String time=perf.getTimer();
-  Main.outln("Writing log file..." + NL);
+  Util.outln("Writing log file..." + NL);
   BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path + pathlog),UTF8));
   bw.write("TEST RESULTS ==================================================");
   bw.write(NL + NL + "Total #Queries: "+ total+ NL);
@@ -114,10 +114,10 @@
     write(bw,report + NAME + "Pos"+ IO.XMLSUFFIX);
     bw.close();
   }
-  Main.outln("Total #Queries: " + total);
-  Main.outln("Correct / Empty results: " + ok + " / "+ ok2);
-  Main.out("Conformance (w/empty results): ");
-  Main.outln(pc(ok,total) + " / " + pc(ok + ok2,total));
-  Main.outln("Total Time: " + time);
+  Util.outln("Total #Queries: " + total);
+  Util.outln("Correct / Empty results: " + ok + " / "+ ok2);
+  Util.out("Conformance (w/empty results): ");
+  Util.outln(pc(ok,total) + " / " + pc(ok + ok2,total));
+  Util.outln("Total Time: " + time);
   context.close();
 }
