@@ -1,3 +1,18 @@
 {
-  return Bln.get(includeParents ? file.mkdirs() : file.mkdir());
+  if (file.exists() && file.isFile()) {
+    Err.or(input,QueryText.FILEEXISTS,file.getName());
+    return Bln.FALSE;
+  }
+ else   if (file.exists() && file.isDirectory()) {
+    return Bln.TRUE;
+  }
+  if (includeParents) {
+    final File existingParent=getExistingParent(file);
+    if (!existingParent.canWrite()) {
+      Err.or(input,QueryText.MKDIR,file.getPath(),existingParent.getPath());
+      return Bln.FALSE;
+    }
+    return Bln.get(file.mkdirs());
+  }
+  return Bln.get(file.mkdir());
 }
