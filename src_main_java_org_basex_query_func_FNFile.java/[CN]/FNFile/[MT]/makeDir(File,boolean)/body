@@ -1,18 +1,10 @@
 {
-  if (file.exists() && file.isFile()) {
-    Err.or(input,QueryText.FILEEXISTS,file.getName());
-    return Bln.FALSE;
-  }
- else   if (file.exists() && file.isDirectory()) {
-    return Bln.TRUE;
-  }
+  if (file.exists())   if (!file.isDirectory())   Err.or(input,QueryText.FILEEXISTS,file.getName());
   if (includeParents) {
-    final File existingParent=getExistingParent(file);
-    if (!existingParent.canWrite()) {
-      Err.or(input,QueryText.MKDIR,file.getPath(),existingParent.getPath());
-      return Bln.FALSE;
-    }
-    return Bln.get(file.mkdirs());
+    final File parent=getExistingParent(file);
+    if (!parent.canWrite())     Err.or(input,QueryText.MKDIR,file.getPath(),parent.getPath());
+    if (!file.mkdirs())     Err.or(input,QueryText.CANNOTMKDIR,file.getPath());
   }
-  return Bln.get(file.mkdir());
+  if (!file.mkdir())   Err.or(input,QueryText.CANNOTMKDIR,file.getPath());
+  return null;
 }

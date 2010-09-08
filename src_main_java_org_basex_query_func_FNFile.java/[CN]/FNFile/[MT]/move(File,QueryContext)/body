@@ -3,15 +3,15 @@
   final String destFile=dest.endsWith(Prop.SEP) ? dest + file.getName() : dest + Prop.SEP + file.getName();
   if (new File(destFile).exists()) {
     Err.or(input,QueryText.TARGETEXISTS,file.getPath());
-    return Bln.FALSE;
   }
   if (!new File(dest).canWrite()) {
     Err.or(input,QueryText.FILEMOVE,file.getPath(),dest);
-    return Bln.FALSE;
   }
   if (file.isDirectory()) {
     Err.or(input,QueryText.DIRMOVE);
-    return Bln.FALSE;
   }
-  return Bln.get(file.renameTo(new File(dest,file.getName())));
+  if (!file.renameTo(new File(dest,file.getName()))) {
+    Err.or(input,QueryText.CANNOTMOVE,file.getPath());
+  }
+  return null;
 }
