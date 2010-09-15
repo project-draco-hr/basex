@@ -1,17 +1,10 @@
 {
   final String dest=string(checkStr(expr[1],ctx));
-  final String destFile=dest.endsWith(Prop.SEP) ? dest + file.getName() : dest + Prop.SEP + file.getName();
-  if (new File(destFile).exists()) {
-    Err.or(input,QueryText.TARGETEXISTS,file.getPath());
-  }
-  if (!new File(dest).canWrite()) {
-    Err.or(input,QueryText.FILEMOVE,file.getPath(),dest);
-  }
-  if (file.isDirectory()) {
-    Err.or(input,QueryText.DIRMOVE);
-  }
-  if (!file.renameTo(new File(dest,file.getName()))) {
-    Err.or(input,QueryText.CANNOTMOVE,file.getPath());
-  }
+  if (!src.exists())   Err.or(input,PATHNOTEXISTS,src);
+  final String destFile=dest.endsWith(Prop.SEP) ? dest + src.getName() : dest + Prop.SEP + src.getName();
+  if (new File(destFile).exists())   Err.or(input,TARGETEXISTS,src.getPath());
+  if (!new File(dest).canWrite())   Err.or(input,FILEMOVE,src.getPath(),dest);
+  if (src.isDirectory())   Err.or(input,DIRMOVE);
+  if (!src.renameTo(new File(dest,src.getName())))   Err.or(input,CANNOTMOVE,src.getPath());
   return null;
 }

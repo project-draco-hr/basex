@@ -1,7 +1,12 @@
 {
-  final Iter ir=iter(ctx);
-  final Item it=ir.next();
-  if (it == null)   return Bln.FALSE;
-  if (!it.node() && ir.next() != null)   Err.or(input,CONDTYPE,this);
-  return it;
+  Item it=null;
+  if (type().zeroOrOne()) {
+    it=item(ctx,input);
+  }
+ else {
+    final Iter ir=iter(ctx);
+    it=ir.next();
+    if (it != null && !it.node() && ir.next() != null)     Err.or(input,CONDTYPE,this);
+  }
+  return it == null ? Bln.FALSE : it;
 }

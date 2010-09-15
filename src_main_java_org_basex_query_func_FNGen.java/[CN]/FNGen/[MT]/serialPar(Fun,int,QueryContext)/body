@@ -1,0 +1,18 @@
+{
+  if (arg >= fun.expr.length)   return null;
+  final TokenBuilder tb=new TokenBuilder();
+  final Iter ir=fun.expr[arg].iter(ctx);
+  Item it;
+  while ((it=ir.next()) != null) {
+    final Nod n=fun.checkNode(it);
+    if (tb.size() != 0)     tb.add(',');
+    tb.add(n.nname()).add('=').add(n.atom());
+  }
+  try {
+    return new SerializerProp(tb.toString());
+  }
+ catch (  final IOException ex) {
+    Err.or(fun.input,ex.getMessage());
+    return null;
+  }
+}

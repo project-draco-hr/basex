@@ -1,0 +1,19 @@
+{
+  final File dst=new File(string(checkStr(expr[1],ctx)));
+  if (!src.exists())   Err.or(input,PATHNOTEXISTS,src);
+  try {
+    final FileChannel sc=new FileInputStream(src).getChannel();
+    final FileChannel dc=new FileOutputStream(dst).getChannel();
+    try {
+      dc.transferFrom(sc,0,sc.size());
+    }
+  finally {
+      sc.close();
+      dc.close();
+    }
+  }
+ catch (  final IOException ex) {
+    Err.or(input,ex.getMessage(),src,dst);
+  }
+  return null;
+}

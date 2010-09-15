@@ -1,14 +1,13 @@
 {
   final Nod nod=checkNode(checkItem(expr[0],ctx));
-  final TokenBuilder tb=new TokenBuilder();
-  if (expr.length == 2) {
-    final Iter ir=expr[1].iter(ctx);
-    Item n;
-    while ((n=ir.next()) != null) {
-      final Nod p=checkNode(n);
-      if (tb.size() != 0)       tb.add(',');
-      tb.add(p.nname()).add('=').add(p.atom());
-    }
+  final ArrayOutput ao=new ArrayOutput();
+  try {
+    final XMLSerializer xml=new XMLSerializer(ao,serialPar(this,1,ctx));
+    nod.serialize(xml);
+    xml.close();
   }
-  return serialize(nod,tb,input);
+ catch (  final IOException ex) {
+    Err.or(input,ex.getMessage());
+  }
+  return Str.get(ao.toArray());
 }
