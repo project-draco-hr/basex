@@ -1,19 +1,14 @@
 {
   final NodIter ni=new NodIter().random();
   Item it;
-  while ((it=iter[0].next()) != null) {
-    if (!it.node())     Err.type(this,Type.NOD,it);
-    ni.add((Nod)it);
-  }
-  for (int e=1; e != expr.length; ++e) {
+  while ((it=iter[0].next()) != null)   ni.add(checkNode(it));
+  final boolean db=ni.dbnodes();
+  for (int e=1; e != expr.length && ni.size() != 0; ++e) {
     final Iter ir=iter[e];
     while ((it=ir.next()) != null) {
-      if (!it.node())       Err.type(this,Type.NOD,it);
-      final Nod node=(Nod)it;
-      for (int s=0; s < ni.size(); ++s) {
-        if (ni.get(s).is(node))         ni.delete(s--);
-      }
+      final int i=ni.indexOf(checkNode(it),db);
+      if (i != -1)       ni.delete(i);
     }
   }
-  return ni.sort();
+  return ni;
 }

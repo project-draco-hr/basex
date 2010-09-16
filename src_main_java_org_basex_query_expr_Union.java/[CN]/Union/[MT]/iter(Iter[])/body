@@ -1,15 +1,14 @@
 {
-  return new NodeIter(){
-    Nod[] items;
+  return new SetIter(iter){
     @Override public Nod next() throws QueryException {
-      if (items == null) {
-        items=new Nod[iter.length];
+      if (item == null) {
+        item=new Nod[iter.length];
         for (int i=0; i != iter.length; ++i)         next(i);
       }
       int m=-1;
-      for (int i=0; i != items.length; ++i) {
-        if (items[i] == null)         continue;
-        final int d=m == -1 ? 1 : items[m].diff(items[i]);
+      for (int i=0; i != item.length; ++i) {
+        if (item[i] == null)         continue;
+        final int d=m == -1 ? 1 : item[m].diff(item[i]);
         if (d == 0) {
           next(i--);
         }
@@ -18,14 +17,9 @@
         }
       }
       if (m == -1)       return null;
-      final Nod it=items[m];
+      final Nod it=item[m];
       next(m);
       return it;
-    }
-    private void next(    final int i) throws QueryException {
-      final Item it=iter[i].next();
-      if (it != null && !it.node())       Err.type(Union.this,Type.NOD,it);
-      items[i]=(Nod)it;
     }
   }
 ;

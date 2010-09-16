@@ -1,30 +1,17 @@
 {
   NodIter ni=new NodIter();
   Item it;
-  while ((it=iter[0].next()) != null) {
-    if (!it.node())     Err.type(this,Type.NOD,it);
-    ni.add((Nod)it);
-  }
+  while ((it=iter[0].next()) != null)   ni.add(checkNode(it));
   final boolean db=ni.dbnodes();
   for (int e=1; e != expr.length && ni.size() != 0; ++e) {
-    final NodIter res=new NodIter().random();
+    final NodIter nt=new NodIter().random();
     final Iter ir=iter[e];
     while ((it=ir.next()) != null) {
-      if (!it.node())       Err.type(this,Type.NOD,it);
-      final Nod node=(Nod)it;
-      if (db && node instanceof DBNode) {
-        if (ni.contains((DBNode)node))         res.add(node);
-      }
- else {
-        for (int n=0; n < ni.size(); ++n) {
-          if (ni.get(n).is(node)) {
-            res.add(node);
-            break;
-          }
-        }
-      }
+      final Nod n=checkNode(it);
+      final int i=ni.indexOf(n,db);
+      if (i != -1)       nt.add(n);
     }
-    ni=res;
+    ni=nt;
   }
-  return ni.sort();
+  return ni;
 }
