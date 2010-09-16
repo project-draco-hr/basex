@@ -15,14 +15,14 @@
   }
   if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT)   sub.generateBorders(c);
   if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT || paintType == PAINT_NEW_WINDOW_SIZE || paintType == -1 && windowSizeChanged()) {
-    treedist=tr.generateRects(sub,g,c,getWidth());
+    treedist=tr.generateRects(sub,g,c,wwidth);
     rbr=treedist == -1;
     markedImage=null;
     setLevelDistance();
     createNewMainImage();
     if (gui.context.marked.size() > 0)     markNodes();
   }
-  g.drawImage(treeImage,0,0,getWidth(),getHeight(),this);
+  g.drawImage(treeImage,0,0,wwidth,wheight,this);
   if (selection) {
     if (selectRect != null) {
       final int x=selectRect.w < 0 ? selectRect.x + selectRect.w : selectRect.x;
@@ -34,24 +34,29 @@
     }
     markNodes();
   }
-  if (markedImage != null)   g.drawImage(markedImage,0,0,getWidth(),getHeight(),this);
+  if (markedImage != null)   g.drawImage(markedImage,0,0,wwidth,wheight,this);
   inFocus=paintType < 0 ? focus() : false;
   if (inFocus) {
     int focused=gui.context.focused;
-    if (tr.isBigRectangle(sub,frn,flv)) {
-      final int f=getMostSizedNode(data,frn,flv,frect,focused);
-      if (f >= 0)       focused=f;
+    if (rbr) {
+      highlightRealBigRect(g,frn,flv,fpre);
     }
-    highlightNode(g,frn,flv,frect,focused,-1,DRAW_HIGHLIGHT);
+ else {
+      if (tr.isBigRectangle(sub,frn,flv)) {
+        final int f=getMostSizedNode(data,frn,flv,frect,focused);
+        if (f >= 0)         focused=f;
+      }
+      highlightNode(g,frn,flv,frect,focused,-1,DRAW_HIGHLIGHT);
+    }
     if (SHOW_EXTRA_INFO) {
       g.setColor(new Color(0xeeeeee));
-      g.fillRect(0,getHeight() - fontHeight - 6,getWidth(),fontHeight + 6);
+      g.fillRect(0,wheight - fontHeight - 6,wwidth,fontHeight + 6);
       final Data d=gui.context.data;
       final int k=d.kind(focused);
       final int s=d.size(focused,k);
       final int as=d.attSize(focused,k);
       g.setColor(Color.BLACK);
-      g.drawString("pre: " + focused + " level: "+ flv+ "  level-size: "+ sub.getLevelSize(frn,flv)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused)),2,getHeight() - 6);
+      g.drawString("pre: " + focused + " level: "+ flv+ "  level-size: "+ sub.getLevelSize(frn,flv)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused)),2,wheight - 6);
     }
   }
   paintType=-1;
