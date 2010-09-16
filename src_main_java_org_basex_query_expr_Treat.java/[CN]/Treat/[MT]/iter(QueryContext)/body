@@ -3,18 +3,18 @@
   final Item it=iter.next();
   if (it == null) {
     if (!seq.mayBeZero() || seq.type == Type.EMP)     return Iter.EMPTY;
-    Err.or(input,XPEMPTY,desc());
+    XPEMPTY.thrw(input,desc());
   }
   if (seq.zeroOrOne()) {
-    if (iter.next() != null)     Err.or(input,NOTREATS,desc(),seq);
-    if (!it.type.instance(seq.type))     Err.or(input,NOTREAT,desc(),seq,it.type);
+    if (iter.next() != null)     NOTREATS.thrw(input,desc(),seq);
+    if (!it.type.instance(seq.type))     NOTREAT.thrw(input,desc(),seq,it.type);
     return it.iter();
   }
   return new Iter(){
     Item i=it;
     @Override public Item next() throws QueryException {
       if (i == null)       return null;
-      if (!i.type.instance(seq.type))       Err.or(input,NOTREAT,desc(),seq,i.type);
+      if (!i.type.instance(seq.type))       NOTREAT.thrw(input,desc(),seq,i.type);
       final Item ii=i;
       i=iter.next();
       return ii;

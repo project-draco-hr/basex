@@ -7,11 +7,11 @@
       final char ch=pat.charAt(i);
       final boolean a=ACTIVE.indexOf(ch) != -1;
       if (ch == DECIMAL) {
-        if (frac)         Err.or(ii,PICNUM,pat);
+        if (frac)         PICNUM.thrw(ii,pat);
         frac=true;
       }
  else       if (ch == GROUP) {
-        if (cp(pat,i - 1) == DECIMAL || cp(pat,i + 1) == DECIMAL)         Err.or(ii,PICNUM,pat);
+        if (cp(pat,i - 1) == DECIMAL || cp(pat,i + 1) == DECIMAL)         PICNUM.thrw(ii,pat);
       }
  else       if (ch == PERCENT) {
         ++pc;
@@ -21,7 +21,7 @@
       }
  else       if (ch == OPTIONAL) {
         if (!frac) {
-          if (dig)           Err.or(ii,PICNUM,pat);
+          if (dig)           PICNUM.thrw(ii,pat);
           opt1=true;
         }
  else {
@@ -29,14 +29,14 @@
         }
       }
  else       if (DIGITS.indexOf(ch) != -1) {
-        if (frac && opt2)         Err.or(ii,PICNUM,pat);
+        if (frac && opt2)         PICNUM.thrw(ii,pat);
         dig=true;
       }
-      if (a && pas && act)       Err.or(ii,PICNUM,pat);
+      if (a && pas && act)       PICNUM.thrw(ii,pat);
       if (act)       pas|=!a;
       act|=a;
     }
-    if (pc > 1 || pm > 1 || pc + pm > 1)     Err.or(ii,PICNUM,pat);
-    if (!opt1 && !opt2 && !dig)     Err.or(ii,PICNUM,pat);
+    if (pc > 1 || pm > 1 || pc + pm > 1)     PICNUM.thrw(ii,pat);
+    if (!opt1 && !opt2 && !dig)     PICNUM.thrw(ii,pat);
   }
 }
