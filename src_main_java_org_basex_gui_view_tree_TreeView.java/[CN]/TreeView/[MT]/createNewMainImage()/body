@@ -4,38 +4,26 @@
   final int rl=roots.length;
   tg.setFont(font);
   smooth(tg);
-  if (!rbr) {
-    for (int rn=0; rn < rl; ++rn) {
-      final int h=sub.getSubtreeHeight(rn);
-      for (int lv=0; lv < h; ++lv) {
-        final boolean br=tr.isBigRectangle(sub,rn,lv);
-        final TreeRect[] lr=tr.getTreeRectsPerLevel(rn,lv);
-        for (int i=0; i < lr.length; ++i) {
-          final TreeRect r=lr[i];
-          final int pre=sub.getPrePerIndex(rn,lv,i);
-          drawRectangle(tg,rn,lv,r,pre,DRAW_RECTANGLE);
-        }
-        if (br) {
-          final TreeRect r=lr[0];
-          final int ww=r.x + r.w - 1;
-          final int x=r.x + 1;
-          drawBigRectSquares(tg,lv,x,ww,4);
-        }
+  for (int rn=0; rn < rl; ++rn) {
+    final int h=sub.getSubtreeHeight(rn);
+    for (int lv=0; lv < h; ++lv) {
+      final boolean br=tr.isBigRectangle(sub,rn,lv);
+      final TreeRect[] lr=tr.getTreeRectsPerLevel(rn,lv);
+      for (int i=0; i < lr.length; ++i) {
+        final TreeRect r=lr[i];
+        final int pre=sub.getPrePerIndex(rn,lv,i);
+        drawRectangle(tg,rn,lv,r,pre,DRAW_RECTANGLE);
       }
-      if (SHOW_CONN_MI) {
-        final TreeRect rr=tr.getTreeRectPerIndex(rn,0,0);
-        highlightDescendants(tg,rn,0,rr,roots[rn],getRectCenter(rr),DRAW_CONN);
+      if (br) {
+        final TreeRect r=lr[0];
+        final int ww=r.x + r.w - 1;
+        final int x=r.x + 1;
+        drawBigRectSquares(tg,lv,x,ww,4);
       }
     }
-  }
- else {
-    final int w=wwidth;
-    tg.setColor(getColorPerLevel(0,false));
-    tg.drawRect(0,getYperLevel(0),w,nodeHeight);
-    drawBigRectSquares(tg,0,0,w - 1,4);
-    System.out.println(w);
-    for (int px=0; px < w; px+=2) {
-      drawRealBigRectangle(tg,-1,0,-1,px,DRAW_CONN);
+    if (SHOW_CONN_MI) {
+      final TreeRect rr=tr.getTreeRectPerIndex(rn,0,0);
+      highlightDescendants(tg,rn,0,rr,roots[rn],getRectCenter(rr),DRAW_CONN);
     }
   }
 }

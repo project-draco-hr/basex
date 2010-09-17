@@ -6,19 +6,31 @@
   final int t=y + h;
   final int size=sub.getMaxSubtreeHeight();
   final IntList list=new IntList();
-  for (int r=0; r < roots.length; ++r) {
+  final int rl=roots.length;
+  final int rs=getTreePerX(x);
+  final int re=getTreePerX(x + w);
+  for (int r=rs < 0 ? 0 : rs; r <= re; ++r) {
     for (int i=0; i < size; ++i) {
       final int yL=getYperLevel(i);
       if (i < sub.getSubtreeHeight(r) && (yL >= y || yL + nodeHeight >= y) && (yL <= t || yL + nodeHeight <= t)) {
         final TreeRect[] rlv=tr.getTreeRectsPerLevel(r,i);
         final int s=sub.getLevelSize(r,i);
         if (tr.isBigRectangle(sub,r,i)) {
-          final TreeRect mRect=rlv[0];
-          int sPrePos=(int)(s * x / (double)mRect.w);
-          int ePrePos=(int)(s * (x + w) / (double)mRect.w);
-          if (sPrePos < 0)           sPrePos=0;
-          if (ePrePos >= s)           ePrePos=s - 1;
-          while (sPrePos++ < ePrePos)           list.add(sub.getPrePerIndex(r,i,sPrePos));
+          if (rl > 1) {
+            final TreeBorder tb=sub.getTreeBorder(r,i);
+            final int si=tb.size;
+            for (int n=0; n < si; ++n) {
+              list.add(sub.getPrePerIndex(r,i,n));
+            }
+          }
+ else {
+            final int mw=rlv[0].w;
+            int sPrePos=(int)(s * x / (double)mw);
+            int ePrePos=(int)(s * (x + w) / (double)mw);
+            if (sPrePos < 0)             sPrePos=0;
+            if (ePrePos >= s)             ePrePos=s - 1;
+            while (sPrePos++ < ePrePos)             list.add(sub.getPrePerIndex(r,i,sPrePos));
+          }
         }
  else {
           for (int j=0; j < s; ++j) {

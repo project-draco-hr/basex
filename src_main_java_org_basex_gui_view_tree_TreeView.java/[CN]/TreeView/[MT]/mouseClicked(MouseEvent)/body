@@ -1,33 +1,28 @@
 {
   final boolean left=SwingUtilities.isLeftMouseButton(e);
   final boolean right=!left;
-  if (!right && !left || frect == null)   return;
-  if (left && inFocus) {
-    if (rbr) {
+  if (!inFocus || !right && !left || frect == null)   return;
+  if (left) {
+    if (flv >= sub.getSubtreeHeight(frn))     return;
+    if (tr.isBigRectangle(sub,frn,flv)) {
+      final Nodes ns=new Nodes(gui.context.data);
+      final int sum=getHitBigRectNodesNum(frn,flv,frect);
+      final int fix=sub.getPreIndex(frn,flv,fpre);
+      final int[] m=new int[sum];
+      for (int i=0; i < sum; ++i) {
+        final int pre=sub.getPrePerIndex(frn,flv,i + fix);
+        if (pre == -1)         break;
+        m[i]=pre;
+      }
+      ns.union(m);
+      gui.notify.mark(ns,null);
+    }
+ else {
       gui.notify.mark(0,null);
     }
- else {
-      if (flv >= sub.getSubtreeHeight(frn))       return;
-      if (tr.isBigRectangle(sub,frn,flv)) {
-        final Nodes ns=new Nodes(gui.context.data);
-        final int sum=getHitBigRectNodesNum(frn,flv,frect);
-        final int fix=sub.getPreIndex(frn,flv,fpre);
-        final int[] m=new int[sum];
-        for (int i=0; i < sum; ++i) {
-          final int pre=sub.getPrePerIndex(frn,flv,i + fix);
-          if (pre == -1)           break;
-          m[i]=pre;
-        }
-        ns.union(m);
-        gui.notify.mark(ns,null);
-      }
- else {
-        gui.notify.mark(0,null);
-      }
-    }
-    if (e.getClickCount() > 1) {
-      gui.notify.context(gui.context.marked,false,this);
-      refreshContext(false,false);
-    }
+  }
+  if (e.getClickCount() > 1) {
+    gui.notify.context(gui.context.marked,false,this);
+    refreshContext(false,false);
   }
 }

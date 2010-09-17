@@ -1,21 +1,6 @@
 {
   if (refreshedFocus) {
     final int pre=gui.context.focused;
-    if (rbr) {
-      for (int r=0; r < roots.length; ++r) {
-        for (int i=0; i < sub.getSubtreeHeight(r); ++i) {
-          final int index=sub.getPreIndex(r,i,pre);
-          if (index > -1) {
-            frn=r;
-            flv=i;
-            fpre=pre;
-            refreshedFocus=false;
-            return true;
-          }
-        }
-      }
-      return false;
-    }
     for (int r=0; r < roots.length; ++r) {
       for (int i=0; i < sub.getSubtreeHeight(r); ++i) {
         if (tr.isBigRectangle(sub,r,i)) {
@@ -45,24 +30,6 @@
     final int lv=getLevelPerY(mousePosY);
     if (lv < 0)     return false;
     final int mx=mousePosX;
-    if (rbr) {
-      final int max=getRealBigRectangleHeightNode(mx);
-      if (max < 0)       return false;
-      if (lv == 0) {
-        frn=getRealBigRectangleHeightNode(mx);
-        flv=lv;
-        fpre=roots[(int)((mx / (double)wwidth) * roots.length)];
-        gui.notify.focus(fpre,this);
-        return true;
-      }
-      final int maxlv=sub.getSubtreeHeight(max);
-      if (mx % 2 > 0 || lv >= maxlv)       return false;
-      frn=max;
-      flv=lv;
-      fpre=sub.getPrePerIndex(max,lv,0);
-      gui.notify.focus(fpre,this);
-      return true;
-    }
     final int rn=frn=getTreePerX(mx);
     final int h=sub.getSubtreeHeight(rn);
     if (h < 0 || lv >= h)     return false;

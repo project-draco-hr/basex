@@ -14,13 +14,19 @@
     tr=new TreeRects(gui.prop);
   }
   if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT)   sub.generateBorders(c);
-  if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT || paintType == PAINT_NEW_WINDOW_SIZE || paintType == -1 && windowSizeChanged()) {
+  if ((winChange=windowSizeChanged()) && paintType == -1 || paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT || paintType == PAINT_NEW_WINDOW_SIZE) {
     treedist=tr.generateRects(sub,g,c,wwidth);
-    rbr=treedist == -1;
-    markedImage=null;
-    setLevelDistance();
-    createNewMainImage();
-    if (gui.context.marked.size() > 0)     markNodes();
+    nes=treedist == -1;
+    if (!nes) {
+      markedImage=null;
+      setLevelDistance();
+      createNewMainImage();
+      if (gui.context.marked.size() > 0)       markNodes();
+    }
+  }
+  if (nes) {
+    drawNotEnoughSpaceMessage(g);
+    return;
   }
   g.drawImage(treeImage,0,0,wwidth,wheight,this);
   if (selection) {
@@ -36,18 +42,13 @@
   }
   if (markedImage != null)   g.drawImage(markedImage,0,0,wwidth,wheight,this);
   inFocus=paintType < 0 ? focus() : false;
-  if (inFocus) {
+  if (inFocus && !winChange) {
     int focused=gui.context.focused;
-    if (rbr) {
-      highlightRealBigRect(g,frn,flv,fpre);
+    if (tr.isBigRectangle(sub,frn,flv)) {
+      final int f=getMostSizedNode(data,frn,flv,frect,focused);
+      if (f >= 0)       focused=f;
     }
- else {
-      if (tr.isBigRectangle(sub,frn,flv)) {
-        final int f=getMostSizedNode(data,frn,flv,frect,focused);
-        if (f >= 0)         focused=f;
-      }
-      highlightNode(g,frn,flv,frect,focused,-1,DRAW_HIGHLIGHT);
-    }
+    highlightNode(g,frn,flv,frect,focused,-1,DRAW_HIGHLIGHT);
     if (SHOW_EXTRA_INFO) {
       g.setColor(new Color(0xeeeeee));
       g.fillRect(0,wheight - fontHeight - 6,wwidth,fontHeight + 6);
