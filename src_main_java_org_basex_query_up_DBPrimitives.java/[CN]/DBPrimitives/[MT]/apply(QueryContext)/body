@@ -1,26 +1,24 @@
 {
   int par=-2;
-  boolean check=false;
   int first=-1;
   for (int i=nodes.size() - 1; i >= 0; i--) {
     final int pre=nodes.get(i);
     final int parT=d.parent(pre,d.kind(pre));
     if (parT != par) {
-      if (check && parT < par)       mergeTexts(par,first);
-      check=false;
+      if (first > -1)       mergeTexts(par,first);
+      first=-1;
       par=parT;
     }
-    first=pre;
     int add=0;
     for (    final UpdatePrimitive p : op.get(pre)) {
       final PrimitiveType t=p.type();
       p.apply(add);
-      check=t == INSERTBEFORE || t == REPLACENODE || t == DELETE;
+      if (t == INSERTAFTER || t == INSERTBEFORE || t == REPLACENODE || t == DELETE)       first=pre;
       if (t == INSERTBEFORE)       add=((NodeCopy)p).md.meta.size;
       if (t == REPLACENODE)       break;
     }
   }
-  if (check)   mergeTexts(par,first);
+  if (first > -1)   mergeTexts(par,first);
   d.flush();
   if (d.meta.prop.is(Prop.WRITEBACK)) {
     try {
