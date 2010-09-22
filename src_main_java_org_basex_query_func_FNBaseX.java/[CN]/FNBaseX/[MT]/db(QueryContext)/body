@@ -1,9 +1,16 @@
 {
-  DBNode node=ctx.doc(checkStr(expr[0],ctx),false,true,input);
+  NodIter iter=new NodIter();
+  DBNode node=ctx.doc(checkStr(expr[0],ctx),true,true,input);
   if (expr.length == 2) {
     final int pre=(int)checkItr(expr[1],ctx);
     if (pre < 0 || pre >= node.data.meta.size)     NOPRE.thrw(input,pre);
     node=new DBNode(node.data,pre);
+    iter.add(node);
   }
-  return node;
+ else {
+    for (int p=0; p < node.data.meta.size; p+=node.data.size(p,node.data.kind(p))) {
+      iter.add(new DBNode(node.data,p));
+    }
+  }
+  return iter;
 }
