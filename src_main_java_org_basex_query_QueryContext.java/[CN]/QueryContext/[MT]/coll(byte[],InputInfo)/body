@@ -6,7 +6,15 @@
  else {
     if (contains(path,'<') || contains(path,'\\'))     COLLINV.thrw(ii,path);
     while (c < colls && !eq(collName[c],path))     ++c;
-    if (c == colls)     addDocs(doc(path,true,false,ii));
+    if (c == colls) {
+      int tmp=Token.string(path).indexOf("/");
+      if (tmp == -1) {
+        addDocs(doc(path,true,false,ii),"");
+      }
+ else {
+        addDocs(doc(token(Token.string(path).substring(0,tmp)),true,false,ii),Token.string(path));
+      }
+    }
   }
   return new NodIter(collect[c].item,(int)collect[c].size());
 }
