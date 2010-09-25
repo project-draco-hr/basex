@@ -1,24 +1,23 @@
 {
   final String path=string(checkStr(expr[0],ctx));
   final String pattern;
+  final Bln recursive=expr.length > 1 ? (Bln)checkType(expr[1].item(ctx,input),Type.BLN) : Bln.FALSE;
   try {
-    pattern=expr.length == 2 ? string(checkStr(expr[1],ctx)).replaceAll("\\.","\\\\.").replaceAll("\\*",".*") : null;
+    pattern=expr.length == 3 ? string(checkStr(expr[2],ctx)).replaceAll("\\.","\\\\.").replaceAll("\\*",".*") : null;
   }
  catch (  final PatternSyntaxException ex) {
     FILEPATTERN.thrw(input,expr[1]);
     return null;
   }
+  final List<File> files=recursive.bool(input) ? listRecursively(new File(path)) : Arrays.asList(new File(path).listFiles());
+  if (files == null)   FILELIST.thrw(input,path);
   return new Iter(){
-    File[] files;
     int c=-1;
-    @Override public Item next() throws QueryException {
-      if (files == null) {
-        files=new File(path).listFiles();
-        if (files == null)         FILELIST.thrw(input,path);
-      }
-      while (++c < files.length) {
-        final String name=files[c].getName();
-        if (!files[c].isHidden() && (pattern == null || name.matches(pattern)))         return Str.get(name);
+    @Override public Item next(){
+      while (++c < files.size()) {
+        if (checkMatch(files.get(c),pattern)) {
+          return Str.get(files.get(c).getPath());
+        }
       }
       return null;
     }

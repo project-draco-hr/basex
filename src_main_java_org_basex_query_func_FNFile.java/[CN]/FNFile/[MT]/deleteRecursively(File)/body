@@ -1,17 +1,8 @@
 {
-  if (file.isDirectory()) {
-    if (file.listFiles().length != 0) {
-      File[] children=file.listFiles();
-      for (int k=0; k < children.length; k++) {
-        if (!children[k].canWrite()) {
-          FILEDEL.thrw(input,children[k].getPath());
-          return null;
-        }
-      }
-      for (int i=0; i < children.length; i++) {
-        deleteRecursively(children[i]);
-      }
-    }
+  if (!file.canWrite())   FILEDEL.thrw(input,file.getPath());
+  final File[] children=file.listFiles();
+  if (children != null) {
+    for (    File ch : children)     deleteRecursively(ch);
   }
   if (!file.delete())   CANNOTDEL.thrw(input,file.getPath());
   return null;
