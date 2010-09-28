@@ -2,19 +2,19 @@
   final Iter iter=ctx.iter(expr);
   final Item it=iter.next();
   if (it == null) {
-    if (!seq.mayBeZero() || seq.type == Type.EMP)     return Iter.EMPTY;
+    if (!type.mayBeZero() || type.type == Type.EMP)     return Iter.EMPTY;
     XPEMPTY.thrw(input,desc());
   }
-  if (seq.zeroOrOne()) {
-    if (iter.next() != null)     NOTREATS.thrw(input,desc(),seq);
-    if (!it.type.instance(seq.type))     NOTREAT.thrw(input,desc(),seq,it.type);
+  if (type.zeroOrOne()) {
+    if (iter.next() != null)     NOTREATS.thrw(input,desc(),type);
+    if (!it.type.instance(type.type))     NOTREAT.thrw(input,desc(),type,it.type);
     return it.iter();
   }
   return new Iter(){
     Item i=it;
     @Override public Item next() throws QueryException {
       if (i == null)       return null;
-      if (!i.type.instance(seq.type))       NOTREAT.thrw(input,desc(),seq,i.type);
+      if (!i.type.instance(type.type))       NOTREAT.thrw(input,desc(),type,i.type);
       final Item ii=i;
       i=iter.next();
       return ii;

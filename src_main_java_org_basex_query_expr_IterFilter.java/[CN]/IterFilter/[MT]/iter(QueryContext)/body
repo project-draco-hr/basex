@@ -1,51 +1,18 @@
 {
   return new Iter(){
-    boolean finish;
-    boolean direct;
+    /** 
+ * Iterator. 
+ */
     Iter iter;
-    long p;
     @Override public Item next() throws QueryException {
-      if (finish)       return null;
-      if (iter == null) {
-        iter=ctx.iter(root);
-        p=1;
-        if (pos != null || last) {
-          final long s=iter.size();
-          if (s == 0)           return null;
-          if (s != -1) {
-            p=last ? s : pos.min;
-            if (p > s)             return null;
-            direct=true;
-          }
-        }
+      if (iter == null)       iter=ctx.iter(root);
+      while (true) {
+        ctx.checkStop();
+        final Item it=iter.next();
+        if (it == null)         return null;
+        ctx.value=it;
+        if (preds(it,ctx))         return it;
       }
-      final Value cv=ctx.value;
-      final long cp=ctx.pos;
-      Item it=null;
-      if (direct) {
-        it=iter.size() < p ? null : iter.get(p - 1);
-        ctx.pos=p++;
-      }
- else {
-        Item old=null;
-        while ((it=iter.next()) != null) {
-          ctx.checkStop();
-          ctx.value=it;
-          ctx.pos=p++;
-          old=it;
-          final Item i=pred[0].test(ctx,input);
-          if (i != null) {
-            it.score(i.score());
-            break;
-          }
-        }
-        if (last)         it=old;
-      }
-      finish=last || pos != null && pos.last(ctx);
-      if (finish && direct)       iter.reset();
-      ctx.value=cv;
-      ctx.pos=cp;
-      return it;
     }
   }
 ;

@@ -1,0 +1,39 @@
+{
+  return new NodeIter(){
+    boolean skip;
+    NodeIter ir;
+    long cpos;
+    @Override public Nod next() throws QueryException {
+      if (skip)       return null;
+      if (ir == null) {
+        final Value v=checkCtx(ctx);
+        if (!v.node())         NODESPATH.thrw(input,IterPosStep.this,v.type);
+        ir=axis.iter((Nod)v);
+      }
+      Nod lnod=null;
+      while (true) {
+        ctx.checkStop();
+        final Nod nod=ir.next();
+        if (nod == null) {
+          skip=last;
+          return lnod;
+        }
+        if (test.eval(nod)) {
+          ctx.pos=++cpos;
+          if (preds(nod,ctx)) {
+            skip=pos != null && pos.skip(ctx);
+            return nod.finish();
+          }
+          if (last)           lnod=nod.finish();
+        }
+      }
+    }
+    @Override public boolean reset(){
+      ir=null;
+      skip=false;
+      cpos=0;
+      return true;
+    }
+  }
+;
+}

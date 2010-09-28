@@ -1,9 +1,11 @@
 {
-  if (offset) {
+  if (off) {
     final Item it=pred[0].ebv(ctx,input);
     final long l=it.itr(input);
     final Expr e=Pos.get(l,l,input);
-    return l != it.dbl(input) || !(e instanceof Pos) ? Iter.EMPTY : new IterFilter(this,(Pos)e,false).iter(ctx);
+    if (l != it.dbl(input) || !(e instanceof Pos))     return Iter.EMPTY;
+    pos=(Pos)e;
+    return new IterPosFilter(this).iter(ctx);
   }
   final Iter iter=ctx.iter(root);
   final Value cv=ctx.value;

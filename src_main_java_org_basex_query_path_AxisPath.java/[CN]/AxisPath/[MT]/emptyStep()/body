@@ -1,0 +1,38 @@
+{
+  for (int l=0; l < step.length; ++l) {
+    final Step s=step[l];
+    final Axis sa=s.axis;
+    if (l == 0) {
+      if (root instanceof CAttr) {
+        if (sa == CHILD || sa == DESC)         return s;
+      }
+ else       if (root instanceof DBNode && ((DBNode)root).type == Type.DOC || root instanceof CDoc) {
+        if (sa != CHILD && sa != DESC && sa != DESCORSELF && (sa != SELF && sa != ANCORSELF || s.test != Test.NODE && s.test != Test.DOC))         return s;
+      }
+    }
+ else {
+      final Step ls=step[l - 1];
+      final Axis lsa=ls.axis;
+      if (sa == SELF || sa == DESCORSELF) {
+        if (s.test == Test.NODE)         continue;
+        if (lsa == ATTR)         return s;
+        if (ls.test == Test.TXT && s.test != Test.TXT)         return s;
+        if (sa == DESCORSELF)         continue;
+        final QNm n1=s.test.name;
+        final QNm n0=ls.test.name;
+        if (n0 == null || n1 == null)         continue;
+        if (!n1.eq(n0))         return s;
+      }
+ else       if (sa == FOLLSIBL || sa == PRECSIBL) {
+        if (lsa == ATTR)         return s;
+      }
+ else       if (sa == DESC || sa == CHILD || sa == ATTR) {
+        if (lsa == ATTR || ls.test == Test.TXT || ls.test == Test.COM || ls.test == Test.PI)         return s;
+      }
+ else       if (sa == PARENT || sa == ANC) {
+        if (ls.test == Test.DOC)         return s;
+      }
+    }
+  }
+  return null;
+}

@@ -8,12 +8,10 @@
   if (e != this)   return e;
   if (ct != null)   ctx.value.type=ct;
   if (pred.length == 0)   return root;
-  final Expr p=pred[0];
   final SeqType t=root.type();
   type=SeqType.get(t.type,t.zeroOrOne() ? SeqType.Occ.ZO : SeqType.Occ.ZM);
-  final Pos pos=p instanceof Pos ? (Pos)p : null;
-  final boolean last=p instanceof Fun && ((Fun)p).def == FunDef.LAST;
-  if (pred.length == 1 && (last || pos != null || !uses(Use.POS)))   return new IterFilter(this,pos,last);
-  offset=pred.length == 1 && p.type().num() && !p.uses(Use.CTX);
+  if (!super.uses(Use.POS))   return new IterFilter(this);
+  if (iterable())   return new IterPosFilter(this);
+  off=pred.length == 1 && pred[0].type().num() && !pred[0].uses(Use.CTX);
   return this;
 }

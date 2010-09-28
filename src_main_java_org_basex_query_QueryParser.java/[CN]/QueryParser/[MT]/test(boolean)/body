@@ -1,7 +1,7 @@
 {
   final int p=qp;
   final char ch=curr();
-  if (XMLToken.isXMLLetter(ch)) {
+  if (XMLToken.isNCStartChar(ch)) {
     final byte[] name=qName(null);
     final int p2=qp;
     if (consumeWS(PAR1)) {
@@ -12,31 +12,29 @@
           if (curr() == 0)           error(TESTINCOMPLETE);
           tok.add(consume());
         }
-        final byte[] ext=tok.finish();
-        final QNm qn=checkTest(type,ext);
-        return type == Type.NOD ? Test.NODE : new KindTest(type,qn);
+        return Test.get(type,kindTest(type,tok.finish()));
       }
     }
  else {
       qp=p2;
       if (contains(name,':')) {
         skipWS();
-        return new NameTest(new QNm(name,ctx,input()),NameTest.Kind.STD,att,input());
+        return new NameTest(new QNm(name,ctx,input()),NameTest.Name.STD,att,input());
       }
       if (!consume(':')) {
         skipWS();
         final QNm nm=new QNm(name,att ? Uri.EMPTY : null);
-        return new NameTest(nm,NameTest.Kind.STD,att,input());
+        return new NameTest(nm,NameTest.Name.STD,att,input());
       }
       if (consume('*')) {
         final QNm nm=new QNm(EMPTY,ctx.ns.uri(name,false,input()));
-        return new NameTest(nm,NameTest.Kind.NS,att,input());
+        return new NameTest(nm,NameTest.Name.NS,att,input());
       }
     }
   }
  else   if (consume('*')) {
     if (!consume(':'))     return new NameTest(att,input());
-    return new NameTest(new QNm(qName(QNAMEINV)),NameTest.Kind.NAME,att,input());
+    return new NameTest(new QNm(qName(QNAMEINV)),NameTest.Name.NAME,att,input());
   }
   qp=p;
   return null;

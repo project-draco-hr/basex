@@ -1,0 +1,21 @@
+{
+  if (k.length == 0)   return null;
+  byte[] nm=k;
+  if (t == Type.PI) {
+    nm=delete(delete(k,'\''),'"');
+    if (!XMLToken.isNCName(nm))     error(TESTINVALID,t,k);
+    return new QNm(nm,ctx,input());
+  }
+  if (t != Type.ELM && t != Type.ATT)   error(TESTINVALID,t,k);
+  final int i=indexOf(nm,',');
+  if (i != -1) {
+    final QNm test=new QNm(trim(substring(nm,i + 1)),ctx,input());
+    if (!eq(test.uri().atom(),XSURI))     error(TESTINVALID,t,test);
+    nm=trim(substring(nm,0,i));
+    final byte[] ln=test.ln();
+    if (!eq(ln,ANYTYPE) && !eq(ln,ANYATOMIC) && !eq(ln,ANYSIMPLE)&& !eq(ln,UNTYPED)&& !eq(ln,UNATOMIC))     return new QNm(EMPTY);
+  }
+  if (nm.length == 1 && nm[0] == '*')   return null;
+  if (!XMLToken.isQName(nm))   error(TESTINVALID,t,k);
+  return new QNm(nm,ctx,input());
+}

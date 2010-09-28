@@ -1,15 +1,15 @@
 {
   final String path=string(checkStr(expr[0],ctx));
   final String pattern;
-  final Bln recursive=expr.length > 1 ? (Bln)checkType(expr[1].item(ctx,input),Type.BLN) : Bln.FALSE;
+  final boolean recursive=expr.length > 1 && checkType(expr[1].item(ctx,input),Type.BLN).bool(input);
   try {
-    pattern=expr.length == 3 ? string(checkStr(expr[2],ctx)).replaceAll("\\.","\\\\.").replaceAll("\\*",".*") : null;
+    pattern=expr.length != 3 ? null : IOFile.regex(string(checkStr(expr[2],ctx)));
   }
  catch (  final PatternSyntaxException ex) {
     FILEPATTERN.thrw(input,expr[1]);
     return null;
   }
-  final List<File> files=recursive.bool(input) ? listRecursively(new File(path)) : Arrays.asList(new File(path).listFiles());
+  final List<File> files=recursive ? listRecursively(new File(path)) : Arrays.asList(new File(path).listFiles());
   if (files == null)   FILELIST.thrw(input,path);
   return new Iter(){
     int c=-1;

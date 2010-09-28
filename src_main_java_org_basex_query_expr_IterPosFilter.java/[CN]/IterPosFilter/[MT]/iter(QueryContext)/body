@@ -1,0 +1,59 @@
+{
+  return new Iter(){
+    /** 
+ * Indicates if more items can be expected. 
+ */
+    boolean skip;
+    /** 
+ * Fast evaluation. 
+ */
+    boolean direct;
+    /** 
+ * Iterator. 
+ */
+    Iter iter;
+    /** 
+ * Current position. 
+ */
+    long cpos;
+    @Override public Item next() throws QueryException {
+      if (skip)       return null;
+      if (iter == null) {
+        iter=ctx.iter(root);
+        cpos=1;
+        if (pos != null || last) {
+          final long s=iter.size();
+          if (s == 0)           return null;
+          if (s != -1) {
+            cpos=last ? s : pos.min;
+            if (cpos > s)             return null;
+            direct=true;
+          }
+        }
+      }
+      final Value cv=ctx.value;
+      final long cp=ctx.pos;
+      Item item=null;
+      if (direct) {
+        item=iter.size() < cpos ? null : iter.get(cpos - 1);
+        ctx.pos=cpos++;
+      }
+ else {
+        Item old=null;
+        while ((item=iter.next()) != null) {
+          ctx.checkStop();
+          ctx.pos=cpos++;
+          if (preds(item,ctx))           break;
+          old=item;
+        }
+        if (last)         item=old;
+      }
+      skip=last || pos != null && pos.skip(ctx);
+      if (skip && direct)       iter.reset();
+      ctx.value=cv;
+      ctx.pos=cp;
+      return item;
+    }
+  }
+;
+}

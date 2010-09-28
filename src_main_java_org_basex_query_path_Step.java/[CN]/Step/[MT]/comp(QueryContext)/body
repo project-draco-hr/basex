@@ -2,7 +2,7 @@
   if (!test.comp(ctx))   return Empty.SEQ;
   final Data data=ctx.data();
   ctx.leaf=false;
-  if (data != null && test.kind == Kind.NAME && test.type != Type.ATT) {
+  if (data != null && test.test == Name.NAME && test.type != Type.ATT) {
     final byte[] ln=((NameTest)test).ln;
     ctx.leaf=axis.down && data.meta.uptodate && data.ns.size() == 0 && data.tags.stat(data.tags.id(ln)).leaf;
   }
@@ -11,10 +11,8 @@
   final Expr e=super.comp(ctx);
   if (ct != null)   ctx.value.type=ct;
   ctx.leaf=false;
-  if (e != this)   return e;
-  if (pred.length == 0)   return get(input,axis,test);
-  final Expr p=pred[0];
-  final Pos pos=p instanceof Pos ? (Pos)p : null;
-  final boolean last=p instanceof Fun && ((Fun)p).def == FunDef.LAST;
-  return pred.length > 1 || !last && pos == null && uses(Use.POS) ? this : new IterStep(input,axis,test,pred,pos,last);
+  if (e != this || e instanceof IterStep)   return e;
+  if (!uses(Use.POS))   return new IterStep(input,axis,test,pred);
+  if (this instanceof IterPosStep)   return this;
+  return iterable() ? new IterPosStep(this) : this;
 }
