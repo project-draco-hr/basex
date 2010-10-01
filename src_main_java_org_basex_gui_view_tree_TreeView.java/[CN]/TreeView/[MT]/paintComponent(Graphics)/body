@@ -15,7 +15,7 @@
   }
   if (paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT)   sub.generateBorders(c);
   if ((winChange=windowSizeChanged()) && paintType == -1 || paintType == PAINT_NEW_INIT || paintType == PAINT_NEW_CONTEXT || paintType == PAINT_NEW_WINDOW_SIZE) {
-    treedist=tr.generateRects(sub,g,c,wwidth);
+    treedist=tr.generateRects(sub,g,c,wstart,wwidth);
     nes=treedist == -1;
     if (!nes) {
       markedImage=null;
@@ -43,22 +43,22 @@
   if (markedImage != null)   g.drawImage(markedImage,0,0,wwidth,wheight,this);
   inFocus=paintType < 0 ? focus() : false;
   if (inFocus && !winChange) {
-    int focused=gui.context.focused;
-    if (tr.isBigRectangle(sub,frn,flv)) {
-      final int f=getMostSizedNode(data,frn,flv,frect,focused);
-      if (f >= 0)       focused=f;
+    if (!refreshedFocus && tr.isBigRectangle(sub,frn,flv)) {
+      final int f=getMostSizedNode(data,frn,flv,frect,fpre);
+      if (f >= 0)       fpre=f;
     }
-    highlightNode(g,frn,flv,frect,focused,-1,DRAW_HIGHLIGHT);
+    highlightNode(g,frn,flv,frect,fpre,-1,DRAW_HIGHLIGHT);
     if (SHOW_EXTRA_INFO) {
       g.setColor(new Color(0xeeeeee));
       g.fillRect(0,wheight - fontHeight - 6,wwidth,fontHeight + 6);
       final Data d=gui.context.data;
-      final int k=d.kind(focused);
-      final int s=d.size(focused,k);
-      final int as=d.attSize(focused,k);
+      final int k=d.kind(fpre);
+      final int s=d.size(fpre,k);
+      final int as=d.attSize(fpre,k);
       g.setColor(Color.BLACK);
-      g.drawString("pre: " + focused + " level: "+ flv+ "  level-size: "+ sub.getLevelSize(frn,flv)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,focused)),2,wheight - 6);
+      g.drawString("pre: " + fpre + " level: "+ flv+ "  level-size: "+ sub.getLevelSize(frn,flv)+ "  node-size: "+ (s - as)+ "  node: "+ Token.string(ViewData.tag(gui.prop,d,fpre)),2,wheight - 6);
     }
+    refreshedFocus=false;
   }
   paintType=-1;
   gui.painting=false;
