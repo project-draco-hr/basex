@@ -1,19 +1,17 @@
 {
   final NodIter col=new NodIter();
   final Data data=db.data;
-  boolean tmp=path.equals("");
-  if (!tmp)   doc=new DBNode[1];
+  final boolean rt=input.length == 0;
+  if (!rt)   doc=new DBNode[1];
   docs=0;
   for (int p=0; p < data.meta.size; p+=data.size(p,data.kind(p))) {
     final DBNode dbn=new DBNode(data,p);
-    if (!tmp) {
-      if (Token.string(dbn.base()).toLowerCase().contains(path.toLowerCase())) {
-        col.add(dbn);
-        addDoc(dbn);
-      }
-    }
- else {
+    if (rt) {
       col.add(dbn);
+    }
+ else     if (contains(dbn.base(),input)) {
+      col.add(dbn);
+      addDoc(dbn);
     }
   }
   addColl(col,token(data.meta.name));

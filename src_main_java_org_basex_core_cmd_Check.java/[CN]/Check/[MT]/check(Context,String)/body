@@ -1,5 +1,14 @@
 {
   final IO io=IO.get(path);
   final String name=io.dbname();
+  final Data data=ctx.pin(name);
+  if (data != null) {
+    final IO in=data.meta.file;
+    if (in.eq(io) && io.date() == in.date()) {
+      if (ctx.perm(User.READ,data.meta))       return data;
+      throw new IOException(Util.info(PERMNO,CmdPerm.READ));
+    }
+    ctx.unpin(data);
+  }
   return MetaData.found(path,name,ctx.prop) ? Open.open(name,ctx) : ctx.prop.is(Prop.FORCECREATE) ? CreateDB.xml(io,name,ctx) : CreateDB.xml(io,ctx);
 }
