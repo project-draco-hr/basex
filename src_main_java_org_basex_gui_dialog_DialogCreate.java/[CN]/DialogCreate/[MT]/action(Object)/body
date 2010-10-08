@@ -2,9 +2,16 @@
   ft.action(ftxindex.isSelected());
   entities.setEnabled(intparse.isSelected());
   dtd.setEnabled(intparse.isSelected());
+  usecat.setEnabled(!intparse.isSelected());
+  intparse.setEnabled(!usecat.isSelected());
+  cfile.setEnabled(!intparse.isSelected() && (gui.context.prop.get(Prop.CATFILE).length() > 0 || usecat.isSelected()));
+  browsec.setEnabled(cfile.isEnabled());
   final IO file=IO.get(path());
   final boolean exists=!path().isEmpty() && file.exists();
   if (exists)   gui.prop.set(GUIProp.OPENPATH,file.path());
+  final boolean catexists=IO.get(cfile()).exists();
+  if (catexists && usecat.isSelected())   gui.context.prop.set(Prop.CATFILE,cfile());
+ else   gui.context.prop.set(Prop.CATFILE,"");
   final String nm=dbname();
   ok=exists && !nm.isEmpty();
   String inf=!exists ? PATHWHICH : !ok ? DBWHICH : null;

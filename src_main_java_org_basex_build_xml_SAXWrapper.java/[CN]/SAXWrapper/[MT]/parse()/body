@@ -9,6 +9,15 @@
       r=f.newSAXParser().getXMLReader();
     }
     sax=new SAXHandler(builder);
+    if (prop.get(Prop.CATFILE).length() > 0) {
+      CatalogManager cm=new CatalogManager();
+      cm.setCatalogFiles(prop.get(Prop.CATFILE));
+      cm.setIgnoreMissingProperties(true);
+      cm.setPreferPublic(true);
+      cm.setUseStaticCatalog(false);
+      cm.setVerbosity(0);
+      r.setEntityResolver(new CatalogResolver(cm));
+    }
     r.setDTDHandler(sax);
     r.setContentHandler(sax);
     r.setProperty("http://xml.org/sax/properties/lexical-handler",sax);
