@@ -1,18 +1,23 @@
 {
   final Data data=ictx.data;
+  final boolean mem=data instanceof MemData;
   final boolean text=ind == IndexType.TEXT;
   final byte kind=text ? Data.TEXT : Data.ATTR;
   return term.length <= MAXLEN ? new Iter(){
     final IndexIterator ii=data.ids(new ValuesToken(ind,term));
     @Override public Item next(){
-      return ii.more() ? new DBNode(data,ii.next(),kind) : null;
+      while (ii.more()) {
+        final int p=ii.next();
+        if (!mem || data.kind(p) == kind)         return new DBNode(data,p,kind);
+      }
+      return null;
     }
   }
  : new Iter(){
     int pre=-1;
     @Override public Item next(){
       while (++pre != data.meta.size) {
-        if (data.kind(pre) == kind && eq(data.text(pre,text),term))         return new DBNode(data,pre);
+        if (data.kind(pre) == kind && eq(data.text(pre,text),term))         return new DBNode(data,pre,kind);
       }
       return null;
     }
