@@ -14,16 +14,13 @@
  else   if (values()) {
     e=preEval(ctx);
   }
- else   if (e1 instanceof Fun) {
-    final Fun fun=(Fun)e1;
-    if (fun.def == FunDef.COUNT) {
-      e=count(op);
-      if (e != this)       ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
-    }
- else     if (fun.def == FunDef.POS) {
-      e=Pos.get(op,e2,e,input);
-      if (e != this)       ctx.compInfo(OPTWRITE,this);
-    }
+ else   if (e1.isFun(FunDef.COUNT)) {
+    e=count(op);
+    if (e != this)     ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
+  }
+ else   if (e1.isFun(FunDef.POS)) {
+    e=Pos.get(op,e2,e,input);
+    if (e != this)     ctx.compInfo(OPTWRITE,this);
   }
   type=SeqType.BLN;
   return e;
