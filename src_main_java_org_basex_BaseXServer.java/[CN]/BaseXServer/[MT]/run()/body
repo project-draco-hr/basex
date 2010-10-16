@@ -2,13 +2,14 @@
   running=true;
   while (running) {
     try {
-      final ServerProcess s=new ServerProcess(server.accept(),this);
+      final Socket s=server.accept();
+      final ServerProcess sp=new ServerProcess(s,context,log);
       if (stop.exists()) {
         if (!stop.delete())         log.write(Util.info(DBNOTDELETED,stop));
         quit(false);
       }
- else       if (s.init()) {
-        context.add(s);
+ else       if (sp.init()) {
+        context.add(sp);
       }
     }
  catch (    final IOException ex) {
