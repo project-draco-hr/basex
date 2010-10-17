@@ -7,14 +7,16 @@
   final Data data=ctx.data();
   if (data == null)   return true;
   final byte[] ns=data.ns.globalNS();
-  if (ns == null || !eq(ns,ctx.nsElem))   return true;
+  if (ns == null)   return true;
+  boolean ok=true;
   if (test == Name.STD && !name.ns()) {
-    ctx.compInfo(OPTPREF,ln);
-    test=Name.NAME;
+    ok=type == Type.ATT || eq(ns,ctx.nsElem);
+    if (ok) {
+      ctx.compInfo(OPTPREF,ln);
+      test=Name.NAME;
+    }
   }
-  if (test == Name.NAME && (type == Type.ELM ? data.tags : data.atts).id(ln) == 0) {
-    ctx.compInfo(OPTNAME,ln);
-    return false;
-  }
-  return true;
+  ok=ok && (test != Name.NAME || (type == Type.ELM ? data.tags : data.atts).id(ln) != 0);
+  if (!ok)   ctx.compInfo(OPTNAME,name);
+  return ok;
 }
