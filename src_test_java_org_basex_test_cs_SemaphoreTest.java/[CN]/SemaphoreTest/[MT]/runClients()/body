@@ -1,13 +1,15 @@
 {
   for (int n=0; n < TESTS; ++n) {
     final int j=n;
-    Performance.sleep(rand.nextInt(500));
+    Performance.sleep(50 + rand.nextInt(200));
     new Thread(){
       @Override public void run(){
         try {
           final int t=rand.nextInt(2);
           sessions.get(j).execute(q[t]);
-          ++tdone;
+synchronized (this) {
+            ++tdone;
+          }
         }
  catch (        final BaseXException ex) {
           fail(ex.toString());
@@ -16,5 +18,5 @@
     }
 .start();
   }
-  while (tdone < TESTS)   Performance.sleep(200);
+  while (tdone < TESTS)   Performance.sleep(100);
 }
