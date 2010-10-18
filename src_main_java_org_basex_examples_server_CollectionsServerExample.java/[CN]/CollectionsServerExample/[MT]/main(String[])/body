@@ -1,0 +1,19 @@
+{
+  System.out.println("=== ServerExample ===");
+  BaseXServer server=new BaseXServer();
+  session=new ClientSession("localhost",1984,"admin","admin");
+  System.out.println("\n* Create a Collection.");
+  session.execute("CREATE DB input");
+  System.out.println("\n* Adding some documents");
+  for (int i=0; i < 50; i++) {
+    add(XML_1 + i + XML_2,"Chapter-" + i + ".xml","/book/chapters/" + i);
+  }
+  add(XML_1 + "test" + XML_2,"Chapter-test.xml","/book/chapters/0");
+  find();
+  System.out.println("\n* Modifying documents in folder /book/chapters/0:");
+  modify();
+  session.execute("DROP DB input");
+  session.close();
+  System.out.println("\n* Stop the server.");
+  server.stop();
+}
