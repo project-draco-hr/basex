@@ -1,10 +1,30 @@
 {
   final StringBuilder sb=new StringBuilder();
+  boolean wild=false;
+  boolean back=false;
   for (int f=0; f < filter.length(); f++) {
-    final char ch=filter.charAt(f);
-    if (ch == '*')     sb.append('.');
- else     if (!Character.isLetterOrDigit(ch))     sb.append('\\');
+    char ch=filter.charAt(f);
+    if (!back) {
+      if (ch == '*') {
+        sb.append('.');
+        wild=true;
+      }
+ else       if (ch == ',') {
+        ch='|';
+        if (!wild)         sb.append(".*");
+        wild=false;
+      }
+ else       if (!Character.isLetterOrDigit(ch)) {
+        back=ch == '\\';
+        if (!back)         sb.append('\\');
+        if (ch == '.')         wild=true;
+      }
+    }
+ else {
+      back=false;
+    }
     sb.append(ch);
   }
+  if (!wild)   sb.append(".*");
   return sb.toString();
 }
