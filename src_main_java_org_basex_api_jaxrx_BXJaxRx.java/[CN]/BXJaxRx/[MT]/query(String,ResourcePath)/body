@@ -1,11 +1,28 @@
 {
   return new BXOutput(rp){
     @Override void code(){
+      final String xq=query != null ? query : ".";
       final int s=num(rp,QueryParameter.START,1);
       final int m=num(rp,QueryParameter.COUNT,Integer.MAX_VALUE - s);
-      String xq=query != null ? query : ".";
-      if (s != 1 || m != Integer.MAX_VALUE - s)       xq="(" + query + ")[position() = "+ s+ " to "+ (s + m - 1)+ "]";
-      exec(new XQuery(xq),out);
+      try {
+        final ClientQuery cq=cs.query(xq);
+        final String var=path.getValue(QueryParameter.VAR);
+        if (var != null) {
+          final Scanner sc=new Scanner(var);
+          sc.useDelimiter("\t");
+          while (sc.hasNext()) {
+            final String v=sc.next();
+            final String[] sp=v.split(":",2);
+            cq.bind(sp[0],sp.length == 1 ? "" : sp[1]);
+          }
+        }
+        int c=0;
+        while (++c < s + m && cq.more())         if (c >= s)         cq.next(out);
+        cq.close();
+      }
+ catch (      final BaseXException ex) {
+        throw new JaxRxException(400,ex.getMessage());
+      }
     }
   }
 ;
