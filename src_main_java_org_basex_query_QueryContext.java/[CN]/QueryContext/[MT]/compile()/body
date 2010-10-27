@@ -4,28 +4,28 @@
     if (nodes != null) {
       final Data data=nodes.data;
       if (!context.perm(User.READ,data.meta))       Err.PERMNO.thrw(null,CmdPerm.READ);
-      final int s=(int)nodes.size();
-      if (nodes.root) {
-        doc=new DBNode[s];
-        for (int n=0; n < s; ++n) {
-          addDoc(new DBNode(data,nodes.nodes[n],Data.DOC));
+      if (!data.empty()) {
+        final int s=(int)nodes.size();
+        if (nodes.root) {
+          doc=new DBNode[s];
+          for (int n=0; n < s; ++n) {
+            addDoc(new DBNode(data,nodes.list[n],Data.DOC));
+          }
         }
-      }
  else {
-        for (        final int p : data.doc())         addDoc(new DBNode(data,p,Data.DOC));
-      }
-      rootDocs=docs;
-      if (nodes.root) {
-        value=Seq.get(doc,docs);
-      }
- else {
-        final ItemIter ir=new ItemIter(s);
-        for (int n=0; n < s; ++n) {
-          ir.add(new DBNode(data,nodes.nodes[n]));
+          for (          final int p : data.doc())           addDoc(new DBNode(data,p,Data.DOC));
         }
-        value=ir.finish();
+        rootDocs=docs;
+        if (nodes.root) {
+          value=Seq.get(doc,docs);
+        }
+ else {
+          final ItemIter ir=new ItemIter(s);
+          for (int n=0; n < s; ++n)           ir.add(new DBNode(data,nodes.list[n]));
+          value=ir.finish();
+        }
+        addColl(new NodIter(doc,docs),token(data.meta.name));
       }
-      addColl(new NodIter(doc,docs),token(data.meta.name));
     }
     if (inf)     compInfo(NL + QUERYCOMP);
     final boolean empty=value == null;
