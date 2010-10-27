@@ -8,7 +8,7 @@
   boolean correct=true;
   final Nodes nodes=states(root);
   for (int n=0; n < nodes.size(); ++n) {
-    final Nodes state=new Nodes(nodes.nodes[n],nodes.data);
+    final Nodes state=new Nodes(nodes.list[n],nodes.data);
     final String inname=text("*:query/@name",state);
     context.query=IO.get(queries + pth + inname+ IO.XQSUFFIX);
     final String in=read(context.query);
@@ -18,7 +18,7 @@
     final Nodes cont=nodes("*:contextItem",state);
     Nodes curr=null;
     if (cont.size() != 0) {
-      final Data d=Check.check(context,srcs.get(string(data.atom(cont.nodes[0]))));
+      final Data d=Check.check(context,srcs.get(string(data.atom(cont.list[0]))));
       curr=new Nodes(d.doc(),d);
       curr.root=true;
     }
@@ -33,7 +33,7 @@
       var(nodes("*:input-URI",state),nodes("*:input-URI/@variable",state),xq);
       eval(nodes("*:input-query/@name",state),nodes("*:input-query/@variable",state),pth,xq);
       parse(xq,state);
-      for (      final int p : nodes("*:module",root).nodes) {
+      for (      final int p : nodes("*:module",root).list) {
         final String ns=text("@namespace",new Nodes(p,data));
         final String f=mods.get(string(data.atom(p))) + IO.XQSUFFIX;
         xq.module(ns,f);
@@ -67,7 +67,7 @@
     final Nodes expOut=nodes("*:output-file/text()",state);
     final TokenList result=new TokenList();
     for (int o=0; o < expOut.size(); ++o) {
-      final String resFile=string(data.atom(expOut.nodes[o]));
+      final String resFile=string(data.atom(expOut.list[o]));
       final IO exp=IO.get(expected + pth + resFile);
       result.add(read(exp));
     }
@@ -76,7 +76,7 @@
     boolean frag=false;
     boolean ignore=false;
     for (int o=0; o < cmpFiles.size(); ++o) {
-      final byte[] type=data.atom(cmpFiles.nodes[o]);
+      final byte[] type=data.atom(cmpFiles.list[o]);
       xml|=eq(type,XML);
       frag|=eq(type,FRAGMENT);
       ignore|=eq(type,IGNORE);
@@ -119,7 +119,7 @@
       int s=-1;
       final int rs=result.size();
       while (!ignore && ++s < rs) {
-        inspect|=s < cmpFiles.nodes.length && eq(data.atom(cmpFiles.nodes[s]),INSPECT);
+        inspect|=s < cmpFiles.list.length && eq(data.atom(cmpFiles.list[s]),INSPECT);
         final byte[] res=result.get(s), actual=ao.toArray();
         if (res.length == ao.size() && eq(res,actual))         break;
         if (xml || frag) {
