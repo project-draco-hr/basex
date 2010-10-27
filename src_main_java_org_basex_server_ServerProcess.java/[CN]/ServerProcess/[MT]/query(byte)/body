@@ -9,27 +9,27 @@
  else {
     qp=queries.get(arg);
   }
-  boolean close=false;
+  boolean more=true;
   try {
     if (c == 0) {
-      if (qp != null) {
-        qp.init(out);
-        log.write(this,qp.query,OK);
-      }
+      if (qp != null)       log.write(this,qp.query,OK);
       out.writeString(arg);
       out.write(0);
     }
  else     if (c == 1) {
-      if (qp != null)       close=qp.next();
+      if (qp != null)       more=qp.next(out);
       out.write(0);
       out.write(0);
     }
  else     if (c == 2) {
-      close=true;
+      more=false;
+    }
+ else     if (c == 3) {
+      qp.bind(in.readString(),in.readString());
     }
   }
  catch (  final QueryException ex) {
-    close=true;
+    more=false;
     final String msg=ex.getMessage();
     if (qp != null)     log.write(this,qp.query,INFOERROR + msg);
     out.write(0);
@@ -37,7 +37,7 @@
     out.writeString(msg);
   }
   out.flush();
-  if (close && qp != null) {
+  if (!more && qp != null) {
     qp.close();
     queries.remove(arg);
   }
