@@ -6,12 +6,13 @@
     while (running) {
       try {
         final byte b=in.readByte();
-        if (b < 8) {
-          query(b);
+        final ServerCmd sc=ServerCmd.get(b);
+        if (sc == CREATE) {
+          create();
           continue;
         }
-        if (b == 8) {
-          create();
+        if (sc != CMD) {
+          query(sc);
           continue;
         }
         input=new ByteList().add(b).add(in.content().toArray()).toString();
