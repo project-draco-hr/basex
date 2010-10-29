@@ -1,0 +1,29 @@
+{
+  System.out.println("=== ServerQueryExample ===");
+  BaseXServer server=new BaseXServer();
+  System.out.println("\n* Create a client session.");
+  session=new ClientSession("localhost",1984,"admin","admin");
+  System.out.println("\n* Run a query:");
+  System.out.println(session.execute("XQUERY 1"));
+  System.out.println("\n* Run a query (faster):");
+  System.out.println(session.execute("XQUERY 1 to 2"));
+  System.out.println("\n* Iterate a query:");
+  ClientQuery query=session.query("1 to 3");
+  while (query.more()) {
+    System.out.print(query.next() + " ");
+  }
+  query.close();
+  System.out.println("\n\n* Iterate a query (faster):");
+  session.setOutputStream(System.out);
+  query=session.query("1 to 4");
+  while (query.more()) {
+    query.next();
+    System.out.print(" ");
+  }
+  query.close();
+  session.setOutputStream(null);
+  System.out.println("\n\n* Close the client session.");
+  session.close();
+  System.out.println("\n* Stop the server.");
+  server.stop();
+}
