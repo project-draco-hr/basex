@@ -1,21 +1,7 @@
 {
   final NodIter col=new NodIter();
   final Data data=db.data;
-  final boolean all=input.length == 0;
-  final byte[] slash=token("/");
-  final byte[] exact=lc(concat(slash,token(string(input).replaceAll("/+","/"))));
-  final byte[] start=endsWith(exact,slash) ? exact : concat(exact,slash);
-  if (!data.empty()) {
-    for (int p=0; p < data.meta.size; p+=data.size(p,Data.DOC)) {
-      final DBNode dbn=new DBNode(data,p);
-      if (all) {
-        col.add(dbn);
-      }
- else {
-        final byte[] path=concat(slash,lc(data.text(p,true)));
-        if (eq(path,exact) || startsWith(path,start))         col.add(dbn);
-      }
-    }
-  }
+  final IntList il=data.doc(string(input));
+  for (int i=0; i < il.size(); i++)   col.add(new DBNode(data,il.get(i)));
   addCollection(col,token(data.meta.name));
 }

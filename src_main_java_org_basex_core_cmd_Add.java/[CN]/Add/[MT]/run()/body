@@ -12,15 +12,9 @@
   final String target=path(args[2]);
   final DirParser p=new DirParser(io,context.prop,target);
   try {
-    final Data data=context.data;
-    data.insert(data.meta.size,-1,MemBuilder.build(p,context.prop,name));
-    data.flush();
+    return info(add(p,context,target + name));
   }
- catch (  final IOException ex) {
-    Util.debug(ex);
-    final String msg=ex.getMessage();
-    return error(msg != null ? msg : name);
+ catch (  final BaseXException ex) {
+    return error(ex.getMessage());
   }
-  context.update();
-  return info(PATHADDED,name,perf);
 }
