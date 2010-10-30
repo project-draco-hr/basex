@@ -1,9 +1,21 @@
 {
-  new BXCode(){
-    @Override void code(){
-      final String name=root(rp);
+  return new BXCode(){
+    @Override String code(){
       try {
-        cs.create(name,input);
+        final int d=rp.getDepth();
+        if (d == 1) {
+          cs.create(db(rp),input);
+        }
+ else {
+          cs.execute(new Open(db(rp)));
+          final StringBuilder target=new StringBuilder();
+          for (int i=1; i < d; i++) {
+            target.append('/').append(rp.getResource(i));
+          }
+          cs.execute(new Delete(target.toString()));
+          add(input,rp,cs);
+        }
+        return cs.info();
       }
  catch (      final BaseXException ex) {
         throw new JaxRxException(400,ex.getMessage());

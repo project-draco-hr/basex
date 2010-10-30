@@ -1,8 +1,15 @@
 {
-  new BXCode(){
-    @Override void code(){
+  return new BXCode(){
+    @Override String code(){
       try {
-        cs.execute(new DropDB(root(rp)));
+        if (rp.getDepth() == 1) {
+          cs.execute(new DropDB(db(rp)));
+        }
+ else {
+          cs.execute(new Open(db(rp)));
+          cs.execute(new Delete(path(rp)));
+        }
+        return cs.info();
       }
  catch (      final BaseXException ex) {
         throw new JaxRxException(404,ex.getMessage());
