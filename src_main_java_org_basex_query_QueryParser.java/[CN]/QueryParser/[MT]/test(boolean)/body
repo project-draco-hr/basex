@@ -8,11 +8,13 @@
       final Type type=Type.node(new QNm(name));
       if (type != null) {
         tok.reset();
-        while (!consumeWS(PAR2)) {
+        while (!consume(PAR2)) {
           if (curr() == 0)           error(TESTINCOMPLETE);
           tok.add(consume());
         }
-        return Test.get(type,kindTest(type,tok.finish()));
+        skipWS();
+        tok.trim();
+        return tok.size() == 0 ? Test.get(type) : kindTest(type,tok.finish());
       }
     }
  else {

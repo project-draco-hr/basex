@@ -1,15 +1,10 @@
 {
   skipWS();
   final QNm type=new QNm(qName(TYPEINVALID));
-  ctx.ns.uri(type);
+  type.uri(ctx.ns.uri(type.pref(),false,input()));
   skipWS();
-  final Occ occ=consume('?') ? Occ.ZO : Occ.O;
-  final Type t=Type.find(type,false);
-  if (t == null) {
-    final byte[] uri=type.uri().atom();
-    if (uri.length == 0 && type.ns())     error(PREUNKNOWN,type.pref());
-    final String ln=string(type.ln());
-    error(eq(uri,Type.NOT.uri) && ln.equals(Type.NOT.name) || ln.equals(Type.AAT.name) ? CASTUNKNOWN : TYPEUNKNOWN,type);
-  }
-  return SeqType.get(t,occ);
+  final Type t=Type.find(type,true);
+  if (t == Type.AAT || t == Type.NOT)   error(CASTUNKNOWN,type);
+  if (t == null)   error(TYPEUNKNOWN,type);
+  return SeqType.get(t,consume('?') ? Occ.ZO : Occ.O);
 }
