@@ -1,0 +1,25 @@
+{
+  try {
+    BaseXClient session=new BaseXClient("localhost",1984,"admin","admin");
+    try {
+      session.execute("create db testdb");
+      System.out.println(session.info());
+      InputStream bais=new ByteArrayInputStream("<x>Hello World!</x>".getBytes());
+      session.add("world.xml","/world",bais);
+      System.out.println(session.info());
+      bais=new ByteArrayInputStream("<x>Hello Universe!</x>".getBytes());
+      session.add("universe.xml","",bais);
+      System.out.println(session.info());
+      System.out.println();
+      System.out.println(session.execute("xquery collection('testdb')"));
+      session.execute("drop db testdb");
+    }
+ catch (    IOException ex) {
+      ex.printStackTrace();
+    }
+    session.close();
+  }
+ catch (  IOException ex) {
+    ex.printStackTrace();
+  }
+}
