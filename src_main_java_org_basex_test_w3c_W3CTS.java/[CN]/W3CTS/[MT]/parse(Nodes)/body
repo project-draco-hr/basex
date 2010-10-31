@@ -124,30 +124,13 @@
         if (res.length == ao.size() && eq(res,actual))         break;
         if (xml || frag) {
           iter.reset();
-          String ri=string(res).trim();
-          if (!doc) {
-            if (ri.startsWith("<?xml"))             ri=ri.replaceAll("^<.*?>\\s*","");
-            ri="<X>" + ri + "</X>";
-          }
           try {
-            final Data rdata=CreateDB.xml(IO.get(ri),context);
-            final ItemIter ir=new ItemIter();
-            for (int pre=doc ? 0 : 2; pre < rdata.meta.size; ) {
-              ir.add(new DBNode(rdata,pre));
-              pre+=rdata.size(pre,rdata.kind(pre));
-            }
-            boolean eq=FNSimple.deep(null,iter,ir);
-            if (!eq && !doc) {
-              ir.reset();
-              final Data adata=CreateDB.xml(IO.get("<X>" + string(actual) + "</X>"),context);
-              final ItemIter ia=new ItemIter();
-              for (int pre=2; pre < adata.meta.size; ) {
-                ia.add(new DBNode(adata,pre));
-                pre+=adata.size(pre,adata.kind(pre));
-              }
-              eq=FNSimple.deep(null,ia,ir);
-            }
-            if (!eq && debug) {
+            final ItemIter ir=toIter(res,doc);
+            if (FNSimple.deep(null,iter,ir))             break;
+            ir.reset();
+            final ItemIter ia=toIter(actual,doc);
+            if (FNSimple.deep(null,ia,ir))             break;
+            if (debug) {
               iter.reset();
               ir.reset();
               final XMLSerializer ser=new XMLSerializer(System.out);
@@ -158,8 +141,6 @@
               while ((it=iter.next()) != null)               it.serialize(ser);
               Util.outln();
             }
-            rdata.close();
-            if (eq)             break;
           }
  catch (          final IOException ex) {
           }
