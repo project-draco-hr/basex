@@ -1,15 +1,15 @@
 {
-  final Tokenizer ft=(Tokenizer)ind;
+  final FTLexer ft=(FTLexer)ind;
   final byte[] tok=ft.get();
-  if (ft.fz) {
+  if (ft.getFTOpt().is(FZ)) {
     int k=data.meta.prop.num(Prop.LSERROR);
     if (k == 0)     k=tok.length >> 2;
-    return fuzzy(0,null,-1,tok,0,0,0,k,ft.fast);
+    return fuzzy(0,null,-1,tok,0,0,0,k,false);
   }
-  if (ft.wc) {
+  if (ft.getFTOpt().is(WC)) {
     final int pw=indexOf(tok,'.');
-    if (pw != -1)     return wc(tok,pw,ft.fast);
+    if (pw != -1)     return wc(tok,pw,false);
   }
   final int id=cache.id(tok);
-  return id == 0 ? get(0,tok,ft.fast) : iter(cache.getPointer(id),cache.getSize(id),inB,ft.fast);
+  return id == 0 ? get(0,tok,false) : iter(cache.getPointer(id),cache.getSize(id),inB,false);
 }

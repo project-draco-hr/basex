@@ -1,0 +1,31 @@
+{
+  return specialChars ? iteratorSC() : new Iterator<Span>(){
+{
+      init();
+    }
+    int calledHasNext;
+    @Override public boolean hasNext(){
+      if (calledHasNext > 0)       return true;
+      if (more()) {
+        calledHasNext++;
+        return true;
+      }
+      return false;
+    }
+    @Override public Span next(){
+      if (calledHasNext == 0) {
+        if (hasNext()) {
+          return next();
+        }
+        throw new NoSuchElementException();
+      }
+      calledHasNext--;
+      final int left=p;
+      return new Span(get(),left,p,pos);
+    }
+    @Override public void remove(){
+      Util.notimplemented();
+    }
+  }
+;
+}

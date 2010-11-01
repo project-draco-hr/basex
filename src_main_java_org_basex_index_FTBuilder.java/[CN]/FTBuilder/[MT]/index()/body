@@ -10,9 +10,11 @@
       continue;
     }
     if (scm == 2)     unit.add(pre);
-    wp.init(data.text(pre,true));
-    while (wp.more()) {
-      final byte[] tok=wp.get();
+    final FTLexer lex=new FTLexer(data.text(pre,true),wp);
+    lexerPos=-1;
+    while (lex.hasNext()) {
+      final byte[] tok=lex.next().txt;
+      lexerPos++;
       if (tok.length <= MAXLEN && (sw.size() == 0 || sw.id(tok) == 0)) {
         if ((ntok++ & 0xFFF) == 0 && scm == 0 && memFull()) {
           writeIndex(csize++);

@@ -5,10 +5,11 @@
   int xx=r.x;
   int yy=r.y + fh;
   final int ww=r.w;
-  final Tokenizer ftt=new Tokenizer(s,null);
+  final FTLexer ftt=new FTLexer(s,null,null,true);
   int ll=0;
-  while (ftt.moreSC()) {
-    byte[] tok=ftt.nextSC();
+  while (ftt.hasNext()) {
+    final Span span=ftt.next();
+    byte[] tok=span.txt;
     int wl=0;
     for (int n=0; n < tok.length; n+=cl(tok,n))     wl+=BaseXLayout.width(g,cw,cp(tok,n));
     if (ll + wl >= ww) {
@@ -34,11 +35,11 @@
       }
     }
     if (draw) {
-      g.setColor(r.pos != null && r.pos.contains(ftt.pos) && !ftt.isSC() ? COLORFT : textc);
+      g.setColor(r.pos != null && r.pos.contains(span.pos) && !span.specialChar ? COLORFT : textc);
       g.drawString(string(tok),xx + ll,yy);
     }
     ll+=wl;
-    if (ftt.pa) {
+    if (ftt.isParagraph()) {
       ll=0;
       yy+=fh;
       if (yy + fh > r.y + r.h) {

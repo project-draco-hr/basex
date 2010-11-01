@@ -1,0 +1,21 @@
+{
+  final byte[] language=f != null && f.ln != null ? f.ln : LanguageTokens.DEFAULT.ln;
+  boolean supported=false;
+  for (  final Tokenizer tok : TOKENIZERS) {
+    if (tok.isLanguageSupported(language)) {
+      supported=true;
+      break;
+    }
+  }
+  if (supported && f != null && f.isSet(ST) && f.is(ST) && f.sd == null || f == null) {
+    supported=false;
+    for (    final SpanProcessor s : STEMMERS) {
+      if (s.isLanguageSupported(language)) {
+        supported=true;
+        break;
+      }
+    }
+  }
+  if (!supported)   throw new QueryException(null,Err.FTLAN,language);
+  return supported;
+}

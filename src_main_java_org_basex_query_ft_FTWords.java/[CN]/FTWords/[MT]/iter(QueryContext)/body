@@ -6,17 +6,17 @@
     FTIndexIterator iat;
     @Override public FTItem next(){
       if (iat == null) {
-        final Tokenizer ft=new Tokenizer(txt,ctx.ftopt,fast,ctx.context.prop);
-        ft.fast=ft.fast && ft.count() == 1;
-        ft.init();
+        final FTLexer ftlexer=new FTLexer(txt,ctx.context.prop,ctx.ftopt,false);
+        final Iterator<Span> f=ftlexer.iterator();
         int d=0;
-        while (ft.more()) {
-          if (ctx.ftopt.sw != null && ctx.ftopt.sw.id(ft.get()) != 0) {
+        while (f.hasNext()) {
+          final byte[] token=f.next().txt;
+          if (ctx.ftopt.sw != null && ctx.ftopt.sw.id(token) != 0) {
             ++d;
           }
  else {
-            final FTIndexIterator it=(FTIndexIterator)data.ids(ft);
-            iat=iat == null ? it : FTIndexIterator.phrase(iat,it,++d);
+            final FTIndexIterator i=(FTIndexIterator)data.ids((FTLexer)f);
+            iat=iat == null ? i : FTIndexIterator.phrase(iat,i,++d);
             d=0;
           }
         }

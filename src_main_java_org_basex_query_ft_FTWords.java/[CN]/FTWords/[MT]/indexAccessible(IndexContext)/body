@@ -1,21 +1,21 @@
 {
   final MetaData md=ic.data.meta;
   final FTOpt fto=ic.ctx.ftopt;
-  if (txt == null || occ != null || mode != FTMode.M_ANY && mode != FTMode.M_ALL && mode != FTMode.M_PHRASE || md.casesens != fto.is(FTOpt.CS) || md.diacritics != fto.is(FTOpt.DC) || md.stemming != fto.is(FTOpt.ST))   return false;
+  if (txt == null || occ != null || mode != FTMode.M_ANY && mode != FTMode.M_ALL && mode != FTMode.M_PHRASE || md.casesens != fto.is(CS) || md.diacritics != fto.is(DC) || md.stemming != fto.is(ST) || fto.ln != null && !eq(uc(token(md.language)),uc(fto.ln)))   return false;
   if (txt.length == 0) {
     ic.costs=0;
     return true;
   }
-  boolean wc=fto.is(FTOpt.WC);
+  boolean wc=fto.is(WC);
   if (wc) {
     wc=md.wildcards;
     if (!wc)     return false;
   }
-  final Tokenizer ft=new Tokenizer(txt,fto,fast,ic.ctx.context.prop);
+  final FTLexer ft=new FTLexer(txt,ic.ctx.context.prop,fto,false);
   ic.costs=0;
-  while (ft.more()) {
-    final byte[] tok=ft.get();
-    if (tok.length > Token.MAXLEN)     return false;
+  while (ft.hasNext()) {
+    final byte[] tok=ft.next().txt;
+    if (tok.length > MAXLEN)     return false;
     if (fto.sw != null && fto.sw.id(tok) != 0)     continue;
     if (wc) {
       final byte[] t=ft.get();
