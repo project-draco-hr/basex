@@ -1,0 +1,15 @@
+{
+  if (!ctx.user.perm(User.CREATE))   throw new BaseXException(PERMNO,CmdPerm.CREATE);
+  BaseXException bxex=null;
+  final Performance p=new Performance();
+  ctx.lock.before(true);
+  try {
+    ctx.openDB(xml(parser,name,ctx));
+  }
+ catch (  final IOException ex) {
+    bxex=new BaseXException(ex);
+  }
+  ctx.lock.after(true);
+  if (bxex != null)   throw bxex;
+  return Util.info(DBCREATED,name,p);
+}

@@ -1,17 +1,6 @@
 {
-  if (!ctx.user.perm(User.CREATE))   throw new BaseXException(PERMNO,CmdPerm.CREATE);
-  BaseXException bxex=null;
-  final Performance p=new Performance();
   final BufferedInputStream is=new BufferedInputStream(input);
   final SAXSource sax=new SAXSource(new InputSource(is));
-  ctx.lock.before(true);
-  try {
-    ctx.openDB(xml(new SAXWrapper(sax,ctx.prop),name,ctx));
-  }
- catch (  final IOException ex) {
-    bxex=new BaseXException(ex);
-  }
-  ctx.lock.after(true);
-  if (bxex != null)   throw bxex;
-  return Util.info(DBCREATED,name,p);
+  final SAXWrapper sw=new SAXWrapper(sax,ctx.prop);
+  return xml(name,sw,ctx);
 }
