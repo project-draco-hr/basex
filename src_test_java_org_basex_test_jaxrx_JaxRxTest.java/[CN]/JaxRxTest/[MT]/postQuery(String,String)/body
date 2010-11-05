@@ -1,0 +1,19 @@
+{
+  final URL url=new URL(ROOT + path);
+  final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+  conn.setDoOutput(true);
+  conn.setRequestMethod("POST");
+  conn.setRequestProperty("Content-Type","application/query+xml");
+  final OutputStream out=conn.getOutputStream();
+  out.write(Token.token(query));
+  out.close();
+  try {
+    return read(conn.getInputStream()).replaceAll("\r?\n *","");
+  }
+ catch (  final IOException ex) {
+    throw new IOException(read(conn.getErrorStream()));
+  }
+ finally {
+    conn.disconnect();
+  }
+}

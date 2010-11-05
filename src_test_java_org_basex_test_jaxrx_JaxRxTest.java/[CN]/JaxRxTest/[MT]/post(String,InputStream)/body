@@ -1,0 +1,22 @@
+{
+  final URL url=new URL(ROOT + query);
+  final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+  conn.setDoOutput(true);
+  conn.setRequestMethod("POST");
+  conn.setRequestProperty("Content-Type","application/xml");
+  final OutputStream bos=new BufferedOutputStream(conn.getOutputStream());
+  final BufferedInputStream bis=new BufferedInputStream(is);
+  int i;
+  while ((i=bis.read()) != -1)   bos.write(i);
+  bis.close();
+  bos.close();
+  try {
+    return read(conn.getInputStream());
+  }
+ catch (  final IOException ex) {
+    throw new IOException(read(conn.getErrorStream()));
+  }
+ finally {
+    conn.disconnect();
+  }
+}
