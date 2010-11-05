@@ -1,6 +1,6 @@
 {
   final FTLexer quLexer=new FTLexer(q,prop,this);
-  if (quLexer.getFTOpt().is(FZ) && ls == null)   ls=new Levenshtein();
+  if (quLexer.ftOpt().is(FZ) && ls == null)   ls=new Levenshtein();
   query.reset();
   final Iterator<Span> it=quLexer.iterator();
   final ArrayList<Span> qSpanList=new ArrayList<Span>();
@@ -10,14 +10,14 @@
     qSpanList.add(s);
   }
   final Span[] qTokenSpans=qSpanList.toArray(new Span[qSpanList.size()]);
-  final FTOpt to=tk.getFTOpt();
+  final FTOpt to=tk.ftOpt();
   to.set(ST,is(ST));
   to.set(DC,is(DC));
   to.set(CS,is(CS));
   to.ln=ln;
   to.th=th;
   to.sd=sd;
-  final Iterator<Span> inputIter=new FTLexer(tk.getText(),prop,to).iterator();
+  final Iterator<Span> inputIter=new FTLexer(tk.text(),prop,to).iterator();
   final Levenshtein lvs=ls;
   final int lvserr=lserr;
   final Comparator<Span> cmp=new Comparator<Span>(){
@@ -30,9 +30,9 @@
       final byte[] queryTkn=o2.txt;
       if (sw != null && sw.id(queryTkn) != 0)       return 0;
       try {
-        if (quLexer.getFTOpt().is(FZ) ? lvs.similar(inputTkn,queryTkn,lvserr) : quLexer.getFTOpt().is(WC) ? wc(words.input,inputTkn,queryTkn,0,0) : eq(inputTkn,queryTkn))         return 0;
+        if (quLexer.ftOpt().is(FZ) ? lvs.similar(inputTkn,queryTkn,lvserr) : quLexer.ftOpt().is(WC) ? wc(words.input,inputTkn,queryTkn,0,0) : eq(inputTkn,queryTkn))         return 0;
  else         if (th != null) {
-          if (queryExtension == null)           queryExtension=th.find(words.input,quLexer.getText());
+          if (queryExtension == null)           queryExtension=th.find(words.input,quLexer.text());
           for (          final byte[] txt : queryExtension) {
             final FTLexer thWordLexer=new FTLexer(txt,quLexer);
             if (thWordLexer.hasNext() && eq(thWordLexer.next().txt,inputTkn))             return 0;
