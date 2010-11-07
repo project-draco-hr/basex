@@ -10,10 +10,10 @@
       continue;
     }
     if (scm == 2)     unit.add(pre);
-    final FTLexer lex=new FTLexer(data.text(pre,true),wp);
     pos=-1;
+    lex.init(data.text(pre,true));
     while (lex.hasNext()) {
-      final byte[] tok=lex.next().txt;
+      final byte[] tok=lex.nextToken();
       ++pos;
       if (tok.length <= MAXLEN && (sw.size() == 0 || sw.id(tok) == 0)) {
         if ((ntok++ & 0xFFF) == 0 && scm == 0 && memFull()) {
@@ -33,8 +33,8 @@
   token=0;
   write();
   if (scm > 0) {
-    data.meta.ftscmax=max;
-    data.meta.ftscmin=min;
+    data.meta.maxscore=max;
+    data.meta.minscore=min;
   }
   data.meta.ftxindex=true;
   data.meta.dirty=true;

@@ -1,21 +1,11 @@
 {
-  prop=pr;
   fto=opt;
   text=txt;
-  final byte[] lang;
-  final String lstr;
-  if (fto != null && fto.ln != null) {
-    lang=fto.ln;
-  }
- else   if (prop != null && (lstr=pr.get(Prop.FTLANGUAGE)).length() > 0) {
-    lang=token(lstr);
-  }
- else {
-    lang=Language.DEFAULT.ln;
-  }
-  Tokenizer tk=TOKENIZERS.getFirst();
+  Language lang=opt != null ? opt.ln : pr != null ? Language.get(pr.get(Prop.LANGUAGE)) : null;
+  if (lang == null)   lang=Language.DEFAULT;
+  Tokenizer tk=Tokenizer.IMPL.getFirst();
   if (lang != null) {
-    for (    final Tokenizer t : TOKENIZERS) {
+    for (    final Tokenizer t : Tokenizer.IMPL) {
       if (t.supports(lang)) {
         tk=t;
         break;
@@ -23,16 +13,20 @@
     }
   }
   tok=tk.get(txt,pr,opt,sc);
-  iterator=tok.iterator();
-  if (opt != null && opt.isSet(ST) && opt.is(ST) && opt.sd == null || opt == null && pr != null && pr.is(Prop.STEMMING)) {
-    SpanProcessor sp=STEMMERS.getFirst();
-    for (    final SpanProcessor stem : STEMMERS) {
-      if (stem.supports(lang)) {
-        sp=stem;
-        break;
+  iter=tok.iter();
+  if (opt != null ? opt.is(FTFlag.ST) : pr != null && pr.is(Prop.STEMMING)) {
+    if (opt == null || opt.sd == null) {
+      Stemmer st=Stemmer.IMPL.getFirst();
+      for (      final Stemmer stem : Stemmer.IMPL) {
+        if (stem.supports(lang)) {
+          st=stem;
+          break;
+        }
       }
+      iter=st.get(lang).iter(iter);
     }
-    iterator=sp.get(pr,opt).process(iterator);
+ else {
+      iter=new DictStemmer(opt.sd).iter(iter);
+    }
   }
- else   if (opt != null && opt.isSet(ST) && opt.is(ST) && opt.sd != null)   iterator=new DictStemmer(opt.sd).process(iterator);
 }

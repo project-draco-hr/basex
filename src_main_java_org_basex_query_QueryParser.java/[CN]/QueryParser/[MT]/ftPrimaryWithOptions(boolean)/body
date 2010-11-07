@@ -1,9 +1,9 @@
 {
   FTExpr expr=ftPrimary(prg);
-  final FTOpt fto=new FTOpt(ctx.context.prop);
+  final FTOpt fto=new FTOpt();
   boolean found=false;
   while (ftMatchOption(fto))   found=true;
-  FTLexer.checkFTOpt(fto);
+  if (!fto.supported())   error(Err.FTLAN,fto.ln);
   if (consumeWS(WEIGHT))   expr=new FTWeight(input(),expr,enclosed(NOENCLEXPR));
   return found ? new FTOptions(input(),expr,fto) : expr;
 }

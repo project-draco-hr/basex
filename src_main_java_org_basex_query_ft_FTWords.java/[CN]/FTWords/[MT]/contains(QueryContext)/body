@@ -1,7 +1,6 @@
 {
-  final FTOpt opt=ctx.ftopt;
   first=true;
-  if (simple)   return opt.contains(txt,ctx.fttoken,this);
+  if (simple)   return ftt.contains(txt,ctx.fttoken,ctx.ftopt);
   final Iter iter=ctx.iter(query);
   int len=0;
   int o=0;
@@ -9,7 +8,7 @@
 switch (mode) {
 case M_ALL:
     while ((it=nextStr(iter)) != null) {
-      final int oc=opt.contains(it,ctx.fttoken,this);
+      final int oc=ftt.contains(it,ctx.fttoken,ctx.ftopt);
       if (oc == 0)       return 0;
       len+=it.length;
       o+=oc;
@@ -18,7 +17,7 @@ case M_ALL:
 case M_ALLWORDS:
 while ((it=nextStr(iter)) != null) {
   for (  final byte[] t : split(it,' ')) {
-    final int oc=opt.contains(t,ctx.fttoken,this);
+    final int oc=ftt.contains(t,ctx.fttoken,ctx.ftopt);
     if (oc == 0)     return 0;
     len+=t.length;
     o+=oc;
@@ -27,14 +26,14 @@ while ((it=nextStr(iter)) != null) {
 break;
 case M_ANY:
 while ((it=nextStr(iter)) != null) {
-o+=opt.contains(it,ctx.fttoken,this);
+o+=ftt.contains(it,ctx.fttoken,ctx.ftopt);
 len+=it.length;
 }
 break;
 case M_ANYWORD:
 while ((it=nextStr(iter)) != null) {
 for (final byte[] t : split(it,' ')) {
-o+=opt.contains(t,ctx.fttoken,this);
+o+=ftt.contains(t,ctx.fttoken,ctx.ftopt);
 len+=t.length;
 }
 }
@@ -45,7 +44,7 @@ while ((it=nextStr(iter)) != null) {
 tb.add(it);
 tb.add(' ');
 }
-o+=opt.contains(tb.finish(),ctx.fttoken,this);
+o+=ftt.contains(tb.finish(),ctx.fttoken,ctx.ftopt);
 len+=tb.size();
 break;
 }

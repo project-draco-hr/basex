@@ -1,12 +1,12 @@
 {
   final int l=text.length;
   ++pos;
-  lp=p;
+  lp=cpos;
   boolean sn=false;
   pa=false;
   boolean bs=false;
-  for (; p < l; p+=cl(text,p)) {
-    final int c=cp(text,p);
+  for (; cpos < l; cpos+=cl(text,cpos)) {
+    final int c=cp(text,cpos);
     if (wc && !bs) {
       bs=c == '\\';
       if (bs)       continue;
@@ -22,32 +22,32 @@
       ++para;
     }
  else     if (ftChar(c)) {
-      if (bs)       --p;
+      if (bs)       --cpos;
       break;
     }
     bs=false;
   }
-  s=p;
-  if (p == l)   return false;
-  for (; p < l; p+=cl(text,p)) {
-    int c=cp(text,p);
+  spos=cpos;
+  if (cpos == l)   return false;
+  for (; cpos < l; cpos+=cl(text,cpos)) {
+    int c=cp(text,cpos);
     if (wc && !bs) {
       bs=c == '\\';
       if (bs)       continue;
       if (c == '.') {
-        c=p + 1 < l ? text[p + 1] : 0;
+        c=cpos + 1 < l ? text[cpos + 1] : 0;
         if (c == '?' || c == '*' || c == '+') {
-          ++p;
+          ++cpos;
         }
  else         if (c == '{') {
-          while (++p < l && text[p] != '}')           ;
-          if (p == l)           break;
+          while (++cpos < l && text[cpos] != '}')           ;
+          if (cpos == l)           break;
         }
         continue;
       }
     }
     if (!ftChar(c)) {
-      if (bs)       --p;
+      if (bs)       --cpos;
       break;
     }
     bs=false;
