@@ -1,0 +1,23 @@
+{
+  if (masks.length == 0)   return false;
+  if (next)   return pos >= 0;
+  next=true;
+  while (haystack.hasNext()) {
+    final byte[] current=haystack.nextToken();
+    ++pos;
+    boolean matched=false;
+    for (int i=0; i < masks.length; i++) {
+      final int needleId=sorted[i];
+      final byte[][] n=needles.get(needleId);
+      final BitSet m=masks[needleId];
+      for (int k=n.length; k >= 1; k--)       m.set(k,m.get(k - 1) && cmp.equal(current,n[k - 1]));
+      if (m.get(n.length) && !matched) {
+        match=needleId;
+        matched=true;
+      }
+    }
+    if (matched)     return true;
+  }
+  pos=-1;
+  return false;
+}

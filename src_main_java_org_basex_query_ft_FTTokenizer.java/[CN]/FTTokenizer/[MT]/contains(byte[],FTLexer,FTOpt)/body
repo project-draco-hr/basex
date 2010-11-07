@@ -1,8 +1,8 @@
 {
   final FTLexer quLex=new FTLexer(q,prop,fto);
-  final ArrayList<Span> quSpan=new ArrayList<Span>();
-  while (quLex.hasNext())   quSpan.add(quLex.next());
-  final Span[] quTokens=quSpan.toArray(new Span[quSpan.size()]);
+  final TokenList quList=new TokenList();
+  while (quLex.hasNext())   quList.add(quLex.nextToken());
+  final byte[][] quTokens=quList.toArray();
   final FTOpt to=lex.ftOpt();
   to.set(ST,fto.is(ST));
   to.set(DC,fto.is(DC));
@@ -10,44 +10,33 @@
   to.ln=fto.ln;
   to.th=fto.th;
   to.sd=fto.sd;
-  final Comparator<Span> cmp=new Comparator<Span>(){
-    /** 
- * Query term extension with thesaurus terms. 
- */
-    private byte[][] thes;
-    @Override public int compare(    final Span o1,    final Span o2){
-      final byte[] in=o1.text;
-      final byte[] qu=o2.text;
-      if (fto.sw != null && fto.sw.id(qu) != 0)       return 0;
-      try {
-        if (fto.is(FZ) ? ls.similar(in,qu,lserr) : fto.is(WC) ? wc(words.input,in,qu,0,0) : eq(in,qu))         return 0;
-        if (fto.th != null) {
-          if (thes == null)           thes=fto.th.find(words.input,q);
-          for (          final byte[] txt : thes) {
-            quLex.init(txt);
-            if (quLex.hasNext() && eq(quLex.nextToken(),in))             return 0;
-          }
-        }
-      }
- catch (      final QueryException e) {
-        throw new RuntimeException(e);
-      }
-      return 1;
+  final TokenComparator cmp=new TokenComparator(){
+    @Override public boolean equal(    final byte[] t1,    final byte[] t2) throws QueryException {
+      final byte[] in=t1;
+      final byte[] qu=t2;
+      if (fto.sw != null && fto.sw.id(qu) != 0)       return true;
+      return fto.is(FZ) ? ls.similar(in,qu,lserr) : fto.is(WC) ? wc(words.input,in,qu,0,0) : eq(in,qu);
     }
   }
 ;
-  final FTLexer ftl=new FTLexer(lex.text(),prop,to);
-  final BitapSearch<Span> bs=new BitapSearch<Span>(ftl,quTokens,cmp);
-  int c=0;
-  try {
-    while (bs.hasNext()) {
-      final int pos=bs.next();
-      ++c;
-      if (words.add(pos,pos + quTokens.length - 1))       break;
+  final ArrayList<byte[][]> extendedQuTokenList=new ArrayList<byte[][]>(1);
+  extendedQuTokenList.add(quTokens);
+  if (fto.th != null) {
+    final byte[][] extensionTokens=fto.th.find(words.input,quLex.text());
+    for (int i=0; i < extensionTokens.length; i++) {
+      final TokenList tokens=new TokenList();
+      quLex.init(extensionTokens[i]);
+      while (quLex.hasNext())       tokens.add(quLex.nextToken());
+      extendedQuTokenList.add(tokens.toArray());
     }
   }
- catch (  final RuntimeException e) {
-    throw (QueryException)e.getCause();
+  final FTLexer ftl=new FTLexer(lex.text(),prop,to);
+  final FTBitapSearch bs=new FTBitapSearch(ftl,extendedQuTokenList,cmp);
+  int c=0;
+  while (bs.hasNext()) {
+    final int pos=bs.next();
+    ++c;
+    if (words.add(pos,pos + quTokens.length - 1))     break;
   }
   words.all.sTokenNum++;
   words.first=false;
