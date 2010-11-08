@@ -1,3 +1,29 @@
 {
-  this(f,false);
+  fto=opt;
+  Language lang=opt != null ? opt.ln : null;
+  if (lang == null)   lang=Language.DEFAULT;
+  Tokenizer tk=Tokenizer.IMPL.getFirst();
+  for (  final Tokenizer t : Tokenizer.IMPL) {
+    if (t.supports(lang)) {
+      tk=t;
+      break;
+    }
+  }
+  tok=tk.get(opt);
+  iter=tok;
+  if (opt != null && opt.is(FTFlag.ST)) {
+    if (opt.sd == null) {
+      Stemmer st=Stemmer.IMPL.getFirst();
+      for (      final Stemmer stem : Stemmer.IMPL) {
+        if (stem.supports(lang)) {
+          st=stem;
+          break;
+        }
+      }
+      iter=st.get(lang,iter);
+    }
+ else {
+      iter=new DictStemmer(opt.sd,iter);
+    }
+  }
 }
