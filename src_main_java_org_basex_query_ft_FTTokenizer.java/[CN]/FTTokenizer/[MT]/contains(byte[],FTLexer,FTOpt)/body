@@ -12,7 +12,7 @@
   to.sd=fto.sd;
   final TokenComparator cmp=new TokenComparator(){
     @Override public boolean equal(    final byte[] in,    final byte[] qu) throws QueryException {
-      return fto.sw != null && fto.sw.id(qu) != 0 ? true : fto.is(FZ) ? ls.similar(in,qu,lserr) : fto.is(WC) ? wc(words.input,in,qu,0,0) : eq(in,qu);
+      return fto.sw != null && fto.sw.id(qu) != 0 || (fto.is(FZ) ? ls.similar(in,qu,lserr) : fto.is(WC) ? wc(words.input,in,qu,0,0) : eq(in,qu));
     }
   }
 ;
@@ -20,9 +20,9 @@
   extendedQuTokenList.add(quTokens);
   if (fto.th != null) {
     final byte[][] extensionTokens=fto.th.find(words.input,quLex.text());
-    for (int i=0; i < extensionTokens.length; i++) {
+    for (    final byte[] ext : extensionTokens) {
       final TokenList tokens=new TokenList();
-      quLex.init(extensionTokens[i]);
+      quLex.init(ext);
       while (quLex.hasNext())       tokens.add(quLex.nextToken());
       extendedQuTokenList.add(tokens.toArray());
     }
