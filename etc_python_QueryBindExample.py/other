@@ -1,0 +1,16 @@
+import BaseXClient, time
+try:
+    session = BaseXClient.Session('localhost', 1984, 'admin', 'admin')
+    try:
+        input = 'declare variable $n external; for $i in 1 to 10 return <xml> { $n }: { $i } </xml>'
+        query = session.query(input)
+        query.bind('n', 'Number')
+        print query.init()
+        while query.more():
+            print query.next()
+        print query.close()
+    except IOError as e:
+        print e
+    session.close()
+except IOError as e:
+    print e
