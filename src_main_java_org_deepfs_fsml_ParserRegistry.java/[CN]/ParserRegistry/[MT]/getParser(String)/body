@@ -3,11 +3,9 @@
   if (instance == null) {
     final Class<? extends IFileParser> clazz=REGISTRY.get(suffix);
     if (clazz != null) {
-      try {
-        instance=clazz.newInstance();
-      }
- catch (      final Exception ex) {
-        throw new ParserException("Failed to load " + Util.name(clazz) + " for suffix "+ suffix+ "("+ ex.getMessage()+ ")");
+      instance=(IFileParser)Reflect.get(clazz);
+      if (instance == null) {
+        throw new ParserException("Failed to load " + Util.name(clazz) + " for suffix "+ suffix);
       }
     }
     parserInstances.put(suffix,instance);

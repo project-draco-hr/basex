@@ -1,5 +1,5 @@
 {
-  if (reader == null)   return io;
+  if (READER == null)   return io;
   try {
     byte[] content=io.content();
     final ArrayInput ai=new ArrayInput(content);
@@ -16,7 +16,8 @@
     final InputSource is=new InputSource(new ByteArrayInputStream(content));
     is.setEncoding(Charset.isSupported(enc) ? code(enc,null) : UTF8);
     final StringWriter sw=new StringWriter();
-    reader.setContentHandler((ContentHandler)Class.forName("org.ccil.cowan.tagsoup.XMLWriter").getConstructor(new Class[]{Writer.class}).newInstance(sw));
+    final XMLReader reader=(XMLReader)Reflect.get(READER);
+    reader.setContentHandler((ContentHandler)Reflect.get(WRITER,sw));
     reader.parse(is);
     return new IOContent(token(sw.toString()),io.name());
   }

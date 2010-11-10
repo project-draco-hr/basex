@@ -1,19 +1,9 @@
 {
-  if (null == CM)   return;
-  try {
-    Class<?> clazz=Class.forName(CMP);
-    Method m=clazz.getMethod("setCatalogFiles",String.class);
-    m.invoke(CM,cat);
-    m=clazz.getMethod("setIgnoreMissingProperties",boolean.class);
-    m.invoke(CM,true);
-    m=clazz.getMethod("setPreferPublic",boolean.class);
-    m.invoke(CM,true);
-    m=clazz.getMethod("setUseStaticCatalog",boolean.class);
-    m.invoke(CM,false);
-    m=clazz.getMethod("setVerbosity",int.class);
-    m.invoke(CM,0);
-    r.setEntityResolver((EntityResolver)Class.forName(CRP).getConstructor(new Class[]{Class.forName(CMP)}).newInstance(CM));
-  }
- catch (  Exception e) {
-  }
+  if (CM == null)   return;
+  invoke(find(CMP,"setIgnoreMissingProperties",boolean.class),CM,true);
+  invoke(find(CMP,"setCatalogFiles",String.class),CM,cat);
+  invoke(find(CMP,"setPreferPublic",boolean.class),CM,true);
+  invoke(find(CMP,"setUseStaticCatalog",boolean.class),CM,false);
+  invoke(find(CMP,"setVerbosity",int.class),CM,0);
+  r.setEntityResolver((EntityResolver)get(CRP,CM));
 }
