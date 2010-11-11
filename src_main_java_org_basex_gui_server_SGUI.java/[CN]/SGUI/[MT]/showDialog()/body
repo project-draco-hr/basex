@@ -1,0 +1,52 @@
+{
+  final JDialog dialog=new JDialog(this,"Connection Properties",true);
+  dialog.setSize(new Dimension(400,250));
+  dialog.setLocationRelativeTo(this);
+  dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+  BaseXBack connection=new BaseXBack();
+  connection.setLayout(new TableLayout(7,2));
+  final BaseXTextField sname=new BaseXTextField(this);
+  final BaseXTextField sport=new BaseXTextField(this);
+  final BaseXTextField suser=new BaseXTextField(this);
+  final BaseXPassword spw=new BaseXPassword(this);
+  final BaseXLabel message=new BaseXLabel();
+  connection.setBorder(8,8,8,8);
+  connection.add(new BaseXLabel("Server: "));
+  connection.add(sname);
+  connection.add(new BaseXLabel("Port: "));
+  connection.add(sport);
+  connection.add(new BaseXLabel("Username: "));
+  connection.add(suser);
+  connection.add(new BaseXLabel("Password: "));
+  connection.add(spw);
+  BaseXButton connect=new BaseXButton("Connect",this);
+  connection.add(new BaseXLabel("       "));
+  connection.add(connect);
+  connection.add(new BaseXLabel("       "));
+  connection.add(new BaseXLabel("       "));
+  connection.add(new BaseXLabel(""));
+  connection.add(message);
+  connect.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      try {
+        final int p=Integer.parseInt(sport.getText());
+        client=new ClientSession(sname.getText(),p,suser.getText(),new String(spw.getPassword()));
+        servertitle="Server - " + suser.getText() + "@"+ sname.getText()+ ":"+ sport.getText();
+      }
+ catch (      IOException e1) {
+        message.setText("Connection failed.");
+      }
+catch (      NumberFormatException ne) {
+        message.setText("Port has to be a number.");
+      }
+      if (client != null) {
+        System.out.println("TEST");
+        dialog.dispose();
+        addComponents();
+      }
+    }
+  }
+);
+  dialog.getContentPane().add(connection);
+  dialog.setVisible(true);
+}
