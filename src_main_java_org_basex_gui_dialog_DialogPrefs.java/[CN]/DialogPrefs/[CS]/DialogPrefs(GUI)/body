@@ -1,12 +1,10 @@
 {
   super(main,PREFSTITLE);
-  final BaseXBack pp=new BaseXBack();
-  pp.setLayout(new TableLayout(11,1));
+  final BaseXBack pp=new BaseXBack(new TableLayout(11,1));
   pp.add(new BaseXLabel(DATABASEPATH,true,true));
-  BaseXBack p=new BaseXBack();
-  p.setLayout(new TableLayout(1,2,6,0));
+  BaseXBack p=new BaseXBack(new TableLayout(1,2,6,0));
   final Prop prop=gui.context.prop;
-  final GUIProp gprop=gui.prop;
+  final GUIProp gprop=gui.gprop;
   path=new BaseXTextField(prop.get(Prop.DBPATH),this);
   path.addKeyListener(keys);
   final BaseXButton button=new BaseXButton(BUTTONBROWSE,this);
@@ -20,9 +18,7 @@
   p.add(path);
   p.add(button);
   pp.add(p);
-  BaseXLabel label=new BaseXLabel(PREFINTER,true,true);
-  label.setBorder(10,0,8,0);
-  pp.add(label);
+  pp.add(new BaseXLabel(PREFINTER,true,true).border(10,0,8,0));
   javalook=new BaseXCheckBox(PREFLF,gprop.is(GUIProp.JAVALOOK),this);
   pp.add(javalook);
   focus=new BaseXCheckBox(PREFFOCUS,gprop.is(GUIProp.MOUSEFOCUS),this);
@@ -33,16 +29,14 @@
   final Data data=gui.context.data;
   names.setEnabled(data != null && data.fs == null && data.nameID != 0);
   pp.add(names);
-  label=new BaseXLabel(PREFLANG,true,true);
-  pp.add(label);
-  p=new BaseXBack();
-  p.setLayout(new TableLayout(1,2,12,0));
-  lang=new BaseXCombo(LANGS[0],this);
+  pp.add(new BaseXLabel(PREFLANG,true,true));
+  p=new BaseXBack(new TableLayout(1,2,12,0));
+  lang=new BaseXCombo(this,LANGS[0]);
   lang.setSelectedItem(prop.get(Prop.LANG));
   p.add(lang);
   creds=new BaseXLabel();
   p.add(creds);
-  creds.setText(TRANSLATION + creds(lang.getSelectedItem().toString()));
+  creds.setText(TRANSLATION + creds(lang.getSelectedItem()));
   pp.add(p);
   buttons=okCancel(this);
   set(buttons,BorderLayout.SOUTH);

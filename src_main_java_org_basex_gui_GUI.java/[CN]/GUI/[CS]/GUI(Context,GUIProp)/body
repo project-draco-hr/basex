@@ -1,25 +1,21 @@
 {
   super(ctx,gprops,Text.TITLE);
   final Dimension scr=Toolkit.getDefaultToolkit().getScreenSize();
-  final int[] ps=prop.nums(GUIProp.GUILOC);
-  final int[] sz=prop.nums(GUIProp.GUISIZE);
+  final int[] ps=gprop.nums(GUIProp.GUILOC);
+  final int[] sz=gprop.nums(GUIProp.GUISIZE);
   final int x=Math.max(0,Math.min(scr.width - sz[0],ps[0]));
   final int y=Math.max(0,Math.min(scr.height - sz[1],ps[1]));
   setBounds(x,y,sz[0],sz[1]);
-  if (prop.is(GUIProp.MAXSTATE)) {
+  if (gprop.is(GUIProp.MAXSTATE)) {
     setExtendedState(MAXIMIZED_HORIZ);
     setExtendedState(MAXIMIZED_VERT);
     setExtendedState(MAXIMIZED_BOTH);
   }
-  top=new BaseXBack();
-  top.setLayout(new BorderLayout());
-  control=new BaseXBack();
-  control.setLayout(new BorderLayout());
-  control.setBorder(0,0,0,1);
+  top=new BaseXBack(new BorderLayout());
+  control=new BaseXBack(new BorderLayout());
   menu=new GUIMenu(this);
-  if (prop.is(GUIProp.SHOWMENU))   setJMenuBar(menu);
-  buttons=new BaseXBack();
-  buttons.setLayout(new BorderLayout());
+  if (gprop.is(GUIProp.SHOWMENU))   setJMenuBar(menu);
+  buttons=new BaseXBack(new BorderLayout());
   toolbar=new GUIToolBar(TOOLBAR,this);
   buttons.add(toolbar,BorderLayout.WEST);
   hits=new BaseXLabel(" ");
@@ -29,17 +25,15 @@
   BaseXBack b=new BaseXBack();
   b.add(hits);
   buttons.add(b,BorderLayout.EAST);
-  if (prop.is(GUIProp.SHOWBUTTONS))   control.add(buttons,BorderLayout.CENTER);
-  nav=new BaseXBack();
-  nav.setLayout(new BorderLayout(5,0));
-  nav.setBorder(2,2,0,2);
-  mode=new BaseXCombo(new String[]{BUTTONSEARCH,BUTTONXQUERY,BUTTONCMD},this);
+  if (gprop.is(GUIProp.SHOWBUTTONS))   control.add(buttons,BorderLayout.CENTER);
+  nav=new BaseXBack(new BorderLayout(5,0)).border(2,2,0,2);
+  mode=new BaseXCombo(this,BUTTONSEARCH,BUTTONXQUERY,BUTTONCMD);
   mode.setSelectedIndex(2);
   mode.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       final int s=mode.getSelectedIndex();
-      if (s == prop.num(GUIProp.SEARCHMODE) || !mode.isEnabled())       return;
-      prop.set(GUIProp.SEARCHMODE,s);
+      if (s == gprop.num(GUIProp.SEARCHMODE) || !mode.isEnabled())       return;
+      gprop.set(GUIProp.SEARCHMODE,s);
       input.setText("");
       refreshControls();
     }
@@ -59,8 +53,8 @@
         }
       }
 ;
-      final int i=context.data == null ? 2 : prop.num(GUIProp.SEARCHMODE);
-      final String[] hs=i == 0 ? prop.strings(GUIProp.SEARCH) : i == 1 ? prop.strings(GUIProp.XQUERY) : prop.strings(GUIProp.COMMANDS);
+      final int i=context.data == null ? 2 : gprop.num(GUIProp.SEARCHMODE);
+      final String[] hs=i == 0 ? gprop.strings(GUIProp.SEARCH) : i == 1 ? gprop.strings(GUIProp.XQUERY) : gprop.strings(GUIProp.COMMANDS);
       for (      final String en : hs) {
         final JMenuItem jmi=new JMenuItem(en);
         jmi.addActionListener(al);
@@ -70,8 +64,7 @@
     }
   }
 );
-  b=new BaseXBack();
-  b.setLayout(new BorderLayout(5,0));
+  b=new BaseXBack(new BorderLayout(5,0));
   b.add(hist,BorderLayout.WEST);
   b.add(input,BorderLayout.CENTER);
   nav.add(b,BorderLayout.CENTER);
@@ -83,13 +76,12 @@
   }
 );
   filter=BaseXButton.command(GUICommands.FILTER,this);
-  b=new BaseXBack();
-  b.setLayout(new TableLayout(1,3));
+  b=new BaseXBack(new TableLayout(1,3));
   b.add(go);
   b.add(Box.createHorizontalStrut(1));
   b.add(filter);
   nav.add(b,BorderLayout.EAST);
-  if (prop.is(GUIProp.SHOWINPUT))   control.add(nav,BorderLayout.SOUTH);
+  if (gprop.is(GUIProp.SHOWINPUT))   control.add(nav,BorderLayout.SOUTH);
   top.add(control,BorderLayout.NORTH);
   notify=new ViewNotifier(this);
   text=new TextView(notify);
@@ -99,7 +91,7 @@
   top.add(views,BorderLayout.CENTER);
   setContentBorder();
   status=new GUIStatus(this);
-  if (prop.is(GUIProp.SHOWSTATUS))   top.add(status,BorderLayout.SOUTH);
+  if (gprop.is(GUIProp.SHOWSTATUS))   top.add(status,BorderLayout.SOUTH);
   setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
   add(top);
   setVisible(true);

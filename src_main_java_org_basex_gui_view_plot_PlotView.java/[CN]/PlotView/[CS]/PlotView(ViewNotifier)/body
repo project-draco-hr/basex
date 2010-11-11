@@ -1,32 +1,30 @@
 {
   super(PLOTVIEW,HELPPLOT,man);
-  setLayout(new BorderLayout());
-  setBorder(5,5,5,5);
-  final BaseXBack panel=new BaseXBack(Fill.NONE);
-  panel.setLayout(new BorderLayout());
+  border(5,5,5,5).layout(new BorderLayout());
+  final BaseXBack panel=new BaseXBack(Fill.NONE).layout(new BorderLayout());
   Box box=new Box(BoxLayout.X_AXIS);
   xLog=new BaseXCheckBox(PLOTLOG,false,null);
-  xLog.setSelected(gui.prop.is(GUIProp.PLOTXLOG));
+  xLog.setSelected(gui.gprop.is(GUIProp.PLOTXLOG));
   xLog.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      gui.prop.invert(GUIProp.PLOTXLOG);
+      gui.gprop.invert(GUIProp.PLOTXLOG);
       refreshUpdate();
     }
   }
 );
   dots=new BaseXSlider(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      gui.prop.set(GUIProp.PLOTDOTS,dots.value());
+      gui.gprop.set(GUIProp.PLOTDOTS,dots.value());
       refreshLayout();
     }
   }
-,-6,6,gui.prop.num(GUIProp.PLOTDOTS),gui);
+,-6,6,gui.gprop.num(GUIProp.PLOTDOTS),gui);
   BaseXLayout.setWidth(dots,40);
   yLog=new BaseXCheckBox(PLOTLOG,false,null);
-  yLog.setSelected(gui.prop.is(GUIProp.PLOTYLOG));
+  yLog.setSelected(gui.gprop.is(GUIProp.PLOTYLOG));
   yLog.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      gui.prop.invert(GUIProp.PLOTYLOG);
+      gui.gprop.invert(GUIProp.PLOTYLOG);
       refreshUpdate();
     }
   }
@@ -38,26 +36,26 @@
   box.add(xLog);
   panel.add(box,BorderLayout.NORTH);
   box=new Box(BoxLayout.X_AXIS);
-  xCombo=new BaseXCombo(new String[]{},gui);
+  xCombo=new BaseXCombo(gui);
   xCombo.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       setAxis(plotData.xAxis,xCombo);
     }
   }
 );
-  yCombo=new BaseXCombo(new String[]{},gui);
+  yCombo=new BaseXCombo(gui);
   yCombo.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       setAxis(plotData.yAxis,yCombo);
     }
   }
 );
-  itemCombo=new BaseXCombo(new String[]{},gui);
+  itemCombo=new BaseXCombo(gui);
   itemCombo.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       final String item=(String)itemCombo.getSelectedItem();
-      plotData.xAxis.log=gui.prop.is(GUIProp.PLOTXLOG);
-      plotData.yAxis.log=gui.prop.is(GUIProp.PLOTYLOG);
+      plotData.xAxis.log=gui.gprop.is(GUIProp.PLOTXLOG);
+      plotData.yAxis.log=gui.gprop.is(GUIProp.PLOTYLOG);
       if (plotData.setItem(item)) {
         plotChanged=true;
         markingChanged=true;
