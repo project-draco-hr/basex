@@ -1,8 +1,8 @@
 {
   final String f=text ? DATATXT : DATAATV;
-  final DataOutput outl=new DataOutput(data.meta.file(f + 'l'));
-  final DataOutput outr=new DataOutput(data.meta.file(f + 'r'));
-  outl.write4(0);
+  final DataOutput outL=new DataOutput(data.meta.file(f + 'l'));
+  final DataOutput outR=new DataOutput(data.meta.file(f + 'r'));
+  outL.write4(0);
   final ValueMerge[] vm=new ValueMerge[csize];
   for (int i=0; i < csize; ++i)   vm[i]=new ValueMerge(data,text,i);
   int min;
@@ -11,7 +11,7 @@
   while (check(vm)) {
     checkStop();
     ++sz;
-    outr.write5(outl.size());
+    outR.write5(outL.size());
     min=0;
     ml.reset();
     for (int i=0; i < csize; ++i) {
@@ -28,7 +28,7 @@
     }
     final int ms=ml.size();
     if (ms == 0) {
-      write(outl,vm[min].pre);
+      write(outL,vm[min].pre);
       vm[min].next();
     }
  else {
@@ -62,10 +62,10 @@
       }
       final byte[] tmp=tb.finish();
       Num.size(tmp,tmp.length);
-      write(outl,tmp);
+      write(outL,tmp);
     }
   }
-  outr.close();
-  outl.close();
+  outR.close();
+  outL.close();
   return sz;
 }

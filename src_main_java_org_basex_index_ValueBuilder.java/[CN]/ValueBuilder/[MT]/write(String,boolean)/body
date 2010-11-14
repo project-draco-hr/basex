@@ -1,20 +1,20 @@
 {
-  final DataOutput outl=new DataOutput(data.meta.file(name + 'l'));
-  final DataOutput outr=new DataOutput(data.meta.file(name + 'r'));
-  outl.write4(index.size());
+  final DataOutput outL=new DataOutput(data.meta.file(name + 'l'));
+  final DataOutput outR=new DataOutput(data.meta.file(name + 'r'));
+  outL.write4(index.size());
   index.init();
   while (index.more()) {
-    outr.write5(outl.size());
+    outR.write5(outL.size());
     final int i=index.next();
     final byte[] pres=index.pres.get(i);
     final int is=Num.size(pres);
     if (all) {
       int v=0;
       for (int ip=4; ip < is; ip+=Num.len(pres,ip))       ++v;
-      outl.writeNum(v);
+      outL.writeNum(v);
       for (int ip=4, o=0; ip < is; ip+=Num.len(pres,ip)) {
         final int p=Num.read(pres,ip);
-        outl.writeNum(p - o);
+        outL.writeNum(p - o);
         o=p;
       }
     }
@@ -26,15 +26,15 @@
         Num.add(tmp,p - o);
         o=p;
       }
-      outl.write(tmp,0,Num.size(tmp));
+      outL.write(tmp,0,Num.size(tmp));
     }
   }
-  outl.close();
-  outr.close();
+  outL.close();
+  outR.close();
   if (!all) {
-    final DataOutput outt=new DataOutput(data.meta.file(name + 't'));
+    final DataOutput outT=new DataOutput(data.meta.file(name + 't'));
     index.init();
-    while (index.more())     outt.writeToken(index.tokens.get(index.next()));
-    outt.close();
+    while (index.more())     outT.writeToken(index.tokens.get(index.next()));
+    outT.close();
   }
 }
