@@ -1,0 +1,24 @@
+{
+  final InputStream input=conn.getInputStream();
+  final int contentLength=conn.getContentLength();
+  if (contentLength != -1) {
+    final byte[] content=new byte[contentLength];
+    try {
+      input.read(content);
+    }
+  finally {
+      input.close();
+    }
+    return content;
+  }
+  final TokenBuilder tb=new TokenBuilder();
+  final BufferedInputStream bufInput=new BufferedInputStream(input);
+  int i=0;
+  try {
+    while ((i=bufInput.read()) != -1)     tb.addByte((byte)i);
+  }
+  finally {
+    bufInput.close();
+  }
+  return tb.finish();
+}
