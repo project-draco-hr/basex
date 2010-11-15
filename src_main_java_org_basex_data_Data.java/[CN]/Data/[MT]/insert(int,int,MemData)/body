@@ -24,26 +24,25 @@
     final int dis=mpar >= 0 ? mpre - mpar : pre - ipar;
     final int par=pre - dis;
     if (mpre == 0) {
-      final List<NSNode> candidates=new LinkedList<NSNode>();
+      final List<NSNode> cand=new LinkedList<NSNode>();
       NSNode cn=ns.rootDummy;
-      candidates.add(cn);
-      int cI=0;
+      cand.add(cn);
+      int cI;
       while ((cI=cn.fnd(par)) > -1) {
-        final NSNode ch=cn.ch[cI];
-        candidates.add(0,ch);
-        cn=ch;
+        cn=cn.ch[cI];
+        cand.add(0,cn);
       }
       cn=ns.rootDummy;
-      if (candidates.size() > 1) {
+      if (cand.size() > 1) {
         int ancPre=par;
-        NSNode currCandidate=candidates.remove(0);
-        while (ancPre > -1 && cn.equals(ns.rootDummy)) {
-          if (currCandidate.pre == ancPre)           cn=currCandidate;
- else           if (currCandidate.pre < ancPre) {
-            while ((ancPre=parent(ancPre,kind(ancPre))) > currCandidate.pre)             ;
-            if (currCandidate.pre == ancPre)             cn=currCandidate;
+        NSNode curr=cand.remove(0);
+        while (ancPre > -1 && cn == ns.rootDummy) {
+          if (curr.pre == ancPre)           cn=curr;
+ else           if (curr.pre < ancPre) {
+            while ((ancPre=parent(ancPre,kind(ancPre))) > curr.pre)             ;
+            if (curr.pre == ancPre)             cn=curr;
           }
-          if (candidates.size() > 0)           currCandidate=candidates.remove(0);
+          if (cand.size() > 0)           curr=cand.remove(0);
         }
       }
       ns.setNearestRoot(cn,par);
