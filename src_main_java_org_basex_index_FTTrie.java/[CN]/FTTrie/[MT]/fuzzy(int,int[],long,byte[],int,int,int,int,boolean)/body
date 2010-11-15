@@ -1,12 +1,12 @@
 {
-  byte[] vsn=sn;
+  byte[] vsn=token;
   int[] cne=crne;
   long cdid=crdid;
   if (cne == null) {
-    cne=entry(cn);
-    cdid=did;
+    cne=entry(id);
+    cdid=currID;
   }
-  if (cn != 0) {
+  if (id != 0) {
     int i=0;
     while (i < vsn.length && i < cne[0] && cne[i + 1] == vsn[i])     ++i;
     if (cne[0] == i) {
@@ -24,7 +24,7 @@
       if (c > d + p + r) {
         b=new byte[vsn.length - 1];
         System.arraycopy(vsn,0,b,0,i);
-        ld=FTIndexIterator.union(fuzzy(cn,cne,cdid,b,d + 1,p,r,c,f),ld);
+        ld=FTIndexIterator.union(fuzzy(id,cne,cdid,b,d + 1,p,r,c,f),ld);
       }
       final byte[] tmp=new byte[vsn.length - i];
       System.arraycopy(vsn,i,tmp,0,tmp.length);
@@ -34,7 +34,7 @@
       for (int k=cne[0] + 1; k < cne.length - 1; k+=2) {
         if (cne[k + 1] == vsn[0]) {
           ne=entry(cne[k]);
-          tdid=did;
+          tdid=currID;
           b=new byte[vsn.length];
           System.arraycopy(vsn,0,b,0,vsn.length);
           ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r,c,f),ld);
@@ -42,7 +42,7 @@
         if (c > d + p + r) {
           if (ne == null) {
             ne=entry(cne[k]);
-            tdid=did;
+            tdid=currID;
           }
           b=new byte[vsn.length + 1];
           b[0]=(byte)cne[k + 1];
@@ -67,17 +67,17 @@
       System.arraycopy(vsn,0,b,0,i);
       b[i]=(byte)cne[i + 1];
       System.arraycopy(vsn,i,b,i + 1,vsn.length - i);
-      ld=fuzzy(cn,cne,cdid,b,d,p + 1,r,c,f);
+      ld=fuzzy(id,cne,cdid,b,d,p + 1,r,c,f);
       if (vsn.length > 0 && i < vsn.length) {
         b=new byte[vsn.length];
         System.arraycopy(vsn,0,b,0,vsn.length);
         b[i]=(byte)cne[i + 1];
-        ld=FTIndexIterator.union(fuzzy(cn,cne,cdid,b,d,p,r + 1,c,f),ld);
+        ld=FTIndexIterator.union(fuzzy(id,cne,cdid,b,d,p,r + 1,c,f),ld);
         if (vsn.length > 1) {
           b=new byte[vsn.length - 1];
           System.arraycopy(vsn,0,b,0,i);
           System.arraycopy(vsn,i + 1,b,i,vsn.length - i - 1);
-          ld=FTIndexIterator.union(fuzzy(cn,cne,cdid,b,d + 1,p,r,c,f),ld);
+          ld=FTIndexIterator.union(fuzzy(id,cne,cdid,b,d + 1,p,r,c,f),ld);
         }
       }
     }
@@ -90,7 +90,7 @@
   for (int k=cne[0] + 1; k < cne.length - 1; k+=2) {
     if (cne[k + 1] == vsn[0]) {
       ne=entry(cne[k]);
-      tdid=did;
+      tdid=currID;
       b=new byte[vsn.length];
       System.arraycopy(vsn,0,b,0,vsn.length);
       ld=FTIndexIterator.union(fuzzy(cne[k],ne,tdid,b,d,p,r,c,f),ld);
@@ -98,7 +98,7 @@
     if (c > d + p + r) {
       if (ne == null) {
         ne=entry(cne[k]);
-        tdid=did;
+        tdid=currID;
       }
       b=new byte[vsn.length + 1];
       b[0]=(byte)ne[1];
