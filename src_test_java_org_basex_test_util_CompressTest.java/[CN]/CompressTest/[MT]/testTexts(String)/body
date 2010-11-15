@@ -1,0 +1,19 @@
+{
+  final Context ctx=new Context();
+  final String query="let $doc := doc('" + file + "')"+ "for $i in $doc//(@hohoho | text()) return data($i)";
+  final TokenList tl=new TokenList();
+  final TokenBuilder tb=new TokenBuilder();
+  final QueryProcessor qp=new QueryProcessor(query,ctx);
+  final Iter ir=qp.iter();
+  Item it=null;
+  while ((it=ir.next()) != null) {
+    final byte[] token=it.atom();
+    tl.add(token);
+    tb.add(token);
+    tb.add(' ');
+  }
+  qp.close();
+  test(tl.toArray());
+  test(tb.finish());
+  ctx.close();
+}

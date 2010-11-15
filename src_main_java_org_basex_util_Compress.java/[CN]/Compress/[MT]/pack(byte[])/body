@@ -1,0 +1,30 @@
+{
+  final int tl=txt.length;
+  if (tl <= min)   return txt;
+  bl.reset();
+  Num.write(bl.list,tl,0);
+  bl.size=Num.len(tl);
+  v=0;
+  o=0;
+  for (int t=0; t < tl; t++) {
+    int b=txt[t];
+    if (b >= 0)     b=PACK[b];
+    if (b >= 0x00 && b < 0x08) {
+      push(1 + (b << 1),4);
+    }
+ else     if (b >= 0x08 && b < 0x10) {
+      push(2 + (b << 2),5);
+    }
+ else     if (b >= 0x10 && b < 0x20) {
+      push(4 + (b << 3),7);
+    }
+ else     if (b >= 0x20 && b < 0x40) {
+      push(8 + (b << 4),9);
+    }
+ else {
+      push(b << 4,12);
+    }
+  }
+  if (o != 0)   bl.add((byte)v);
+  return bl.size() > tl ? txt : bl.toArray();
+}

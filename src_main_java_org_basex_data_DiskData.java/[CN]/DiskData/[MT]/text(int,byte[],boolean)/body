@@ -5,14 +5,11 @@
   }
  else {
     final DataAccess da=txt ? texts : values;
-    long o=textOff(pre);
-    if (!num(o) && val.length <= textLen(pre,txt)) {
-      da.writeBytes(o,val);
-    }
- else {
-      if (num(o) || da.readNum(o) + da.pos() != da.length())       o=da.length();
-      da.writeBytes(o,val);
-      textOff(pre,o);
-    }
+    long o=textOff(pre) & IO.CPROFF - 1;
+    final byte[] cpr=comp.pack(val);
+    final boolean cp=cpr != val;
+    if (num(o) || cpr.length > da.readNum(o) && da.readNum(o) + da.pos() != da.length())     o=da.length();
+    da.writeBytes(o,cpr);
+    textOff(pre,o | (cp ? IO.CPROFF : 0));
   }
 }
