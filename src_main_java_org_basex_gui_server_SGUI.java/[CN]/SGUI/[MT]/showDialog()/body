@@ -5,9 +5,9 @@
   dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
   BaseXBack connection=new BaseXBack();
   connection.setLayout(new TableLayout(7,2));
-  final BaseXTextField sname=new BaseXTextField(this);
-  final BaseXTextField sport=new BaseXTextField(this);
-  final BaseXTextField suser=new BaseXTextField(this);
+  final BaseXTextField sname=new BaseXTextField("localhost",this);
+  final BaseXTextField sport=new BaseXTextField("1984",this);
+  final BaseXTextField suser=new BaseXTextField("admin",this);
   final BaseXPassword spw=new BaseXPassword(this);
   final BaseXLabel message=new BaseXLabel();
   connection.border(8,8,8,8);
@@ -31,7 +31,7 @@
       try {
         final int p=Integer.parseInt(sport.getText());
         client=new ClientSession(sname.getText(),p,suser.getText(),new String(spw.getPassword()));
-        servertitle="Server - " + suser.getText() + "@"+ sname.getText()+ ":"+ sport.getText();
+        title="Server - " + suser.getText() + "@"+ sname.getText()+ ":"+ sport.getText();
       }
  catch (      IOException e1) {
         message.setText("Connection failed.");
@@ -41,7 +41,12 @@ catch (      NumberFormatException ne) {
       }
       if (client != null) {
         dialog.dispose();
-        addComponents();
+        try {
+          addComponents();
+        }
+ catch (        BaseXException ex) {
+          ex.printStackTrace();
+        }
       }
     }
   }
