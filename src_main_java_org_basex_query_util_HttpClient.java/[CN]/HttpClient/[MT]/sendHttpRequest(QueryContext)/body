@@ -2,11 +2,16 @@
   try {
     final URL url=new URL(string(reqAttrs.get(HREF)));
     final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
-    setConnectionProps(conn);
-    setHttpRequestHeaders(conn);
-    if (body != null)     setHttpRequestContent(conn);
-    conn.disconnect();
-    return getHttpResponse(conn,ctx);
+    try {
+      setConnectionProps(conn);
+      setHttpRequestHeaders(conn);
+      if (body != null)       setHttpRequestContent(conn);
+      conn.getResponseCode();
+      return getHttpResponse(conn,ctx);
+    }
+  finally {
+      conn.disconnect();
+    }
   }
  catch (  MalformedURLException ex) {
     throw new QueryException(info,URLINV,ex);
