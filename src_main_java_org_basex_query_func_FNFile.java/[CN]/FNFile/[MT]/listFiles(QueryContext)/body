@@ -1,6 +1,15 @@
 {
   final String path=string(checkStr(expr[0],ctx));
   final String pattern;
+  final File dir=new File(path);
+  if (!dir.exists()) {
+    DIRNOTEXISTS.thrw(input,path);
+    return null;
+  }
+  if (!dir.isDirectory()) {
+    NOTDIR.thrw(input,path);
+    return null;
+  }
   final boolean recursive=expr.length > 1 && checkType(expr[1].item(ctx,input),Type.BLN).bool(input);
   try {
     pattern=expr.length != 3 ? null : IOFile.regex(string(checkStr(expr[2],ctx)));
@@ -9,7 +18,7 @@
     FILEPATTERN.thrw(input,expr[1]);
     return null;
   }
-  final List<File> files=recursive ? listRecursively(new File(path)) : Arrays.asList(new File(path).listFiles());
+  final List<File> files=recursive ? listRecursively(dir) : Arrays.asList(dir.listFiles());
   if (files == null)   FILELIST.thrw(input,path);
   return new Iter(){
     int c=-1;
