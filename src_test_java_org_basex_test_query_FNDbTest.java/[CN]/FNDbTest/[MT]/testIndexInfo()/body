@@ -1,0 +1,15 @@
+{
+  args("db:index-info",String.class);
+  final String[] types={"text","attribute","fulltext"};
+  for (  final String type : types)   new DropIndex(type).execute(CTX);
+  for (  final String type : types) {
+    error("db:index-info('" + type + "')","BASX0001");
+  }
+  for (  final String type : types)   new CreateIndex(type).execute(CTX);
+  for (  final String type : types)   query("db:index-info('" + type + "')");
+  query("db:index-info('tag')");
+  query("db:index-info('attname')");
+  new Close().execute(CTX);
+  contains("db:open('db')/db:index-info('tag')",":");
+  error("db:index-info('tag')","BASX0002");
+}

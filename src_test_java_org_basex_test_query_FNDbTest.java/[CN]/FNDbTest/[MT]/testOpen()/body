@@ -1,0 +1,15 @@
+{
+  new Close().execute(CTX);
+  args("db:open",String.class);
+  query("count(db:open('db'))","1");
+  query("count(db:open('db/'))","1");
+  query("count(db:open(<a>db</a>))","1");
+  query("count(db:open('db/x'))","0");
+  query("db:open('db')//title/text()","XML");
+  query("db:open-pre('db', 0)//title/text()","XML");
+  query("db:open-id('db', 0)//title/text()","XML");
+  error("db:open-pre('db', -1)","BASX0004");
+  error("db:open-id('db', -1)","BASX0004");
+  new DropDB("db").execute(CTX);
+  error("db:open('db')","BASX0003");
+}
