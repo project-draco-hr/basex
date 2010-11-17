@@ -9,9 +9,14 @@
     final String pw=in.readString();
     context.user=context.users.get(us);
     final boolean ok=context.user != null && md5(string(context.user.password) + ts).equals(pw);
+    if (ok) {
+      start();
+    }
+ else     if (!us.isEmpty()) {
+      log.write(this,"LOGIN " + us,"failed");
+      Performance.sleep(2000);
+    }
     send(ok);
-    if (ok)     start();
- else     if (!us.isEmpty())     log.write(this,"LOGIN " + us,"failed");
     return ok;
   }
  catch (  final IOException ex) {
