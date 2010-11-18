@@ -1,23 +1,21 @@
 {
-  final Performance p=new Performance();
   String db=args[0];
-  File file=null;
+  if (!checkName(db))   return error(NAMEINVALID,db);
+  if (context.data != null && db.equals(context.data.meta.name))   new Close().run(context);
+  if (context.pinned(db))   return error(DBLOCKED,db);
   final int i=db.indexOf("-");
+  String name=null;
   if (i == -1) {
-    for (    final File f : new File(prop.get(Prop.DBPATH)).listFiles()) {
-      final String n=f.getName();
-      if (n.startsWith(db) && n.endsWith(IO.ZIPSUFFIX)) {
-        if (file == null || file.lastModified() < f.lastModified())         file=f;
-      }
-    }
-    if (file == null)     return error("No Backup found for '" + db + "'");
+    final StringList list=list(db + '-',context);
+    if (list.size() == 0)     return error(DBBACKNF,db);
+    name=list.get(0);
   }
  else {
     if (!db.endsWith(IO.ZIPSUFFIX))     db+=IO.ZIPSUFFIX;
-    file=new File(prop.get(Prop.DBPATH) + Prop.SEP + db);
+    name=prop.get(Prop.DBPATH) + Prop.SEP + db;
     db=db.substring(0,i);
   }
-  if (!file.exists())   return error(FILEWHICH,db);
-  if (context.pinned(db))   return error(DBLOCKED,db);
-  return restore(file,prop) ? info(DBRESTORE,db,p) : error(DBNORESTORE,db);
+  final File file=new File(name);
+  if (!file.exists())   return error(DBBACKNF,db);
+  return restore(file,prop) ? info(DBRESTORE,file.getName(),perf) : error(DBNORESTORE,db);
 }
