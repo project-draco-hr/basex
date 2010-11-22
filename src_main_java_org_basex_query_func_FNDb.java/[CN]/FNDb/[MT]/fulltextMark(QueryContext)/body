@@ -1,0 +1,28 @@
+{
+  final byte[] m=expr.length == 2 ? checkStr(expr[1],ctx) : null;
+  if (m != null && !XMLToken.isQName(m))   Err.value(input,Type.QNM,m);
+  return new Iter(){
+    Iter ir;
+    ItemIter ii;
+    @Override public Item next() throws QueryException {
+      while (true) {
+        if (ii != null) {
+          final Item it=ii.next();
+          if (it != null)           return it;
+          ii=null;
+        }
+        final FTPosData ftd=ctx.ftpos;
+        ctx.ftpos=new FTPosData();
+        if (ir == null)         ir=ctx.iter(expr[0]);
+        Item it=ir.next();
+        if (it != null) {
+          final byte[] mark=m != null ? m : ctx.ftopt.mark;
+          ii=DataBuilder.mark(checkDBNode(it),mark,ctx);
+        }
+        ctx.ftpos=ftd;
+        if (it == null)         return null;
+      }
+    }
+  }
+;
+}
