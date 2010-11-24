@@ -4,9 +4,15 @@
     final String old=choice.getValue();
     final DialogRename dr=new DialogRename(old,gui,fsInstance);
     if (dr.ok()) {
-      final Prop prop=gui.context.prop;
-      AlterDB.alter(old,dr.name.getText(),prop);
+      try {
+        new AlterDB(old,dr.name.getText()).execute(ctx);
+        gui.notify.init();
+      }
+ catch (      BaseXException e) {
+        Dialog.info(gui,e.getMessage());
+      }
       choice.setData(fsInstance ? List.listFS(ctx).toArray() : List.list(ctx).toArray());
+      action(null);
     }
   }
  else   if (cmp == open) {
@@ -28,6 +34,31 @@
         doc.setText("");
         detail.setText(Token.EMPTY);
       }
+    }
+  }
+ else   if (cmp == backup) {
+    final String db=choice.getValue().trim();
+    try {
+      new Backup(db).execute(ctx);
+      Dialog.info(gui,"Backup of '" + db + "' successfull created.");
+    }
+ catch (    BaseXException e) {
+      Dialog.info(gui,e.getMessage());
+    }
+  }
+ else   if (cmp == restore) {
+    final String db=choice.getValue().trim();
+    String dbctx="";
+    if (ctx.data != null)     dbctx=ctx.data.meta.name;
+    try {
+      new Restore(db).execute(ctx);
+      Dialog.info(gui,"Restoring of '" + db + "' successfull.");
+      if (!dbctx.equals("") && dbctx.equals(db)) {
+        gui.notify.init();
+      }
+    }
+ catch (    BaseXException e) {
+      Dialog.info(gui,e.getMessage());
     }
   }
  else {
