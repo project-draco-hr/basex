@@ -15,7 +15,7 @@
   }
   final File file=new File(name);
   if (!file.exists())   return error(DBBACKNF,db);
-  final boolean close=context.data != null && db.equals(context.data.meta.name);
+  final boolean close=context.data != null && db.equals(context.data.meta.name) && context.datas.pins(db) == 1;
   if (close)   new Close().run(context);
   if (context.pinned(db))   return error(DBLOCKED,db);
   return restore(file,prop) && (!close || new Open(db).run(context)) ? info(DBRESTORE,file.getName(),perf) : error(DBNORESTORE,db);

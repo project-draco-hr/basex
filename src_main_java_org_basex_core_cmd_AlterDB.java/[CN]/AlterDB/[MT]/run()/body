@@ -5,7 +5,7 @@
   if (!checkName(name))   return error(NAMEINVALID,name);
   if (!prop.dbexists(db))   return error(DBNOTFOUND,db);
   if (prop.dbexists(name))   return error(DBEXISTS,name);
-  final boolean close=context.data != null && db.equals(context.data.meta.name);
+  final boolean close=context.data != null && db.equals(context.data.meta.name) && context.datas.pins(db) == 1;
   if (close)   new Close().run(context);
   if (context.pinned(db))   return error(DBLOCKED,db);
   return alter(db,name,prop) && (!close || new Open(name).run(context)) ? info(DBALTERED,db,name) : error(DBNOTALTERED,db);
