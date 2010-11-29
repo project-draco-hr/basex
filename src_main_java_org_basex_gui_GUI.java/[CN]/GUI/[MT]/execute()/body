@@ -1,20 +1,16 @@
 {
   final String in=input.getText().trim();
-  final boolean db=context.data != null;
-  final boolean cmd=gprop.num(GUIProp.SEARCHMODE) == 2 || !db;
+  final boolean cmd=mode.getSelectedIndex() == 2;
   if (cmd || in.startsWith("!")) {
     final int i=cmd ? 0 : 1;
-    if (in.length() > i) {
-      try {
-        for (        final Command c : new CommandParser(in.substring(i),context).parse()) {
-          if (!exec(c,c instanceof XQuery))           break;
-        }
-      }
- catch (      final QueryException ex) {
-        if (!info.visible())         GUICommands.SHOWINFO.execute(this);
-        info.setInfo(ex.getMessage(),null,null,false);
-        info.reset();
-      }
+    if (i == in.length())     return;
+    try {
+      for (      final Command c : new CommandParser(in.substring(i),context).parse())       if (!exec(c,true))       break;
+    }
+ catch (    final QueryException ex) {
+      if (!info.visible())       GUICommands.SHOWINFO.execute(this);
+      info.setInfo(ex.getMessage(),null,null,false);
+      info.reset();
     }
   }
  else   if (gprop.num(GUIProp.SEARCHMODE) == 1 || in.startsWith("/")) {

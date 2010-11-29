@@ -1,0 +1,37 @@
+{
+  byte[] m=MARK;
+  int l=ex ? 150 : Integer.MAX_VALUE;
+  if (expr.length > 1) {
+    m=checkStr(expr[1],ctx);
+    if (!XMLToken.isQName(m))     Err.value(input,Type.QNM,m);
+  }
+  if (expr.length > 2) {
+    l=(int)checkItr(expr[2],ctx);
+  }
+  final byte[] mark=m;
+  final int len=l;
+  return new Iter(){
+    final FTPosData ftd=new FTPosData();
+    Iter ir;
+    ItemIter ii;
+    @Override public Item next() throws QueryException {
+      while (true) {
+        if (ii != null) {
+          final Item it=ii.next();
+          if (it != null)           return it;
+          ii=null;
+        }
+        final FTPosData tmp=ctx.ftpos;
+        ctx.ftpos=ftd;
+        if (ir == null)         ir=ctx.iter(expr[0]);
+        Item it=ir.next();
+        if (it != null) {
+          ii=DataBuilder.mark(checkDBNode(it),mark,len,ctx);
+        }
+        ctx.ftpos=tmp;
+        if (it == null)         return null;
+      }
+    }
+  }
+;
+}

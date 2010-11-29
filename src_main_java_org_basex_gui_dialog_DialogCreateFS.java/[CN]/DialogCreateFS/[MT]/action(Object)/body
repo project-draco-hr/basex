@@ -8,10 +8,10 @@
   final GUIProp gprop=gui.gprop;
   final String nm=dbname.getText().trim();
   final boolean cNam=!nm.isEmpty();
-  if (cNam)   gprop.set(GUIProp.FSDBNAME,nm);
+  if (cNam)   gprop.set(GUIProp.FSNAME,nm);
   ok=cNam;
   boolean cAll=all.isSelected();
-  if (cAll)   gprop.set(GUIProp.FSBACKING,path.getText());
+  if (cAll)   gprop.set(GUIProp.FSPATH,path.getText());
   if (!cAll && cNam) {
     final String p=path.getText().trim();
     final IO file=IO.get(p);
@@ -19,13 +19,13 @@
   }
   ok&=cAll;
   String inf=null;
+  Msg icon=Msg.ERROR;
   if (!ok) {
     if (!cAll)     inf=PATHWHICH;
     if (!cNam)     inf=DBWHICH;
   }
-  Msg icon=Msg.ERROR;
-  if (ok) {
-    ok=Command.checkName(nm);
+ else {
+    ok=Command.validName(nm);
     if (!ok) {
       inf=Util.info(INVALID,EDITNAME);
     }
@@ -33,6 +33,11 @@
       inf=prop.is(Prop.FUSE) ? RENAMEOVERBACKING : RENAMEOVER;
       icon=Msg.WARN;
     }
+  }
+  if (ok) {
+    gprop.set(GUIProp.FSALL,all.isSelected());
+    gprop.set(GUIProp.FSPATH,path.getText());
+    gprop.set(GUIProp.FSNAME,dbname.getText());
   }
   info.setText(inf,icon);
   enableOK(buttons,BUTTONOK,ok);

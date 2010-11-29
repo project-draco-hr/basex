@@ -1,7 +1,6 @@
 {
-  super(main,ic == Msg.ERROR ? DIALOGERR : DIALOGINFO,true);
-  final BaseXBack p=new BaseXBack(new BorderLayout()).border(0,0,0,16);
-  p.setOpaque(false);
+  super(main,ic == Msg.ERROR ? DIALOGERR : DIALOGINFO);
+  final BaseXBack p=new BaseXBack(new BorderLayout()).border(0,0,0,16).mode(Fill.NONE);
   final BaseXLabel b=new BaseXLabel();
   b.setIcon(ic.large);
   p.add(b,BorderLayout.NORTH);
@@ -9,12 +8,16 @@
   final BaseXText text=new BaseXText(false,this);
   text.setFont(p.getFont());
   text.setText(Token.token(txt));
+  text.setFocusable(false);
   set(text,BorderLayout.CENTER);
-  final BaseXButton button=new BaseXButton(BUTTONOK,this);
-  set(newButtons(this,button),BorderLayout.SOUTH);
+  final boolean simple=ic != Msg.QUESTION;
+  button=new BaseXButton(simple ? BUTTONOK : BUTTONYES,this);
+  final BaseXBack buttons=simple ? newButtons(this,button) : newButtons(this,button,new BaseXButton(BUTTONNO,this));
+  set(buttons,BorderLayout.SOUTH);
   SwingUtilities.invokeLater(new Thread(){
     @Override public void run(){
       button.requestFocusInWindow();
+      text.setFocusable(true);
     }
   }
 );
