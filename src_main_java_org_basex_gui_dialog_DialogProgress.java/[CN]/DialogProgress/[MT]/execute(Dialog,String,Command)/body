@@ -1,0 +1,25 @@
+{
+  new Thread(){
+    @Override public void run(){
+      if (cmd.newData()) {
+        new Close().run(d.gui.context);
+        d.gui.notify.init();
+      }
+      final Performance perf=new Performance();
+      final DialogProgress wait=new DialogProgress(d.gui,t,cmd);
+      wait.setAlwaysOnTop(true);
+      final boolean ok=cmd.run(d.gui.context);
+      final String info=cmd.info();
+      wait.dispose();
+      final String time=perf.toString();
+      d.gui.info.setInfo(info,cmd,time,ok);
+      d.gui.info.reset();
+      d.gui.status.setText(Util.info(PROCTIME,time));
+      if (!ok)       Dialog.error(d.gui,info.equals(PROGERR) ? CANCELCREATE : info);
+      if (cmd.newData())       d.gui.notify.init();
+ else       if (cmd.updating(d.gui.context))       d.gui.notify.update();
+      d.action(null);
+    }
+  }
+.start();
+}
