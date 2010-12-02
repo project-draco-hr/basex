@@ -11,8 +11,22 @@
     enableOK(buttons,BUTTONOK,ok && !nm.isEmpty());
   }
  else {
+    ok=false;
     target=name();
-    ok=!target.isEmpty();
+    if (!target.isEmpty()) {
+      Data d=gui.context.data;
+      TokenList l=new TokenList();
+      for (int i=0; i < d.meta.size; i+=d.size(i,Data.DOC)) {
+        l.add(d.text(i,true));
+      }
+      int tmp=0;
+      if (l.size() > 0) {
+        byte[] tmpT=Token.token(target);
+        for (int i=0; i < l.size(); ++i)         if (eq(l.get(i),tmpT))         tmp++;
+      }
+      info.setText(tmp + " documents will be deleted.",Msg.WARN);
+      if (tmp > 0)       ok=true;
+    }
     enableOK(buttons,BUTTONOK,ok);
   }
 }
