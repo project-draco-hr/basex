@@ -1,11 +1,18 @@
 {
-  final String nm=name();
-  ok=!db.contains(nm) || nm.equals(old);
-  String msg=ok ? null : Util.info(DBEXISTS,nm);
-  if (ok) {
-    ok=Command.validName(nm);
-    if (!ok)     msg=nm.isEmpty() ? DBWHICH : Util.info(INVALID,EDITNAME);
+  if (wd) {
+    final String nm=name();
+    ok=!db.contains(nm) || nm.equals(old);
+    String msg=ok ? null : Util.info(DBEXISTS,nm);
+    if (ok) {
+      ok=Command.validName(nm);
+      if (!ok)       msg=nm.isEmpty() ? DBWHICH : Util.info(INVALID,EDITNAME);
+    }
+    info.setText(msg,Msg.ERROR);
+    enableOK(buttons,BUTTONOK,ok && !nm.isEmpty());
   }
-  info.setText(msg,Msg.ERROR);
-  enableOK(buttons,BUTTONOK,ok && !nm.isEmpty());
+ else {
+    target=name();
+    ok=!target.isEmpty();
+    enableOK(buttons,BUTTONOK,ok);
+  }
 }
