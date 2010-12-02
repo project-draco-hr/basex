@@ -1,15 +1,18 @@
 {
-  name.setEnabled(true);
   ok=true;
-  final IO io=IO.get(file.getText());
-  final boolean exists=!file.getText().isEmpty() && io.exists();
-  String inf=!exists ? PATHWHICH : "";
+  final String in=path.getText().trim();
+  final IO io=IO.get(in);
+  final boolean exists=!in.isEmpty() && io.exists();
+  String inf=exists ? "" : PATHWHICH;
   info.setText(null,null);
-  if (!name.getText().isEmpty() && !Command.validName(name.getText()))   inf=Util.info(INVALID,EDITNAME);
-  if (io.isDir())   name.setEnabled(false);
-  if (!inf.equals("")) {
+  final String as=name.getText().trim();
+  if (!as.isEmpty() && !Command.validName(as)) {
+    inf=Util.info(INVALID,EDITNAME);
+  }
+  if (!inf.isEmpty()) {
     ok=false;
     info.setText(inf,Msg.ERROR);
   }
+  if (ok)   name.setEnabled(!io.isDir());
   enableOK(buttons,BUTTONOK,ok);
 }

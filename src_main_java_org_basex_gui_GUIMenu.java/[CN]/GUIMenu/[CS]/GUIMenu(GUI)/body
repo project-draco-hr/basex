@@ -5,25 +5,27 @@
   for (int i=0; i < MENUBAR.length; ++i)   for (int j=0; j < MENUITEMS[i].length; ++j)   ++c;
   items=new JMenuItem[c];
   c=0;
-  for (int i=0; i < MENUBAR.length; ++i) {
-    final JMenu menu=new JMenu(MENUBAR[i]);
-    menu.setMnemonic((int)MENUBAR[i].charAt(0));
-    for (int j=0; j < MENUITEMS[i].length; ++j) {
-      final Object subEntry=MENUITEMS[i][j];
-      if (subEntry == null)       continue;
-      if (subEntry.equals(SEPARATOR)) {
+  final StringBuilder gmnem=new StringBuilder();
+  for (int b=0; b < MENUBAR.length; ++b) {
+    final JMenu menu=new JMenu(MENUBAR[b]);
+    setMnemonic(menu,MENUBAR[b],gmnem);
+    final StringBuilder mnem=new StringBuilder();
+    for (int i=0; i < MENUITEMS[b].length; ++i) {
+      final Object sub=MENUITEMS[b][i];
+      if (sub == null)       continue;
+      if (sub.equals(SEPARATOR)) {
         menu.addSeparator();
       }
  else {
         JComponent comp=null;
-        if (subEntry instanceof String) {
-          final BaseXLabel label=new BaseXLabel((String)subEntry);
+        if (sub instanceof String) {
+          final BaseXLabel label=new BaseXLabel((String)sub);
           label.border(2,5,2,0).setFont(getFont());
           comp=label;
         }
  else {
-          final GUICommand cmd=(GUICommand)subEntry;
-          final JMenuItem item=newItem(cmd,gui);
+          final GUICommand cmd=(GUICommand)sub;
+          final JMenuItem item=newItem(cmd,gui,mnem);
           final String sc=cmd.key();
           if (sc != null) {
             item.setAccelerator(KeyStroke.getKeyStroke(Util.info(sc,sm)));

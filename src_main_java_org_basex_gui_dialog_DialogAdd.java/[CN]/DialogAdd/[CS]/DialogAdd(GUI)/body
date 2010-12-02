@@ -1,11 +1,14 @@
 {
   super(main,GUIADD);
-  final BaseXBack pp=new BaseXBack(new TableLayout(7,2,0,4));
-  pp.add(new BaseXLabel(CREATETITLE));
-  pp.add(new BaseXLabel(" "));
-  file=new BaseXTextField(this);
-  file.addKeyListener(keys);
-  pp.add(file);
+  BaseXBack p=new BaseXBack(new TableLayout(6,2,6,0));
+  p.add(new BaseXLabel(CREATETITLE + COL,true,true).border(0,0,4,0));
+  p.add(new BaseXLabel());
+  p.border(0,0,8,0);
+  final IO io=IO.get(gui.gprop.get(GUIProp.CREATEPATH));
+  final IO dir=io.isDir() ? io : io.parent();
+  path=new BaseXTextField(dir.toString(),this);
+  path.addKeyListener(keys);
+  p.add(path);
   final BaseXButton browse=new BaseXButton(BUTTONBROWSE,this);
   browse.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
@@ -13,20 +16,21 @@
     }
   }
 );
-  pp.add(browse);
-  pp.add(new BaseXLabel("Name: "));
-  pp.add(new BaseXLabel(" "));
+  p.add(browse);
+  p.add(new BaseXLabel(EDITNAME + COL,true,true).border(8,0,4,0));
+  p.add(new BaseXLabel());
   name=new BaseXTextField(this);
   name.addKeyListener(keys);
-  pp.add(name);
-  pp.add(new BaseXLabel(" "));
-  pp.add(new BaseXLabel("Target Path: "));
-  pp.add(new BaseXLabel(" "));
-  path=new BaseXTextField(this);
-  path.addKeyListener(keys);
-  pp.add(path);
-  set(pp,BorderLayout.CENTER);
-  final BaseXBack p=new BaseXBack(new BorderLayout());
+  p.add(name);
+  p.add(new BaseXLabel());
+  p.add(new BaseXLabel("Target Path" + COL,true,true).border(8,0,4,0));
+  p.add(new BaseXLabel());
+  target=new BaseXTextField(this);
+  target.addKeyListener(keys);
+  p.add(target);
+  p.add(new BaseXLabel());
+  set(p,BorderLayout.CENTER);
+  p=new BaseXBack(new BorderLayout());
   info=new BaseXLabel(" ").border(18,0,0,0);
   p.add(info,BorderLayout.WEST);
   buttons=okCancel(this);
