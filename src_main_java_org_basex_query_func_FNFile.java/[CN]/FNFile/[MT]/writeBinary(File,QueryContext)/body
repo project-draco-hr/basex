@@ -1,9 +1,9 @@
 {
   final B64 b64=(B64)checkType(expr[1].item(ctx,input),Type.B6B);
-  final boolean append=expr.length == 3 && checkType(expr[2].item(ctx,input),Type.BLN).bool(input);
-  if (!append && file.exists())   FILEEXISTS.thrw(input,file.getPath());
+  final boolean append=optionalBool(2,ctx);
+  if (path.isDirectory())   PATHISDIR.thrw(input,path);
   try {
-    final FileOutputStream out=new FileOutputStream(file);
+    final FileOutputStream out=new FileOutputStream(path,append);
     try {
       out.write(b64.toJava());
     }
@@ -12,7 +12,7 @@
     }
   }
  catch (  final IOException ex) {
-    FILEWRITE.thrw(input,file.getName());
+    FILEERROR.thrw(input,ex);
   }
   return null;
 }

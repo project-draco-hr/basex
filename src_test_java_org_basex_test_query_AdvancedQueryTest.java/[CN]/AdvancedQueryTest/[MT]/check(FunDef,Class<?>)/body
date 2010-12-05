@@ -1,0 +1,36 @@
+{
+  final String desc=def.toString();
+  String name=pref + ":" + desc.replaceAll("\\(.*","");
+  final int max=desc.contains("()") ? 0 : desc.split(",").length;
+  final int min=max + 1 - desc.split("\\?").length;
+  if (max != args.length)   Util.notexpected("Check #arguments: " + def);
+  for (int al=Math.max(min - 1,0); al <= max + 1; al++) {
+    final boolean in=al >= min && al <= max;
+    final StringBuilder qu=new StringBuilder(name + "(");
+    int any=0;
+    boolean db=false;
+    for (int a=0; a < al; a++) {
+      if (a != 0)       qu.append(", ");
+      if (in) {
+        if (args[a] == String.class) {
+          qu.append("1");
+        }
+ else         if (args[a] == null) {
+          qu.append("'X'");
+          any++;
+        }
+ else {
+          qu.append("'X'");
+          db|=args[a] == DBNode.class;
+        }
+      }
+ else {
+        qu.append("'x'");
+      }
+    }
+    if ((al != 0 || min > 0) && (any == 0 || any != al)) {
+      error(qu + ")",db ? Err.NODBCTX : in ? Err.XPTYPE : Err.XPARGS);
+    }
+  }
+  return name;
+}

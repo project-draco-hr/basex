@@ -1,0 +1,13 @@
+{
+  final String fun=check(FunDef.ATTR,(Class<?>)null,String.class);
+  new DropIndex("attribute").execute(CTX);
+  query("data(" + fun + "('0'))","0");
+  new CreateIndex("attribute").execute(CTX);
+  query("data(" + fun + "('0'))","0");
+  query("data(" + fun + "('0', 'id'))","0");
+  query("data(" + fun + "('0', 'XXX'))","");
+  query(fun + "('XXX')","");
+  new Close().execute(CTX);
+  query("data(db:open('db')/" + fun + "('0'))","0");
+  error("data(" + fun + "('XXX'))",Err.NODBCTX);
+}

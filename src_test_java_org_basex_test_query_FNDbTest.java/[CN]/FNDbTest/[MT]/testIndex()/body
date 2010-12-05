@@ -1,21 +1,11 @@
 {
-  final String[] types={"text","attribute","fulltext"};
-  for (  final String type : types)   new DropIndex(type).execute(CTX);
-  query("db:text('xml')");
-  query("db:attribute('xml')");
-  for (  final String type : types)   new CreateIndex(type).execute(CTX);
-  for (  final String type : types)   query("db:" + type + "('xml')");
-  args("db:text",(Class<?>)null);
-  args("db:fulltext",String.class);
-  query("db:text('XML')","XML");
-  query("db:text('XML')","XML");
-  query("db:text('XXX')","");
-  query("data(" + "db:attribute('0'))","0");
-  query("data(" + "db:attribute('0', 'id'))","0");
-  query("data(" + "db:attribute('0', 'X'))","");
-  query("db:fulltext('assignments')","Assignments");
-  query("db:fulltext('XXX')","");
+  final String fun=check(FunDef.FULLTEXT,String.class);
+  new DropIndex("fulltext").execute(CTX);
+  error(fun + "('assignments')",Err.NOIDX);
+  new CreateIndex("fulltext").execute(CTX);
+  query(fun + "('assignments')","Assignments");
+  query(fun + "('XXX')","");
   new Close().execute(CTX);
-  query("db:open('db')/db:text('XML')","XML");
-  error("db:text('x')","BASX0002");
+  query("db:open('db')/" + fun + "('assignments')","Assignments");
+  error(fun + "('XXX')",Err.NODBCTX);
 }

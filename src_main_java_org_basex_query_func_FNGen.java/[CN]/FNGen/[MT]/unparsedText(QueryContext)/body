@@ -1,5 +1,11 @@
 {
   final IO io=checkIO(expr[0],ctx);
   final String enc=expr.length < 2 ? null : string(checkEStr(expr[1],ctx));
-  return unparsedText(io,enc,input);
+  try {
+    return Str.get(TextInput.content(io,enc).finish());
+  }
+ catch (  final IOException ex) {
+    UNDEF.thrw(input,ex);
+    return null;
+  }
 }

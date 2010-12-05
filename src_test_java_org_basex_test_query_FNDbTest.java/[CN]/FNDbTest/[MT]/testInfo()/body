@@ -1,17 +1,15 @@
 {
-  error("db:info(1)","XPTY0004");
-  error("db:info('a','b')","XPST0017");
-  error("db:info('XXX')","BASX0001");
-  contains("db:info()","ON");
+  final String fun=check(FunDef.INFO,String.class);
+  contains(fun + "()","ON");
   final String[] types={"text","attribute","fulltext"};
   for (  final String type : types)   new DropIndex(type).execute(CTX);
-  for (  final String type : types)   query("db:info('" + type + "')");
+  for (  final String type : types)   query(fun + "('" + type+ "')");
   for (  final String type : types)   new CreateIndex(type).execute(CTX);
-  for (  final String type : types)   query("db:info('" + type + "')");
-  query("db:info('tag')");
-  query("db:info('attname')");
+  for (  final String type : types)   query(fun + "('" + type+ "')");
+  query(fun + "('tag')");
+  query(fun + "('attname')");
   new Close().execute(CTX);
-  contains("db:open('db')/db:info()","ON");
-  contains("db:open('db')/db:info('tag')",":");
-  error("db:info('tag')","BASX0002");
+  contains("db:open('db')/" + fun + "()","ON");
+  contains("db:open('db')/" + fun + "('tag')",":");
+  error(fun + "('tag')",Err.NODBCTX);
 }
