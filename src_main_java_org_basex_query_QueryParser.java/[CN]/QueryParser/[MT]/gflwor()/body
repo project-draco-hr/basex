@@ -1,0 +1,37 @@
+{
+  final int s=ctx.vars.size();
+  final ForLet[] fl=forLet();
+  if (fl == null)   return null;
+  Expr where=null;
+  if (consumeWS(WHERE)) {
+    ap=qp;
+    where=check(single(),NOWHERE);
+    alter=NOWHERE;
+  }
+  Var[] group=null;
+  if (ctx.xquery30 && consumeWS(GROUP)) {
+    check(BY);
+    ap=qp;
+    do     group=groupSpec(group);
+ while (consumeWS2(COMMA));
+    alter=GRPBY;
+  }
+  OrderBy[] order=null;
+  final boolean stable=consumeWS(STABLE);
+  if (stable)   check(ORDER);
+  if (stable || consumeWS(ORDER)) {
+    check(BY);
+    ap=qp;
+    do     order=orderSpec(order);
+ while (consumeWS2(COMMA));
+    if (order != null)     order=Array.add(order,new OrderByStable(input()));
+    alter=ORDERBY;
+  }
+  if (!consumeWS(RETURN)) {
+    if (alter != null)     error();
+    error(where == null ? FLWORWHERE : order == null ? FLWORORD : FLWORRET);
+  }
+  final Expr ret=check(single(),NORETURN);
+  ctx.vars.reset(s);
+  return GFLWOR.get(fl,where,order,group,ret,input());
+}

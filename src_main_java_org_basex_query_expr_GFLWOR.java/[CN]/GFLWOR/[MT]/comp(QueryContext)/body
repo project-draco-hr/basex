@@ -1,4 +1,5 @@
 {
+  compForLet(ctx);
   compWhere(ctx);
   final boolean grp=ctx.grouping;
   ctx.grouping=group != null;
@@ -20,6 +21,10 @@
   ret=ret.comp(ctx);
   ctx.vars.reset(vs);
   ctx.grouping=grp;
+  if (ret == Empty.SEQ) {
+    ctx.compInfo(OPTFLWOR);
+    return ret;
+  }
   if (empty) {
     ctx.compInfo(OPTREMOVE,desc(),where);
     return Empty.SEQ;
