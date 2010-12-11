@@ -1,0 +1,25 @@
+{
+  if (data.empty())   return new int[]{};
+  if (docs == null)   doc(data);
+  if (path.isEmpty())   return docs;
+  final int ds=docs.length;
+  final byte[] slash=token("/");
+  if (paths == null) {
+    paths=new byte[ds][];
+    for (int d=0; d < ds; d++) {
+      paths[d]=concat(slash,lc(data.text(docs[d],true)));
+    }
+    order=Array.createOrder(paths,false,true);
+  }
+  final String np=path.contains("//") ? path.replaceAll("/+","/") : path;
+  final byte[] exact=lc(concat(slash,token(np)));
+  final byte[] start=endsWith(exact,slash) ? exact : concat(exact,slash);
+  final IntList il=new IntList();
+  for (int o=find(exact); o < order.length; o++) {
+    final int pre=docs[order[o]];
+    final byte[] pth=concat(slash,lc(data.text(pre,true)));
+    if (!eq(pth,exact) && !startsWith(pth,start))     break;
+    il.add(pre);
+  }
+  return il.sort().toArray();
+}

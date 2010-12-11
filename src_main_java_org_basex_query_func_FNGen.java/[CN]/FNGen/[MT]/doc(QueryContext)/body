@@ -1,4 +1,9 @@
 {
   final Item it=expr[0].item(ctx,input);
-  return it == null ? null : ctx.resource.doc(checkEStr(it),false,false,input);
+  if (it == null)   return null;
+  final byte[] in=checkEStr(it);
+  if (contains(in,'<') || contains(in,'>'))   INVDOC.thrw(input,in);
+  final Data d=ctx.resource.data(in,false,false,input);
+  if (!d.single())   EXPSINGLE.thrw(input);
+  return new DBNode(d,0,Data.DOC);
 }
