@@ -4,14 +4,8 @@
   addData(d);
   globalData=true;
   final int s=d.empty() ? 0 : (int)nodes.size();
+  ctx.value=DBDocSeq.get(nodes.list,s,d);
   final int[] ns=nodes.root ? nodes.list : d.doc();
   final int is=nodes.root ? s : ns.length;
-  DBNode[] db=new DBNode[is];
-  for (int n=0; n < is; ++n)   db[n]=new DBNode(d,ns[n],Data.DOC);
-  addCollection(Seq.get(db,db.length),token(d.meta.name));
-  if (!nodes.root) {
-    db=new DBNode[s];
-    for (int n=0; n < s; ++n)     db[n]=new DBNode(d,nodes.list[n]);
-  }
-  ctx.value=Seq.get(db,db.length);
+  addCollection(DBDocSeq.get(ns,is,d),token(d.meta.name));
 }
