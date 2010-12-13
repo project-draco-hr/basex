@@ -1,11 +1,8 @@
 {
   final Data d=nodes.data;
   if (!ctx.context.perm(User.READ,d.meta))   Err.PERMNO.thrw(null,CmdPerm.READ);
-  addData(d);
+  ctx.value=DBDocSeq.get(d.empty() ? new int[0] : nodes.list,d);
+  addCollection(nodes.root ? ctx.value : DBDocSeq.get(d.doc(),d),token(d.meta.name));
   globalData=true;
-  final int s=d.empty() ? 0 : (int)nodes.size();
-  ctx.value=DBDocSeq.get(nodes.list,s,d);
-  final int[] ns=nodes.root ? nodes.list : d.doc();
-  final int is=nodes.root ? s : ns.length;
-  addCollection(DBDocSeq.get(ns,is,d),token(d.meta.name));
+  addData(d);
 }
