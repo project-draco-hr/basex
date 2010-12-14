@@ -7,7 +7,9 @@ case COMM:
 case PI:
   return table.read4(pre,8);
 case ATTR:
-return table.read1(pre,0) >> 3 & 0x1F;
+int d=table.read1(pre,0) >> 3 & IO.MAXATTS;
+if (d >= IO.MAXATTS) while (d < pre && kind(pre - d) == ATTR) d++;
+return d;
 default :
 return pre + 1;
 }
