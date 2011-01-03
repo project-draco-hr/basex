@@ -2,39 +2,7 @@
   return new BXOutput(rp){
     @Override String code(){
       final String xq=query != null ? query : ".";
-      final int s=num(rp,QueryParameter.START,1);
-      final int m=num(rp,QueryParameter.COUNT,Integer.MAX_VALUE - s);
-      ClientQuery cq=null;
-      try {
-        cs.execute(new Set(Prop.SERIALIZER,params(path)));
-        cs.setOutputStream(out);
-        cq=cs.query(xq);
-        final String var=path.getValue(QueryParameter.VAR);
-        if (var != null) {
-          final Scanner sc=new Scanner(var);
-          sc.useDelimiter("\1");
-          while (sc.hasNext()) {
-            final String v=sc.next();
-            String[] sp=v.split("\2",3);
-            if (sp.length < 2)             sp=v.split("=",3);
-            cq.bind(sp[0],sp.length > 1 ? sp[1] : "",sp.length > 2 ? sp[2] : "");
-          }
-        }
-        int c=0;
-        cq.init();
-        while (++c < s + m && cq.more())         if (c >= s)         cq.next();
-        return null;
-      }
- catch (      final BaseXException ex) {
-        throw new JaxRxException(400,ex.getMessage());
-      }
- finally {
-        if (cq != null)         try {
-          cq.close();
-        }
- catch (        final BaseXException ex) {
-        }
-      }
+      return runQuery(xq,rp,path,out);
     }
   }
 ;
