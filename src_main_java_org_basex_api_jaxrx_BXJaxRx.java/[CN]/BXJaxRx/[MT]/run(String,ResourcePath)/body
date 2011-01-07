@@ -3,12 +3,14 @@
     @Override String code(){
       final String root=System.getProperty("org.basex.restpath") + "/";
       final IO io=IO.get(root + file);
-      if (!io.exists())       return FILEWHICH;
-      try {
-        return runQuery(Token.string(io.content()),rp,path,out);
+      if (!io.exists()) {
+        throw new JaxRxException(404,Util.info(FILEWHICH,file));
       }
- catch (      IOException e) {
-        return e.getMessage();
+      try {
+        return query(Token.string(io.content()));
+      }
+ catch (      IOException ex) {
+        throw new JaxRxException(400,ex.getMessage());
       }
     }
   }
