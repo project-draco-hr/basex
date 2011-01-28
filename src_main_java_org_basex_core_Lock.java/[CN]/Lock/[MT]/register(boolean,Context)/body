@@ -5,10 +5,10 @@
       state=State.WRITE;
       return;
     }
-    final Resource lx=new Resource(true);
+    final Resource lx=new Resource(false);
 synchronized (lx) {
       waiting.add(lx);
-      while (!lx.valid) {
+      while (lx.locked) {
         try {
           lx.wait();
         }
@@ -21,16 +21,16 @@ synchronized (lx) {
   }
  else {
 synchronized (this) {
-      if (state != State.WRITE && waiting.size() == 0) {
+      if (state != State.WRITE && waiting.size() == 0 && activeR < ctx.prop.num(Prop.PARALLEL)) {
         state=State.READ;
         ++activeR;
         return;
       }
     }
-    final Resource ls=new Resource(false);
+    final Resource ls=new Resource(true);
 synchronized (ls) {
       waiting.add(ls);
-      while (!ls.valid) {
+      while (ls.locked) {
         try {
           ls.wait();
         }
@@ -38,8 +38,8 @@ synchronized (ls) {
           Util.stack(ex);
         }
       }
-      ++activeR;
       state=State.READ;
+      ++activeR;
     }
   }
 }
