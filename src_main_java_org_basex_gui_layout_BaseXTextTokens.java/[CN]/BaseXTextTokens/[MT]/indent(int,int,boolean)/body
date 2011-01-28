@@ -1,0 +1,45 @@
+{
+  pos(s);
+  bol(true);
+  startMark();
+  pos(e);
+  forward(Integer.MAX_VALUE,true);
+  next(true);
+  endMark();
+  boolean tab=false;
+  for (int p=0; p < size; ++p)   tab|=text[p] == '\t';
+  String add="\t";
+  if (!tab) {
+    add="";
+    for (int i=0; i < TAB; i++)     add+=' ';
+  }
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(text,0,ms);
+  for (int p=ms; p < ps; p+=cl(text,p)) {
+    if (p == 0 || text[p - 1] == '\n') {
+      if (sh) {
+        if (text[p] == '\t') {
+          me--;
+          continue;
+        }
+        if (text[p] == ' ') {
+          me--;
+          for (int i=1; i < TAB && p + i < size && text[p + i] == ' '; i++) {
+            me--;
+            p++;
+          }
+          continue;
+        }
+      }
+ else {
+        tb.add(add);
+        me+=add.length();
+      }
+    }
+    tb.add(cp(text,p));
+  }
+  tb.add(text,ps,size);
+  ps=me;
+  text=tb.finish();
+  size=tb.size();
+}
