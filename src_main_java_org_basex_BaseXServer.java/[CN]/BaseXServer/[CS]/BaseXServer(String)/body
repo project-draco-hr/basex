@@ -8,16 +8,16 @@
   }
   log=new Log(context,quiet);
   stop=stopFile(port);
-  Runtime.getRuntime().addShutdownHook(new Thread(){
-    @Override public void run(){
-      log.write(SERVERSTOPPED);
-      log.close();
-      Util.outln(SERVERSTOPPED);
-    }
-  }
-);
   try {
     server=new ServerSocket(port);
+    Runtime.getRuntime().addShutdownHook(new Thread(){
+      @Override public void run(){
+        log.write(SERVERSTOPPED);
+        log.close();
+        Util.outln(SERVERSTOPPED);
+      }
+    }
+);
     new Thread(this).start();
     do     Performance.sleep(100);
  while (!running);
