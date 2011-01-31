@@ -1,5 +1,15 @@
 {
-  new Thread(){
+  Thread t1=new Thread(){
+    @Override public void run(){
+      try {
+        session1.execute(new CreateDB(NAME,FILE));
+      }
+ catch (      final BaseXException ex) {
+      }
+    }
+  }
+;
+  Thread t2=new Thread(){
     @Override public void run(){
       Performance.sleep(100);
       try {
@@ -10,8 +20,11 @@
       }
     }
   }
-.start();
-  session1.execute(new CreateDB(NAME,FILE));
+;
+  t1.start();
+  t2.start();
+  t1.join();
+  t2.join();
   session2.execute(new Open(NAME));
   if (server.context.datas.pins(NAME) != 2)   fail("test failed conCreate");
 }
