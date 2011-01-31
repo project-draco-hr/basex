@@ -1,10 +1,12 @@
 {
+  int c=1;
   do {
-    final Resource l=waiting.removeFirst();
+    c++;
+    final Resource l=list.remove(0);
 synchronized (l) {
       l.locked=false;
       l.notify();
     }
   }
- while (waiting.size() > 0 && waiting.getFirst().reader);
+ while (list.size() > 0 && list.get(0).reader && c < ctx.prop.num(Prop.PARALLEL));
 }

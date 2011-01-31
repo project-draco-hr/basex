@@ -1,5 +1,6 @@
 {
   if (SKIP)   return;
+  this.ctx=c;
   if (w) {
     if (state == State.IDLE) {
       state=State.WRITE;
@@ -7,7 +8,7 @@
     }
     final Resource lx=new Resource(false);
 synchronized (lx) {
-      waiting.add(lx);
+      list.add(lx);
       while (lx.locked) {
         try {
           lx.wait();
@@ -21,7 +22,7 @@ synchronized (lx) {
   }
  else {
 synchronized (this) {
-      if (state != State.WRITE && waiting.size() == 0 && activeR < ctx.prop.num(Prop.PARALLEL)) {
+      if (state != State.WRITE && list.size() == 0 && activeR < ctx.prop.num(Prop.PARALLEL)) {
         state=State.READ;
         ++activeR;
         return;
@@ -29,7 +30,7 @@ synchronized (this) {
     }
     final Resource ls=new Resource(true);
 synchronized (ls) {
-      waiting.add(ls);
+      list.add(ls);
       while (ls.locked) {
         try {
           ls.wait();
