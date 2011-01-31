@@ -4,11 +4,14 @@
   String tmp=prop.get(Prop.DBPATH) + Prop.SEP + db+ IO.ZIPSUFFIX;
   File file=new File(tmp);
   if (!file.exists()) {
-    final StringList list=list(db + '-',context);
+    final StringList list=list(db,context);
     if (list.size() == 0)     return error(DBBACKNF,db);
     file=new File(list.get(0));
+    if (!file.exists())     return error(DBBACKNF,db);
   }
-  if (!file.exists())   return error(DBBACKNF,db);
+ else {
+    db=db.substring(0,db.length() - 20);
+  }
   final boolean closed=close(db);
   if (context.pinned(db))   return error(DBLOCKED,db);
   return restore(file,prop) && (!closed || new Open(db).run(context)) ? info(DBRESTORE,file.getName(),perf) : error(DBNORESTORE,db);
