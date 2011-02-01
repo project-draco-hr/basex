@@ -5,7 +5,17 @@
   blocks=in.readNum();
   fpres=in.readNums();
   pages=in.readNums();
-  in.close();
+  final int pagemapSize=in.readNum();
+  if (pagemapSize == 0) {
+    in.close();
+    pagemap=new BitArray(allBlocks);
+    for (int i=0; i < pages.length; i++)     pagemap.set(pages[i]);
+    dirty=true;
+  }
+ else {
+    pagemap=new BitArray(in.readLongs(pagemapSize),allBlocks);
+    in.close();
+  }
   data=new RandomAccessFile(meta.file(pf),"rw");
   readBlock(0,0,blocks > 1 ? fpres[1] : md.size);
 }
