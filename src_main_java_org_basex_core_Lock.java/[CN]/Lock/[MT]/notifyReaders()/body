@@ -1,13 +1,8 @@
 {
   final int p=Math.max(ctx.prop.num(Prop.PARALLEL),1);
-  int c=0;
+  int c=activeR;
   do {
-    c++;
-    final Resource l=list.remove(0);
-synchronized (l) {
-      l.locked=false;
-      l.notifyAll();
-    }
+    notifyNext();
   }
- while (list.size() > 0 && list.get(0).reader && c < p);
+ while (++c < p && list.size() > 0 && list.get(0).reader);
 }
