@@ -8,7 +8,7 @@
       qp=new QueryProcess(query,out,context);
       arg=Integer.toString(id++);
       queries.put(arg,qp);
-      log.write(this,arg,query,OK);
+      log.write(this,sc + "(" + arg+ ")",query,OK);
       out.writeString(arg);
     }
  else {
@@ -32,6 +32,7 @@
  else       if (sc == CLOSE && qp != null) {
         qp.close(false);
         queries.remove(arg);
+        log.write(this,sc + "(" + arg+ ")",OK);
       }
       out.write(0);
     }
@@ -39,11 +40,11 @@
   }
  catch (  final Exception ex) {
     err=ex.getMessage();
+    log.write(this,sc + "(" + arg+ ")",INFOERROR + err);
     if (qp != null)     qp.close(true);
     queries.remove(arg);
   }
   if (err != null) {
-    log.write(this,arg,INFOERROR + err);
     out.write(0);
     out.write(1);
     out.writeString(err);
