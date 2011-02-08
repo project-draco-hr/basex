@@ -1,15 +1,11 @@
 {
-  if (SKIP)   return;
-  if (!w)   --activeR;
-  if (list.size() > 0) {
-    if (list.get(0).reader) {
-      notifyReaders();
+synchronized (mutex) {
+    if (w) {
+      writer=false;
     }
  else {
-      notifyNext();
+      --readers;
     }
-  }
- else {
-    if (activeR == 0)     state=State.IDLE;
+    mutex.notifyAll();
   }
 }

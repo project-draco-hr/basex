@@ -1,50 +1,24 @@
 {
-  if (SKIP)   return;
-  if (w) {
-synchronized (this) {
-      if (state == State.IDLE) {
-        state=State.WRITE;
-        return;
+synchronized (mutex) {
+    try {
+      while (true) {
+        if (!writer) {
+          if (w) {
+            if (readers == 0) {
+              writer=true;
+              break;
+            }
+          }
+ else           if (readers < Math.max(ctx.prop.num(Prop.PARALLEL),1)) {
+            ++readers;
+            break;
+          }
+        }
+        mutex.wait();
       }
     }
-    final Resource lx=new Resource(false);
-synchronized (lx) {
-      list.add(lx);
-      while (lx.locked) {
-        try {
-          lx.wait();
-        }
- catch (        final InterruptedException ex) {
-          Util.stack(ex);
-        }
-      }
-      state=State.WRITE;
-    }
-  }
- else {
-synchronized (this) {
-      final int p=Math.max(ctx.prop.num(Prop.PARALLEL),1);
-      if (state != State.WRITE && list.size() == 0 && activeR < p) {
-        state=State.READ;
-        ++activeR;
-        return;
-      }
-    }
-    final Resource ls=new Resource(true);
-synchronized (ls) {
-      list.add(ls);
-      while (ls.locked) {
-        try {
-          ls.wait();
-        }
- catch (        final InterruptedException ex) {
-          Util.stack(ex);
-        }
-      }
-      state=State.READ;
-synchronized (this) {
-        ++activeR;
-      }
+ catch (    final InterruptedException ex) {
+      Util.stack(ex);
     }
   }
 }
