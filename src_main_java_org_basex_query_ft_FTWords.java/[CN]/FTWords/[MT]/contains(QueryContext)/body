@@ -1,9 +1,13 @@
 {
   first=true;
   final FTLexer intok=ftt.copy(ctx.fttoken);
+  int num=0;
   if (fast) {
-    final FTTokens qtok=ftt.cache(txt);
-    return ftt.contains(qtok,intok) * qtok.length();
+    for (    final byte[] t : txt) {
+      final FTTokens qtok=ftt.cache(t);
+      num=Math.max(num,ftt.contains(qtok,intok) * qtok.length());
+    }
+    return num;
   }
   final TokenSet tm=new TokenSet();
   final Iter qu=ctx.iter(query);
@@ -27,7 +31,7 @@ while ((q=nextToken(qu)) != null) tb.add(q).add(' ');
 tm.add(tb.trim().finish());
 }
 final boolean a=mode == FTMode.M_ALL || mode == FTMode.M_ALLWORDS;
-int num=0, oc=0;
+int oc=0;
 for (int i=1; i <= tm.size(); i++) {
 final FTTokens qtok=ftt.cache(tm.key(i));
 final int o=ftt.contains(qtok,intok);
