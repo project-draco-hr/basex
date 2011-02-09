@@ -1,8 +1,10 @@
 {
 synchronized (mutex) {
+    final Object o=new Object();
+    queue.add(o);
     try {
       while (true) {
-        if (!writer) {
+        if (o == queue.get(0) && !writer) {
           if (w) {
             if (readers == 0) {
               writer=true;
@@ -20,5 +22,6 @@ synchronized (mutex) {
  catch (    final InterruptedException ex) {
       Util.stack(ex);
     }
+    queue.remove(0);
   }
 }
