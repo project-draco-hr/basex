@@ -1,0 +1,22 @@
+{
+  final TokenSet ts=new TokenSet();
+switch (mode) {
+case M_ALL:
+case M_ANY:
+    for (    final byte[] t : list)     ts.add(t);
+  break;
+case M_ALLWORDS:
+case M_ANYWORD:
+final FTLexer l=new FTLexer(ftopt);
+for (final byte[] t : list) {
+l.init(t);
+while (l.hasNext()) ts.add(l.nextToken());
+}
+break;
+case M_PHRASE:
+final TokenBuilder tb=new TokenBuilder();
+for (final byte[] t : list) tb.add(t).add(' ');
+ts.add(tb.trim().finish());
+}
+return ts;
+}

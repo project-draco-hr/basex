@@ -11,37 +11,42 @@
     @Override public FTNode next(){
       if (iat == null) {
         final FTLexer lex=new FTLexer(ftt.opt);
-        tl=0;
-        for (        final byte[] t : txt) {
-          lex.init(t);
+        FTIndexIterator ia=null;
+        int t=0;
+        final TokenSet ts=tokens(txt,ftt.opt);
+        for (        final byte[] k : ts) {
+          lex.init(k);
+          ia=null;
           int d=0;
-          boolean f=mode != FTMode.M_PHRASE;
           while (lex.hasNext()) {
             final byte[] token=lex.nextToken();
-            tl=mode == FTMode.M_ANY || mode == FTMode.M_ANYWORD ? Math.max(token.length,tl) : tl + token.length;
+            t+=token.length;
             if (ftt.opt.sw != null && ftt.opt.sw.id(token) != 0) {
               ++d;
             }
  else {
               final FTIndexIterator ir=(FTIndexIterator)data.ids(lex);
-              if (iat == null) {
-                iat=ir;
-              }
- else               if (f) {
-                if (mode == FTMode.M_ANY || mode == FTMode.M_ANYWORD) {
-                  iat=FTIndexIterator.union(ir,iat);
-                }
- else {
-                  iat=FTIndexIterator.intersect(ir,iat,0);
-                }
+              if (ia == null) {
+                ia=ir;
               }
  else {
-                iat=FTIndexIterator.intersect(iat,ir,++d);
+                ia=FTIndexIterator.intersect(ia,ir,++d);
                 d=0;
               }
             }
-            f=mode == FTMode.M_ALLWORDS || mode == FTMode.M_ANYWORD;
           }
+        }
+        if (iat == null) {
+          iat=ia;
+          tl=t;
+        }
+ else         if (mode == FTMode.M_ALL || mode == FTMode.M_ALLWORDS) {
+          iat=FTIndexIterator.intersect(ia,iat,0);
+          tl+=t;
+        }
+ else {
+          iat=FTIndexIterator.union(ia,iat);
+          tl=Math.max(t,tl);
         }
         iat.tokenNum(++ctx.ftoknum);
       }
