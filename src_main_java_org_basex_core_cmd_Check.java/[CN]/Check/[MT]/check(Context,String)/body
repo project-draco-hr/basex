@@ -8,7 +8,7 @@
       if (ctx.perm(User.READ,data.meta))       return data;
       throw new IOException(Util.info(PERMNO,CmdPerm.READ));
     }
-    ctx.unpin(data);
+    if (ctx.unpin(data))     data.close();
   }
   return MetaData.found(path,name,ctx.prop) ? Open.open(name,ctx) : ctx.prop.is(Prop.FORCECREATE) ? CreateDB.xml(io,name,ctx) : CreateDB.xml(io,ctx);
 }
