@@ -1,11 +1,11 @@
 {
   final byte[] str=checkEStr(expr[0].item(ctx,ii));
   final long base=checkItr(expr[1].item(ctx,ii));
-  if (base < 2 || base > 36)   Err.INVBASE.thrw(ii,base);
+  if (base < 2 || base > 36)   INVBASE.thrw(ii,base);
   long res=0;
   for (  final byte b : str) {
-    final int num=b <= '9' ? b - '0' : b - 'a' + 10;
-    if (!(b >= '0' && b <= '9' || b >= 'a' && b <= 'z') || num >= base)     INVDIG.thrw(ii,base,(char)(b & 0xff));
+    final int num=b <= '9' ? b - 0x30 : (b & 0xDF) - 0x37;
+    if (!(b >= '0' && b <= '9' || b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z') || num >= base)     INVDIG.thrw(ii,base,(char)(b & 0xff));
     res=res * base + num;
   }
   return Itr.get(res);
