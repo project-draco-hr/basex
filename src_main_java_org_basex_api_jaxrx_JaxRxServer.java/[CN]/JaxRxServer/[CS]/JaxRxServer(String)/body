@@ -1,10 +1,9 @@
 {
-  if (!parseArguments(args))   return;
-  set(BXJaxRx.RESTPATH,context.prop.get(Prop.RESTPATH),false);
+  super(args);
+  if (!success || service)   return;
+  set(BXJaxRx.JAXRXPATH,context.prop.get(Prop.JAXRXPATH),false);
   set(BXJaxRx.SERVERPORT,context.prop.num(Prop.SERVERPORT),false);
   set(BXJaxRx.SERIALIZER,context.prop.get(Prop.SERIALIZER),false);
-  final int rp=context.prop.num(Prop.RESTPORT);
-  Util.outln(RESTSTART,rp);
   final boolean user=System.getProperty(BXJaxRx.USER) != null;
   if (!user)   set(BXJaxRx.USER,Text.ADMIN,false);
   final String pass=System.getProperty(BXJaxRx.PASSWORD);
@@ -16,9 +15,9 @@
   set(BXJaxRx.PASSWORD,p,false);
   set("org.jaxrx.systemName",Text.NAMELC,false);
   set("org.jaxrx.systemPath",BXJaxRx.class.getName(),false);
-  server=new BaseXServer(quiet ? "-z" : "");
   try {
-    jetty=new JettyServer(rp);
+    jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT));
+    Util.outln("JAX-RX " + SERVERSTART);
   }
  catch (  final Exception ex) {
     Util.server(ex);

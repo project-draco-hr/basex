@@ -1,19 +1,26 @@
 {
+  final Args arg=new Args(args,this,JAXRXINFO);
+  boolean daemon=false;
   String serial="";
-  final Args arg=new Args(args,this,RESTINFO);
   while (arg.more()) {
     if (arg.dash()) {
       final char c=arg.next();
-      if (c == 'p') {
+      if (c == 'D') {
+        daemon=true;
+      }
+ else       if (c == 'j') {
+        context.prop.set(Prop.JAXRXPORT,arg.num());
+      }
+ else       if (c == 'p') {
         set(BXJaxRx.SERVERPORT,arg.num(),true);
       }
  else       if (c == 'P') {
         set(BXJaxRx.PASSWORD,arg.string(),true);
       }
- else       if (c == 'r') {
-        context.prop.set(Prop.RESTPORT,arg.num());
-      }
  else       if (c == 's') {
+        service=!daemon;
+      }
+ else       if (c == 'S') {
         serial+="," + arg.string();
         set(BXJaxRx.SERIALIZER,serial,true);
       }
@@ -25,6 +32,13 @@
       }
  else {
         arg.check(false);
+      }
+    }
+ else {
+      arg.check(false);
+      if (arg.string().equalsIgnoreCase("stop")) {
+        stop(context.prop.num(Prop.SERVERPORT));
+        return false;
       }
     }
   }
