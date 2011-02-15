@@ -1,3 +1,16 @@
 {
-  if (check(o,Date.class))   deepFile.addMeta(MetaElem.DATETIME_LAST_USED,ParserUtil.convertDateTime((Date)o));
+  try {
+    String key=((String)o).toUpperCase();
+    key=key.replace('.','_').replace('-','_');
+    final SpotlightContentType ct=SpotlightContentType.valueOf(key);
+    final FileType ft=ct.getType();
+    if (ft != null && !deepFile.isFileTypeSet())     deepFile.setFileType(ft);
+ else {
+      final MimeType mi=ct.getFormat();
+      if (mi != null)       deepFile.setFileFormat(mi);
+    }
+  }
+ catch (  final IllegalArgumentException ex) {
+    Util.debug("SpotlightExtractor: unsupported ContentType found (%)",(String)o);
+  }
 }

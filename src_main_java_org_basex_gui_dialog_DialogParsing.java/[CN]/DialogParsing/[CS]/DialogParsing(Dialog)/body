@@ -1,25 +1,19 @@
 {
   dialog=d;
-  main=new BaseXBack(new BorderLayout()).border(4);
+  main=new BaseXBack(new TableLayout(3,1)).border(4);
   try {
     props=new ParserProp(d.gui.context.prop.get(Prop.PARSEROPT));
   }
  catch (  final IOException ex) {
     props=new ParserProp();
   }
-  final BaseXBack p=new BaseXBack(new TableLayout(1,2,6,0));
-  final BaseXLabel parse=new BaseXLabel(CREATEFORMAT,true,true);
   final StringList parsers=new StringList();
   parsers.add(DataText.M_XML);
   if (HTMLParser.available())   parsers.add(DataText.M_HTML);
-  parsers.add(DataText.M_TEXT);
   parsers.add(DataText.M_CSV);
+  parsers.add(DataText.M_TEXT);
   parser=new BaseXCombo(d,parsers.toArray());
   parser.setSelectedItem(dialog.gui.context.prop.get(Prop.PARSER));
-  p.add(parse);
-  p.add(parser);
-  main.add(p,BorderLayout.NORTH);
-  main.add(new BaseXLabel(FORMATINFO,true,false),BorderLayout.CENTER);
   intparse=new BaseXCheckBox(CREATEINTPARSE,dialog.gui.context.prop.is(Prop.INTPARSE),0,dialog);
   entities=new BaseXCheckBox(CREATEENTITIES,dialog.gui.context.prop.is(Prop.ENTITY),dialog);
   dtd=new BaseXCheckBox(CREATEDTD,dialog.gui.context.prop.is(Prop.DTD),12,dialog);
@@ -29,20 +23,15 @@
   browsec=new BaseXButton(BUTTONBROWSE,dialog);
   lines=new BaseXCheckBox("Lines",props.is(ParserProp.LINES),0,dialog);
   header=new BaseXCheckBox("Header",props.is(ParserProp.HEADER),0,dialog);
-  separator=new BaseXCombo(d,new String[]{"comma","semicolon","tab"});
+  separator=new BaseXCombo(d,CSVParser.SEPARATORS);
   separator.setSelectedItem(props.get(ParserProp.SEPARATOR));
-  format=new BaseXCombo(d,new String[]{"simple","verbose"});
+  format=new BaseXCombo(d,CSVParser.FORMATS);
   format.setSelectedItem(props.get(ParserProp.FORMAT));
   xmlopts=new BaseXBack(new TableLayout(9,1));
   csvopts=new BaseXBack(new TableLayout(6,1));
   textopts=new BaseXBack(new TableLayout(3,1));
   createOptionsPanels();
-  options(DataText.M_XML);
-  final Dimension dim=main.getPreferredSize();
-  final String t=parser.getSelectedItem().toString();
-  if (!t.equals(DataText.M_XML)) {
-    options(t);
-    main.setPreferredSize(dim);
-  }
+  setLayout(new TableLayout(1,1));
+  options(parser.getSelectedItem().toString());
   add(main);
 }
