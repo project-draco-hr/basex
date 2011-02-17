@@ -1,0 +1,37 @@
+{
+  skipWS();
+  if (consume(PAR1)) {
+    final Type ret=itemType();
+    check(PAR2);
+    return ret;
+  }
+  final QNm type=new QNm(qName(TYPEINVALID));
+  type.uri(ctx.ns.uri(type.pref(),false,input()));
+  final boolean atom=!consumeWS(PAR1);
+  tok.reset();
+  if (!atom) {
+    int par=0;
+    while (par != 0 || !consumeWS2(PAR2)) {
+switch (curr()) {
+case '(':
+        par++;
+      break;
+case ')':
+    par--;
+  break;
+case '\0':
+error(FUNCMISS,type.atom());
+}
+tok.add(consume());
+}
+}
+final Type t=Type.find(type,atom);
+if (t == null) {
+if (atom) error(TYPEUNKNOWN,type);
+error(NOTYPE,new TokenBuilder("\"").add(type.atom()).add('(').add(tok.finish()).add(")\""));
+}
+if (t == Type.FUNC && consumeWS2(AS)) {
+final SeqType retType=sequenceType();
+}
+return t;
+}

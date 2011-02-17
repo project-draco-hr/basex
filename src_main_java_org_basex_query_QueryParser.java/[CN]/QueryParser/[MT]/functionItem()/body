@@ -1,0 +1,27 @@
+{
+  final int pos=qp;
+  if (consumeWS2(FUNCTION) && consumeWS(PAR1)) {
+    final int s=ctx.vars.size();
+    final Var[] args=paramList();
+    check(PAR2);
+    final SeqType type=consumeWS(AS) ? sequenceType() : null;
+    final Expr body=enclosed(NOFUNBODY);
+    ctx.vars.reset(s);
+    return new LitFunc(input(),type,args,body);
+  }
+  qp=pos;
+  skipWS();
+  final byte[] fn=qName(null);
+  if (fn.length > 0 && consumeWS2(HASH)) {
+    final QNm name=new QNm(fn);
+    if (name.ns())     ctx.ns.uri(name);
+ else     name.uri(ctx.nsFunc);
+    final long cardinal=((Itr)numericLiteral(true)).itr(null);
+    if (cardinal < 0 || cardinal > Integer.MAX_VALUE)     error(FUNCUNKNOWN,fn);
+    final Expr[] args=new Expr[(int)cardinal];
+    final Expr f=ctx.funcs.get(name,args,ctx,this);
+    return f;
+  }
+  qp=pos;
+  return null;
+}

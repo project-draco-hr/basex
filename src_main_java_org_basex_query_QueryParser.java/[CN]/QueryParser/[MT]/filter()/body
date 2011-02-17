@@ -1,12 +1,35 @@
 {
-  final Expr e=primary();
-  if (!consumeWS2(BR1))   return e;
-  if (e == null)   error(PREDMISSING);
-  Expr[] pred={};
+  Expr e=primary(), old;
   do {
-    pred=add(pred,expr());
-    check(BR2);
-  }
+    old=e;
+    if (consumeWS2(BR1)) {
+      if (e == null)       error(PREDMISSING);
+      Expr[] pred={};
+      do {
+        pred=add(pred,expr());
+        check(BR2);
+      }
  while (consumeWS2(BR1));
-  return new Filter(input(),e,pred);
+      e=new Filter(input(),e,pred);
+    }
+ else     if (consumeWS2(PAR1)) {
+      Expr[] args={};
+      boolean partial=false;
+      if (!consumeWS2(PAR2)) {
+        do {
+          if (consumeWS2(PLHOLDER)) {
+            partial=true;
+            args=add(args,null);
+          }
+ else           args=add(args,single());
+        }
+ while (consumeWS2(COMMA));
+        check(PAR2);
+      }
+      e=new DynFunCall(input(),e,args);
+      if (partial)       e=new PartFunApp(input(),e,args);
+    }
+  }
+ while (e != old);
+  return e;
 }

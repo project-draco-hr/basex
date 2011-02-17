@@ -6,6 +6,7 @@
     return null;
   }
   Expr[] exprs={};
+  boolean partial=false;
   while (curr() != 0) {
     if (consumeWS2(PAR2)) {
       alter=FUNCUNKNOWN;
@@ -16,13 +17,17 @@
       final Expr func=ctx.funcs.get(name,exprs,ctx,this);
       if (func != null) {
         alter=null;
-        return func;
+        return partial ? new PartFunApp(input(),func,exprs) : func;
       }
       qp=p;
       return null;
     }
     if (exprs.length != 0)     check(COMMA);
-    exprs=add(exprs,single());
+    if (consumeWS2(PLHOLDER)) {
+      partial=true;
+      exprs=add(exprs,null);
+    }
+ else     exprs=add(exprs,single());
   }
   error(FUNCMISS,name.atom());
   return null;

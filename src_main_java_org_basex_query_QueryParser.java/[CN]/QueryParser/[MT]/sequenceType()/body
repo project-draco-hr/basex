@@ -1,22 +1,9 @@
 {
   skipWS();
-  final QNm type=new QNm(qName(TYPEINVALID));
-  type.uri(ctx.ns.uri(type.pref(),false,input()));
-  final boolean atom=!consumeWS(PAR1);
-  tok.reset();
-  while (!atom && !consumeWS(PAR2)) {
-    if (curr() == 0)     error(FUNCMISS,type.atom());
-    tok.add(consume());
-  }
-  skipWS();
+  final Type t=itemType();
   final Occ occ=consume('?') ? Occ.ZO : consume('+') ? Occ.OM : consume('*') ? Occ.ZM : Occ.O;
   skipWS();
-  final Type t=Type.find(type,atom);
   if (t == Type.EMP && occ != Occ.O)   error(EMPTYSEQOCC,t);
-  if (t == null) {
-    if (atom)     error(TYPEUNKNOWN,type);
-    error(NOTYPE,new TokenBuilder("\"").add(type.atom()).add('(').add(tok.finish()).add(")\""));
-  }
   final KindTest kt=tok.size() == 0 ? null : kindTest(t,tok.finish());
   return SeqType.get(t,occ,kt == null ? null : kt.extype == null || t == kt.extype ? kt.name : new QNm(EMPTY));
 }
