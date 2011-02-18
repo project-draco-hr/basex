@@ -1,13 +1,14 @@
-import BaseXClient, time
+import BaseXClient
 try:
-    start = time.clock()
     session = BaseXClient.Session('localhost', 1984, 'admin', 'admin')
-    print session.execute('create db testDB')
+    session.execute('create db database')
     print session.info()
-    session.add('World.xml', '', '<x>Hello World!</x>')
+    session.add('World.xml', '/world', '<x>Hello World!</x>')
     print session.info()
+    session.add('Universe.xml', '', '<x>Hello Universe!</x>')
+    print session.info()
+    print ('\n' + session.execute("xquery collection('database')"))
+    session.execute('drop db database')
     session.close()
-    time = ((time.clock() - start) * 1000)
-    print time, 'ms.'
 except IOError as e:
     print e

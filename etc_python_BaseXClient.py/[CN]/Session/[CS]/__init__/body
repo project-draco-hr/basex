@@ -1,13 +1,12 @@
 def __init__(self, host, port, user, pw):
-    self.__buf = array.array('B', ('\x00' * 4096))
+    self.__buf = array.array('B', (chr(0) * 4096))
     self.init()
-    global s
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.__s.connect((host, port))
     ts = self.readString()
     m = hashlib.md5()
     m.update(hashlib.md5(pw).hexdigest())
     m.update(ts)
-    self.send(((user + '\x00') + m.hexdigest()))
-    if (s.recv(1) != '\x00'):
+    self.send(((user + chr(0)) + m.hexdigest()))
+    if (self.__s.recv(1) != chr(0)):
         raise IOError('Access Denied.')
