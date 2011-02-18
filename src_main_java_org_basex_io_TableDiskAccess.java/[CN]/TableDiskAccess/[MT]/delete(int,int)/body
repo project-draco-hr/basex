@@ -7,6 +7,7 @@
     copy(bf.data,from + nr,bf.data,from,npre - last);
     updatePre(nr);
     if (npre == fpre) {
+      pagemap.clear(pages[index]);
       Array.move(fpres,index + 1,-1,blocks - index - 1);
       Array.move(pages,index + 1,-1,blocks - index - 1);
       readBlock(index,fpre,index + 2 > --blocks ? meta.size : fpres[index + 1]);
@@ -15,7 +16,10 @@
   }
   int unused=0;
   while (npre < last) {
-    if (from == 0)     ++unused;
+    if (from == 0) {
+      ++unused;
+      pagemap.clear(pages[index]);
+    }
     nextBlock();
     from=0;
   }

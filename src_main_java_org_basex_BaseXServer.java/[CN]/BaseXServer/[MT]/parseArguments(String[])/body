@@ -1,5 +1,6 @@
 {
   final Args arg=new Args(args,this,SERVERINFO);
+  boolean daemon=false;
   while (arg.more()) {
     if (arg.dash()) {
       final char c=arg.next();
@@ -9,6 +10,9 @@
  else       if (c == 'd') {
         context.prop.set(Prop.DEBUG,true);
       }
+ else       if (c == 'D') {
+        daemon=true;
+      }
  else       if (c == 'i') {
         console=true;
       }
@@ -16,7 +20,7 @@
         context.prop.set(Prop.SERVERPORT,arg.num());
       }
  else       if (c == 's') {
-        service=true;
+        service=!daemon;
       }
  else       if (c == 'z') {
         quiet=true;
@@ -29,6 +33,7 @@
       arg.check(false);
       if (arg.string().equalsIgnoreCase("stop")) {
         stop(context.prop.num(Prop.SERVERPORT));
+        Performance.sleep(1000);
         return false;
       }
     }

@@ -1,0 +1,17 @@
+{
+  final TokenBuilder nm=new TokenBuilder();
+  for (int p=0; p < f.length; p+=cl(f,p)) {
+    final int cp=cp(f,p);
+    nm.add((p == 0 ? XMLToken.isNCStartChar(cp) : XMLToken.isNCChar(cp)) ? cp : '_');
+  }
+  if (nm.size() == 0)   nm.add(COLUMN);
+  byte[] fb=nm.finish();
+  if (headers.contains(fb)) {
+    int c=2;
+    do {
+      fb=concat(nm.finish(),token(c++));
+    }
+ while (headers.contains(fb));
+  }
+  headers.add(fb);
+}

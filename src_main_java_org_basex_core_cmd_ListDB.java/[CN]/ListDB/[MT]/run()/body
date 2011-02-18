@@ -1,0 +1,34 @@
+{
+  String db=args[0];
+  final int i=db.indexOf('/');
+  String path=null;
+  if (i != -1) {
+    path=db.substring(i + 1);
+    db=db.substring(0,i);
+  }
+  if (!validName(db))   return error(NAMEINVALID,db);
+  final Table table=new Table();
+  table.desc=INFONDOCS;
+  table.header.add(INFOPATH);
+  table.header.add(INFONODES);
+  try {
+    final Data data=Open.open(db,context);
+    if (!data.empty()) {
+      for (      final int pre : path == null ? data.doc() : data.doc(path)) {
+        final TokenList tl=new TokenList();
+        tl.add(data.text(pre,true));
+        tl.add(data.size(pre,Data.DOC));
+        table.contents.add(tl);
+      }
+    }
+    Close.close(data,context);
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    final String msg=ex.getMessage();
+    return msg.isEmpty() ? error(DBOPENERR,db) : error(msg);
+  }
+  table.sort();
+  out.println(table.finish());
+  return true;
+}

@@ -1,33 +1,34 @@
 {
   final MetaData md=ic.data.meta;
   final FTOpt fto=ftt.opt;
-  if (txt == null || occ != null || mode != FTMode.M_ANY && mode != FTMode.M_ALL && mode != FTMode.M_PHRASE || md.casesens != fto.is(CS) || md.diacritics != fto.is(DC) || md.stemming != fto.is(ST) || md.language != fto.ln)   return false;
-  if (txt.length == 0) {
+  final boolean wc=fto.is(WC);
+  if (wc && !md.wildcards)   return false;
+  if (occ != null || md.casesens != fto.is(CS) || md.diacritics != fto.is(DC) || md.stemming != fto.is(ST) || md.language != fto.ln)   return false;
+  if (txt == null)   return false;
+  if (txt.size() == 0) {
     ic.costs=0;
     return true;
   }
-  boolean wc=fto.is(WC);
-  if (wc) {
-    wc=md.wildcards;
-    if (!wc)     return false;
-  }
-  final FTLexer ft=new FTLexer(fto).init(txt);
-  ic.costs=0;
-  while (ft.hasNext()) {
-    final byte[] tok=ft.nextToken();
-    if (tok.length > MAXLEN)     return false;
-    if (fto.sw != null && fto.sw.id(tok) != 0)     continue;
-    if (wc) {
-      final byte[] t=ft.get();
-      if (t[0] == '.')       return false;
-      int d=0;
-      for (      final byte w : t) {
-        if (w == '{' || w == '\\' || w == '.' && ++d > 1)         return false;
+  final FTLexer ft=new FTLexer(fto);
+  for (  byte[] t : txt) {
+    ft.init(t);
+    ic.costs=0;
+    while (ft.hasNext()) {
+      final byte[] tok=ft.nextToken();
+      if (tok.length > MAXLEN)       return false;
+      if (fto.sw != null && fto.sw.id(tok) != 0)       continue;
+      if (wc) {
+        t=ft.get();
+        if (t[0] == '.')         return false;
+        int d=0;
+        for (        final byte w : t) {
+          if (w == '{' || w == '\\' || w == '.' && ++d > 1)           return false;
+        }
       }
+      final int s=ic.data.nrIDs(ft) + 3 >> 2;
+      if (ic.costs > s || ic.costs == 0)       ic.costs=s;
+      if (s == 0)       break;
     }
-    final int s=ic.data.nrIDs(ft) + 3 >> 2;
-    if (ic.costs > s || ic.costs == 0)     ic.costs=s;
-    if (s == 0)     break;
   }
   return true;
 }

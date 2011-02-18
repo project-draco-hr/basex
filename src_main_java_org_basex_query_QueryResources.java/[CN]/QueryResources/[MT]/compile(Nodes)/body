@@ -1,27 +1,8 @@
 {
-  final Data data=nodes.data;
-  if (!ctx.context.perm(User.READ,data.meta))   Err.PERMNO.thrw(null,CmdPerm.READ);
-  final int s=data.empty() ? 0 : (int)nodes.size();
-  if (nodes.root) {
-    doc=new DBNode[s];
-    for (int n=0; n < s; ++n) {
-      addDoc(new DBNode(data,nodes.list[n],Data.DOC));
-    }
-  }
- else {
-    final IntList il=data.doc();
-    for (int p=0; p < il.size(); p++) {
-      addDoc(new DBNode(data,il.get(p),Data.DOC));
-    }
-  }
-  rootDocs=docs;
-  if (nodes.root) {
-    ctx.value=Seq.get(doc,docs);
-  }
- else {
-    final ItemIter ir=new ItemIter(s);
-    for (int n=0; n < s; ++n)     ir.add(new DBNode(data,nodes.list[n]));
-    ctx.value=ir.finish();
-  }
-  addCollection(new NodIter(doc,docs),token(data.meta.name));
+  final Data d=nodes.data;
+  if (!ctx.context.perm(User.READ,d.meta))   Err.PERMNO.thrw(null,CmdPerm.READ);
+  ctx.value=DBDocSeq.get(d.empty() ? new int[0] : nodes.list,d);
+  addCollection(nodes.root ? ctx.value : DBDocSeq.get(d.doc(),d),token(d.meta.name));
+  globalData=true;
+  addData(d);
 }

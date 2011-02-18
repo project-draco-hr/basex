@@ -15,14 +15,16 @@
   docsys=p.get(S_DOCTYPE_SYSTEM);
   docpub=p.get(S_DOCTYPE_PUBLIC);
   media=p.get(S_MEDIA_TYPE);
-  indent=p.check(S_INDENT,YES,NO).equals(YES);
+  items=p.check(S_FORMAT,YES,NO).equals(YES);
+  indent=p.check(S_INDENT,YES,NO).equals(YES) && items;
   undecl=p.check(S_UNDECLARE_PREFIXES,YES,NO).equals(YES);
   escape=p.check(S_ESCAPE_URI_ATTRIBUTES,YES,NO).equals(YES);
   content=p.check(S_INCLUDE_CONTENT_TYPE,YES,NO).equals(YES);
-  spaces=Math.max(0,toInt(p.get(S_INDENT_SPACES)));
-  wrapPre=token(p.get(S_WRAP_PRE));
-  wrapUri=token(p.get(S_WRAP_URI));
-  wrap=wrapPre.length != 0;
+  indents=Math.max(0,toInt(p.get(S_INDENTS)));
+  tab=p.check(S_TABULATOR,YES,NO).equals(YES) ? '\t' : ' ';
+  wPre=token(p.get(S_WRAP_PREFIX));
+  wUri=token(p.get(S_WRAP_URI));
+  wrap=wPre.length != 0 || wUri.length != 0;
   if (docsys.isEmpty()) {
     docsys=null;
     docpub=null;
@@ -67,8 +69,8 @@
     }
   }
   if (wrap) {
-    openElement(concat(wrapPre,COL,RESULTS));
-    namespace(wrapPre,wrapUri);
+    openElement(wPre.length != 0 ? concat(wPre,COL,RESULTS) : RESULTS);
+    namespace(wPre,wUri);
     finishElement();
   }
 }

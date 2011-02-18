@@ -4,24 +4,53 @@
  * Index iterator. 
  */
     FTIndexIterator iat;
+    /** 
+ * Text length. 
+ */
+    int tl;
     @Override public FTNode next(){
       if (iat == null) {
-        final FTLexer lex=new FTLexer(ftt.opt).init(txt);
-        int d=0;
-        while (lex.hasNext()) {
-          final byte[] token=lex.nextToken();
-          if (ftt.opt.sw != null && ftt.opt.sw.id(token) != 0) {
-            ++d;
-          }
+        final FTLexer lex=new FTLexer(ftt.opt);
+        FTIndexIterator ia=null;
+        int t=0;
+        final TokenSet ts=tokens(txt,ftt.opt);
+        for (        final byte[] k : ts) {
+          lex.init(k);
+          ia=null;
+          int d=0;
+          while (lex.hasNext()) {
+            final byte[] token=lex.nextToken();
+            t+=token.length;
+            if (ftt.opt.sw != null && ftt.opt.sw.id(token) != 0) {
+              ++d;
+            }
  else {
-            final FTIndexIterator i=(FTIndexIterator)data.ids(lex);
-            iat=iat == null ? i : FTIndexIterator.phrase(iat,i,++d);
-            d=0;
+              final FTIndexIterator ir=(FTIndexIterator)data.ids(lex);
+              if (ia == null) {
+                ia=ir;
+              }
+ else {
+                ia=FTIndexIterator.intersect(ia,ir,++d);
+                d=0;
+              }
+            }
           }
+        }
+        if (iat == null) {
+          iat=ia;
+          tl=t;
+        }
+ else         if (mode == FTMode.M_ALL || mode == FTMode.M_ALLWORDS) {
+          iat=FTIndexIterator.intersect(ia,iat,0);
+          tl+=t;
+        }
+ else {
+          iat=FTIndexIterator.union(ia,iat);
+          tl=Math.max(t,tl);
         }
         iat.tokenNum(++ctx.ftoknum);
       }
-      return iat.more() ? new FTNode(iat.matches(),data,iat.next(),txt.length,iat.indexSize(),iat.score()) : null;
+      return iat.more() ? new FTNode(iat.matches(),data,iat.next(),tl,iat.indexSize(),iat.score()) : null;
     }
   }
 ;

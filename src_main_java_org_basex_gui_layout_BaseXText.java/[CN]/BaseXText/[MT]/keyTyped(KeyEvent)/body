@@ -1,8 +1,44 @@
 {
   if (undo == null || control(e) || DELNEXT.is(e) || DELPREV.is(e) || ESCAPE.is(e))   return;
   text.pos(text.cursor());
-  if (text.start() != -1)   text.delete();
-  text.add(String.valueOf(e.getKeyChar()));
+  boolean indent=false;
+  if (text.start() != -1) {
+    if (TAB.is(e)) {
+      final int s=Math.min(text.pos(),text.start());
+      final int l=Math.max(text.pos(),text.start()) - 1;
+      for (int p=s; p <= l && p < text.size(); p++) {
+        indent|=text.text[p] == '\n';
+      }
+      if (indent)       text.indent(s,l,e.isShiftDown());
+    }
+    if (!indent)     text.delete();
+  }
+  if (ENTER.is(e)) {
+    final StringBuilder sb=new StringBuilder().append(e.getKeyChar());
+    int s=0, t=0;
+    for (int p=text.pos() - 1; p >= 0; p--) {
+      final byte b=text.text[p];
+      if (b == '\n') {
+        break;
+      }
+ else       if (b == '\t') {
+        t++;
+      }
+ else       if (b == ' ') {
+        s++;
+      }
+ else {
+        t=0;
+        s=0;
+      }
+    }
+    for (int p=0; p < t; p++)     sb.append('\t');
+    for (int p=0; p < s; p++)     sb.append(' ');
+    text.add(sb.toString());
+  }
+ else   if (!indent) {
+    text.add(String.valueOf(e.getKeyChar()));
+  }
   text.setCaret();
   rend.calc();
   showCursor(2);

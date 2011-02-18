@@ -1,14 +1,18 @@
 {
   final int tl=txt.length;
-  if (tl <= min)   return txt;
   bl.reset();
   Num.write(bl.list,tl,0);
   bl.size=Num.len(tl);
   c=0;
   o=0;
+  push(0,1);
+  int lc=0;
+  for (  final byte b : txt)   lc+=b >= 'A' && b <= 'Z' ? -1 : 1;
+  final byte[] pack=lc >= 0 ? PACK1 : PACK2;
+  push(lc >= 0 ? 1 : 0,1);
   for (int t=0; t < tl; t++) {
     int b=txt[t];
-    if (b >= 0)     b=PACK[b];
+    if (b >= 0)     b=pack[b];
     if (b >= 0x00 && b < 0x08) {
       push(1 | b << 1,4);
     }
@@ -26,5 +30,5 @@
     }
   }
   if (o != 0)   bl.add(c);
-  return bl.size() > tl ? txt : bl.toArray();
+  return bl.size() < tl ? bl.toArray() : txt;
 }

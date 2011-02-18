@@ -1,0 +1,37 @@
+{
+  dialog=d;
+  main=new BaseXBack(new TableLayout(3,1)).border(4);
+  try {
+    props=new ParserProp(d.gui.context.prop.get(Prop.PARSEROPT));
+  }
+ catch (  final IOException ex) {
+    props=new ParserProp();
+  }
+  final StringList parsers=new StringList();
+  parsers.add(DataText.M_XML);
+  if (HTMLParser.available())   parsers.add(DataText.M_HTML);
+  parsers.add(DataText.M_CSV);
+  parsers.add(DataText.M_TEXT);
+  parser=new BaseXCombo(d,parsers.toArray());
+  parser.setSelectedItem(dialog.gui.context.prop.get(Prop.PARSER));
+  intparse=new BaseXCheckBox(CREATEINTPARSE,dialog.gui.context.prop.is(Prop.INTPARSE),0,dialog);
+  entities=new BaseXCheckBox(CREATEENTITIES,dialog.gui.context.prop.is(Prop.ENTITY),dialog);
+  dtd=new BaseXCheckBox(CREATEDTD,dialog.gui.context.prop.is(Prop.DTD),12,dialog);
+  chop=new BaseXCheckBox(CREATECHOP,dialog.gui.context.prop.is(Prop.CHOP),0,dialog);
+  usecat=new BaseXCheckBox(USECATFILE,!dialog.gui.context.prop.get(Prop.CATFILE).isEmpty(),0,dialog);
+  cfile=new BaseXTextField(dialog.gui.context.prop.get(Prop.CATFILE),dialog);
+  browsec=new BaseXButton(BUTTONBROWSE,dialog);
+  lines=new BaseXCheckBox("Lines",props.is(ParserProp.LINES),0,dialog);
+  header=new BaseXCheckBox("Header",props.is(ParserProp.HEADER),0,dialog);
+  separator=new BaseXCombo(d,CSVParser.SEPARATORS);
+  separator.setSelectedItem(props.get(ParserProp.SEPARATOR));
+  format=new BaseXCombo(d,CSVParser.FORMATS);
+  format.setSelectedItem(props.get(ParserProp.FORMAT));
+  xmlopts=new BaseXBack(new TableLayout(9,1));
+  csvopts=new BaseXBack(new TableLayout(6,1));
+  textopts=new BaseXBack(new TableLayout(3,1));
+  createOptionsPanels();
+  setLayout(new TableLayout(1,1));
+  options(parser.getSelectedItem().toString());
+  add(main);
+}

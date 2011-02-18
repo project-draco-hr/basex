@@ -57,17 +57,18 @@ case DB:
 return new InfoDB();
 case INDEX:
 return new InfoIndex(consume(CmdIndexInfo.class,null));
-case TABLE:
+case STORAGE:
 arg1=number(null);
 arg2=arg1 != null ? number(null) : null;
 if (arg1 == null) arg1=xquery(null);
-return new InfoTable(arg1,arg2);
+return new InfoStorage(arg1,arg2);
 }
 break;
 case CLOSE:
 return new Close();
 case LIST:
-return new List();
+final String input=string(null);
+return input == null ? new List() : new ListDB(input);
 case DROP:
 switch (consume(CmdDrop.class,cmd)) {
 case DATABASE:
@@ -103,11 +104,19 @@ case PASSWORD:
 return new Password(string(null));
 case HELP:
 String hc=name(null);
+String form=null;
 if (hc != null) {
+if (hc.equalsIgnoreCase("wiki")) {
+form=hc;
+hc=null;
+}
+ else {
 qp=qm;
 hc=consume(Cmd.class,cmd).toString();
+form=name(null);
 }
-return new Help(hc);
+}
+return new Help(hc,form);
 case EXIT:
 case QUIT:
 return new Exit();

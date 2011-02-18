@@ -5,6 +5,15 @@
   blocks=in.readNum();
   fpres=in.readNums();
   pages=in.readNums();
+  final int psize=in.readNum();
+  if (psize == 0) {
+    pagemap=new BitArray(allBlocks);
+    for (    final int p : pages)     pagemap.set(p);
+    dirty=true;
+  }
+ else {
+    pagemap=new BitArray(in.readLongs(psize),allBlocks);
+  }
   in.close();
   data=new RandomAccessFile(meta.file(pf),"rw");
   readBlock(0,0,blocks > 1 ? fpres[1] : md.size);

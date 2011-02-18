@@ -1,0 +1,20 @@
+{
+  FTTokens tokens=cache.get(query);
+  if (tokens == null) {
+    tokens=new FTTokens();
+    cache.add(query,tokens);
+    final FTIterator quLex=new FTLexer(opt).init(query);
+    final TokenList quList=new TokenList(1);
+    while (quLex.hasNext())     quList.add(quLex.nextToken());
+    tokens.add(quList);
+    if (opt.th != null) {
+      for (      final byte[] ext : opt.th.find(words.input,query)) {
+        final TokenList tl=new TokenList(1);
+        quLex.init(ext);
+        while (quLex.hasNext())         tl.add(quLex.nextToken());
+        tokens.add(tl);
+      }
+    }
+  }
+  return tokens;
+}

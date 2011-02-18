@@ -11,18 +11,22 @@
   dtd=pr.is(Prop.DTD);
   String enc=null;
   if (consume(DOCDECL)) {
-    checkS();
-    if (!version())     error(DECLSTART);
-    boolean s=s();
-    enc=encoding();
-    if (enc != null) {
-      if (!s)       error(WSERROR);
-      s=s();
+    if (s()) {
+      if (!version())       error(DECLSTART);
+      boolean s=s();
+      enc=encoding();
+      if (enc != null) {
+        if (!s)         error(WSERROR);
+        s=s();
+      }
+      if (sddecl() != null && !s)       error(WSERROR);
+      s();
+      final int ch=nextChar();
+      if (ch != '?' || nextChar() != '>')       error(DECLWRONG);
     }
-    if (sddecl() != null && !s)     error(WSERROR);
-    s();
-    final int ch=nextChar();
-    if (ch != '?' || nextChar() != '>')     error(DECLWRONG);
+ else {
+      prev(5);
+    }
   }
   encoding=enc == null ? UTF8 : enc;
   if (!s(consume()))   prev(1);
