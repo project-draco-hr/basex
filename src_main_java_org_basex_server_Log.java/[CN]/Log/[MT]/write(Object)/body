@@ -6,13 +6,13 @@
     create(now);
   }
   try {
-    final StringBuilder sb=new StringBuilder(TIME.format(now));
+    final TokenBuilder tb=new TokenBuilder(TIME.format(now));
     for (    final Object s : str) {
-      final String l=s.toString().replaceAll("\\r?\\n"," ");
-      sb.append("\t" + (l.length() > 128 ? l.substring(0,125) + "..." : l));
+      tb.add('\t');
+      tb.add(chop(token(s.toString().replaceAll("[\\r\\n ]+"," ")),128));
     }
-    fw.write(sb.append(NL).toString());
-    fw.flush();
+    fos.write(tb.add(NL).finish());
+    fos.flush();
   }
  catch (  final IOException ex) {
     Util.stack(ex);
