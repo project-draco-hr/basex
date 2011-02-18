@@ -1,11 +1,11 @@
 {
+  final IO io=checkIO(expr[0],ctx);
+  final String enc=expr.length < 2 ? null : string(checkEStr(expr[1],ctx));
   try {
-    final IO io=checkIO(expr[0],ctx);
-    final String e=expr.length < 2 ? null : string(checkEStr(expr[1],ctx));
-    return Bln.get(unparsedText(io,e,input) != null);
+    TextInput.content(io,enc);
+    return Bln.TRUE;
   }
- catch (  final QueryException ex) {
-    if (ex.type() == Err.UNDEF.type)     return Bln.FALSE;
-    throw ex;
+ catch (  final IOException ex) {
+    return Bln.FALSE;
   }
 }

@@ -1,0 +1,34 @@
+{
+  if (contains(input,'<') || contains(input,'>'))   INVDOC.thrw(ii,input);
+  for (int c=0; c < colls; ++c) {
+    for (int n=0; n < coll[c].size(); ++n) {
+      if (eq(input,coll[c].get(n).base()))       return (DBNode)coll[c].get(n);
+    }
+  }
+  final String in=string(input);
+  for (int d=0; d < docs; ++d) {
+    if (doc[d].data.meta.name.equals(in))     return doc[d];
+  }
+  final IO io=IO.get(in);
+  for (int d=0; d < docs; ++d) {
+    if (doc[d].data.meta.file.eq(io))     return doc[d];
+  }
+  Data data=null;
+  if (db) {
+    try {
+      data=Open.open(in,ctx.context);
+    }
+ catch (    final IOException ex) {
+      NODB.thrw(ii,in);
+    }
+  }
+ else {
+    final IO file=ctx.base();
+    data=doc(in,file == null,col,ii);
+    if (data == null)     data=doc(file.merge(in).path(),true,col,ii);
+  }
+  final DBNode node=new DBNode(data,0,Data.DOC);
+  if (!data.single() && !col)   EXPSINGLE.thrw(ii);
+  addDoc(node);
+  return node;
+}

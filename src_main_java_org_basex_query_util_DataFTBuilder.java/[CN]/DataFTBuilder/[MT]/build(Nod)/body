@@ -1,0 +1,53 @@
+{
+  if (!(nd instanceof DBNode))   return null;
+  final DBNode node=(DBNode)nd;
+  final FTPos ftp=ftpos.get(node.data,node.pre);
+  if (ftp == null)   return null;
+  boolean marked=false;
+  final TokenList tl=new TokenList();
+  final TokenBuilder tb=new TokenBuilder();
+  final FTLexer lex=new FTLexer().sc().init(nd.atom());
+  int len=-ftlen;
+  while (lex.hasNext()) {
+    final FTSpan span=lex.next();
+    if (ftp.contains(span.pos) || marked) {
+      if (tb.size() != 0) {
+        tl.add(tb.finish());
+        len+=tb.size();
+        tb.reset();
+        if (len >= 0 && tl.size() > 1 && !marked)         break;
+      }
+      if (!marked)       tl.add((byte[])null);
+      marked^=true;
+    }
+    tb.add(span.text);
+  }
+  if (tb.size() != 0) {
+    tl.add(tb.finish());
+    len+=tb.size();
+  }
+  if (len > 0) {
+    final int ts=tl.size();
+    final byte[] first=tl.get(0) != null ? tl.get(0) : EMPTY;
+    final byte[] last=tl.get(ts - 2) != null ? tl.get(ts - 1) : EMPTY;
+    if (first != EMPTY) {
+      final double l=first.length + last.length;
+      final int ll=Math.min(first.length,(int)(first.length / l * len));
+      tl.set(concat(DOTS,subtoken(first,ll)),0);
+      len-=ll;
+    }
+    if (last != EMPTY && len > 0) {
+      final int ll=Math.min(last.length,len);
+      tl.set(concat(subtoken(last,0,last.length - ll),DOTS),ts - 1);
+      len-=ll;
+    }
+    for (int t=ts - 2; t > 0 && len > 0; t--) {
+      final byte[] txt=tl.get(t);
+      if (txt == null || tl.get(t - 1) == null)       continue;
+      final int ll=Math.min(txt.length,len);
+      tl.set(concat(subtoken(txt,0,(txt.length - ll) / 2),DOTS,subtoken(txt,(txt.length + ll) / 2)),t);
+      len-=ll;
+    }
+  }
+  return tl;
+}

@@ -1,0 +1,42 @@
+{
+  final Performance p=new Performance();
+  final String path=target + (target.isEmpty() ? "" : "/") + (name == null ? parser.file.name() : name);
+  final long fl=parser.file.length();
+  boolean large=false;
+  final Runtime rt=Runtime.getRuntime();
+  if (fl > rt.freeMemory() / 3) {
+    Performance.gc(2);
+    large=fl > rt.freeMemory() / 3;
+  }
+  String dbname=path;
+  if (large) {
+    do {
+      dbname=Integer.toString(new Random().nextInt(0x7FFFFFFF));
+    }
+ while (ctx.prop.dbexists(dbname));
+  }
+  final Builder build=large ? new DiskBuilder(parser,ctx.prop) : new MemBuilder(parser,ctx.prop);
+  if (cmd != null)   cmd.build=build;
+  Data data=null;
+  try {
+    data=build.build(dbname);
+    ctx.data.insert(ctx.data.meta.size,-1,data);
+    ctx.data.flush();
+    ctx.update();
+    return Util.info(PATHADDED,path,p);
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    throw new BaseXException(ex);
+  }
+ finally {
+    if (large) {
+      if (data != null)       try {
+        data.close();
+      }
+ catch (      IOException e) {
+      }
+      DropDB.drop(dbname,ctx.prop);
+    }
+  }
+}

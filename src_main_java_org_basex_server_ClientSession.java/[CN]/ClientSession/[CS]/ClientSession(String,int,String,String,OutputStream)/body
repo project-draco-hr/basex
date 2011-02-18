@@ -1,5 +1,6 @@
 {
   super(output);
+  tn=new HashMap<String,List<TriggerNotification>>();
   socket=new Socket();
   socket.connect(new InetSocketAddress(host,port),5000);
   sin=socket.getInputStream();
@@ -10,4 +11,47 @@
   send(Token.md5(Token.md5(pw) + ts));
   sout.flush();
   if (!ok(bi))   throw new LoginException();
+  new Thread("ClientSession " + user + ": Input Thread"+ Thread.activeCount()){
+    @Override public void run(){
+      super.run();
+      try {
+        while (true) {
+          final ArrayOutput o=new ArrayOutput();
+          int l;
+          while ((l=bi.read()) != 0)           if (sink != null)           sink.write(l);
+ else           o.write(l);
+          info=bi.readString();
+          boolean ok=bi.read() == 0 ? true : false;
+          if (!ok) {
+            final String inf=info();
+            if (!inf.isEmpty()) {
+              if (sink != null)               sink.write(inf.getBytes());
+ else               o.write(inf.getBytes());
+            }
+          }
+          if (sink != null) {
+            sink.flush();
+            sink=null;
+          }
+ else {
+            String res=o.toString();
+            if (!"".equals(res)) {
+              int idx=res.indexOf(' ');
+              String name=res.substring(0,idx);
+              String val=res.substring(idx + 1);
+              if (tn.size() > 0)               for (              TriggerNotification t : tn.get(name))               t.update(val);
+            }
+          }
+synchronized (lock) {
+            lock.notifyAll();
+          }
+          o.close();
+        }
+      }
+ catch (      IOException e) {
+        if (!SOCKET_CLOSED.equals(e.getMessage()))         e.printStackTrace();
+      }
+    }
+  }
+.start();
 }

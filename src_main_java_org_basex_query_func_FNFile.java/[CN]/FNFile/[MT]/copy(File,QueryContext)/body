@@ -1,21 +1,37 @@
 {
-  final boolean overwrite=expr.length == 3 && checkType(expr[2].item(ctx,input),Type.BLN).bool(input);
-  final File dst=new File(string(checkStr(expr[1],ctx)));
+  File trg=new File(string(checkStr(expr[1],ctx)));
+  if (trg.isDirectory()) {
+    trg=new File(trg,src.getName());
+  }
+ else   if (!trg.isFile()) {
+    final File par=trg.getParentFile();
+    if (!par.exists() || !par.isDirectory())     PATHINVALID.thrw(input,trg);
+  }
   if (!src.exists())   PATHNOTEXISTS.thrw(input,src);
-  if (!overwrite && dst.exists())   FILEEXISTS.thrw(input,dst.getName());
-  try {
-    final FileChannel sc=new FileInputStream(src).getChannel();
-    final FileChannel dc=new FileOutputStream(dst).getChannel();
+  if (src.isDirectory())   PATHISDIR.thrw(input,src);
+  if (!src.equals(trg)) {
+    FileChannel sc=null;
+    FileChannel dc=null;
     try {
+      sc=new FileInputStream(src).getChannel();
+      dc=new FileOutputStream(trg).getChannel();
       dc.transferFrom(sc,0,sc.size());
     }
-  finally {
-      sc.close();
-      dc.close();
+ catch (    final IOException ex) {
+      FILEERROR.thrw(input,ex);
     }
-  }
- catch (  final IOException ex) {
-    COPYFAILED.thrw(input,src,dst,ex.getMessage());
+ finally {
+      if (sc != null)       try {
+        sc.close();
+      }
+ catch (      final IOException e) {
+      }
+      if (dc != null)       try {
+        dc.close();
+      }
+ catch (      final IOException e) {
+      }
+    }
   }
   return null;
 }

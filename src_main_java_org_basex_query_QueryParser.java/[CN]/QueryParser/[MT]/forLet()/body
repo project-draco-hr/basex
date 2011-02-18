@@ -4,30 +4,20 @@
   do {
     final boolean fr=consumeWS(FOR,DOLLAR,NOFOR);
     boolean score=!fr && consumeWS(LET,SCORE,NOLET);
-    boolean mark=!fr && !score && consumeWS(LET,MARK,NOLET);
     if (score)     check(SCORE);
- else     if (mark)     check(MARK);
  else     if (!fr && !consumeWS(LET,DOLLAR,NOLET))     return fl;
     do {
-      if (comma && !fr) {
-        score=consumeWS(SCORE);
-        mark=!score && consumeWS(MARK);
-      }
+      if (comma && !fr)       score=consumeWS(SCORE);
       final QNm name=varName();
-      final SeqType type=score ? SeqType.DBL : mark ? SeqType.NOD_OM : consumeWS(AS) ? sequenceType() : null;
+      final SeqType type=score ? SeqType.DBL : consumeWS(AS) ? sequenceType() : null;
       final Var var=new Var(input(),name,type);
       final Var ps=fr && consumeWS(AT) ? new Var(input(),varName(),SeqType.ITR) : null;
       final Var sc=fr && consumeWS(SCORE) ? new Var(input(),varName(),SeqType.DBL) : null;
-      final Var mr=fr && consumeWS(MARK) ? new Var(input(),varName(),SeqType.NOD_ZM) : null;
       check(fr ? IN : ASSIGN);
       final Expr e=check(single(),VARMISSING);
       ctx.vars.add(var);
       if (fl == null)       fl=new ForLet[1];
  else       fl=Arrays.copyOf(fl,fl.length + 1);
-      if (mr != null) {
-        if (mr.name.eq(name) || sc != null && sc.name.eq(mr.name) || ps != null && mr.name.eq(ps.name))         error(VARDEFINED,mr);
-        ctx.vars.add(mr);
-      }
       if (sc != null) {
         if (sc.name.eq(name) || ps != null && sc.name.eq(ps.name))         error(VARDEFINED,sc);
         ctx.vars.add(sc);
@@ -36,9 +26,8 @@
         if (name.eq(ps.name))         error(VARDEFINED,ps);
         ctx.vars.add(ps);
       }
-      fl[fl.length - 1]=fr ? new For(input(),e,var,ps,sc,mr) : new Let(input(),e,var,score,mark);
+      fl[fl.length - 1]=fr ? new For(input(),e,var,ps,sc) : new Let(input(),e,var,score);
       score=false;
-      mark=false;
       comma=true;
     }
  while (consumeWS2(COMMA));

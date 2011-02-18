@@ -11,18 +11,13 @@
     return error(PROGERR);
   }
 catch (  final Throwable ex) {
-    Performance.gc(3);
+    Performance.gc(2);
     abort();
     if (ex instanceof OutOfMemoryError) {
-      Util.stack(ex);
-      return error(PROCMEM + ((flags & User.CREATE) != 0 ? PROCMEMCREATE : ""));
+      Util.debug(ex);
+      return error(PROCMEM + ((flags & (User.CREATE | User.WRITE)) != 0 ? PROCMEMCREATE : ""));
     }
-    Util.debug(ex);
-    final Object[] st=ex.getStackTrace();
-    final Object[] obj=new Object[st.length + 1];
-    obj[0]=ex.toString();
-    System.arraycopy(st,0,obj,1,st.length);
-    return error(Util.bug(obj));
+    return error(Util.bug(Util.toArray(ex)));
   }
  finally {
     try {

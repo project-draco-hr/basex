@@ -1,32 +1,36 @@
 {
   ft.action(ftxindex.isSelected());
+  intparse.setEnabled(!usecat.isSelected());
   entities.setEnabled(intparse.isSelected());
   dtd.setEnabled(intparse.isSelected());
-  usecat.setEnabled(CatalogResolverWrapper.available() && !intparse.isSelected());
-  intparse.setEnabled(!usecat.isSelected());
-  cfile.setEnabled(!intparse.isSelected() && (!gui.context.prop.get(Prop.CATFILE).isEmpty() || usecat.isSelected()));
+  usecat.setEnabled(!intparse.isSelected() && CatalogResolverWrapper.available());
+  cfile.setEnabled(usecat.isSelected());
   browsec.setEnabled(cfile.isEnabled());
-  final IO file=IO.get(path());
-  final boolean exists=!path().isEmpty() && file.exists();
-  if (exists)   gui.gprop.set(GUIProp.OPENPATH,file.path());
-  final boolean catexists=IO.get(cfile()).exists();
-  if (catexists && usecat.isSelected())   gui.context.prop.set(Prop.CATFILE,cfile());
- else   gui.context.prop.set(Prop.CATFILE,"");
-  final String nm=dbname();
-  ok=exists && !nm.isEmpty();
-  String inf=!exists ? PATHWHICH : !ok ? DBWHICH : null;
+  boolean valid;
+  final String pth=path.getText().trim();
+  final IO in=IO.get(pth);
+  valid=in.exists() || pth.isEmpty();
+  gui.gprop.set(GUIProp.CREATEPATH,pth);
+  final String nm=dbname.getText().trim();
+  ok=valid && !nm.isEmpty();
+  String inf=!valid ? PATHWHICH : !ok ? DBWHICH : null;
   Msg icon=Msg.ERROR;
   if (ok) {
-    ok=Command.checkName(nm);
+    ok=Command.validName(nm);
     if (!ok) {
       inf=Util.info(INVALID,EDITNAME);
+    }
+ else     if (pth.isEmpty()) {
+      inf=EMPTYDATABASE;
+      icon=Msg.WARN;
     }
  else     if (db.contains(nm)) {
       inf=RENAMEOVER;
       icon=Msg.WARN;
     }
   }
+  if (ok)   gui.gprop.set(GUIProp.CREATENAME,nm);
   info.setText(inf,icon);
-  filter.setEnabled(exists && file.isDir());
+  filter.setEnabled(valid && in.isDir());
   enableOK(buttons,BUTTONOK,ok);
 }

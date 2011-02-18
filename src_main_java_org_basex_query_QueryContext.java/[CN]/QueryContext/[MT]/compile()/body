@@ -1,41 +1,17 @@
 {
   if (nodes != null && nodes.ftpos != null)   ftpos=new FTPosData();
+  if (nodes != null)   resource.compile(nodes);
+  if (inf)   compInfo(NL + QUERYCOMP);
+  final boolean empty=value == null;
+  if (empty)   value=Item.DUMMY;
   try {
-    if (nodes != null) {
-      final Data data=nodes.data;
-      if (!resource.context.perm(User.READ,data.meta))       Err.PERMNO.thrw(null,CmdPerm.READ);
-      final int s=data.empty() ? 0 : (int)nodes.size();
-      if (nodes.root) {
-        resource.doc=new DBNode[s];
-        for (int n=0; n < s; ++n) {
-          resource.addDoc(new DBNode(data,nodes.list[n],Data.DOC));
-        }
-      }
- else {
-        final IntList il=data.doc();
-        for (int p=0; p < il.size(); p++)         resource.addDoc(new DBNode(data,il.get(p),Data.DOC));
-      }
-      resource.rootDocs=resource.docs;
-      if (nodes.root) {
-        resource.value=Seq.get(resource.doc,resource.docs);
-      }
- else {
-        final ItemIter ir=new ItemIter(s);
-        for (int n=0; n < s; ++n)         ir.add(new DBNode(data,nodes.list[n]));
-        resource.value=ir.finish();
-      }
-      resource.addCollection(new NodIter(resource.doc,resource.docs),token(data.meta.name));
-    }
-    if (inf)     compInfo(NL + QUERYCOMP);
-    final boolean empty=resource.value == null;
-    if (empty)     resource.value=Item.DUMMY;
     funcs.comp(this);
     root=root.comp(this);
-    if (empty)     resource.value=null;
-    if (inf)     info.add(NL + QUERYRESULT + funcs+ root+ NL);
   }
  catch (  final StackOverflowError ex) {
     Util.debug(ex);
     XPSTACK.thrw(null);
   }
+  if (empty)   value=null;
+  if (inf)   info.add(NL + QUERYRESULT + funcs+ root+ NL);
 }

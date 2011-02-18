@@ -1,5 +1,5 @@
 {
-  if (!checkName(db))   return error(NAMEINVALID,db);
+  if (!validName(db))   return error(NAMEINVALID,db);
   new Close().run(context);
   try {
     if (context.pinned(db))     return error(DBLOCKED,db);
@@ -15,7 +15,10 @@
       d.close();
       final Open open=new Open(db);
       if (!open.run(context))       return error(open.info());
-      index(context.data);
+      final Data data=context.data;
+      if (prop.is(Prop.TEXTINDEX))       index(IndexType.TEXT,data);
+      if (prop.is(Prop.ATTRINDEX))       index(IndexType.ATTRIBUTE,data);
+      if (prop.is(Prop.FTINDEX))       index(IndexType.FULLTEXT,data);
     }
     return info(DBCREATED,db,perf);
   }

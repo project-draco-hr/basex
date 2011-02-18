@@ -1,13 +1,17 @@
 {
-  try {
-    send(cmd);
-    final BufferInput bi=new BufferInput(sin);
-    int l;
-    while ((l=bi.read()) != 0)     os.write(l);
-    info=bi.readString();
-    if (!ok(bi))     throw new BaseXException(info);
-  }
- catch (  final IOException ex) {
-    throw new BaseXException(ex);
+synchronized (lock) {
+    this.sink=os;
+    try {
+      send(cmd);
+    }
+ catch (    IOException e) {
+      throw new BaseXException(e);
+    }
+    try {
+      lock.wait();
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 }
