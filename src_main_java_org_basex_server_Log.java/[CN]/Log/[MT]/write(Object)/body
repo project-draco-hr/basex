@@ -1,17 +1,18 @@
 {
   if (quiet)   return;
   final Date now=new Date();
-  if (!DATE.format(start).equals(DATE.format(now))) {
+  if (!start.equals(DATE.format(now))) {
     close();
     create(now);
   }
+  final TokenBuilder tb=new TokenBuilder(TIME.format(now));
+  for (  final Object s : str) {
+    tb.add('\t');
+    tb.add(chop(token(s.toString().replaceAll("[\\r\\n ]+"," ")),128));
+  }
+  tb.add(Prop.NL);
   try {
-    final TokenBuilder tb=new TokenBuilder(TIME.format(now));
-    for (    final Object s : str) {
-      tb.add('\t');
-      tb.add(chop(token(s.toString().replaceAll("[\\r\\n ]+"," ")),128));
-    }
-    fos.write(tb.add(NL).finish());
+    fos.write(tb.finish());
     fos.flush();
   }
  catch (  final IOException ex) {
