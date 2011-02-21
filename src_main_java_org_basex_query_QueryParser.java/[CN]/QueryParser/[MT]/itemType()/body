@@ -8,31 +8,46 @@
   final QNm type=new QNm(qName(TYPEINVALID));
   type.uri(ctx.ns.uri(type.pref(),false,input()));
   final boolean atom=!consumeWS(PAR1);
+  Type t=Types.find(type,atom);
   tok.reset();
   if (!atom) {
-    int par=0;
-    while (par != 0 || !consumeWS2(PAR2)) {
+    if (t != null && t.func()) {
+      if (!consumeWS(ASTERISK)) {
+        if (!consumeWS(PAR2)) {
+          SeqType[] args={};
+          do {
+            args=Array.add(args,sequenceType());
+          }
+ while (consumeWS(COMMA));
+          if (!consumeWS(PAR2))           error(FUNCMISS,type.atom());
+          SeqType ret=consumeWS2(AS) ? sequenceType() : SeqType.ITEM_ZM;
+          t=FunType.get(args,ret);
+        }
+      }
+ else       if (!consumeWS(PAR2)) {
+        error(FUNCMISS,type.atom());
+      }
+    }
+ else {
+      int par=0;
+      while (par != 0 || !consumeWS2(PAR2)) {
 switch (curr()) {
 case '(':
-        par++;
-      break;
+          par++;
+        break;
 case ')':
-    par--;
-  break;
+      par--;
+    break;
 case '\0':
-error(FUNCMISS,type.atom());
+  error(FUNCMISS,type.atom());
 }
 tok.add(consume());
 }
-System.out.println(tok);
 }
-final Type t=Types.find(type,atom);
+}
 if (t == null) {
 if (atom) error(TYPEUNKNOWN,type);
 error(NOTYPE,new TokenBuilder("\"").add(type.atom()).add('(').add(tok.finish()).add(")\""));
-}
-if (t.func() && consumeWS2(AS)) {
-final SeqType retType=sequenceType();
 }
 return t;
 }
