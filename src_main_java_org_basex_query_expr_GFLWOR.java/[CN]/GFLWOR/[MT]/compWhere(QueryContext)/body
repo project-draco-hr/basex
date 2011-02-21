@@ -1,13 +1,15 @@
 {
   if (where == null)   return;
-  for (  final ForLet f : fl)   if (f instanceof For && (!f.simple() || !where.removable(f.var)))   return;
+  for (  final ForLet f : fl) {
+    if (f instanceof For && (!f.simple(false) || !where.removable(f.var)))     return;
+  }
   final Expr[] tests=where instanceof And ? ((And)where).expr : new Expr[]{where};
   final int[] tar=new int[tests.length];
   for (int t=0; t < tests.length; ++t) {
     int fr=-1;
     for (int f=fl.length - 1; f >= 0; --f) {
       if (fl[f] instanceof For)       fr=f;
-      if (tests[t].uses(fl[f].var)) {
+      if (tests[t].count(fl[f].var) != 0) {
         if (fr == -1)         return;
         tar[t]=fr;
         break;

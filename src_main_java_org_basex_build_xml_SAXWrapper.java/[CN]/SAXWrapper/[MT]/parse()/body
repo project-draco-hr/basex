@@ -1,7 +1,8 @@
 {
-  final InputSource is=wrap(source.getInputSource());
+  final InputSource is=wrap(src.getInputSource());
+  final String input=src.getSystemId() == null ? "..." : src.getSystemId();
   try {
-    XMLReader r=source.getXMLReader();
+    XMLReader r=src.getXMLReader();
     if (r == null) {
       final SAXParserFactory f=SAXParserFactory.newInstance();
       f.setNamespaceAware(true);
@@ -16,10 +17,10 @@
     r.setProperty("http://xml.org/sax/properties/lexical-handler",sax);
     r.setErrorHandler(sax);
     if (is != null)     r.parse(is);
- else     r.parse(source.getSystemId());
+ else     r.parse(src.getSystemId());
   }
  catch (  final SAXParseException ex) {
-    final String msg=Util.info(SCANPOS,ex.getSystemId(),ex.getLineNumber(),ex.getColumnNumber()) + ": " + ex.getMessage();
+    final String msg=Util.info(SCANPOS,input,ex.getLineNumber(),ex.getColumnNumber()) + ": " + ex.getMessage();
     final IOException ioe=new IOException(msg);
     ioe.setStackTrace(ex.getStackTrace());
     throw ioe;
@@ -28,7 +29,9 @@ catch (  final ProgressException ex) {
     throw ex;
   }
 catch (  final Exception ex) {
-    final IOException ioe=new IOException(ex.getMessage());
+    String msg=ex.getMessage();
+    if (input != null)     msg="\"" + input + "\": "+ msg;
+    final IOException ioe=new IOException(msg);
     ioe.setStackTrace(ex.getStackTrace());
     throw ioe;
   }

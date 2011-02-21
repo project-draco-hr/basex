@@ -1,18 +1,22 @@
 {
   ts=checkUp(ts,ctx).comp(ctx);
-  final Expr[] tmp=new Expr[cs.length];
-  for (int i=0; i < cs.length; ++i)   tmp[i]=cs[i].expr;
+  final Expr[] tmp=new Expr[cases.length];
+  for (int i=0; i < cases.length; ++i)   tmp[i]=cases[i].expr;
   checkUp(ctx,tmp);
   if (ts.value()) {
-    for (    final TypeCase c : cs) {
+    for (    final TypeCase c : cases) {
       if (c.var.type == null || c.var.type.instance(ts.iter(ctx)))       return optPre(c.comp(ctx,(Value)ts).expr,ctx);
     }
   }
-  for (  final TypeCase c : cs)   c.comp(ctx);
+  for (  final TypeCase c : cases)   c.comp(ctx);
   boolean eq=true;
-  for (int i=1; i < cs.length; ++i)   eq&=cs[i - 1].expr.sameAs(cs[i].expr);
+  for (int i=1; i < cases.length; ++i) {
+    eq&=cases[i - 1].expr.sameAs(cases[i].expr);
+  }
   if (eq)   return optPre(Empty.SEQ,ctx);
-  type=cs[0].type();
-  for (int c=1; c < cs.length; ++c)   type=type.intersect(cs[c].type());
+  type=cases[0].type();
+  for (int c=1; c < cases.length; ++c) {
+    type=type.intersect(cases[c].type());
+  }
   return this;
 }
