@@ -1,0 +1,25 @@
+{
+  Expr e=primary(), old;
+  do {
+    old=e;
+    if (consumeWS2(BR1)) {
+      if (e == null)       error(PREDMISSING);
+      Expr[] pred={};
+      do {
+        pred=add(pred,expr());
+        check(BR2);
+      }
+ while (consumeWS2(BR1));
+      e=new Filter(input(),e,pred);
+    }
+ else     if (e != null) {
+      final Expr[] args=argumentList(e);
+      if (args == null)       break;
+      final Var[] part=partial(args);
+      e=new DynFunCall(input(),e,args);
+      if (part.length > 0)       e=new PartFunApp(input(),e,part);
+    }
+  }
+ while (e != old);
+  return e;
+}

@@ -1,34 +1,22 @@
 {
   final int p=qp;
   final QNm name=new QNm(qName(null),ctx,input());
-  if (!consumeWS2(PAR1) || NodeType.find(name) != null) {
+  Expr[] args;
+  if (NodeType.find(name) != null || (args=argumentList(name.atom())) == null) {
     qp=p;
     return null;
   }
-  Expr[] exprs={};
-  boolean partial=false;
-  while (curr() != 0) {
-    if (consumeWS2(PAR2)) {
-      alter=FUNCUNKNOWN;
-      alterFunc=name;
-      ap=qp;
-      ctx.ns.uri(name);
-      name.uri(name.ns() ? ctx.ns.uri(name.pref(),false,input()) : ctx.nsFunc);
-      final Expr func=ctx.funcs.get(name,exprs,ctx,this);
-      if (func != null) {
-        alter=null;
-        return partial ? new PartFunApp(input(),func,exprs) : func;
-      }
-      qp=p;
-      return null;
-    }
-    if (exprs.length != 0)     check(COMMA);
-    if (consumeWS2(PLHOLDER)) {
-      partial=true;
-      exprs=add(exprs,null);
-    }
- else     exprs=add(exprs,single());
+  alter=FUNCUNKNOWN;
+  alterFunc=name;
+  ap=qp;
+  ctx.ns.uri(name);
+  name.uri(name.ns() ? ctx.ns.uri(name.pref(),false,input()) : ctx.nsFunc);
+  final Expr func=ctx.funcs.get(name,args,ctx,this);
+  if (func != null) {
+    alter=null;
+    final Var[] part=partial(args);
+    return part.length > 0 ? new PartFunApp(input(),func,part) : func;
   }
-  error(FUNCMISS,name.atom());
+  qp=p;
   return null;
 }

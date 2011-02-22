@@ -7,7 +7,7 @@
     final SeqType type=consumeWS(AS) ? sequenceType() : null;
     final Expr body=enclosed(NOFUNBODY);
     ctx.vars.reset(s);
-    return new LitFunc(input(),type,args,body);
+    return new InlineFunc(input(),type,args,body);
   }
   qp=pos;
   skipWS();
@@ -19,8 +19,10 @@
     final long cardinal=((Itr)numericLiteral(true)).itr(null);
     if (cardinal < 0 || cardinal > Integer.MAX_VALUE)     error(FUNCUNKNOWN,fn);
     final Expr[] args=new Expr[(int)cardinal];
+    final Var[] vars=partial(args);
     final Expr f=ctx.funcs.get(name,args,ctx,this);
-    return f;
+    if (f == null)     error(FUNCUNKNOWN,fn);
+    return new LitFunc(input(),f,vars);
   }
   qp=pos;
   return null;
