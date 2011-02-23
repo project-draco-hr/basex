@@ -3,31 +3,31 @@
   final ForLet[] fl=forLet();
   if (fl == null)   return null;
   Expr where=null;
-  if (consumeWS(WHERE)) {
+  if (wsConsumeWs(WHERE)) {
     ap=qp;
     where=check(single(),NOWHERE);
     alter=NOWHERE;
   }
   Var[] group=null;
-  if (ctx.xquery3 && consumeWS(GROUP)) {
-    check(BY);
+  if (ctx.xquery3 && wsConsumeWs(GROUP)) {
+    wsCheck(BY);
     ap=qp;
     do     group=groupSpec(group);
- while (consumeWS2(COMMA));
+ while (wsConsume(COMMA));
     alter=GRPBY;
   }
   OrderBy[] order=null;
-  final boolean stable=consumeWS(STABLE);
-  if (stable)   check(ORDER);
-  if (stable || consumeWS(ORDER)) {
-    check(BY);
+  final boolean stable=wsConsumeWs(STABLE);
+  if (stable)   wsCheck(ORDER);
+  if (stable || wsConsumeWs(ORDER)) {
+    wsCheck(BY);
     ap=qp;
     do     order=orderSpec(order);
- while (consumeWS2(COMMA));
+ while (wsConsume(COMMA));
     if (order != null)     order=Array.add(order,new OrderByStable(input()));
     alter=ORDERBY;
   }
-  if (!consumeWS(RETURN)) {
+  if (!wsConsumeWs(RETURN)) {
     if (alter != null)     error();
     error(where == null ? FLWORWHERE : order == null ? FLWORORD : FLWORRET);
   }
