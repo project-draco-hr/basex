@@ -3,14 +3,14 @@
   final QNm name=new QNm(qName(FUNCNAME));
   name.uri(name.ns() ? ctx.ns.uri(name.pref(),false,input()) : ctx.nsFunc);
   if (module != null && !name.uri().eq(module.uri()))   error(MODNS,name);
-  check(PAR1);
+  wsCheck(PAR1);
   final int s=ctx.vars.size();
   final Var[] args=paramList();
-  check(PAR2);
-  final SeqType type=consumeWS(AS) ? sequenceType() : null;
+  wsCheck(PAR2);
+  final SeqType type=wsConsumeWs(AS) ? sequenceType() : null;
   final Func func=new Func(input(),new Var(input(),name,type),args,true);
   func.updating=up;
   ctx.funcs.add(func,this);
-  if (!consumeWS(EXTERNAL))   func.expr=enclosed(NOFUNBODY);
+  if (!wsConsumeWs(EXTERNAL))   func.expr=enclosed(NOFUNBODY);
   ctx.vars.reset(s);
 }

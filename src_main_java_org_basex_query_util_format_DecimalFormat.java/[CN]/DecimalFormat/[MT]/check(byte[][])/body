@@ -1,0 +1,43 @@
+{
+  for (  final byte[] pt : patterns) {
+    boolean frc=false, pas=false, act=false;
+    boolean dg=false, opt1=false, opt2=false;
+    int pc=0, pm=0;
+    for (int i=0; i < pt.length; i+=cl(pt,i)) {
+      int ch=cp(pt,i);
+      final boolean a=active.indexOf(ch) != -1;
+      if (ch == decimal) {
+        if (frc)         return false;
+        frc=true;
+      }
+ else       if (ch == group) {
+        if (i > 0 && cp(pt,i - 1) == decimal || i + 1 < pt.length && cp(pt,i + 1) == decimal)         return false;
+      }
+ else       if (ch == percent) {
+        ++pc;
+      }
+ else       if (ch == permille) {
+        ++pm;
+      }
+ else       if (ch == digit) {
+        if (!frc) {
+          if (dg)           return false;
+          opt1=true;
+        }
+ else {
+          opt2=true;
+        }
+      }
+ else       if (digits.indexOf(ch) != -1) {
+        if (frc && opt2)         return false;
+        dg=true;
+      }
+      if (a && pas && act)       return false;
+      if (act)       pas|=!a;
+      act|=a;
+    }
+    if (pc > 1 || pm > 1 || pc + pm > 1)     return false;
+    if (!opt1 && !opt2 && !dg)     return false;
+  }
+  return true;
+}

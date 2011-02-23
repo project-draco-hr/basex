@@ -1,10 +1,12 @@
 {
   file=f;
   if (!more())   error(QUERYEMPTY);
-  final int v=valid();
-  if (v != -1) {
-    qp=v;
-    error(QUERYINV,query.codePointAt(v));
+  int cp;
+  for (int p=0; p < ql; p+=Character.charCount(cp)) {
+    cp=query.codePointAt(p);
+    if (XMLToken.valid(cp))     continue;
+    qp=p;
+    error(QUERYINV,query.codePointAt(p));
   }
   return parse(u,true);
 }

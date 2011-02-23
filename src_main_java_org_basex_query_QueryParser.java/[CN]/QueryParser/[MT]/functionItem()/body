@@ -1,10 +1,10 @@
 {
   final int pos=qp;
-  if (consumeWS2(FUNCTION) && consumeWS(PAR1)) {
+  if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
     final int s=ctx.vars.size();
     final Var[] args=paramList();
-    check(PAR2);
-    final SeqType type=consumeWS(AS) ? sequenceType() : null;
+    wsCheck(PAR2);
+    final SeqType type=wsConsume(AS) ? sequenceType() : null;
     final Expr body=enclosed(NOFUNBODY);
     ctx.vars.reset(s);
     return new InlineFunc(input(),type,args,body);
@@ -12,7 +12,7 @@
   qp=pos;
   skipWS();
   final byte[] fn=qName(null);
-  if (fn.length > 0 && consumeWS2(HASH)) {
+  if (fn.length > 0 && consume(HASH)) {
     final QNm name=new QNm(fn);
     if (name.ns())     ctx.ns.uri(name);
  else     name.uri(ctx.nsFunc);

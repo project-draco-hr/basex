@@ -1,7 +1,7 @@
 {
-  if (!ctx.xquery3 || !consumeWS2(TRY))   return null;
+  if (!ctx.xquery3 || !wsConsumeWs(TRY))   return null;
   final Expr tr=enclosed(NOENCLEXPR);
-  check(CATCH);
+  wsCheck(CATCH);
   Catch[] ct={};
   do {
     QNm[] codes={};
@@ -11,27 +11,27 @@
         codes=Array.add(codes,new QNm(qName(QNAMEINV)));
       }
  else {
-        check("*");
+        wsCheck("*");
         codes=Array.add(codes,(QNm)null);
       }
     }
- while (consumeWS(PIPE));
+ while (wsConsumeWs(PIPE));
     Var[] var={};
     final int s=ctx.vars.size();
-    if (consumeWS2(PAR1)) {
+    if (wsConsume(PAR1)) {
       var=addVar(var);
-      if (consumeWS2(COMMA)) {
+      if (wsConsume(COMMA)) {
         var=addVar(var);
-        if (consumeWS2(COMMA)) {
+        if (wsConsume(COMMA)) {
           var=addVar(var);
         }
       }
-      check(PAR2);
+      wsCheck(PAR2);
     }
     final Expr ex=enclosed(NOENCLEXPR);
     ctx.vars.reset(s);
     ct=Array.add(ct,new Catch(input(),ex,codes,var));
   }
- while (consumeWS(CATCH));
+ while (wsConsumeWs(CATCH));
   return new Try(input(),tr,ct);
 }
