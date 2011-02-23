@@ -1,37 +1,24 @@
 {
   new Thread(){
-    BufferInput bi=new BufferInput(sin);
     @Override public void run(){
       try {
         while (true) {
           final ArrayOutput o=new ArrayOutput();
-          int l;
-          while ((l=bi.read()) != 0)           if (sink != null)           sink.write(l);
- else           o.write(l);
-          info=bi.readString();
-          boolean ok=bi.read() == 0 ? true : false;
-          if (!ok) {
-            final String inf=info();
-            if (!inf.isEmpty()) {
-              if (sink != null)               sink.write(inf.getBytes());
- else               o.write(inf.getBytes());
-            }
-          }
-          if (sink != null) {
-            sink.flush();
-            sink=null;
+          bi=new BufferInput(sin);
+          first=bi.read();
+          if (first == 1) {
+            System.out.println("TRIGGER");
           }
  else {
-            String res=o.toString();
-            if (!"".equals(res)) {
-              int idx=res.indexOf(' ');
-              String name=res.substring(0,idx);
-              String val=res.substring(idx + 1);
-              if (tn.size() > 0)               for (              TriggerNotification t : tn.get(name))               t.update(val);
+synchronized (mutex) {
+              mutex.notifyAll();
+              try {
+                mutex.wait();
+              }
+ catch (              InterruptedException e) {
+                e.printStackTrace();
+              }
             }
-          }
-synchronized (lock) {
-            lock.notifyAll();
           }
           o.close();
         }
