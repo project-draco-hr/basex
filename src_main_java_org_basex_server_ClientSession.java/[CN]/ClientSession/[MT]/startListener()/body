@@ -3,11 +3,15 @@
     @Override public void run(){
       try {
         while (true) {
-          final ArrayOutput o=new ArrayOutput();
           bi=new BufferInput(sin);
           first=bi.read();
           if (first == 1) {
-            System.out.println("TRIGGER");
+            String name=bi.readString();
+            String val=bi.readString();
+            if (tn.size() > 0)             for (            TriggerNotification t : tn.get(name))             t.update(val);
+synchronized (mutex) {
+              mutex.notifyAll();
+            }
           }
  else {
 synchronized (mutex) {
@@ -20,7 +24,6 @@ synchronized (mutex) {
               }
             }
           }
-          o.close();
         }
       }
  catch (      IOException e) {
