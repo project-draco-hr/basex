@@ -2,7 +2,9 @@
   Item it=expr[0].item(ctx,input);
   if (it == null)   it=Dbl.NAN;
  else   if (!it.unt() && !it.num())   Err.number(this,it);
-  final String pic=string(checkEStr(expr[1],ctx));
-  if (expr.length == 3)   FORMNUM.thrw(input,expr[2]);
-  return Str.get(NumFormatter.format(input,it,pic));
+  final String pic=string(checkStr(expr[1],ctx));
+  final QNm frm=new QNm(expr.length == 3 ? checkStr(expr[2],ctx) : EMPTY);
+  final DecimalFormat df=ctx.decFormats.get(frm);
+  if (df == null)   FORMNUM.thrw(input,frm);
+  return Str.get(df.format(input,it,pic));
 }

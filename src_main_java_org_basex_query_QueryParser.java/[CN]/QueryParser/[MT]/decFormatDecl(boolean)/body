@@ -1,0 +1,24 @@
+{
+  if (def && !wsConsumeWs(DECFORMAT))   return false;
+  final QNm name=new QNm(def ? EMPTY : qName(QNAMEINV));
+  if (ctx.decFormats.get(name) != null)   error(DECDUPL);
+  final HashMap<String,String> sl=new HashMap<String,String>();
+  int n;
+  do {
+    n=sl.size();
+    final String prop=string(ncName(null));
+    for (    final String s : DECFORMATS) {
+      if (prop.equals(s)) {
+        final String key=s;
+        if (sl.get(key) != null)         error(DECDUPLPROP);
+        wsCheck(IS);
+        sl.put(key,string(stringLiteral()));
+        break;
+      }
+    }
+    if (sl.size() == 0)     error(NODECLFORM,prop);
+  }
+ while (n != sl.size());
+  ctx.decFormats.put(name,new DecimalFormat(input(),sl));
+  return true;
+}
