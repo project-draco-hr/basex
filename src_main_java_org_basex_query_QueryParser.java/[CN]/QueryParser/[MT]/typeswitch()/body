@@ -1,23 +1,23 @@
 {
-  if (!consumeWS(TYPESWITCH,PAR1,TYPEPAR))   return null;
-  check(PAR1);
+  if (!wdConsumeWs(TYPESWITCH,PAR1,TYPEPAR))   return null;
+  wsCheck(PAR1);
   final Expr ts=check(expr(),NOTYPESWITCH);
-  check(PAR2);
+  wsCheck(PAR2);
   TypeCase[] cases={};
   final int s=ctx.vars.size();
   boolean cs=true;
   do {
-    cs=consumeWS(CASE);
-    if (!cs)     check(DEFAULT);
+    cs=wsConsumeWs(CASE);
+    if (!cs)     wsCheck(DEFAULT);
     skipWS();
     QNm name=null;
     if (curr() == '$') {
       name=varName();
-      if (cs)       check(AS);
+      if (cs)       wsCheck(AS);
     }
     final Var var=new Var(input(),name,cs ? sequenceType() : null);
     if (name != null)     ctx.vars.add(var);
-    check(RETURN);
+    wsCheck(RETURN);
     final Expr ret=check(single(),NOTYPESWITCH);
     cases=Array.add(cases,new TypeCase(input(),var,ret));
     ctx.vars.reset(s);

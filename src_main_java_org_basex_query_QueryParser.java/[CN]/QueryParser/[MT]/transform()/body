@@ -1,19 +1,19 @@
 {
-  if (!consumeWS(COPY,DOLLAR,INCOMPLETE))   return null;
+  if (!wdConsumeWs(COPY,DOLLAR,INCOMPLETE))   return null;
   final boolean u=ctx.updating;
   ctx.updating=false;
   Let[] fl={};
   do {
     final Var v=new Var(input(),varName());
-    check(ASSIGN);
+    wsCheck(ASSIGN);
     final Expr e=check(single(),INCOMPLETE);
     ctx.vars.add(v);
     fl=Array.add(fl,new Let(input(),e,v));
   }
- while (consumeWS(COMMA));
-  check(MODIFY);
+ while (wsConsumeWs(COMMA));
+  wsCheck(MODIFY);
   final Expr m=check(single(),INCOMPLETE);
-  check(RETURN);
+  wsCheck(RETURN);
   final Expr r=check(single(),INCOMPLETE);
   ctx.updating=u;
   return new Transform(input(),fl,m,r);

@@ -1,32 +1,35 @@
 {
   while (true) {
     final int p=qp;
-    if (consumeWS(DECLARE)) {
-      if (consumeWS(DEFAULT)) {
-        if (!defaultNamespaceDecl() && !defaultCollationDecl() && !emptyOrderDecl())         error(DECLINCOMPLETE);
+    if (wsConsumeWs(DECLARE)) {
+      if (wsConsumeWs(DEFAULT)) {
+        if (!defaultNamespaceDecl() && !defaultCollationDecl() && !emptyOrderDecl()&& !decFormatDecl(true))         error(DECLINCOMPLETE);
       }
- else       if (consumeWS(BOUNDARY)) {
+ else       if (wsConsumeWs(BOUNDARY)) {
         boundarySpaceDecl();
       }
- else       if (consumeWS(BASEURI)) {
+ else       if (wsConsumeWs(BASEURI)) {
         baseURIDecl();
       }
- else       if (consumeWS(CONSTRUCTION)) {
+ else       if (wsConsumeWs(CONSTRUCTION)) {
         constructionDecl();
       }
- else       if (consumeWS(ORDERING)) {
+ else       if (wsConsumeWs(ORDERING)) {
         orderingModeDecl();
       }
- else       if (consumeWS(REVALIDATION)) {
+ else       if (wsConsumeWs(REVALIDATION)) {
         revalidationDecl();
       }
- else       if (consumeWS(COPYNS)) {
+ else       if (wsConsumeWs(COPYNS)) {
         copyNamespacesDecl();
       }
- else       if (consumeWS(NSPACE)) {
+ else       if (wsConsumeWs(DECFORMAT)) {
+        decFormatDecl(false);
+      }
+ else       if (wsConsumeWs(NSPACE)) {
         namespaceDecl();
       }
- else       if (consumeWS(FTOPTION)) {
+ else       if (wsConsumeWs(FTOPTION)) {
         final FTOpt opt=new FTOpt();
         while (ftMatchOption(opt))         ;
         ctx.ftopt.init(opt);
@@ -36,11 +39,11 @@
         return;
       }
     }
- else     if (consumeWS(IMPORT)) {
-      if (consumeWS(SCHEMA)) {
+ else     if (wsConsumeWs(IMPORT)) {
+      if (wsConsumeWs(SCHEMA)) {
         schemaImport();
       }
- else       if (consumeWS(MODULE)) {
+ else       if (wsConsumeWs(MODULE)) {
         moduleImport();
       }
  else {

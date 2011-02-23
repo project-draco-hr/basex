@@ -1,34 +1,34 @@
 {
   final Expr[] pragmas=pragma();
   if (pragmas.length != 0) {
-    check(BRACE1);
+    wsCheck(BRACE1);
     final FTExpr e=ftSelection(true);
-    check(BRACE2);
+    wsCheck(BRACE2);
     return new FTExtensionSelection(input(),pragmas,e);
   }
-  if (consumeWS(PAR1)) {
+  if (wsConsumeWs(PAR1)) {
     final FTExpr e=ftSelection(false);
-    check(PAR2);
+    wsCheck(PAR2);
     return e;
   }
   skipWS();
   final Expr e=curr('{') ? enclosed(NOENCLEXPR) : quote(curr()) ? literal() : null;
   if (e == null)   error(prg ? NOPRAGMA : NOENCLEXPR);
   FTMode mode=FTMode.M_ANY;
-  if (consumeWS(ALL)) {
-    mode=consumeWS(WORDS) ? FTMode.M_ALLWORDS : FTMode.M_ALL;
+  if (wsConsumeWs(ALL)) {
+    mode=wsConsumeWs(WORDS) ? FTMode.M_ALLWORDS : FTMode.M_ALL;
   }
- else   if (consumeWS(ANY)) {
-    mode=consumeWS(WORD) ? FTMode.M_ANYWORD : FTMode.M_ANY;
+ else   if (wsConsumeWs(ANY)) {
+    mode=wsConsumeWs(WORD) ? FTMode.M_ANYWORD : FTMode.M_ANY;
   }
- else   if (consumeWS(PHRASE)) {
+ else   if (wsConsumeWs(PHRASE)) {
     mode=FTMode.M_PHRASE;
   }
   Expr[] occ=null;
-  if (consumeWS(OCCURS)) {
+  if (wsConsumeWs(OCCURS)) {
     occ=ftRange();
     if (occ == null)     error(FTRANGE);
-    check(TIMES);
+    wsCheck(TIMES);
   }
   return new FTWords(input(),e,mode,occ);
 }

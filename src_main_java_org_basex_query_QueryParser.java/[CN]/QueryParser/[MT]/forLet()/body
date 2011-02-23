@@ -2,18 +2,18 @@
   ForLet[] fl=null;
   boolean comma=false;
   do {
-    final boolean fr=consumeWS(FOR,DOLLAR,NOFOR);
-    boolean score=!fr && consumeWS(LET,SCORE,NOLET);
-    if (score)     check(SCORE);
- else     if (!fr && !consumeWS(LET,DOLLAR,NOLET))     return fl;
+    final boolean fr=wdConsumeWs(FOR,DOLLAR,NOFOR);
+    boolean score=!fr && wdConsumeWs(LET,SCORE,NOLET);
+    if (score)     wsCheck(SCORE);
+ else     if (!fr && !wdConsumeWs(LET,DOLLAR,NOLET))     return fl;
     do {
-      if (comma && !fr)       score=consumeWS(SCORE);
+      if (comma && !fr)       score=wsConsumeWs(SCORE);
       final QNm name=varName();
-      final SeqType type=score ? SeqType.DBL : consumeWS(AS) ? sequenceType() : null;
+      final SeqType type=score ? SeqType.DBL : wsConsumeWs(AS) ? sequenceType() : null;
       final Var var=new Var(input(),name,type);
-      final Var ps=fr && consumeWS(AT) ? new Var(input(),varName(),SeqType.ITR) : null;
-      final Var sc=fr && consumeWS(SCORE) ? new Var(input(),varName(),SeqType.DBL) : null;
-      check(fr ? IN : ASSIGN);
+      final Var ps=fr && wsConsumeWs(AT) ? new Var(input(),varName(),SeqType.ITR) : null;
+      final Var sc=fr && wsConsumeWs(SCORE) ? new Var(input(),varName(),SeqType.DBL) : null;
+      wsCheck(fr ? IN : ASSIGN);
       final Expr e=check(single(),NOVARDECL);
       ctx.vars.add(var);
       if (fl == null)       fl=new ForLet[1];
@@ -30,7 +30,7 @@
       score=false;
       comma=true;
     }
- while (consumeWS2(COMMA));
+ while (wsConsume(COMMA));
     comma=false;
   }
  while (true);
