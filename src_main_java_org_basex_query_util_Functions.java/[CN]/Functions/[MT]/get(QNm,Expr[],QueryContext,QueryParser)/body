@@ -2,11 +2,11 @@
   final byte[] uri=name.uri().atom();
   final byte[] ln=name.ln();
   if (eq(uri,XSURI)) {
-    final Type type=Type.find(name,true);
-    if (type == null || type == Type.NOT || type == Type.AAT) {
+    final Type type=AtomType.find(name,true);
+    if (type == null || type == AtomType.NOT || type == AtomType.AAT) {
       final Levenshtein ls=new Levenshtein();
-      for (      final Type t : Type.values()) {
-        if (t.par != null && ls.similar(lc(ln),lc(t.nam),0))         qp.error(FUNSIMILAR,name,t.nam);
+      for (      final AtomType t : AtomType.values()) {
+        if (t.par() != null && ls.similar(lc(ln),lc(t.nam()),0))         qp.error(FUNSIMILAR,name,t.nam());
       }
       qp.error(FUNCUNKNOWN,name.atom());
     }
@@ -44,7 +44,7 @@
     final QNm qn=func[l].var.name;
     if (eq(ln,qn.ln()) && eq(uri,qn.uri().atom()) && args.length == func[l].args.length)     return add(qp.input(),qn,l,args);
   }
-  if (Type.find(name,false) == null) {
+  if (Types.find(name,false) == null) {
     return add(qp.input(),name,add(new Func(qp.input(),new Var(name),new Var[args.length],false),qp),args);
   }
   return null;
