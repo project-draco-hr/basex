@@ -1,0 +1,22 @@
+{
+  final FunItem zipper=withArity(0,2,ctx);
+  final Iter xs=expr[1].iter(ctx);
+  final Iter ys=expr[2].iter(ctx);
+  return new Iter(){
+    /** 
+ * Results. 
+ */
+    Iter zs=Empty.ITER;
+    @Override public Item next() throws QueryException {
+      do {
+        final Item it=zs.next();
+        if (it != null)         return it;
+        final Item x=xs.next(), y=ys.next();
+        if (x == null || y == null)         return null;
+        zs=zipper.invIter(ctx,input,x,y);
+      }
+ while (true);
+    }
+  }
+;
+}
