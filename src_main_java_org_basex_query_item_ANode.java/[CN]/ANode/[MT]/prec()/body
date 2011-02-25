@@ -1,0 +1,31 @@
+{
+  return new AxisIter(){
+    /** 
+ * Iterator. 
+ */
+    private NodeCache nc;
+    @Override public ANode next(){
+      if (nc == null) {
+        nc=new NodeCache();
+        ANode n=ANode.this;
+        ANode p=n.parent();
+        while (p != null) {
+          if (n.type != NodeType.ATT) {
+            final NodeCache tmp=new NodeCache();
+            final AxisIter ai=p.children();
+            ANode c;
+            while ((c=ai.next()) != null && !c.is(n)) {
+              tmp.add(c.finish());
+              addDesc(c.children(),tmp);
+            }
+            for (long t=tmp.size() - 1; t >= 0; t--)             nc.add(tmp.get(t));
+          }
+          n=p;
+          p=p.parent();
+        }
+      }
+      return nc.next();
+    }
+  }
+;
+}

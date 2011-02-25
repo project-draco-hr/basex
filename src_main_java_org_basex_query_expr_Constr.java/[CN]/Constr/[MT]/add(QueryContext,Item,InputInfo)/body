@@ -1,7 +1,7 @@
 {
   if (it == null)   return false;
   if (it.node() && it.type != NodeType.TXT) {
-    Nod node=(Nod)it;
+    ANode node=(ANode)it;
     if (it.type == NodeType.ATT) {
       if (text.size() != 0 || children.size() != 0) {
         errAtt=true;
@@ -12,18 +12,18 @@
       final byte[] pre=name.pref();
       if (eq(pre,XML) && eq(ln,BASE))       base=it.atom(ii);
       final QNm qname=node.qname();
-      for (int a=0; a < ats.size(); ++a) {
-        if (qname.eq(ats.get(a).qname())) {
+      for (int a=0; a < atts.size(); ++a) {
+        if (qname.eq(atts.get(a).qname())) {
           duplAtt=qname.atom();
           return false;
         }
       }
-      ats.add(node.copy());
+      atts.add(node.copy());
     }
  else     if (it.type == NodeType.DOC) {
-      final NodeIter iter=node.child();
-      Nod ch;
-      while ((ch=iter.next()) != null)       add(ctx,ch,ii);
+      final AxisIter ai=node.children();
+      ANode ch;
+      while ((ch=ai.next()) != null)       add(ctx,ch,ii);
     }
  else {
       if (text.size() != 0) {
@@ -32,13 +32,13 @@
       }
       node=node.copy();
       children.add(node);
-      final Atts atts=node.ns();
-      if (atts != null && atts.size != 0) {
+      final Atts ats=node.ns();
+      if (ats != null && ats.size != 0) {
         node=node.parent();
         while (node != null && node.type == NodeType.ELM) {
           final Atts ns=node.ns();
           for (int a=0; a < ns.size; ++a) {
-            if (!atts.contains(ns.key[a]))             atts.add(ns.key[a],ns.val[a]);
+            if (!ats.contains(ns.key[a]))             ats.add(ns.key[a],ns.val[a]);
           }
           node=node.parent();
         }
