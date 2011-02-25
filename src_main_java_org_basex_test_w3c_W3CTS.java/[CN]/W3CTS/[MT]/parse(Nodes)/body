@@ -13,7 +13,7 @@
     context.query=IO.get(queries + pth + inname+ IO.XQSUFFIX);
     final String in=read(context.query);
     String er=null;
-    ItemIter iter=null;
+    ItemCache iter=null;
     boolean doc=true;
     final Nodes cont=nodes("*:contextItem",state);
     Nodes curr=null;
@@ -41,10 +41,10 @@
       final SerializerProp sp=new SerializerProp();
       sp.set(SerializerProp.S_INDENT,context.prop.is(Prop.CHOP) ? DataText.YES : DataText.NO);
       final XMLSerializer xml=new XMLSerializer(ao,sp);
-      iter=ItemIter.get(xq.iter());
+      iter=ItemCache.get(xq.iter());
       Item it;
       while ((it=iter.next()) != null) {
-        doc&=it.type == Type.DOC;
+        doc&=it.type == NodeType.DOC;
         it.serialize(xml);
       }
       xml.close();
@@ -125,10 +125,10 @@
         if (xml || frag) {
           iter.reset();
           try {
-            final ItemIter ir=toIter(string(res).replaceAll("^<\\?xml.*?\\?>","").trim(),frag);
+            final ItemCache ir=toIter(string(res).replaceAll("^<\\?xml.*?\\?>","").trim(),frag);
             if (FNSimple.deep(null,iter,ir))             break;
             ir.reset();
-            final ItemIter ia=toIter(string(actual),frag);
+            final ItemCache ia=toIter(string(actual),frag);
             if (FNSimple.deep(null,ia,ir))             break;
             if (debug) {
               iter.reset();
