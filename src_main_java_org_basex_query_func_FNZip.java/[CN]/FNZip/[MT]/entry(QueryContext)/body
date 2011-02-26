@@ -1,0 +1,31 @@
+{
+  final Uri uri=(Uri)checkType(expr[0].item(ctx,input),Type.URI);
+  final String path=string(checkStr(expr[1],ctx));
+  final String file=IOFile.file(string(uri.atom()));
+  if (!IO.get(file).exists())   ZIPNOTFOUND.thrw(input,file);
+  ZipInputStream zis=null;
+  try {
+    zis=new ZipInputStream(new FileInputStream(file));
+    ZipEntry ze;
+    while ((ze=zis.getNextEntry()) != null) {
+      if (!ze.getName().equals(path))       continue;
+      final int s=ze.getSize() == -1 ? IO.BLOCKSIZE : (int)ze.getSize();
+      final byte[] data=new byte[Math.min(IO.BLOCKSIZE,s)];
+      final ByteList bl=new ByteList(s);
+      int c;
+      while ((c=zis.read(data)) != -1)       bl.add(data,0,c);
+      return bl.toArray();
+    }
+    throw ZIPNOTFOUND.thrw(input,file + '/' + path);
+  }
+ catch (  final IOException ex) {
+    throw ZIPFAIL.thrw(input,ex.getMessage());
+  }
+ finally {
+    if (zis != null)     try {
+      zis.close();
+    }
+ catch (    final IOException e) {
+    }
+  }
+}

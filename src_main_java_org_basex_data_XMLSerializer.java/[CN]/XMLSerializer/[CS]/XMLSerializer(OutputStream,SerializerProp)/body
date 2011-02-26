@@ -1,7 +1,7 @@
 {
   out=PrintOutput.get(os);
   final SerializerProp p=props == null ? PROPS : props;
-  final String m=p.check(S_METHOD,M_XML,M_XHTML,M_HTML,M_TEXT);
+  final String m=p.check(S_METHOD,M_XML,M_XHTML,M_HTML,M_TEXT,M_HEX,M_BASE64);
   mth=m.equals(M_XML) ? M_XML : m.equals(M_XHTML) ? M_XHTML : m.equals(M_HTML) ? M_HTML : M_TEXT;
   version=p.get(S_VERSION).isEmpty() ? mth == M_HTML ? V40 : V10 : mth == M_HTML ? p.check(S_VERSION,V40,V401) : mth != M_TEXT ? p.check(S_VERSION,V10,V11) : p.get(S_VERSION);
   for (  final String c : p.get(S_CDATA_SECTION_ELEMENTS).split("\\s+"))   if (!c.isEmpty())   cdata.add(token(c));
@@ -10,8 +10,8 @@
   final String sa=p.check(S_STANDALONE,YES,NO,OMIT);
   p.check(S_NORMALIZATION_FORM,NFC,NONE);
   final String maps=p.get(S_USE_CHARACTER_MAPS);
-  if (!maps.isEmpty())   error(SERMAPS,maps);
-  enc=code(p.get(S_ENCODING),null);
+  if (!maps.isEmpty())   throw SERMAP.serial(maps);
+  enc=normEncoding(p.get(S_ENCODING),null);
   docsys=p.get(S_DOCTYPE_SYSTEM);
   docpub=p.get(S_DOCTYPE_PUBLIC);
   media=p.get(S_MEDIA_TYPE);
@@ -32,8 +32,8 @@
  else   if (docpub.isEmpty()) {
     docpub=null;
   }
-  if (!Charset.isSupported(enc))   error(SERENCODING,enc);
-  if (undecl && version.equals(V10))   error(SERUNDECL);
+  if (!supported(enc))   SERENCODING.serial(enc);
+  if (undecl && version.equals(V10))   SERUNDECL.serial();
   if (bom) {
     if (enc == UTF8) {
       out.write(0xEF);
@@ -65,7 +65,7 @@
       ind=indent;
     }
  else     if (!sa.equals(OMIT) || version.equals(V11) && docsys != null) {
-      error(SERSTAND);
+      SERSTAND.serial();
     }
   }
   if (wrap) {

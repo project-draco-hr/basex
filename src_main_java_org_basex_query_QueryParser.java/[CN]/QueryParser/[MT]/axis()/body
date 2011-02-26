@@ -1,7 +1,7 @@
 {
   Axis ax=null;
   Test test=null;
-  if (consumeWS2(DOT2)) {
+  if (wsConsume(DOT2)) {
     ax=Axis.PARENT;
     test=Test.NOD;
     checkTest(test,false);
@@ -17,9 +17,8 @@
   }
  else {
     for (    final Axis a : Axis.values()) {
-      if (consumeWS(a.name,COL2,NOLOCSTEP)) {
-        consumeWS2(COL2);
-        alter=NOLOCSTEP;
+      if (wdConsumeWs(a.name,COLS,NOLOCSTEP)) {
+        wsConsume(COLS);
         ap=qp;
         ax=a;
         test=test(a == Axis.ATTR);
@@ -35,10 +34,10 @@
   }
   if (test == null)   return null;
   Expr[] pred={};
-  while (consumeWS2(BR1)) {
+  while (wsConsume(BR1)) {
     checkPred(true);
     pred=add(pred,expr());
-    check(BR2);
+    wsCheck(BR2);
     checkPred(false);
   }
   return AxisStep.get(input(),ax,test,pred);

@@ -1,15 +1,15 @@
 {
   final Constr c=new Constr(ctx,expr[1]);
-  final NodIter cList=c.children;
-  final NodIter aList=c.ats;
+  final NodeCache cList=c.children;
+  final NodeCache aList=c.atts;
   if (c.errAtt)   UPNOATTRPER.thrw(input);
   if (c.duplAtt != null)   UPATTDUPL.thrw(input,c.duplAtt);
   final Iter t=ctx.iter(expr[0]);
   final Item i=t.next();
   if (i == null)   UPSEQEMP.thrw(input,Util.name(this));
-  if (!(i instanceof Nod) || t.next() != null)   (before || after ? UPTRGTYP2 : UPTRGTYP).thrw(input);
-  final Nod n=(Nod)i;
-  final Nod par=n.parent();
+  if (!(i instanceof ANode) || t.next() != null)   (before || after ? UPTRGTYP2 : UPTRGTYP).thrw(input);
+  final ANode n=(ANode)i;
+  final ANode par=n.parent();
   if (before || after) {
     if (n.type == Type.ATT || n.type == Type.DOC)     UPTRGTYP2.thrw(input);
     if (par == null)     UPPAREMPTY.thrw(input);
@@ -19,7 +19,7 @@
   }
   UpdatePrimitive up=null;
   if (aList.size() > 0) {
-    final Nod targ=before || after ? par : n;
+    final ANode targ=before || after ? par : n;
     if (targ.type != Type.ELM)     (before || after ? UPATTELM : UPATTELM2).thrw(input);
     up=new InsertAttribute(input,targ,checkNS(aList,targ,ctx));
     ctx.updates.add(up,ctx);

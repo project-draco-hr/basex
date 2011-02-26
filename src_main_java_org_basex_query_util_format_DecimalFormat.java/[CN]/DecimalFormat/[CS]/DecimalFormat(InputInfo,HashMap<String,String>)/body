@@ -1,0 +1,40 @@
+{
+  if (map != null) {
+    final Iterator<String> it=map.keySet().iterator();
+    while (it.hasNext()) {
+      final String key=it.next();
+      final String val=map.get(key);
+      int cp=val.length() == 0 ? 0 : val.codePointAt(0);
+      if (Character.charCount(cp) != val.length())       cp=0;
+      if (key.equals(DF_INF)) {
+        inf=val;
+      }
+ else       if (key.equals(DF_NAN)) {
+        nan=val;
+      }
+ else       if (cp != 0) {
+        if (key.equals(DF_DEC))         decimal=cp;
+ else         if (key.equals(DF_GRP))         group=cp;
+ else         if (key.equals(DF_PAT))         pattern=cp;
+ else         if (key.equals(DF_MIN))         minus=cp;
+ else         if (key.equals(DF_DIG))         digit=cp;
+ else         if (key.equals(DF_PC))         percent=cp;
+ else         if (key.equals(DF_PM))         permille=cp;
+ else         if (key.equals(DF_ZG)) {
+          if (Arrays.binarySearch(ZEROES,cp) >= 0)           zero=cp;
+ else           INVDECFORM.thrw(ii,key,val);
+        }
+      }
+ else {
+        INVDECFORM.thrw(ii,key,val);
+      }
+    }
+  }
+  final IntSet is=new IntSet();
+  final int[] t={decimal,group,percent,permille,zero,digit,pattern};
+  for (  final int i : t)   if (is.add(i) < 0)   DUPLDECFORM.thrw(ii,(char)i);
+  final TokenBuilder tb=new TokenBuilder();
+  for (int i=0; i < 10; i++)   tb.add(zero + i);
+  digits=tb.toString();
+  active=tb.add(decimal).add(group).add(digit).toString();
+}
