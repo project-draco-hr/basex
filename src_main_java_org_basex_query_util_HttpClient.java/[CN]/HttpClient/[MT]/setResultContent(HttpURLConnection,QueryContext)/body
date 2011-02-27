@@ -2,9 +2,8 @@
   final byte[] contentType=reqAttrs.get(OVERMEDIATYPE) == null ? token(conn.getContentType()) : reqAttrs.get(OVERMEDIATYPE);
   if (eq(contentType,TXT_XML) || eq(contentType,TXT_EXT_XML) || eq(contentType,APPL_XML)|| eq(contentType,APPL_EXT_XML)|| endsWith(contentType,MIME_XML_SUFFIX))   return processXML(conn,ctx);
  else   if (eq(contentType,TXT_HTML)) {
-    if (HTMLParser.available())     return processHTML(conn,ctx);
-    HTMLERR.thrw(info);
-    return null;
+    if (!HTMLParser.available())     throw HTMLERR.thrw(info);
+    return processHTML(conn,ctx);
   }
  else   if (startsWith(contentType,MIME_TEXT_PREFIX))   return Str.get(readHttpContent(conn));
  else   return null;
