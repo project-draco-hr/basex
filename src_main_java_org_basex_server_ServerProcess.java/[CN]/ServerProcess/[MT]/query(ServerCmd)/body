@@ -13,8 +13,10 @@
     }
  else {
       qp=queries.get(arg);
-      if (qp == null && sc != CLOSE)       throw new IOException("Unknown query ID (" + arg + ")");
-      if (sc == BIND) {
+      if (qp == null) {
+        if (sc != CLOSE)         throw new IOException("Unknown Query ID: " + arg);
+      }
+ else       if (sc == BIND) {
         final String key=in.readString();
         final String val=in.readString();
         final String typ=in.readString();
@@ -33,7 +35,7 @@
  else       if (sc == INFO) {
         qp.info();
       }
- else       if (sc == CLOSE && qp != null) {
+ else       if (sc == CLOSE) {
         qp.close(false);
         queries.remove(arg);
       }
