@@ -1,0 +1,49 @@
+{
+  final byte[] data=new byte[IO.BLOCKSIZE];
+  final AxisIter ai=elm.children();
+  ANode node;
+  while ((node=ai.next()) != null) {
+    final QNm mode=node.qname();
+    if (!mode.eq(E_DIR) && !mode.eq(E_ENTRY))     ZIPUNKNOWN.thrw(input,mode);
+    String path=attribute(node,A_NAME,false);
+    String src=attribute(node,A_SRC,false);
+    if (src != null)     src=src.replaceAll("\\\\","/");
+    if (path == null) {
+      if (src == null)       throw ZIPINVALID.thrw(input,node.qname(),A_SRC);
+      path=src.replaceAll(".*/","");
+    }
+    final boolean dir=mode.eq(E_DIR);
+    if (dir && !path.endsWith("/"))     path+="/";
+    zos.putNextEntry(new ZipEntry(path));
+    if (dir)     continue;
+    if (src != null) {
+      if (!IO.get(src).exists())       ZIPNOTFOUND.thrw(input,src);
+      BufferedInputStream bis=null;
+      try {
+        bis=new BufferedInputStream(new FileInputStream(src));
+        int c;
+        while ((c=bis.read(data)) != -1)         zos.write(data,0,c);
+      }
+  finally {
+        if (bis != null)         try {
+          bis.close();
+        }
+ catch (        final IOException e) {
+        }
+      }
+    }
+ else {
+      try {
+        final XMLSerializer xml=new XMLSerializer(zos,serialPar(node,ctx));
+        ANode n;
+        final AxisIter ch=node.children();
+        while ((n=ch.next()) != null)         n.serialize(xml);
+        xml.close();
+      }
+ catch (      final SerializerException ex) {
+        throw new QueryException(input,ex);
+      }
+    }
+    zos.closeEntry();
+  }
+}

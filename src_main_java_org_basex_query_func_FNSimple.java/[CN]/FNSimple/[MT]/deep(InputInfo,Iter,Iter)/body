@@ -1,15 +1,16 @@
 {
-  Item it1=null;
-  Item it2=null;
-  while ((it1=iter1.next()) != null & (it2=iter2.next()) != null) {
+  while (true) {
+    final Item it1=iter1.next();
+    final Item it2=iter2.next();
+    if (it1 == null || it2 == null)     return it1 == it2;
     if (!it1.node() && !it2.node()) {
       if (!it1.equiv(ii,it2))       return false;
       continue;
     }
     if (it1.type != it2.type)     return false;
-    Nod s1=(Nod)it1, s2=(Nod)it2;
-    final Stack<NodeIter[]> chld=new Stack<NodeIter[]>();
-    NodeIter[] ch={s1.child(),s2.child()};
+    ANode s1=(ANode)it1, s2=(ANode)it2;
+    final Stack<AxisIter[]> chld=new Stack<AxisIter[]>();
+    AxisIter[] ch={s1.children(),s2.children()};
     chld.push(ch);
     boolean desc=false;
     do {
@@ -34,11 +35,11 @@
         if (n1 != null && n2 != null && !n1.eq(n2))         return false;
         if ((t1 == Type.TXT || t1 == Type.ATT || t1 == Type.COM || t1 == Type.PI) && !Token.eq(s1.atom(),s2.atom()))         return false;
         if (t1 == Type.ELM) {
-          if (s1.attr().finish().size() != s2.attr().finish().size())           return false;
-          Nod a1=null, a2=null;
-          final NodeIter att1=s1.attr();
+          if (s1.atts().finish().size() != s2.atts().finish().size())           return false;
+          ANode a1=null, a2=null;
+          final AxisIter att1=s1.atts();
           while ((a1=att1.next()) != null) {
-            final NodeIter att2=s2.attr();
+            final AxisIter att2=s2.atts();
             boolean f=false;
             while ((a2=att2.next()) != null) {
               if (a1.qname().eq(a2.qname())) {
@@ -49,7 +50,7 @@
             if (!f)             return false;
           }
           chld.push(ch);
-          ch=new NodeIter[]{s1.child(),s2.child()};
+          ch=new AxisIter[]{s1.children(),s2.children()};
         }
       }
       s1=ch[0].next();
@@ -58,5 +59,4 @@
     }
  while (!chld.isEmpty());
   }
-  return it1 == it2;
 }

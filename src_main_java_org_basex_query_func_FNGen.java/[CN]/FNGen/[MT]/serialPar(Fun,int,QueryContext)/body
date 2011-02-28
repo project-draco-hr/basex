@@ -1,18 +1,18 @@
 {
-  if (arg >= fun.expr.length)   return null;
   final TokenBuilder tb=new TokenBuilder();
-  final Iter ir=fun.expr[arg].iter(ctx);
-  Item it;
-  while ((it=ir.next()) != null) {
-    final Nod n=fun.checkNode(it);
-    if (tb.size() != 0)     tb.add(',');
-    tb.add(n.nname()).add('=').add(n.atom());
+  if (arg < fun.expr.length) {
+    final Item it=fun.expr[arg].item(ctx,fun.input);
+    if (it != null) {
+      ANode node=(ANode)fun.checkType(it,Type.ELM);
+      if (!node.qname().eq(E_PARAM))       SERUNKNOWN.thrw(fun.input,node.qname());
+      final AxisIter ai=node.children();
+      while ((node=ai.next()) != null) {
+        if (tb.size() != 0)         tb.add(',');
+        final QNm name=node.qname();
+        if (!name.uri().eq(U_ZIP))         SERUNKNOWN.thrw(fun.input,name);
+        tb.add(name.ln()).add('=').add(node.atom());
+      }
+    }
   }
-  try {
-    return new SerializerProp(tb.toString());
-  }
- catch (  final IOException ex) {
-    UNDEF.thrw(fun.input,ex.toString());
-    return null;
-  }
+  return tb.size() == 0 ? ctx.serProp() : new SerializerProp(tb.toString());
 }

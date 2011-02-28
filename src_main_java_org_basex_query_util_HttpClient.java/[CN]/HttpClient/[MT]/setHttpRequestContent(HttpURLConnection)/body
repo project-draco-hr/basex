@@ -1,10 +1,10 @@
 {
-  final NodeIter attrs=body.attr();
+  final AxisIter attrs=body.atts();
   final StringBuilder sb=new StringBuilder();
   byte[] mediaType=null;
   String src=null;
   String method=null;
-  Nod attr=null;
+  ANode attr=null;
   while ((attr=attrs.next()) != null) {
     if (eq(attr.nname(),MEDIATYPE))     mediaType=attr.atom();
  else     if (eq(attr.nname(),SRC))     src=string(attr.atom());
@@ -15,11 +15,11 @@
   if (src == null) {
     sb.append("method=");
     if (method == null) {
-      if (eq(mediaType,APPL_XHTML))       sb.append("xhtml");
- else       if (eq(mediaType,APPL_XML) || eq(mediaType,APPL_EXT_XML) || eq(mediaType,TXT_XML)|| eq(mediaType,TXT_EXT_XML)|| endsWith(mediaType,MIME_XML_SUFFIX))       sb.append("xml");
- else       if (eq(mediaType,TXT_HTML))       sb.append("html");
- else       if (startsWith(mediaType,MIME_TEXT_PREFIX))       sb.append("text");
- else       sb.append("xml");
+      if (eq(mediaType,APPL_XHTML))       sb.append(M_XHTML);
+ else       if (eq(mediaType,APPL_XML) || eq(mediaType,APPL_EXT_XML) || eq(mediaType,TXT_XML)|| eq(mediaType,TXT_EXT_XML)|| endsWith(mediaType,MIME_XML_SUFFIX))       sb.append(M_XML);
+ else       if (eq(mediaType,TXT_HTML))       sb.append(M_HTML);
+ else       if (startsWith(mediaType,MIME_TEXT_PREFIX))       sb.append(M_TEXT);
+ else       sb.append(M_XML);
     }
  else {
       sb.append(method);
@@ -28,9 +28,9 @@
     final SerializerProp serialProp=new SerializerProp(sb.toString());
     try {
       final XMLSerializer xml=new XMLSerializer(out,serialProp);
-      final NodeIter children=body.child();
-      Nod child=null;
-      while ((child=children.next()) != null)       child.serialize(xml);
+      final AxisIter ai=body.children();
+      ANode child=null;
+      while ((child=ai.next()) != null)       child.serialize(xml);
     }
   finally {
       out.close();

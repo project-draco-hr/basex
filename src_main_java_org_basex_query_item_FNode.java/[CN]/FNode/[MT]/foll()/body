@@ -1,27 +1,27 @@
 {
-  return new NodeIter(){
+  return new AxisIter(){
     /** 
  * Iterator. 
  */
-    private NodIter ir;
-    @Override public Nod next() throws QueryException {
-      if (ir == null) {
-        ir=new NodIter();
-        Nod n=FNode.this;
-        Nod p=n.parent();
+    private NodeCache nc;
+    @Override public ANode next(){
+      if (nc == null) {
+        nc=new NodeCache();
+        ANode n=FNode.this;
+        ANode p=n.parent();
         while (p != null) {
-          final NodeIter i=p.child();
-          Nod c;
+          final AxisIter i=p.children();
+          ANode c;
           while (n.type != Type.ATT && (c=i.next()) != null && !c.is(n))           ;
           while ((c=i.next()) != null) {
-            ir.add(c.finish());
-            addDesc(c.child(),ir);
+            nc.add(c.finish());
+            addDesc(c.children(),nc);
           }
           n=p;
           p=p.parent();
         }
       }
-      return ir.next();
+      return nc.next();
     }
   }
 ;

@@ -16,6 +16,7 @@
  while (n.pre <= ipar && ipar < n.pre + size(n.pre,ELEM));
   int mpre=-1;
   final NSNode t=ns.root;
+  final Set<NSNode> newNodes=new HashSet<NSNode>();
   while (++mpre != ms) {
     if (mpre != 0 && mpre % buf == 0)     insert(ipre + mpre - buf);
     final int mk=md.kind(mpre);
@@ -62,7 +63,7 @@ final Atts at=md.ns(mpre);
 for (int a=0; a < at.size; ++a) {
 final byte[] old=nsScope.get(at.key[a]);
 if (old == null || !eq(old,at.val[a])) {
-ns.add(at.key[a],at.val[a],pre);
+newNodes.add(ns.add(at.key[a],at.val[a],pre));
 ne=true;
 }
 }
@@ -98,5 +99,6 @@ size(p,k,size(p,k) + ms);
 p=parent(p,k);
 }
 updateDist(ipre + ms,ms);
+ns.updatePreValues(ipre,ms,true,newNodes);
 if (size(0,DOC) == 1) delete(0);
 }

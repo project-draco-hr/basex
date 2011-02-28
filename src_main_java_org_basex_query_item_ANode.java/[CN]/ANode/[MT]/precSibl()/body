@@ -1,0 +1,27 @@
+{
+  return new AxisIter(){
+    /** 
+ * Child nodes. 
+ */
+    private NodeCache nc;
+    /** 
+ * Counter. 
+ */
+    private long c;
+    @Override public ANode next(){
+      if (nc == null) {
+        final ANode r=parent();
+        if (r == null)         return null;
+        nc=new NodeCache();
+        final AxisIter ai=r.children();
+        ANode n;
+        while ((n=ai.next()) != null && !n.is(ANode.this)) {
+          nc.add(n.finish());
+        }
+        c=nc.size();
+      }
+      return c > 0 ? nc.get(--c) : null;
+    }
+  }
+;
+}
