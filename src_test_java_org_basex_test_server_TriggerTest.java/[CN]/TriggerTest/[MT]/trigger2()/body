@@ -9,18 +9,24 @@
       }
     }
 );
+    assertEquals(ccs[i].execute("xquery 1 + 100"),"101");
+  }
+  for (int i=ccs.length / 2; i < ccs.length; i++) {
     ccs[i].attachTrigger(TRIGGER_NAME + 1,new TriggerNotification(){
       @Override public void update(      final String data){
         assertEquals(RETURN_VALUE,data);
       }
     }
 );
+    assertEquals(ccs[i].execute("xquery 1 + 100"),"101");
   }
-  Client c1=new Client(true);
-  Client c2=new Client(false);
-  c1.start();
-  c2.start();
-  c1.join();
-  c2.join();
+  cs.trigger("1 to 10",TRIGGER_NAME,RETURN_VALUE);
+  for (int i=ccs.length / 2; i < ccs.length; i++) {
+    assertEquals(ccs[i].execute("xquery 1 + 100"),"101");
+  }
+  cs.trigger("1 to 10",TRIGGER_NAME + 1,RETURN_VALUE);
+  for (int i=ccs.length / 2; i < ccs.length; i++) {
+    ccs[i].detachTrigger(TRIGGER_NAME);
+  }
   cs.dropTrigger(TRIGGER_NAME);
 }
