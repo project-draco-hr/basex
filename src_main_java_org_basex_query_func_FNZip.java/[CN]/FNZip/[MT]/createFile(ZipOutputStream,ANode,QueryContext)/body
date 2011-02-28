@@ -1,4 +1,5 @@
 {
+  final byte[] data=new byte[IO.BLOCKSIZE];
   final AxisIter ai=elm.children();
   ANode node;
   while ((node=ai.next()) != null) {
@@ -13,13 +14,23 @@
     }
     final boolean dir=mode.eq(E_DIR);
     if (dir && !path.endsWith("/"))     path+="/";
-    final ZipEntry ze=new ZipEntry(path);
-    zos.putNextEntry(ze);
+    zos.putNextEntry(new ZipEntry(path));
     if (dir)     continue;
     if (src != null) {
-      final IO source=IO.get(src);
-      if (!source.exists())       ZIPNOTFOUND.thrw(input,source);
-      zos.write(source.content());
+      if (!IO.get(src).exists())       ZIPNOTFOUND.thrw(input,src);
+      BufferedInputStream bis=null;
+      try {
+        bis=new BufferedInputStream(new FileInputStream(src));
+        int c;
+        while ((c=bis.read(data)) != -1)         zos.write(data,0,c);
+      }
+  finally {
+        if (bis != null)         try {
+          bis.close();
+        }
+ catch (        final IOException e) {
+        }
+      }
     }
  else {
       try {
