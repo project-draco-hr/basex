@@ -1,0 +1,53 @@
+{
+  final ANode elm=(ANode)checkType(expr[0].item(ctx,input),NodeType.ELM);
+  if (!elm.qname().eq(E_FILE))   ZIPUNKNOWN.thrw(input,elm.qname());
+  final String in=attribute(elm,A_HREF,true);
+  final IO target=IO.get(string(checkStr(expr[1],ctx)));
+  IO out;
+  do {
+    out=IO.get(target.path() + new Random().nextInt(0x7FFFFFFF));
+  }
+ while (out.exists());
+  if (!IO.get(in).exists())   ZIPNOTFOUND.thrw(input,in);
+  ZipFile zf=null;
+  boolean ok=true;
+  try {
+    zf=new ZipFile(in);
+    FileOutputStream fos=null;
+    try {
+      fos=new FileOutputStream(out.path());
+      final ZipOutputStream zos=new ZipOutputStream(new BufferedOutputStream(fos));
+      create(zos,elm.children(),"",zf,ctx);
+      zos.close();
+    }
+ catch (    final IOException ex) {
+      ok=false;
+      ZIPFAIL.thrw(input,ex.getMessage());
+    }
+ finally {
+      if (fos != null)       try {
+        fos.close();
+      }
+ catch (      final IOException ex) {
+      }
+    }
+  }
+ catch (  final IOException ex) {
+    throw ZIPFAIL.thrw(input,ex.getMessage());
+  }
+ finally {
+    if (zf != null)     try {
+      zf.close();
+    }
+ catch (    final IOException e) {
+    }
+    if (ok) {
+      target.delete();
+      out.rename(target);
+    }
+ else {
+      out.delete();
+    }
+  }
+  return null;
+}

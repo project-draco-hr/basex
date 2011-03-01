@@ -1,0 +1,17 @@
+{
+  String name=null;
+  boolean dir=false;
+  while (dir || it.hasNext()) {
+    if (!dir)     name=it.next();
+    if (name == null)     break;
+    if (!name.startsWith(pref))     return name;
+    dir=name.endsWith("/");
+    final FElem e=new FElem(dir ? E_DIR : E_ENTRY,null);
+    name=name.replaceAll(dir ? "/$" : ".*/","");
+    e.atts.add(new FAttr(A_NAME,token(name),e));
+    e.parent(par);
+    par.children.add(e);
+    if (dir)     name=createEntries(it,e,name);
+  }
+  return null;
+}
