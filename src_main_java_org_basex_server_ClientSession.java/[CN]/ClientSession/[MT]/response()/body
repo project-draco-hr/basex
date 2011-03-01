@@ -1,17 +1,16 @@
 {
 synchronized (mutex) {
     try {
-      state=2;
-      mutex.notifyAll();
-      while (state != 3)       mutex.wait();
+      check(false);
+      while (!state)       mutex.wait();
     }
  catch (    InterruptedException e) {
     }
     info=new ByteList().add(first).toString() + bi.readString();
     if (!ok()) {
-      idle();
+      check(false);
       throw new IOException(info);
     }
-    idle();
+    check(false);
   }
 }

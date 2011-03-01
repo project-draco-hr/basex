@@ -2,9 +2,8 @@
 synchronized (mutex) {
     try {
       send(cmd);
-      state=1;
-      mutex.notifyAll();
-      while (state != 2)       mutex.wait();
+      check(false);
+      while (!state)       mutex.wait();
       if (first != 0) {
         int l;
         os.write(first);
@@ -12,13 +11,13 @@ synchronized (mutex) {
       }
       info=bi.readString();
       if (!ok()) {
+        check(false);
         throw new BaseXException(info);
       }
     }
  catch (    Exception ex) {
-      idle();
       throw new BaseXException(ex);
     }
-    idle();
+    check(false);
   }
 }
