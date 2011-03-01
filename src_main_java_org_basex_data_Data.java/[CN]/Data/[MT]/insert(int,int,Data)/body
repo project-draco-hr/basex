@@ -6,7 +6,7 @@
   final int buf=Math.min(ms,IO.BLOCKSIZE >> IO.NODEPOWER);
   buffer(buf);
   final TokenMap nsScope=new TokenMap();
-  NSNode n=ns.root;
+  NSNode n=ns.current;
   do {
     for (int i=0; i < n.vals.length; i+=2)     nsScope.add(ns.pref(n.vals[i]),ns.uri(n.vals[i + 1]));
     final int pos=n.fnd(ipar);
@@ -15,7 +15,7 @@
   }
  while (n.pre <= ipar && ipar < n.pre + size(n.pre,ELEM));
   int mpre=-1;
-  final NSNode t=ns.root;
+  final NSNode t=ns.current;
   final Set<NSNode> newNodes=new HashSet<NSNode>();
   while (++mpre != ms) {
     if (mpre != 0 && mpre % buf == 0)     insert(ipre + mpre - buf);
@@ -26,18 +26,18 @@
     final int par=pre - dis;
     if (mpre == 0) {
       final List<NSNode> cand=new LinkedList<NSNode>();
-      NSNode cn=ns.rootDummy;
+      NSNode cn=ns.absoluteRoot;
       cand.add(cn);
       int cI;
       while ((cI=cn.fnd(par)) > -1) {
         cn=cn.ch[cI];
         cand.add(0,cn);
       }
-      cn=ns.rootDummy;
+      cn=ns.absoluteRoot;
       if (cand.size() > 1) {
         int ancPre=par;
         NSNode curr=cand.remove(0);
-        while (ancPre > -1 && cn == ns.rootDummy) {
+        while (ancPre > -1 && cn == ns.absoluteRoot) {
           if (curr.pre == ancPre)           cn=curr;
  else           if (curr.pre < ancPre) {
             while ((ancPre=parent(ancPre,kind(ancPre))) > curr.pre)             ;

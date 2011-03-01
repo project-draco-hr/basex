@@ -2,9 +2,11 @@
 synchronized (mutex) {
     try {
       send(cmd);
-      mutex.wait();
-      int l;
+      state=1;
+      mutex.notifyAll();
+      while (state != 2)       mutex.wait();
       if (first != 0) {
+        int l;
         os.write(first);
         while ((l=bi.read()) != 0)         os.write(l);
       }
@@ -14,9 +16,9 @@ synchronized (mutex) {
       }
     }
  catch (    Exception ex) {
-      mutex.notifyAll();
+      idle();
       throw new BaseXException(ex);
     }
-    mutex.notifyAll();
+    idle();
   }
 }

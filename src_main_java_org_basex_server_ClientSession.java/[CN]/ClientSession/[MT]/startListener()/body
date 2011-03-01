@@ -12,12 +12,17 @@
           }
  else {
 synchronized (mutex) {
-              mutex.notifyAll();
               try {
-                mutex.wait();
+                while (state == 0)                 mutex.wait();
               }
  catch (              InterruptedException e) {
-                e.printStackTrace();
+              }
+              state++;
+              mutex.notifyAll();
+              try {
+                while (state != 0)                 mutex.wait();
+              }
+ catch (              InterruptedException e) {
               }
             }
           }
