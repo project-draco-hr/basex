@@ -1,20 +1,27 @@
 {
   final ANode elm=(ANode)checkType(expr[0].item(ctx,input),Type.ELM);
   if (!elm.qname().eq(E_FILE))   ZIPUNKNOWN.thrw(input,elm.qname());
-  final String file=IOFile.file(attribute(elm,A_HREF,true));
-  ZipOutputStream zos=null;
+  final String file=attribute(elm,A_HREF,true);
+  FileOutputStream fos=null;
+  boolean ok=true;
   try {
-    zos=new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-    createFile(zos,elm,ctx);
+    fos=new FileOutputStream(file);
+    final ZipOutputStream zos=new ZipOutputStream(new BufferedOutputStream(fos));
+    create(zos,elm.children(),"",null,ctx);
+    zos.close();
   }
  catch (  final IOException ex) {
-    throw ZIPFAIL.thrw(input,ex.getMessage());
+    ok=false;
+    ZIPFAIL.thrw(input,ex.getMessage());
   }
  finally {
-    if (zos != null)     try {
-      zos.close();
-    }
- catch (    final IOException e) {
+    if (fos != null) {
+      try {
+        fos.close();
+      }
+ catch (      final IOException ex) {
+      }
+      if (!ok)       IO.get(file).delete();
     }
   }
   return null;
