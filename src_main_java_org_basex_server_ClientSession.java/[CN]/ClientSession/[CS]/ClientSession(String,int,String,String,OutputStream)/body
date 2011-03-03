@@ -1,15 +1,14 @@
 {
   super(output);
-  tn=new HashMap<String,TriggerNotification>();
+  this.shost=host;
   socket=new Socket();
   socket.connect(new InetSocketAddress(host,port),5000);
   sin=socket.getInputStream();
-  bi=new BufferInput(sin);
+  final BufferInput bi=new BufferInput(sin);
   final String ts=bi.readString();
   sout=PrintOutput.get(socket.getOutputStream());
   send(user);
   send(Token.md5(Token.md5(pw) + ts));
   sout.flush();
-  if (!ok())   throw new LoginException();
-  startListener();
+  if (!ok(bi))   throw new LoginException();
 }

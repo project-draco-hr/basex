@@ -1,24 +1,13 @@
 {
-synchronized (mutex) {
-    try {
-      send(cmd);
-      state=1;
-      mutex.notifyAll();
-      while (state != 2)       mutex.wait();
-      if (first != 0) {
-        int l;
-        os.write(first);
-        while ((l=bi.read()) != 0)         os.write(l);
-      }
-      info=bi.readString();
-      if (!ok()) {
-        throw new BaseXException(info);
-      }
-    }
- catch (    Exception ex) {
-      idle();
-      throw new BaseXException(ex);
-    }
-    idle();
+  try {
+    send(cmd);
+    final BufferInput bi=new BufferInput(sin);
+    int l;
+    while ((l=bi.read()) != 0)     os.write(l);
+    info=bi.readString();
+    if (!ok(bi))     throw new BaseXException(info);
+  }
+ catch (  final IOException ex) {
+    throw new BaseXException(ex);
   }
 }

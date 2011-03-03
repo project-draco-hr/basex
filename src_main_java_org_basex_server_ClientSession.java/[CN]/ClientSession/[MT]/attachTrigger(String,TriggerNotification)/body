@@ -2,10 +2,21 @@
   try {
     sout.write(10);
     send(name);
-    response();
+    final BufferInput bi=new BufferInput(sin);
+    if (trigger == null) {
+      trigger=new Socket();
+      trigger.connect(new InetSocketAddress(shost,tport),5000);
+      id=bi.readString();
+      PrintOutput sout2=PrintOutput.get(trigger.getOutputStream());
+      sout2.print(id);
+      sout2.write(0);
+      sout2.flush();
+    }
+    info=bi.readString();
+    if (!ok(bi))     throw new IOException(info);
+    tn.put(name,notification);
   }
  catch (  IOException e) {
     throw new BaseXException(e);
   }
-  tn.put(name,notification);
 }

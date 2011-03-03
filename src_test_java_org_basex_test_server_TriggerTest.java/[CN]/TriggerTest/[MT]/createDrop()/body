@@ -1,6 +1,6 @@
 {
   for (int i=1; i < TRIGGER_COUNT; i++) {
-    cs.createTrigger(TRIGGER_NAME + i);
+    cs.execute("create trigger " + TRIGGER_NAME + i);
   }
   String triggers=cs.execute("show triggers");
   String[] triggerNames=triggers.split("\n");
@@ -8,4 +8,9 @@
   for (int i=1; i < TRIGGER_COUNT; i++) {
     assertEquals(TRIGGER_NAME + i,triggerNames[i]);
   }
+  for (int i=1; i < TRIGGER_COUNT; i++) {
+    cs.execute("drop trigger " + TRIGGER_NAME + i);
+  }
+  triggers=cs.execute("show triggers");
+  assertEquals("0",triggers.substring(0,1));
 }
