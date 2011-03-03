@@ -20,8 +20,12 @@ case TRACE:
 val=expr[0].value(ctx);
 final TokenBuilder tb=new TokenBuilder();
 tb.add(checkEStr(expr[1],ctx)).add(' ').add(val.toString());
-if (Prop.gui) ctx.evalInfo(tb.finish());
- else Util.errln(tb);
+if (Prop.gui || !ctx.context.user.perm(User.ADMIN)) {
+ctx.evalInfo(tb.finish());
+}
+ else {
+Util.errln(tb);
+}
 return val.iter();
 case ENVS:
 final ItemCache ir=new ItemCache();
