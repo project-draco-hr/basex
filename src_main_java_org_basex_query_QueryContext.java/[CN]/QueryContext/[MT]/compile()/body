@@ -1,9 +1,22 @@
 {
-  if (nodes != null && nodes.ftpos != null)   ftpos=new FTPosData();
-  if (nodes != null)   resource.compile(nodes);
   if (inf)   compInfo(NL + QUERYCOMP);
-  final boolean empty=value == null;
-  if (empty)   value=Item.DUMMY;
+  if (initExpr != null) {
+    try {
+      value=initExpr.value(this);
+    }
+ catch (    final QueryException ex) {
+      final Err err=ex.err();
+      if (err != Err.XPNOCTX)       throw ex;
+      CTXINIT.thrw(((ParseExpr)initExpr).input,ex.getMessage());
+    }
+  }
+ else   if (nodes != null) {
+    if (nodes.ftpos != null)     ftpos=new FTPosData();
+    resource.compile(nodes);
+  }
+  if (value != null && initType != null) {
+    value=initType.cast(value,this,null);
+  }
   try {
     funcs.comp(this);
     root=root.comp(this);
@@ -12,6 +25,5 @@
     Util.debug(ex);
     XPSTACK.thrw(null);
   }
-  if (empty)   value=null;
   if (inf)   info.add(NL + QUERYRESULT + funcs+ root+ NL);
 }

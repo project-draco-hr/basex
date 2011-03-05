@@ -1,7 +1,5 @@
 {
   skipWS();
-  Expr e=literal();
-  if (e != null)   return e;
   final char c=curr();
   if (c == '$') {
     final Var v=new Var(input(),varName());
@@ -11,12 +9,18 @@
   }
   if (c == '(' && next() != '#')   return parenthesized();
   if (c == '<')   return constructor();
-  if (letter(c)) {
-    e=functionCall();
+  if (XMLToken.isNCStartChar(c)) {
+    Expr e=functionCall();
     if (e != null)     return e;
     e=compConstructor();
     if (e != null)     return e;
     if (wdConsumeWs(ORDERED,BRACE1,INCOMPLETE) || wdConsumeWs(UNORDERED,BRACE1,INCOMPLETE))     return enclosed(NOENCLEXPR);
   }
-  return null;
+  if (c == '.' && !digit(next())) {
+    if (next() == '.')     return null;
+    consume('.');
+    return new Context(input());
+  }
+  if (digit(c) || c == '.')   return numericLiteral();
+  return quote(c) ? Str.get(stringLiteral()) : null;
 }
