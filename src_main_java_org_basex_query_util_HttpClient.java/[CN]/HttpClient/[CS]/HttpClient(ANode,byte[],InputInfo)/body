@@ -1,8 +1,32 @@
 {
   info=ii;
-  reqAttrs=new TokenMap();
+  reqAttrs=getAttrs(request);
   headers=new TokenMap();
-  readRequestAttributes(request);
-  readRequestChildren(request,ii);
   if (href != null)   reqAttrs.add(HREF,href);
+  final AxisIter ai=request.children();
+  ANode n=null;
+  while ((n=ai.next()) != null) {
+    if (eq(n.nname(),HEADER)) {
+      final AxisIter attrs=n.atts();
+      ANode attr=null;
+      byte[] name=null;
+      byte[] value=null;
+      while ((attr=attrs.next()) != null) {
+        if (eq(attr.nname(),HDR_NAME))         name=attr.atom();
+        if (eq(attr.nname(),HDR_VALUE))         value=attr.atom();
+        if (name != null && name.length != 0 && value != null && value.length != 0) {
+          headers.add(name,value);
+          break;
+        }
+      }
+    }
+ else     if (eq(n.nname(),MULTIPART)) {
+      content=n;
+      isMultipart=true;
+    }
+ else     if (eq(n.nname(),BODY))     content=n;
+ else     ELMINV.thrw(ii);
+  }
+  contentAttrs=getAttrs(content);
+  checkMandatory(ii);
 }

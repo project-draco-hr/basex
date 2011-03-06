@@ -1,13 +1,21 @@
 {
-  final String adr=string(reqAttrs.get(HREF));
+  checkAuth();
+  final byte[] href=reqAttrs.get(HREF);
+  final String adr=href == null ? null : string(reqAttrs.get(HREF));
+  if (adr == null) {
+    NOURL.thrw(info);
+    return null;
+  }
   try {
     final URL url=new URL(adr);
     final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
     try {
       setConnectionProps(conn);
       setHttpRequestHeaders(conn);
-      if (body != null)       setHttpRequestContent(conn);
-      conn.getResponseCode();
+      if (content != null) {
+        setContentType(conn);
+        setHttpRequestContent(conn.getOutputStream());
+      }
       return getHttpResponse(conn,ctx);
     }
   finally {
