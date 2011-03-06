@@ -1,23 +1,31 @@
 {
   final double d=it.dbl(ii);
-  final Picture pic=pics[d < 0 && pics.length == 2 ? 1 : 0];
-  if (d < 0 && pics.length == 1)   pic.fix[0].reset().add(minus);
   if (Double.isNaN(d))   return nan;
-  if (Double.isInfinite(d))   return pic.fix[0] + inf + pic.fix[1];
+  final Picture pic=pics[d < 0 && pics.length == 2 ? 1 : 0];
+  if (d == Double.POSITIVE_INFINITY)   return pic.fix[0] + inf + pic.fix[1];
+  if (d == Double.NEGATIVE_INFINITY)   return new TokenBuilder(pic.fix[0].finish()).add(minus) + inf + pic.fix[1];
   Item num=it;
   if (pic.pc)   num=Calc.MULT.ev(ii,num,Itr.get(100));
   if (pic.pm)   num=Calc.MULT.ev(ii,num,Itr.get(1000));
-  num=FNNum.abs(FNNum.round(num,num.dbl(ii),pic.maxFrac,true,ii),ii);
-  final String str=num.toString();
+  num=FNNum.round(num,num.dbl(ii),pic.maxFrac,true,ii);
+  String str=num.toString();
+  if (str.startsWith("0."))   str=str.substring(1);
   final int sp=str.indexOf(decimal);
   final TokenBuilder pre=new TokenBuilder();
   final int il=sp == -1 ? str.length() : sp;
   for (int i=il; i < pic.min[0]; ++i)   pre.add('0');
   pre.add(str.substring(0,il));
-  final int pl=pre.size();
-  for (int i=0; i < pic.group[0].length; ++i) {
-    final int pos=pl - pic.group[0][i];
-    if (pos > 0)     pre.insert(pos,group);
+  if (pic.group[0].length == 1) {
+    final int pos=pic.group[0][0];
+    for (int p=pre.size() - 1; p > 0; --p) {
+      if (p % pos == 0)       pre.insert(pre.size() - p,grouping);
+    }
+  }
+ else {
+    for (int i=0; i < pic.group[0].length; ++i) {
+      final int pos=pre.size() - pic.group[0][i];
+      if (pos > 0)       pre.insert(pos,grouping);
+    }
   }
   final TokenBuilder suf=new TokenBuilder();
   final int fl=sp == -1 ? 0 : str.length() - il - 1;
@@ -26,9 +34,9 @@
   final int sl=suf.size();
   for (int i=pic.group[1].length - 1; i >= 0; i--) {
     final int pos=pic.group[1][i];
-    if (pos < sl)     suf.insert(pos,group);
+    if (pos < sl)     suf.insert(pos,grouping);
   }
-  final TokenBuilder res=new TokenBuilder().add(pic.fix[0].finish());
+  final TokenBuilder res=new TokenBuilder(pic.fix[0].finish());
   res.add(pre.finish());
   if (suf.size() != 0)   res.add(decimal).add(suf.finish());
   return res.add(pic.fix[1].finish()).toString();
