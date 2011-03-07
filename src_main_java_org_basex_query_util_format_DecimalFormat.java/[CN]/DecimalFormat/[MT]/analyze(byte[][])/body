@@ -13,11 +13,13 @@
         ++p;
         act=false;
       }
- else       if (ch == digit) {
+ else       if (ch == optional) {
         opt[p]++;
       }
- else       if (ch == group) {
-        pic.group[p]=Array.add(pic.group[p],pic.min[p] + opt[p]);
+ else       if (ch == grouping) {
+        if (p == 0) {
+          pic.group[p]=Array.add(pic.group[p],pic.min[p] + opt[p]);
+        }
       }
  else       if (digits.indexOf(ch) != -1) {
         pic.min[p]++;
@@ -29,8 +31,14 @@
       }
       act|=a;
     }
-    for (int g=0; g < pic.group[0].length; ++g) {
-      pic.group[0][g]=pic.min[0] + opt[0] - pic.group[0][g];
+    final int[] igp=pic.group[0];
+    final int igl=igp.length;
+    for (int g=0; g < igl; ++g)     igp[g]=pic.min[0] + opt[0] - igp[g];
+    if (igl > 1) {
+      boolean reg=true;
+      final int i=igp[igl - 1];
+      for (int g=igl - 2; g >= 0; --g)       reg&=i * igl == igp[g];
+      if (reg)       pic.group[0]=new int[]{i};
     }
     pic.maxFrac=pic.min[1] + opt[1];
     pics[s]=pic;
