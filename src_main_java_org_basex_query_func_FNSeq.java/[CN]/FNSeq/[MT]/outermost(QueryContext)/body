@@ -1,0 +1,25 @@
+{
+  final Iter iter=expr[0].iter(ctx);
+  final NodeCache nc=new NodeCache().random();
+  for (Item it; (it=iter.next()) != null; )   nc.add(checkNode(it));
+  final int len=(int)nc.size();
+  if (len == 0)   return Empty.ITER;
+  if (nc.dbnodes()) {
+    final DBNode fst=(DBNode)nc.get(0);
+    final Data data=fst.data;
+    final ANode[] nodes=nc.item.clone();
+    nc.size(1);
+    int next=fst.pre + data.size(fst.pre,kind(fst.type));
+    for (int i=1; i < len; i++) {
+      final DBNode nd=(DBNode)nodes[i];
+      if (nd.pre >= next) {
+        nc.add(nd);
+        next=nd.pre + data.size(nd.pre,kind(nd.type));
+      }
+    }
+  }
+ else {
+    throw Util.notimplemented("doesn't work yet for constructed nodes");
+  }
+  return nc;
+}
