@@ -1,10 +1,11 @@
 {
   final Item it=expr[0].item(ctx,input);
-  if (it == null)   return null;
-  final Date date=(Date)checkType(it,tp);
-  final String pic=string(checkEStr(expr[1],ctx));
+  final byte[] pic=checkEStr(expr[1],ctx);
   final byte[] lng=expr.length == 5 ? checkEStr(expr[2],ctx) : EMPTY;
   final byte[] cal=expr.length == 5 ? checkEStr(expr[3],ctx) : EMPTY;
   final byte[] plc=expr.length == 5 ? checkEStr(expr[4],ctx) : EMPTY;
-  return Str.get(DateFormatter.format(date,pic,lng,cal,plc,input));
+  if (it == null)   return null;
+  final Date date=(Date)checkType(it,tp);
+  final Formatter form=Formatter.get(string(lng));
+  return Str.get(form.formatDate(date,pic,cal,plc,input));
 }

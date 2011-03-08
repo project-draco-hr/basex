@@ -1,10 +1,11 @@
 {
-  final String pic=string(checkStr(expr[1],ctx));
-  if (pic.isEmpty())   WRONGINT.thrw(input,pic);
+  final byte[] pic=checkStr(expr[1],ctx);
+  final byte[] lng=expr.length == 2 ? EMPTY : checkStr(expr[2],ctx);
   if (expr[0].empty())   return Str.ZERO;
-  final byte[] lang=expr.length == 2 ? EMPTY : checkStr(expr[2],ctx);
   final long num=checkItr(expr[0],ctx);
-  final byte[] str=IntFormatter.format(num,pic,string(lang));
-  if (str == null)   PICDATE.thrw(input,pic);
-  return Str.get(str);
+  if (pic.length == 0)   WRONGINT.thrw(input,pic);
+  final FormatParser fp=new FormatParser();
+  if (!fp.parse(pic,ONE,false))   PICDATE.thrw(input,pic);
+  final Formatter form=Formatter.get(string(lng));
+  return Str.get(form.formatInt(num,fp));
 }
