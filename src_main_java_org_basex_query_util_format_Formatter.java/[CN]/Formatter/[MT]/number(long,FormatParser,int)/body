@@ -1,0 +1,20 @@
+{
+  int o=0, d=0;
+  final IntList il=new IntList(mp.pres.length);
+  for (int p=0; p < mp.pres.length; p+=cl(mp.pres,p)) {
+    final int ch=ch(mp.pres,p);
+    if (ch >= start && ch <= start + 9)     ++d;
+    if (ch == '#')     ++o;
+    il.add(ch);
+  }
+  final byte[] s=token(n);
+  final TokenBuilder tmp=new TokenBuilder();
+  final int r=o + d - s.length;
+  for (int i=r; i > o; --i)   tmp.add(start);
+  for (  final byte b : s)   tmp.add(b - '0' + start);
+  for (int p=il.size() - 1, t=tmp.size() - 1; p >= 0 && t >= 0; --p, --t) {
+    final int ch=il.get(p);
+    if (ch < start && ch > start + 9 && ch != '#')     tmp.insert(t,ch);
+  }
+  return tmp.add(ordinal(n,mp.ordinal)).finish();
+}

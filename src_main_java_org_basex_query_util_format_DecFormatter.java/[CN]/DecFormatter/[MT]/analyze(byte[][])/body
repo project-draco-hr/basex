@@ -1,0 +1,47 @@
+{
+  final Picture[] pics=new Picture[patterns.length];
+  for (int s=0; s < patterns.length; ++s) {
+    final byte[] pt=patterns[s];
+    final Picture pic=new Picture();
+    int p=0;
+    boolean act=false;
+    final int[] opt=new int[2];
+    for (int i=0; i < pt.length; i+=cl(pt,i)) {
+      final int ch=ch(pt,i);
+      final boolean a=active.indexOf(ch) != -1;
+      if (ch == decimal) {
+        ++p;
+        act=false;
+      }
+ else       if (ch == optional) {
+        opt[p]++;
+      }
+ else       if (ch == grouping) {
+        if (p == 0) {
+          pic.group[p]=Array.add(pic.group[p],pic.min[p] + opt[p]);
+        }
+      }
+ else       if (digits.indexOf(ch) != -1) {
+        pic.min[p]++;
+      }
+ else {
+        pic.pc|=ch == percent;
+        pic.pm|=ch == permille;
+        pic.fix[p == 0 && act ? p + 1 : p].add(ch);
+      }
+      act|=a;
+    }
+    final int[] igp=pic.group[0];
+    final int igl=igp.length;
+    for (int g=0; g < igl; ++g)     igp[g]=pic.min[0] + opt[0] - igp[g];
+    if (igl > 1) {
+      boolean reg=true;
+      final int i=igp[igl - 1];
+      for (int g=igl - 2; g >= 0; --g)       reg&=i * igl == igp[g];
+      if (reg)       pic.group[0]=new int[]{i};
+    }
+    pic.maxFrac=pic.min[1] + opt[1];
+    pics[s]=pic;
+  }
+  return pics;
+}
