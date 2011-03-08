@@ -1,0 +1,44 @@
+{
+  final Iter iter=expr[0].iter(ctx);
+  final NodeCache nc=new NodeCache().random();
+  for (Item it; (it=iter.next()) != null; )   nc.add(checkNode(it));
+  final int len=(int)nc.size();
+  if (len < 2)   return nc;
+  if (nc.dbnodes()) {
+    final DBNode fst=(DBNode)nc.get(outer ? 0 : len - 1);
+    final Data data=fst.data;
+    final ANode[] nodes=nc.item.clone();
+    nc.item[0]=fst;
+    nc.size(1);
+    if (outer) {
+      int next=fst.pre + data.size(fst.pre,kind(fst.type));
+      for (int i=1; i < len; i++) {
+        final DBNode nd=(DBNode)nodes[i];
+        if (nd.pre >= next) {
+          nc.add(nd);
+          next=nd.pre + data.size(nd.pre,kind(nd.type));
+        }
+      }
+    }
+ else {
+      int before=fst.pre;
+      for (int i=len - 1; i-- != 0; ) {
+        final DBNode nd=(DBNode)nodes[i];
+        if (nd.pre + data.size(nd.pre,kind(nd.type)) <= before) {
+          nc.add(nd);
+          before=nd.pre;
+        }
+      }
+      Array.reverse(nc.item,0,(int)nc.size());
+    }
+    return nc;
+  }
+  final NodeCache out=new NodeCache(new ANode[len],0);
+  outer:   for (int i=0; i < len; i++) {
+    final ANode nd=nc.item[i];
+    final AxisIter ax=outer ? nd.anc() : nd.descendant();
+    for (ANode a; (a=ax.next()) != null; )     if (nc.indexOf(a,false) != -1)     continue outer;
+    out.add(nc.item[i]);
+  }
+  return out;
+}
