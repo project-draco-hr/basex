@@ -1,0 +1,128 @@
+{
+  if (cal != null || plc != null)   ;
+  final TokenBuilder tb=new TokenBuilder();
+  final DateParser dp=new DateParser(ii,pic);
+  while (dp.more()) {
+    final int ch=dp.next();
+    if (ch != 0) {
+      tb.add(ch);
+    }
+ else {
+      byte[] m=dp.marker();
+      if (m.length == 0)       PICDATE.thrw(ii,pic);
+      final int spec=ch(m,0);
+      m=substring(m,cl(m,0));
+      byte[] pres=ONE;
+      long num=0;
+      final boolean dat=date.type == AtomType.DAT;
+      final boolean tim=date.type == AtomType.TIM;
+      final XMLGregorianCalendar gc=date.xc;
+      boolean err=false;
+switch (spec) {
+case 'Y':
+        num=gc.getYear();
+      err=tim;
+    break;
+case 'M':
+  num=gc.getMonth();
+err=tim;
+break;
+case 'D':
+num=gc.getDay();
+err=tim;
+break;
+case 'd':
+num=Date.days(0,gc.getMonth(),gc.getDay());
+err=tim;
+break;
+case 'F':
+num=gc.toGregorianCalendar().get(Calendar.DAY_OF_WEEK) - 1;
+pres=new byte[]{'n'};
+err=tim;
+break;
+case 'W':
+num=gc.toGregorianCalendar().get(Calendar.WEEK_OF_YEAR);
+err=tim;
+break;
+case 'w':
+num=gc.toGregorianCalendar().get(Calendar.WEEK_OF_MONTH);
+err=tim;
+break;
+case 'H':
+num=gc.getHour();
+err=dat;
+break;
+case 'h':
+num=gc.getHour() % 12;
+err=dat;
+break;
+case 'P':
+num=gc.getHour() / 12;
+pres=new byte[]{'n'};
+err=dat;
+break;
+case 'm':
+num=gc.getMinute();
+pres=token("01");
+err=dat;
+break;
+case 's':
+num=gc.getSecond();
+pres=token("01");
+err=dat;
+break;
+case 'f':
+num=gc.getMillisecond();
+pres=ONE;
+err=dat;
+break;
+case 'Z':
+num=gc.getTimezone();
+pres=token("01:01");
+break;
+case 'z':
+num=gc.getTimezone();
+pres=token("01:01");
+break;
+case 'C':
+pres=new byte[]{'n'};
+break;
+case 'E':
+num=gc.getYear();
+pres=new byte[]{'n'};
+break;
+default :
+err=true;
+break;
+}
+if (err) PICCOMP.thrw(ii,pic);
+final FormatParser fp=new FormatParser();
+if (!fp.parse(m,pres,true)) PICDATE.thrw(ii,pic);
+if (fp.pres[0] == 'n') {
+byte[] in=EMPTY;
+if (spec == 'M') {
+in=month((int)num - 1,fp.min,fp.max);
+}
+ else if (spec == 'F') {
+in=day((int)num,fp.min,fp.max);
+}
+ else if (spec == 'P') {
+in=ampm(num == 0);
+}
+ else if (spec == 'C') {
+in=calendar();
+}
+ else if (spec == 'E') {
+in=era((int)num);
+}
+if (fp.cs == Case.LOWER) in=lc(in);
+if (fp.cs == Case.UPPER) in=uc(in);
+tb.add(in);
+}
+ else {
+tb.add(formatInt(num,fp));
+}
+}
+}
+return tb.finish();
+}
