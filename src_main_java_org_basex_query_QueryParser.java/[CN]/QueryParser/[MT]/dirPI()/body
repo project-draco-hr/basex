@@ -1,8 +1,7 @@
 {
   if (consumeWSS())   error(PIXML,EMPTY);
   final byte[] str=trim(qName(PIWRONG));
-  final Str pi=Str.get(str);
-  if (!XMLToken.isNCName(str) || eq(lc(str),XML))   error(PIXML,pi);
+  if (str.length == 0 || eq(lc(str),XML))   error(PIXML,str);
   final boolean space=skipWS();
   final TokenBuilder tb=new TokenBuilder();
   do {
@@ -13,7 +12,7 @@
     consume();
     if (consume('>')) {
       if (!XMLToken.isNCName(str))       INVALPI.thrw(input(),str);
-      return new CPI(input(),pi,Str.get(tb.finish()));
+      return new CPI(input(),Str.get(str),Str.get(tb.finish()));
     }
     tb.add('?');
   }

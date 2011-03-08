@@ -1,22 +1,22 @@
 {
   if (!wsConsumeWs(USING))   return false;
   if (wsConsumeWs(LOWERCASE)) {
-    if (opt.set(LC) || opt.set(UC) || opt.set(CS))     error(FTDUP,CASE);
+    if (opt.isSet(LC) || opt.isSet(UC) || opt.isSet(CS))     error(FTDUP,CASE);
     opt.set(CS,true);
     opt.set(LC,true);
   }
  else   if (wsConsumeWs(UPPERCASE)) {
-    if (opt.set(LC) || opt.set(UC) || opt.set(CS))     error(FTDUP,CASE);
+    if (opt.isSet(LC) || opt.isSet(UC) || opt.isSet(CS))     error(FTDUP,CASE);
     opt.set(CS,true);
     opt.set(UC,true);
   }
  else   if (wsConsumeWs(CASE)) {
-    if (opt.set(LC) || opt.set(UC) || opt.set(CS))     error(FTDUP,CASE);
+    if (opt.isSet(LC) || opt.isSet(UC) || opt.isSet(CS))     error(FTDUP,CASE);
     opt.set(CS,wsConsumeWs(SENSITIVE));
     if (!opt.is(CS))     wsCheck(INSENSITIVE);
   }
  else   if (wsConsumeWs(DIACRITICS)) {
-    if (opt.set(DC))     error(FTDUP,DIACRITICS);
+    if (opt.isSet(DC))     error(FTDUP,DIACRITICS);
     opt.set(DC,wsConsumeWs(SENSITIVE));
     if (!opt.is(DC))     wsCheck(INSENSITIVE);
   }
@@ -32,7 +32,7 @@
  else {
     final boolean using=!wsConsumeWs(NO);
     if (wsConsumeWs(STEMMING)) {
-      if (opt.set(ST))       error(FTDUP,STEMMING);
+      if (opt.isSet(ST))       error(FTDUP,STEMMING);
       opt.set(ST,using);
     }
  else     if (wsConsumeWs(THESAURUS)) {
@@ -68,8 +68,7 @@
  else           if (wsConsumeWs(AT)) {
             String fn=string(stringLiteral());
             if (ctx.stop != null)             fn=ctx.stop.get(fn);
-            IO fl=IO.get(fn);
-            if (!fl.exists() && file != null)             fl=file.merge(fn);
+            final IO fl=io(fn);
             if (!opt.sw.read(fl,except))             error(NOSTOPFILE,fl);
           }
  else           if (!union && !except) {
@@ -82,12 +81,12 @@
       }
     }
  else     if (wsConsumeWs(WILDCARDS)) {
-      if (opt.set(WC))       error(FTDUP,WILDCARDS);
+      if (opt.isSet(WC))       error(FTDUP,WILDCARDS);
       if (opt.is(FZ))       error(FTFZWC);
       opt.set(WC,using);
     }
  else     if (wsConsumeWs(FUZZY)) {
-      if (opt.set(FZ))       error(FTDUP,FUZZY);
+      if (opt.isSet(FZ))       error(FTDUP,FUZZY);
       if (opt.is(WC))       error(FTFZWC);
       opt.set(FZ,using);
     }

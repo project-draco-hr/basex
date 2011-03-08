@@ -14,15 +14,21 @@
       }
  else       if (cp != 0) {
         if (key.equals(DF_DEC))         decimal=cp;
- else         if (key.equals(DF_GRP))         group=cp;
+ else         if (key.equals(DF_GRP))         grouping=cp;
  else         if (key.equals(DF_PAT))         pattern=cp;
  else         if (key.equals(DF_MIN))         minus=cp;
- else         if (key.equals(DF_DIG))         digit=cp;
+ else         if (key.equals(DF_DIG))         optional=cp;
  else         if (key.equals(DF_PC))         percent=cp;
  else         if (key.equals(DF_PM))         permille=cp;
  else         if (key.equals(DF_ZG)) {
-          if (Arrays.binarySearch(ZEROES,cp) >= 0)           zero=cp;
- else           INVDECFORM.thrw(ii,key,val);
+          zero=-1;
+          for (          final int z : ZEROES) {
+            if (cp >= z && cp <= z + 9) {
+              zero=z;
+              break;
+            }
+          }
+          if (zero == -1)           INVDECFORM.thrw(ii,key,val);
         }
       }
  else {
@@ -31,10 +37,11 @@
     }
   }
   final IntSet is=new IntSet();
-  final int[] t={decimal,group,percent,permille,zero,digit,pattern};
-  for (  final int i : t)   if (is.add(i) < 0)   DUPLDECFORM.thrw(ii,(char)i);
+  for (  final int i : new int[]{decimal,grouping,percent,permille,zero,optional,pattern}) {
+    if (is.add(i) < 0)     DUPLDECFORM.thrw(ii,(char)i);
+  }
   final TokenBuilder tb=new TokenBuilder();
   for (int i=0; i < 10; i++)   tb.add(zero + i);
   digits=tb.toString();
-  active=tb.add(decimal).add(group).add(digit).toString();
+  active=tb.add(decimal).add(grouping).add(optional).toString();
 }
