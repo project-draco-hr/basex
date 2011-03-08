@@ -3,15 +3,15 @@
     sout.write(10);
     send(name);
     final BufferInput bi=new BufferInput(sin);
-    if (trigger == null) {
-      trigger=new Socket();
-      trigger.connect(new InetSocketAddress(shost,tport),5000);
-      id=bi.readString();
-      PrintOutput sout2=PrintOutput.get(trigger.getOutputStream());
-      sout2.print(id);
-      sout2.write(0);
-      sout2.flush();
-      startListener(trigger.getInputStream());
+    if (tsocket == null) {
+      tsocket=new Socket();
+      tsocket.connect(new InetSocketAddress(shost,tport),5000);
+      String id=bi.readString();
+      PrintOutput tout=PrintOutput.get(tsocket.getOutputStream());
+      tout.print(id);
+      tout.write(0);
+      tout.flush();
+      startListener(tsocket.getInputStream());
     }
     info=bi.readString();
     if (!ok(bi))     throw new IOException(info);
