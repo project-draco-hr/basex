@@ -1,0 +1,82 @@
+{
+  final int l=in.length;
+  byte[] pm=null;
+  int pos=cl(in,0);
+  int ch=ch(in,0);
+  if (sequence(ch) != null) {
+  }
+ else   if (ch >= '\u2460' && ch <= '\u249b') {
+  }
+ else   if (ch == KANJI[1]) {
+  }
+ else   if ((ch | ' ') == 'i') {
+  }
+ else   if ((ch | ' ') == 'w' || (ch | ' ') == 'n' && date) {
+    if ((ch & ' ') == 0 && ch(in,pos) == (ch | ' '))     pos+=cl(in,pos);
+  }
+ else {
+    int z=-1;
+    boolean group=false;
+    for (pos=0; pos < l; pos+=cl(in,pos)) {
+      ch=ch(in,pos);
+      if (z == -1) {
+        z=zeroes(ch);
+        if (z != -1 || ch == '#') {
+        }
+ else         if (Character.isLetter(ch)) {
+          pm=def;
+          pos+=cl(in,pos);
+          break;
+        }
+ else         if (pos == 0) {
+          GROUPSTART.thrw(input,in);
+        }
+      }
+ else {
+        if (Character.isLetter(ch)) {
+          pm=substring(in,0,pos);
+          break;
+        }
+ else         if (ch >= z && ch <= z + 9) {
+        }
+ else         if (zeroes(ch) != -1) {
+          MANSAME.thrw(input,in);
+        }
+ else         if (ch == '#') {
+          OPTAFTER.thrw(input,in);
+        }
+ else {
+          if (group)           GROUPADJ.thrw(input,in);
+          group=true;
+          continue;
+        }
+      }
+      group=false;
+    }
+    if (z == -1)     NOMAND.thrw(input,in);
+    if (group)     GROUPEND.thrw(input,in);
+    if (pm == null)     pm=substring(in,0,pos);
+  }
+  if (pm == null)   pm=substring(in,0,pos);
+  if (pos < l) {
+    if (ch(in,pos) == 'o') {
+      final TokenBuilder tb=new TokenBuilder();
+      if (ch(in,++pos) == '(') {
+        while (ch(in,++pos) != ')') {
+          if (pos == l)           ORDCLOSED.thrw(input,in);
+          tb.add(ch(in,pos));
+        }
+        ++pos;
+      }
+      ordinal=tb.finish();
+    }
+ else     if (ch(in,pos) == 't') {
+      ++pos;
+    }
+    if (pos < l) {
+      if (ch(in,pos) != ',')       PICCOMP.thrw(input,in);
+      pm=concat(pm,substring(in,pos));
+    }
+  }
+  return pm;
+}
