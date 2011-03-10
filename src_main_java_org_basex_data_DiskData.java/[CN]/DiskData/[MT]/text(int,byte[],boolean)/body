@@ -1,15 +1,14 @@
 {
   final long v=Token.toSimpleInt(val);
   if (v != Integer.MIN_VALUE) {
-    textOff(pre,v | IO.NUMOFF);
+    textOff(pre,v | IO.OFFNUM);
   }
  else {
     final DataAccess da=txt ? texts : values;
-    long o=textOff(pre) & IO.CPROFF - 1;
     final byte[] cpr=comp.pack(val);
-    final boolean cp=cpr != val;
-    if (num(o) || cpr.length > da.readNum(o) && da.readNum(o) + da.pos() != da.length())     o=da.length();
+    long o=textOff(pre) & IO.OFFCOMP - 1;
+    if (num(textOff(pre)) || cpr.length > da.readNum(o) && da.pos() + da.readNum(o) != da.length())     o=da.length();
     da.writeBytes(o,cpr);
-    textOff(pre,o | (cp ? IO.CPROFF : 0));
+    textOff(pre,o | (cpr == val ? 0 : IO.OFFCOMP));
   }
 }
