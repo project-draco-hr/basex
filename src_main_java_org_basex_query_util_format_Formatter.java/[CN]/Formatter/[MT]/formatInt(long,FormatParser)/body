@@ -1,0 +1,30 @@
+{
+  long n=num;
+  final boolean sign=n < 0;
+  if (sign)   n=-n;
+  final TokenBuilder tb=new TokenBuilder();
+  final int ch=mp.digit;
+  final boolean single=mp.primary.length == cl(mp.primary,0);
+  if (ch == 'w') {
+    tb.add(word(n,mp.ordinal));
+  }
+ else   if (ch == KANJI[1]) {
+    japanese(tb,n);
+  }
+ else   if (single && ch == 'i') {
+    roman(tb,n);
+  }
+ else   if (ch >= '\u2460' && ch <= '\u249b') {
+    if (num < 1 || num > 20)     tb.addLong(num);
+ else     tb.add((int)(ch + num - 1));
+  }
+ else {
+    final String seq=sequence(ch);
+    if (seq != null)     alpha(tb,num,seq);
+ else     tb.add(number(n,mp,zeroes(ch)));
+  }
+  byte[] in=tb.finish();
+  if (mp.cs == Case.LOWER)   in=lc(in);
+  if (mp.cs == Case.UPPER)   in=uc(in);
+  return sign ? concat(new byte[]{'-'},in) : in;
+}
