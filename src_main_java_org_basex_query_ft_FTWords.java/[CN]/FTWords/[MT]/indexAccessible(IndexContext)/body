@@ -3,12 +3,16 @@
   final FTOpt fto=ftt.opt;
   final boolean wc=fto.is(WC);
   if (wc && !md.wildcards)   return false;
-  if (occ != null || md.casesens != fto.is(CS) || md.diacritics != fto.is(DC) || md.stemming != fto.is(ST) || md.language != fto.ln)   return false;
+  if (fto.isSet(CS) && md.casesens != fto.is(CS) || fto.isSet(DC) && md.diacritics != fto.is(DC) || fto.isSet(ST) && md.stemming != fto.is(ST) || fto.ln != null && md.language != fto.ln || occ != null)   return false;
   if (txt == null)   return false;
   if (txt.size() == 0) {
     ic.costs=0;
     return true;
   }
+  fto.set(CS,md.casesens);
+  fto.set(DC,md.diacritics);
+  fto.set(ST,md.stemming);
+  fto.ln=md.language;
   final FTLexer ft=new FTLexer(fto);
   for (  byte[] t : txt) {
     ft.init(t);

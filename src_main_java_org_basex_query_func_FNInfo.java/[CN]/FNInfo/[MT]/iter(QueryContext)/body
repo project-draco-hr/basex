@@ -18,7 +18,14 @@ final QueryException ex=new QueryException(input,code,val,msg);
 throw ex;
 case TRACE:
 val=expr[0].value(ctx);
-ctx.evalInfo(checkEStr(expr[1],ctx),val.toString());
+final TokenBuilder tb=new TokenBuilder();
+tb.add(checkEStr(expr[1],ctx)).add(val.toString());
+if (Prop.gui || !ctx.context.user.perm(User.ADMIN)) {
+ctx.evalInfo(tb.finish());
+}
+ else {
+Util.errln(tb);
+}
 return val.iter();
 case ENVS:
 final ItemCache ir=new ItemCache();

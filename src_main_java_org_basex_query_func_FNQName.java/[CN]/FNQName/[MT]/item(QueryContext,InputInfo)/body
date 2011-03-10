@@ -15,15 +15,16 @@ if (nm.ns() && uri.length == 0) Err.value(input,Type.URI,nm.uri());
 return nm;
 case LOCNAMEQNAME:
 if (it == null) return null;
-return new NCN(((QNm)checkType(it,Type.QNM)).ln(),input);
+nm=(QNm)checkType(it,Type.QNM);
+return Type.NCN.e(Str.get(nm.ln()),ctx,input);
 case PREQNAME:
 if (it == null) return null;
 nm=(QNm)checkType(it,Type.QNM);
-return !nm.ns() ? null : new NCN(nm.pref(),input);
+return !nm.ns() ? null : Type.NCN.e(Str.get(nm.pref()),ctx,input);
 case NSURIPRE:
 final byte[] pre=checkEStr(it);
 final ANode an=(ANode)checkType(it2,Type.ELM);
-final Atts at=an.nsScope(copiedNod(an,ctx) ? ctx.nsInherit : true);
+final Atts at=an.nsScope(!copiedNod(an,ctx) || ctx.nsInherit);
 final int i=at != null ? at.get(pre) : -1;
 return i != -1 ? Uri.uri(at.val[i]) : null;
 case RESURI:

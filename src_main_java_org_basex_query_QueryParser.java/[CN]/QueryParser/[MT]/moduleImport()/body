@@ -14,7 +14,7 @@
   final TokenList fl=new TokenList();
   if (wsConsumeWs(AT))   do   fl.add(stringLiteral());
  while (wsConsumeWs(COMMA));
-  if (modLoaded.contains(uri))   error(DUPLMODULE,name.uri());
+  if (modules.contains(uri))   error(DUPLMODULE,name.uri());
   try {
     if (fl.size() == 0) {
       boolean found=false;
@@ -22,7 +22,7 @@
       for (int n=0; n < ns; n+=2) {
         if (ctx.modules.get(n).equals(string(uri))) {
           module(ctx.modules.get(n + 1),name.uri());
-          modLoaded.add(uri);
+          modules.add(uri);
           found=true;
         }
       }
@@ -30,7 +30,7 @@
     }
     for (int n=0; n < fl.size(); ++n) {
       module(string(fl.get(n)),name.uri());
-      modLoaded.add(uri);
+      modules.add(uri);
     }
   }
  catch (  final StackOverflowError ex) {
