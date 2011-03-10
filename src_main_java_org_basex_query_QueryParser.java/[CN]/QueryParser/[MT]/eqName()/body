@@ -1,13 +1,19 @@
 {
   final int p=qp;
   tok.reset();
-  final QNm name=new QNm();
   if (curr('"') || curr('\'')) {
-    name.uri(stringLiteral());
-    if (!consume(':')) {
+    final byte[] uri=stringLiteral();
+    tok.reset();
+    if (!consume(':') || !ncName()) {
       qp=p;
       return null;
     }
+    return new QNm(tok.finish(),uri);
   }
-  return name;
+  if (!ncName()) {
+    qp=p;
+    return null;
+  }
+  if (consume(':'))   ncName2();
+  return new QNm(tok.finish());
 }
