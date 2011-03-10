@@ -1,20 +1,24 @@
 {
-  int o=0, d=0;
-  final IntList il=new IntList(mp.pres.length);
-  for (int p=0; p < mp.pres.length; p+=cl(mp.pres,p)) {
-    final int ch=ch(mp.pres,p);
-    if (ch >= start && ch <= start + 9)     ++d;
-    if (ch == '#')     ++o;
-    il.add(ch);
+  final IntList pr=new IntList(mp.primary.length);
+  for (int p=0; p < mp.primary.length; p+=cl(mp.primary,p)) {
+    pr.add(cp(mp.primary,p));
   }
+  final IntList cache=new IntList();
   final byte[] s=token(n);
-  final TokenBuilder tmp=new TokenBuilder();
-  final int r=o + d - s.length;
-  for (int i=r; i > o; --i)   tmp.add(start);
-  for (  final byte b : s)   tmp.add(b - '0' + start);
-  for (int p=il.size() - 1, t=tmp.size() - 1; p >= 0 && t >= 0; --p, --t) {
-    final int ch=il.get(p);
-    if (ch < start && ch > start + 9 && ch != '#')     tmp.insert(t,ch);
+  int b=s.length - 1, i=pr.size() - 1;
+  while (i >= 0 && b >= 0) {
+    final int ch=pr.get(i--);
+    cache.add(ch >= z && ch <= z + 9 || ch == '#' ? s[b--] - '0' + z : ch);
   }
-  return tmp.add(ordinal(n,mp.ordinal)).finish();
+  while (b >= 0) {
+    cache.add(s[b--] - '0' + z);
+  }
+  while (i >= 0) {
+    final int ch=pr.get(i--);
+    if (ch == '#')     break;
+    cache.add(ch >= z && ch <= z + 9 ? z : ch);
+  }
+  final TokenBuilder tb=new TokenBuilder();
+  for (int c=cache.size() - 1; c >= 0; --c)   tb.add(cache.get(c));
+  return tb.add(ordinal(n,mp.ordinal)).finish();
 }
