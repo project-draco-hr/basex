@@ -14,20 +14,15 @@
       }
     }
     if (read == null) {
-      item=result.next();
-      if (item instanceof DBNode) {
-        read=new DNodeReader();
-      }
- else       if (item instanceof FNode) {
-        read=new FNodeReader();
-      }
- else       if (item != null) {
-        type();
-      }
+      final Item it=result.next();
+      if (it == null)       return false;
+      if (!(it instanceof ANode))       throw new XMLStreamException();
+      node=(ANode)it;
+      read=it instanceof DBNode ? new DBNodeReader() : new FNodeReader();
     }
   }
  catch (  final QueryException ex) {
     throw new XMLStreamException(ex);
   }
-  return item != null;
+  return node != null;
 }
