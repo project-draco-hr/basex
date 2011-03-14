@@ -1,0 +1,83 @@
+{
+  final int l=pic.length;
+  byte[] pm=null;
+  int pos=cl(pic,0);
+  int ch=ch(pic,0);
+  if (sequence(ch) != null) {
+  }
+ else   if (ch >= '\u2460' && ch <= '\u249b') {
+  }
+ else   if (ch == KANJI[1]) {
+  }
+ else   if ((ch | ' ') == 'i') {
+  }
+ else   if ((ch | ' ') == 'w' || (ch | ' ') == 'n' && ext) {
+    if ((ch & ' ') == 0 && ch(pic,pos) == (ch | ' '))     pos+=cl(pic,pos);
+  }
+ else {
+    int z=-1;
+    boolean group=false;
+    for (pos=0; pos < l; pos+=cl(pic,pos)) {
+      ch=ch(pic,pos);
+      if (z == -1) {
+        z=zeroes(ch);
+        if (z != -1) {
+          digit=z;
+          group=false;
+        }
+ else         if (ch == '#') {
+          group=false;
+        }
+ else         if (Character.isLetter(ch)) {
+          pm=def;
+          pos+=cl(pic,pos);
+          break;
+        }
+ else {
+          if (pos == 0)           GROUPSTART.thrw(input,pic);
+          if (group)           GROUPADJ.thrw(input,pic);
+          group=true;
+        }
+      }
+ else {
+        if (Character.isLetter(ch)) {
+          pm=substring(pic,0,pos);
+          break;
+        }
+ else         if (ch >= z && ch <= z + 9) {
+          group=false;
+        }
+ else {
+          if (zeroes(ch) != -1)           DIFFMAND.thrw(input,pic);
+          if (ch == '#')           OPTAFTER.thrw(input,pic);
+          if (group)           GROUPADJ.thrw(input,pic);
+          group=true;
+        }
+      }
+    }
+    if (z == -1)     NOMAND.thrw(input,pic);
+    if (group)     GROUPEND.thrw(input,pic);
+  }
+  if (pm == null)   pm=substring(pic,0,pos);
+  if (pos < l) {
+    if (ch(pic,pos) == 'o') {
+      final TokenBuilder tb=new TokenBuilder();
+      if (ch(pic,++pos) == '(') {
+        while (ch(pic,++pos) != ')') {
+          if (pos == l)           ORDCLOSED.thrw(input,pic);
+          tb.add(ch(pic,pos));
+        }
+        ++pos;
+      }
+      ordinal=tb.finish();
+    }
+ else     if (ch(pic,pos) == 't') {
+      ++pos;
+    }
+    if (pos < l) {
+      if (ch(pic,pos) != ',')       PICCOMP.thrw(input,pic);
+      pm=concat(pm,substring(pic,pos));
+    }
+  }
+  return pm;
+}
