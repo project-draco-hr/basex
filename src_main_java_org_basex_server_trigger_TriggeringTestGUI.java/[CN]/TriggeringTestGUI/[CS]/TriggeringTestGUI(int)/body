@@ -1,0 +1,83 @@
+{
+  frame=new JFrame();
+  cs=new ClientSession("localhost",1984,"admin","admin");
+  try {
+    cs.attachTrigger("trigger",new TriggerNotification(){
+      @Override public void update(      final String data){
+        Color c=Color.WHITE;
+        if (data.equals("RED")) {
+          c=Color.RED;
+        }
+ else         if (data.equals("BLUE")) {
+          c=Color.BLUE;
+        }
+ else         if (data.equals("YELLOW")) {
+          c=Color.YELLOW;
+        }
+        main.setBackground(c);
+        frame.repaint();
+      }
+    }
+);
+  }
+ catch (  BaseXException e1) {
+    try {
+      cs.execute("create trigger trigger");
+      cs.attachTrigger("trigger",new TriggerNotification(){
+        @Override public void update(        final String data){
+          Color c=Color.WHITE;
+          if (data.equals("RED")) {
+            c=Color.RED;
+          }
+ else           if (data.equals("BLUE")) {
+            c=Color.BLUE;
+          }
+ else           if (data.equals("YELLOW")) {
+            c=Color.YELLOW;
+          }
+          main.setBackground(c);
+          frame.repaint();
+        }
+      }
+);
+    }
+ catch (    BaseXException e2) {
+      e2.printStackTrace();
+    }
+  }
+  JButton red=new JButton("RED");
+  JButton blue=new JButton("BLUE");
+  JButton yellow=new JButton("YELLOW");
+  red.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      action("RED");
+    }
+  }
+);
+  blue.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      action("BLUE");
+    }
+  }
+);
+  yellow.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      action("YELLOW");
+    }
+  }
+);
+  JPanel jp=new JPanel();
+  jp.setLayout(new FlowLayout());
+  jp.add(red);
+  jp.add(blue);
+  jp.add(yellow);
+  main=new JPanel();
+  main.setPreferredSize(new Dimension(300,150));
+  main.setBackground(Color.WHITE);
+  main.add(jp);
+  frame.getContentPane().add(main);
+  frame.pack();
+  frame.setLocation(pos + 20,0);
+  frame.setVisible(true);
+  frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+}
