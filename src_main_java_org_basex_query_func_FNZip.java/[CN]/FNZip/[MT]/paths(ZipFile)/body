@@ -1,11 +1,15 @@
 {
-  final StringList paths=new StringList();
+  final TreeSet<String> paths=new TreeSet<String>();
   final Enumeration<? extends ZipEntry> en=zf.entries();
   while (en.hasMoreElements()) {
     final ZipEntry ze=en.nextElement();
     final String name=ze.getName();
+    int i=name.lastIndexOf('/');
+    if (i > -1 && i + 1 < name.length())     paths.add(name.substring(0,i + 1));
     paths.add(name);
   }
-  paths.sort(true,true);
-  return paths;
+  final StringList sl=new StringList();
+  final Iterator<String> it=paths.iterator();
+  while (it.hasNext())   sl.add(it.next());
+  return sl;
 }
