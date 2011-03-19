@@ -12,18 +12,16 @@
       if (args.length == 0)       break;
       check('$');
     }
-    final QNm arg=varName();
-    final SeqType argType=wsConsumeWs(AS) ? sequenceType() : null;
-    final Var var=new Var(input(),arg,argType);
+    final Var var=typedVar();
     ctx.vars.add(var);
-    for (    final Var v : args)     if (v.name.eq(arg))     error(FUNCDUPL,arg.atom());
+    for (    final Var v : args)     if (v.name.eq(var.name))     error(FUNCDUPL,var);
     args=Array.add(args,var);
     if (!consume(','))     break;
     skipWS();
   }
   wsCheck(PAR2);
   final SeqType type=wsConsumeWs(AS) ? sequenceType() : null;
-  final Func func=new Func(input(),new Var(input(),name,type),args,true);
+  final Func func=new Func(input(),name,args,type,true);
   func.updating=up;
   ctx.funcs.add(func,this);
   if (!wsConsumeWs(EXTERNAL))   func.expr=enclosed(NOFUNBODY);
