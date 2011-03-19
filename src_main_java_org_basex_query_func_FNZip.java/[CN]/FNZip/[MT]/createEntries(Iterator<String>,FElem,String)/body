@@ -1,17 +1,23 @@
 {
-  String name=null;
-  boolean dir=false;
-  while (dir || it.hasNext()) {
-    if (!dir)     name=it.next();
-    if (name == null)     break;
-    if (!name.startsWith(pref))     return name;
-    dir=name.endsWith("/");
-    final FElem e=new FElem(dir ? E_DIR : E_ENTRY,null);
-    name=name.replaceAll(dir ? "/$" : ".*/","");
-    e.atts.add(new FAttr(A_NAME,token(name),e));
-    e.parent(par);
-    par.children.add(e);
-    if (dir)     name=createEntries(it,e,name);
+  String path=null;
+  boolean curr=false;
+  while (curr || it.hasNext()) {
+    if (!curr) {
+      path=it.next();
+      curr=true;
+    }
+    if (path == null)     break;
+    if (!path.startsWith(pref))     return path;
+    final int i=path.lastIndexOf('/');
+    final String dir=i == -1 ? path : path.substring(0,i);
+    final String name=path.substring(i + 1);
+    if (name.isEmpty()) {
+      path=createEntries(it,createDir(par,dir),dir);
+    }
+ else {
+      createFile(par,name);
+      curr=false;
+    }
   }
   return null;
 }

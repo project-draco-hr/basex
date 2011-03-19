@@ -1,16 +1,11 @@
 {
-  final QNm name=varName();
-  if (module != null && !name.uri().eq(module.uri()))   error(MODNS,name);
-  final SeqType t=wsConsumeWs(AS) ? sequenceType() : null;
-  final Var v=new Var(input(),name,t);
-  final Var o=ctx.vars.get(v);
-  if (o != null && o.declared)   error(VARDEFINE,o);
-  (o != null ? o : v).declared=true;
+  final Var v=typedVar();
+  if (module != null && !v.name.uri().eq(module.uri()))   error(MODNS,v);
+  final Var old=ctx.vars.get(v.name);
+  if (old != null && old.declared)   error(VARDEFINE,old);
+  (old != null ? old : v).declared=true;
   if (wsConsumeWs(EXTERNAL)) {
-    if (o != null && t != null) {
-      o.type=t;
-      o.value=null;
-    }
+    if (old != null && v.type != null)     old.reset(v.type);
     if (ctx.xquery3 && wsConsumeWs(ASSIGN)) {
       v.bind(check(single(),NOVARDECL),ctx);
     }
@@ -19,5 +14,5 @@
     wsCheck(ASSIGN);
     v.bind(check(single(),NOVARDECL),ctx);
   }
-  if (o == null)   ctx.vars.setGlobal(v);
+  if (old == null)   ctx.vars.setGlobal(v);
 }
