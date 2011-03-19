@@ -1,14 +1,11 @@
 {
   final Var v=typedVar();
   if (module != null && !v.name.uri().eq(module.uri()))   error(MODNS,v);
-  final Var o=ctx.vars.get(v.name);
-  if (o != null && o.declared)   error(VARDEFINE,o);
-  (o != null ? o : v).declared=true;
+  final Var old=ctx.vars.get(v.name);
+  if (old != null && old.declared)   error(VARDEFINE,old);
+  (old != null ? old : v).declared=true;
   if (wsConsumeWs(EXTERNAL)) {
-    if (o != null && v.type != null) {
-      o.type=v.type;
-      o.value=null;
-    }
+    if (old != null && v.type != null)     old.reset(v.type);
     if (ctx.xquery3 && wsConsumeWs(ASSIGN)) {
       v.bind(check(single(),NOVARDECL),ctx);
     }
@@ -17,5 +14,5 @@
     wsCheck(ASSIGN);
     v.bind(check(single(),NOVARDECL),ctx);
   }
-  if (o == null)   ctx.vars.setGlobal(v);
+  if (old == null)   ctx.vars.setGlobal(v);
 }
