@@ -6,10 +6,21 @@
     final byte[] ln=((NameTest)test).ln;
     ctx.leaf=axis.down && data.meta.uptodate && data.ns.size() == 0 && data.tags.stat(data.tags.id(ln)).leaf;
   }
-  final Type ct=ctx.value != null ? ctx.value.type : null;
-  if (ct == Type.DOC)   ctx.value.type=Type.ELM;
+  final Value cv=ctx.value;
+  final Type ct=cv != null ? cv.type : null;
+  if (ct == Type.DOC) {
+    cv.type=Type.ELM;
+  }
+ else   if (ct == Type.SEQ) {
+    ctx.value=null;
+  }
   final Expr e=super.comp(ctx);
-  if (ct != null)   ctx.value.type=ct;
+  if (ct != null) {
+    cv.type=ct;
+  }
+ else {
+    ctx.value=cv;
+  }
   ctx.leaf=false;
   if (e != this || e instanceof IterStep)   return e;
   if (!uses(Use.POS))   return new IterStep(input,axis,test,pred);
