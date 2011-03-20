@@ -1,0 +1,30 @@
+{
+  final Request r=RequestParser.parse(request,ii);
+  final byte[] dest=href != null ? href : r.attrs.get(HREF);
+  if (dest == null)   NOURL.thrw(ii);
+  try {
+    final URL url=new URL(string(dest));
+    final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+    try {
+      setConnectionProps(conn,r,ii);
+      setRequestHeaders(conn,r,ii);
+      if (r.bodyContent.size() != 0 || r.parts.size() != 0) {
+        setContentType(conn,r);
+        setRequestContent(conn.getOutputStream(),r);
+      }
+      return ResponseHandler.getResponse(conn,r.attrs.get(STATUSONLY),r.attrs.get(OVERMEDIATYPE),prop,ii);
+    }
+  finally {
+      conn.disconnect();
+    }
+  }
+ catch (  final MalformedURLException ex) {
+    throw URLINV.thrw(ii,href);
+  }
+catch (  final ProtocolException ex) {
+    throw PROTINV.thrw(ii);
+  }
+catch (  final IOException ex) {
+    throw HTTPERR.thrw(ii,ex);
+  }
+}
