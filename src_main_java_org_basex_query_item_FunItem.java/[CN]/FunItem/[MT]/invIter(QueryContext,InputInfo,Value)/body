@@ -2,7 +2,11 @@
   final int s=ctx.vars.size();
   for (int i=closure.size; i-- > 0; )   ctx.vars.add(closure.vars[i].copy());
   for (int a=vars.length; a-- > 0; )   ctx.vars.add(vars[a].bind(args[a],ctx).copy());
-  final ItemCache ir=ItemCache.get(ctx.iter(expr));
+  final Value cv=ctx.value;
+  ctx.value=null;
+  final Value v=expr.value(ctx);
+  ctx.value=cv;
   ctx.vars.reset(s);
-  return ir;
+  final SeqType ret=((FunType)type).ret;
+  return (ret != null ? ret.cast(v,ctx,ii) : v).iter();
 }
