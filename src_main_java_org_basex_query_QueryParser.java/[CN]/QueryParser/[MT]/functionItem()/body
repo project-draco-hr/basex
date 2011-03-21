@@ -1,0 +1,30 @@
+{
+  final int pos=qp;
+  if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
+    final int s=ctx.vars.size();
+    final Var[] args=paramList();
+    wsCheck(PAR2);
+    final SeqType type=optAsType();
+    final Expr body=enclosed(NOFUNBODY);
+    ctx.vars.reset(s);
+    return new InlineFunc(input(),type,args,body);
+  }
+  qp=pos;
+  skipWS();
+  final byte[] fn=qName(null);
+  if (fn.length > 0 && consume(HASH)) {
+    final QNm name=new QNm(fn);
+    if (name.ns())     ctx.ns.uri(name);
+ else     name.uri(ctx.nsFunc);
+    final long cardinal=((Itr)numericLiteral(true)).itr(null);
+    if (cardinal < 0 || cardinal > Integer.MAX_VALUE)     error(FUNCUNKNOWN,fn);
+    final Expr[] args=new Expr[(int)cardinal];
+    final Var[] vars=new Var[args.length];
+    partial(args,vars);
+    final TypedFunc f=ctx.funcs.get(name,args,ctx,this);
+    if (f == null)     error(FUNCUNKNOWN,fn);
+    return new LitFunc(input(),name,f,vars);
+  }
+  qp=pos;
+  return null;
+}

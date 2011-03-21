@@ -1,0 +1,26 @@
+{
+  Expr e=primary(), old;
+  do {
+    old=e;
+    if (wsConsume(BR1)) {
+      if (e == null)       error(PREDMISSING);
+      Expr[] pred={};
+      do {
+        pred=add(pred,expr());
+        wsCheck(BR2);
+      }
+ while (wsConsume(BR1));
+      e=new Filter(input(),e,pred);
+    }
+ else     if (e != null) {
+      final Expr[] args=argumentList(e);
+      if (args == null)       break;
+      final Var[] part=new Var[args.length];
+      final boolean pt=partial(args,part);
+      e=new DynFunCall(input(),e,args);
+      if (pt)       e=new PartFunApp(input(),e,part);
+    }
+  }
+ while (e != old);
+  return e;
+}
