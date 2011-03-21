@@ -1,0 +1,53 @@
+{
+  skipWS();
+  if (consume(PAR1)) {
+    final Type ret=itemType();
+    wsCheck(PAR2);
+    return ret;
+  }
+  final QNm type=new QNm(qName(TYPEINVALID));
+  type.uri(ctx.ns.uri(type.pref(),false,input()));
+  final boolean atom=!wsConsumeWs(PAR1);
+  Type t=Types.find(type,atom);
+  tok.reset();
+  if (!atom) {
+    if (t != null && t.func()) {
+      if (!wsConsume(ASTERISK)) {
+        SeqType[] args={};
+        if (!wsConsume(PAR2)) {
+          do {
+            args=Array.add(args,sequenceType());
+          }
+ while (wsConsume(COMMA));
+          if (!wsConsume(PAR2))           error(FUNCMISS,type.atom());
+        }
+        wsCheck(AS);
+        t=FunType.get(args,sequenceType());
+      }
+ else       if (!wsConsume(PAR2)) {
+        error(FUNCMISS,type.atom());
+      }
+    }
+ else {
+      int par=0;
+      while (par != 0 || !wsConsumeWs(PAR2)) {
+switch (curr()) {
+case '(':
+          par++;
+        break;
+case ')':
+      par--;
+    break;
+case '\0':
+  error(FUNCMISS,type.atom());
+}
+tok.add(consume());
+}
+}
+}
+if (t == null) {
+if (atom) error(TYPEUNKNOWN,type);
+error(NOTYPE,new TokenBuilder(type.atom()).add('(').add(tok.finish()).add(')'));
+}
+return t;
+}
