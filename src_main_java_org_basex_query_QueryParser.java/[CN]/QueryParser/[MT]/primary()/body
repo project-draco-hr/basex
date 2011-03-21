@@ -5,7 +5,12 @@
   if (c == '(' && next() != '#')   return parenthesized();
   if (c == '<')   return constructor();
   if (XMLToken.isNCStartChar(c)) {
-    Expr e=functionCall();
+    Expr e;
+    if (ctx.xquery3) {
+      e=functionItem();
+      if (e != null)       return e;
+    }
+    e=functionCall();
     if (e != null)     return e;
     e=compConstructor();
     if (e != null)     return e;
@@ -16,6 +21,6 @@
     consume('.');
     return new Context(input());
   }
-  if (digit(c) || c == '.')   return numericLiteral();
+  if (digit(c) || c == '.')   return numericLiteral(false);
   return quote(c) ? Str.get(stringLiteral()) : null;
 }

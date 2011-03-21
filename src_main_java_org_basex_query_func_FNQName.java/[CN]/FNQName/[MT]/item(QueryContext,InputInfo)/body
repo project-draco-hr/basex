@@ -5,25 +5,25 @@ switch (def) {
 case RESQNAME:
     return it == null ? null : resolve(ctx,it,checkEmpty(it2));
 case QNAME:
-  final byte[] uri=it == null ? EMPTY : checkType(it,Type.STR).atom();
-final Item it3=it2 == null ? Str.ZERO : checkType(it2,Type.STR);
-final byte[] atm=it3.atom();
+  final byte[] uri=it == null ? EMPTY : checkType(it,AtomType.STR).atom(input);
+final Item it3=it2 == null ? Str.ZERO : checkType(it2,AtomType.STR);
+final byte[] atm=it3.atom(input);
 final byte[] str=!contains(atm,':') && eq(uri,XMLURI) ? concat(XMLC,atm) : atm;
-if (!XMLToken.isQName(str)) Err.value(input,Type.QNM,it3);
+if (!XMLToken.isQName(str)) Err.value(input,AtomType.QNM,it3);
 QNm nm=new QNm(str,uri);
-if (nm.ns() && uri.length == 0) Err.value(input,Type.URI,nm.uri());
+if (nm.ns() && uri.length == 0) Err.value(input,AtomType.URI,nm.uri());
 return nm;
 case LOCNAMEQNAME:
 if (it == null) return null;
-nm=(QNm)checkType(it,Type.QNM);
-return Type.NCN.e(Str.get(nm.ln()),ctx,input);
+nm=(QNm)checkType(it,AtomType.QNM);
+return AtomType.NCN.e(Str.get(nm.ln()),ctx,input);
 case PREQNAME:
 if (it == null) return null;
-nm=(QNm)checkType(it,Type.QNM);
-return !nm.ns() ? null : Type.NCN.e(Str.get(nm.pref()),ctx,input);
+nm=(QNm)checkType(it,AtomType.QNM);
+return !nm.ns() ? null : AtomType.NCN.e(Str.get(nm.pref()),ctx,input);
 case NSURIPRE:
 final byte[] pre=checkEStr(it);
-final ANode an=(ANode)checkType(it2,Type.ELM);
+final ANode an=(ANode)checkType(it2,NodeType.ELM);
 final Atts at=an.nsScope(!copiedNod(an,ctx) || ctx.nsInherit);
 final int i=at != null ? at.get(pre) : -1;
 return i != -1 ? Uri.uri(at.val[i]) : null;
