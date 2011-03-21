@@ -1,0 +1,27 @@
+{
+  MyHttpConnection conn=new MyHttpConnection(new URL("http://www.test.com"));
+  final Map<String,List<String>> hdrs=new HashMap<String,List<String>>();
+  final List<String> fromVal=new ArrayList<String>();
+  fromVal.add("Nathaniel Borenstein <nsb@bellcore.com>");
+  hdrs.put("From",fromVal);
+  final List<String> mimeVal=new ArrayList<String>();
+  mimeVal.add("1.0");
+  hdrs.put("MIME-version",mimeVal);
+  final List<String> subjVal=new ArrayList<String>();
+  subjVal.add("Formatted text mail");
+  hdrs.put("Subject",subjVal);
+  final List<String> contTypeVal=new ArrayList<String>();
+  contTypeVal.add("multipart/alternative");
+  contTypeVal.add("boundary=\"boundary42\"");
+  hdrs.put("Content-Type",contTypeVal);
+  conn.headers=hdrs;
+  conn.contentType="multipart/alternative; boundary=\"boundary42\"";
+  conn.content=token(multipart);
+  Iter i=ResponseHandler.getResponse(conn,Bln.FALSE.atom(),null,context.prop,null);
+  XMLSerializer ser=new XMLSerializer(System.out);
+  Item it;
+  while ((it=i.next()) != null) {
+    it.serialize(ser);
+  }
+  ser.close();
+}
