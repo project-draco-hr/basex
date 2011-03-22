@@ -1,0 +1,33 @@
+{
+  final File src=pr.dbpath(db);
+  final File trg=pr.dbpath(newdb);
+  final String[] files=src.list();
+  if (files == null || !trg.mkdir())   return false;
+  boolean ok=true;
+  for (  final String file : files) {
+    FileChannel sc=null;
+    FileChannel dc=null;
+    try {
+      sc=new FileInputStream(new File(src,file)).getChannel();
+      dc=new FileOutputStream(new File(trg,file)).getChannel();
+      dc.transferFrom(sc,0,sc.size());
+    }
+ catch (    final IOException ex) {
+      ok=false;
+    }
+ finally {
+      if (sc != null)       try {
+        sc.close();
+      }
+ catch (      final IOException ex) {
+      }
+      if (dc != null)       try {
+        dc.close();
+      }
+ catch (      final IOException ex) {
+      }
+    }
+  }
+  if (!ok)   DropDB.drop(newdb,pr);
+  return ok;
+}

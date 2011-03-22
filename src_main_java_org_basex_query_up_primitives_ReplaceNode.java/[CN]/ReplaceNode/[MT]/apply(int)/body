@@ -1,0 +1,19 @@
+{
+  final DBNode n=(DBNode)node;
+  final Data d=n.data;
+  int pre=n.pre + add;
+  final int par=d.parent(pre,d.kind(pre));
+  if (n.type == NodeType.TXT && md.meta.size == 1 && md.kind(0) == Data.TEXT) {
+    d.replace(pre,Data.TEXT,md.text(0,true));
+  }
+ else {
+    d.delete(pre);
+    if (n.type == NodeType.ATT)     d.insertAttr(pre,par,md);
+ else     d.insert(pre,par,md);
+    if (!mergeTexts(d,pre - 1,pre)) {
+      pre+=md.meta.size;
+      mergeTexts(d,pre - 1,pre);
+    }
+  }
+  return 0;
+}
