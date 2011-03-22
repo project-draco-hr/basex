@@ -1,15 +1,19 @@
 {
   final DBNode n=(DBNode)node;
-  final int par=n.pre + add;
   final Data d=n.data;
+  final int par=n.pre + add;
   final int pre=par + d.attSize(par,Data.ELEM);
-  while (par + d.size(par,Data.ELEM) > pre) {
-    d.delete(pre);
+  if (par + d.size(par,Data.ELEM) == pre + 1 && d.kind(pre) == Data.TEXT) {
+    d.replace(pre,Data.TEXT,value);
   }
-  if (txt.length > 0) {
-    final MemData md=new MemData(n.data);
-    md.text(0,pre - par,txt,Data.TEXT);
-    md.insert(0);
-    d.insert(pre,par,md);
+ else {
+    while (par + d.size(par,Data.ELEM) > pre)     d.delete(pre);
+    if (value.length > 0) {
+      final MemData md=new MemData(n.data);
+      md.text(0,pre - par,value,Data.TEXT);
+      md.insert(0);
+      d.insert(pre,par,md);
+    }
   }
+  return 0;
 }

@@ -1,19 +1,19 @@
 {
   final File src=pr.dbpath(db);
-  final File trg=new File(src.getParent() + '/' + newdb);
-  trg.mkdir();
-  String[] files=src.list();
-  for (  String file : files) {
+  final File trg=pr.dbpath(newdb);
+  final String[] files=src.list();
+  if (files == null || !trg.mkdir())   return false;
+  boolean ok=true;
+  for (  final String file : files) {
     FileChannel sc=null;
     FileChannel dc=null;
     try {
-      sc=new FileInputStream(new File(src.getAbsolutePath() + '/' + file)).getChannel();
-      dc=new FileOutputStream(new File(trg.getAbsolutePath() + '/' + file)).getChannel();
+      sc=new FileInputStream(new File(src,file)).getChannel();
+      dc=new FileOutputStream(new File(trg,file)).getChannel();
       dc.transferFrom(sc,0,sc.size());
     }
  catch (    final IOException ex) {
-      trg.delete();
-      return false;
+      ok=false;
     }
  finally {
       if (sc != null)       try {
@@ -28,5 +28,6 @@
       }
     }
   }
-  return true;
+  if (!ok)   DropDB.drop(newdb,pr);
+  return ok;
 }
