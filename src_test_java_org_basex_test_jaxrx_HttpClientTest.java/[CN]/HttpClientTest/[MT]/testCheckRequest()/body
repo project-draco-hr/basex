@@ -1,0 +1,30 @@
+{
+  final List<byte[]> falseReqs=new ArrayList<byte[]>();
+  final byte[] falseReq1=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "href='http://www.basex.org'/>");
+  falseReqs.add(falseReq1);
+  final byte[] falseReq2=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "method='GET' href='http://www.basex.org' "+ "send-authorization='true'/>");
+  falseReqs.add(falseReq2);
+  final byte[] falseReq3=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "method='GET' href='http://www.basex.org' "+ "send-authorization='true' username='test'/>");
+  falseReqs.add(falseReq3);
+  final byte[] falseReq4=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "method='POST' href='http://www.basex.org'>"+ "<http:body>"+ "</http:body>"+ "</http:request>");
+  falseReqs.add(falseReq4);
+  final byte[] falseReq5=token("<http:request method='POST' " + "xmlns:http=\"http://expath.org/ns/http\" " + "href='http://www.basex.org'>"+ "<http:multipart boundary='xxx'>"+ "</http:multipart>"+ "</http:request>");
+  falseReqs.add(falseReq5);
+  final byte[] falseReq6=token("<http:request method='POST' " + "xmlns:http=\"http://expath.org/ns/http\" " + "href='http://www.basex.org'>"+ "<http:multipart boundary='xxx'>"+ "<part>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body media-type='text/plain'>"+ "Part1"+ "</http:body>"+ "</part>"+ "<part>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body>"+ "Part1"+ "</http:body>"+ "</part>"+ "</http:multipart>"+ "</http:request>");
+  falseReqs.add(falseReq6);
+  final Iterator<byte[]> i=falseReqs.iterator();
+  IO io=null;
+  Parser p=null;
+  DBNode dbNode;
+  while (i.hasNext()) {
+    io=new IOContent(i.next());
+    p=Parser.xmlParser(io,context.prop,"");
+    dbNode=new DBNode(MemBuilder.build(p,context.prop,""),0);
+    try {
+      RequestParser.parse(dbNode.children().next(),null);
+    }
+ catch (    QueryException ex) {
+      assertTrue(indexOf(token(ex.getMessage()),token(Err.ErrType.FOHC.toString())) != -1);
+    }
+  }
+}
