@@ -2,8 +2,6 @@
   if (query.startsWith("/"))   return query;
   final boolean r=root || ctx.root();
   if (query.isEmpty())   return r ? "/" : ".";
-  final Data data=ctx.data;
-  if (data.fs != null)   return findFS(query,ctx,root);
   final String qu=query.replaceAll(" \\+"," ");
   final String[] terms=split(qu);
   String pre="";
@@ -21,23 +19,23 @@
     }
  else     if (term.startsWith("@")) {
       if (term.length() == 1)       continue;
-      preds+="[@* " + CT + " \""+ term.substring(1)+ "\"]";
+      preds+="[@* contains text \"" + term.substring(1) + "\"]";
       term=term.substring(1);
       if (XMLToken.isName(token(term))) {
         pre+=(r ? "" : ".") + "//@" + term+ " | ";
       }
     }
  else {
-      preds+="[text() " + CT + " \""+ term+ "\"]";
+      preds+="[text() contains text \"" + term + "\"]";
       if (XMLToken.isName(token(term))) {
         pre+=(r ? "/" : "") + Axis.DESC + "::*:"+ term+ " | ";
       }
-      pre+=(r ? "/" : "") + Axis.DESCORSELF + "::*[@name "+ CT+ " \""+ term+ "\"] | ";
+      pre+=(r ? "/" : "") + Axis.DESCORSELF + "::*[@name contains text \""+ term+ "\"] | ";
     }
   }
   if (pre.isEmpty() && preds.isEmpty())   return root ? "/" : ".";
   final TokenBuilder opt=new TokenBuilder();
-  final MetaData md=data.meta;
+  final MetaData md=ctx.data.meta;
   if (md.ftindex) {
     if (md.wildcards)     opt.add(' ' + USING + ' '+ WILDCARDS);
     if (md.stemming)     opt.add(' ' + USING + ' '+ STEMMING);

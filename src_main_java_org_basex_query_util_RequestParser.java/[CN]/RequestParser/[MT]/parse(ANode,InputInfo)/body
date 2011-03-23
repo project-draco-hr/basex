@@ -1,0 +1,18 @@
+{
+  final Request r=new Request();
+  parseAttrs(request,r.attrs);
+  final ANode payload=parseHdrs(request.children(),r.headers);
+  if (payload != null) {
+    if (eq(payload.nname(),BODY)) {
+      parseBody(payload,r.payloadAttrs,r.bodyContent);
+      r.isMultipart=false;
+    }
+ else     if (eq(payload.nname(),MULTIPART)) {
+      parseMultipart(payload,r.payloadAttrs,r.parts);
+      r.isMultipart=true;
+    }
+ else     ELMINV.thrw(ii);
+  }
+  check(r,ii);
+  return r;
+}
