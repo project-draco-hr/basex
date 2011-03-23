@@ -1,0 +1,22 @@
+{
+  if (r.attrs.get(METHOD) == null) {
+    MANDATTR.thrw(ii,string(METHOD));
+  }
+  final byte[] sendAuth=r.attrs.get(SENDAUTH);
+  if (sendAuth != null && Boolean.parseBoolean(string(sendAuth))) {
+    final byte[] usrname=r.attrs.get(USRNAME);
+    final byte[] passwd=r.attrs.get(PASSWD);
+    if (usrname == null && passwd != null || usrname != null && passwd == null)     CREDSERR.thrw(ii);
+  }
+  if (r.isMultipart) {
+    final Iterator<Part> i=r.parts.iterator();
+    Part p=null;
+    while (i.hasNext()) {
+      p=i.next();
+      if (p.bodyContent.size() != 0 && p.bodyAttrs.get(MEDIATYPE) == null)       MANDATTR.thrw(ii,string(MEDIATYPE));
+    }
+  }
+ else {
+    if (r.bodyContent.size() != 0 && r.payloadAttrs.get(MEDIATYPE) == null)     MANDATTR.thrw(ii,string(MEDIATYPE));
+  }
+}

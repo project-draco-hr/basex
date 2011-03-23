@@ -3,17 +3,12 @@
   if (pre == -1)   return;
   super.mousePressed(e);
   final Context context=gui.context;
-  final Data data=context.data;
-  final boolean fs=data.fs != null;
-  if (tdata.rows == null || fs && tdata.mouseX < 20)   return;
+  if (tdata.rows == null)   return;
   if (e.getY() < header.getHeight())   return;
   if (SwingUtilities.isLeftMouseButton(e)) {
     if (e.getClickCount() == 1) {
       final int c=tdata.column(getWidth() - BaseXBar.SIZE,e.getX());
-      final TableCol col=tdata.cols[c];
-      final String str;
-      if (fs && (Token.eq(col.name,DeepFS.SIZE) || Token.eq(col.name,DeepFS.MTIME)))       str=Token.string(data.text(pre,false));
- else       str=content.focusedString;
+      final String str=content.focusedString;
       if (str == null || str.length() > Token.MAXLEN)       return;
       if (!e.isShiftDown())       tdata.resetFilter();
       tdata.cols[c].filter=str;
