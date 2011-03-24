@@ -1,0 +1,29 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  final int is=filter.size();
+  for (int i=0; i < is; ++i) {
+    final String[] spl=split(filter.get(i));
+    for (    final String s : spl) {
+      byte[] term=token(s);
+      if (contains(term,'"'))       term=replace(term,'\"',' ');
+      term=trim(term);
+      if (term.length == 0)       continue;
+      tb.add('[');
+      final boolean elm=elem.get(i);
+      tb.add(elm ? ".//" : "@");
+      tb.add("*:");
+      tb.add(cols.get(i));
+      if (term[0] == '<' || term[0] == '>') {
+        tb.add(term[0]);
+        tb.addLong(calcNum(substring(term,1)));
+      }
+ else {
+        tb.add(" contains text \"");
+        tb.add(term);
+        tb.add('"');
+      }
+      tb.add(']');
+    }
+  }
+  return tb.size() == 0 ? "/" : (root ? "/" : "") + Axis.DESCORSELF + "::*:"+ string(tag)+ tb;
+}

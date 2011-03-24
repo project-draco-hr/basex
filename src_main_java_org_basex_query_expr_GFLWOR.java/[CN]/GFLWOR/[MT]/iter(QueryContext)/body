@@ -2,14 +2,17 @@
   final Iter[] iter=new Iter[fl.length];
   final int vs=ctx.vars.size();
   for (int f=0; f < fl.length; ++f)   iter[f]=ctx.iter(fl[f]);
-  final int s=(int)size();
-  final ValueList vl=new ValueList(Math.max(1,s));
-  if (order != null)   order.init(vl,s);
+  ArrayList<Item[]> keys=null;
+  ValueList vals=null;
+  if (order != null) {
+    keys=new ArrayList<Item[]>();
+    vals=new ValueList();
+  }
   if (group != null)   group.init(fl,order);
-  iter(ctx,vl,iter,0);
+  iter(ctx,iter,0,keys,vals);
   ctx.vars.reset(vs);
   for (  final ForLet f : fl)   ctx.vars.add(f.var);
-  final Iter ir=group != null ? group.gp.ret(ctx,ret) : ctx.iter(order);
+  final Iter ir=group != null ? group.gp.ret(ctx,ret,keys,vals) : ctx.iter(order.set(keys,vals));
   ctx.vars.reset(vs);
   return ir;
 }
