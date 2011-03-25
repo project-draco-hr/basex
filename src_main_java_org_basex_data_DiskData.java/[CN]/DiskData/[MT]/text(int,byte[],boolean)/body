@@ -5,10 +5,22 @@
   }
  else {
     final DataAccess da=txt ? texts : values;
-    final byte[] cpr=comp.pack(val);
-    long o=textOff(pre) & IO.OFFCOMP - 1;
-    if (num(textOff(pre)) || cpr.length > da.readNum(o) && da.pos() + da.readNum(o) != da.length())     o=da.length();
-    da.writeBytes(o,cpr);
-    textOff(pre,o | (cpr == val ? 0 : IO.OFFCOMP));
+    final byte[] pack=comp.pack(val);
+    final long old=textOff(pre);
+    long o=old & IO.OFFCOMP - 1;
+    if (!num(old)) {
+      final int len=da.readNum(o);
+      if (da.pos() + len == da.length()) {
+        da.length(da.pos() + pack.length);
+      }
+ else       if (pack.length > len) {
+        o=da.length();
+      }
+    }
+ else {
+      o=da.length();
+    }
+    da.writeBytes(o,pack);
+    textOff(pre,o | (pack == val ? 0 : IO.OFFCOMP));
   }
 }

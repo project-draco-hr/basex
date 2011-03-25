@@ -1,0 +1,34 @@
+{
+  byte[] partContType=TXT_PLAIN;
+  final byte[] firstLine=readLine(io);
+  if (firstLine == null || eq(firstLine,end))   return null;
+  final NodeCache partCh=new NodeCache();
+  if (firstLine.length == 0) {
+    final byte[] p=extractPartPayload(io,sep,end);
+    if (!statusOnly)     payloads.add(interpretPayload(p,partContType,prop,ii));
+  }
+ else {
+    byte[] nextHdr=firstLine;
+    while (nextHdr != null && nextHdr.length > 0) {
+      final int pos=indexOf(nextHdr,':');
+      if (pos > 0) {
+        final byte[] name=substring(nextHdr,0,pos);
+        if (pos + 1 < nextHdr.length) {
+          final byte[] value=trim(substring(nextHdr,pos + 1,nextHdr.length));
+          final FElem hdr=new FElem(new QNm(HEADER,HTTPURI),null);
+          hdr.atts.add(new FAttr(new QNm(HDR_NAME,EMPTY),name,null));
+          hdr.atts.add(new FAttr(new QNm(HDR_VALUE,EMPTY),value,null));
+          partCh.add(hdr);
+          if (eq(lc(name),CONT_TYPE_LC))           partContType=value;
+        }
+      }
+      nextHdr=readLine(io);
+    }
+    final byte[] p=extractPartPayload(io,sep,end);
+    if (!statusOnly) {
+      payloads.add(interpretPayload(p,partContType,prop,ii));
+    }
+  }
+  partCh.add(createBody(partContType));
+  return new FElem(new QNm(PART,EMPTY),partCh,null,EMPTY,new Atts().add(HTTP,HTTPURI),null);
+}

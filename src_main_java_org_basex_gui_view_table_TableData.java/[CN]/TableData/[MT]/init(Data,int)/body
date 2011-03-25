@@ -4,29 +4,13 @@
   sortCol=-1;
   last="";
   rowH=1;
-  if (data.fs != null) {
-    root=data.fs.fileID;
-    addCol(DeepFS.SUFFIX,false);
-    addCol(DeepFS.NAME,false);
-    addCol(DeepFS.SIZE,false);
-    addCol(DeepFS.MTIME,false);
-    addCol(MetaElem.TITLE.tok(),true);
-    addCol(MetaElem.SENDER_NAME.tok(),true);
-    addCol(MetaElem.RECEIVER_NAME.tok(),true);
-    addCol(MetaElem.ARTIST.tok(),true);
-    addCol(MetaElem.PIXEL_WIDTH.tok(),true);
-    addCol(MetaElem.PIXEL_HEIGHT.tok(),true);
-    addCol(MetaElem.ALBUM.tok(),true);
-  }
- else {
-    if (r == -1 && roots.size() == 0)     return;
-    if (root == -1)     root=data.tags.id(roots.get(0));
-    for (    final byte[] k : data.pthindex.desc(data.tags.key(root),data,true,true)) {
-      final boolean elem=!startsWith(k,'@');
-      final byte[] key=delete(k,'@');
-      final Names index=elem ? data.tags : data.atts;
-      if (index.stat(index.id(key)).leaf)       addCol(key,elem);
-    }
+  if (r == -1 && roots.size() == 0)   return;
+  if (root == -1)   root=data.tags.id(roots.get(0));
+  for (  final byte[] k : data.pthindex.desc(data.tags.key(root),data,true,true)) {
+    final boolean elem=!startsWith(k,'@');
+    final byte[] key=delete(k,'@');
+    final Names index=elem ? data.tags : data.atts;
+    if (index.stat(index.id(key)).leaf)     addCol(key,elem);
   }
   context(true);
 }
