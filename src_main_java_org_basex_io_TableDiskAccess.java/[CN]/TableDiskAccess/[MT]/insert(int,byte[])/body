@@ -3,9 +3,9 @@
   final int split=cursor(pre - 1) + (1 << IO.NODEPOWER);
   final int nr=entries.length >>> IO.NODEPOWER;
   final int nold=npre - fpre << IO.NODEPOWER;
-  final int nlast=nold - split;
+  final int moved=nold - split;
   if (nold + entries.length <= IO.BLOCKSIZE) {
-    System.arraycopy(bf.data,split,bf.data,split + entries.length,nlast);
+    System.arraycopy(bf.data,split,bf.data,split + entries.length,moved);
     System.arraycopy(entries,0,bf.data,split,entries.length);
     bf.dirty=true;
     for (int i=index + 1; i < blocks; ++i)     fpres[i]+=nr;
@@ -14,9 +14,9 @@
     dirty=true;
     return;
   }
-  final byte[] all=new byte[entries.length + nlast];
+  final byte[] all=new byte[entries.length + moved];
   System.arraycopy(entries,0,all,0,entries.length);
-  System.arraycopy(bf.data,split,all,entries.length,nlast);
+  System.arraycopy(bf.data,split,all,entries.length,moved);
   int n=bf.data.length - split;
   if (n > 0) {
     System.arraycopy(all,0,bf.data,split,n);
