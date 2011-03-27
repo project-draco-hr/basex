@@ -1,0 +1,21 @@
+{
+  ArrayOutput plan=null;
+  QueryProcessor qp=new QueryProcessor(query,CTX);
+  try {
+    qp.compile();
+    qp.close();
+    plan=new ArrayOutput();
+    qp.plan(new XMLSerializer(plan));
+    qp=new QueryProcessor(plan + "//(IndexAccess|FTIndexAccess)",CTX);
+    final ArrayOutput result=new ArrayOutput();
+    final XMLSerializer xml=qp.getSerializer(result);
+    qp.execute().serialize(xml);
+    assertTrue("No index used:\nQuery: " + query + "\nPlan: "+ plan,!result.toString().isEmpty());
+  }
+ catch (  final QueryException ex) {
+    fail(ex.getMessage() + "\nQuery: " + query+ "\nPlan: "+ plan);
+  }
+catch (  final IOException ex) {
+    fail(ex.getMessage());
+  }
+}
