@@ -1,7 +1,8 @@
 {
   final FunItem f=withArity(0,2,ctx);
-  Iter res=expr[1].iter(ctx);
-  final ItemCache xs=ItemCache.get(expr[2].iter(ctx));
-  for (int i=(int)xs.size(); i-- != 0; )   res=f.invIter(ctx,input,xs.get(i),res.finish());
-  return res;
+  final Value xs=expr[2].value(ctx);
+  if (xs.size() == 0)   return expr[1].iter(ctx);
+  Value res=expr[1].value(ctx);
+  for (long i=xs.size(); i-- != 0; )   res=f.invValue(ctx,input,xs.itemAt(i),res);
+  return res.iter();
 }
