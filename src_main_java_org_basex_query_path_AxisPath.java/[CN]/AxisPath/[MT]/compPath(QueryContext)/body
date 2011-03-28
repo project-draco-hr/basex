@@ -17,21 +17,11 @@
   }
   optSteps(ctx);
   final Data data=ctx.resource.data();
-  if (data != null) {
-    boolean doc=ctx.resource.docNodes();
-    if (!doc) {
-      final Iter iter=ctx.value.iter();
-      for (Item it; (it=iter.next()) != null; ) {
-        doc=it.type == NodeType.DOC;
-        if (!doc)         break;
-      }
-    }
-    if (doc && data.meta.uptodate) {
-      Expr e=this;
-      if (root != null && !uses(Use.POS))       e=index(ctx,data);
-      if (e == this)       e=children(ctx,data);
-      if (e != this)       return e.comp(ctx);
-    }
+  if (data != null && data.meta.uptodate) {
+    Expr e=this;
+    if (root != null && !uses(Use.POS))     e=index(ctx,data);
+    if (e == this)     e=children(ctx,data);
+    if (e != this)     return e.comp(ctx);
   }
   cache=root != null && !uses(Use.VAR);
   final AxisPath path=finish(ctx);

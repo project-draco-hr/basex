@@ -1,13 +1,14 @@
 {
-  if (ctx.value == null)   return null;
-  if (docNodes())   return data[0];
-  final Iter iter=ctx.value.iter();
+  final Value v=ctx.value;
+  if (v == null)   return null;
+  if (v instanceof DBNodeSeq && v.type == NodeType.DOC)   return ((DBNodeSeq)v).data;
+  if (ctx.nodes != null && v.sameAs(coll[0]) && v.size() != 0 && (v.item() ? (Item)v : v.iter().next()).type == NodeType.DOC)   return data[0];
+  final Iter iter=v.iter();
   Data db=null;
   for (Item it; (it=iter.next()) != null; ) {
     if (!(it instanceof DBNode))     return null;
-    final Data d=((DBNode)it).data;
-    if (db == null)     db=d;
- else     if (db != d)     return null;
+    if (db == null)     db=it.data();
+ else     if (db != it.data())     return null;
   }
   return db;
 }
