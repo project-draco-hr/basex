@@ -1,7 +1,10 @@
 {
   final FunItem f=withArity(0,2,ctx);
   final Iter xs=expr[2].iter(ctx);
-  Iter res=expr[1].iter(ctx);
-  for (Item x; (x=xs.next()) != null; )   res=f.invIter(ctx,input,res.finish(),x);
-  return res;
+  Item x=xs.next();
+  if (x == null)   return expr[1].iter(ctx);
+  Value sum=expr[1].value(ctx);
+  do   sum=f.invValue(ctx,input,sum,x);
+ while ((x=xs.next()) != null);
+  return sum.iter();
 }
