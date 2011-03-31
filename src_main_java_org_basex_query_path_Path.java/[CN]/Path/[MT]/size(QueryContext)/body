@@ -1,0 +1,23 @@
+{
+  final Value rt=root(ctx);
+  final Data data=rt != null && rt.type == NodeType.DOC ? rt.data() : null;
+  if (data == null || !data.meta.pathindex || !data.meta.uptodate || !data.single())   return -1;
+  ArrayList<PathNode> nodes=data.pthindex.root();
+  long m=1;
+  for (int s=0; s < step.length; s++) {
+    final AxisStep curr=checkStep(s);
+    if (curr != null) {
+      nodes=curr.size(nodes,data);
+      if (nodes == null)       return -1;
+    }
+ else     if (s + 1 == step.length) {
+      m=step[s].size();
+    }
+ else {
+      return -1;
+    }
+  }
+  long sz=0;
+  for (  final PathNode pn : nodes)   sz+=pn.size;
+  return sz * m;
+}

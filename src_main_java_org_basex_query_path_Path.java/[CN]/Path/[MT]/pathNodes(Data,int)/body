@@ -1,0 +1,21 @@
+{
+  if (!data.meta.pathindex || !data.meta.uptodate)   return null;
+  ArrayList<PathNode> in=data.pthindex.root();
+  for (int s=0; s <= l; ++s) {
+    final AxisStep curr=checkStep(s);
+    if (curr == null)     return null;
+    final boolean desc=curr.axis == Axis.DESC;
+    if (!desc && curr.axis != Axis.CHILD || curr.test.test != Name.NAME)     return null;
+    final int name=data.tags.id(curr.test.name.ln());
+    final ArrayList<PathNode> out=new ArrayList<PathNode>();
+    for (    final PathNode pn : data.pthindex.desc(in,desc)) {
+      if (pn.kind == Data.ELEM && name == pn.name) {
+        if (out.size() != 0 && out.get(0).level() != pn.level())         return null;
+        out.add(pn);
+      }
+    }
+    if (out.size() == 0)     return null;
+    in=out;
+  }
+  return in;
+}

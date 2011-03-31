@@ -3,7 +3,7 @@
   int pmin=0;
   int smin=0;
   for (int s=0; s < step.length; ++s) {
-    final AxisStep stp=step[s];
+    final AxisStep stp=step(s);
     if (!stp.axis.down)     break;
     final boolean d=pathNodes(data,s) == null;
     for (int p=0; p < stp.pred.length; ++p) {
@@ -25,7 +25,7 @@
     }
   }
   if (ics == null)   return this;
-  final AxisStep stp=step[smin];
+  final AxisStep stp=step(smin);
   final Expr ie=stp.pred[pmin].indexEquivalent(ics);
   if (ics.seq) {
     stp.pred[pmin]=ie;
@@ -38,10 +38,10 @@
       if (p != pmin)       newPreds[c++]=stp.pred[p];
     }
     for (int j=smin; j >= 0; j--) {
-      final Axis ax=step[j].axis.invert();
+      final Axis ax=step(j).axis.invert();
       if (ax == null)       break;
       if (j != 0) {
-        final AxisStep prev=step[j - 1];
+        final AxisStep prev=step(j - 1);
         inv=Array.add(inv,AxisStep.get(input,ax,prev.test,prev.pred));
       }
  else {
@@ -61,8 +61,10 @@
       return ie;
     }
     final int sl=result.step.length - 1;
-    result.step[sl]=result.step[sl].addPreds(newPreds);
-    if (inv.length != 0)     result.step[sl]=result.step[sl].addPreds(AxisPath.get(input,null,inv));
+    if (sl >= 0) {
+      result.step[sl]=result.step(sl).addPreds(newPreds);
+      if (inv.length != 0)       result.step[sl]=result.step(sl).addPreds(Path.get(input,null,inv));
+    }
     for (int s=smin + 1; s < step.length; ++s) {
       result.step=Array.add(result.step,step[s]);
     }

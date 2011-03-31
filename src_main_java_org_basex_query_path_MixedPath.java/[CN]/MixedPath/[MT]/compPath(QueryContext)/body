@@ -1,10 +1,18 @@
 {
-  for (  final Expr e : expr)   checkUp(e,ctx);
-  for (int e=0; e != expr.length; ++e) {
-    expr[e]=expr[e].comp(ctx);
-    if (expr[e].empty())     return Empty.SEQ;
+  for (  final Expr e : step)   checkUp(e,ctx);
+  final AxisStep s=voidStep(step);
+  if (s != null)   COMPSELF.thrw(input,s);
+  for (int e=0; e != step.length; ++e) {
+    step[e]=step[e].comp(ctx);
+    if (step[e].empty())     return Empty.SEQ;
   }
-  expr=optSteps(expr,ctx);
-  type=SeqType.get(expr[expr.length - 1].type().type,SeqType.Occ.ZM);
+  optSteps(ctx);
+  final Data data=ctx.data();
+  if (data != null && data.meta.uptodate && ctx.value.type == NodeType.DOC) {
+    final Expr e=children(ctx,data);
+    if (e != this)     return e.comp(ctx);
+  }
+  size=size(ctx);
+  type=SeqType.get(step[step.length - 1].type().type,size);
   return this;
 }
