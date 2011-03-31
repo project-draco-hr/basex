@@ -1,0 +1,26 @@
+{
+  final byte[] mediaType=payloadAtts.get(MEDIATYPE);
+  byte[] method=payloadAtts.get(METHOD);
+  final byte[] src=payloadAtts.get(SRC);
+  if (src == null) {
+    if (method == null) {
+      if (eq(mediaType,APPL_XHTML))       method=token(M_XHTML);
+ else       if (eq(mediaType,APPL_XML) || eq(mediaType,APPL_EXT_XML) || eq(mediaType,TXT_XML)|| eq(mediaType,TXT_EXT_XML)|| endsWith(mediaType,MIME_XML_SUFFIX))       method=token(M_XML);
+ else       if (eq(mediaType,TXT_HTML))       method=token(M_HTML);
+ else       if (startsWith(mediaType,MIME_TEXT_PREFIX))       method=token(M_TEXT);
+ else       method=token(M_XML);
+    }
+    if (eq(method,BASE64)) {
+      writeBase64(payload,out,ii);
+    }
+ else     if (eq(method,HEXBIN)) {
+      writeHex(payload,out,ii);
+    }
+ else {
+      write(payload,payloadAtts,method,out);
+    }
+  }
+ else {
+    out.write(readResource(src));
+  }
+}
