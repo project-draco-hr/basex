@@ -1,0 +1,26 @@
+{
+  boolean opt=false;
+  Expr[] stp=step;
+  for (int l=1; l < stp.length; ++l) {
+    if (!(stp[l - 1] instanceof AxisStep && stp[l] instanceof AxisStep))     continue;
+    final AxisStep prev=(AxisStep)stp[l - 1];
+    final AxisStep curr=(AxisStep)stp[l];
+    if (!prev.simple(DESCORSELF,false))     continue;
+    if (curr.axis == CHILD && !curr.uses(Use.POS)) {
+      Array.move(stp,l,-1,stp.length - l);
+      stp=Arrays.copyOf(stp,stp.length - 1);
+      curr.axis=DESC;
+      opt=true;
+    }
+ else     if (curr.axis == ATTR && !curr.uses(Use.POS)) {
+      prev.test=new NameTest(false,prev.input);
+      opt=true;
+    }
+  }
+  if (opt)   ctx.compInfo(OPTDESC);
+  if (root == null && stp.length == 1 && stp[0] instanceof AxisPath) {
+    final AxisStep curr=(AxisStep)stp[0];
+    if (curr.axis == ATTR && curr.test.test == Name.STD)     curr.type=SeqType.NOD_ZO;
+  }
+  step=stp;
+}

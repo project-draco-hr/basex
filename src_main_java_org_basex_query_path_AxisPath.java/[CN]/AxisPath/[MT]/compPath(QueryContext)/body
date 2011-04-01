@@ -1,29 +1,29 @@
 {
-  for (  final AxisStep s : step)   checkUp(s,ctx);
+  for (  final Expr s : step)   checkUp(s,ctx);
   if (root instanceof AxisPath) {
-    AxisStep[] st=((AxisPath)root).step;
+    Expr[] st=((AxisPath)root).step;
     root=((AxisPath)root).root;
-    for (    final AxisStep s : step)     st=Array.add(st,s);
+    for (    final Expr s : step)     st=Array.add(st,s);
     step=st;
     ctx.compInfo(OPTPATH);
     ctx.value=root(ctx);
   }
-  final AxisStep s=emptyStep();
+  final AxisStep s=voidStep(step);
   if (s != null)   COMPSELF.thrw(input,s);
   for (int i=0; i != step.length; ++i) {
     final Expr e=step[i].comp(ctx);
     if (!(e instanceof AxisStep))     return e;
-    step[i]=(AxisStep)e;
+    step[i]=e;
   }
   optSteps(ctx);
-  final Data data=ctx.resource.data();
-  if (data != null && data.meta.uptodate) {
+  final Data data=ctx.data();
+  if (data != null && data.meta.uptodate && ctx.value.type == NodeType.DOC) {
     Expr e=this;
     if (root != null && !uses(Use.POS))     e=index(ctx,data);
     if (e == this)     e=children(ctx,data);
     if (e != this)     return e.comp(ctx);
   }
   cache=root != null && !uses(Use.VAR);
-  final AxisPath path=finish(ctx);
+  final Path path=finish(ctx);
   return size() != 1 ? path : new Filter(input,this,Pos.get(1,size(),input)).comp2(ctx);
 }
