@@ -1,0 +1,12 @@
+{
+  final File f=new File(Prop.TMP + Util.name(HttpClientTest.class));
+  final FileOutputStream out=new FileOutputStream(f);
+  out.write(token("test"));
+  out.close();
+  final Request req=new Request();
+  req.payloadAttrs.add(token("src"),token("file:" + f.getPath()));
+  final FakeHttpConnection fakeConn=new FakeHttpConnection(new URL("http://www.test.com"));
+  HTTPClient.setRequestContent(fakeConn.getOutputStream(),req,null);
+  f.delete();
+  assertTrue(eq(token("test"),fakeConn.out.toByteArray()));
+}
