@@ -1,31 +1,32 @@
 {
-  ItemCache res=ItemCache.get(ctx.value.iter());
-  for (  final Expr e : expr) {
-    final Iter ir=res;
+  Iter res=ctx.value.iter();
+  final int el=step.length;
+  for (int ex=0; ex < el; ex++) {
+    final Expr e=step[ex];
+    final boolean last=ex + 1 == el;
     final ItemCache ii=new ItemCache();
-    ctx.size=ir.size();
+    ctx.size=res.size();
     ctx.pos=1;
-    for (Item it; (it=ir.next()) != null; ) {
+    boolean nodes=false;
+    for (Item it; (it=res.next()) != null; ) {
       if (!it.node())       NODESPATH.thrw(input,this,it.type);
       ctx.value=it;
-      ii.add(ctx.iter(e));
+      final Iter ir=ctx.iter(e);
+      for (Item i; (i=ir.next()) != null; ) {
+        if (ii.size() == 0)         nodes=i.node();
+ else         if (last && nodes != i.node())         EVALNODESVALS.thrw(input);
+        ii.add(i);
+      }
       ctx.pos++;
     }
-    if (ii.size() != 0 && ii.get(0).node()) {
+    if (nodes) {
       final NodeCache nc=new NodeCache().random();
-      for (Item it; (it=ii.next()) != null; ) {
-        if (!it.node())         EVALNODESVALS.thrw(input);
-        nc.add((ANode)it);
-      }
-      res=ItemCache.get(nc);
+      for (Item it; (it=ii.next()) != null; )       nc.add((ANode)it);
+      res=nc.finish().cache();
     }
  else {
-      for (Item it; (it=ii.next()) != null; ) {
-        if (it.node())         EVALNODESVALS.thrw(input);
-      }
       res=ii;
     }
   }
-  res.reset();
   return res;
 }

@@ -1,32 +1,24 @@
 {
-  if (off) {
-    final Item it=pred[0].ebv(ctx,input);
-    final long l=it.itr(input);
-    final Expr e=Pos.get(l,l,input);
-    if (l != it.dbl(input) || !(e instanceof Pos))     return Empty.ITER;
-    pos=(Pos)e;
-    return new IterPosFilter(this).iter(ctx);
-  }
   final Iter iter=ctx.iter(root);
   final Value cv=ctx.value;
   final long cs=ctx.size;
   final long cp=ctx.pos;
-  final ItemCache ir=new ItemCache();
-  for (Item i; (i=iter.next()) != null; )   ir.add(i);
+  final ItemCache ic=new ItemCache();
+  for (Item i; (i=iter.next()) != null; )   ic.add(i);
   for (  final Expr p : pred) {
-    final long is=ir.size();
+    final long is=ic.size();
     ctx.size=is;
     ctx.pos=1;
     int c=0;
     for (int s=0; s < is; ++s) {
-      ctx.value=ir.get(s);
-      if (p.test(ctx,input) != null)       ir.set(ir.get(s),c++);
+      ctx.value=ic.get(s);
+      if (p.test(ctx,input) != null)       ic.set(ic.get(s),c++);
       ctx.pos++;
     }
-    ir.size(c);
+    ic.size(c);
   }
   ctx.value=cv;
   ctx.size=cs;
   ctx.pos=cp;
-  return ir;
+  return ic;
 }

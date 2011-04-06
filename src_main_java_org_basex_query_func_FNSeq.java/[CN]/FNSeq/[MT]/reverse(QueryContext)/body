@@ -1,15 +1,13 @@
 {
-  final Iter iter=ctx.iter(expr[0]);
-  if (iter.size() == 1)   return iter;
-  return new Iter(){
-    final Iter ir=iter.size() != -1 ? iter : ItemCache.get(iter);
-    final long s=ir.size();
+  final ValueIter iter=ctx.value(expr[0]).iter();
+  return iter.size() == 1 ? iter : new ValueIter(){
+    final long s=iter.size();
     long c=s;
-    @Override public Item next() throws QueryException {
-      return --c >= 0 ? ir.get(c) : null;
+    @Override public Item next(){
+      return --c >= 0 ? iter.get(c) : null;
     }
-    @Override public Item get(    final long i) throws QueryException {
-      return ir.get(s - i - 1);
+    @Override public Item get(    final long i){
+      return iter.get(s - i - 1);
     }
     @Override public long size(){
       return s;
