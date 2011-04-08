@@ -1,0 +1,26 @@
+{
+  final byte[] qu=getText();
+  final boolean eq=Token.eq(qu,last);
+  if (eq && !force)   return;
+  view.refresh(mod || !eq,false);
+  view.pos.setText(pos());
+  if (file.name().endsWith(IO.XMLSUFFIX))   return;
+  final boolean module=module(qu);
+  if (!module && (force || gui.gprop.is(GUIProp.EXECRT))) {
+    view.waitInfo();
+    query(qu,true);
+  }
+ else {
+    try {
+      last=qu;
+      final String xq=qu.length == 0 ? "." : Token.string(qu);
+      final QueryContext ctx=new QueryContext(gui.context);
+      if (module)       ctx.module(xq);
+ else       ctx.parse(xq);
+      view.info("",true);
+    }
+ catch (    final QueryException ex) {
+      view.info(ex.getMessage(),false);
+    }
+  }
+}
