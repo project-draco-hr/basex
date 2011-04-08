@@ -12,16 +12,23 @@
   falseReqs.add(falseReq5);
   final byte[] falseReq6=token("<http:request method='POST' " + "xmlns:http=\"http://expath.org/ns/http\" " + "href='http://www.basex.org'>"+ "<http:multipart boundary='xxx'>"+ "<part>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body media-type='text/plain'>"+ "Part1"+ "</http:body>"+ "</part>"+ "<part>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body>"+ "Part1"+ "</http:body>"+ "</part>"+ "</http:multipart>"+ "</http:request>");
   falseReqs.add(falseReq6);
+  final byte[] falseReq7=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "href='ftp://www.basex.org'/>");
+  falseReqs.add(falseReq7);
+  final byte[] falseReq8=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "method='DELETE' href='http://www.basex.org'>"+ "<http:body media-type='text/plain'>"+ "</http:body>"+ "</http:request>");
+  falseReqs.add(falseReq8);
   final Iterator<byte[]> i=falseReqs.iterator();
   IO io=null;
   Parser p=null;
   DBNode dbNode;
+  byte[] it;
   while (i.hasNext()) {
-    io=new IOContent(i.next());
+    it=i.next();
+    io=new IOContent(it);
     p=Parser.xmlParser(io,context.prop,"");
     dbNode=new DBNode(MemBuilder.build(p,context.prop,""),0);
     try {
-      RequestParser.parse(dbNode.children().next(),null);
+      RequestParser.parse(dbNode.children().next(),null,null);
+      fail("exception not thrown");
     }
  catch (    QueryException ex) {
       assertTrue(indexOf(token(ex.getMessage()),token(Err.ErrType.FOHC.toString())) != -1);

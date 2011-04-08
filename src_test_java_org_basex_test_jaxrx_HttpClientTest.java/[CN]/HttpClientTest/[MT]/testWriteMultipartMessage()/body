@@ -20,5 +20,6 @@
   req.parts.add(p3);
   final FakeHttpConnection fakeConn=new FakeHttpConnection(new URL("http://www.test.com"));
   HTTPClient.setRequestContent(fakeConn.getOutputStream(),req,null);
-  System.out.println(fakeConn.out.toString());
+  final String expResult="--boundary42\r\n" + "Content-Type: text/plain; charset=us-ascii\r\n\r\n" + "...plain text version of message goes here....\n\r\n"+ "--boundary42\r\n"+ "Content-Type: text/richtext\r\n\r\n"+ ".... richtext version of same message goes here ...\r\n"+ "--boundary42\r\n"+ "Content-Type: text/x-whatever\r\n\r\n"+ ".... fanciest formatted version of same  message  goes  here...\r\n"+ "--boundary42--\r\n";
+  assertTrue(expResult.equalsIgnoreCase(fakeConn.getOutputStream().toString()));
 }
