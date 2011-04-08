@@ -1,9 +1,10 @@
 {
   final Request r=RequestParser.parse(request,bodies,ii);
-  final byte[] dest=href != null ? href : r.attrs.get(HREF);
+  final byte[] dest=href == null ? r.attrs.get(HREF) : href;
   if (dest == null)   NOURL.thrw(ii);
   try {
     final URL url=new URL(string(dest));
+    if (!url.getProtocol().equalsIgnoreCase("HTTP"))     HTTPERR.thrw(ii,"Invalid URL");
     final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
     try {
       setConnectionProps(conn,r,ii);
@@ -19,10 +20,10 @@
     }
   }
  catch (  final MalformedURLException ex) {
-    throw URLINV.thrw(ii,href);
+    throw HTTPERR.thrw(ii,"Invalid URL");
   }
 catch (  final ProtocolException ex) {
-    throw PROTINV.thrw(ii);
+    throw HTTPERR.thrw(ii,"Invalid HTTP method");
   }
 catch (  final IOException ex) {
     throw HTTPERR.thrw(ii,ex);

@@ -1,14 +1,12 @@
 {
   final ANode request=checkNode(expr[0].item(ctx,input));
   final byte[] href=expr.length >= 2 ? checkEStr(expr[1].item(ctx,input)) : null;
-  final Iter bodies=expr.length != 3 ? null : expr[2].iter(ctx);
   ItemCache cache=null;
-  if (bodies != null) {
+  if (expr.length == 3) {
+    final Iter bodies=expr[2].iter(ctx);
     cache=new ItemCache();
     Item i;
-    while ((i=bodies.next()) != null) {
-      cache.add(i);
-    }
+    while ((i=bodies.next()) != null)     cache.add(i);
   }
   return HTTPClient.sendRequest(href,request,cache,input,ctx.context.prop);
 }
