@@ -1,15 +1,17 @@
 {
   byte[] partContType=TXT_PLAIN;
+  String charset=null;
   byte[] firstLine=readLine(io);
   if (firstLine == null || eq(firstLine,end))   return null;
   final NodeCache partCh=new NodeCache();
   if (firstLine.length == 0) {
-    final byte[] p=extractPartPayload(io,sep,end);
+    final byte[] p=extractPartPayload(io,sep,end,null);
     if (!statusOnly)     payloads.add(interpretPayload(p,partContType,prop,ii));
   }
  else {
     byte[] nextHdr=firstLine;
     while (nextHdr != null && nextHdr.length > 0) {
+      if (startsWith(lc(nextHdr),CONT_TYPE_LC))       charset=extractCharset(string(nextHdr));
       final int pos=indexOf(nextHdr,':');
       if (pos > 0) {
         final byte[] name=substring(nextHdr,0,pos);
@@ -24,7 +26,7 @@
       }
       nextHdr=readLine(io);
     }
-    final byte[] p=extractPartPayload(io,sep,end);
+    final byte[] p=extractPartPayload(io,sep,end,charset);
     if (!statusOnly) {
       payloads.add(interpretPayload(p,partContType,prop,ii));
     }

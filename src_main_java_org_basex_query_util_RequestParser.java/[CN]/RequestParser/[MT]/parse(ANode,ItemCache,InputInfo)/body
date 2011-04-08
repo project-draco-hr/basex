@@ -1,0 +1,29 @@
+{
+  final Request r=new Request();
+  parseAttrs(request,r.attrs);
+  checkRequest(r,ii);
+  final ANode payload=parseHdrs(request.children(),r.headers);
+  final byte[] httpMethod=lc(r.attrs.get(METHOD));
+  if ((eq(TRACE,httpMethod) || eq(DELETE,httpMethod)) && (payload != null || bodies != null))   BODYNOTEXP.thrw(ii,httpMethod);
+  if (payload != null) {
+    if (eq(payload.nname(),BODY)) {
+      Item it=null;
+      if (bodies != null) {
+        if (bodies.size() != 1)         BODYNUMERR.thrw(ii);
+        it=bodies.next();
+      }
+      parseBody(payload,it,r.payloadAttrs,r.bodyContent,ii);
+      r.isMultipart=false;
+    }
+ else     if (eq(payload.nname(),MULTIPART)) {
+      int i=0;
+      final NodeMore ch=payload.children();
+      while (ch.next() != null)       i++;
+      if (bodies != null && bodies.size() != i)       BODYNUMERR.thrw(ii);
+      parseMultipart(payload,bodies,r.payloadAttrs,r.parts,ii);
+      r.isMultipart=true;
+    }
+ else     ELMINV.thrw(ii);
+  }
+  return r;
+}
