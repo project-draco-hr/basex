@@ -1,0 +1,34 @@
+{
+  if (!(context.data instanceof DiskData))   return error(PROCMM);
+  old=(DiskData)context.data;
+  final MetaData m=old.meta;
+  final File path=prop.dbpath(m.name);
+  size=m.size;
+  String name;
+  do   name=String.format("%08x",(int)(Math.random() * Integer.MAX_VALUE));
+ while (prop.dbexists(name=m.name + '_' + name));
+  final DiskBuilder builder=new DiskBuilder(new DBParser(),m.prop);
+  try {
+    final DiskData d=builder.build(name);
+    if (m.textindex || prop.is(Prop.TEXTINDEX))     index(IndexType.TEXT,d);
+    if (m.attrindex || prop.is(Prop.ATTRINDEX))     index(IndexType.ATTRIBUTE,d);
+    if (m.ftindex || prop.is(Prop.FTINDEX))     index(IndexType.FULLTEXT,d);
+    d.meta.filesize=m.filesize;
+    d.meta.users=m.users;
+    d.meta.dirty=true;
+    d.close();
+  }
+  finally {
+    try {
+      builder.close();
+    }
+ catch (    final IOException ex) {
+      Util.debug(ex);
+    }
+  }
+  if (!progress(new DropDB(m.name)).run(context))   return false;
+  final File f=context.prop.dbpath(name);
+  if (!f.renameTo(path))   return error("Rebuilt database '%' couldn't be " + "renamed back to '%'.",name,m.name);
+  if (!progress(new Open(m.name)).run(context))   return false;
+  return info(DBOPTIMIZED,perf);
+}
