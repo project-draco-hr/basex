@@ -1,25 +1,23 @@
 {
-  final Iter it=iter();
-  final ItemCache ir=new ItemCache();
-  Item i;
+  final Iter ir=iter();
+  final ItemCache ic=new ItemCache();
+  Item it;
   if (nodes != null) {
-    final Data data=nodes.data;
     final IntList pre=new IntList();
-    while ((i=it.next()) != null) {
+    while ((it=ir.next()) != null) {
       checkStop();
-      if (!(i instanceof DBNode))       break;
-      final DBNode n=(DBNode)i;
-      if (n.data != data)       break;
-      pre.add(((DBNode)i).pre);
+      if (!(it instanceof DBNode))       break;
+      if (it.data() != nodes.data)       break;
+      pre.add(((DBNode)it).pre);
     }
     final int ps=pre.size();
-    if (i == null)     return ps == 0 ? ir : new Nodes(pre.toArray(),data,ftpos).checkRoot();
-    for (int p=0; p < ps; ++p)     ir.add(new DBNode(data,pre.get(p)));
-    ir.add(i);
+    if (it == null)     return ps == 0 ? ic : new Nodes(pre.toArray(),nodes.data,ftpos).checkRoot();
+    for (int p=0; p < ps; ++p)     ic.add(new DBNode(nodes.data,pre.get(p)));
+    ic.add(it);
   }
-  while ((i=it.next()) != null) {
+  while ((it=ir.next()) != null) {
     checkStop();
-    ir.add(i);
+    ic.add(it);
   }
-  return ir;
+  return ic;
 }

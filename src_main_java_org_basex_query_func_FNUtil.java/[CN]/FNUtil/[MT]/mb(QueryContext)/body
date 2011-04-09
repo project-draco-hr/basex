@@ -2,11 +2,11 @@
   final boolean c=expr.length == 2 && checkType(expr[1].item(ctx,input),AtomType.BLN).bool(input);
   Performance.gc(3);
   final long l=Performance.mem();
-  Iter ir=expr[0].iter(ctx);
-  final Value v=(c ? ItemCache.get(ir) : ir).finish();
+  Value val=ctx.value(expr[0]);
+  if (c)   val=val.cache().finish();
   Performance.gc(2);
   final double d=Performance.mem() - l;
-  ir=v.iter();
+  final Iter ir=val.iter();
   while (ir.next() != null)   ;
   return Dbl.get(Math.max(0,d) / 1024 / 1024d);
 }

@@ -1,13 +1,5 @@
 {
-  final Expr root=new RangeAccess(input,rt,ic);
-  final AxisPath orig=(AxisPath)expr;
-  final AxisPath path=orig.invertPath(root,ic.step);
+  final boolean text=rt.type() == IndexType.TEXT;
   ic.ctx.compInfo(OPTRNGINDEX);
-  if (rt.type() == IndexType.ATTRIBUTE) {
-    final AxisStep step=orig.step[0];
-    AxisStep[] steps={AxisStep.get(input,Axis.SELF,step.test)};
-    for (    final AxisStep s : path.step)     steps=Array.add(steps,s);
-    path.step=steps;
-  }
-  return path;
+  return ic.invert(expr,new RangeAccess(input,rt,ic),text);
 }

@@ -1,28 +1,48 @@
 {
   if (entries.length == 0)   return;
-  final int nr=entries.length >>> IO.NODEPOWER;
-  meta.size+=nr;
-  dirty=true;
   final int split=cursor(pre - 1) + (1 << IO.NODEPOWER);
+  final int nr=entries.length >>> IO.NODEPOWER;
   final int nold=npre - fpre << IO.NODEPOWER;
-  final int nlast=nold - split;
+  final int moved=nold - split;
   if (nold + entries.length <= IO.BLOCKSIZE) {
-    System.arraycopy(bf.data,split,bf.data,split + entries.length,nlast);
+    System.arraycopy(bf.data,split,bf.data,split + entries.length,moved);
     System.arraycopy(entries,0,bf.data,split,entries.length);
     bf.dirty=true;
     for (int i=index + 1; i < blocks; ++i)     fpres[i]+=nr;
     npre+=nr;
+    meta.size+=nr;
+    dirty=true;
     return;
   }
-  final byte[] all=new byte[entries.length + nlast];
+  final byte[] all=new byte[entries.length + moved];
   System.arraycopy(entries,0,all,0,entries.length);
-  System.arraycopy(bf.data,split,all,entries.length,nlast);
+  System.arraycopy(bf.data,split,all,entries.length,moved);
   int n=bf.data.length - split;
   if (n > 0) {
     System.arraycopy(all,0,bf.data,split,n);
     bf.dirty=true;
   }
-  final int neededBlocks=(all.length - n + IO.BLOCKSIZE - 1) / IO.BLOCKSIZE;
+  int neededBlocks=(all.length - n) / IO.BLOCKSIZE;
+  final int remain=(all.length - n) % IO.BLOCKSIZE;
+  if (remain > 0) {
+    if (index + 1 < blocks) {
+      final int o=occupiedSpace(index + 1) << IO.NODEPOWER;
+      if (remain <= IO.BLOCKSIZE - o) {
+        readBlock(index + 1);
+        System.arraycopy(bf.data,0,bf.data,remain,o);
+        System.arraycopy(all,all.length - remain,bf.data,0,remain);
+        bf.dirty=true;
+        fpres[index]-=remain >>> IO.NODEPOWER;
+        readBlock(index - 1);
+      }
+ else {
+        ++neededBlocks;
+      }
+    }
+ else {
+      ++neededBlocks;
+    }
+  }
   final int newBlocks=neededBlocks - (allBlocks - blocks);
   if (newBlocks > 0) {
     fpres=Arrays.copyOf(fpres,fpres.length + newBlocks);
@@ -30,13 +50,15 @@
   }
   Array.move(fpres,index + 1,neededBlocks,blocks - index - 1);
   Array.move(pages,index + 1,neededBlocks,blocks - index - 1);
-  while (n < all.length) {
+  while (neededBlocks-- > 0) {
     getFreeBlock();
     n+=write(all,n);
-    fpres[index + 1]=fpres[index] + ENTRIES;
-    pages[++index]=(int)bf.pos;
+    fpres[index]=fpres[index - 1] + ENTRIES;
+    pages[index]=(int)bf.pos;
   }
   for (int i=index + 1; i < blocks; ++i)   fpres[i]+=nr;
+  meta.size+=nr;
+  dirty=true;
   fpre=fpres[index];
-  npre=index + 1 >= blocks ? meta.size : fpres[index + 1];
+  npre=index + 1 < blocks && fpres[index + 1] < meta.size ? fpres[index + 1] : meta.size;
 }
