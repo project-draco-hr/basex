@@ -5,19 +5,31 @@
   b.setIcon(ic.large);
   p.add(b,BorderLayout.NORTH);
   set(p,BorderLayout.WEST);
-  final BaseXText text=new BaseXText(false,this);
+  final BaseXEditor text=new BaseXEditor(false,this);
   text.setFont(p.getFont());
   text.setText(Token.token(txt));
-  text.setFocusable(false);
+  text.setFocusable(true);
   set(text,BorderLayout.CENTER);
-  final boolean simple=ic != Msg.QUESTION;
-  button=new BaseXButton(simple ? BUTTONOK : BUTTONYES,this);
-  final BaseXBack buttons=simple ? newButtons(this,button) : newButtons(this,button,new BaseXButton(BUTTONNO,this));
+  BaseXBack buttons;
+  if (ic == Msg.QUESTION || ic == Msg.YESNOCANCEL) {
+    yes=new BaseXButton(BUTTONYES,this);
+    no=new BaseXButton(BUTTONNO,this);
+    if (ic == Msg.QUESTION) {
+      buttons=newButtons(this,yes,no);
+    }
+ else {
+      cancel=new BaseXButton(BUTTONCANCEL,this);
+      buttons=newButtons(this,yes,no,cancel);
+    }
+  }
+ else {
+    yes=new BaseXButton(BUTTONOK,this);
+    buttons=newButtons(this,yes);
+  }
   set(buttons,BorderLayout.SOUTH);
   SwingUtilities.invokeLater(new Thread(){
     @Override public void run(){
-      button.requestFocusInWindow();
-      text.setFocusable(true);
+      yes.requestFocusInWindow();
     }
   }
 );

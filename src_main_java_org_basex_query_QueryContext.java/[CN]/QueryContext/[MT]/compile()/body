@@ -5,8 +5,7 @@
       value=initExpr.value(this);
     }
  catch (    final QueryException ex) {
-      final Err err=ex.err();
-      if (err != Err.XPNOCTX)       throw ex;
+      if (ex.err() != Err.XPNOCTX)       throw ex;
       CTXINIT.thrw(((ParseExpr)initExpr).input,ex.getMessage());
     }
   }
@@ -15,7 +14,7 @@
     resource.compile(nodes);
   }
   if (value != null && initType != null) {
-    value=initType.cast(value,this,null);
+    value=initType.promote(value,initExpr,this,null);
   }
   try {
     funcs.comp(this);

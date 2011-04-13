@@ -1,25 +1,25 @@
 {
   final NodeCache attrs=extractAttrs(conn);
   final NodeCache hdrs=extractHdrs(conn);
-  final byte[] contentType=mediaType == null ? extractContentType(conn.getContentType()) : mediaType;
+  final byte[] contentType=mediaTypeOvr == null ? extractContentType(conn.getContentType()) : mediaTypeOvr;
   final ItemCache payloads=new ItemCache();
   final ANode body;
-  final boolean b=statusOnly != null && Bln.parse(statusOnly,ii);
+  final boolean s=statusOnly != null && Bln.parse(statusOnly,ii);
   if (startsWith(contentType,token("multipart"))) {
     final byte[] boundary=extractBoundary(conn.getContentType(),ii);
     final NodeCache a=new NodeCache();
     a.add(new FAttr(new QNm(MEDIATYPE,EMPTY),contentType,null));
     a.add(new FAttr(new QNm(BOUNDARY,EMPTY),boundary,null));
-    body=new FElem(new QNm(MULTIPART,HTTPURI),extractParts(conn.getInputStream(),b,payloads,concat(token("--"),boundary),prop,ii),a,EMPTY,new Atts().add(HTTP,HTTPURI),null);
+    body=new FElem(new QNm(MULTIPART,HTTPURI),extractParts(conn.getInputStream(),s,payloads,concat(token("--"),boundary),prop,ii),a,EMPTY,new Atts().add(HTTP,HTTPURI),null);
   }
  else {
     body=createBody(contentType);
-    if (!b)     payloads.add(interpretPayload(extractPayload(conn.getInputStream()),contentType,prop,ii));
+    if (!s)     payloads.add(interpretPayload(extractPayload(conn.getInputStream(),extractCharset(conn.getContentType())),contentType,prop,ii));
   }
   final FElem responseEl=new FElem(new QNm(RESPONSE,HTTPURI),hdrs,attrs,EMPTY,new Atts().add(HTTP,HTTPURI),null);
   responseEl.children.add(body);
   final ItemCache result=new ItemCache();
   result.add(responseEl);
-  result.add(payloads);
+  result.add(payloads.finish());
   return result;
 }

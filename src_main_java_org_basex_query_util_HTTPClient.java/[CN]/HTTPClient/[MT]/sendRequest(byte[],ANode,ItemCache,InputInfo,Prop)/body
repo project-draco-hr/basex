@@ -1,0 +1,39 @@
+{
+  try {
+    if (request == null) {
+      if (href == null || href.length == 0)       NOPARAMS.thrw(ii);
+      final HttpURLConnection conn=openConnection(string(href),ii);
+      try {
+        return ResponseHandler.getResponse(conn,Bln.FALSE.atom(ii),Bln.FALSE.atom(ii),prop,ii);
+      }
+  finally {
+        conn.disconnect();
+      }
+    }
+    final Request r=RequestParser.parse(request,bodies,ii);
+    final byte[] dest=href == null ? r.attrs.get(HREF) : href;
+    if (dest == null)     NOURL.thrw(ii);
+    final HttpURLConnection conn=openConnection(string(dest),ii);
+    try {
+      setConnectionProps(conn,r,ii);
+      setRequestHeaders(conn,r,ii);
+      if (r.bodyContent.size() != 0 || r.parts.size() != 0) {
+        setContentType(conn,r);
+        setRequestContent(conn.getOutputStream(),r,ii);
+      }
+      return ResponseHandler.getResponse(conn,r.attrs.get(STATUSONLY),r.attrs.get(OVERMEDIATYPE),prop,ii);
+    }
+  finally {
+      conn.disconnect();
+    }
+  }
+ catch (  final MalformedURLException ex) {
+    throw HTTPERR.thrw(ii,"Invalid URL");
+  }
+catch (  final ProtocolException ex) {
+    throw HTTPERR.thrw(ii,"Invalid HTTP method");
+  }
+catch (  final IOException ex) {
+    throw HTTPERR.thrw(ii,ex);
+  }
+}
