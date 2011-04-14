@@ -1,0 +1,15 @@
+{
+  try {
+    p("DELETE ... creating database.");
+    final ClientSession s=newSession();
+    s.execute(new CreateDB(DBNAME,"<doc/>"));
+    final int c=100 + NQUERIES * NCLIENTS;
+    s.execute(new XQuery("for $i in 1 to " + c + " return insert node <node/> into doc('"+ DBNAME+ "')/doc"));
+    s.close();
+    runClients("delete nodes (doc('" + DBNAME + "')/doc/node)[1]");
+    p("done.");
+  }
+ catch (  final Exception e) {
+    e.printStackTrace();
+  }
+}
