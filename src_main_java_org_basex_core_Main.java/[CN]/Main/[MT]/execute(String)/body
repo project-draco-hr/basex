@@ -1,13 +1,13 @@
 {
   try {
     for (    final Command cmd : new CommandParser(in,context).parse()) {
-      if (cmd instanceof Exit)       return false;
+      if (cmd instanceof Exit)       return null;
       final int i=cmd instanceof Password && cmd.args[0] == null ? 0 : (cmd instanceof CreateUser || cmd instanceof AlterUser) && cmd.args[1] == null ? 1 : -1;
       if (i != -1) {
         Util.out(SERVERPW + COLS);
         cmd.args[i]=password();
       }
-      if (!execute(cmd,verbose))       break;
+      if (!execute(cmd,verbose))       return false;
     }
   }
  catch (  final QueryException ex) {
