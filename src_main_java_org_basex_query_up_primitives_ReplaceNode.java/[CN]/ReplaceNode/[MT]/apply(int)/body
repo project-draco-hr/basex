@@ -2,9 +2,13 @@
   final DBNode n=(DBNode)node;
   final Data d=n.data;
   int pre=n.pre + add;
-  final int par=d.parent(pre,d.kind(pre));
+  final int kind=d.kind(pre);
+  final int par=d.parent(pre,kind);
   if (n.type == NodeType.TXT && md.meta.size == 1 && md.kind(0) == Data.TEXT) {
     d.replace(pre,Data.TEXT,md.text(0,true));
+  }
+ else   if (md.meta.size > 0 && d instanceof DiskData && d.ns.size() == 0 && md.ns.size() == 0 && d.size(pre,kind) == md.meta.size) {
+    d.fastReplace(pre,md);
   }
  else {
     d.delete(pre);
