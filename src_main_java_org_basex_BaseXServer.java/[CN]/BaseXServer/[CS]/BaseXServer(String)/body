@@ -10,6 +10,7 @@
   log=new Log(context,quiet);
   log.write(SERVERSTART);
   stop=stopFile(port);
+  boolean ok=true;
   try {
     server=new ServerSocket(port);
     Runtime.getRuntime().addShutdownHook(new Thread(){
@@ -23,11 +24,16 @@
     new Thread(this).start();
     while (!running)     Performance.sleep(100);
     Util.outln(CONSOLE + (console ? CONSOLE2 : SERVERSTART),SERVERMODE);
-    if (commands != null)     execute(commands);
+    if (commands != null) {
+      final Boolean b=execute(commands);
+      ok=b == null || b;
+    }
     if (console)     quit(console());
   }
  catch (  final Exception ex) {
     log.write(ex.getMessage());
     Util.errln(Util.server(ex));
+    ok=false;
   }
+  if (!ok)   System.exit(1);
 }

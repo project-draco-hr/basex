@@ -1,0 +1,129 @@
+{
+  super(EDITORVIEW,HELPXQUERYY,man);
+  border(6,6,6,6).layout(new BorderLayout()).setFocusable(false);
+  header=new BaseXLabel(EDITORTIT,true,false);
+  final BaseXButton openB=BaseXButton.command(GUICommands.EDITOPEN,gui);
+  final BaseXButton saveB=new BaseXButton(gui,"editsave",token(GUISAVETT));
+  final BaseXButton hist=new BaseXButton(gui,"hist",HELPRECENT);
+  find=new BaseXTextField(gui);
+  find.setSearch(null);
+  BaseXLayout.setHeight(find,(int)openB.getPreferredSize().getHeight());
+  BaseXBack sp=new BaseXBack(Fill.NONE).layout(new TableLayout(1,7));
+  sp.add(find);
+  sp.add(Box.createHorizontalStrut(5));
+  sp.add(openB);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(saveB);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(hist);
+  final BaseXBack b=new BaseXBack(Fill.NONE).layout(new BorderLayout());
+  b.add(header,BorderLayout.CENTER);
+  b.add(sp,BorderLayout.EAST);
+  add(b,BorderLayout.NORTH);
+  tabs=new BaseXTabs(this.gui);
+  tabs.setFocusable(false);
+  addCreateTab();
+  addTab();
+  add(tabs,BorderLayout.CENTER);
+  south=new BaseXBack(Fill.NONE).layout(new BorderLayout(8,0));
+  info=new BaseXLabel(" ");
+  info.setText(OK,Msg.SUCCESS);
+  pos=new BaseXLabel(" ");
+  sp=new BaseXBack(Fill.NONE).layout(new BorderLayout(8,0));
+  sp.add(info,BorderLayout.CENTER);
+  sp.add(pos,BorderLayout.EAST);
+  south.add(sp,BorderLayout.CENTER);
+  stop=new BaseXButton(gui,"stop",HELPSTOP);
+  stop.addKeyListener(this);
+  stop.setEnabled(false);
+  go=new BaseXButton(gui,"go",HELPGO);
+  go.addKeyListener(this);
+  filter=BaseXButton.command(GUICommands.FILTER,gui);
+  filter.addKeyListener(this);
+  sp=new BaseXBack(Fill.NONE).border(4,0,0,0).layout(new TableLayout(1,5));
+  sp.add(stop);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(go);
+  sp.add(Box.createHorizontalStrut(1));
+  sp.add(filter);
+  south.add(sp,BorderLayout.EAST);
+  add(south,BorderLayout.SOUTH);
+  refreshLayout();
+  saveB.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      final JPopupMenu pop=new JPopupMenu();
+      final StringBuilder mnem=new StringBuilder();
+      final JMenuItem sa=GUIMenu.newItem(GUICommands.EDITSAVE,gui,mnem);
+      final JMenuItem sas=GUIMenu.newItem(GUICommands.EDITSAVEAS,gui,mnem);
+      GUICommands.EDITSAVE.refresh(gui,sa);
+      GUICommands.EDITSAVEAS.refresh(gui,sas);
+      pop.add(sa);
+      pop.add(sas);
+      pop.show(saveB,0,saveB.getHeight());
+    }
+  }
+);
+  hist.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      final JPopupMenu popup=new JPopupMenu();
+      final ActionListener al=new ActionListener(){
+        @Override public void actionPerformed(        final ActionEvent ac){
+          open(IO.get(ac.getActionCommand()));
+        }
+      }
+;
+      if (gui.gprop.strings(GUIProp.QUERIES).length == 0) {
+        popup.add(new JMenuItem("- No recently opened files -"));
+      }
+      for (      final String en : gui.gprop.strings(GUIProp.QUERIES)) {
+        final JMenuItem jmi=new JMenuItem(en);
+        jmi.addActionListener(al);
+        popup.add(jmi);
+      }
+      popup.show(hist,0,hist.getHeight());
+    }
+  }
+);
+  info.addMouseListener(new MouseAdapter(){
+    @Override public void mouseClicked(    final MouseEvent e){
+      EditorArea edit=getEditor();
+      if (errFile != null) {
+        edit=find(IO.get(errFile),false);
+        if (edit == null)         edit=open(IO.get(errFile));
+        tabs.setSelectedComponent(edit);
+        edit.error=errPos;
+      }
+      if (edit.error == -1)       return;
+      edit.setCaret(edit.error);
+      edit.requestFocusInWindow();
+      edit.markError();
+      pos.setText(edit.pos());
+    }
+  }
+);
+  stop.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      stop.setEnabled(false);
+      info.setText(OK,Msg.SUCCESS);
+      gui.stop();
+    }
+  }
+);
+  go.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      getEditor().query();
+    }
+  }
+);
+  tabs.addChangeListener(new ChangeListener(){
+    @Override public void stateChanged(    final ChangeEvent e){
+      final EditorArea edit=getEditor();
+      if (edit == null)       return;
+      edit.setSearch(find);
+      gui.refreshControls();
+      refreshMark();
+      if (gui.gprop.is(GUIProp.EXECRT))       edit.query();
+    }
+  }
+);
+}

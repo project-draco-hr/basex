@@ -1,0 +1,33 @@
+{
+  final byte[] in=getText();
+  final boolean eq=eq(in,last);
+  if (eq && !force)   return;
+  view.refresh(mod || !eq,false);
+  view.pos.setText(pos());
+  gui.context.query=file;
+  last=in;
+  if (file.name().endsWith(IO.XMLSUFFIX)) {
+    view.info("",true);
+    exec=false;
+  }
+ else {
+    final String qu=in.length == 0 ? "()" : string(in);
+    exec=!module(in);
+    if (exec && (force || gui.gprop.is(GUIProp.EXECRT))) {
+      view.startWait();
+      view.stop.setEnabled(true);
+      gui.execute(new XQuery(qu),false);
+    }
+ else {
+      final QueryContext ctx=new QueryContext(gui.context);
+      try {
+        if (!exec)         ctx.module(qu);
+ else         ctx.parse(qu);
+        view.info("",true);
+      }
+ catch (      final QueryException ex) {
+        view.info(ex.getMessage(),false);
+      }
+    }
+  }
+}
