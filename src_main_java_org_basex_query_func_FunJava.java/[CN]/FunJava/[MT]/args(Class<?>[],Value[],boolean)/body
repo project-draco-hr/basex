@@ -5,11 +5,17 @@
   final Object[] val=new Object[l];
   int a=0;
   for (  final Class<?> par : params) {
-    final Type jtype=type(par);
-    if (jtype == null)     return null;
     final Value arg=args[s + a];
-    if (!arg.type.instance(jtype) && !jtype.instance(arg.type))     return null;
-    val[a++]=arg.toJava();
+    final Object next;
+    if (par.isInstance(arg)) {
+      next=arg;
+    }
+ else {
+      final Type jtype=type(par);
+      if (jtype == null || !arg.type.instance(jtype) && !jtype.instance(arg.type))       return null;
+      next=arg.toJava();
+    }
+    val[a++]=next;
   }
   return val;
 }
