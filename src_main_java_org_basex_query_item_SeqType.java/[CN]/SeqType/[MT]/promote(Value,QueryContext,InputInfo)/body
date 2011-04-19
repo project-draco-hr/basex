@@ -1,0 +1,14 @@
+{
+  final long size=val.size();
+  if (!occ.check(size))   Err.promote(ii,type,val);
+  if (size == 0)   return val;
+  final Item f=val.itemAt(0);
+  if (size == 1)   return check(instance(f,ii) ? f : type.e(f,ctx,ii),ii);
+  if (val.homogenous() && instance(f,ii) && checkExt(f))   return val;
+  final ItemCache ic=new ItemCache((int)size);
+  for (long i=0; i < size; i++) {
+    final Item n=val.itemAt(i);
+    ic.add(check(instance(n,ii) ? n : type.e(n,ctx,ii),ii));
+  }
+  return ic.finish();
+}

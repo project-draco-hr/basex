@@ -1,0 +1,27 @@
+{
+  if (lv == -1)   return;
+  final boolean br=tr.bigRect(sub,rn,lv);
+  final boolean root=roots[rn] == pre;
+  final int height=sub.getSubtreeHeight(rn);
+  final Data d=gui.context.data;
+  final int k=d.kind(pre);
+  final int size=d.size(pre,k);
+  int rc=-1;
+  if (br) {
+    rc=drawNodeInBigRectangle(g,rn,lv,r,pre);
+  }
+ else {
+    drawRectangle(g,rn,lv,r,pre,t);
+    rc=getRectCenter(r);
+  }
+  if (px > -1 && MIN_NODE_DIST_CONN <= levelDistance)   drawParentConnection(g,lv,r,px,rc);
+  if (!root) {
+    final int par=d.parent(pre,k);
+    final int lvp=lv - 1;
+    final TreeRect parRect=tr.searchRect(sub,rn,lvp,par);
+    if (parRect == null)     return;
+    highlightNode(g,rn,lvp,parRect,par,rc,Draw.PARENT);
+  }
+  if ((t == Draw.CONNECTION || t == Draw.HIGHLIGHT) && size > 1 && lv + 1 < height)   highlightDescendants(g,rn,lv,r,pre,rc,t);
+  if (t == Draw.HIGHLIGHT)   drawThumbnails(g,rn,lv,pre,r,root);
+}
