@@ -1,0 +1,30 @@
+{
+  final String desc=def.toString();
+  final String name=desc.replaceAll("\\(.*","");
+  for (int al=Math.max(def.min - 1,0); al <= def.max + 1; al++) {
+    final boolean in=al >= def.min && al <= def.max;
+    final StringBuilder qu=new StringBuilder(name + "(");
+    int any=0;
+    for (int a=0; a < al; a++) {
+      if (a != 0)       qu.append(", ");
+      if (in) {
+        if (def.args[a].type == AtomType.STR) {
+          qu.append("1");
+        }
+ else {
+          qu.append("'X'");
+          if (def.args[a].type == AtomType.ITEM)           any++;
+        }
+      }
+ else {
+        qu.append("'x'");
+      }
+    }
+    if ((def.min > 0 || al != 0) && (any == 0 || any != al)) {
+      final String query=qu.append(")").toString();
+      if (in)       error(query,Err.XPTYPE,Err.NODBCTX);
+ else       error(query,Err.XPARGS);
+    }
+  }
+  return name;
+}
