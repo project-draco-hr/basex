@@ -11,7 +11,14 @@
       if (it1.func())       FNCMP.thrw(ii,it1);
       return false;
     }
-    if (it1.func() || it2.func())     FNCMP.thrw(ii,it1.func() ? it2 : it2);
+    if (it1.func() || it2.func()) {
+      if (it1.map() && it2.map()) {
+        final Map map1=(Map)it1, map2=(Map)it2;
+        if (!map1.deep(ii,map2))         return false;
+        continue;
+      }
+      FNCMP.thrw(ii,it1.func() ? it1 : it2);
+    }
     if (!it1.node() && !it2.node()) {
       if (!it1.equiv(ii,it2))       return false;
       continue;
