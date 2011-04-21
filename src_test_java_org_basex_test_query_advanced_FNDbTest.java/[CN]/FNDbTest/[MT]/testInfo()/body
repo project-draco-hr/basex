@@ -1,0 +1,15 @@
+{
+  final String fun=check(FunDef.INFO);
+  contains(fun + "()",INFOON);
+  final String[] types={"text","attribute","fulltext"};
+  for (  final String type : types)   new DropIndex(type).execute(CTX);
+  for (  final String type : types)   query(fun + "('" + type+ "')");
+  for (  final String type : types)   new CreateIndex(type).execute(CTX);
+  for (  final String type : types)   query(fun + "('" + type+ "')");
+  query(fun + "('tag')");
+  query(fun + "('attname')");
+  new Close().execute(CTX);
+  contains("db:open('db')/" + fun + "()",INFOON);
+  contains("db:open('db')/" + fun + "('tag')",":");
+  error(fun + "('tag')",Err.NODBCTX);
+}

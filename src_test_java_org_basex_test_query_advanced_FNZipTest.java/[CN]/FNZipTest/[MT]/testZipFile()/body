@@ -1,0 +1,17 @@
+{
+  final String fun=check(FunDef.ZIPFILE);
+  query(fun + "(" + zipParams("<entry name='one'/>")+ ")");
+  checkZipEntry("one",new byte[0]);
+  query(fun + "(" + zipParams("<entry name='two'>!</entry>")+ ")");
+  checkZipEntry("two",new byte[]{'!'});
+  query(fun + "(" + zipParams("<entry name='three' encoding='UTF-16'>!</entry>")+ ")");
+  checkZipEntry("three",new byte[]{'\0','!'});
+  query(fun + "(" + zipParams("<entry name='four' src='" + TMPFILE + "'/>")+ ")");
+  checkZipEntry("four",new byte[]{'!'});
+  query(fun + "(" + zipParams("<entry src='" + TMPFILE + "'/>")+ ")");
+  checkZipEntry(NAME,new byte[]{'!'});
+  query(fun + "(" + zipParams("<dir name='a'><entry name='b' src='" + TMPFILE + "'/></dir>")+ ")");
+  checkZipEntry("a/b",new byte[]{'!'});
+  error(fun + "(" + zipParams("")+ ")",Err.ZIPFAIL);
+  error(fun + "(" + zipParams("<entry src='" + TMPFILE + "'/>"+ "<entry src='"+ TMPFILE+ "'/>")+ ")",Err.ZIPFAIL);
+}

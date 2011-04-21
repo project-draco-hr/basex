@@ -2,17 +2,20 @@
   try {
     session();
     boolean u=false;
-    if (input != null)     execute(new Check(input),verbose);
+    if (input != null) {
+      check(execute(new Check(input),verbose));
+    }
     if (file != null) {
       context.query=IO.get(file);
       final String qu=content();
-      if (qu != null)       execute(new XQuery(qu),verbose);
+      check(qu != null && execute(new XQuery(qu),verbose));
     }
  else     if (query != null) {
-      execute(new XQuery(query),verbose);
+      check(execute(new XQuery(query),verbose));
     }
  else     if (commands != null) {
-      execute(commands);
+      final Boolean b=execute(commands);
+      check(b == null || b);
     }
  else {
       Util.outln(CONSOLE + CONSOLE2,sa() ? LOCALMODE : CLIENTMODE);
@@ -23,5 +26,6 @@
   }
  catch (  final IOException ex) {
     Util.errln(Util.server(ex));
+    check(false);
   }
 }
