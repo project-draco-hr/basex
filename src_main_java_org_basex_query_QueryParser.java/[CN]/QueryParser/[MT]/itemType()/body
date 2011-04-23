@@ -13,16 +13,26 @@
   if (!atom) {
     if (t != null && t.func()) {
       if (!wsConsume(ASTERISK)) {
-        SeqType[] args={};
-        if (!wsConsume(PAR2)) {
-          do {
-            args=Array.add(args,sequenceType());
-          }
- while (wsConsume(COMMA));
+        if (t.map()) {
+          final Type keyType=itemType();
+          if (keyType == null)           throw error(MAPTKV,type.atom());
+          if (!keyType.instance(AtomType.AAT))           throw error(MAPTAAT,keyType);
+          wsCheck(COMMA);
+          t=MapType.get((AtomType)keyType,sequenceType());
           if (!wsConsume(PAR2))           error(FUNCMISS,type.atom());
         }
-        wsCheck(AS);
-        t=FunType.get(args,sequenceType());
+ else {
+          SeqType[] args={};
+          if (!wsConsume(PAR2)) {
+            do {
+              args=Array.add(args,sequenceType());
+            }
+ while (wsConsume(COMMA));
+            if (!wsConsume(PAR2))             error(FUNCMISS,type.atom());
+          }
+          wsCheck(AS);
+          t=FunType.get(args,sequenceType());
+        }
       }
  else       if (!wsConsume(PAR2)) {
         error(FUNCMISS,type.atom());

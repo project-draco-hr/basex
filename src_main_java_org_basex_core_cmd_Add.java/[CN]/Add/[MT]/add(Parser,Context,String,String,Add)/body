@@ -8,13 +8,7 @@
     Performance.gc(2);
     large=fl > rt.freeMemory() / 3;
   }
-  String dbname=path;
-  if (large) {
-    do {
-      dbname=Integer.toString(new Random().nextInt(0x7FFFFFFF));
-    }
- while (ctx.prop.dbexists(dbname));
-  }
+  final String dbname=large ? ctx.data.meta.random() : path;
   final Builder build=large ? new DiskBuilder(parser,ctx.prop) : new MemBuilder(parser,ctx.prop);
   if (cmd != null)   cmd.build=build;
   Data data=null;
