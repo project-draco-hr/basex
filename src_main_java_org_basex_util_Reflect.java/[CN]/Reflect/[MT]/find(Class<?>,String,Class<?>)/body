@@ -1,16 +1,23 @@
 {
-  try {
+  if (clazz == null)   return null;
+  final StringBuilder sb=new StringBuilder(clazz.getName());
+  for (  final Class<?> c : types)   sb.append(c.getName());
+  final String key=sb.toString();
+  Method m=methods.get(key);
+  if (m == null) {
     try {
-      return clazz != null ? clazz.getMethod(name,types) : null;
+      try {
+        m=clazz.getMethod(name,types);
+      }
+ catch (      final Exception ex) {
+        m=clazz.getDeclaredMethod(name,types);
+        m.setAccessible(true);
+      }
+      methods.put(key,m);
     }
  catch (    final Exception ex) {
-      final Method m=clazz.getDeclaredMethod(name,types);
-      m.setAccessible(true);
-      return m;
+      Util.debug(ex);
     }
   }
- catch (  final Exception ex) {
-    Util.debug(ex);
-    return null;
-  }
+  return m;
 }
