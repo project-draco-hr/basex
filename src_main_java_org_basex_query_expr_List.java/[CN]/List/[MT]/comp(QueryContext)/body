@@ -1,11 +1,7 @@
 {
-  for (int e=0; e != expr.length; ++e)   expr[e]=expr[e].comp(ctx);
+  for (int e=expr.length; --e >= 0; )   expr[e]=expr[e].comp(ctx);
   checkUp(ctx,expr);
-  if (values()) {
-    final ItemCache ic=new ItemCache(expr.length);
-    for (    final Expr e : expr)     ic.add(ctx.value(e));
-    return ic.finish();
-  }
+  if (values())   return value(ctx);
   type=expr[0].type();
   for (int i=1; i < expr.length; ++i)   type=type.intersect(expr[i].type());
   final SeqType.Occ o=type.mayBeZero() ? SeqType.Occ.ZM : SeqType.Occ.OM;

@@ -4,7 +4,12 @@
   final String m=p.check(S_METHOD,M_XML,M_XHTML,M_HTML,M_TEXT);
   mth=m.equals(M_XML) ? M_XML : m.equals(M_XHTML) ? M_XHTML : m.equals(M_HTML) ? M_HTML : M_TEXT;
   version=p.get(S_VERSION).isEmpty() ? mth == M_HTML ? V40 : V10 : mth == M_HTML ? p.check(S_VERSION,V40,V401) : mth != M_TEXT ? p.check(S_VERSION,V10,V11) : p.get(S_VERSION);
-  for (  final String c : p.get(S_CDATA_SECTION_ELEMENTS).split("\\s+"))   if (!c.isEmpty())   cdata.add(token(c));
+  final String cdse=p.get(S_CDATA_SECTION_ELEMENTS);
+  if (!cdse.isEmpty()) {
+    for (    final String c : cdse.split("\\s+")) {
+      if (!c.isEmpty())       cdata.add(token(c));
+    }
+  }
   final boolean decl=p.check(S_OMIT_XML_DECLARATION,YES,NO).equals(NO);
   final boolean bom=p.check(S_BYTE_ORDER_MARK,YES,NO).equals(YES);
   final String sa=p.check(S_STANDALONE,YES,NO,OMIT);
@@ -15,8 +20,8 @@
   docsys=p.get(S_DOCTYPE_SYSTEM);
   docpub=p.get(S_DOCTYPE_PUBLIC);
   media=p.get(S_MEDIA_TYPE);
-  items=p.check(S_FORMAT,YES,NO).equals(YES);
-  indent=p.check(S_INDENT,YES,NO).equals(YES) && items;
+  format=p.check(S_FORMAT,YES,NO).equals(YES);
+  indent=p.check(S_INDENT,YES,NO).equals(YES) && format;
   undecl=p.check(S_UNDECLARE_PREFIXES,YES,NO).equals(YES);
   escape=p.check(S_ESCAPE_URI_ATTRIBUTES,YES,NO).equals(YES);
   content=p.check(S_INCLUDE_CONTENT_TYPE,YES,NO).equals(YES);

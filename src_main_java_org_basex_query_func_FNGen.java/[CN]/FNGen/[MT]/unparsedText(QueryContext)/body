@@ -2,7 +2,9 @@
   final IO io=checkIO(expr[0],ctx);
   final String enc=expr.length < 2 ? null : string(checkStr(expr[1],ctx));
   try {
-    return Str.get(TextInput.content(io,enc).finish());
+    byte[] txt=TextInput.content(io,enc).finish();
+    if (contains(txt,'\r'))     txt=contains(txt,'\n') ? delete(txt,'\r') : replace(txt,'\r','\n');
+    return Str.get(txt);
   }
  catch (  final IOException ex) {
     throw WRONGINPUT.thrw(input,io,ex);

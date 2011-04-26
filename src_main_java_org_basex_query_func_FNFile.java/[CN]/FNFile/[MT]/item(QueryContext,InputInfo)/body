@@ -2,42 +2,46 @@
   checkAdmin(ctx);
   final File path=expr.length == 0 ? null : new File(string(checkStr(expr[0],ctx)));
 switch (def) {
+case APPEND:
+    return write(path,ctx,true);
+case APPENDBIN:
+  return writeBinary(path,ctx,true);
+case COPY:
+return transfer(path,ctx,true);
+case CREATEDIR:
+return createDirectory(path);
+case DELETE:
+return del(path);
+case MOVE:
+return transfer(path,ctx,false);
+case READBIN:
+return readBinary(path);
+case READTEXT:
+return readText(path,ctx);
+case WRITE:
+return write(path,ctx,false);
+case WRITEBIN:
+return writeBinary(path,ctx,false);
 case FEXISTS:
-    return Bln.get(path.exists());
+return Bln.get(path.exists());
 case ISDIR:
-  return Bln.get(path.isDirectory());
+return Bln.get(path.isDirectory());
 case ISFILE:
 return Bln.get(path.isFile());
-case ISREAD:
-return Bln.get(path.canRead());
-case ISWRITE:
-return Bln.get(path.canWrite());
 case LASTMOD:
 return lastModified(path);
 case SIZE:
 return size(path);
-case PATHSEP:
-return Str.get(System.getProperty("file.separator"));
-case PATHTOFULL:
+case BASENAME:
+return baseName(path,ctx);
+case DIRNAME:
+return dirName(path);
+case PATHNATIVE:
+return pathToNative(path);
+case RESOLVEPATH:
 return Str.get(path.getAbsolutePath());
 case PATHTOURI:
 return pathToUri(path);
-case CREATEDIR:
-return createDirectory(path);
-case DELETE:
-return delete(path,ctx);
-case READ:
-return read(path,ctx);
-case READBIN:
-return readBinary(path);
-case WRITE:
-return write(path,ctx);
-case WRITEBIN:
-return writeBinary(path,ctx);
-case COPY:
-return copy(path,ctx);
-case MOVE:
-return move(path,ctx);
 default :
 return super.item(ctx,ii);
 }
