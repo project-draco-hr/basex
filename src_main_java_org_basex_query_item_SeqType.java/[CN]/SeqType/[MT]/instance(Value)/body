@@ -1,9 +1,11 @@
 {
   final long size=val.size();
-  if (occ.min > size || size > occ.max)   return false;
+  if (!occ.check(size))   return false;
+  if (size == 0)   return true;
+  final MapType mt=type.map() ? (MapType)type : null;
   for (long i=0; i < size; i++) {
-    final Item it=val.itemAt(i);
-    if (!it.type.instance(type) || !checkExt(it))     return false;
+    if (!check(val.itemAt(i),mt))     return false;
+    if (i == 0 && val.homogenous())     break;
   }
   return true;
 }

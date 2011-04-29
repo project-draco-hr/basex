@@ -1,6 +1,7 @@
 {
-  final ValueIter iter=ctx.value(expr[0]).iter();
-  return iter.size() == 1 ? iter : new ValueIter(){
+  final Value val=ctx.value(expr[0]);
+  final ValueIter iter=val.iter();
+  return val.size() == 1 ? iter : new ValueIter(){
     final long s=iter.size();
     long c=s;
     @Override public Item next(){
@@ -15,6 +16,12 @@
     @Override public boolean reset(){
       c=s;
       return true;
+    }
+    @Override public Value finish(){
+      final Item[] arr=new Item[(int)val.size()];
+      final int written=val.writeTo(arr,0);
+      Array.reverse(arr,0,written);
+      return Seq.get(arr,written);
     }
   }
 ;

@@ -2,14 +2,18 @@
   final DBNode n=(DBNode)node;
   final Data d=n.data;
   int pre=n.pre + add;
-  final int par=d.parent(pre,d.kind(pre));
+  final int kind=d.kind(pre);
+  final int par=d.parent(pre,kind);
   if (n.type == NodeType.TXT && md.meta.size == 1 && md.kind(0) == Data.TEXT) {
     d.replace(pre,Data.TEXT,md.text(0,true));
+    d.replace(pre,md);
   }
  else {
     d.delete(pre);
-    if (n.type == NodeType.ATT)     d.insertAttr(pre,par,md);
- else     if (md != null)     d.insert(pre,par,md);
+    if (md != null) {
+      if (n.type == NodeType.ATT)       d.insertAttr(pre,par,md);
+ else       d.insert(pre,par,md);
+    }
     if (!mergeTexts(d,pre - 1,pre)) {
       pre+=md != null ? md.meta.size : 1;
       mergeTexts(d,pre - 1,pre);
