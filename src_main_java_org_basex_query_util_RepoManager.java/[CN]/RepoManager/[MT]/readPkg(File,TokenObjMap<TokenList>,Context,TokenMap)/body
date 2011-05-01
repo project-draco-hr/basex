@@ -1,0 +1,26 @@
+{
+  final IOFile io=new IOFile(pkgDesc);
+  final Parser p=Parser.xmlParser(io,ctx.prop,"");
+  final ANode pkg=new DBNode(MemBuilder.build(p,ctx.prop,""),0).children().next();
+  final ANode xqueryComp=getChild(pkg,XQUERY);
+  if (xqueryComp == null) {
+  }
+ else {
+    final ANode ns=getChild(xqueryComp,NMSPC);
+    if (ns == null) {
+    }
+ else {
+      if (repoDict.get(ns.atom()) != null) {
+        repoDict.get(ns.atom()).add(pkg.attribute(new QNm(NAME)));
+      }
+ else {
+        final TokenList vals=new TokenList();
+        vals.add(pkg.attribute(new QNm(NAME)));
+        repoDict.add(ns.atom(),vals);
+      }
+      final TokenBuilder tb=new TokenBuilder();
+      tb.add(token(REPO)).add(token("/")).add(pkg.attribute(new QNm(ABBREV)));
+      pkgsInst.add(pkg.attribute(new QNm(NAME)),tb.finish());
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  final IOFile io=new IOFile("/home/hermione/workspace/basex/lib/.expath-pkg/packages.xml");
+  final Parser p=Parser.xmlParser(io,ctx.prop,"");
+  final DBNode dbNode=new DBNode(MemBuilder.build(p,ctx.prop,""),0);
+  final NodeMore pkgs=dbNode.children().next().children();
+  ANode nextPkg;
+  byte[] dir;
+  while ((nextPkg=pkgs.next()) != null) {
+    if (eq(nextPkg.attribute(new QNm(NAME)),pkgName)) {
+      dir=nextPkg.attribute(new QNm(DIR));
+      return extractPkg("/home/hermione/workspace/basex/lib/" + string(dir),ctx);
+    }
+  }
+  return null;
+}
