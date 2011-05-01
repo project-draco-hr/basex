@@ -16,10 +16,19 @@
   set("org.jaxrx.systemName",Text.NAMELC,false);
   set("org.jaxrx.systemPath",BXJaxRx.class.getName(),false);
   try {
-    jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT));
+    if (context.prop.is(Prop.AUTH)) {
+      System.out.println("Server will start with authentication");
+      IniBuilder iniBuilder=new IniBuilder(INI);
+      jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT),iniBuilder.buildIni());
+    }
+ else {
+      System.out.println("Server without authentication");
+      jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT));
+    }
     Util.outln(JAXRX + ' ' + SERVERSTART);
   }
  catch (  final Exception ex) {
+    ex.printStackTrace();
     Util.server(ex);
   }
 }
