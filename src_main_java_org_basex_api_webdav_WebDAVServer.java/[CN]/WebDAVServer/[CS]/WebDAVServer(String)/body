@@ -1,0 +1,26 @@
+{
+  super(args);
+  final HttpManager m=new HttpManager(new BXResourceFactory(context));
+  final Handler h=new AbstractHandler(){
+    @SuppressWarnings("unused") @Override public void handle(    final String target,    final HttpServletRequest request,    final HttpServletResponse response,    final int dispatch) throws IOException, ServletException {
+      final ServletRequest req=new ServletRequest(request);
+      final ServletResponse res=new ServletResponse(response);
+      try {
+        m.process(req,res);
+      }
+  finally {
+        res.getOutputStream().flush();
+        response.flushBuffer();
+      }
+    }
+  }
+;
+  jetty=new Server(8080);
+  jetty.setHandler(h);
+  try {
+    jetty.start();
+  }
+ catch (  Exception ex) {
+    Util.server(ex);
+  }
+}
