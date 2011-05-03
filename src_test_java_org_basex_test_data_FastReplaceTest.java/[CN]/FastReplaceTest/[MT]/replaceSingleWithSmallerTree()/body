@@ -1,0 +1,10 @@
+{
+  try {
+    final String newID=new XQuery("let $newitem := (let $c := min(for $i in //item " + "return count($i/descendant-or-self::node())) " + "return for $i in //item where "+ "(count($i/descendant-or-self::node()) = $c) "+ "return $i)[1] return $newitem/@id/data()").execute(CONTEXT);
+    new XQuery("replace node //item[@id='item4'] with " + "//item[@id='" + newID + "']").execute(CONTEXT);
+    new XQuery("count(//item)").execute(CONTEXT);
+  }
+ catch (  BaseXException e) {
+    fail(e.getMessage());
+  }
+}
