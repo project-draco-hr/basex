@@ -1,24 +1,20 @@
 {
-  b.encoding(ENCODING);
-  final String dir=file.dir();
-  index(mediatypes,dir + "/mediatypes.dat");
-  index(subjects,dir + "/subjects.dat");
-  index(languages,dir + "/lang.dat");
-  index(mvids,dir + "/mvids.dat");
-  index(lendings,dir + "/lendings.dat");
-  index(status,dir + "/status.dat");
-  index(posters,dir + "/posters.dat");
-  index(genres,dir + "/genres.dat");
+  index(mediatypes,"mediatypes");
+  index(subjects,"subjects");
+  index(languages,"lang");
+  index(mvids,"mvids");
+  index(lendings,"lendings");
+  index(status,"status");
+  index(posters,"posters");
+  index(genres,"genres");
   for (int i=1; i <= mvids.size(); ++i) {
     final int id=toInt(mvids.value(i));
     if (maxid < id)     maxid=id;
   }
-  input=new DataAccess(new File(file.path()));
+  final DataAccess input=new DataAccess(new File(file.path()));
   if (input.read1() != '#' || input.read1() != '#' || input.read1() != '#') {
     throw new BuildException("Invalid MAB2 input (doesn't start with ###)");
   }
-  builder=b;
-  builder.startDoc(token(file.name()));
   builder.startElem(LIBRARY,atts.reset());
   final Performance p=new Performance();
   final TokenObjMap<MAB2Entry> ids=new TokenObjMap<MAB2Entry>();
@@ -56,9 +52,8 @@
     Util.err("\nCreate Titles: %/%\n",p,Performance.getMem());
   }
   builder.endElem(LIBRARY);
-  builder.endDoc();
   input.close();
-  final PrintOutput out=new PrintOutput(dir + "/mvids.dat");
+  final PrintOutput out=new PrintOutput("mvids.dat");
   for (i=1; i <= mvids.size(); ++i) {
     out.print(mvids.key(i));
     out.write('\t');
