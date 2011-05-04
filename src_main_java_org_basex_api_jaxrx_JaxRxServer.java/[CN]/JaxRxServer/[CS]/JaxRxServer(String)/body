@@ -4,27 +4,17 @@
   set(BXJaxRx.JAXRXPATH,context.prop.get(Prop.JAXRXPATH),false);
   set(BXJaxRx.SERVERPORT,context.prop.num(Prop.SERVERPORT),false);
   set(BXJaxRx.SERIALIZER,context.prop.get(Prop.SERIALIZER),false);
-  final boolean user=System.getProperty(BXJaxRx.USER) != null;
-  if (!user)   set(BXJaxRx.USER,Text.ADMIN,false);
-  final String pass=System.getProperty(BXJaxRx.PASSWORD);
-  String p=pass != null ? pass : user ? null : Text.ADMIN;
+  String p=pass != null ? pass : user != null ? null : Text.ADMIN;
   while (p == null) {
     Util.out(SERVERPW + COLS);
-    p=password();
+    pass=password();
   }
-  set(BXJaxRx.PASSWORD,p,false);
+  set(BXJaxRx.USER,user == null ? "" : user,user != null);
+  set(BXJaxRx.PASSWORD,pass == null ? "" : pass,pass != null);
   set("org.jaxrx.systemName",Text.NAMELC,false);
   set("org.jaxrx.systemPath",BXJaxRx.class.getName(),false);
   try {
-    if (context.prop.is(Prop.AUTH)) {
-      System.out.println("Server will start with authentication");
-      IniBuilder iniBuilder=new IniBuilder(INI);
-      jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT),iniBuilder.buildIni());
-    }
- else {
-      System.out.println("Server without authentication");
-      jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT));
-    }
+    jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT));
     Util.outln(JAXRX + ' ' + SERVERSTART);
   }
  catch (  final Exception ex) {

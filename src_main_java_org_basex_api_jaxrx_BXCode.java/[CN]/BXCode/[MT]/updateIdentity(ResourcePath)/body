@@ -1,0 +1,19 @@
+{
+  final HttpHeaders headers=path.getHttpHeaders();
+  final List<String> authorization=headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+  if (authorization != null) {
+    for (    String value : authorization) {
+      String[] values=value.split(" ");
+      if (values[0].equalsIgnoreCase("basic")) {
+        String decoded=new String(Base64.decode(values[1]));
+        String[] credentials=decoded.split(":",2);
+        if (credentials.length < 2) {
+          throw new JaxRxException(401,"Password missing.");
+        }
+        return credentials;
+      }
+      throw new JaxRxException(500,"Unknown authorization mode.");
+    }
+  }
+  return null;
+}
