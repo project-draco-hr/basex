@@ -1,0 +1,12 @@
+{
+  try {
+    final String newID=new XQuery("let $newitem := (let $c := min(for $i in //item " + "return count($i/descendant-or-self::node())) " + "return for $i in //item where "+ "(count($i/descendant-or-self::node()) = $c) "+ "return $i)[1] return $newitem/@id/data()").execute(CONTEXT);
+    final int itemCount=Integer.parseInt(new XQuery("count(//item)").execute(CONTEXT));
+    new XQuery("for $i in //item return replace node $i " + "with (//item[@id='" + newID + "'])[1]").execute(CONTEXT);
+    final int newIDItemCount=Integer.parseInt(new XQuery("count(//item[@id='" + newID + "'])").execute(CONTEXT));
+    assertEquals(itemCount,newIDItemCount);
+  }
+ catch (  BaseXException e) {
+    fail(e.getMessage());
+  }
+}
