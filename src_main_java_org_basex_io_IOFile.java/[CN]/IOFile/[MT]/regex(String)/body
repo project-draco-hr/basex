@@ -1,17 +1,17 @@
 {
   final StringBuilder sb=new StringBuilder();
-  for (  final String g : filter.split(",")) {
+  for (  final String g : glob.split(",")) {
     boolean suf=false;
-    final String glob=g.trim();
+    final String gl=g.trim();
     if (sb.length() != 0) {
       if (!suf)       sb.append(".*");
       suf=false;
       sb.append('|');
     }
-    for (int f=0; f < glob.length(); f++) {
-      char ch=glob.charAt(f);
+    for (int f=0; f < gl.length(); f++) {
+      char ch=gl.charAt(f);
       if (ch == '*') {
-        sb.append("[^.]");
+        sb.append(gl.endsWith(".") ? "[^.]" : ".");
       }
  else       if (ch == '?') {
         ch='.';
@@ -20,7 +20,7 @@
  else       if (!Character.isLetterOrDigit(ch)) {
         if (ch == '.') {
           suf=true;
-          if (f + 1 == glob.length())           break;
+          if (f + 1 == gl.length())           break;
         }
         sb.append('\\');
       }

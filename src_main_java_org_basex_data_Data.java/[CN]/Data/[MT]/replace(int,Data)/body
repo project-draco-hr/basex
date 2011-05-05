@@ -1,7 +1,6 @@
 {
   final int dsize=d.meta.size;
-  final int buf=dsize;
-  buffer(buf);
+  buffer(dsize);
   int dpre=-1;
   final int rkind=kind(rpre);
   while (++dpre != dsize) {
@@ -30,19 +29,16 @@ break;
 }
 }
 final int rsize=size(rpre,rkind);
+final int rpar=parent(rpre,rkind);
+final int diff=dsize - rsize;
 table.replace(rpre,buffer(),rsize);
 buffer(1);
-final int rpar=parent(rpre,rkind);
-final int diff=rsize - dsize;
-if (diff < 0) {
+if (diff == 0) return;
 int p=rpar;
 while (p >= 0) {
 final int k=kind(p);
-size(p,k,size(p,k) + Math.abs(diff));
+size(p,k,size(p,k) + diff);
 p=parent(p,k);
 }
 updateDist(rpre + dsize,diff);
-}
- else if (rsize > dsize) {
-}
 }

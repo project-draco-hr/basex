@@ -15,7 +15,7 @@
       if (!m && !h) {
         completeRef(ent);
         if (entity)         error(INVALIDENTITY,ent);
-        return EMPTY;
+        return QUESTION;
       }
       n*=b;
       n+=ch & 15;
@@ -25,7 +25,7 @@
  while (ch != ';');
     if (!valid(n)) {
       if (entity)       error(INVALIDENTITY,ent);
-      return EMPTY;
+      return QUESTION;
     }
     ent.reset();
     ent.add(n);
@@ -34,11 +34,21 @@
   final byte[] name=name(entity);
   if (!consume(';')) {
     if (entity)     error(INVALIDENTITY,name);
-    return EMPTY;
+    return QUESTION;
   }
-  if (!f)   return concat(AMP,name,SEMI);
-  final byte[] en=ents.get(name);
-  if (en != null)   return en;
-  if (entity)   error(UNKNOWNENTITY,name);
-  return EMPTY;
+  if (!f)   return concat(AMPER,name,SEMI);
+  byte[] en=ents.get(name);
+  if (en == null) {
+    if (HTMLENTS.size() == 0) {
+      for (int s=0; s < HTMLENTITIES.length; s+=2) {
+        HTMLENTS.add(token(HTMLENTITIES[s]),token(HTMLENTITIES[s + 1]));
+      }
+    }
+    en=HTMLENTS.get(name);
+    if (en == null) {
+      if (entity)       error(UNKNOWNENTITY,name);
+      return QUESTION;
+    }
+  }
+  return en;
 }
