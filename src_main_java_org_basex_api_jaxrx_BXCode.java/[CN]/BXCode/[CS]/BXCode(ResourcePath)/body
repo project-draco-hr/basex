@@ -1,0 +1,21 @@
+{
+  final String[] cred=updateIdentity(path);
+  if (cred == null) {
+    username=System.getProperty("org.basex.user");
+    password=System.getProperty("org.basex.password");
+  }
+ else {
+    username=cred[0];
+    password=cred[1];
+  }
+  try {
+    cs=new ClientSession(Text.LOCALHOST,Integer.parseInt(System.getProperty("org.basex.serverport")),username,password);
+  }
+ catch (  final LoginException ex) {
+    throw new JaxRxException(401,"Username/Password is false.");
+  }
+catch (  final Exception ex) {
+    Util.stack(ex);
+    throw new JaxRxException(ex);
+  }
+}
