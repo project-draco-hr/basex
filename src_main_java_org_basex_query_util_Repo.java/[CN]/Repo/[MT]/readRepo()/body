@@ -8,7 +8,28 @@
         if (!pkgDesc.exists()) {
         }
  else {
-          readPkg(pkgDesc);
+          final IOFile io=new IOFile(pkgDesc);
+          final Parser p=Parser.xmlParser(io,prop,"");
+          final ANode pkgNode=new DBNode(MemBuilder.build(p,prop,""),0).children().next();
+          final Package pkg=PackageParser.parse(pkgNode);
+          final Iterator<Component> compIt=pkg.comps.iterator();
+          Component comp;
+          byte[] compNs;
+          while (compIt.hasNext()) {
+            comp=compIt.next();
+            compNs=comp.namespace;
+            if (compNs != null) {
+              if (nsDict.get(compNs) != null) {
+                nsDict.get(compNs).add(pkg.name);
+              }
+ else {
+                final TokenList vals=new TokenList();
+                vals.add(pkg.name);
+                nsDict.add(compNs,vals);
+              }
+            }
+          }
+          pkgDict.add(pkg.getName(),pkg.abbrev);
         }
       }
     }
