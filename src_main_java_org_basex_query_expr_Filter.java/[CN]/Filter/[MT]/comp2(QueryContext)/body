@@ -1,14 +1,5 @@
 {
   final SeqType t=root.type();
-  type=SeqType.get(t.type,t.zeroOrOne() ? SeqType.Occ.ZO : SeqType.Occ.ZM);
-  if (!super.uses(Use.POS))   return new IterFilter(this);
-  if (pred.length == 1 && (last || pos != null)) {
-    if (root.value() && t.one() && (last || pos.min == 1 && pos.max == 1)) {
-      return optPre(root,ctx);
-    }
-  }
-  final boolean off=pred.length == 1 && pred[0].type().num() && !pred[0].uses(Use.CTX);
-  final boolean iter=!off && iterable();
   final long s=root.size();
   if (s != -1) {
     if (pos != null) {
@@ -18,6 +9,18 @@
       size=s > 0 ? 1 : 0;
     }
     if (size == 0)     return optPre(null,ctx);
+    type=SeqType.get(t.type,size);
   }
+ else {
+    type=SeqType.get(t.type,t.zeroOrOne() ? SeqType.Occ.ZO : SeqType.Occ.ZM);
+  }
+  if (!super.uses(Use.POS))   return new IterFilter(this);
+  if (pred.length == 1 && (last || pos != null)) {
+    if (root.value() && t.one() && (last || pos.min == 1 && pos.max == 1)) {
+      return optPre(root,ctx);
+    }
+  }
+  final boolean off=pred.length == 1 && pred[0].type().num() && !pred[0].uses(Use.CTX);
+  final boolean iter=!off && iterable();
   return off || iter ? new IterPosFilter(this,off) : this;
 }
