@@ -1,18 +1,28 @@
 {
   super(args);
   if (!success || service)   return;
-  set(BXJaxRx.JAXRXPATH,context.prop.get(Prop.JAXRXPATH),false);
-  set(BXJaxRx.SERVERPORT,context.prop.num(Prop.SERVERPORT),false);
-  set(BXJaxRx.SERIALIZER,context.prop.get(Prop.SERIALIZER),false);
-  String p=pass != null ? pass : user != null ? null : Text.ADMIN;
-  while (p == null) {
-    Util.out(SERVERPW + COLS);
-    pass=password();
+  set(JAXRXPATH,context.prop.get(Prop.JAXRXPATH),false);
+  set(SERVERPORT,context.prop.num(Prop.SERVERPORT),false);
+  set(SERIALIZER,context.prop.get(Prop.SERIALIZER),false);
+  String p=pass;
+  if (user != null) {
+    while (p == null) {
+      Util.out(SERVERPW + COLS);
+      p=password();
+    }
   }
-  set(BXJaxRx.USER,user == null ? "" : user,user != null);
-  set(BXJaxRx.PASSWORD,pass == null ? "" : pass,pass != null);
-  set("org.jaxrx.systemName",Text.NAMELC,false);
-  set("org.jaxrx.systemPath",BXJaxRx.class.getName(),false);
+  set(USER,user == null ? "" : user,user != null);
+  set(PASSWORD,p == null ? "" : p,p != null);
+  try {
+    if (!System.getProperty(USER).isEmpty())     login(null).close();
+  }
+ catch (  final Exception ex) {
+    Util.errln(ex.getMessage());
+    quit(false);
+    return;
+  }
+  set(JaxRxConstants.NAMEPROP,Text.NAMELC,false);
+  set(JaxRxConstants.PATHPROP,BXJaxRx.class.getName(),false);
   try {
     jetty=new JettyServer(context.prop.num(Prop.JAXRXPORT));
     Util.outln(JAXRX + ' ' + SERVERSTART);

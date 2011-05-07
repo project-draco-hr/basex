@@ -1,0 +1,19 @@
+{
+  if (path == null)   return null;
+  final HttpHeaders headers=path.getHttpHeaders();
+  final List<String> authorization=headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+  if (authorization != null) {
+    for (    final String value : authorization) {
+      final String[] values=value.split(" ");
+      if (values[0].equalsIgnoreCase("basic")) {
+        final String[] cred=Base64.decode(values[1]).split(":",2);
+        if (cred.length < 2) {
+          throw new JaxRxException(401,"No password specified.");
+        }
+        return cred;
+      }
+      throw new JaxRxException(500,"Unsupported authorization mode.");
+    }
+  }
+  return null;
+}
