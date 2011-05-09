@@ -67,7 +67,13 @@ return new DropBackup(name(cmd));
 }
 break;
 case OPTIMIZE:
-return key(ALL,null) ? new OptimizeAll() : new Optimize();
+switch (consume(CmdOptimize.class,cmd)) {
+case NULL:
+return new Optimize();
+case ALL:
+return new OptimizeAll();
+}
+break;
 case EXPORT:
 return new Export(string(cmd));
 case XQUERY:
