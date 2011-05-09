@@ -6,6 +6,7 @@
     if (threadID != thread)     return true;
   }
   cursor(CURSORWAIT);
+  boolean ok=true;
   try {
     final Performance perf=new Performance();
     if (gprop.is(GUIProp.FILTERRT) && context.current != null && !context.root()) {
@@ -18,7 +19,6 @@
     final boolean up=c.updating(context);
     updating=up;
     if (main && query.visible())     query.reset();
-    boolean ok=true;
     String inf=null;
     try {
       c.execute(context,ao);
@@ -27,10 +27,6 @@
  catch (    final BaseXException ex) {
       ok=false;
       inf=ex.getMessage();
-      if (!ok && inf.equals(PROGERR)) {
-        command=null;
-        return false;
-      }
     }
  finally {
       updating=false;
@@ -40,7 +36,7 @@
     info.reset();
     boolean feedback=main;
     if (!main && query.visible() && c instanceof XQuery) {
-      query.info(inf,ok);
+      query.info(inf.startsWith(PROGERR) ? PROGERR : inf,ok);
       feedback=true;
     }
     if (!ok) {
@@ -49,7 +45,7 @@
  else {
       final Result result=c.result();
       final Nodes nodes=result instanceof Nodes && ((Nodes)result).size() != 0 ? (Nodes)result : null;
-      if (ok && nodes == null) {
+      if (nodes == null) {
         if (!text.visible())         GUICommands.SHOWTEXT.execute(this);
         text.setText(ao,c);
       }
@@ -92,5 +88,5 @@
   }
   cursor(CURSORARROW,true);
   command=null;
-  return true;
+  return ok;
 }
