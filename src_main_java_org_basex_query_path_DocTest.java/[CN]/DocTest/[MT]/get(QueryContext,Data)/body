@@ -1,6 +1,10 @@
 {
   if (data.single())   return Test.DOC;
-  if (ctx.value instanceof DBNodeSeq)   return new DocTest(new Nodes(((DBNodeSeq)ctx.value).pres,data));
+  if (ctx.value instanceof DBNodeSeq) {
+    final DBNodeSeq seq=(DBNodeSeq)ctx.value;
+    if (seq.complete)     return Test.DOC;
+    return new DocTest(new Nodes(seq.pres,data));
+  }
   final IntList il=new IntList((int)ctx.value.size());
   final ValueIter ir=ctx.value.iter();
   for (Item it; (it=ir.next()) != null; )   il.add(((DBNode)it).pre);
