@@ -7,11 +7,15 @@
     Performance.sleep(1000);
     return;
   }
-  log=new Log(context,quiet);
-  log.write(SERVERSTART);
-  stop=stopFile(port);
   try {
+    if (commands != null) {
+      final Boolean b=execute(commands);
+      check(b == null || b);
+    }
+    log=new Log(context,quiet);
+    log.write(SERVERSTART);
     server=new ServerSocket(port);
+    stop=stopFile(port);
     Runtime.getRuntime().addShutdownHook(new Thread(){
       @Override public void run(){
         log.write(SERVERSTOPPED);
@@ -23,14 +27,10 @@
     new Thread(this).start();
     while (!running)     Performance.sleep(100);
     Util.outln(CONSOLE + (console ? CONSOLE2 : SERVERSTART),SERVERMODE);
-    if (commands != null) {
-      final Boolean b=execute(commands);
-      check(b == null || b);
-    }
     if (console)     quit(console());
   }
  catch (  final Exception ex) {
-    log.write(ex.getMessage());
+    if (log != null)     log.write(ex.getMessage());
     Util.errln(Util.server(ex));
     check(false);
   }
