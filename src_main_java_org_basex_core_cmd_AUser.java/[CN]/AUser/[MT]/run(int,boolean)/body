@@ -1,0 +1,23 @@
+{
+  final String u=args[off];
+  final String d=off + 1 < args.length ? args[off + 1] : null;
+  if (!validName(u,true))   return error(NAMEINVALID,u);
+  if (d != null && !validName(d,true))   return error(NAMEINVALID,d);
+  final String[] users=users(u);
+  if (users.length == 0)   return info(USERNO,u) && opt;
+  String[] dbs=null;
+  if (d != null) {
+    dbs=databases(d);
+    if (dbs.length == 0)     return info(DBNOTFOUND,d) && opt;
+  }
+  boolean ok=true;
+  for (  final String user : users) {
+    if (dbs == null) {
+      ok&=run(user,null);
+    }
+ else {
+      for (      final String db : dbs)       ok&=run(user,db);
+    }
+  }
+  return ok;
+}

@@ -57,13 +57,13 @@ case DROP:
 switch (consume(CmdDrop.class,cmd)) {
 case DATABASE:
 case DB:
-return new DropDB(name(cmd));
+return new DropDB(glob(cmd));
 case INDEX:
 return new DropIndex(consume(CmdIndex.class,cmd));
 case USER:
-return new DropUser(name(cmd),key(ON,null) ? name(cmd) : null);
+return new DropUser(glob(cmd),key(ON,null) ? glob(cmd) : null);
 case BACKUP:
-return new DropBackup(name(cmd));
+return new DropBackup(glob(cmd));
 }
 break;
 case OPTIMIZE:
@@ -108,9 +108,9 @@ return new Help(hc,form);
 case EXIT:
 return new Exit();
 case KILL:
-return new Kill(name(cmd));
+return new Kill(glob(cmd));
 case BACKUP:
-return new Backup(name(cmd));
+return new Backup(glob(cmd));
 case RESTORE:
 return new Restore(name(cmd));
 case SHOW:
@@ -129,9 +129,9 @@ break;
 case GRANT:
 final CmdPerm perm=consume(CmdPerm.class,cmd);
 if (perm == null) throw help(null,cmd);
-final String db=key(ON,null) ? name(cmd) : null;
+final String db=key(ON,null) ? glob(cmd) : null;
 key(TO,cmd);
-return db == null ? new Grant(perm,name(cmd)) : new Grant(perm,name(cmd),db);
+return new Grant(perm,glob(cmd),db);
 default :
 }
 return null;
