@@ -5,8 +5,11 @@
     XMLReader r=src.getXMLReader();
     if (r == null) {
       final SAXParserFactory f=SAXParserFactory.newInstance();
+      f.setFeature(EXTDTD,prop.is(Prop.DTD));
+      f.setFeature("http://xml.org/sax/features/use-entity-resolver2",false);
       f.setNamespaceAware(true);
       f.setValidating(false);
+      f.setXIncludeAware(true);
       r=f.newSAXParser().getXMLReader();
     }
     sax=new SAXHandler(builder);
@@ -14,7 +17,7 @@
     if (!cat.isEmpty())     CatalogResolverWrapper.set(r,cat);
     r.setDTDHandler(sax);
     r.setContentHandler(sax);
-    r.setProperty("http://xml.org/sax/properties/lexical-handler",sax);
+    r.setProperty(LEXHANDLER,sax);
     r.setErrorHandler(sax);
     if (is != null)     r.parse(is);
  else     r.parse(src.getSystemId());

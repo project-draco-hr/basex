@@ -3,11 +3,19 @@
   final IO root=IO.get(target);
   if (!(root instanceof IOFile))   throw new IOException(Util.info(DBNOTEXPORTED,target));
   if (!root.exists())   root.md();
+  final HashSet<String> exported=new HashSet<String>();
   for (  final int pre : data.doc()) {
     final IO file=root.merge(Token.string(data.text(pre,true)));
     final IO dir=IO.get(file.dir());
     if (!dir.exists())     dir.md();
-    final PrintOutput po=new PrintOutput(file.path());
+    final String fp=file.path();
+    String path=fp;
+    int c=1;
+    while (exported.contains(path)) {
+      path=fp.indexOf('.') == -1 ? fp + '(' + ++c+ ')' : fp.replaceAll("(.*)\\.(.*)","$1(" + ++c + ").$2");
+    }
+    exported.add(fp);
+    final PrintOutput po=new PrintOutput(path);
     final XMLSerializer xml=new XMLSerializer(po,sp);
     xml.node(data,pre);
     xml.close();

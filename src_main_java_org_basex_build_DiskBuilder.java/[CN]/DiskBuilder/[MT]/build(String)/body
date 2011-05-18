@@ -2,10 +2,10 @@
   DropDB.drop(name,prop);
   prop.dbpath(name).mkdirs();
   meta=new MetaData(name,prop);
-  meta.path=parser.file;
-  meta.filesize=meta.path.length();
-  meta.time=meta.path.date();
-  if (meta.time == 0)   meta.time=System.currentTimeMillis();
+  final IO file=parser.file;
+  meta.path=file != null ? file.path() : "";
+  meta.filesize=file != null ? file.length() : 0;
+  meta.time=file != null ? file.date() : System.currentTimeMillis();
   final Runtime rt=Runtime.getRuntime();
   int bs=(int)Math.min(meta.filesize,Math.min(1 << 22,rt.maxMemory() - rt.freeMemory() >> 2));
   bs=Math.max(IO.BLOCKSIZE,bs - bs % IO.BLOCKSIZE);

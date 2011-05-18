@@ -2,13 +2,15 @@
 switch (cmd) {
 case CREATE:
 switch (consume(CmdCreate.class,cmd)) {
+case BACKUP:
+      return new CreateBackup(glob(cmd));
 case DATABASE:
 case DB:
-      return new CreateDB(name(cmd),s ? remaining(null) : string(null));
+    return new CreateDB(name(cmd),s ? remaining(null) : string(null));
 case INDEX:
-    return new CreateIndex(consume(CmdIndex.class,cmd));
+  return new CreateIndex(consume(CmdIndex.class,cmd));
 case USER:
-  return new CreateUser(name(cmd),string(null));
+return new CreateUser(name(cmd),string(null));
 }
 break;
 case COPY:
@@ -57,17 +59,23 @@ case DROP:
 switch (consume(CmdDrop.class,cmd)) {
 case DATABASE:
 case DB:
-return new DropDB(name(cmd));
+return new DropDB(glob(cmd));
 case INDEX:
 return new DropIndex(consume(CmdIndex.class,cmd));
 case USER:
-return new DropUser(name(cmd),key(ON,null) ? name(cmd) : null);
+return new DropUser(glob(cmd),key(ON,null) ? glob(cmd) : null);
 case BACKUP:
-return new DropBackup(name(cmd));
+return new DropBackup(glob(cmd));
 }
 break;
 case OPTIMIZE:
-return key(ALL,null) ? new OptimizeAll() : new Optimize();
+switch (consume(CmdOptimize.class,cmd)) {
+case NULL:
+return new Optimize();
+case ALL:
+return new OptimizeAll();
+}
+break;
 case EXPORT:
 return new Export(string(cmd));
 case XQUERY:
@@ -102,9 +110,7 @@ return new Help(hc,form);
 case EXIT:
 return new Exit();
 case KILL:
-return new Kill(name(cmd));
-case BACKUP:
-return new Backup(name(cmd));
+return new Kill(glob(cmd));
 case RESTORE:
 return new Restore(name(cmd));
 case SHOW:
@@ -123,9 +129,9 @@ break;
 case GRANT:
 final CmdPerm perm=consume(CmdPerm.class,cmd);
 if (perm == null) throw help(null,cmd);
-final String db=key(ON,null) ? name(cmd) : null;
+final String db=key(ON,null) ? glob(cmd) : null;
 key(TO,cmd);
-return db == null ? new Grant(perm,name(cmd)) : new Grant(perm,name(cmd),db);
+return new Grant(perm,glob(cmd),db);
 case REPO:
 switch (consume(CmdRepo.class,cmd)) {
 case INSTALL:
