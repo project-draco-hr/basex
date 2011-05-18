@@ -2,13 +2,15 @@
 switch (cmd) {
 case CREATE:
 switch (consume(CmdCreate.class,cmd)) {
+case BACKUP:
+      return new CreateBackup(glob(cmd));
 case DATABASE:
 case DB:
-      return new CreateDB(name(cmd),s ? remaining(null) : string(null));
+    return new CreateDB(name(cmd),s ? remaining(null) : string(null));
 case INDEX:
-    return new CreateIndex(consume(CmdIndex.class,cmd));
+  return new CreateIndex(consume(CmdIndex.class,cmd));
 case USER:
-  return new CreateUser(name(cmd),string(null));
+return new CreateUser(name(cmd),string(null));
 }
 break;
 case COPY:
@@ -109,8 +111,6 @@ case EXIT:
 return new Exit();
 case KILL:
 return new Kill(glob(cmd));
-case BACKUP:
-return new Backup(glob(cmd));
 case RESTORE:
 return new Restore(name(cmd));
 case SHOW:
