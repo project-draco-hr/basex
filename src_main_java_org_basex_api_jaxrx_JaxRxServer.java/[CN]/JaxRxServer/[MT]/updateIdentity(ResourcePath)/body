@@ -8,7 +8,11 @@
       if (values[0].equalsIgnoreCase("basic")) {
         final String[] cred=Base64.decode(values[1]).split(":",2);
         if (cred.length < 2) {
-          throw new JaxRxException(401,"No password specified.");
+          final ResponseBuilder rb=new ResponseBuilderImpl();
+          rb.header(HttpHeaders.WWW_AUTHENTICATE,"Basic ");
+          rb.status(401);
+          rb.entity("No password specified.");
+          throw new JaxRxException(rb.build());
         }
         return cred;
       }
