@@ -1,0 +1,16 @@
+{
+  for (int i=1; i < EVENT_COUNT; i++) {
+    cs.execute("create event " + EVENT_NAME + i);
+  }
+  String events=cs.execute("show events");
+  String[] eventNames=events.split("\\r?\\n");
+  Arrays.sort(eventNames);
+  for (int i=1; i < EVENT_COUNT; i++) {
+    assertEquals(EVENT_NAME + i,eventNames[i]);
+  }
+  for (int i=1; i < EVENT_COUNT; i++) {
+    cs.execute("drop event " + EVENT_NAME + i);
+  }
+  events=cs.execute("show events");
+  assertEquals("0",events.substring(0,1));
+}

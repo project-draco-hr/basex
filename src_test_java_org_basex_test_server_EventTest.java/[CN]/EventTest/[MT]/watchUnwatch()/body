@@ -1,0 +1,60 @@
+{
+  try {
+    cs.execute("create event " + EVENT_NAME);
+  }
+ catch (  BaseXException e) {
+    fail(e.getMessage());
+  }
+  try {
+    cs.execute("create event " + EVENT_NAME);
+    fail("This was supposed to fail.");
+  }
+ catch (  BaseXException e) {
+  }
+  try {
+    for (int i=ccs.length / 2; i < ccs.length; i++) {
+      ccs[i].watchEvent(EVENT_NAME,new EventNotification(){
+        @Override public void update(        final String data){
+        }
+      }
+);
+    }
+  }
+ catch (  BaseXException e) {
+    fail(e.getMessage());
+  }
+  try {
+    for (int i=ccs.length / 2; i < ccs.length; i++) {
+      ccs[i].watchEvent(EVENT_NAME + 1,new EventNotification(){
+        @Override public void update(        final String data){
+        }
+      }
+);
+      fail("This was supposed to fail.");
+    }
+  }
+ catch (  BaseXException e) {
+  }
+  try {
+    for (int i=ccs.length / 2; i < ccs.length; i++) {
+      ccs[i].unwatchEvent(EVENT_NAME);
+    }
+  }
+ catch (  BaseXException e) {
+    fail(e.getMessage());
+  }
+  try {
+    for (int i=ccs.length / 2; i < ccs.length; i++) {
+      ccs[i].unwatchEvent(EVENT_NAME + 1);
+      fail("This was supposed to fail.");
+    }
+  }
+ catch (  BaseXException e) {
+  }
+  try {
+    cs.execute("drop event " + EVENT_NAME);
+  }
+ catch (  BaseXException e) {
+    fail(e.getMessage());
+  }
+}
