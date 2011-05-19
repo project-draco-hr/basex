@@ -1,0 +1,25 @@
+{
+  if (user.equals(ADMIN))   return !info(USERADMIN);
+  if (db == null) {
+    context.users.get(user).perm=prm;
+    context.users.write();
+    return info(GRANT,args[0],user);
+  }
+  try {
+    final Data data=Open.open(db,context);
+    User u=data.meta.users.get(user);
+    if (u == null) {
+      u=context.users.get(user).copy();
+      data.meta.users.add(u);
+    }
+    u.perm=prm;
+    data.flush();
+    Close.close(data,context);
+    return info(GRANTON,args[0],user,db);
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    final String msg=ex.getMessage();
+    return !info(msg.isEmpty() ? DBOPENERR : msg,db);
+  }
+}

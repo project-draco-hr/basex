@@ -7,27 +7,12 @@
   boolean ok=true;
   for (  final String file : files) {
     of++;
-    FileChannel sc=null;
-    FileChannel dc=null;
     try {
-      sc=new FileInputStream(new File(src,file)).getChannel();
-      dc=new FileOutputStream(new File(trg,file)).getChannel();
-      dc.transferFrom(sc,0,sc.size());
+      copy(new File(src,file),new File(trg,file));
     }
  catch (    final IOException ex) {
       ok=false;
-    }
- finally {
-      if (sc != null)       try {
-        sc.close();
-      }
- catch (      final IOException ex) {
-      }
-      if (dc != null)       try {
-        dc.close();
-      }
- catch (      final IOException ex) {
-      }
+      break;
     }
   }
   if (!ok)   DropDB.drop(newdb,pr);

@@ -1,8 +1,21 @@
 {
-  final String db=args[0];
-  if (!validName(db))   return error(NAMEINVALID,db);
-  if (!prop.dbexists(db))   return info(DBNOTDROPPED,db);
-  close(db);
-  if (context.pinned(db))   return error(DBLOCKED,db);
-  return drop(db,prop) ? info(DBDROPPED,db) : error(DBDROPERROR,db);
+  if (!validName(args[0],true))   return error(NAMEINVALID,args[0]);
+  final String[] dbs=databases(args[0]);
+  if (dbs.length == 0)   return info(DBNOTDROPPED,args[0]);
+  boolean ok=true;
+  for (  final String db : dbs) {
+    close(db);
+    if (context.pinned(db)) {
+      info(DBLOCKED,db);
+      ok=false;
+    }
+ else     if (!drop(db,prop)) {
+      info(DBDROPERROR,db);
+      ok=false;
+    }
+ else {
+      info(DBDROPPED,db);
+    }
+  }
+  return ok;
 }

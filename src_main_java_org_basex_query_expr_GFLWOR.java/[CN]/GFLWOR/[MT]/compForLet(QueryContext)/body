@@ -1,25 +1,19 @@
 {
-  boolean m=false;
+  int m=0;
   for (int i=1; i < fl.length; i++) {
-    final ForLet cls=fl[i];
-    if (cls instanceof Let && !cls.uses(Use.CTX) && !cls.uses(Use.CNS)) {
-      final Let let=(Let)cls;
-      int fpos=-1;
-      for (int j=i; j-- != 0; ) {
-        final ForLet o=fl[j];
-        if (let.count(o.var) != 0)         break;
-        if (o instanceof For) {
-          final For fr=(For)o;
-          if (fr.pos != null && let.count(fr.pos) != 0 || fr.score != null && let.count(fr.score) != 0)           break;
-          fpos=j;
-        }
-      }
-      if (fpos != -1) {
-        Array.move(fl,fpos,1,i - fpos);
-        fl[fpos]=let;
-        m=true;
-      }
+    final ForLet out=fl[i];
+    if (out.size() != 1 || out.uses(Use.CTX) || out.uses(Use.CNS))     continue;
+    int p=-1;
+    for (int j=i; j-- != 0; ) {
+      final ForLet in=fl[j];
+      if (out.count(in.var) != 0)       break;
+      if (in.size() <= 1)       continue;
+      if (!in.simple(false))       break;
+      p=j;
     }
+    if (p == -1)     continue;
+    Array.move(fl,p,1,i - p);
+    fl[p]=out;
+    if (m++ == 0)     ctx.compInfo(OPTFORLET);
   }
-  if (m)   ctx.compInfo(OPTFORLET);
 }
