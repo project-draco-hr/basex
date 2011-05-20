@@ -3,20 +3,20 @@
     sout.write(10);
     send(name);
     final BufferInput bi=new BufferInput(sin);
-    if (tsocket == null) {
-      this.tn=new HashMap<String,EventNotification>();
-      tsocket=new Socket();
-      tsocket.connect(new InetSocketAddress(thost,tport),5000);
+    if (esocket == null) {
+      this.en=new HashMap<String,EventNotification>();
+      esocket=new Socket();
+      esocket.connect(new InetSocketAddress(ehost,eport),5000);
       String id=bi.readString();
-      PrintOutput tout=PrintOutput.get(tsocket.getOutputStream());
+      PrintOutput tout=PrintOutput.get(esocket.getOutputStream());
       tout.print(id);
       tout.write(0);
       tout.flush();
-      startListener(tsocket.getInputStream());
+      startListener(esocket.getInputStream());
     }
     info=bi.readString();
     if (!ok(bi))     throw new IOException(info);
-    tn.put(name,notification);
+    en.put(name,notification);
   }
  catch (  IOException e) {
     throw new BaseXException(e);
