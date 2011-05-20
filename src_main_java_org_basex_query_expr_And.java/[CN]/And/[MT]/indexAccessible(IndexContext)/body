@@ -4,19 +4,20 @@
   boolean ia=true;
   for (int e=0; e < expr.length; ++e) {
     if (expr[e].indexAccessible(ic) && !ic.seq) {
-      if (ic.costs == 0)       return true;
-      ics[e]=ic.costs;
-      is+=ic.costs;
+      if (ic.costs() == 0)       return true;
+      ics[e]=ic.costs();
+      if (is == 0 || ic.costs() < is)       is=ic.costs();
     }
  else {
       ia=false;
     }
   }
   if (ia) {
-    final int[] ord=Array.createOrder(ics,false);
+    final int[] ord=Array.createOrder(ics,true);
     final Expr[] ex=new Expr[ics.length];
     for (int e=0; e < expr.length; ++e)     ex[e]=expr[ord[e]];
     expr=ex;
   }
+  ic.costs(is);
   return ia;
 }
