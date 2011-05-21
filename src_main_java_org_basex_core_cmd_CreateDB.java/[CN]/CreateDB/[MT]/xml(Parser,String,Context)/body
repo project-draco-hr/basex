@@ -1,12 +1,13 @@
 {
-  if (ctx.prop.is(Prop.MAINMEM))   return MemBuilder.build(parser,ctx.prop,name);
+  final Prop prop=ctx.prop;
+  if (prop.is(Prop.MAINMEM))   return MemBuilder.build(parser,prop,name);
   if (ctx.pinned(name))   throw new IOException(Util.info(DBLOCKED,name));
-  final Builder builder=new DiskBuilder(parser,ctx.prop);
+  final Builder builder=new DiskBuilder(parser,prop);
   try {
     final Data data=builder.build(name);
-    if (data.meta.textindex)     data.setIndex(IndexType.TEXT,new ValueBuilder(data,true).build());
-    if (data.meta.attrindex)     data.setIndex(IndexType.ATTRIBUTE,new ValueBuilder(data,false).build());
-    if (data.meta.ftindex)     data.setIndex(IndexType.FULLTEXT,FTBuilder.get(data).build());
+    if (prop.is(Prop.TEXTINDEX))     data.setIndex(IndexType.TEXT,new ValueBuilder(data,true).build());
+    if (prop.is(Prop.ATTRINDEX))     data.setIndex(IndexType.ATTRIBUTE,new ValueBuilder(data,false).build());
+    if (prop.is(Prop.FTINDEX))     data.setIndex(IndexType.FULLTEXT,FTBuilder.get(data).build());
     data.close();
   }
   finally {

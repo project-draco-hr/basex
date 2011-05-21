@@ -4,9 +4,8 @@
   final boolean wc=fto.is(WC);
   if (wc && !md.wildcards)   return false;
   if (fto.isSet(CS) && md.casesens != fto.is(CS) || fto.isSet(DC) && md.diacritics != fto.is(DC) || fto.isSet(ST) && md.stemming != fto.is(ST) || fto.ln != null && md.language != fto.ln || occ != null)   return false;
-  if (txt == null)   return false;
-  if (txt.size() == 0) {
-    ic.costs=0;
+  if (txt == null) {
+    ic.costs(Math.max(1,ic.data.meta.size / 20));
     return true;
   }
   fto.set(CS,md.casesens);
@@ -14,12 +13,11 @@
   fto.set(ST,md.stemming);
   fto.ln=md.language;
   final FTLexer ft=new FTLexer(fto);
-  ic.costs=0;
+  ic.costs(0);
   for (  byte[] t : txt) {
     ft.init(t);
     while (ft.hasNext()) {
       final byte[] tok=ft.nextToken();
-      if (tok.length > MAXLEN)       return false;
       if (fto.sw != null && fto.sw.id(tok) != 0)       continue;
       if (wc) {
         t=ft.get();
@@ -29,7 +27,7 @@
           if (w == '{' || w == '\\' || w == '.' && ++d > 1)           return false;
         }
       }
-      ic.costs+=ic.data.nrIDs(ft) + 3 >> 2;
+      ic.addCosts(Math.max(1,ic.data.nrIDs(ft) >> 2));
     }
   }
   return true;

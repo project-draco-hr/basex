@@ -7,13 +7,13 @@
     /** 
  * Text length. 
  */
-    int tl;
-    @Override public FTNode next(){
+    int len;
+    @Override public FTNode next() throws QueryException {
       if (iat == null) {
         final FTLexer lex=new FTLexer(ftt.opt);
         FTIndexIterator ia=null;
         int t=0;
-        final TokenSet ts=tokens(txt,ftt.opt);
+        final TokenSet ts=tokens(txt != null ? txt : tokens(ctx),ftt.opt);
         for (        final byte[] k : ts) {
           lex.init(k);
           ia=null;
@@ -38,23 +38,23 @@
           }
  while (lex.hasNext());
           if (iat == null) {
-            tl=t;
+            len=t;
             iat=ia;
           }
  else           if (mode == FTMode.M_ALL || mode == FTMode.M_ALLWORDS) {
             if (ia.indexSize() == 0)             return null;
-            tl+=t;
+            len+=t;
             iat=FTIndexIterator.intersect(ia,iat,0);
           }
  else {
             if (ia.indexSize() == 0)             continue;
-            tl=Math.max(t,tl);
+            len=Math.max(t,len);
             iat=FTIndexIterator.union(ia,iat);
           }
           iat.tokenNum(++ctx.ftoknum);
         }
       }
-      return iat != null && iat.more() ? new FTNode(iat.matches(),data,iat.next(),tl,iat.indexSize(),iat.score()) : null;
+      return iat != null && iat.more() ? new FTNode(iat.matches(),data,iat.next(),len,iat.indexSize(),iat.score()) : null;
     }
   }
 ;

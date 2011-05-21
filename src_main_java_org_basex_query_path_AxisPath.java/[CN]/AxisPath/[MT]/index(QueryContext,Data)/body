@@ -9,7 +9,7 @@
     for (int p=0; p < stp.pred.length; ++p) {
       final IndexContext ic=new IndexContext(ctx,data,stp,d);
       if (!stp.pred[p].indexAccessible(ic))       continue;
-      if (ic.costs == 0) {
+      if (ic.costs() == 0) {
         if (ic.not) {
           stp.pred[p]=Bln.TRUE;
           continue;
@@ -17,14 +17,20 @@
         ctx.compInfo(OPTNOINDEX,this);
         return Empty.SEQ;
       }
-      if (ics == null || ics.costs > ic.costs) {
+      if (ics == null || ics.costs() > ic.costs()) {
         ics=ic;
         pmin=p;
         smin=s;
       }
     }
   }
-  if (ics == null)   return this;
+  if (ics == null || ics.costs() > data.meta.size) {
+    if (ics == null)     return this;
+    System.out.println(ics.costs() + "\n" + ctx.query);
+    System.out.println();
+    System.out.println();
+    return this;
+  }
   final AxisStep stp=step(smin);
   final Expr ie=stp.pred[pmin].indexEquivalent(ics);
   if (ics.seq) {
