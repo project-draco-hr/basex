@@ -1,0 +1,36 @@
+{
+  cs.execute("create event " + EVENT_NAME);
+  cs.execute("create event " + EVENT_NAME + 1);
+  for (int i=ccs.length / 2; i < ccs.length; i++) {
+    ccs[i].watch(EVENT_NAME,new EventNotification(){
+      @Override public void update(      final String data){
+        if (f) {
+          assertEquals(value,data);
+        }
+ else {
+          assertEquals("1",data);
+        }
+      }
+    }
+);
+    ccs[i].watch(EVENT_NAME + 1,new EventNotification(){
+      @Override public void update(      final String data){
+        if (f) {
+          assertEquals(value,data);
+        }
+ else {
+          assertEquals("1",data);
+        }
+      }
+    }
+);
+  }
+  Client c1=new Client(true,value);
+  Client c2=new Client(false,value);
+  c1.start();
+  c2.start();
+  c1.join();
+  c2.join();
+  cs.execute("drop event " + EVENT_NAME);
+  cs.execute("drop event " + EVENT_NAME + 1);
+}
