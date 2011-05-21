@@ -3,10 +3,6 @@
   final FTTokens qtok=ftt.cache(lex.get());
   return new FTIndexIterator(){
     int pre=-1;
-    int s;
-    @Override public double score(){
-      return -1;
-    }
     @Override public int next(){
       return pre;
     }
@@ -14,21 +10,23 @@
       while (++pre < data.meta.size) {
         if (data.kind(pre) != Data.TEXT)         continue;
         intok.init(data.text(pre,true));
-        all.reset(0);
+        matches.reset(0);
         try {
-          s=ftt.contains(qtok,intok);
-          if (s != 0)           return true;
+          if (ftt.contains(qtok,intok) != 0)           return true;
         }
  catch (        final QueryException ex) {
         }
       }
       return false;
     }
+    @Override public double score(){
+      return -1;
+    }
     @Override public FTMatches matches(){
-      return all;
+      return matches;
     }
     @Override public int indexSize(){
-      return s;
+      return 1;
     }
   }
 ;

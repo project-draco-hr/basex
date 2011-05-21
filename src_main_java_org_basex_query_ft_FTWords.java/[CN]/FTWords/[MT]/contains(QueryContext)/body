@@ -11,17 +11,17 @@
   }
   final TokenList tl=tokens(ctx);
   final TokenSet ts=tokens(tl,intok.ftOpt());
-  final boolean a=mode == FTMode.M_ALL || mode == FTMode.M_ALLWORDS;
+  final boolean all=mode == FTMode.M_ALL || mode == FTMode.M_ALLWORDS;
   int oc=0;
   for (  final byte[] k : ts) {
     final FTTokens qtok=ftt.cache(k);
     final int o=ftt.contains(qtok,intok);
-    if (a && o == 0)     return 0;
+    if (all && o == 0)     return 0;
     num=Math.max(num,o * qtok.length());
     oc+=o;
   }
   final long mn=occ != null ? checkItr(occ[0],ctx) : 1;
   final long mx=occ != null ? checkItr(occ[1],ctx) : Long.MAX_VALUE;
-  if (mn == 0 && oc == 0)   all=FTNot.not(all);
+  if (mn == 0 && oc == 0)   matches=FTNot.not(matches);
   return oc >= mn && oc <= mx ? Math.max(1,num) : 0;
 }
