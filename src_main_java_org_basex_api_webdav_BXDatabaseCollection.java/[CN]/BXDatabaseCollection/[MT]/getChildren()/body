@@ -1,0 +1,36 @@
+{
+  final List<BXResource> dbs=new ArrayList<BXResource>();
+  try {
+    new Open(collname).execute(ctx);
+    final TokenObjMap<IntList> dirs=new TokenObjMap<IntList>();
+    byte[] doc;
+    for (    int pre : ctx.doc()) {
+      doc=ctx.data.text(pre,true);
+      int idx=indexOf(doc,token(Prop.DIRSEP));
+      if (idx > 0) {
+        byte[] dir=substring(doc,0,idx);
+        if (dirs.get(dir) == null) {
+          IntList l=new IntList();
+          l.add(pre);
+          dirs.add(dir,l);
+        }
+ else {
+          dirs.get(dir).add(pre);
+        }
+      }
+ else {
+        dbs.add(new BXDatabaseResource(string(doc)));
+      }
+    }
+    final Iterator<byte[]> dirsIt=dirs.iterator();
+    byte[] dirName;
+    while (dirsIt.hasNext()) {
+      dirName=dirsIt.next();
+      dbs.add(new BXFolder(collname,dirs.get(dirName).toArray(),string(dirName)));
+    }
+  }
+ catch (  BaseXException e) {
+    e.printStackTrace();
+  }
+  return dbs;
+}
