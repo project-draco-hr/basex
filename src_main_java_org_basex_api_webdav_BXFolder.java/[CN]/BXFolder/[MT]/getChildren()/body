@@ -1,33 +1,21 @@
 {
   final List<BXResource> dbs=new ArrayList<BXResource>();
+  final TokenObjMap<IntList> dirs=new TokenObjMap<IntList>();
   try {
     new Open(dbname).execute(ctx);
-    String doc;
-    final TokenObjMap<IntList> dirs=new TokenObjMap<IntList>();
-    for (    int pre : prevals) {
-      doc=string(ctx.data.text(pre,true));
-      String s=doc.substring(dirpath.length(),doc.length());
-      int idx=s.lastIndexOf(Prop.DIRSEP);
+    for (    final int pre : prevals) {
+      final String doc=string(ctx.data.text(pre,true));
+      final String s=doc.substring(dirpath.length(),doc.length());
+      final int idx=s.lastIndexOf(Prop.DIRSEP);
       if (idx == 0)       dbs.add(new BXDocument(dbname,dirpath.substring(1,dirpath.length()),ctx));
  else       if (idx > 0) {
-        String[] parts=s.split(Prop.DIRSEP);
-        byte[] dir=token(dirpath + Prop.DIRSEP + parts[0]);
-        if (dirs.get(dir) == null) {
-          IntList l=new IntList();
-          l.add(pre);
-          dirs.add(dir,l);
-        }
- else {
-          dirs.get(dir).add(pre);
-        }
+        final String[] parts=s.split(Prop.DIRSEP);
+        final byte[] dir=token(dirpath + Prop.DIRSEP + parts[0]);
+        if (dirs.get(dir) == null)         dirs.add(dir,new IntList());
+        dirs.get(dir).add(pre);
       }
     }
-    final Iterator<byte[]> dirsIt=dirs.iterator();
-    byte[] dirName;
-    while (dirsIt.hasNext()) {
-      dirName=dirsIt.next();
-      dbs.add(new BXFolder(dbname,dirs.get(dirName).toArray(),string(dirName),ctx));
-    }
+    for (    final byte[] d : dirs)     dbs.add(new BXFolder(dbname,dirs.get(d).toArray(),string(d),ctx));
     new Close().execute(ctx);
   }
  catch (  BaseXException e) {
