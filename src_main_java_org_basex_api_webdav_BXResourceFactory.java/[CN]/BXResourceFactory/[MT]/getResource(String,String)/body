@@ -1,8 +1,12 @@
 {
   final Path path=Path.path(p);
   if (path.isRoot())   return new BXAllDatabasesResource(ctx);
- else   if (path.getLength() == 1) {
-    return new BXDatabaseCollection(path.getFirst(),ctx);
+  final String[] steps=path.getParts();
+  final boolean dbexists=listDatabases(ctx).contains(steps[0]);
+  if (!dbexists)   return null;
+  if (steps.length == 1) {
+    final String db=steps[0];
+    return isCollection(ctx,db) ? new BXCollectionDatabaseResource(ctx,db) : new BXDocumentResource(ctx,db);
   }
   return null;
 }
