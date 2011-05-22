@@ -1,31 +1,6 @@
 {
   final List<BXResource> dbs=new ArrayList<BXResource>();
-  final StringList list=org.basex.core.cmd.List.list(ctx);
-  for (  final String db : list) {
-    try {
-      new Open(db).execute(ctx);
-      if (ctx.data.meta.ndocs > 1) {
-        dbs.add(new BXCollectionDatabase(db,ctx));
-      }
- else       if (ctx.data.meta.ndocs == 1) {
-        dbs.add(new BXDocumentDatabase(ctx,db));
-      }
-    }
- catch (    BaseXException e) {
-      try {
-        new Close().execute(ctx);
-      }
- catch (      BaseXException e1) {
-        e1.printStackTrace();
-      }
-      e.printStackTrace();
-    }
-  }
-  try {
-    new Close().execute(ctx);
-  }
- catch (  BaseXException e) {
-    e.printStackTrace();
-  }
+  final StringList list=listDatabases(ctx);
+  for (  final String db : list)   dbs.add(isCollection(ctx,db) ? new BXCollectionDatabase(db,ctx) : new BXDocumentDatabase(ctx,db));
   return dbs;
 }
