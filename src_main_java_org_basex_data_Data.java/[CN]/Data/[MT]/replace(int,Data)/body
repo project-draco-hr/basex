@@ -1,31 +1,32 @@
 {
+  meta.update();
   final boolean rAtt=kind(rpre) == ATTR;
-  final int dsize=d.meta.size;
+  final int dsize=data.meta.size;
   buffer(dsize);
   int dpre=-1;
   final int rkind=kind(rpre);
   while (++dpre != dsize) {
-    final int dkind=d.kind(dpre);
-    final int dpar=d.parent(dpre,dkind);
+    final int dkind=data.kind(dpre);
+    final int dpar=data.parent(dpre,dkind);
     final int pre=rpre + dpre;
     final int dis=dpar >= 0 ? dpre - dpar : pre - parent(rpre,rkind);
 switch (dkind) {
 case DOC:
-      doc(pre,d.size(dpre,dkind),d.text(dpre,true));
+      doc(pre,data.size(dpre,dkind),data.text(dpre,true));
     meta.ndocs++;
   break;
 case ELEM:
-byte[] nm=d.name(dpre,dkind);
-elem(dis,tags.index(nm,null,false),d.attSize(dpre,dkind),d.size(dpre,dkind),ns.uri(nm,true),false);
+byte[] nm=data.name(dpre,dkind);
+elem(dis,tags.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),ns.uri(nm,true),false);
 break;
 case TEXT:
 case COMM:
 case PI:
-text(pre,dis,d.text(dpre,true),dkind);
+text(pre,dis,data.text(dpre,true),dkind);
 break;
 case ATTR:
-nm=d.name(dpre,dkind);
-attr(pre,dis,atts.index(nm,null,false),d.text(dpre,false),ns.uri(nm,false),false);
+nm=data.name(dpre,dkind);
+attr(pre,dis,atts.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
 break;
 }
 }
@@ -45,6 +46,6 @@ updateDist(rpre + dsize,diff);
 if (!rAtt) return;
 int dAtt=0;
 int i=0;
-while (i < dsize && d.kind(i++) == ATTR) dAtt++;
+while (i < dsize && data.kind(i++) == ATTR) dAtt++;
 if (dAtt > 1) attSize(rpar,kind(rpar),dAtt + 1);
 }
