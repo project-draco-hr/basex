@@ -1,0 +1,25 @@
+{
+  final String prefix=path.substring(root.length() + 2,path.length());
+  try {
+    new Open(root).execute(ctx);
+    final IntList pres=new IntList();
+    String doc;
+    for (    int pre : ctx.data.doc()) {
+      doc=string(ctx.data.text(pre,true));
+      if (doc.startsWith(prefix)) {
+        if (doc.equals(prefix)) {
+          String db=doc.substring(doc.lastIndexOf(Prop.DIRSEP) + 1,doc.length());
+          new Close().execute(ctx);
+          return new BXDocument(db,prefix,ctx);
+        }
+        pres.add(pre);
+      }
+    }
+    new Close().execute(ctx);
+    return new BXFolder(root,pres.toArray(),prefix,ctx);
+  }
+ catch (  BaseXException e) {
+    e.printStackTrace();
+    return null;
+  }
+}
