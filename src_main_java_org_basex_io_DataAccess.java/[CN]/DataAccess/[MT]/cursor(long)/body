@@ -1,17 +1,15 @@
 {
   off=(int)(p & IO.BLOCKSIZE - 1);
-  final boolean ch=bm.cursor(p - off);
+  final long b=p - off;
+  if (!bm.cursor(b))   return;
   final Buffer bf=bm.current();
-  if (ch) {
-    try {
-      if (bf.dirty)       writeBlock(bf);
-      bf.pos=p - off;
-      file.seek(bf.pos);
-      file.readFully(bf.data,0,(int)Math.min(len - bf.pos,IO.BLOCKSIZE));
-    }
- catch (    final IOException ex) {
-      Util.stack(ex);
-    }
+  try {
+    if (bf.dirty)     writeBlock(bf);
+    file.seek(b);
+    file.readFully(bf.data,0,(int)Math.min(len - b,IO.BLOCKSIZE));
+    bf.pos=b;
   }
-  return bf;
+ catch (  final IOException ex) {
+    Util.stack(ex);
+  }
 }

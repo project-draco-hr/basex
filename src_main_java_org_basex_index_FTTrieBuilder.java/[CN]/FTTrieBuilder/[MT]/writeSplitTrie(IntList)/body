@@ -1,7 +1,8 @@
 {
-  final DataOutput outA=new DataOutput(data.meta.file(DATAFTX + 'a'));
-  final DataOutput outC=new DataOutput(data.meta.file(DATAFTX + 'c'));
-  final DataAccess outT=new DataAccess(data.meta.file(DATAFTX + 't'));
+  final MetaData md=data.meta;
+  final DataOutput outA=new DataOutput(md.file(DATAFTX + 'a'));
+  final DataOutput outC=new DataOutput(md.file(DATAFTX + 'c'));
+  final DataAccess outT=new DataAccess(md.file(DATAFTX + 't'));
   final int[] root=new int[roots.size()];
   int rp=0;
   outA.write1(1);
@@ -31,12 +32,12 @@
   outA.close();
   outC.write4(0);
   outC.close();
-  final RandomAccessFile tmp=new RandomAccessFile(data.meta.file(DATAFTX + 'a'),"rw");
-  tmp.seek(2);
+  final DataAccess tmp=new DataAccess(md.file(DATAFTX + 'a'));
+  long c=2;
   for (  final int r : root) {
-    tmp.writeInt(r);
-    tmp.seek(tmp.getFilePointer() + 1);
+    tmp.writeInt(c,r);
+    c+=5;
   }
   tmp.close();
-  DropDB.drop(data.meta.name,DATAFTX + 't' + IO.BASEXSUFFIX,data.meta.prop);
+  DropDB.drop(md.name,DATAFTX + 't' + IO.BASEXSUFFIX,md.prop);
 }

@@ -1,13 +1,12 @@
 {
   if (dirty && pref != null) {
     DataOutput out=new DataOutput(meta.file(pref + 'i'));
-    final int ent=TableDiskAccess.ENTRIES;
-    final int blocks=(meta.size + ent - 1) / ent;
+    final int blocks=(meta.size + IO.ENTRIES - 1) / IO.ENTRIES;
     out.writeNum(blocks);
     out.writeNum(blocks);
     out.writeNum(meta.size);
     final int[] array=new int[blocks];
-    for (int b=0, c=0; b < blocks; ++b, c+=ent)     array[b]=c;
+    for (int b=0, c=0; b < blocks; ++b, c+=IO.ENTRIES)     array[b]=c;
     out.writeNums(array);
     for (int b=0; b < blocks; ++b)     array[b]=b;
     out.writeNums(array);

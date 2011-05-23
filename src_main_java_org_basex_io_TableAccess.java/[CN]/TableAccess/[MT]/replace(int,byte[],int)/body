@@ -1,0 +1,16 @@
+{
+  dirty=true;
+  final int nsize=entries.length >>> IO.NODEPOWER;
+  final int diff=sub - nsize;
+  final int last=diff <= 0 ? pre + nsize - Math.abs(diff) : pre + nsize;
+  copy(entries,pre,last);
+  final int off=last - pre << IO.NODEPOWER;
+  if (diff < 0) {
+    final byte[] tmp=new byte[entries.length - off];
+    System.arraycopy(entries,off,tmp,0,tmp.length);
+    insert(last,tmp);
+  }
+ else   if (diff > 0) {
+    delete(last,diff);
+  }
+}
