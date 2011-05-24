@@ -1,9 +1,11 @@
 {
+  if (nr == 0)   return;
   dirty=true;
-  cursor(first);
-  int from=first - fpre;
-  final int last=first + nr;
+  cursor(pre);
+  int from=pre - fpre;
+  final int last=pre + nr;
   if (last - 1 < npre) {
+    final Buffer bf=bm.current();
     copy(bf.data,from + nr,bf.data,from,npre - last);
     updatePre(nr);
     if (npre == fpre) {
@@ -11,7 +13,7 @@
       Array.move(fpres,index + 1,-1,blocks - index - 1);
       Array.move(pages,index + 1,-1,blocks - index - 1);
       --blocks;
-      readBlock(index);
+      readIndex(index);
     }
     return;
   }
@@ -21,13 +23,14 @@
       ++unused;
       pagemap.clear(pages[index]);
     }
-    readBlock(index + 1);
+    readIndex(index + 1);
     from=0;
   }
+  final Buffer bf=bm.current();
   if (npre == last) {
     pagemap.clear((int)bf.pos);
     ++unused;
-    if (index < blocks - 1)     readBlock(index + 1);
+    if (index < blocks - 1)     readIndex(index + 1);
  else     ++index;
   }
  else {
@@ -39,7 +42,7 @@
     blocks-=unused;
     index-=unused;
   }
-  fpres[index]=first;
-  fpre=first;
+  fpres[index]=pre;
+  fpre=pre;
   updatePre(nr);
 }

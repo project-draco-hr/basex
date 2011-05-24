@@ -2,7 +2,7 @@
   meta.update();
   final int[] preStack=new int[IO.MAXHEIGHT];
   int l=0;
-  final int ms=md.meta.size;
+  final int ms=data.meta.size;
   final int buf=Math.min(ms,IO.BLOCKSIZE >> IO.NODEPOWER);
   buffer(buf);
   final TokenMap nsScope=new TokenMap();
@@ -19,8 +19,8 @@
   final Set<NSNode> newNodes=new HashSet<NSNode>();
   while (++mdpre != ms) {
     if (mdpre != 0 && mdpre % buf == 0)     insert(ipre + mdpre - buf);
-    final int mdk=md.kind(mdpre);
-    final int mdpar=md.parent(mdpre,mdk);
+    final int mdk=data.kind(mdpre);
+    final int mdpar=data.parent(mdpre,mdk);
     final int pre=ipre + mdpre;
     final int dis=mdpar >= 0 ? mdpre - mdpar : pre - ipar;
     final int par=pre - dis;
@@ -51,15 +51,15 @@
     while (l > 0 && preStack[l - 1] > par)     ns.close(preStack[--l]);
 switch (mdk) {
 case DOC:
-      doc(pre,md.size(mdpre,mdk),md.text(mdpre,true));
+      doc(pre,data.size(mdpre,mdk),data.text(mdpre,true));
     meta.ndocs++;
   ns.open();
 preStack[l++]=pre;
 break;
 case ELEM:
 boolean ne=false;
-if (md.nsFlag(mdpre)) {
-final Atts at=md.ns(mdpre);
+if (data.nsFlag(mdpre)) {
+final Atts at=data.ns(mdpre);
 for (int a=0; a < at.size; ++a) {
 final byte[] old=nsScope.get(at.key[a]);
 if (old == null || !eq(old,at.val[a])) {
@@ -69,22 +69,22 @@ ne=true;
 }
 }
 ns.open();
-byte[] nm=md.name(mdpre,mdk);
-elem(dis,tags.index(nm,null,false),md.attSize(mdpre,mdk),md.size(mdpre,mdk),ns.uri(nm,true),ne);
+byte[] nm=data.name(mdpre,mdk);
+elem(dis,tags.index(nm,null,false),data.attSize(mdpre,mdk),data.size(mdpre,mdk),ns.uri(nm,true),ne);
 preStack[l++]=pre;
 break;
 case TEXT:
 case COMM:
 case PI:
-text(pre,dis,md.text(mdpre,true),mdk);
+text(pre,dis,data.text(mdpre,true),mdk);
 break;
 case ATTR:
-nm=md.name(mdpre,mdk);
-if (md.nsFlag(mdpre)) {
-ns.add(par,l == 0 ? ipar : preStack[l - 1],pref(nm),md.ns.uri(md.uri(mdpre,mdk)));
+nm=data.name(mdpre,mdk);
+if (data.nsFlag(mdpre)) {
+ns.add(par,l == 0 ? ipar : preStack[l - 1],pref(nm),data.ns.uri(data.uri(mdpre,mdk)));
 table.write2(ipar,1,1 << 15 | name(ipar));
 }
-attr(pre,dis,atts.index(nm,null,false),md.text(mdpre,false),ns.uri(nm,false),false);
+attr(pre,dis,atts.index(nm,null,false),data.text(mdpre,false),ns.uri(nm,false),false);
 break;
 }
 }

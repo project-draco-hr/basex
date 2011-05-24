@@ -6,14 +6,15 @@
     XMLSerializer xml=qp.getSerializer(ao);
     qp.execute().serialize(xml);
     qp.close();
+    final String info=qp.info();
     if (result != null)     assertEquals(result,ao.toString().replaceAll("\\r?\\n",""));
     plan=new ArrayOutput();
     qp.plan(new XMLSerializer(plan));
-    qp=new QueryProcessor(plan + "//(IndexAccess|FTIndexAccess)",CONTEXT);
+    qp=new QueryProcessor(plan + "/descendant-or-self::*" + "[self::IndexAccess|self::FTIndexAccess]",CONTEXT);
     ao=new ArrayOutput();
     xml=qp.getSerializer(ao);
     qp.execute().serialize(xml);
-    assertTrue("No index used:\nQuery: " + query + "\nPlan: "+ plan,!ao.toString().isEmpty());
+    assertTrue("No index used:\nQuery: " + query + "\nInfo: "+ info+ "\nPlan: "+ plan,!ao.toString().isEmpty());
   }
  catch (  final QueryException ex) {
     fail(ex.getMessage() + "\nQuery: " + query+ "\nPlan: "+ plan);
