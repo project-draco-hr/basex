@@ -8,15 +8,16 @@
     Performance.gc(2);
     large=fl > rt.freeMemory() / 3;
   }
-  final String dbname=large ? ctx.data.meta.random() : path;
+  final Data data=ctx.data;
+  final String dbname=large ? data.meta.random() : path;
   final Builder build=large ? new DiskBuilder(parser,ctx.prop) : new MemBuilder(parser,ctx.prop);
   if (cmd != null)   cmd.build=build;
-  Data data=null;
+  Data tmp=null;
   try {
-    data=build.build(dbname);
-    ctx.data.insert(ctx.data.meta.size,-1,data);
-    ctx.data.flush();
+    tmp=build.build(dbname);
+    data.insert(data.meta.size,-1,tmp);
     ctx.update();
+    data.flush();
     return Util.info(PATHADDED,path,p);
   }
  catch (  final IOException ex) {
@@ -24,8 +25,8 @@
     throw new BaseXException(ex);
   }
  finally {
-    if (data != null)     try {
-      data.close();
+    if (tmp != null)     try {
+      tmp.close();
     }
  catch (    final IOException e) {
     }
