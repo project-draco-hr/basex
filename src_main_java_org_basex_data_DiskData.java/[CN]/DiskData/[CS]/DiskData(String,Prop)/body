@@ -1,6 +1,5 @@
 {
   meta=new MetaData(db,pr);
-  comp=new Compress();
   final int cats=pr.num(Prop.CATEGORIES);
   final DataInput in=new DataInput(meta.file(DATAINFO));
   try {
@@ -8,10 +7,11 @@
     while (true) {
       final String k=Token.string(in.readBytes());
       if (k.isEmpty())       break;
-      if (k.equals(DBTAGS))       tags=new Names(in,cats);
- else       if (k.equals(DBATTS))       atts=new Names(in,cats);
+      if (k.equals(DBTAGS))       tagindex=new Names(in,cats);
+ else       if (k.equals(DBATTS))       atnindex=new Names(in,cats);
  else       if (k.equals(DBPATH))       pthindex=new PathSummary(in);
  else       if (k.equals(DBNS))       ns=new Namespaces(in);
+ else       if (k.equals(DBDOCS))       meta.docindex=docindex.read(in);
     }
     init();
     if (meta.textindex)     txtindex=new DiskValues(this,true);

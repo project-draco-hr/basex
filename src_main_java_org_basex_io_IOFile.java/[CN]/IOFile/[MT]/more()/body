@@ -1,5 +1,15 @@
 {
-  if (is instanceof ZipInputStream || zip()) {
+  if (path.toLowerCase().endsWith(GZSUFFIX)) {
+    if (is == null) {
+      is=new GZIPInputStream(new FileInputStream(file));
+    }
+ else {
+      is.close();
+      is=null;
+    }
+    return is != null;
+  }
+  if (is instanceof ZipInputStream || archive()) {
     if (is == null) {
       is=new ZipInputStream(new FileInputStream(file)){
         @Override public void close() throws IOException {
@@ -18,16 +28,6 @@
     is.close();
     is=null;
     return false;
-  }
-  if (path.endsWith(GZSUFFIX)) {
-    if (is == null) {
-      is=new GZIPInputStream(new FileInputStream(file));
-    }
- else {
-      is.close();
-      is=null;
-    }
-    return is != null;
   }
   return more^=true;
 }
