@@ -1,0 +1,23 @@
+{
+  final TokenList pkgs=ctx.repo.nsDict.get(comp.namespace);
+  if (pkgs != null) {
+    Iterator<byte[]> pkgsIt=pkgs.iterator();
+    byte[] nextPkg;
+    while (pkgsIt.hasNext()) {
+      nextPkg=pkgsIt.next();
+      if (!eq(getPkgName(nextPkg),pkgName)) {
+        byte[] pkgDir=ctx.repo.pkgDict.get(nextPkg);
+        File pkgDesc=new File(ctx.prop.get(Prop.REPOPATH) + Prop.DIRSEP + string(pkgDir)+ Prop.DIRSEP+ PKGDESC);
+        final IOFile io=new IOFile(pkgDesc);
+        final Package pkg=PackageParser.parse(io,ctx,ii);
+        final Iterator<Component> compIt=pkg.comps.iterator();
+        Component nextComp;
+        while (compIt.hasNext()) {
+          nextComp=compIt.next();
+          if (getCompName(string(nextComp.file)).equals(getCompName(string(comp.file))))           return true;
+        }
+      }
+    }
+  }
+  return false;
+}
