@@ -4,14 +4,8 @@
   if (!io.exists())   return error(FILEWHICH,io);
   String name=args[1];
   if (name != null && !name.isEmpty()) {
+    if (name.matches(".*[\\\\/].*"))     return error(NAMEINVALID,args[1]);
     io.name(name);
-    try {
-      new File(name).getCanonicalFile();
-    }
- catch (    final IOException ex) {
-      name=null;
-    }
-    if (name == null || name.matches(".*[\\\\/].*"))     return error(NAMEINVALID,args[1]);
   }
  else   if (io instanceof IOContent) {
     name=context.data.meta.name + IO.XMLSUFFIX;

@@ -1,20 +1,6 @@
 {
-  final String target=path(args[0]);
-  final byte[] exact=token(target);
-  final byte[] pref=token(target + "/");
-  int c=0;
   final Data data=context.data;
-  final int[] docs=context.doc();
-  for (int d=docs.length - 1; d >= 0; d--) {
-    final int pre=docs[d];
-    final byte[] name=context.data.text(pre,true);
-    if (!eq(name,exact) && !startsWith(name,pref))     continue;
-    data.delete(pre);
-    ++c;
-  }
-  if (c != 0) {
-    data.flush();
-    context.update();
-  }
-  return info(PATHDELETED,c,perf);
+  final int[] docs=data.doc(args[0]);
+  delete(context,docs);
+  return info(PATHDELETED,docs.length,perf);
 }
