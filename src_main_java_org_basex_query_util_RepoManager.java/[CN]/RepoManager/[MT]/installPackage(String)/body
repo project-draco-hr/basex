@@ -1,7 +1,14 @@
 {
-  checkPkgName(path);
   final File pkgFile=new File(path);
-  if (!pkgFile.exists()) {
+  if (!pkgFile.exists())   PKGNOTEXIST.thrw(ii);
+  checkPkgName(path,ii);
+  try {
+    final ZipFile xar=new ZipFile(pkgFile);
+    final Package pkg=PackageParser.parse(new IOContent(PackageParser.readPkgDesc(xar,ii)),ctx,ii);
+    PkgValidator.check(pkg,ctx,ii);
+    unzip(xar);
   }
-  final ZipFile pkgXar=new ZipFile(pkgFile);
+ catch (  IOException e) {
+    throw PKGREADFAIL.thrw(ii);
+  }
 }

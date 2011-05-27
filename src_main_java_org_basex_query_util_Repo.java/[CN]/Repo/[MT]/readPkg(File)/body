@@ -1,0 +1,25 @@
+{
+  try {
+    final IOFile io=new IOFile(pkgDesc);
+    final Package pkg=PackageParser.parse(io,ctx,null);
+    final Iterator<Component> compIt=pkg.comps.iterator();
+    Component comp;
+    byte[] compNs;
+    while (compIt.hasNext()) {
+      comp=compIt.next();
+      compNs=comp.namespace;
+      if (compNs != null) {
+        if (nsDict.get(compNs) != null)         nsDict.get(compNs).add(pkg.getName());
+ else {
+          final TokenList vals=new TokenList();
+          vals.add(pkg.getName());
+          nsDict.add(compNs,vals);
+        }
+      }
+    }
+    pkgDict.add(pkg.getName(),pkg.abbrev);
+  }
+ catch (  QueryException ex) {
+    Util.debug(ex);
+  }
+}

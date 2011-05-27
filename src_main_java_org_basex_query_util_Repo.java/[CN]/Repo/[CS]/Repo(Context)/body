@@ -1,0 +1,20 @@
+{
+  nsDict=new TokenObjMap<TokenList>();
+  pkgDict=new TokenMap();
+  ctx=c;
+  final File repoDir=new File(ctx.prop.get(Prop.REPOPATH));
+  if (repoDir.exists()) {
+    final File[] pkgDirs=repoDir.listFiles();
+    File pkgDir=null;
+    for (int i=0; i < pkgDirs.length; i++) {
+      pkgDir=pkgDirs[i];
+      if (pkgDir.isDirectory()) {
+        final File pkgDesc=new File(pkgDir.getPath() + Prop.DIRSEP + PKGDESC);
+        if (!pkgDesc.exists()) {
+          Util.notexpected("Missing package descriptor for package " + pkgDir.getName());
+        }
+ else         readPkg(pkgDesc);
+      }
+    }
+  }
+}
