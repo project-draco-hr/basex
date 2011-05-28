@@ -1,25 +1,26 @@
 {
   try {
-    final IOFile io=new IOFile(pkgDesc);
-    final Package pkg=PackageParser.parse(io,ctx,null);
-    final Iterator<Component> compIt=pkg.comps.iterator();
-    Component comp;
-    byte[] compNs;
-    while (compIt.hasNext()) {
-      comp=compIt.next();
-      compNs=comp.namespace;
-      if (compNs != null) {
-        if (nsDict.get(compNs) != null)         nsDict.get(compNs).add(pkg.getName());
+    final File pkgDesc=new File(pkgDir.getPath() + Prop.DIRSEP + PKGDESC);
+    if (pkgDesc.exists()) {
+      final IOFile io=new IOFile(pkgDesc);
+      final Package pkg=PackageParser.parse(io,ctx,null);
+      for (      final Component comp : pkg.comps) {
+        if (comp.namespace != null) {
+          if (nsDict.get(comp.namespace) != null) {
+            nsDict.get(comp.namespace).add(pkg.getName());
+          }
  else {
-          final TokenList vals=new TokenList();
-          vals.add(pkg.getName());
-          nsDict.add(compNs,vals);
+            final TokenList vals=new TokenList();
+            vals.add(pkg.getName());
+            nsDict.add(comp.namespace,vals);
+          }
         }
       }
+      pkgDict.add(pkg.getName(),token(pkgDir.getName()));
     }
-    pkgDict.add(pkg.getName(),pkg.abbrev);
+ else     Util.notexpected("Missing package descriptor for package " + pkgDir.getName());
   }
- catch (  QueryException ex) {
+ catch (  final QueryException ex) {
     Util.debug(ex);
   }
 }

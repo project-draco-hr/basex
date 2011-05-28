@@ -1,44 +1,33 @@
 {
   final TokenSet instVers=getInstalledVersions(dep.pkg,ctx);
   if (instVers.size() == 0)   return false;
-  final Iterator<byte[]> instIt=instVers.iterator();
   if (dep.versions != null) {
     final TokenSet accept=getAcceptVersions(dep.versions);
-    final Iterator<byte[]> acceptIt=accept.iterator();
-    byte[] nextVer=null;
-    while (acceptIt.hasNext()) {
-      nextVer=acceptIt.next();
-      if (instVers.id(nextVer) != 0)       return true;
-    }
+    for (    final byte[] nextVer : accept)     if (instVers.id(nextVer) != 0)     return true;
   }
  else   if (dep.semver != null) {
     final Version semVer=new Version(dep.semver);
-    while (instIt.hasNext()) {
-      if (new Version(instIt.next()).isCompatible(semVer))       return true;
-    }
+    for (    final byte[] v : instVers)     if (new Version(v).isCompatible(semVer))     return true;
   }
  else   if (dep.semverMin != null && dep.semverMax == null) {
     final Version semVer=new Version(dep.semverMin);
-    Version v;
-    while (instIt.hasNext()) {
-      v=new Version(instIt.next());
+    for (    final byte[] nextVer : instVers) {
+      final Version v=new Version(nextVer);
       if (v.isCompatible(semVer) || v.compareTo(semVer) >= 0)       return true;
     }
   }
  else   if (dep.semverMin == null && dep.semverMax != null) {
     final Version semVer=new Version(dep.semverMax);
-    Version v;
-    while (instIt.hasNext()) {
-      v=new Version(instIt.next());
+    for (    final byte[] nextVer : instVers) {
+      final Version v=new Version(nextVer);
       if (v.isCompatible(semVer) || v.compareTo(semVer) <= 0)       return true;
     }
   }
  else   if (dep.semverMin != null && dep.semverMax != null) {
     final Version min=new Version(dep.semverMin);
     final Version max=new Version(dep.semverMax);
-    Version v;
-    while (instIt.hasNext()) {
-      v=new Version(instIt.next());
+    for (    final byte[] nextVer : instVers) {
+      final Version v=new Version(nextVer);
       if (v.compareTo(min) >= 0 && v.compareTo(max) < 0)       return true;
     }
   }
