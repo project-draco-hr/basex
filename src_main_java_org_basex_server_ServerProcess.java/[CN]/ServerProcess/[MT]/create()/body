@@ -1,19 +1,13 @@
 {
   final Performance perf=new Performance();
   final String name=in.readString();
-  final String str=ServerCmd.CREATE + " " + CmdCreate.DATABASE+ " "+ name+ " [...]";
-  log.write(this,str);
+  log.write(this,ServerCmd.CREATE + " " + CmdCreate.DATABASE+ " "+ name+ " [...]");
   try {
     final WrapInputStream is=new WrapInputStream(in);
     final String info=is.curr() == -1 ? CreateDB.xml(name,Parser.emptyParser(),context) : CreateDB.xml(name,is,context);
-    out.writeString(info);
-    out.write(0);
-    log.write(this,OK,perf);
+    info(true,info,perf);
   }
  catch (  final BaseXException ex) {
-    out.writeString(ex.getMessage());
-    out.write(1);
-    log.write(this,INFOERROR + ex.getMessage(),perf);
+    info(false,ex.getMessage(),perf);
   }
-  out.flush();
 }
