@@ -5,19 +5,13 @@
   final StringBuilder sb=new StringBuilder(ServerCmd.ADD + " ");
   if (!name.isEmpty())   sb.append(AS + ' ' + name+ ' ');
   if (!path.isEmpty())   sb.append(TO + ' ' + path+ ' ');
-  final String str=sb.append("[...]").toString();
-  log.write(this,str);
+  log.write(this,sb.append("[...]"));
   try {
     final WrapInputStream is=new WrapInputStream(in);
-    final String info=Add.add(name,path,is,context,null);
-    out.writeString(info);
-    out.write(0);
-    log.write(this,OK,perf);
+    info(true,Add.add(name,path,is,context,null),perf);
   }
  catch (  final BaseXException ex) {
-    out.writeString(ex.getMessage());
-    out.write(1);
-    log.write(this,INFOERROR + ex.getMessage(),perf);
+    info(false,ex.getMessage(),perf);
   }
   out.flush();
 }

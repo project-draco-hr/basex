@@ -1,0 +1,23 @@
+{
+  try {
+    sout.write(ServerCmd.WATCH.code);
+    send(name);
+    final BufferInput bi=new BufferInput(sin);
+    if (esocket == null) {
+      final int eport=Integer.parseInt(bi.readString());
+      esocket=new Socket();
+      esocket.connect(new InetSocketAddress(ehost,eport),5000);
+      final PrintOutput po=PrintOutput.get(esocket.getOutputStream());
+      po.print(bi.readString());
+      po.write(0);
+      po.flush();
+      listen(esocket.getInputStream());
+    }
+    info=bi.readString();
+    if (!ok(bi))     throw new IOException(info);
+    notifiers.put(name,notifier);
+  }
+ catch (  final IOException ex) {
+    throw new BaseXException(ex);
+  }
+}
