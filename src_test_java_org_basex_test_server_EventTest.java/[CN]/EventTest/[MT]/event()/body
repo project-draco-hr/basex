@@ -1,4 +1,14 @@
 {
-  event(RETURN_VALUE,true);
-  event(null,false);
+  session.execute("create event " + NAME);
+  for (  final ClientSession cs : sessions) {
+    cs.watch(NAME,new EventNotifier(){
+      @Override public void notify(      final String data){
+        assertEquals(RETURN,data);
+      }
+    }
+);
+  }
+  session.query("db:event('" + NAME + "', '"+ RETURN+ "')").execute();
+  for (  final ClientSession cs : sessions)   cs.unwatch(NAME);
+  session.execute("drop event " + NAME);
 }

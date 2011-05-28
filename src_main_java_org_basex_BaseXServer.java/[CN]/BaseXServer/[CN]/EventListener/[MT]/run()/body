@@ -1,21 +1,18 @@
 {
   while (running) {
     try {
-      final Socket socket=tserver.accept();
+      final Socket es=esocket.accept();
       if (stop.exists()) {
-        tserver.close();
+        esocket.close();
         break;
       }
-      BufferInput buf=new BufferInput(socket.getInputStream());
-      String id=buf.readString();
-      for (      ServerProcess s : context.sessions) {
-        if (String.valueOf(s.getId()).equals(id)) {
-          s.tsocket=socket;
-          s.tout=PrintOutput.get(socket.getOutputStream());
-        }
+      final BufferInput bi=new BufferInput(es.getInputStream());
+      final long id=Long.parseLong(bi.readString());
+      for (      final ServerProcess s : context.sessions) {
+        if (s.getId() == id)         s.register(es);
       }
     }
- catch (    IOException e) {
+ catch (    final IOException ex) {
       break;
     }
   }

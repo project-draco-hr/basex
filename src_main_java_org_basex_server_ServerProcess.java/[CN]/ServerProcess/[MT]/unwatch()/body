@@ -1,16 +1,12 @@
 {
+  final Performance perf=new Performance();
   final String name=in.readString();
-  if (context.events.unwatch(name,this)) {
-    String info=Util.info(EVENTUNWAT,name);
-    out.writeString(info);
-    out.write(0);
-    log.write(this,OK + info);
+  final Sessions s=context.events.get(name);
+  final boolean ok=s != null;
+  if (ok) {
+    s.remove(this);
+    events.remove(name);
   }
- else {
-    String info=Util.info(EVENTNO,name);
-    out.writeString(info);
-    out.write(1);
-    log.write(this,INFOERROR + info);
-  }
+  info(ok,Util.info(ok ? EVENTUNWAT : EVENTNO,name),perf);
   out.flush();
 }
