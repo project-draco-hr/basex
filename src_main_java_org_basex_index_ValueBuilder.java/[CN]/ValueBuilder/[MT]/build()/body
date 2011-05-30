@@ -9,21 +9,21 @@
       check();
       if (memFull()) {
         write(f + csize++,false);
-        index=new ValueTree();
+        index=new IndexTree();
         Performance.gc(2);
       }
     }
     if (data.kind(pre) != k || data.textLen(pre,text) > MAXLEN)     continue;
     index.index(data.text(pre,text),pre);
   }
-  if (csize == 0) {
-    write(f,true);
-  }
- else {
+  if (merge) {
     write(f + csize++,false);
     index=null;
     Performance.gc(1);
     merge();
+  }
+ else {
+    write(f,true);
   }
   if (text)   data.meta.textindex=true;
  else   data.meta.attrindex=true;
