@@ -4,18 +4,19 @@
   final DataOutput outR=new DataOutput(data.meta.file(f + 'r'));
   outL.write4(0);
   final IntList ml=new IntList();
+  final IntList il=new IntList();
   final ValueMerger[] vm=new ValueMerger[csize];
   for (int i=0; i < csize; ++i)   vm[i]=new ValueMerger(data,text,i);
   int sz=0;
   while (true) {
     checkStop();
     int min=-1;
-    while (++min < csize && vm[min].pre.length == 0)     ;
+    while (++min < csize && vm[min].values.length == 0)     ;
     if (min == csize)     break;
     ml.reset();
     for (int i=min; i < csize; ++i) {
-      if (vm[i].pre.length == 0)       continue;
-      final int d=diff(vm[min].value,vm[i].value);
+      if (vm[i].values.length == 0)       continue;
+      final int d=diff(vm[min].key,vm[i].key);
       if (d < 0)       continue;
       if (d > 0) {
         min=i;
@@ -24,29 +25,16 @@
       ml.add(i);
     }
     final int ms=ml.size();
-    final ByteList tmp=new ByteList();
-    int c=0;
-    for (int m=0, o=0; m < ms; ++m) {
-      final ValueMerger v=vm[ml.get(m)];
-      final int p=Num.read(v.pre,4);
-      tmp.add(Num.num(p - o));
-      int l=4 + Num.len(p);
-      o=p;
-      c++;
-      final int vl=v.pre.length;
-      for (int i=l; i < vl; i++)       tmp.add(v.pre[i]);
-      while (l < vl) {
-        final int d=Num.read(v.pre,l);
-        l+=Num.len(d);
-        o+=d;
-        c++;
+    for (int m=0; m < ms; ++m) {
+      final ValueMerger t=vm[ml.get(m)];
+      final int vl=t.values.length;
+      for (int l=4, v; l < vl; l+=Num.length(v)) {
+        v=Num.get(t.values,l);
+        il.add(v);
       }
-      v.next();
+      t.next();
     }
-    outR.write5(outL.size());
-    outL.writeNum(c);
-    final int is=tmp.size();
-    for (int i=0; i < is; i++)     outL.write(tmp.get(i));
+    write(outL,outR,il);
     ++sz;
   }
   outR.close();
