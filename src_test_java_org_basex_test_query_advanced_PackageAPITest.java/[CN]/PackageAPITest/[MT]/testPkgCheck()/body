@@ -1,0 +1,100 @@
+{
+  IO io=null;
+  final byte[] pkg1=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0'/>");
+  io=new IOContent(pkg1);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Missing mandatory attribute not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0005")) != -1);
+  }
+  final byte[] pkg2=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg1.com' "+ "abbrev='pkg1' version='12.0'/>");
+  io=new IOContent(pkg2);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Installed package not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0003")) != -1);
+  }
+  final byte[] pkg3=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg5.com' "+ "abbrev='pkg5' version='12.0'>"+ "<dependency package='http://www.pkg4.com'/></package>");
+  io=new IOContent(pkg3);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Missing dependency not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0004")) != -1);
+  }
+  final byte[] pkg4=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg5.com' "+ "abbrev='pkg5' version='12.0'>"+ "<dependency package='http://www.pkg1.com' versions='1.0 7.0'/>"+ "</package>");
+  io=new IOContent(pkg4);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Missing dependency not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0004")) != -1);
+  }
+  final byte[] pkg5=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg5.com' "+ "abbrev='pkg5' version='12.0'>"+ "<dependency package='http://www.pkg1.com' semver='12.7'/>"+ "</package>");
+  io=new IOContent(pkg5);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Missing dependency not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0004")) != -1);
+  }
+  final byte[] pkg6=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg5.com' "+ "abbrev='pkg5' version='12.0'>"+ "<dependency package='http://www.pkg1.com' semver-min='12.7'/>"+ "</package>");
+  io=new IOContent(pkg6);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Missing dependency not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0004")) != -1);
+  }
+  final byte[] pkg7=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg5.com' "+ "abbrev='pkg5' version='12.0'>"+ "<dependency package='http://www.pkg1.com' semver-max='11'/>"+ "</package>");
+  io=new IOContent(pkg7);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Missing dependency not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0004")) != -1);
+  }
+  final byte[] pkg8=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg5.com' "+ "abbrev='pkg5' version='12.0'>"+ "<dependency package='http://www.pkg1.com' semver-min='5.7' "+ "semver-max='11'/>"+ "</package>");
+  io=new IOContent(pkg8);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Missing dependency not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0004")) != -1);
+  }
+  final byte[] pkg9=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg5.com' "+ "abbrev='pkg5' version='12.0'>"+ "<xquery><namespace>ns1</namespace><file>pkg1mod1.xql</file>"+ "</xquery></package>");
+  io=new IOContent(pkg9);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+    fail("Already installed component not detected.");
+  }
+ catch (  QueryException ex) {
+    assertTrue(indexOf(token(ex.getMessage()),token("PACK0007")) != -1);
+  }
+  final byte[] pkg10=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg1.com' "+ "abbrev='pkg1' version='10.0'>"+ "<xquery><namespace>ns1</namespace><file>pkg1mod1.xql</file>"+ "</xquery></package>");
+  io=new IOContent(pkg10);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+  }
+ catch (  QueryException ex) {
+    fail("Unexpected exception thrown");
+  }
+  final byte[] pkg11=token("<package " + "xmlns:http=\"http://expath.org/ns/pkg\" " + "spec='1.0' name='http://www.pkg1.com' "+ "abbrev='pkg1' version='10.0'>"+ "<dependency package='http://www.pkg1.com' semver-min='11'/>"+ "<xquery><namespace>ns3</namespace><file>pkg5mod1.xql</file>"+ "</xquery></package>");
+  io=new IOContent(pkg11);
+  try {
+    PkgValidator.check(PackageParser.parse(io,ctx,null),ctx,null);
+  }
+ catch (  QueryException ex) {
+    fail("Unexpected exception thrown");
+  }
+}
