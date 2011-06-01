@@ -1,0 +1,16 @@
+{
+  final TokenList pkgs=context.repo.nsDict.get(comp.namespace);
+  if (pkgs == null)   return false;
+  for (  final byte[] nextPkg : pkgs) {
+    if (!eq(getName(nextPkg),name)) {
+      final byte[] pkgDir=context.repo.pkgDict.get(nextPkg);
+      final File pkgDesc=new File(new File(context.prop.get(Prop.REPOPATH),string(pkgDir)),DESCRIPTOR);
+      final IOFile io=new IOFile(pkgDesc);
+      final Package pkg=new PkgParser(context).parse(io,ii);
+      for (      final Component nextComp : pkg.comps) {
+        if (nextComp.getName().equals(comp.getName()))         return true;
+      }
+    }
+  }
+  return false;
+}

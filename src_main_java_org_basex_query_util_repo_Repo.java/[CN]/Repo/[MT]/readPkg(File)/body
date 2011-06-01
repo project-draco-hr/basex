@@ -1,0 +1,28 @@
+{
+  try {
+    final File pkgDesc=new File(dir.getPath(),DESCRIPTOR);
+    if (pkgDesc.exists()) {
+      final IOFile io=new IOFile(pkgDesc);
+      final Package pkg=new PkgParser(ctx).parse(io,null);
+      for (      final Component comp : pkg.comps) {
+        if (comp.namespace != null) {
+          if (nsDict.get(comp.namespace) != null) {
+            nsDict.get(comp.namespace).add(pkg.getName());
+          }
+ else {
+            final TokenList vals=new TokenList();
+            vals.add(pkg.getName());
+            nsDict.add(comp.namespace,vals);
+          }
+        }
+      }
+      pkgDict.add(pkg.getName(),token(dir.getName()));
+    }
+ else {
+      Util.errln(NOTEXP,dir);
+    }
+  }
+ catch (  final QueryException ex) {
+    Util.errln(ex);
+  }
+}

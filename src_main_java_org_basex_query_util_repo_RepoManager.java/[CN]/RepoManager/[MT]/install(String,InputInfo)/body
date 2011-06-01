@@ -1,0 +1,16 @@
+{
+  createRepo();
+  final File pkgFile=new File(path);
+  if (!pkgFile.exists())   PKGNOTEXIST.thrw(ii);
+  checkPkgName(path,ii);
+  try {
+    final ZipFile xar=new ZipFile(pkgFile);
+    final byte[] cont=FNZip.read(xar,DESCRIPTOR);
+    final Package pkg=new PkgParser(context).parse(new IOContent(cont),ii);
+    new PkgValidator(context).check(pkg,ii);
+    unzip(xar);
+  }
+ catch (  final IOException e) {
+    throw PKGREADFAIL.thrw(ii);
+  }
+}
