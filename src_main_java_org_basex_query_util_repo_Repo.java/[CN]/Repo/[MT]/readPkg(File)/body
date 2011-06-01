@@ -1,8 +1,8 @@
 {
-  try {
-    final File pkgDesc=new File(dir.getPath(),DESCRIPTOR);
-    if (pkgDesc.exists()) {
-      final IOFile io=new IOFile(pkgDesc);
+  final File pkgDesc=new File(dir,DESCRIPTOR);
+  if (pkgDesc.exists()) {
+    final IOFile io=new IOFile(pkgDesc);
+    try {
       final Package pkg=new PkgParser(context).parse(io,null);
       for (      final Component comp : pkg.comps) {
         if (comp.namespace != null) {
@@ -18,11 +18,11 @@
       }
       pkgDict.add(pkg.getName(),token(dir.getName()));
     }
- else {
-      Util.errln(NOTEXP,dir);
+ catch (    final QueryException ex) {
+      Util.errln(ex.getMessage());
     }
   }
- catch (  final QueryException ex) {
-    Util.errln(ex);
+ else {
+    Util.errln(NOTEXP,dir);
   }
 }
