@@ -1,0 +1,37 @@
+{
+  if (!pkgsLoaded.contains(pkgName)) {
+    if (pkgsInst.get(pkgName) != null) {
+      final byte[] pkgDir=pkgsInst.get(pkgName);
+      final TokenBuilder tb=new TokenBuilder();
+      tb.add(pkgDir);
+      final IOFile io=new IOFile(new File(string(tb.add(token("/expath-pkg.xml")).finish())));
+      final Parser parse=Parser.xmlParser(io,ctx.prop,"");
+      final ANode pkgNode=new DBNode(MemBuilder.build(parse,ctx.prop,""),0).children().next();
+      final Package pkg=PackageParser.parse(io,ctx,null);
+      final Iterator<Component> c=pkg.comps.iterator();
+      Component comp;
+      String module;
+      while (c.hasNext()) {
+        comp=c.next();
+        module=string(tb.add(token('/')).add(comp.file).finish());
+        if (uris.contains(comp.namespace)) {
+          if (!modules.contains(module)) {
+            modules.add(module);
+          }
+        }
+ else {
+          uris.add(comp.namespace);
+          modules.add(module);
+        }
+      }
+      Iterator<Dependency> d=pkg.dep.iterator();
+      Dependency dep;
+      while (d.hasNext()) {
+        dep=d.next();
+        loadPackage(pkgsInst,dep.pkg,uris,modules,pkgsLoaded,ctx);
+      }
+    }
+ else {
+    }
+  }
+}

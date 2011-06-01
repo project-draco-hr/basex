@@ -1,5 +1,6 @@
 {
   QNm name=null;
+  TokenList pkgs=null;
   if (wsConsumeWs(NSPACE)) {
     name=new QNm(ncName(XPNAME));
     wsCheck(IS);
@@ -12,28 +13,40 @@
   name.uri(uri);
   ctx.ns.add(name,input());
   final TokenList fl=new TokenList();
-  if (wsConsumeWs(AT))   do   fl.add(stringLiteral());
- while (wsConsumeWs(COMMA));
   if (modules.contains(uri))   error(DUPLMODULE,name.uri());
-  try {
-    if (fl.size() == 0) {
-      boolean found=false;
-      final int ns=ctx.modules.size();
-      for (int n=0; n < ns; n+=2) {
-        if (ctx.modules.get(n).equals(string(uri))) {
-          module(ctx.modules.get(n + 1),name.uri());
-          modules.add(uri);
-          found=true;
+  if (wsConsumeWs(AT)) {
+    do     fl.add(stringLiteral());
+ while (wsConsumeWs(COMMA));
+  }
+ else {
+    pkgs=ctx.context.repo.nsDict.get(uri);
+  }
+  if (pkgs == null) {
+    try {
+      if (fl.size() == 0) {
+        boolean found=false;
+        final int ns=ctx.modules.size();
+        for (int n=0; n < ns; n+=2) {
+          if (ctx.modules.get(n).equals(string(uri))) {
+            module(ctx.modules.get(n + 1),name.uri());
+            modules.add(uri);
+            found=true;
+          }
         }
+        if (!found)         error(NOMODULE,uri);
       }
-      if (!found)       error(NOMODULE,uri);
+      for (int n=0; n < fl.size(); ++n) {
+        module(string(fl.get(n)),name.uri());
+        modules.add(uri);
+      }
     }
-    for (int n=0; n < fl.size(); ++n) {
-      module(string(fl.get(n)),name.uri());
-      modules.add(uri);
+ catch (    final StackOverflowError ex) {
+      error(CIRCMODULE);
     }
   }
- catch (  final StackOverflowError ex) {
-    error(CIRCMODULE);
+ else {
+    for (    final byte[] pkgName : pkgs) {
+      loadPackage(pkgName);
+    }
   }
 }
