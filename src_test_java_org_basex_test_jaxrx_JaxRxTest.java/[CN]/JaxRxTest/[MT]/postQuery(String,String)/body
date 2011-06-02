@@ -3,7 +3,12 @@
   final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
   conn.setDoOutput(true);
   conn.setRequestMethod("POST");
-  conn.setRequestProperty("Content-Type","application/query+xml");
+  conn.setRequestProperty(HttpHeaders.CONTENT_TYPE,"application/query+xml");
+  final String user=Text.ADMIN;
+  final String pw=Text.ADMIN;
+  final String userpw=user + ":" + pw;
+  final String encoded=Base64.encode(userpw);
+  conn.setRequestProperty("Authorization","Basic " + encoded);
   final OutputStream out=conn.getOutputStream();
   out.write(Token.token(query));
   out.close();
