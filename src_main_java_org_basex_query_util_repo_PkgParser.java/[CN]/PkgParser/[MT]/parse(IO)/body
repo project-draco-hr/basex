@@ -1,0 +1,16 @@
+{
+  final Package pkg=new Package();
+  try {
+    ANode node=new DBNode(io,context.prop).children().next();
+    final boolean legacy=legacy(node);
+    if (legacy)     node=node.children().next();
+    final byte[] root=legacy ? MODULE : PACKAGE;
+    if (!eqNS(root,node.qname()))     PKGDESCINV.thrw(input,Util.info(WHICHELEM,node.qname()));
+    parseAttributes(node,pkg,root);
+    parseChildren(node,pkg);
+    return pkg;
+  }
+ catch (  final IOException ex) {
+    throw PKGREADFAIL.thrw(input,ex.getMessage());
+  }
+}
