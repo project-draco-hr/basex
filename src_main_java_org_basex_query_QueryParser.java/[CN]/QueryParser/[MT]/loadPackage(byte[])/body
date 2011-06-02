@@ -1,15 +1,15 @@
 {
-  final byte[] pkgDir=ctx.context.repo.pkgDict.get(pkgName);
+  final byte[] pkgDir=ctx.context.repo.pkgDict().get(pkgName);
   if (pkgDir == null)   error(PKGNOTINSTALLED);
-  final File pkgDesc=new File(ctx.context.prop.get(Prop.REPOPATH) + Prop.DIRSEP + string(pkgDir)+ Prop.DIRSEP+ PKGDESC);
-  if (!pkgDesc.exists())   error(PKGDESCMISS,string(pkgName));
+  final File pkgDesc=new File(new File(ctx.context.prop.get(Prop.REPOPATH),string(pkgDir)),PKGDESC);
+  if (!pkgDesc.exists())   Util.errln(PkgText.NOTEXP,string(pkgName));
   final IOFile io=new IOFile(pkgDesc);
-  final Package pkg=PackageParser.parse(io,ctx.context,input());
+  final Package pkg=new PkgParser(ctx.context,input()).parse(io);
   if (pkg.dep.size() != 0)   pkgsToLoad.add(pkgName);
-  for (  final Dependency dep : pkg.dep) {
-    final byte[] depPkg=PkgValidator.getDepPkg(dep,ctx.context);
+  for (  final Dependency d : pkg.dep) {
+    final byte[] depPkg=new PkgValidator(ctx.context,input()).getDepPkg(d);
     if (depPkg == null) {
-      error(PKGNOTINSTALLED,string(dep.pkg));
+      error(PKGNOTINSTALLED,string(d.pkg));
     }
  else {
       if (pkgsToLoad.id(depPkg) != 0)       error(CIRCMODULE);
@@ -17,8 +17,14 @@
     }
   }
   for (  final Component comp : pkg.comps) {
-    final String moduleFile=ctx.context.prop.get(Prop.REPOPATH) + Prop.DIRSEP + string(pkgDir)+ Prop.DIRSEP+ string(pkg.abbrev)+ Prop.DIRSEP+ string(comp.file);
-    if (!modules.contains(comp.namespace) && !ctx.modLoaded.contains(moduleFile))     module(moduleFile,Uri.uri(comp.namespace));
+    String modFile;
+    try {
+      modFile=new File(new File(new File(ctx.context.prop.get(Prop.REPOPATH),string(pkgDir)),string(pkg.abbrev)),string(comp.file)).getCanonicalPath();
+      if (!(modules.contains(comp.namespace) || ctx.modLoaded.contains(modFile)))       module(modFile,Uri.uri(comp.namespace));
+    }
+ catch (    IOException e) {
+      e.printStackTrace();
+    }
   }
   if (pkgsToLoad.id(pkgName) != 0)   pkgsToLoad.delete(pkgName);
 }
