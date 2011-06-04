@@ -1,18 +1,16 @@
 {
   for (  final byte[] nextPkg : context.repo.pkgDict().keys()) {
-    final byte[] dir=context.repo.pkgDict().get(nextPkg);
-    if (eq(Package.getName(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
-      try {
-        final byte[] primePkg=getPrime(nextPkg,ii);
-        if (primePkg == null) {
+    if (nextPkg != null) {
+      final byte[] dir=context.repo.pkgDict().get(nextPkg);
+      if (eq(Package.getName(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
+        final byte[] primPkg=getPrimary(nextPkg,ii);
+        if (primPkg == null) {
+          cleanRepo(nextPkg,dir,ii);
           deletePkg(new File(context.prop.get(Prop.REPOPATH),string(dir)),ii);
         }
  else {
-          Util.errln(ISSEC,primePkg,pkg);
+          PKGDEP.thrw(ii,string(primPkg),pkg);
         }
-      }
- catch (      QueryException ex) {
-        Util.errln(ex.getMessage());
       }
     }
   }
