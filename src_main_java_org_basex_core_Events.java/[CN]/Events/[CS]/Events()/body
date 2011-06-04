@@ -1,16 +1,19 @@
 {
-  file=new File(Prop.HOME + ".basexevents");
+  if (!file.exists())   return;
+  DataInput in=null;
   try {
-    if (file.exists()) {
-      final DataInput in=new DataInput(file);
-      read(in);
-      in.close();
-    }
- else {
-      write();
-    }
+    in=new DataInput(file);
+    final int s=in.readNum();
+    for (int u=0; u < s; ++u)     put(string(in.readBytes()),new Sessions());
   }
  catch (  final IOException ex) {
-    Util.debug(ex);
+    Util.errln(ex);
+  }
+ finally {
+    if (in != null)     try {
+      in.close();
+    }
+ catch (    final IOException ex) {
+    }
   }
 }
