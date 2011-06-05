@@ -1,0 +1,20 @@
+{
+  final QueryProcessor qp=new QueryProcessor(qu,CTX);
+  try {
+    assertEquals("Query result:",res,qp.execute().toString());
+    CTX.openDB(CreateDB.xml(new Parser(""){
+      @Override public void parse(      final Builder build) throws IOException {
+        build.startDoc(Token.token("QueryPlan"));
+        qp.plan(new BuilderSerializer(build));
+        build.endDoc();
+      }
+    }
+,CTX));
+    for (    final String p : props) {
+      if (!new XQuery(p).execute(CTX).equals("true"))       fail(p + ":" + NL+ qp.ctx.root);
+    }
+  }
+  finally {
+    qp.close();
+  }
+}
