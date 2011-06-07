@@ -7,10 +7,18 @@
     events=new ArrayList<String>();
   }
   final Sessions s=context.events.get(name);
-  final boolean ok=s != null;
+  final boolean ok=s != null && !s.contains(this);
+  String message="";
   if (ok) {
     s.add(this);
     events.add(name);
+    message=EVENTWAT;
   }
-  info(ok,Util.info(ok ? EVENTWAT : EVENTNO,name),perf);
+ else   if (s == null) {
+    message=EVENTNO;
+  }
+ else {
+    message=EVENTALR;
+  }
+  info(ok,Util.info(message,name),perf);
 }

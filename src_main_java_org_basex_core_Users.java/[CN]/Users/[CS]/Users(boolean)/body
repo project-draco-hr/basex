@@ -1,18 +1,24 @@
 {
   if (!global)   return;
-  file=new File(Prop.HOME + ".basexperm");
-  try {
-    if (file.exists()) {
-      final DataInput in=new DataInput(file);
-      read(in);
-      in.close();
-    }
- else {
-      add(new User(ADMIN,token(md5(ADMIN)),User.ADMIN));
-      write();
-    }
+  file=new File(Prop.HOME + IO.BASEXSUFFIX + "perm");
+  if (!file.exists()) {
+    add(new User(ADMIN,token(md5(ADMIN)),User.ADMIN));
   }
- catch (  final IOException ex) {
-    Util.debug(ex);
+ else {
+    DataInput in=null;
+    try {
+      in=new DataInput(file);
+      read(in);
+    }
+ catch (    final IOException ex) {
+      Util.errln(ex);
+    }
+ finally {
+      if (in != null)       try {
+        in.close();
+      }
+ catch (      final IOException ex) {
+      }
+    }
   }
 }
