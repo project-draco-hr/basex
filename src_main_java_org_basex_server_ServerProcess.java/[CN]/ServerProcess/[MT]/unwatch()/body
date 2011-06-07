@@ -2,11 +2,19 @@
   final Performance perf=new Performance();
   final String name=in.readString();
   final Sessions s=context.events.get(name);
-  final boolean ok=s != null;
+  final boolean ok=s != null && s.contains(this);
+  String message="";
   if (ok) {
     s.remove(this);
     events.remove(name);
+    message=EVENTUNWAT;
   }
-  info(ok,Util.info(ok ? EVENTUNWAT : EVENTNO,name),perf);
+ else   if (s == null) {
+    message=EVENTNO;
+  }
+ else {
+    message=EVENTNOUW;
+  }
+  info(ok,Util.info(message,name),perf);
   out.flush();
 }
