@@ -1,11 +1,10 @@
 {
-  if (ctx.modStack.contains(path))   return;
-  ctx.modStack.push(path);
   final byte[] u=ctx.modParsed.get(path);
   if (u != null) {
     if (!eq(uri.atom(),u))     error(WRONGMODULE,uri,path);
     return;
   }
+  ctx.modParsed.add(path,uri.atom());
   final IO io=io(string(path));
   String qu=null;
   try {
@@ -18,7 +17,5 @@
   ctx.ns=new NSLocal();
   new QueryParser(qu,ctx).parse(io,uri);
   ctx.ns=ns;
-  ctx.modParsed.add(path,uri.atom());
   modules.add(uri.atom());
-  ctx.modStack.pop();
 }
