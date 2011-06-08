@@ -1,0 +1,21 @@
+{
+  final byte[] u=ctx.modParsed.get(path);
+  if (u != null) {
+    if (!eq(uri.atom(),u))     error(WRONGMODULE,uri,path);
+    return;
+  }
+  final IO io=io(string(path));
+  String qu=null;
+  try {
+    qu=string(io.content());
+  }
+ catch (  final IOException ex) {
+    error(NOMODULEFILE,io);
+  }
+  final NSLocal ns=ctx.ns;
+  ctx.ns=new NSLocal();
+  new QueryParser(qu,ctx).parse(io,uri);
+  ctx.ns=ns;
+  ctx.modParsed.add(path,uri.atom());
+  modules.add(uri.atom());
+}
