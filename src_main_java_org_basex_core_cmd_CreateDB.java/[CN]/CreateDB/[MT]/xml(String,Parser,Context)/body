@@ -1,16 +1,23 @@
 {
-  if (!ctx.user.perm(User.CREATE))   throw new BaseXException(PERMNO,CmdPerm.CREATE);
-  final Performance p=new Performance();
-  ctx.register(true);
+  if (!ctx.user.perm(User.CREATE))   throw new IOException(Util.info(PERMNO,CmdPerm.CREATE));
+  final Prop prop=ctx.prop;
+  if (prop.is(Prop.MAINMEM))   return MemBuilder.build(parser,prop,name);
+  if (ctx.pinned(name))   throw new IOException(Util.info(DBLOCKED,name));
+  final Builder builder=new DiskBuilder(parser,prop);
   try {
-    new Close().run(ctx);
-    ctx.openDB(xml(parser,name,ctx));
+    final Data data=builder.build(name);
+    if (prop.is(Prop.TEXTINDEX))     data.setIndex(IndexType.TEXT,new ValueBuilder(data,true).build());
+    if (prop.is(Prop.ATTRINDEX))     data.setIndex(IndexType.ATTRIBUTE,new ValueBuilder(data,false).build());
+    if (prop.is(Prop.FTINDEX))     data.setIndex(IndexType.FULLTEXT,FTBuilder.get(data).build());
+    data.close();
   }
- catch (  final IOException ex) {
-    throw new BaseXException(ex);
+  finally {
+    try {
+      builder.close();
+    }
+ catch (    final IOException exx) {
+      Util.debug(exx);
+    }
   }
- finally {
-    ctx.unregister(true);
-  }
-  return Util.info(DBCREATED,name,p);
+  return Open.open(name,ctx);
 }
