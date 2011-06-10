@@ -1,0 +1,15 @@
+{
+  boolean isSupported=false;
+  for (  final Dependency d : procs) {
+    if (!eq(lc(d.processor),lc(token(Text.NAME)))) {
+      isSupported=false;
+      break;
+    }
+    final int idx=Text.VERSION.indexOf(" ");
+    final String v=idx == -1 ? Text.VERSION : Text.VERSION.substring(0,idx);
+    final TokenSet currentVers=new TokenSet();
+    currentVers.add(token(v));
+    isSupported=(getAvailVersion(d,currentVers) == null) ? false : true;
+  }
+  if (!isSupported)   PKGNOTSUPP.thrw(input);
+}
