@@ -1,30 +1,28 @@
 {
   log.write(this,"LOGIN " + context.user.name,OK);
-  String cmd=null;
   running=true;
+  String cmd=null;
+  ServerCmd sc=null;
   try {
     while (running) {
       try {
         final byte b=in.readByte();
-        final ServerCmd sc=ServerCmd.get(b);
+        sc=get(b);
+        cmd=null;
         if (sc == CREATE) {
           create();
         }
  else         if (sc == ADD) {
           add();
-          continue;
         }
  else         if (sc == WATCH) {
           watch();
-          continue;
         }
  else         if (sc == UNWATCH) {
           unwatch();
-          continue;
         }
- else         if (sc != CMD) {
+ else         if (sc != COMMAND) {
           query(sc);
-          continue;
         }
  else {
           cmd=new ByteList().add(b).add(in.content().toArray()).toString();
@@ -34,7 +32,7 @@
         exit();
         break;
       }
-      if (cmd == null)       continue;
+      if (sc != COMMAND)       continue;
       final Performance perf=new Performance();
       command=null;
       try {
@@ -73,7 +71,7 @@
     if (!running)     log.write(this,"LOGOUT " + context.user.name,OK);
   }
  catch (  final IOException ex) {
-    log.write(this,cmd,INFOERROR + ex.getMessage());
+    log.write(this,sc == COMMAND ? cmd : sc,INFOERROR + ex.getMessage());
     Util.stack(ex);
     exit();
   }
