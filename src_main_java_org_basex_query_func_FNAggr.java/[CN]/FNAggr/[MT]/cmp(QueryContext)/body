@@ -1,9 +1,11 @@
 {
   final Expr e=expr[0];
+  final long c=e.size();
 switch (def) {
 case CNT:
-    final long c=e.size();
-  return c >= 0 && !ctx.grouping ? Itr.get(c) : this;
+    return c >= 0 && !ctx.grouping && !e.uses(Use.CTX) ? Itr.get(c) : this;
+case SUM:
+  return c == 0 && !e.uses(Use.CTX) ? expr.length == 2 ? expr[1] : Itr.get(0) : this;
 default :
 return this;
 }
