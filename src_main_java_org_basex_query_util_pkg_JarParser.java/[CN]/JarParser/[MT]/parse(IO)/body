@@ -1,0 +1,18 @@
+{
+  final JarDesc desc=new JarDesc();
+  try {
+    final ANode node=new DBNode(io,context.prop).children().next();
+    final AxisIter ch=node.children();
+    for (ANode next; (next=ch.next()) != null; ) {
+      final QNm name=next.qname();
+      if (eqNS(JAR,name))       desc.jars.add(next.atom());
+ else       if (eqNS(FUNC,name))       desc.classes.add(next.atom());
+    }
+    if (desc.jars.size() == 0)     JARDESCINV.thrw(input,NOJARS);
+ else     if (desc.classes.size() == 0)     JARDESCINV.thrw(input,NOCLASS);
+    return desc;
+  }
+ catch (  final IOException ex) {
+    throw JARREADFAIL.thrw(input,ex.getMessage());
+  }
+}
