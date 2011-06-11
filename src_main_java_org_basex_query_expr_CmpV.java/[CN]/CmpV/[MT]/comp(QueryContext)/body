@@ -7,6 +7,7 @@
   for (int e=0; e != expr.length; ++e)   expr[e]=expr[e].addText(ctx);
   final Expr e1=expr[0];
   final Expr e2=expr[1];
+  type=SeqType.get(AtomType.BLN,e1.size() == 1 && e2.size() == 1 ? Occ.O : Occ.ZO);
   Expr e=this;
   if (oneEmpty()) {
     e=optPre(null,ctx);
@@ -14,14 +15,16 @@
  else   if (values()) {
     e=preEval(ctx);
   }
- else   if (e1.isFun(Function.CNT)) {
-    e=count(op);
+ else   if (e1.isFun(Function.COUNT)) {
+    e=compCount(op);
     if (e != this)     ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
   }
  else   if (e1.isFun(Function.POS)) {
     e=Pos.get(op,e2,e,input);
     if (e != this)     ctx.compInfo(OPTWRITE,this);
   }
-  type=SeqType.BLN_ZO;
+ else   if (e1.type().eq(SeqType.BLN) && (op == Op.EQ && e2 == Bln.FALSE || op == Op.NE && e2 == Bln.TRUE)) {
+    e=Function.NOT.get(input,e1);
+  }
   return e;
 }

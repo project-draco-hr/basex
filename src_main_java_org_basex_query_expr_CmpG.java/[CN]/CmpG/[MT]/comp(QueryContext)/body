@@ -14,8 +14,8 @@
  else   if (values()) {
     e=preEval(ctx);
   }
- else   if (e1.isFun(Function.CNT)) {
-    e=count(op.op);
+ else   if (e1.isFun(Function.COUNT)) {
+    e=compCount(op.op);
     if (e != this)     ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
   }
  else   if (e1.isFun(Function.POS)) {
@@ -27,6 +27,9 @@
       e=Pos.get(op.op,e2,e,input);
     }
     if (e != this)     ctx.compInfo(OPTWRITE,this);
+  }
+ else   if (e1.type().eq(SeqType.BLN) && (op == Op.EQ && e2 == Bln.FALSE || op == Op.NE && e2 == Bln.TRUE)) {
+    e=Function.NOT.get(input,e1);
   }
  else {
     e=CmpR.get(this);
