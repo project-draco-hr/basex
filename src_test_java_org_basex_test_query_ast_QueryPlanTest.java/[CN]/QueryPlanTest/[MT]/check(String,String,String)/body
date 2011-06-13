@@ -1,0 +1,35 @@
+{
+  final QueryProcessor qp=new QueryProcessor(qu,CTX);
+  try {
+    qp.compile();
+    final Data plan=CreateDB.xml(new Parser(""){
+      @Override public void parse(      final Builder build) throws IOException {
+        build.startDoc(token("QueryPlan"));
+        qp.plan(new BuilderSerializer(build));
+        build.endDoc();
+      }
+    }
+,CTX);
+    assertEquals("Query result:",res,qp.execute().toString());
+    CTX.openDB(plan);
+    for (    final String p : pr) {
+      if (!new XQuery(p).execute(CTX).equals("true"))       fail(p + ":" + NL+ qp.ctx.root+ NL+ NL+ new XQuery("/").execute(CTX));
+    }
+  }
+ catch (  final QueryException e) {
+    throw new Error(e.getMessage(),e);
+  }
+catch (  final BaseXException e) {
+    throw new Error(e.getMessage(),e);
+  }
+catch (  final IOException e) {
+    throw new IOError(e);
+  }
+ finally {
+    try {
+      qp.close();
+    }
+ catch (    final IOException e) {
+    }
+  }
+}
