@@ -5,15 +5,19 @@
   final File pkgDesc=new File(new File(ctx.context.prop.get(Prop.REPOPATH),string(pkgDir)),PkgText.DESCRIPTOR);
   if (!pkgDesc.exists())   Util.errln(PkgText.NOTEXP,string(pkgName));
   final Package pkg=new PkgParser(ctx.context,input()).parse(new IOFile(pkgDesc));
+  final File jarDesc=new File(new File(ctx.context.prop.get(Prop.REPOPATH),string(pkgDir)),PkgText.JARDESC);
+  if (jarDesc.exists())   loadJars(jarDesc,pkgDir,pkg.abbrev);
   if (pkg.dep.size() != 0)   pkgsToLoad.add(pkgName);
   for (  final Dependency d : pkg.dep) {
-    final byte[] depPkg=new PkgValidator(ctx.context,input()).getDepPkg(d);
-    if (depPkg == null) {
-      error(PKGNOTINSTALLED,string(d.pkg));
-    }
+    if (d.pkg != null) {
+      final byte[] depPkg=new PkgValidator(ctx.context,input()).getDepPkg(d);
+      if (depPkg == null) {
+        error(PKGNOTINSTALLED,string(d.pkg));
+      }
  else {
-      if (pkgsToLoad.id(depPkg) != 0)       error(CIRCMODULE);
-      loadPackage(depPkg,pkgsToLoad,pkgsLoaded);
+        if (pkgsToLoad.id(depPkg) != 0)         error(CIRCMODULE);
+        loadPackage(depPkg,pkgsToLoad,pkgsLoaded);
+      }
     }
   }
   for (  final Component comp : pkg.comps) {
