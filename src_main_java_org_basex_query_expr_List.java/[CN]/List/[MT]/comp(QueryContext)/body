@@ -1,11 +1,6 @@
 {
   for (int e=expr.length; --e >= 0; )   expr[e]=expr[e].comp(ctx);
   checkUp(ctx,expr);
-  if (values())   return value(ctx);
-  type=expr[0].type();
-  for (int i=1; i < expr.length; ++i)   type=type.intersect(expr[i].type());
-  final SeqType.Occ o=type.mayBeZero() ? SeqType.Occ.ZM : SeqType.Occ.OM;
-  type=SeqType.get(type.type,o);
   size=0;
   for (  final Expr e : expr) {
     final long c=e.size();
@@ -15,5 +10,13 @@
     }
     size+=c;
   }
-  return this;
+  type=SeqType.EMP;
+  boolean v=true;
+  for (  final Expr e : expr) {
+    if (e.empty())     continue;
+    final SeqType et=e.type();
+    type=type == SeqType.EMP ? et : SeqType.get(et.type == type.type ? et.type : AtomType.ITEM,et.mayBeZero() && type.mayBeZero() ? Occ.ZM : Occ.OM);
+    v&=e.value();
+  }
+  return v ? type.type.instance(AtomType.ITR) ? optPre(ItrSeq.get(expr,size,type.type),ctx) : optPre(value(ctx),ctx) : this;
 }
