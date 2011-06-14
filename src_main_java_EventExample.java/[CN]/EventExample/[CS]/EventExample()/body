@@ -1,0 +1,17 @@
+{
+  try {
+    BaseXClient session1=new BaseXClient("localhost",1984,"admin","admin");
+    BaseXClient session2=new BaseXClient("localhost",1984,"admin","admin");
+    session1.execute("create event messenger");
+    session2.watch("messenger",new Notifier());
+    session2.query("for $i in 1 to 1000000 where $i = 0 return $i").execute();
+    session1.query("db:event('messenger', 'Hello World!')").execute();
+    session2.unwatch("messenger");
+    session1.execute("drop event messenger");
+    session1.close();
+    session2.close();
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+}
