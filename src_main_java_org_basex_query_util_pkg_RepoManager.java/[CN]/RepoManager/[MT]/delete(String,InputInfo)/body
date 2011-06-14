@@ -1,8 +1,10 @@
 {
+  boolean found=false;
   for (  final byte[] nextPkg : ctx.repo.pkgDict()) {
     if (nextPkg != null) {
       final byte[] dir=ctx.repo.pkgDict().get(nextPkg);
       if (eq(Package.getName(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
+        found=true;
         final byte[] primPkg=getPrimary(nextPkg,ii);
         if (primPkg == null) {
           final File f=new File(ctx.prop.get(Prop.REPOPATH),string(dir));
@@ -10,10 +12,9 @@
           ctx.repo.remove(new PkgParser(ctx,ii).parse(new IOFile(desc)));
           deleteFromDisc(f,ii);
         }
- else {
-          PKGDEP.thrw(ii,string(primPkg),pkg);
-        }
+ else         PKGDEP.thrw(ii,string(primPkg),pkg);
       }
     }
   }
+  if (!found)   PKGNOTINST.thrw(ii,pkg);
 }
