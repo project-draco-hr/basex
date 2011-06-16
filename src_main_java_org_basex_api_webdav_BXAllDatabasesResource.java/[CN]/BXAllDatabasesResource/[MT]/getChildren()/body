@@ -1,5 +1,17 @@
 {
   final List<BXResource> dbs=new ArrayList<BXResource>();
-  for (  final String d : listDatabases(ctx))   dbs.add(isCollection(ctx,d) ? new BXCollectionDatabaseResource(ctx,d) : new BXDocumentResource(ctx,d));
+  try {
+    final ClientSession cs=login(user,pass);
+    try {
+      for (      final String d : listDatabases(cs))       dbs.add(isCollection(cs,d) ? new BXCollectionDatabaseResource(d) : new BXDocumentResource(d,user,pass));
+    }
+  finally {
+      cs.close();
+    }
+  }
+ catch (  final Exception e) {
+    e.printStackTrace();
+    return null;
+  }
   return dbs;
 }

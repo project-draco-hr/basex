@@ -1,11 +1,21 @@
 {
   try {
-    new Open(dbname).execute(ctx);
-    final Date d=new Date(ctx.data.meta.time);
-    new Close().execute(ctx);
-    return d;
+    final ClientSession cs=login(user,pass);
+    try {
+      cs.execute(new Open(dbname));
+      final String info=cs.query("db:info()").execute();
+      cs.execute(new Close());
+      final String timestamp="Time Stamp: ";
+      final int p=info.indexOf(timestamp);
+      if (p < 0)       return null;
+      final String date=info.substring(p + timestamp.length(),info.indexOf(Text.NL,p));
+      return DATEFORMAT.parse(date);
+    }
+  finally {
+      cs.close();
+    }
   }
- catch (  BaseXException e) {
+ catch (  Exception e) {
     e.printStackTrace();
     return null;
   }

@@ -1,6 +1,8 @@
 {
   super(args);
-  final HttpManager m=new HttpManager(new BXResourceFactory(context));
+  set(DBHOST,context.prop.get(Prop.HOST));
+  set(DBPORT,Integer.toString(context.prop.num(Prop.SERVERPORT)));
+  final HttpManager m=new HttpManager(new BXResourceFactory());
   final Handler h=new AbstractHandler(){
     @SuppressWarnings("unused") @Override public void handle(    final String target,    final HttpServletRequest request,    final HttpServletResponse response,    final int dispatch) throws IOException, ServletException {
       final ServletRequest req=new ServletRequest(request);
@@ -15,7 +17,9 @@
     }
   }
 ;
-  jetty=new Server(8080);
+  final String p=System.getProperty(WEBDAVPORT);
+  final int port=p == null ? context.prop.num(Prop.WEBDAVPORT) : Integer.parseInt(p);
+  jetty=new Server(port);
   jetty.setHandler(h);
   try {
     jetty.start();

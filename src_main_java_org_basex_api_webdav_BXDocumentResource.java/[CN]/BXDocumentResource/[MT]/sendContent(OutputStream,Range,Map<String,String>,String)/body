@@ -1,12 +1,17 @@
 {
   try {
-    new Open(dbname).execute(ctx);
-    final XMLSerializer ser=new XMLSerializer(out);
-    ctx.current.serialize(ser);
-    ser.close();
-    new Close().execute(ctx);
+    final ClientSession cs=login(user,pass);
+    try {
+      cs.setOutputStream(out);
+      cs.execute(new Open(dbname));
+      cs.query(".").execute();
+      cs.execute(new Close());
+    }
+  finally {
+      cs.close();
+    }
   }
- catch (  BaseXException e) {
+ catch (  Exception e) {
     e.printStackTrace();
   }
 }
