@@ -1,0 +1,19 @@
+{
+  boolean isFolder=false;
+  try {
+    final ClientSession cs=BXResource.login(a.getUser(),a.getPassword());
+    try {
+      final ClientQuery q1=cs.query("collection('" + db + "')/.[doc-name()='"+ path+ "']");
+      if (parseInt(q1.next()) == 1)       return false;
+      final ClientQuery q2=cs.query("count(collection('" + db + "')/.[starts-with(doc-name(), '"+ path+ "')])");
+      if (parseInt(q2.next()) > 1)       return true;
+    }
+  finally {
+      cs.close();
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  return isFolder;
+}

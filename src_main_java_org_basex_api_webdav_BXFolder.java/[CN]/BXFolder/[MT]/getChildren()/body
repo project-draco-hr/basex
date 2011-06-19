@@ -1,0 +1,28 @@
+{
+  final List<BXResource> ch=new ArrayList<BXResource>();
+  final List<String> paths=new ArrayList<String>();
+  try {
+    final ClientSession cs=login(user,pass);
+    try {
+      ClientQuery q=cs.query("collection('" + db + "')"+ "/.[starts-with(doc-name(),'"+ path+ "')]"+ "/substring-after(doc-name(),'"+ path+ "/')");
+      while (q.more()) {
+        final String nextPath=q.next();
+        final int sepIdx=nextPath.indexOf(DIRSEP);
+        if (sepIdx <= 0)         ch.add(new BXDocument(db,path + DIRSEP + nextPath,user,pass));
+ else {
+          final String folderName=nextPath.substring(0,sepIdx);
+          final String folderPath=path + DIRSEP + folderName;
+          if (!paths.contains(folderPath))           paths.add(folderPath);
+        }
+      }
+      for (      final String f : paths)       ch.add(new BXFolder(db,f,user,pass));
+    }
+  finally {
+      cs.close();
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  return ch;
+}

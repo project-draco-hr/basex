@@ -5,6 +5,21 @@
   if (path.isRoot())   return new BXAllDatabasesResource();
   final String[] parts=path.getParts();
   if (path.getLength() == 1)   return new BXCollectionDatabase(parts[0]);
- else   if (path.getLength() > 1)   return new BXFolder(parts[0],p);
+  final String f=p.substring(p.indexOf(parts[1]),p.length());
+  try {
+    final ClientSession cs=BXResource.login(a.getUser(),a.getPassword());
+    try {
+      final ClientQuery q1=cs.query("count(collection('" + parts[0] + "')/.[doc-name()='"+ f+ "'])");
+      if (parseInt(q1.next()) == 1)       return new BXDocument(parts[0],p.substring(p.indexOf(parts[1]),p.length()));
+      final ClientQuery q2=cs.query("count(collection('" + parts[0] + "')/.[starts-with(doc-name(), '"+ f+ "')])");
+      if (parseInt(q2.next()) > 0)       return new BXFolder(parts[0],p.substring(p.indexOf(parts[1]),p.length() - 1));
+    }
+  finally {
+      cs.close();
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
   return null;
 }
