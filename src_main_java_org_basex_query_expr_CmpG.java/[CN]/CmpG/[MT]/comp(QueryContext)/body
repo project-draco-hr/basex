@@ -1,7 +1,7 @@
 {
   super.comp(ctx);
   if (swap()) {
-    op=op.invert();
+    op=op.swap();
     ctx.compInfo(OPTSWAP,this);
   }
   for (int e=0; e != expr.length; ++e)   expr[e]=expr[e].addText(ctx);
@@ -14,11 +14,11 @@
  else   if (values()) {
     e=preEval(ctx);
   }
- else   if (e1.isFun(FunDef.CNT)) {
-    e=count(op.op);
+ else   if (e1.isFun(Function.COUNT)) {
+    e=compCount(op.op);
     if (e != this)     ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
   }
- else   if (e1.isFun(FunDef.POS)) {
+ else   if (e1.isFun(Function.POS)) {
     if (e2 instanceof Range && op.op == CmpV.Op.EQ) {
       final long[] rng=((Range)e2).range(ctx);
       e=rng == null ? this : Pos.get(rng[0],rng[1],input);
@@ -27,6 +27,9 @@
       e=Pos.get(op.op,e2,e,input);
     }
     if (e != this)     ctx.compInfo(OPTWRITE,this);
+  }
+ else   if (e1.type().eq(SeqType.BLN) && (op == Op.EQ && e2 == Bln.FALSE || op == Op.NE && e2 == Bln.TRUE)) {
+    e=Function.NOT.get(input,e1);
   }
  else {
     e=CmpR.get(this);

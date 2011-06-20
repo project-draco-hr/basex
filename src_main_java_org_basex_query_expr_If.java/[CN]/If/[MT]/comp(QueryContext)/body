@@ -4,21 +4,21 @@
   if (expr[0].value())   return optPre(eval(ctx).comp(ctx),ctx);
   for (int e=1; e != expr.length; ++e)   expr[e]=expr[e].comp(ctx);
   if (expr[1].sameAs(expr[2]))   return optPre(expr[1],ctx);
-  if (expr[1] == Bln.TRUE && expr[2] == Bln.FALSE) {
+  if (expr[0].isFun(Function.NOT)) {
     ctx.compInfo(OPTWRITE,this);
-    return FunDef.BOOLEAN.get(input,expr[0]);
-  }
-  if (expr[1].type().eq(SeqType.BLN) && expr[2] == Bln.TRUE) {
-    ctx.compInfo(OPTWRITE,this);
-    final Expr e=FunDef.NOT.get(input,expr[0]);
-    return expr[1] == Bln.FALSE ? e : new Or(input,e,expr[1]);
-  }
-  if (expr[0].isFun(FunDef.NOT)) {
-    ctx.compInfo(OPTWRITE,this);
-    expr[0]=((Fun)expr[0]).expr[0];
+    expr[0]=((FuncCall)expr[0]).expr[0];
     final Expr tmp=expr[1];
     expr[1]=expr[2];
     expr[2]=tmp;
+  }
+  if (expr[1] == Bln.TRUE && expr[2] == Bln.FALSE) {
+    ctx.compInfo(OPTWRITE,this);
+    return compBln(expr[0]);
+  }
+  if (expr[1].type().eq(SeqType.BLN) && expr[2] == Bln.TRUE) {
+    ctx.compInfo(OPTWRITE,this);
+    final Expr e=Function.NOT.get(input,expr[0]);
+    return expr[1] == Bln.FALSE ? e : new Or(input,e,expr[1]);
   }
   type=expr[1].type().intersect(expr[2].type());
   return this;
