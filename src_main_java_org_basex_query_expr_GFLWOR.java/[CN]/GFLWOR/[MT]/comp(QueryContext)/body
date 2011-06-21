@@ -1,5 +1,5 @@
 {
-  compForLet(ctx);
+  compHoist(ctx);
   compWhere(ctx);
   final boolean grp=ctx.grouping;
   ctx.grouping=group != null;
@@ -25,13 +25,13 @@
   ret=ret.comp(ctx);
   ctx.vars.reset(vs);
   ctx.grouping=grp;
-  if (ret == Empty.SEQ) {
-    ctx.compInfo(OPTFLWOR);
-    return ret;
-  }
   if (empty) {
     ctx.compInfo(OPTREMOVE,desc(),where);
     return Empty.SEQ;
+  }
+  if (ret == Empty.SEQ) {
+    ctx.compInfo(OPTFLWOR);
+    return ret;
   }
   for (int f=0; f < fl.length; ++f) {
     final ForLet l=fl[f];
@@ -64,6 +64,6 @@
     }
   }
   type=SeqType.get(ret.type().type,size);
-  compForLet(ctx);
+  compHoist(ctx);
   return this;
 }
