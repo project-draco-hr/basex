@@ -1,10 +1,18 @@
 {
   for (  final String n : names) {
+    Class<?> c=classes.get(n);
     try {
-      Class<?> c=classes.get(n);
       if (c == null) {
-        c=Class.forName(n);
-        classes.put(n,c);
+        try {
+          c=Class.forName(n);
+          classes.put(n,c);
+          return c;
+        }
+ catch (        ClassNotFoundException e) {
+          if (jarLoader != null)           c=Class.forName(n,true,jarLoader);
+          classes.put(n,c);
+          return c;
+        }
       }
       return c;
     }
