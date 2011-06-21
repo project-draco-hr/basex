@@ -1,18 +1,19 @@
 {
   try {
+    final String info;
     final ClientSession cs=login(user,pass);
     try {
-      cs.execute(new Open(dbname));
-      final String info=cs.query("db:info()").execute();
-      cs.execute(new Close());
-      final String timestamp="Time Stamp: ";
-      final int p=info.indexOf(timestamp);
-      if (p < 0)       return null;
-      final String date=info.substring(p + timestamp.length(),info.indexOf(Text.NL,p));
-      return DATEFORMAT.parse(date);
+      cs.execute(new Open(db));
+      info=cs.query("db:info()").execute();
     }
   finally {
       cs.close();
+    }
+    final String timestamp="Time Stamp: ";
+    final int p=info.indexOf(timestamp);
+    if (p >= 0) {
+      final String date=info.substring(p + timestamp.length(),info.indexOf(Text.NL,p));
+      if (date.length() > 0)       return DATEFORMAT.parse(date);
     }
   }
  catch (  Exception e) {

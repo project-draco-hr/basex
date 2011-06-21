@@ -1,21 +1,26 @@
 {
   final List<BXResource> ch=new ArrayList<BXResource>();
-  final List<String> paths=new ArrayList<String>();
+  final HashSet<String> paths=new HashSet<String>();
   try {
     final ClientSession cs=login(user,pass);
     try {
-      ClientQuery q=cs.query("collection('" + db + "')"+ "/.[starts-with(doc-name(),'"+ path+ "')]"+ "/substring-after(doc-name(),'"+ path+ "/')");
+      final ClientQuery q=cs.query("declare variable $d as xs:string external; " + "declare variable $p as xs:string external; " + "for $r in db:list($d) return substring-after($r,$p)");
+      q.bind("$d",db + DIRSEP + path);
+      q.bind("$p",path);
       while (q.more()) {
-        final String nextPath=q.next();
-        final int sepIdx=nextPath.indexOf(DIRSEP);
-        if (sepIdx <= 0)         ch.add(new BXDocument(db,path + DIRSEP + nextPath,user,pass));
+        final String p=stripLeadingSlash(q.next());
+        final int ix=p.indexOf(DIRSEP);
+        if (ix < 0) {
+          ch.add(new BXDocument(db,path + DIRSEP + p,user,pass));
+        }
  else {
-          final String folderName=nextPath.substring(0,sepIdx);
-          final String folderPath=path + DIRSEP + folderName;
-          if (!paths.contains(folderPath))           paths.add(folderPath);
+          final String folder=path + DIRSEP + p.substring(0,ix);
+          if (!paths.contains(folder)) {
+            paths.add(folder);
+            ch.add(new BXFolder(db,folder,user,pass));
+          }
         }
       }
-      for (      final String f : paths)       ch.add(new BXFolder(db,f,user,pass));
     }
   finally {
       cs.close();

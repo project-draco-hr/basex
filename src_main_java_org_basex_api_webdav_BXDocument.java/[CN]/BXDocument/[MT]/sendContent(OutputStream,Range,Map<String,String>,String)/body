@@ -1,8 +1,10 @@
 {
-  ClientSession cs=login(user,pass);
-  cs.setOutputStream(out);
+  final ClientSession cs=login(user,pass);
   try {
-    cs.query("collection('" + dbname + DIRSEP+ docpath+ "')").execute();
+    cs.setOutputStream(out);
+    final ClientQuery q=cs.query("declare variable $path as xs:string external; " + "collection($path)");
+    q.bind("$path",db + DIRSEP + path);
+    q.execute();
   }
  catch (  BaseXException e) {
     e.printStackTrace();

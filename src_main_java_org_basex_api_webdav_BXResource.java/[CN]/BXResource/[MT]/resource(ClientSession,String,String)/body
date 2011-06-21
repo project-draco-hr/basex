@@ -1,0 +1,12 @@
+{
+  final String dbpath=db + DIRSEP + path;
+  final ClientQuery d=cs.query("declare variable $d as xs:string external; " + "declare variable $p as xs:string external; " + "count(db:list($d)[. = $p])");
+  d.bind("$d",dbpath);
+  d.bind("$p",path);
+  if (parseInt(d.execute()) == 1)   return new BXDocument(db,path);
+  final ClientQuery f=cs.query("declare variable $d as xs:string external; " + "declare variable $p as xs:string external; " + "count(db:list($d)[starts-with(., $p)])");
+  f.bind("$d",dbpath);
+  f.bind("$p",path);
+  if (parseInt(f.execute()) > 0)   return new BXFolder(db,path);
+  return null;
+}

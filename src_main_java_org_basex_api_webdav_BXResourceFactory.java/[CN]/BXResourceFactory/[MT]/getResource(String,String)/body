@@ -1,22 +1,17 @@
 {
   final Auth a=HttpManager.request().getAuthorization();
   if (a == null && System.getProperty(DBUSER) == null)   return NOAUTH;
-  final Path path=Path.path(p);
-  if (path.isRoot())   return new BXAllDatabasesResource();
-  final String[] parts=path.getParts();
-  if (path.getLength() == 1)   return new BXCollectionDatabase(parts[0]);
-  String f=p.substring(p.indexOf(parts[1]),p.length());
-  if (f.endsWith(DIRSEP))   f=f.substring(0,f.length() - 1);
+  final Path p=Path.path(dbpath);
+  if (p.isRoot())   return new BXAllDatabasesResource();
+  final String db=p.getFirst();
   try {
-    final ClientSession cs=BXResource.login(a.getUser(),a.getPassword());
+    final ClientSession s=login(a);
     try {
-      final ClientQuery q1=cs.query("count(collection('" + parts[0] + "')/.[doc-name()='"+ f+ "'])");
-      if (parseInt(q1.next()) == 1)       return new BXDocument(parts[0],f);
-      final ClientQuery q2=cs.query("count(collection('" + parts[0] + "')/.[starts-with(doc-name(), '"+ f+ "')])");
-      if (parseInt(q2.next()) > 0)       return new BXFolder(parts[0],f);
+      if (p.getLength() == 1)       return listDatabases(s).contains(db) ? new BXDatabase(db) : null;
+      return resource(s,db,stripLeadingSlash(p.getStripFirst().toString()));
     }
   finally {
-      cs.close();
+      s.close();
     }
   }
  catch (  Exception e) {

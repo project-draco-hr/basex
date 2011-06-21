@@ -1,13 +1,8 @@
 {
   try {
-    ClientSession cs=login(user,pass);
+    final ClientSession cs=login(user,pass);
     try {
-      final String docPath=path + DIRSEP + childName;
-      ClientQuery q1=cs.query("count(collection('" + db + "')/.[doc-name()='"+ path+ DIRSEP+ childName+ "'])");
-      if (parseInt(q1.next()) == 1)       return new BXDocument(db,docPath,user,pass);
-      final String folderPath=path + DIRSEP + childName;
-      ClientQuery q2=cs.query("count(collection('" + db + "')/.[starts-with(doc-name(),'"+ folderPath+ DIRSEP+ "')])");
-      if (parseInt(q2.next()) > 0)       return new BXFolder(db,folderPath,user,pass);
+      return resource(cs,db,path + DIRSEP + childName);
     }
   finally {
       cs.close();
