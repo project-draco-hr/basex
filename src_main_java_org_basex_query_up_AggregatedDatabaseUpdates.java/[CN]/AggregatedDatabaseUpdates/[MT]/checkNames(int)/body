@@ -1,0 +1,26 @@
+{
+  final NamePool pool=new NamePool();
+  final IntList il=new IntList();
+  for (  final int pre : pres) {
+    final AggregatedNodeUpdates ups=updatePrimitives.get(pre);
+    if (ups != null)     for (    final UpdatePrimitive up : ups.prim)     up.update(pool);
+    if (data.kind(pre) == Data.ATTR) {
+      il.add(pre);
+    }
+ else {
+      final int ps=pre + data.attSize(pre,Data.ELEM);
+      for (int p=pre + 1; p < ps; ++p) {
+        final byte[] nm=data.name(p,Data.ATTR);
+        if (!il.contains(p)) {
+          final QNm name=new QNm(nm);
+          final byte[] uri=data.ns.uri(data.ns.uri(nm,p));
+          if (uri != null)           name.uri(uri);
+          pool.add(name,NodeType.ATT);
+        }
+      }
+    }
+  }
+  final QNm dup=pool.duplicate();
+  if (dup != null)   UPATTDUPL.thrw(null,dup);
+  if (!pool.nsOK())   UPNSCONFL2.thrw(null);
+}
