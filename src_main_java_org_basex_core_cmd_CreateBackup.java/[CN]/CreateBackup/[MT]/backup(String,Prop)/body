@@ -5,23 +5,23 @@
     final File file=pr.dbpath(db + "-" + DATE.format(new Date())+ IO.ZIPSUFFIX);
     final byte[] data=new byte[IO.BLOCKSIZE];
     zos=new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+    zos.setLevel(1);
     zos.putNextEntry(new ZipEntry(in.getName() + '/'));
     zos.closeEntry();
     final File[] files=in.listFiles();
     tf=files.length;
     for (    final File f : files) {
       of++;
-      BufferedInputStream bis=null;
+      FileInputStream fis=null;
       try {
-        bis=new BufferedInputStream(new FileInputStream(f),IO.BLOCKSIZE);
+        fis=new FileInputStream(f);
         zos.putNextEntry(new ZipEntry(in.getName() + '/' + f.getName()));
-        int c;
-        while ((c=bis.read(data)) != -1)         zos.write(data,0,c);
+        for (int c; (c=fis.read(data)) != -1; )         zos.write(data,0,c);
         zos.closeEntry();
       }
   finally {
-        if (bis != null)         try {
-          bis.close();
+        if (fis != null)         try {
+          fis.close();
         }
  catch (        final IOException e) {
         }
@@ -31,6 +31,7 @@
     return true;
   }
  catch (  final IOException ex) {
+    Util.debug(ex);
     return false;
   }
  finally {

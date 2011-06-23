@@ -10,7 +10,7 @@
     db=db.replace(PATTERN + '$',"");
   }
   if (!file.exists())   return error(DBBACKNF,db);
-  final boolean closed=close(db);
+  if (!closed)   closed=close(context,db);
   if (context.pinned(db))   return error(DBLOCKED,db);
   return restore(file,prop) && (!closed || new Open(db).run(context)) ? info(DBRESTORE,file.getName(),perf) : error(DBNORESTORE,db);
 }

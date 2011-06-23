@@ -1,24 +1,15 @@
 {
-  final ItemCache ii=new ItemCache();
+  final ItemCache ic=new ItemCache();
   if (expr.length == 0) {
-    for (    final String s : List.list(ctx.context))     ii.add(Str.get(s));
+    for (    final String s : List.list(ctx.context))     ic.add(Str.get(s));
   }
  else {
     final byte[] str=checkStr(expr[0],ctx);
     final int s=indexOf(str,'/');
     final byte[] db=s == -1 ? str : substring(str,0,s);
-    final String path=string(s == -1 ? EMPTY : substring(str,s + 1));
+    final byte[] path=s == -1 ? EMPTY : substring(str,s + 1);
     final Data data=ctx.resource.data(db,input);
-    if (!data.empty()) {
-      for (      final int pre : path == null ? data.doc() : data.doc(path))       ii.add(Str.get(data.text(pre,true)));
-    }
-    try {
-      Close.close(data,ctx.context);
-    }
- catch (    IOException ex) {
-      Util.debug(ex);
-      NODB.thrw(input,string(db));
-    }
+    for (    final int pre : data.doc(string(path)))     ic.add(Str.get(data.text(pre,true)));
   }
-  return ii;
+  return ic;
 }
