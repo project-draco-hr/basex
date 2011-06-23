@@ -12,17 +12,16 @@
     tf=files.length;
     for (    final File f : files) {
       of++;
-      BufferedInputStream bis=null;
+      FileInputStream fis=null;
       try {
-        bis=new BufferedInputStream(new FileInputStream(f),IO.BLOCKSIZE);
+        fis=new FileInputStream(f);
         zos.putNextEntry(new ZipEntry(in.getName() + '/' + f.getName()));
-        int c;
-        while ((c=bis.read(data)) != -1)         zos.write(data,0,c);
+        for (int c; (c=fis.read(data)) != -1; )         zos.write(data,0,c);
         zos.closeEntry();
       }
   finally {
-        if (bis != null)         try {
-          bis.close();
+        if (fis != null)         try {
+          fis.close();
         }
  catch (        final IOException e) {
         }
