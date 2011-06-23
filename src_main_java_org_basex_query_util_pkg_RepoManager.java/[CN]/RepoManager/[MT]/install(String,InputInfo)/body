@@ -1,15 +1,14 @@
 {
-  ctx.repo.create();
   final File pkgFile=new File(path);
   if (!pkgFile.exists())   PKGNOTEXIST.thrw(ii,path);
   if (!path.endsWith(IO.XARSUFFIX))   INVPKGNAME.thrw(ii);
   try {
-    final ZipFile xar=new ZipFile(pkgFile);
-    final byte[] cont=FNZip.read(xar,DESCRIPTOR);
+    final Zip zip=new Zip(pkgFile);
+    final byte[] cont=zip.read(DESCRIPTOR);
     final Package pkg=new PkgParser(ctx,ii).parse(new IOContent(cont));
     new PkgValidator(ctx,ii).check(pkg);
-    unzip(xar);
-    ctx.repo.add(pkg,extractPkgName(xar.getName()));
+    zip.unzip(ctx.repo.path(extractPkgName(pkgFile.getPath())));
+    ctx.repo.add(pkg,extractPkgName(pkgFile.getPath()));
   }
  catch (  final IOException ex) {
     Util.debug(ex);

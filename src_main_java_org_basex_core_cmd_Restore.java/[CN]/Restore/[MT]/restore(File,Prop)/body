@@ -1,45 +1,10 @@
 {
-  ZipInputStream zis=null;
   try {
-    zis=new ZipInputStream(new BufferedInputStream(new FileInputStream(file)));
-    while (zis.getNextEntry() != null)     tf++;
-    zis.close();
-    zis=new ZipInputStream(new BufferedInputStream(new FileInputStream(file)));
-    final byte[] data=new byte[IO.BLOCKSIZE];
-    ZipEntry e;
-    while ((e=zis.getNextEntry()) != null) {
-      of++;
-      final File path=pr.dbpath(e.getName());
-      if (e.isDirectory()) {
-        path.mkdir();
-      }
- else {
-        FileOutputStream fos=null;
-        try {
-          fos=new FileOutputStream(path);
-          for (int c; (c=zis.read(data)) != -1; )           fos.write(data,0,c);
-        }
-  finally {
-          if (fos != null)           try {
-            fos.close();
-          }
- catch (          final IOException ee) {
-          }
-        }
-      }
-    }
-    zis.close();
+    progress(new Zip(file)).unzip(pr.dbpath());
     return true;
   }
  catch (  final IOException ex) {
     Util.debug(ex);
     return false;
-  }
- finally {
-    if (zis != null)     try {
-      zis.close();
-    }
- catch (    final IOException e) {
-    }
   }
 }
