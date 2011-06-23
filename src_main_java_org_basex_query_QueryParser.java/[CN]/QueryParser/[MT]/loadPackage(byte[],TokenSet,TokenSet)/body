@@ -1,11 +1,12 @@
 {
   if (pkgsLoaded.id(pkgName) != 0)   return;
-  final byte[] pkgDir=ctx.context.repo.pkgDict().get(pkgName);
-  if (pkgDir == null)   error(NECPKGNOTINST);
-  final File pkgDesc=new File(new File(ctx.context.repo.path,string(pkgDir)),PkgText.DESCRIPTOR);
+  final byte[] pDir=ctx.context.repo.pkgDict().get(pkgName);
+  if (pDir == null)   error(NECPKGNOTINST);
+  final File pkgDir=ctx.context.repo.path(string(pDir));
+  final IO pkgDesc=new IOFile(pkgDir,PkgText.DESCRIPTOR);
   if (!pkgDesc.exists())   Util.errln(PkgText.NOTEXP,string(pkgName));
-  final Package pkg=new PkgParser(ctx.context,input()).parse(new IOFile(pkgDesc));
-  final File jarDesc=new File(new File(ctx.context.repo.path,string(pkgDir)),PkgText.JARDESC);
+  final Package pkg=new PkgParser(ctx.context,input()).parse(pkgDesc);
+  final IO jarDesc=new IOFile(pkgDir,PkgText.JARDESC);
   if (jarDesc.exists())   loadJars(jarDesc,pkgDir,pkg.abbrev);
   if (pkg.dep.size() != 0)   pkgsToLoad.add(pkgName);
   for (  final Dependency d : pkg.dep) {
@@ -21,7 +22,7 @@
     }
   }
   for (  final Component comp : pkg.comps) {
-    final byte[] path=token(new File(new File(new File(ctx.context.repo.path,string(pkgDir)),string(pkg.abbrev)),string(comp.file)).toString());
+    final byte[] path=token(new File(new File(pkgDir,string(pkg.abbrev)),string(comp.file)).toString());
     module(path,Uri.uri(comp.uri));
   }
   if (pkgsToLoad.id(pkgName) != 0)   pkgsToLoad.delete(pkgName);
