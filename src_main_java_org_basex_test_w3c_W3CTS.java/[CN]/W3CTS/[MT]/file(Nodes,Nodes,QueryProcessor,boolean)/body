@@ -10,10 +10,16 @@
       expr=coll(nm,qp);
     }
  else {
-      FunDef def=FunDef.DOC;
-      if (!first) {
-        def=FunDef.OPEN;
-        src=IO.get(src).dbname();
+      final String dbname=new IOFile(src).dbname();
+      Function def=Function.DOC;
+      if (updating()) {
+        if (first) {
+          new DropDB(dbname).execute(context);
+        }
+ else {
+          def=Function.OPEN;
+          src=dbname;
+        }
       }
       expr=def.get(null,Str.get(src));
     }

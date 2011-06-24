@@ -1,0 +1,22 @@
+{
+  atts.reset();
+  atts.add(NAME,token(dir.getName()));
+  atts.add(MTIME,token(dir.lastModified()));
+  b.startElem(DIR,atts);
+  for (  final File f : dir.listFiles()) {
+    if (f.isDirectory()) {
+      parse(f,b);
+    }
+ else {
+      atts.reset();
+      final String name=f.getName();
+      atts.add(NAME,token(name));
+      atts.add(SIZE,token(f.length()));
+      atts.add(MTIME,token(f.lastModified()));
+      int i=name.lastIndexOf('.');
+      if (i != -1)       atts.add(SUFFIX,token(name.substring(i + 1)));
+      b.emptyElem(FILE,atts);
+    }
+  }
+  b.endElem(DIR);
+}

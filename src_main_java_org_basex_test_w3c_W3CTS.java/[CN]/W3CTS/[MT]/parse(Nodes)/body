@@ -10,7 +10,7 @@
   for (int n=0; n < nodes.size(); ++n) {
     final Nodes state=new Nodes(nodes.list[n],nodes.data);
     final String inname=text("*:query/@name",state);
-    context.query=IO.get(queries + pth + inname+ IO.XQSUFFIX);
+    context.query=new IOFile(queries + pth + inname+ IO.XQSUFFIX);
     final String in=read(context.query);
     String er=null;
     ItemCache iter=null;
@@ -34,14 +34,14 @@
       eval(nodes("*:input-query/@name",state),nodes("*:input-query/@variable",state),pth,xq);
       parse(xq,state);
       for (      final int p : nodes("*:module",root).list) {
-        final String ns=text("@namespace",new Nodes(p,data));
-        final String f=mods.get(string(data.atom(p))) + IO.XQSUFFIX;
-        xq.module(ns,f);
+        final String uri=text("@namespace",new Nodes(p,data));
+        final String file=mods.get(string(data.atom(p))) + IO.XQSUFFIX;
+        xq.module(file,uri);
       }
       final SerializerProp sp=new SerializerProp();
       sp.set(SerializerProp.S_INDENT,context.prop.is(Prop.CHOP) ? DataText.YES : DataText.NO);
       final XMLSerializer xml=new XMLSerializer(ao,sp);
-      iter=xq.iter().finish().cache();
+      iter=xq.value().cache();
       for (Item it; (it=iter.next()) != null; ) {
         doc&=it.type == NodeType.DOC;
         it.serialize(xml);
@@ -67,7 +67,7 @@
     final TokenList result=new TokenList();
     for (int o=0; o < expOut.size(); ++o) {
       final String resFile=string(data.atom(expOut.list[o]));
-      final IO exp=IO.get(expected + pth + resFile);
+      final IOFile exp=new IOFile(expected + pth + resFile);
       result.add(read(exp));
     }
     final Nodes cmpFiles=nodes("*:output-file/@compare",state);
