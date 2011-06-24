@@ -1,15 +1,13 @@
 {
-  boolean isSupported=false;
+  boolean supported=false;
   for (  final Dependency d : procs) {
     if (!eq(lc(d.processor),token(Text.NAMELC))) {
-      isSupported=false;
+      supported=false;
       break;
     }
-    final int idx=Text.VERSION.indexOf(" ");
-    final String v=idx == -1 ? Text.VERSION : Text.VERSION.substring(0,idx);
-    final TokenSet currentVers=new TokenSet();
-    currentVers.add(token(v));
-    isSupported=getAvailVersion(d,currentVers) == null ? false : true;
+    final int i=Text.VERSION.indexOf(" ");
+    final String v=i == -1 ? Text.VERSION : Text.VERSION.substring(0,i);
+    supported=availVersion(d,new TokenSet(token(v))) != null;
   }
-  if (!isSupported)   PKGNOTSUPP.thrw(input);
+  if (!supported)   PKGNOTSUPP.thrw(input);
 }

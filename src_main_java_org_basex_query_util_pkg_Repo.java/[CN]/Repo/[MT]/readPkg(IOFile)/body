@@ -3,25 +3,25 @@
   if (desc.exists()) {
     try {
       final Package pkg=new PkgParser(context,null).parse(desc);
+      final byte[] name=pkg.uniqueName();
       for (      final Component comp : pkg.comps) {
+        System.out.println("=> " + string(comp.uri));
         if (comp.uri != null) {
-          if (nsDict.get(comp.uri) != null) {
-            nsDict.get(comp.uri).add(pkg.getUniqueName());
+          if (nsDict.id(comp.uri) != 0) {
+            nsDict.get(comp.uri).add(name);
           }
  else {
-            final TokenSet vals=new TokenSet();
-            vals.add(pkg.getUniqueName());
-            nsDict.add(comp.uri,vals);
+            nsDict.add(comp.uri,new TokenSet(name));
           }
         }
       }
-      pkgDict.add(pkg.getUniqueName(),token(dir.name()));
+      pkgDict.add(name,token(dir.name()));
     }
  catch (    final QueryException ex) {
       Util.errln(ex.getMessage());
     }
   }
  else {
-    Util.errln(NOTEXP,dir);
+    Util.errln(MISSDESC,dir);
   }
 }
