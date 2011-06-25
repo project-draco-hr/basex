@@ -3,33 +3,23 @@
     new RepoManager(ctx).delete("xyz",null);
     fail("Not installed package not detected.");
   }
- catch (  QueryException ex) {
+ catch (  final QueryException ex) {
     check(ex,Err.PKGNOTINST);
   }
   new RepoInstall(REPO + "pkg3.xar",null).execute(ctx);
   assertNotNull(ctx.repo.pkgDict().id(token("pkg3-10.0")) != 0);
-  final File pkgDir1=new File(REPO + "pkg3");
-  assertTrue(pkgDir1.exists());
-  assertTrue(pkgDir1.isDirectory());
-  final File pkgDesc1=new File(REPO + "pkg3/expath-pkg.xml");
-  assertTrue(pkgDesc1.exists());
-  final File modDir1=new File(REPO + "pkg3/pkg3/mod");
-  assertTrue(modDir1.exists());
-  assertTrue(modDir1.isDirectory());
-  final File modFile1=new File(REPO + "pkg3/pkg3/mod/pkg3mod1.xql");
-  assertTrue(modFile1.exists());
+  assertTrue(dir("pkg3"));
+  assertTrue(file("pkg3/expath-pkg.xml"));
+  assertTrue(dir("pkg3/pkg3"));
+  assertTrue(dir("pkg3/pkg3/mod"));
+  assertTrue(file("pkg3/pkg3/mod/pkg3mod1.xql"));
   new RepoInstall(REPO + "pkg4.xar",null).execute(ctx);
   assertNotNull(ctx.repo.pkgDict().id(token("pkg4-2.0")) != 0);
-  final File pkgDir2=new File(REPO + "pkg4");
-  assertTrue(pkgDir2.exists());
-  assertTrue(pkgDir2.isDirectory());
-  final File pkgDesc2=new File(REPO + "pkg4/expath-pkg.xml");
-  assertTrue(pkgDesc2.exists());
-  final File modDir2=new File(REPO + "pkg4/pkg4/mod");
-  assertTrue(modDir2.exists());
-  assertTrue(modDir2.isDirectory());
-  final File modFile2=new File(REPO + "pkg4/pkg4/mod/pkg4mod1.xql");
-  assertTrue(modFile2.exists());
+  assertTrue(dir("pkg4"));
+  assertTrue(file("pkg4/expath-pkg.xml"));
+  assertTrue(dir("pkg4/pkg4"));
+  assertTrue(dir("pkg4/pkg4/mod"));
+  assertTrue(file("pkg4/pkg4/mod/pkg4mod1.xql"));
   try {
     new RepoManager(ctx).delete("pkg3",null);
     fail("Package involved in a dependency was deleted.");
@@ -39,8 +29,8 @@
   }
   new RepoDelete("http://www.pkg4.com",null).execute(ctx);
   assertTrue(ctx.repo.pkgDict().id(token("pkg4-2.0")) == 0);
-  assertTrue(!pkgDir2.exists());
+  assertTrue(!dir("pkg4"));
   new RepoDelete("pkg3",null).execute(ctx);
   assertTrue(ctx.repo.pkgDict().id(token("pkg3-10.0")) == 0);
-  assertTrue(!pkgDir1.exists());
+  assertTrue(!dir("pkg3"));
 }

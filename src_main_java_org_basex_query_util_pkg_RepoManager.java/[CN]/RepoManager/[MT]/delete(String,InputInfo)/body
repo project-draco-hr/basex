@@ -3,14 +3,14 @@
   for (  final byte[] nextPkg : ctx.repo.pkgDict()) {
     if (nextPkg != null) {
       final byte[] dir=ctx.repo.pkgDict().get(nextPkg);
-      if (eq(Package.getName(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
+      if (eq(Package.name(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
         found=true;
-        final byte[] primPkg=getPrimary(nextPkg,ii);
+        final byte[] primPkg=primary(nextPkg,ii);
         if (primPkg == null) {
-          final File f=new File(ctx.repo.path,string(dir));
-          final File desc=new File(f,DESCRIPTOR);
-          ctx.repo.remove(new PkgParser(ctx,ii).parse(new IOFile(desc)));
-          if (!new IOFile(f).delete())           CANNOTDELPKG.thrw(ii);
+          final IOFile f=ctx.repo.path(string(dir));
+          final IOFile desc=new IOFile(f,DESCRIPTOR);
+          ctx.repo.remove(new PkgParser(ctx,ii).parse(desc));
+          if (!f.delete())           CANNOTDELPKG.thrw(ii);
         }
  else         PKGDEP.thrw(ii,string(primPkg),pkg);
       }

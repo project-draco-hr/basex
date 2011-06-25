@@ -2,13 +2,12 @@
   final TokenSet pkgs=context.repo.nsDict().get(comp.uri);
   if (pkgs == null)   return false;
   for (  final byte[] nextPkg : pkgs) {
-    if (nextPkg != null && !eq(Package.getName(nextPkg),name)) {
-      final byte[] pkgDir=context.repo.pkgDict().get(nextPkg);
-      final File pkgDesc=new File(new File(context.repo.path,string(pkgDir)),DESCRIPTOR);
-      final IOFile io=new IOFile(pkgDesc);
-      final Package pkg=new PkgParser(context,input).parse(io);
+    if (nextPkg != null && !eq(Package.name(nextPkg),name)) {
+      final String pkgDir=string(context.repo.pkgDict().get(nextPkg));
+      final IO pkgDesc=new IOFile(context.repo.path(pkgDir),DESCRIPTOR);
+      final Package pkg=new PkgParser(context,input).parse(pkgDesc);
       for (      final Component nextComp : pkg.comps) {
-        if (nextComp.getName().equals(comp.getName()))         return true;
+        if (nextComp.name().equals(comp.name()))         return true;
       }
     }
   }

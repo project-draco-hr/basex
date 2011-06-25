@@ -1,0 +1,37 @@
+{
+  final byte[] data=new byte[IO.BLOCKSIZE];
+  ZipOutputStream out=null;
+  curr=0;
+  try {
+    out=new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(archive)));
+    out.setLevel(1);
+    out.putNextEntry(new ZipEntry(source.getName() + '/'));
+    out.closeEntry();
+    final IO[] files=new IOFile(source).children();
+    total=files.length;
+    for (    final IO io : files) {
+      curr++;
+      FileInputStream in=null;
+      try {
+        in=new FileInputStream(io.path());
+        out.putNextEntry(new ZipEntry(source.getName() + '/' + io.name()));
+        for (int c; (c=in.read(data)) != -1; )         out.write(data,0,c);
+        out.closeEntry();
+      }
+  finally {
+        if (in != null)         try {
+          in.close();
+        }
+ catch (        final IOException e) {
+        }
+      }
+    }
+  }
+  finally {
+    if (out != null)     try {
+      out.close();
+    }
+ catch (    final IOException e) {
+    }
+  }
+}

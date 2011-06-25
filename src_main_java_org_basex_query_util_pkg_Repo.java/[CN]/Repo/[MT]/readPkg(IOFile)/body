@@ -1,0 +1,26 @@
+{
+  final IOFile desc=new IOFile(dir,DESCRIPTOR);
+  if (desc.exists()) {
+    try {
+      final Package pkg=new PkgParser(context,null).parse(desc);
+      final byte[] name=pkg.uniqueName();
+      for (      final Component comp : pkg.comps) {
+        if (comp.uri != null) {
+          if (nsDict.id(comp.uri) != 0) {
+            nsDict.get(comp.uri).add(name);
+          }
+ else {
+            nsDict.add(comp.uri,new TokenSet(name));
+          }
+        }
+      }
+      pkgDict.add(name,token(dir.name()));
+    }
+ catch (    final QueryException ex) {
+      Util.errln(ex.getMessage());
+    }
+  }
+ else {
+    Util.errln(MISSDESC,dir);
+  }
+}

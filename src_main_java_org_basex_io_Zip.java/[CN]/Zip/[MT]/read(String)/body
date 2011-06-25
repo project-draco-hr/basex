@@ -1,0 +1,22 @@
+{
+  final ZipFile zf=new ZipFile(archive);
+  final ZipEntry ze=zf.getEntry(path);
+  if (ze == null)   throw new FileNotFoundException(path);
+  try {
+    final InputStream in=zf.getInputStream(ze);
+    final int s=(int)ze.getSize();
+    if (s >= 0) {
+      final byte[] data=new byte[s];
+      int c, o=0;
+      while (s - o != 0 && (c=in.read(data,o,s - o)) != -1)       o+=c;
+      return data;
+    }
+    final byte[] data=new byte[IO.BLOCKSIZE];
+    final ByteList bl=new ByteList();
+    for (int c; (c=in.read(data)) != -1; )     bl.add(data,0,c);
+    return bl.toArray();
+  }
+  finally {
+    zf.close();
+  }
+}
