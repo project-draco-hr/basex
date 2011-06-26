@@ -1,27 +1,10 @@
 {
-  final Data data=context.data;
-  String path=path(args[0]);
-  if (path.isEmpty())   return error(DIRERR,path);
-  final byte[] src=token(path);
-  final int[] docs=data.doc(args[0]);
-  if (docs.length == 0)   return error(FILEWHICH,path);
-  for (  final int doc : data.doc(args[0])) {
-    if (!eq(data.text(doc,true),src))     return error(DIRERR,path);
-  }
   final IO io=IO.get(args[1]);
   if (!io.exists())   return error(FILEWHICH,io);
-  for (int d=docs.length - 1; d >= 0; d--)   data.delete(docs[d]);
-  String target="";
-  final int i=path.lastIndexOf('/');
-  if (i != -1) {
-    target=path.substring(0,i);
-    path=path.substring(i + 1);
+  try {
+    return info(replace(args[0],io.inputStream(),context,false),perf);
   }
-  final Add add=new Add(args[1],path,target);
-  if (!add.run(context)) {
-    context.update();
-    data.flush();
-    return error(add.info());
+ catch (  final Exception ex) {
+    return error(ex.getMessage());
   }
-  return info(PATHREPLACED,docs.length,perf);
 }
