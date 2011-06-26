@@ -1,18 +1,24 @@
 {
-  createRepo();
-  final File pkgFile=new File(path);
-  if (!pkgFile.exists())   PKGNOTEXIST.thrw(ii,path);
-  checkPkgName(path,ii);
+  final IO io=IO.get(path);
+  IOContent cont=null;
   try {
-    final ZipFile xar=new ZipFile(pkgFile);
-    final byte[] cont=FNZip.read(xar,DESCRIPTOR);
-    final Package pkg=new PkgParser(ctx,ii).parse(new IOContent(cont));
-    new PkgValidator(ctx,ii).check(pkg);
-    unzip(xar);
-    ctx.repo.add(pkg,extractPkgName(xar.getName()));
+    cont=new IOContent(io.content());
   }
  catch (  final IOException ex) {
     Util.debug(ex);
-    throw PKGREADFAIL.thrw(ii,ex.getMessage());
+    PKGNOTEXIST.thrw(ii,path);
+  }
+  try {
+    final Zip zip=new Zip(cont);
+    final byte[] desc=zip.read(DESCRIPTOR);
+    final Package pkg=new PkgParser(repo,ii).parse(new IOContent(desc));
+    new PkgValidator(repo,ii).check(pkg);
+    final String name=io.name().replaceAll("\\.[^.]+$","");
+    zip.unzip(repo.path(name));
+    repo.add(pkg,name);
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    PKGREADFAIL.thrw(ii,io.name(),ex.getMessage());
   }
 }

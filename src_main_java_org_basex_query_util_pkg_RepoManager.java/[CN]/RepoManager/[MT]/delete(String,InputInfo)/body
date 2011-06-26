@@ -1,16 +1,16 @@
 {
   boolean found=false;
-  for (  final byte[] nextPkg : ctx.repo.pkgDict()) {
+  for (  final byte[] nextPkg : repo.pkgDict()) {
     if (nextPkg != null) {
-      final byte[] dir=ctx.repo.pkgDict().get(nextPkg);
-      if (eq(Package.getName(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
+      final byte[] dir=repo.pkgDict().get(nextPkg);
+      if (eq(Package.name(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
         found=true;
-        final byte[] primPkg=getPrimary(nextPkg,ii);
+        final byte[] primPkg=primary(nextPkg,ii);
         if (primPkg == null) {
-          final File f=new File(ctx.prop.get(Prop.REPOPATH),string(dir));
-          final File desc=new File(f,DESCRIPTOR);
-          ctx.repo.remove(new PkgParser(ctx,ii).parse(new IOFile(desc)));
-          deleteFromDisc(f,ii);
+          final IOFile f=repo.path(string(dir));
+          final IOFile desc=new IOFile(f,DESCRIPTOR);
+          repo.remove(new PkgParser(repo,ii).parse(desc));
+          if (!f.delete())           CANNOTDELPKG.thrw(ii);
         }
  else         PKGDEP.thrw(ii,string(primPkg),pkg);
       }

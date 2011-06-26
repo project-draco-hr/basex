@@ -1,0 +1,17 @@
+{
+  if (target instanceof DBNode)   return (DBNode)target;
+  ANode anc=target;
+  AxisIter it=target.anc();
+  ANode p;
+  while ((p=it.next()) != null)   anc=p;
+  final int ancID=anc.id;
+  Data data=fragmentIDs.get(ancID);
+  if (data == null) {
+    data=new MemData(ctx.context.prop);
+    new DataBuilder((MemData)data).context(ctx).build(anc);
+    fragmentIDs.add(ancID,data);
+  }
+  final int trgID=target.id;
+  final int pre=preSteps(anc,trgID);
+  return new DBNode(data,pre);
+}

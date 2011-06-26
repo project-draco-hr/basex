@@ -1,0 +1,25 @@
+{
+  for (  final UpdatePrimitive p : prim) {
+    final PrimitiveType t=p.type;
+    del|=t == DELETENODE;
+    rep|=t == REPLACENODE;
+  }
+  if (prim.length > 1 && (rep || del)) {
+    final PrimitiveType dominantOp=rep ? REPLACENODE : DELETENODE;
+    final List<UpdatePrimitive> up=new ArrayList<UpdatePrimitive>();
+    for (    final UpdatePrimitive p : prim) {
+      final PrimitiveType t=p.type;
+      if (t == INSERTBEFORE || t == INSERTAFTER || t == dominantOp)       up.add(p);
+    }
+    prim=new UpdatePrimitive[up.size()];
+    up.toArray(prim);
+  }
+  for (  final UpdatePrimitive p : prim) {
+    final PrimitiveType t=p.type;
+    del|=t == DELETENODE;
+    rep|=t == REPLACENODE;
+    adjEXT|=del || rep || t == INSERTBEFORE || t == INSERTAFTER;
+    adjINT|=t == INSERTINTO || t == INSERTINTOFIRST || t == INSERTINTOLAST;
+  }
+  Arrays.sort(prim);
+}

@@ -1,0 +1,36 @@
+{
+  final int s=updatePrimitives.size();
+  nodes=new IntList(s);
+  for (int i=1; i <= updatePrimitives.size(); i++)   nodes.add(updatePrimitives.key(i));
+  nodes.sort();
+  for (int i=0; i < s; ++i) {
+    final AggregatedNodeUpdates ups=updatePrimitives.get(nodes.get(i));
+    for (    final UpdatePrimitive p : ups.prim) {
+      if (p instanceof NodeCopy)       ((NodeCopy)p).prepare();
+      if (p.type == PUT && ancestorDeleted(nodes.get(i))) {
+        UPFOTYPE.thrw(p.input,p);
+      }
+    }
+  }
+  int p=nodes.size() - 1;
+  int par=-1;
+  while (p >= 0) {
+    if (par == nodes.get(p) && --p < 0)     break;
+    int pre=nodes.get(p);
+    final int k=data.kind(pre);
+    if (k == Data.ATTR) {
+      par=data.parent(pre,k);
+      final IntList il=new IntList();
+      while (p >= 0 && (pre=nodes.get(p)) > par) {
+        il.add(pre);
+        --p;
+      }
+      if (par != -1)       il.add(par);
+      checkNames(il.toArray());
+    }
+ else {
+      if (k == Data.ELEM)       checkNames(pre);
+      --p;
+    }
+  }
+}
