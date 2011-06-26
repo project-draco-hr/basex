@@ -5,13 +5,13 @@
   final IOFile pkgDir=ctx.context.repo.path(string(pDir));
   final IO pkgDesc=new IOFile(pkgDir,PkgText.DESCRIPTOR);
   if (!pkgDesc.exists())   Util.debug(PkgText.MISSDESC,string(pkgName));
-  final Package pkg=new PkgParser(ctx.context,input()).parse(pkgDesc);
+  final Package pkg=new PkgParser(ctx.context.repo,input()).parse(pkgDesc);
   final IO jarDesc=new IOFile(pkgDir,PkgText.JARDESC);
   if (jarDesc.exists())   loadJars(jarDesc,pkgDir,string(pkg.abbrev));
   if (pkg.dep.size() != 0)   pkgsToLoad.add(pkgName);
   for (  final Dependency d : pkg.dep) {
     if (d.pkg != null) {
-      final byte[] depPkg=new PkgValidator(ctx.context,input()).depPkg(d);
+      final byte[] depPkg=new PkgValidator(ctx.context.repo,input()).depPkg(d);
       if (depPkg == null) {
         error(NECPKGNOTINST,string(d.pkg));
       }
