@@ -2,9 +2,9 @@
   final List<BXResource> ch=new ArrayList<BXResource>();
   final HashSet<String> paths=new HashSet<String>();
   try {
-    final ClientSession cs=login(user,pass);
+    final Session s=BXResourceFactory.login(user,pass);
     try {
-      final ClientQuery q=cs.query("declare variable $d as xs:string external; " + "declare variable $p as xs:string external; " + "for $r in db:list($d) return substring-after($r,$p)");
+      final Query q=s.query("declare variable $d as xs:string external; " + "declare variable $p as xs:string external; " + "for $r in db:list($d) return substring-after($r,$p)");
       q.bind("$d",db + DIRSEP + path);
       q.bind("$p",path);
       while (q.more()) {
@@ -23,7 +23,7 @@
       }
     }
   finally {
-      cs.close();
+      s.close();
     }
   }
  catch (  Exception e) {
