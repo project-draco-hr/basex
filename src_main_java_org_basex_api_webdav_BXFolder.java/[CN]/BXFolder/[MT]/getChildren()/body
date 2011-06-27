@@ -2,22 +2,22 @@
   final List<BXResource> ch=new ArrayList<BXResource>();
   final HashSet<String> paths=new HashSet<String>();
   try {
-    final Session s=BXResourceFactory.login(user,pass);
+    final Session s=factory.login(user,pass);
     try {
       final Query q=s.query("declare variable $d as xs:string external; " + "declare variable $p as xs:string external; " + "for $r in db:list($d) return substring-after($r,$p)");
-      q.bind("$d",db + DIRSEP + path);
+      q.bind("$d",db + SEP + path);
       q.bind("$p",path);
       while (q.more()) {
         final String p=stripLeadingSlash(q.next());
-        final int ix=p.indexOf(DIRSEP);
+        final int ix=p.indexOf(SEP);
         if (ix < 0) {
-          ch.add(new BXDocument(db,path + DIRSEP + p,user,pass));
+          ch.add(new BXDocument(db,path + SEP + p,factory,user,pass));
         }
  else {
-          final String folder=path + DIRSEP + p.substring(0,ix);
+          final String folder=path + SEP + p.substring(0,ix);
           if (!paths.contains(folder)) {
             paths.add(folder);
-            ch.add(new BXFolder(db,folder,user,pass));
+            ch.add(new BXFolder(db,folder,factory,user,pass));
           }
         }
       }

@@ -1,11 +1,13 @@
 {
   if (supported(contentType)) {
     try {
-      final Session s=BXResourceFactory.login(user,pass);
+      final Session s=factory.login(user,pass);
       try {
         s.execute(new Open(db));
-        s.add(newName,path,inputStream);
-        return new BXDocument(db,path + DIRSEP + newName,user,pass);
+        final String doc=path.isEmpty() ? newName : path + SEP + newName;
+        if (factory.resource(s,db,doc) == null)         s.add(newName,path,inputStream);
+ else         s.replace(doc,inputStream);
+        return new BXDocument(db,path + SEP + newName,factory,user,pass);
       }
   finally {
         s.close();
