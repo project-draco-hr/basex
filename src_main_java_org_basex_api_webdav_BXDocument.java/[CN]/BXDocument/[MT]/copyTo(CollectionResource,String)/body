@@ -1,2 +1,26 @@
 {
+  try {
+    ClientSession cs=login(user,pass);
+    try {
+      if (target instanceof BXAllDatabasesResource) {
+        final String dbName=name.endsWith("xml") ? name.substring(0,name.length() - 4) : name;
+        ClientQuery q=cs.query("declare variable $doc as xs:string external; " + "collection($doc)");
+        q.bind("$doc",db + DIRSEP + path);
+        String doc=q.execute();
+        cs.execute(new CreateDB(dbName,doc));
+      }
+ else       if (target instanceof BXDatabase) {
+        if (((BXDatabase)target).db.equals(db)) {
+        }
+      }
+ else       if (target instanceof BXFolder) {
+      }
+    }
+  finally {
+      cs.close();
+    }
+  }
+ catch (  Exception ex) {
+    ex.printStackTrace();
+  }
 }

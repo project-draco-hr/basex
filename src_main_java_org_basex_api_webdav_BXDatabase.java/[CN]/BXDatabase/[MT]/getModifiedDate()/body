@@ -3,8 +3,9 @@
     final String info;
     final ClientSession cs=login(user,pass);
     try {
-      cs.execute(new Open(db));
-      info=cs.query("db:info()").execute();
+      ClientQuery q=cs.query("declare variable $p as xs:string external; " + "db:info($p)");
+      q.bind("$p",db);
+      info=q.execute();
     }
   finally {
       cs.close();
