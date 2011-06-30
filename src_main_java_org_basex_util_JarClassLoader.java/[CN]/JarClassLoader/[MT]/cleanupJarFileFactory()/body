@@ -4,7 +4,7 @@
   try {
     classJarURLConnection=Class.forName("sun.net.www.protocol.jar.JarURLConnection");
   }
- catch (  ClassNotFoundException e) {
+ catch (  final ClassNotFoundException e) {
     Util.err(e.getMessage());
   }
   if (classJarURLConnection == null) {
@@ -14,7 +14,7 @@
   try {
     f=classJarURLConnection.getDeclaredField("factory");
   }
- catch (  NoSuchFieldException e) {
+ catch (  final NoSuchFieldException e) {
     Util.err(e.getMessage());
   }
   if (f == null) {
@@ -25,13 +25,13 @@
   try {
     obj=f.get(null);
   }
- catch (  IllegalAccessException e) {
+ catch (  final IllegalAccessException e) {
     Util.err(e.getMessage());
   }
   if (obj == null) {
     return res;
   }
-  Class<?> classJarFileFactory=obj.getClass();
+  final Class<?> classJarFileFactory=obj.getClass();
   HashMap<Object,Object> fileCache=null;
   try {
     f=classJarFileFactory.getDeclaredField("fileCache");
@@ -41,10 +41,10 @@
       fileCache=(HashMap<Object,Object>)obj;
     }
   }
- catch (  NoSuchFieldException e) {
+ catch (  final NoSuchFieldException e) {
     Util.err(e.getMessage());
   }
-catch (  IllegalAccessException e) {
+catch (  final IllegalAccessException e) {
     Util.err(e.getMessage());
   }
   HashMap<Object,Object> urlCache=null;
@@ -56,26 +56,26 @@ catch (  IllegalAccessException e) {
       urlCache=(HashMap<Object,Object>)obj;
     }
   }
- catch (  NoSuchFieldException e) {
+ catch (  final NoSuchFieldException e) {
     Util.err(e.getMessage());
   }
-catch (  IllegalAccessException e) {
+catch (  final IllegalAccessException e) {
     Util.err(e.getMessage());
   }
   if (urlCache != null) {
-    HashMap<Object,Object> urlCacheTmp=(HashMap<Object,Object>)urlCache.clone();
-    Iterator<Object> it=urlCacheTmp.keySet().iterator();
+    final HashMap<Object,Object> urlCacheTmp=(HashMap<Object,Object>)urlCache.clone();
+    final Iterator<Object> it=urlCacheTmp.keySet().iterator();
     while (it.hasNext()) {
       obj=it.next();
       if (!(obj instanceof JarFile)) {
         continue;
       }
-      JarFile jarFile=(JarFile)obj;
+      final JarFile jarFile=(JarFile)obj;
       if (setJarFileNames2Close.contains(jarFile.getName())) {
         try {
           jarFile.close();
         }
- catch (        IOException e) {
+ catch (        final IOException e) {
           Util.err(e.getMessage());
         }
         if (fileCache != null) {
@@ -87,20 +87,20 @@ catch (  IllegalAccessException e) {
     res=true;
   }
  else   if (fileCache != null) {
-    HashMap<Object,Object> fileCacheTmp=(HashMap<Object,Object>)fileCache.clone();
-    Iterator<Object> it=fileCacheTmp.keySet().iterator();
+    final HashMap<Object,Object> fileCacheTmp=(HashMap<Object,Object>)fileCache.clone();
+    final Iterator<Object> it=fileCacheTmp.keySet().iterator();
     while (it.hasNext()) {
-      Object key=it.next();
+      final Object key=it.next();
       obj=fileCache.get(key);
       if (!(obj instanceof JarFile)) {
         continue;
       }
-      JarFile jarFile=(JarFile)obj;
+      final JarFile jarFile=(JarFile)obj;
       if (setJarFileNames2Close.contains(jarFile.getName())) {
         try {
           jarFile.close();
         }
- catch (        IOException e) {
+ catch (        final IOException e) {
           Util.err(e.getMessage());
         }
         fileCache.remove(key);

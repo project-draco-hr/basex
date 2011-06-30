@@ -1,11 +1,11 @@
 {
   boolean res=false;
-  Class<?> classClassLoader=ClassLoader.class;
+  final Class<?> classClassLoader=ClassLoader.class;
   java.lang.reflect.Field nativeLibraries=null;
   try {
     nativeLibraries=classClassLoader.getDeclaredField("nativeLibraries");
   }
- catch (  NoSuchFieldException e1) {
+ catch (  final NoSuchFieldException e1) {
     Util.err(e1.getMessage());
   }
   if (nativeLibraries == null) {
@@ -16,20 +16,20 @@
   try {
     obj=nativeLibraries.get(cl);
   }
- catch (  IllegalAccessException e1) {
+ catch (  final IllegalAccessException e1) {
     Util.err(e1.getMessage());
   }
   if (!(obj instanceof Vector)) {
     return res;
   }
   res=true;
-  Vector<Object> nativeLib=(Vector<Object>)obj;
-  for (  Object lib : nativeLib) {
+  final Vector<Object> nativeLib=(Vector<Object>)obj;
+  for (  final Object lib : nativeLib) {
     java.lang.reflect.Method finalize=null;
     try {
       finalize=lib.getClass().getDeclaredMethod("finalize",new Class[0]);
     }
- catch (    NoSuchMethodException e) {
+ catch (    final NoSuchMethodException e) {
       Util.err(e.getMessage());
     }
     if (finalize != null) {
@@ -37,10 +37,10 @@
       try {
         finalize.invoke(lib,new Object[0]);
       }
- catch (      IllegalAccessException e) {
+ catch (      final IllegalAccessException e) {
         Util.err(e.getMessage());
       }
-catch (      InvocationTargetException e) {
+catch (      final InvocationTargetException e) {
         Util.err(e.getMessage());
       }
     }
