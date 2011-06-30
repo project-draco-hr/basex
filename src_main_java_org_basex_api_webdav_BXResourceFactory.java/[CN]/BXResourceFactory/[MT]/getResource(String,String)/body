@@ -2,13 +2,13 @@
   final Auth a=HttpManager.request().getAuthorization();
   if (a == null && System.getProperty(DBUSER) == null)   return NOAUTH;
   final Path p=Path.path(dbpath);
-  if (p.isRoot())   return new BXAllDatabasesResource(this,null,null);
+  if (p.isRoot())   return new BXAllDatabasesResource(this,a.getUser(),a.getPassword());
   final String db=p.getFirst();
   try {
     final Session s=login(a);
     try {
-      if (p.getLength() == 1)       return listDbs(s).contains(db) ? new BXDatabase(db,this) : null;
-      return resource(s,db,stripLeadingSlash(p.getStripFirst().toString()));
+      if (p.getLength() == 1)       return listDbs(s).contains(db) ? new BXDatabase(db,this,a.getUser(),a.getPassword()) : null;
+      return resource(s,db,stripLeadingSlash(p.getStripFirst().toString()),a.getUser(),a.getPassword());
     }
   finally {
       s.close();

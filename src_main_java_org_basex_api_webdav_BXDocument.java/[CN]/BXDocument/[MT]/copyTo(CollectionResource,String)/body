@@ -3,17 +3,13 @@
     Session s=factory.login(user,pass);
     try {
       if (target instanceof BXAllDatabasesResource) {
-        final String dbName=name.endsWith("xml") ? name.substring(0,name.length() - 4) : name;
-        final Query q=s.query("declare variable $doc as xs:string external; " + "collection($doc)");
-        q.bind("$doc",db + SEP + path);
-        final String doc=q.execute();
-        s.execute(new CreateDB(dbName,doc));
+        createDb(s,name);
       }
  else       if (target instanceof BXDatabase) {
-        if (((BXDatabase)target).db.equals(db)) {
-        }
+        addToDb(s,((BXDatabase)target).db,name);
       }
  else       if (target instanceof BXFolder) {
+        addToFolder(s,((BXFolder)target).db,name,((BXFolder)target).path);
       }
     }
   finally {

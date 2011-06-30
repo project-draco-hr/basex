@@ -1,2 +1,36 @@
 {
+  try {
+    Session s=factory.login(user,pass);
+    try {
+      if (target instanceof BXAllDatabasesResource) {
+        createDb(s,name);
+        delete();
+      }
+ else       if (target instanceof BXDatabase) {
+        if (((BXDatabase)target).db.equals(db)) {
+          s.execute(new Open(db));
+          s.execute(new Rename(path,name));
+        }
+ else {
+          addToDb(s,((BXDatabase)target).db,name);
+          delete();
+        }
+      }
+ else       if (target instanceof BXFolder) {
+        if (((BXFolder)target).db.equals(db)) {
+          s.execute(new Open(db));
+          s.execute(new Rename(path,((BXFolder)target).path + SEP + name));
+        }
+ else {
+          addToFolder(s,((BXFolder)target).db,name,((BXFolder)target).path);
+          delete();
+        }
+      }
+    }
+  finally {
+      s.close();
+    }
+  }
+ catch (  Exception ex) {
+  }
 }
