@@ -1,14 +1,15 @@
 {
   new RepoInstall(REPO + "testJar.xar",null).execute(ctx);
-  assertTrue(dir("testJar"));
-  assertTrue(file("testJar/expath-pkg.xml"));
-  assertTrue(file("testJar/basex.xml"));
-  assertTrue(dir("testJar/jar"));
-  assertTrue(file("testJar/jar/test.jar"));
-  assertTrue(file("testJar/jar/wrapper.xq"));
+  final String dirName=normalize("jarPkg-1.0.0");
+  assertTrue(dir(dirName));
+  assertTrue(file(dirName + "/expath-pkg.xml"));
+  assertTrue(file(dirName + "/basex.xml"));
+  assertTrue(dir(dirName + "/jar"));
+  assertTrue(file(dirName + "/jar/test.jar"));
+  assertTrue(file(dirName + "/jar/wrapper.xq"));
   final QueryProcessor qp1=new QueryProcessor("import module namespace j='jar';\nj:print('test')",ctx);
   assertEquals(qp1.execute().toString(),"test");
   qp1.execute();
   Reflect.jarLoader.close();
-  new IOFile(REPO,"testJar").delete();
+  new IOFile(REPO,dirName).delete();
 }

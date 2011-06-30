@@ -1,0 +1,7 @@
+{
+  final String id=query("let $newitem := (let $c := min(for $i in //item " + "return count($i/descendant-or-self::node())) " + "return for $i in //item where "+ "(count($i/descendant-or-self::node()) = $c) "+ "return $i)[1] return $newitem/@id/data()");
+  final String count1=query("count(//item)");
+  query("for $i in //item return replace node $i " + "with (//item[@id='" + id + "'])[1]");
+  final String count2=query("count(//item[@id='" + id + "'])");
+  assertEquals(count1,count2);
+}
