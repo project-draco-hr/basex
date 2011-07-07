@@ -1,3 +1,19 @@
 {
-  return print(exec(ServerCmd.EXEC,id));
+  try {
+    cs.sout.write(ServerCmd.EXEC.code);
+    cs.send(id);
+    final BufferInput bi=new BufferInput(cs.sin);
+    String s=null;
+    if (cs.out == null) {
+      s=bi.content().toString();
+    }
+ else {
+      for (byte l; (l=bi.readByte()) != 0; )       cs.out.write(l);
+    }
+    if (!cs.ok(bi))     throw new BaseXException(bi.readString());
+    return s;
+  }
+ catch (  final IOException ex) {
+    throw new BaseXException(ex);
+  }
 }
