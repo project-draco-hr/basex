@@ -1,0 +1,30 @@
+{
+  final ArrayOutput ao=new ArrayOutput();
+  final Object xp=get(SAXONPROC,true);
+  final Object xc=invoke(xp,"newXsltCompiler");
+  final Source xslt=new SAXSource(xsl.inputSource());
+  final Object xe=invoke(xc,"compile",xslt);
+  final Object xt=invoke(xe,"load");
+  if (xt == null)   throw new NullPointerException("No Saxon XSLT transformer found.");
+  final Object xb=invoke(xp,"newDocumentBuilder");
+  final Source input=new SAXSource(in.inputSource());
+  invoke(xt,"setInitialContextNode",invoke(xb,"build",input));
+  final Object xs=get(SAXONSER,ao);
+  invoke(xt,"setDestination",xs);
+  for (  final byte[] key : output) {
+    final String k=string(key);
+    for (    final Object p : SAXONPROPS.getEnumConstants()) {
+      if (p.toString().equals(k)) {
+        invoke(xs,"setOutputProperty",p,output.get(key).toString());
+      }
+    }
+  }
+  for (  final byte[] key : params) {
+    final Object k=get(SAXONQNAME,string(key));
+    final Object v=get(SAXONVALUE,params.get(key).toString());
+    invoke(xt,"setParameter",k,v);
+  }
+  invoke(xt,"transform");
+  invoke(xt,"close");
+  return ao.toArray();
+}

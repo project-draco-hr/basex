@@ -1,0 +1,27 @@
+{
+  if (object == null)   return null;
+  final Class<?>[] clz=new Class<?>[args.length];
+  for (int a=0; a < args.length; a++)   clz[a]=args[a].getClass();
+  final Class<?> c=object.getClass();
+  Method m=method(c,method,clz);
+  if (m == null) {
+    for (int a=0; a < args.length; a++) {
+      Class<?>[] ic=clz[a].getInterfaces();
+      if (ic.length != 0)       clz[a]=ic[0];
+    }
+    m=method(c,method,clz);
+    while (m == null) {
+      boolean same=true;
+      for (int a=0; a < args.length; a++) {
+        Class<?> ic=clz[a].getSuperclass();
+        if (ic != null && ic != Object.class) {
+          clz[a]=ic;
+          same=false;
+        }
+      }
+      if (same)       return null;
+      m=method(c,method,clz);
+    }
+  }
+  return invoke(m,object,args);
+}
