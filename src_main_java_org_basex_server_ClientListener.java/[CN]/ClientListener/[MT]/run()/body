@@ -1,0 +1,81 @@
+{
+  log.write(this,"LOGIN " + context.user.name,OK);
+  running=true;
+  String cmd=null;
+  ServerCmd sc=null;
+  try {
+    while (running) {
+      try {
+        final byte b=in.readByte();
+        sc=get(b);
+        cmd=null;
+        if (sc == CREATE) {
+          create();
+        }
+ else         if (sc == ADD) {
+          add();
+        }
+ else         if (sc == WATCH) {
+          watch();
+        }
+ else         if (sc == UNWATCH) {
+          unwatch();
+        }
+ else         if (sc == REPLACE) {
+          replace();
+        }
+ else         if (sc != COMMAND) {
+          query(sc);
+        }
+ else {
+          cmd=new ByteList().add(b).add(in.token().toArray()).toString();
+        }
+      }
+ catch (      final IOException ex) {
+        exit();
+        break;
+      }
+      if (sc != COMMAND)       continue;
+      final Performance perf=new Performance();
+      command=null;
+      try {
+        command=new CommandParser(cmd,context).parseSingle();
+      }
+ catch (      final QueryException ex) {
+        final String msg=ex.getMessage();
+        log.write(this,cmd,INFOERROR + msg);
+        out.write(0);
+        out.writeString(msg);
+        send(false);
+        continue;
+      }
+      if (command instanceof Exit) {
+        exit();
+        running=false;
+        break;
+      }
+      command.startTimeout(context.prop.num(Prop.TIMEOUT));
+      log.write(this,command.toString().replace('\r',' ').replace('\n',' '));
+      boolean ok=true;
+      String info=null;
+      try {
+        command.execute(context,out);
+        info=command.info();
+      }
+ catch (      final BaseXException ex) {
+        ok=false;
+        info=ex.getMessage();
+        if (info.startsWith(PROGERR))         info=SERVERTIMEOUT;
+      }
+      command.stopTimeout();
+      out.write(0);
+      info(ok,info,perf);
+    }
+    if (!running)     log.write(this,"LOGOUT " + context.user.name,OK);
+  }
+ catch (  final IOException ex) {
+    log.write(this,sc == COMMAND ? cmd : sc,INFOERROR + ex.getMessage());
+    Util.stack(ex);
+    exit();
+  }
+}
