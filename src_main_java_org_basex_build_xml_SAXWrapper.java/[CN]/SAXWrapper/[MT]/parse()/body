@@ -1,8 +1,8 @@
 {
-  final InputSource is=wrap(src.getInputSource());
-  final String input=src.getSystemId() == null ? "..." : src.getSystemId();
+  final InputSource is=wrap(saxs.getInputSource());
+  final String in=saxs.getSystemId() == null ? "..." : saxs.getSystemId();
   try {
-    XMLReader r=src.getXMLReader();
+    XMLReader r=saxs.getXMLReader();
     if (r == null) {
       final SAXParserFactory f=SAXParserFactory.newInstance();
       f.setFeature(EXTDTD,prop.is(Prop.DTD));
@@ -12,18 +12,18 @@
       f.setXIncludeAware(true);
       r=f.newSAXParser().getXMLReader();
     }
-    sax=new SAXHandler(builder);
+    saxh=new SAXHandler(builder);
     final String cat=prop.get(Prop.CATFILE);
-    if (!cat.isEmpty())     CatalogResolverWrapper.set(r,cat);
-    r.setDTDHandler(sax);
-    r.setContentHandler(sax);
-    r.setProperty(LEXHANDLER,sax);
-    r.setErrorHandler(sax);
+    if (!cat.isEmpty())     CatalogWrapper.set(r,cat);
+    r.setDTDHandler(saxh);
+    r.setContentHandler(saxh);
+    r.setProperty(LEXHANDLER,saxh);
+    r.setErrorHandler(saxh);
     if (is != null)     r.parse(is);
- else     r.parse(src.getSystemId());
+ else     r.parse(saxs.getSystemId());
   }
  catch (  final SAXParseException ex) {
-    final String msg=Util.info(SCANPOS,input,ex.getLineNumber(),ex.getColumnNumber()) + ": " + ex.getMessage();
+    final String msg=Util.info(SCANPOS,in,ex.getLineNumber(),ex.getColumnNumber()) + ": " + ex.getMessage();
     final IOException ioe=new IOException(msg);
     ioe.setStackTrace(ex.getStackTrace());
     throw ioe;
@@ -33,15 +33,15 @@ catch (  final ProgressException ex) {
   }
 catch (  final Exception ex) {
     String msg=ex.getMessage();
-    if (input != null)     msg="\"" + input + "\": "+ msg;
+    if (in != null)     msg="\"" + in + "\": "+ msg;
     final IOException ioe=new IOException(msg);
     ioe.setStackTrace(ex.getStackTrace());
     throw ioe;
   }
  finally {
     try {
-      final InputStream in=is.getByteStream();
-      if (in != null)       in.close();
+      final InputStream ist=is.getByteStream();
+      if (ist != null)       ist.close();
       final Reader r=is.getCharacterStream();
       if (r != null)       r.close();
     }
