@@ -1,7 +1,11 @@
 {
-  final Data data=ctx.resource.data(checkStr(expr[0],ctx),input);
-  final String path=string(checkStr(expr[1],ctx));
-  final int[] docs=data.doc(path);
+  final String path=path(string(checkStr(expr[0],ctx)));
+  final int pos=path.indexOf('/');
+  if (pos <= 0)   NODB.thrw(input,path);
+  final byte[] db=token(path.substring(0,pos));
+  final Data data=ctx.resource.data(db,input);
+  final String trg=path.substring(pos + 1);
+  final int[] docs=data.doc(trg);
   for (  final int pre : docs)   ctx.updates.add(new DeleteNode(pre,data,input),ctx);
   return null;
 }
