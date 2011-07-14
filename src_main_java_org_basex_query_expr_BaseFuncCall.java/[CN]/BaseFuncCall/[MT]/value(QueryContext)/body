@@ -1,0 +1,19 @@
+{
+  Expr fun=func;
+  Var[] args=args(ctx);
+  do {
+    final int s=addArgs(ctx,args);
+    ctx.tailCalls=0;
+    try {
+      return fun.value(ctx);
+    }
+ catch (    final Continuation c) {
+      fun=c.getFunc();
+      args=c.getArgs();
+    }
+ finally {
+      ctx.vars.reset(s);
+    }
+  }
+ while (true);
+}
