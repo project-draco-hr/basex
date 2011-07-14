@@ -1,0 +1,23 @@
+{
+  final int l=nodes.size();
+  int ni=0;
+  int c=0;
+  while (ni < l - 1) {
+    final int pre=nodes.get(ni++);
+    final int[] destroyed=updatePrimitives.get(pre).destroyedNodeIdentities().toArray();
+    for (    final int pd : destroyed) {
+      final int followingAxisPre=pd + data.size(pd,data.kind(pd));
+      while (ni < l && nodes.get(ni) < followingAxisPre) {
+        nodes.set(-1,ni++);
+        c++;
+      }
+    }
+  }
+  if (c == 0)   return;
+  final IntList newNodes=new IntList(nodes.size() - c);
+  for (int i=0; i < nodes.size(); i++) {
+    final int pre=nodes.get(i);
+    if (pre != -1)     newNodes.add(pre);
+  }
+  nodes=newNodes;
+}

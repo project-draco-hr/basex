@@ -1,0 +1,33 @@
+{
+  final Constr c=new Constr(ii,ctx,expr[1]);
+  if (c.errAtt)   UPNOATTRPER.thrw(input);
+  if (c.duplAtt != null)   UPATTDUPL.thrw(input,c.duplAtt);
+  final Iter t=ctx.iter(expr[0]);
+  final Item i=t.next();
+  if (i == null)   throw UPSEQEMP.thrw(input,Util.name(this));
+  final Type tp=i.type;
+  if (!(i instanceof ANode) || tp == NodeType.DOC || t.next() != null)   UPTRGMULT.thrw(input);
+  final ANode targ=(ANode)i;
+  final DBNode dbn=ctx.updates.determineDataRef(targ,ctx);
+  final NodeCache aList=c.atts;
+  NodeCache list=c.children;
+  if (value) {
+    final byte[] txt=list.size() < 1 ? EMPTY : list.get(0).atom();
+    if (tp == NodeType.COM)     FComm.parse(txt,input);
+    if (tp == NodeType.PI)     FPI.parse(txt,input);
+    ctx.updates.add(tp == NodeType.ELM ? new ReplaceElementContent(dbn.pre,dbn.data,input,txt) : new ReplaceValue(dbn.pre,dbn.data,input,txt),ctx);
+  }
+ else {
+    final ANode par=targ.parent();
+    if (par == null)     UPNOPAR.thrw(input,i);
+    if (tp == NodeType.ATT) {
+      if (list.size() > 0)       UPWRATTR.thrw(input);
+      list=checkNS(aList,par,ctx);
+    }
+ else {
+      if (aList.size() > 0)       UPWRELM.thrw(input);
+    }
+    ctx.updates.add(new ReplaceNode(dbn.pre,dbn.data,input,list),ctx);
+  }
+  return null;
+}

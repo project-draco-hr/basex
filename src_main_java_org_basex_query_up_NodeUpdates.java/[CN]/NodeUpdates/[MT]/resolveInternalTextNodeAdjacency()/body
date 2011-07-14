@@ -1,0 +1,18 @@
+{
+  int merged=0;
+  final InsertBefore ib=(InsertBefore)find(INSERTBEFORE);
+  int c=ib == null ? 0 : ib.preShifts();
+  for (int i=prim.length - 1; i >= 0; i--) {
+    if (prim[i] instanceof StructuralUpdate) {
+      final StructuralUpdate p=(StructuralUpdate)prim[i];
+      if (p.type != INSERTAFTER && p.type != INSERTBEFORE && p.type != REPLACENODE && p.type != DELETENODE) {
+        if (p.checkTextAdjacency(c)) {
+          merged++;
+          c--;
+        }
+        c+=p.preShifts();
+      }
+    }
+  }
+  return merged;
+}

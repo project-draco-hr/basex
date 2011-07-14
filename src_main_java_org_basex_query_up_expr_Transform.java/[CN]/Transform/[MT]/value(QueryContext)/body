@@ -1,0 +1,22 @@
+{
+  final int s=ctx.vars.size();
+  final TransformModifier pu=new TransformModifier();
+  for (  final Let fo : copies) {
+    final Iter ir=ctx.iter(fo.expr);
+    final Item i=ir.next();
+    if (i == null || !i.node() || ir.next() != null)     UPCOPYMULT.thrw(input);
+    final MemData md=new MemData(ctx.context.prop);
+    new DataBuilder(md).context(ctx).build((ANode)i);
+    ctx.vars.add(fo.var.bind(new DBNode(md,0),ctx).copy());
+    pu.addData(md);
+    ctx.copiedNods.add(md);
+  }
+  final ContextModifier tmp=ctx.updates.mod;
+  ctx.updates.mod=pu;
+  expr[0].value(ctx);
+  ctx.updates.applyUpdates(ctx);
+  ctx.updates.mod=tmp;
+  final Value v=ctx.value(expr[1]);
+  ctx.vars.reset(s);
+  return v;
+}

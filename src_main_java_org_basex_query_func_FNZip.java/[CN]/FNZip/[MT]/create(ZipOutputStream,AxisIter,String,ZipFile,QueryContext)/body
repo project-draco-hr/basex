@@ -19,12 +19,11 @@
     }
  else {
       if (src != null) {
-        if (!IO.get(src).exists())         ZIPNOTFOUND.thrw(input,src);
+        if (!new IOFile(src).exists())         ZIPNOTFOUND.thrw(input,src);
         BufferedInputStream bis=null;
         try {
           bis=new BufferedInputStream(new FileInputStream(src));
-          int c;
-          while ((c=bis.read(data)) != -1)           zos.write(data,0,c);
+          for (int c; (c=bis.read(data)) != -1; )           zos.write(data,0,c);
         }
   finally {
           if (bis != null)           try {
@@ -42,8 +41,7 @@
         if (zf != null && n == null)         ze=zf.getEntry(root + name);
         if (ze != null) {
           final InputStream zis=zf.getInputStream(ze);
-          int c;
-          while ((c=zis.read(data)) != -1)           zos.write(data,0,c);
+          for (int c; (c=zis.read(data)) != -1; )           zos.write(data,0,c);
         }
  else         if (n != null) {
           final boolean hex=M_HEX.equals(m);
@@ -57,7 +55,9 @@
  else {
             try {
               final XMLSerializer xml=new XMLSerializer(zos,serialPar(node,ctx));
-              do               n.serialize(xml);
+              do {
+                n.serialize(xml);
+              }
  while ((n=ch.next()) != null);
               xml.close();
             }

@@ -1,46 +1,38 @@
 {
   try {
-    new RepoManager(ctx).delete("xyz",null);
+    new RepoManager(ctx.repo).delete("xyz",null);
     fail("Not installed package not detected.");
   }
- catch (  QueryException ex) {
-    check(ex,Err.PKGNOTINST);
+ catch (  final QueryException ex) {
+    check(ex,Err.PKGNOTEXIST);
   }
   new RepoInstall(REPO + "pkg3.xar",null).execute(ctx);
   assertNotNull(ctx.repo.pkgDict().id(token("pkg3-10.0")) != 0);
-  final File pkgDir1=new File(REPO + "pkg3");
-  assertTrue(pkgDir1.exists());
-  assertTrue(pkgDir1.isDirectory());
-  final File pkgDesc1=new File(REPO + "pkg3/expath-pkg.xml");
-  assertTrue(pkgDesc1.exists());
-  final File modDir1=new File(REPO + "pkg3/pkg3/mod");
-  assertTrue(modDir1.exists());
-  assertTrue(modDir1.isDirectory());
-  final File modFile1=new File(REPO + "pkg3/pkg3/mod/pkg3mod1.xql");
-  assertTrue(modFile1.exists());
+  final String pkg3Dir=normalize("http://www.pkg3.com-10.0");
+  assertTrue(dir(pkg3Dir));
+  assertTrue(file(pkg3Dir + "/expath-pkg.xml"));
+  assertTrue(dir(pkg3Dir + "/pkg3"));
+  assertTrue(dir(pkg3Dir + "/pkg3/mod"));
+  assertTrue(file(pkg3Dir + "/pkg3/mod/pkg3mod1.xql"));
   new RepoInstall(REPO + "pkg4.xar",null).execute(ctx);
   assertNotNull(ctx.repo.pkgDict().id(token("pkg4-2.0")) != 0);
-  final File pkgDir2=new File(REPO + "pkg4");
-  assertTrue(pkgDir2.exists());
-  assertTrue(pkgDir2.isDirectory());
-  final File pkgDesc2=new File(REPO + "pkg4/expath-pkg.xml");
-  assertTrue(pkgDesc2.exists());
-  final File modDir2=new File(REPO + "pkg4/pkg4/mod");
-  assertTrue(modDir2.exists());
-  assertTrue(modDir2.isDirectory());
-  final File modFile2=new File(REPO + "pkg4/pkg4/mod/pkg4mod1.xql");
-  assertTrue(modFile2.exists());
+  final String pkg4Dir=normalize("http://www.pkg4.com-2.0");
+  assertTrue(dir(pkg4Dir));
+  assertTrue(file(pkg4Dir + "/expath-pkg.xml"));
+  assertTrue(dir(pkg4Dir + "/pkg4"));
+  assertTrue(dir(pkg4Dir + "/pkg4/mod"));
+  assertTrue(file(pkg4Dir + "/pkg4/mod/pkg4mod1.xql"));
   try {
-    new RepoManager(ctx).delete("pkg3",null);
+    new RepoManager(ctx.repo).delete(pkg3Dir,null);
     fail("Package involved in a dependency was deleted.");
   }
  catch (  final QueryException ex) {
     check(ex,Err.PKGDEP);
   }
   new RepoDelete("http://www.pkg4.com",null).execute(ctx);
-  assertTrue(ctx.repo.pkgDict().id(token("pkg4-2.0")) == 0);
-  assertTrue(!pkgDir2.exists());
-  new RepoDelete("pkg3",null).execute(ctx);
-  assertTrue(ctx.repo.pkgDict().id(token("pkg3-10.0")) == 0);
-  assertTrue(!pkgDir1.exists());
+  assertTrue(ctx.repo.pkgDict().id(token("http://www.pkg4.com-2.0")) == 0);
+  assertTrue(!dir(pkg4Dir));
+  new RepoDelete(pkg3Dir,null).execute(ctx);
+  assertTrue(ctx.repo.pkgDict().id(token("http://www.pkg3.com-10.0")) == 0);
+  assertTrue(!dir(pkg3Dir));
 }

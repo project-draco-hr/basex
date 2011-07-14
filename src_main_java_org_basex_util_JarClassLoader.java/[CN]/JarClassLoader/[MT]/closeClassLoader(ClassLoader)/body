@@ -1,0 +1,75 @@
+{
+  boolean res=false;
+  if (cl == null) {
+    return res;
+  }
+  final Class<?> classURLClassLoader=URLClassLoader.class;
+  Field f=null;
+  try {
+    f=classURLClassLoader.getDeclaredField("ucp");
+  }
+ catch (  final NoSuchFieldException e1) {
+    Util.err(e1.getMessage());
+  }
+  if (f != null) {
+    f.setAccessible(true);
+    Object obj=null;
+    try {
+      obj=f.get(cl);
+    }
+ catch (    final IllegalAccessException e1) {
+      Util.err(e1.getMessage());
+    }
+    if (obj != null) {
+      final Object ucp=obj;
+      f=null;
+      try {
+        f=ucp.getClass().getDeclaredField("loaders");
+      }
+ catch (      final NoSuchFieldException e1) {
+        Util.err(e1.getMessage());
+      }
+      if (f != null) {
+        f.setAccessible(true);
+        ArrayList<Object> loaders=null;
+        try {
+          loaders=(ArrayList<Object>)f.get(ucp);
+          res=true;
+        }
+ catch (        final IllegalAccessException e1) {
+          Util.err(e1.getMessage());
+        }
+        for (int i=0; loaders != null && i < loaders.size(); i++) {
+          obj=loaders.get(i);
+          f=null;
+          try {
+            f=obj.getClass().getDeclaredField("jar");
+          }
+ catch (          final NoSuchFieldException e) {
+            Util.err(e.getMessage());
+          }
+          if (f != null) {
+            f.setAccessible(true);
+            try {
+              obj=f.get(obj);
+            }
+ catch (            final IllegalAccessException e1) {
+              Util.err(e1.getMessage());
+            }
+            if (obj instanceof JarFile) {
+              final JarFile jarFile=(JarFile)obj;
+              setJarFileNames2Close.add(jarFile.getName());
+              try {
+                jarFile.close();
+              }
+ catch (              final IOException e) {
+                Util.err(e.getMessage());
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return res;
+}

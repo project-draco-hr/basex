@@ -1,0 +1,113 @@
+{
+  boolean res=false;
+  Class<?> classJarURLConnection=null;
+  try {
+    classJarURLConnection=Class.forName("sun.net.www.protocol.jar.JarURLConnection");
+  }
+ catch (  final ClassNotFoundException e) {
+    Util.err(e.getMessage());
+  }
+  if (classJarURLConnection == null) {
+    return res;
+  }
+  Field f=null;
+  try {
+    f=classJarURLConnection.getDeclaredField("factory");
+  }
+ catch (  final NoSuchFieldException e) {
+    Util.err(e.getMessage());
+  }
+  if (f == null) {
+    return res;
+  }
+  f.setAccessible(true);
+  Object obj=null;
+  try {
+    obj=f.get(null);
+  }
+ catch (  final IllegalAccessException e) {
+    Util.err(e.getMessage());
+  }
+  if (obj == null) {
+    return res;
+  }
+  final Class<?> classJarFileFactory=obj.getClass();
+  HashMap<Object,Object> fileCache=null;
+  try {
+    f=classJarFileFactory.getDeclaredField("fileCache");
+    f.setAccessible(true);
+    obj=f.get(null);
+    if (obj instanceof HashMap) {
+      fileCache=(HashMap<Object,Object>)obj;
+    }
+  }
+ catch (  final NoSuchFieldException e) {
+    Util.err(e.getMessage());
+  }
+catch (  final IllegalAccessException e) {
+    Util.err(e.getMessage());
+  }
+  HashMap<Object,Object> urlCache=null;
+  try {
+    f=classJarFileFactory.getDeclaredField("urlCache");
+    f.setAccessible(true);
+    obj=f.get(null);
+    if (obj instanceof HashMap) {
+      urlCache=(HashMap<Object,Object>)obj;
+    }
+  }
+ catch (  final NoSuchFieldException e) {
+    Util.err(e.getMessage());
+  }
+catch (  final IllegalAccessException e) {
+    Util.err(e.getMessage());
+  }
+  if (urlCache != null) {
+    final HashMap<Object,Object> urlCacheTmp=(HashMap<Object,Object>)urlCache.clone();
+    final Iterator<Object> it=urlCacheTmp.keySet().iterator();
+    while (it.hasNext()) {
+      obj=it.next();
+      if (!(obj instanceof JarFile)) {
+        continue;
+      }
+      final JarFile jarFile=(JarFile)obj;
+      if (setJarFileNames2Close.contains(jarFile.getName())) {
+        try {
+          jarFile.close();
+        }
+ catch (        final IOException e) {
+          Util.err(e.getMessage());
+        }
+        if (fileCache != null) {
+          fileCache.remove(urlCache.get(jarFile));
+        }
+        urlCache.remove(jarFile);
+      }
+    }
+    res=true;
+  }
+ else   if (fileCache != null) {
+    final HashMap<Object,Object> fileCacheTmp=(HashMap<Object,Object>)fileCache.clone();
+    final Iterator<Object> it=fileCacheTmp.keySet().iterator();
+    while (it.hasNext()) {
+      final Object key=it.next();
+      obj=fileCache.get(key);
+      if (!(obj instanceof JarFile)) {
+        continue;
+      }
+      final JarFile jarFile=(JarFile)obj;
+      if (setJarFileNames2Close.contains(jarFile.getName())) {
+        try {
+          jarFile.close();
+        }
+ catch (        final IOException e) {
+          Util.err(e.getMessage());
+        }
+        fileCache.remove(key);
+      }
+    }
+    res=true;
+  }
+  setJarFileNames2Close.clear();
+  return res;
+}

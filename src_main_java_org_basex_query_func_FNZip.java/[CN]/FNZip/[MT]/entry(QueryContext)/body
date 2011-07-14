@@ -1,23 +1,14 @@
 {
-  final String file=string(checkStr(expr[0],ctx));
+  final IOFile file=new IOFile(string(checkStr(expr[0],ctx)));
   final String path=string(checkStr(expr[1],ctx));
-  if (!IO.get(file).exists())   ZIPNOTFOUND.thrw(input,file);
-  ZipFile zf=null;
+  if (!file.exists())   ZIPNOTFOUND.thrw(input,file);
   try {
-    zf=new ZipFile(file);
-    return read(zf,path);
+    return new Zip(file).read(path);
   }
  catch (  final FileNotFoundException ex) {
-    throw ZIPNOTFOUND.thrw(input,file + '/' + path);
+    throw ZIPNOTFOUND.thrw(input,file + "/" + path);
   }
 catch (  final IOException ex) {
     throw ZIPFAIL.thrw(input,ex.getMessage());
-  }
- finally {
-    if (zf != null)     try {
-      zf.close();
-    }
- catch (    final IOException e) {
-    }
   }
 }

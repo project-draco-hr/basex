@@ -1,0 +1,16 @@
+{
+  final JarDesc desc=new JarParser(ctx.context,input()).parse(jarDesc);
+  final URL[] urls=new URL[desc.jars.size()];
+  int i=0;
+  for (  final byte[] jar : desc.jars) {
+    final IOFile path=new IOFile(new IOFile(pkgDir,modDir),string(jar));
+    try {
+      urls[i++]=new URL(IO.FILEPREF + path);
+    }
+ catch (    final MalformedURLException ex) {
+      Util.debug(ex.getMessage());
+    }
+  }
+  Reflect.setJarLoader(new JarClassLoader(urls));
+  for (  final byte[] c : desc.classes)   ctx.ns.add(new QNm(concat(token("java:"),c)),input());
+}

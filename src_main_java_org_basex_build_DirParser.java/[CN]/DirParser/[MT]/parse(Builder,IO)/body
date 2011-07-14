@@ -1,0 +1,25 @@
+{
+  if (io.isDir()) {
+    for (    final IO f : ((IOFile)io).children())     parse(b,f);
+  }
+ else {
+    src=io;
+    if (!b.meta.prop.is(Prop.ADDARCHIVES) && src.archive())     return;
+    while (io.more()) {
+      final String nm=Prop.WIN ? io.name().toLowerCase() : io.name();
+      if (filter != null && !filter.matcher(nm).matches())       continue;
+      b.meta.filesize+=src.length();
+      String targ=!trg.isEmpty() ? trg + '/' : "";
+      final String name=src.name();
+      String path=src.path();
+      if (path.endsWith('/' + name)) {
+        path=path.substring(0,path.length() - name.length());
+        if (path.startsWith(root))         path=path.substring(root.length());
+        targ=(targ + path).replace("//","/");
+      }
+      parser=Parser.fileParser(io,prop,targ);
+      parser.parse(b);
+      if (Util.debug && (++c & 0x3FF) == 0)       Util.err(";");
+    }
+  }
+}
