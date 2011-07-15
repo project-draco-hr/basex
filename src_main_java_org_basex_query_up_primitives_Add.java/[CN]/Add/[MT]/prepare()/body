@@ -1,0 +1,41 @@
+{
+  md=new MemData(data);
+  for (  final Item d : docs) {
+    final MemData docData;
+    if (d.node()) {
+      final ANode doc=(ANode)d;
+      if (doc.ndType() != NodeType.DOC)       UPFOTYPE.thrw(input,doc);
+      docData=new MemData(data);
+      new DataBuilder(docData).build(doc);
+    }
+ else     if (d.str()) {
+      final String docpath=string(d.atom(input));
+      final IO io=IO.get(docpath);
+      final DirParser p=new DirParser(io,ctx.prop);
+      final MemBuilder b=new MemBuilder(p,ctx.prop);
+      try {
+        docData=b.build(data.meta.random());
+      }
+ catch (      IOException e) {
+        throw DOCERR.thrw(input,docpath);
+      }
+    }
+ else {
+      throw STRNODTYPE.thrw(input,this,d.type);
+    }
+    md.insert(md.meta.size,-1,docData);
+  }
+  final int[] pres=md.doc();
+  if (pres.length == 1 && name != null) {
+    final byte[] nm=path == null ? name : concat(path,SLASH,name);
+    md.replace(pres[0],Data.DOC,nm);
+  }
+ else   if (path != null) {
+    for (    final int d : pres) {
+      final byte[] old=md.text(d,true);
+      final int p=lastIndexOf(old,'/');
+      final byte[] nm=p < 0 ? old : subtoken(old,p + 1);
+      md.replace(d,Data.DOC,concat(path,SLASH,nm));
+    }
+  }
+}
