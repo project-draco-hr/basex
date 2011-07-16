@@ -1,16 +1,12 @@
 {
   checkWrite(ctx);
-  final String path=path(string(checkStr(expr[0],ctx)));
-  final int pos=path.indexOf('/');
-  if (pos <= 0)   NODB.thrw(input,path);
-  final byte[] db=token(path.substring(0,pos));
-  final Data data=ctx.resource.data(db,input);
-  final byte[] src=token(path.substring(pos + 1));
-  final byte[] trg=token(path(string(checkStr(expr[1],ctx))));
-  final int[] docs=data.doc(string(src));
-  for (  final int pre : docs) {
-    final byte[] nm=newName(data,pre,src,trg);
-    ctx.updates.add(new ReplaceValue(pre,data,input,nm),ctx);
+  final Data data=data(0,ctx);
+  final byte[] source=path(checkStr(expr[1],ctx));
+  final byte[] target=path(checkStr(expr[2],ctx));
+  for (  final int pre : data.doc(string(source))) {
+    final byte[] trg=ACreate.newName(data,pre,source,target);
+    if (trg.length == 0)     EMPTYPATH.thrw(input,this);
+    ctx.updates.add(new ReplaceValue(pre,data,input,trg),ctx);
   }
   return null;
 }
