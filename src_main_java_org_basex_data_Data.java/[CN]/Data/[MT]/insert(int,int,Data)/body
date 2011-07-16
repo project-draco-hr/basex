@@ -1,7 +1,8 @@
 {
-  final boolean struct=ipre != meta.size;
-  meta.update(struct);
-  if (!struct)   docindex.add(this,ipre);
+  meta.update();
+  final boolean empty=empty() && data.kind(0) == DOC;
+  final boolean struct=ipre != meta.size || empty;
+  if (struct)   meta.docindex=false;
   final int[] preStack=new int[IO.MAXHEIGHT];
   int l=0;
   final int ms=data.meta.size;
@@ -56,6 +57,7 @@ case DOC:
     meta.ndocs++;
   ns.open();
 preStack[l++]=pre;
+if (!struct) docindex.add(this,pre);
 break;
 case ELEM:
 boolean ne=false;
@@ -101,5 +103,5 @@ p=parent(p,k);
 }
 updateDist(ipre + ms,ms);
 ns.update(ipre,ms,true,newNodes);
-if (size(0,DOC) == 1) delete(0);
+if (empty) delete(0);
 }
