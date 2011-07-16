@@ -1,0 +1,26 @@
+{
+  final HashMap<String,String> hs=new HashMap<String,String>();
+  final BufferedReader br=new BufferedReader(new FileReader(QUERIES));
+  for (String l; (l=br.readLine()) != null; ) {
+    final int i1=l.indexOf(';');
+    final int i2=l.indexOf(';',i1 + 1);
+    hs.put(l.substring(0,i1),l.substring(i1 + 1,i2));
+  }
+  br.close();
+  final BufferedReader in=new BufferedReader(new FileReader(subfile));
+  final String subfileN=subfile.substring(0,subfile.indexOf('.')) + "1" + ".xml";
+  System.out.println("........ Creating: " + subfileN);
+  final BufferedWriter out=new BufferedWriter(new FileWriter(subfileN));
+  for (String l; (l=in.readLine()) != null; ) {
+    if (l.contains("<topic topic-id=")) {
+      final int i1=l.indexOf("\"");
+      final int i2=l.indexOf("\"",i1 + 1);
+      final String key=l.substring(i1 + 1,i2);
+      l=l.substring(0,i1 + 1) + hs.get(key) + l.substring(i2);
+    }
+    out.write(l + NL);
+  }
+  out.close();
+  br.close();
+  System.out.println("done!");
+}

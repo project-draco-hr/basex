@@ -1,0 +1,25 @@
+{
+  final Args arg=new Args(args,this," [-dt] [database?]" + NL + "  -d        debug flag"+ NL+ "  -o<k=v>   set database property"+ NL+ "  -t        tabular output"+ NL+ "  database  database to be parsed");
+  while (arg.more()) {
+    if (arg.dash()) {
+      final char ch=arg.next();
+      if (ch == 'd') {
+        debug=true;
+      }
+ else       if (ch == 'o') {
+        final String[] kp=arg.string().split("=",2);
+        arg.check(new Set(kp[0],kp[1]).run(ctx));
+      }
+ else       if (ch == 't') {
+        tab=true;
+      }
+ else {
+        arg.check(false);
+      }
+    }
+ else {
+      db=arg.string();
+    }
+  }
+  return arg.finish();
+}

@@ -1,0 +1,29 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  for (int c=0; c < nod.size(); ++c) {
+    final byte[] nm=data.atom(nod.list[c]);
+    String src=srcs.get(string(nm));
+    if (tb.size() != 0)     tb.add(", ");
+    tb.add(nm);
+    Expr expr=null;
+    if (src == null) {
+      expr=coll(nm,qp);
+    }
+ else {
+      final String dbname=new IOFile(src).dbname();
+      Function def=Function.DOC;
+      if (updating()) {
+        if (first) {
+          new DropDB(dbname).execute(context);
+        }
+ else {
+          def=Function.DBOPEN;
+          src=dbname;
+        }
+      }
+      expr=def.get(null,Str.get(src));
+    }
+    if (var != null)     qp.bind(string(data.atom(var.list[c])),expr);
+  }
+  return tb.finish();
+}
