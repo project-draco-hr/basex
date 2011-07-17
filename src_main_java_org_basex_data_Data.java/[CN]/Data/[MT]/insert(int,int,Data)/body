@@ -1,12 +1,9 @@
 {
   meta.update();
-  final boolean empty=empty() && data.kind(0) == DOC;
-  final boolean struct=ipre != meta.size || empty;
-  if (struct)   meta.docindex=false;
-  final int[] preStack=new int[IO.MAXHEIGHT];
-  int l=0;
-  final int ms=data.meta.size;
-  final int buf=Math.min(ms,IO.BLOCKSIZE >> IO.NODEPOWER);
+  docindex.insert(ipre,data);
+  final boolean dummy=empty() && data.kind(0) == DOC;
+  final int dsize=data.meta.size;
+  final int buf=Math.min(dsize,IO.BLOCKSIZE >> IO.NODEPOWER);
   buffer(buf);
   final TokenMap nsScope=new TokenMap();
   NSNode n=ns.current;
@@ -17,17 +14,18 @@
     n=n.ch[pos];
   }
  while (n.pre <= ipar && ipar < n.pre + size(n.pre,ELEM));
-  int mdpre=-1;
+  final IntList preStack=new IntList();
+  int dpre=-1;
   final NSNode t=ns.current;
   final Set<NSNode> newNodes=new HashSet<NSNode>();
-  while (++mdpre != ms) {
-    if (mdpre != 0 && mdpre % buf == 0)     insert(ipre + mdpre - buf);
-    final int mdk=data.kind(mdpre);
-    final int mdpar=data.parent(mdpre,mdk);
-    final int pre=ipre + mdpre;
-    final int dis=mdpar >= 0 ? mdpre - mdpar : pre - ipar;
+  while (++dpre != dsize) {
+    if (dpre != 0 && dpre % buf == 0)     insert(ipre + dpre - buf);
+    final int pre=ipre + dpre;
+    final int dkind=data.kind(dpre);
+    final int dpar=data.parent(dpre,dkind);
+    final int dis=dpar >= 0 ? dpre - dpar : pre - ipar;
     final int par=pre - dis;
-    if (mdpre == 0) {
+    if (dpre == 0) {
       final List<NSNode> cand=new LinkedList<NSNode>();
       NSNode cn=ns.root;
       cand.add(cn);
@@ -50,19 +48,19 @@
       }
       ns.setNearestRoot(cn,par);
     }
-    while (l > 0 && preStack[l - 1] > par)     ns.close(preStack[--l]);
-switch (mdk) {
+    while (preStack.size() != 0 && preStack.peek() > par)     ns.close(preStack.pop());
+switch (dkind) {
 case DOC:
-      doc(pre,data.size(mdpre,mdk),data.text(mdpre,true));
-    meta.ndocs++;
-  ns.open();
-preStack[l++]=pre;
-if (!struct) docindex.add(this,pre);
+      final int s=data.size(dpre,dkind);
+    doc(pre,s,data.text(dpre,true));
+  meta.ndocs++;
+ns.open();
+preStack.push(pre);
 break;
 case ELEM:
 boolean ne=false;
-if (data.nsFlag(mdpre)) {
-final Atts at=data.ns(mdpre);
+if (data.nsFlag(dpre)) {
+final Atts at=data.ns(dpre);
 for (int a=0; a < at.size; ++a) {
 final byte[] old=nsScope.get(at.key[a]);
 if (old == null || !eq(old,at.val[a])) {
@@ -72,36 +70,36 @@ ne=true;
 }
 }
 ns.open();
-byte[] nm=data.name(mdpre,mdk);
-elem(dis,tagindex.index(nm,null,false),data.attSize(mdpre,mdk),data.size(mdpre,mdk),ns.uri(nm,true),ne);
-preStack[l++]=pre;
+byte[] nm=data.name(dpre,dkind);
+elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),ns.uri(nm,true),ne);
+preStack.push(pre);
 break;
 case TEXT:
 case COMM:
 case PI:
-text(pre,dis,data.text(mdpre,true),mdk);
+text(pre,dis,data.text(dpre,true),dkind);
 break;
 case ATTR:
-nm=data.name(mdpre,mdk);
-if (data.nsFlag(mdpre)) {
-ns.add(par,l == 0 ? ipar : preStack[l - 1],pref(nm),data.ns.uri(data.uri(mdpre,mdk)));
+nm=data.name(dpre,dkind);
+if (data.nsFlag(dpre)) {
+ns.add(par,preStack.size() == 0 ? ipar : preStack.peek(),pref(nm),data.ns.uri(data.uri(dpre,dkind)));
 table.write2(ipar,1,1 << 15 | name(ipar));
 }
-attr(pre,dis,atnindex.index(nm,null,false),data.text(mdpre,false),ns.uri(nm,false),false);
+attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
 break;
 }
 }
-while (l > 0) ns.close(preStack[--l]);
+while (preStack.size() != 0) ns.close(preStack.pop());
 ns.setRoot(t);
-if (bp != 0) insert(ipre + mdpre - 1 - (mdpre - 1) % buf);
+if (bp != 0) insert(ipre + dpre - 1 - (dpre - 1) % buf);
 buffer(1);
 int p=ipar;
 while (p >= 0) {
 final int k=kind(p);
-size(p,k,size(p,k) + ms);
+size(p,k,size(p,k) + dsize);
 p=parent(p,k);
 }
-updateDist(ipre + ms,ms);
-ns.update(ipre,ms,true,newNodes);
-if (empty) delete(0);
+updateDist(ipre + dsize,dsize);
+ns.update(ipre,dsize,true,newNodes);
+if (dummy) delete(0);
 }
