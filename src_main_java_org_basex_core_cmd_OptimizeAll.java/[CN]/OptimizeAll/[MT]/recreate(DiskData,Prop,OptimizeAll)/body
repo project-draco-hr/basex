@@ -1,0 +1,24 @@
+{
+  final MetaData m=old.meta;
+  final String tname=m.random();
+  final DiskBuilder builder=new DiskBuilder(new DBParser(old,c),m.prop);
+  try {
+    final DiskData d=builder.build(tname);
+    if (m.textindex || p.is(Prop.TEXTINDEX))     index(IndexType.TEXT,d,c);
+    if (m.attrindex || p.is(Prop.ATTRINDEX))     index(IndexType.ATTRIBUTE,d,c);
+    if (m.ftindex || p.is(Prop.FTINDEX))     index(IndexType.FULLTEXT,d,c);
+    d.meta.filesize=m.filesize;
+    d.meta.users=m.users;
+    d.meta.dirty=true;
+    d.close();
+  }
+  finally {
+    try {
+      builder.close();
+    }
+ catch (    final IOException ex) {
+      Util.debug(ex);
+    }
+  }
+  return tname;
+}

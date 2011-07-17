@@ -1,29 +1,10 @@
 {
   if (!(context.data instanceof DiskData))   return error(PROCMM);
-  old=(DiskData)context.data;
+  final DiskData old=(DiskData)context.data;
   final MetaData m=old.meta;
   size=m.size;
   if (context.datas.pins(m.name) > 1)   return error(DBLOCKED,m.name);
-  final String tname=m.random();
-  final DiskBuilder builder=new DiskBuilder(new DBParser(),m.prop);
-  try {
-    final DiskData d=builder.build(tname);
-    if (m.textindex || prop.is(Prop.TEXTINDEX))     index(IndexType.TEXT,d);
-    if (m.attrindex || prop.is(Prop.ATTRINDEX))     index(IndexType.ATTRIBUTE,d);
-    if (m.ftindex || prop.is(Prop.FTINDEX))     index(IndexType.FULLTEXT,d);
-    d.meta.filesize=m.filesize;
-    d.meta.users=m.users;
-    d.meta.dirty=true;
-    d.close();
-  }
-  finally {
-    try {
-      builder.close();
-    }
- catch (    final IOException ex) {
-      Util.debug(ex);
-    }
-  }
+  final String tname=recreate(old,prop,this);
   if (!run(new DropDB(m.name)) || !run(new AlterDB(tname,m.name)) || !run(new Open(m.name)))   return false;
   error("");
   return info(DBOPTIMIZED,m.name,perf);
