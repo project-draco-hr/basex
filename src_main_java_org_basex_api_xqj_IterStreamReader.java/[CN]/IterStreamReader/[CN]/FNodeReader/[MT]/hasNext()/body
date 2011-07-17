@@ -1,14 +1,19 @@
 {
-  final ANode n=iter[l].next();
+  final ANode n=iter.get(l).next();
   if (n != null) {
-    nodes[l]=n;
+    while (l >= nodes.size())     nodes.add(null);
+    nodes.set(l,n);
     node=n;
     type();
-    if (kind == START_ELEMENT)     iter[++l]=n.children();
+    if (kind == START_ELEMENT) {
+      ++l;
+      while (l >= iter.size())       iter.add(null);
+      iter.set(l,n.children());
+    }
   }
  else {
     if (--l < 0)     return false;
-    node=nodes[l];
+    node=nodes.get(l);
     kind=END_ELEMENT;
   }
   return true;
