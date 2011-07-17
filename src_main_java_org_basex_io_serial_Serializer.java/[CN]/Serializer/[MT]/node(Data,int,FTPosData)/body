@@ -1,16 +1,16 @@
 {
   boolean doc=false;
   final TokenList nsp=data.ns.size() != 0 ? new TokenList() : null;
-  final int[] parStack=new int[IO.MAXHEIGHT];
-  final byte[][] names=new byte[IO.MAXHEIGHT][];
-  names[0]=ns(EMPTY);
+  final IntList pars=new IntList();
+  final TokenList names=new TokenList();
+  names.set(0,ns(EMPTY));
   int l=0;
   int p=pre;
   final int s=pre + data.size(pre,data.kind(p));
   while (p < s && !finished()) {
     final int k=data.kind(p);
     final int r=data.parent(p,k);
-    while (l > 0 && parStack[l - 1] >= r) {
+    while (l > 0 && pars.get(l - 1) >= r) {
       closeElement();
       --l;
     }
@@ -36,7 +36,7 @@
  else {
       final byte[] name=data.name(p,k);
       openElement(name);
-      byte[] empty=names[l];
+      byte[] empty=names.get(l);
       if (nsp != null) {
         nsp.reset();
         int pp=p;
@@ -72,8 +72,8 @@
       while (++p != as) {
         attribute(data.name(p,Data.ATTR),data.text(p,false));
       }
-      parStack[l++]=r;
-      names[l]=empty;
+      pars.set(l++,r);
+      names.set(l,empty);
     }
   }
   while (--l >= 0)   closeElement();
