@@ -4,24 +4,24 @@
   if (textLen != null || gui.gprop.num(GUIProp.MAPWEIGHT) == 0)   return;
   final int size=data.meta.size;
   textLen=new int[size];
-  final int[] parStack=new int[IO.MAXHEIGHT];
+  final IntList pars=new IntList();
   int l=0;
   for (int pre=0; pre < size; ++pre) {
     final int kind=data.kind(pre);
     final int par=data.parent(pre,kind);
     final int ll=l;
-    while (l > 0 && parStack[l - 1] > par) {
-      textLen[parStack[l - 1]]+=textLen[parStack[l]];
+    while (l > 0 && pars.get(l - 1) > par) {
+      textLen[pars.get(l - 1)]+=textLen[pars.get(l)];
       --l;
     }
-    if (l > 0 && ll != l)     textLen[parStack[l - 1]]+=textLen[parStack[l]];
-    parStack[l]=pre;
+    if (l > 0 && ll != l)     textLen[pars.get(l - 1)]+=textLen[pars.get(l)];
+    pars.set(l,pre);
     if (kind == Data.DOC || kind == Data.ELEM) {
-      parStack[++l]=0;
+      pars.set(++l,0);
     }
  else {
       textLen[pre]=data.textLen(pre,kind != Data.ATTR);
     }
   }
-  while (--l >= 0)   textLen[parStack[l]]+=textLen[parStack[l + 1]];
+  while (--l >= 0)   textLen[pars.get(l)]+=textLen[pars.get(l + 1)];
 }
