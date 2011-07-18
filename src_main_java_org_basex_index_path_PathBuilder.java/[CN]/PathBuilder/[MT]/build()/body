@@ -1,0 +1,26 @@
+{
+  abort();
+  final IntList st=new IntList();
+  final PathSummary path=new PathSummary();
+  for (pre=0; pre < size; ++pre) {
+    final byte kind=(byte)data.kind(pre);
+    final int par=data.parent(pre,kind);
+    while (st.size() > 0 && st.peek() > par)     st.pop();
+    if (kind == Data.DOC) {
+      st.push(pre);
+      path.index(0,kind,st.size());
+    }
+ else     if (kind == Data.ELEM) {
+      path.index(data.name(pre),kind,st.size());
+      st.push(pre);
+    }
+ else     if (kind == Data.ATTR) {
+      path.index(data.name(pre),kind,st.size());
+    }
+ else {
+      path.index(0,kind,st.size());
+    }
+  }
+  data.meta.pathindex=true;
+  return path;
+}
