@@ -1,11 +1,11 @@
 {
-  if (!(context.data instanceof DiskData))   return error(PROCMM);
-  final DiskData old=(DiskData)context.data;
-  final MetaData m=old.meta;
-  size=m.size;
-  if (context.datas.pins(m.name) > 1)   return error(DBLOCKED,m.name);
-  final String tname=recreate(old,prop,this);
-  if (!run(new DropDB(m.name)) || !run(new AlterDB(tname,m.name)) || !run(new Open(m.name)))   return false;
-  error("");
-  return info(DBOPTIMIZED,m.name,perf);
+  try {
+    final Data data=context.data;
+    optimizeAll(data,context,this);
+    final Open open=new Open(data.meta.name);
+    return open.run(context) ? info(DBOPTIMIZED,data.meta.name,perf) : error(open.info());
+  }
+ catch (  final BaseXException ex) {
+    return error(ex.getMessage());
+  }
 }
