@@ -1,10 +1,8 @@
 {
   try {
     UIManager.getInstalledLookAndFeels();
-    final boolean java=prop.is(GUIProp.JAVALOOK);
-    UIManager.setLookAndFeel(java ? UIManager.getCrossPlatformLookAndFeelClassName() : UIManager.getSystemLookAndFeelClassName());
     Toolkit.getDefaultToolkit().setDynamicLayout(true);
-    if (java) {
+    if (prop.is(GUIProp.JAVALOOK)) {
       final UIDefaults def=UIManager.getDefaults();
       final Enumeration<?> en=def.keys();
       while (en.hasMoreElements()) {
@@ -12,6 +10,9 @@
         final Object v=def.get(k);
         if (v instanceof Font)         def.put(k,((Font)v).deriveFont(Font.PLAIN));
       }
+    }
+ else {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
   }
  catch (  final Exception ex) {
