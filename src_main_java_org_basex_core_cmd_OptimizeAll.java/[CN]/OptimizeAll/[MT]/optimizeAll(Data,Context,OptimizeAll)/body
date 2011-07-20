@@ -4,8 +4,8 @@
   final MetaData m=old.meta;
   if (cmd != null)   cmd.size=m.size;
   if (ctx.datas.pins(m.name) > 1)   throw new BaseXException(DBLOCKED,m.name);
-  final String tname=m.random();
-  final DiskBuilder builder=new DiskBuilder(new DBParser(old,cmd),m.prop);
+  final String tname=ctx.mprop.random(m.name);
+  final DiskBuilder builder=new DiskBuilder(new DBParser(old,cmd),m.prop,ctx.mprop);
   try {
     final DiskData d=builder.build(tname);
     if (m.textindex || ctx.prop.is(Prop.TEXTINDEX))     index(IndexType.TEXT,d,cmd);
@@ -25,6 +25,6 @@
     }
   }
   Close.close(data,ctx);
-  if (!DropDB.drop(m.name,ctx.prop))   throw new BaseXException(DBDROPERROR,m.name);
-  if (!AlterDB.alter(tname,m.name,ctx.prop))   throw new BaseXException(DBNOTALTERED,tname);
+  if (!DropDB.drop(m.name,ctx.mprop))   throw new BaseXException(DBDROPERROR,m.name);
+  if (!AlterDB.alter(tname,m.name,ctx.mprop))   throw new BaseXException(DBNOTALTERED,tname);
 }

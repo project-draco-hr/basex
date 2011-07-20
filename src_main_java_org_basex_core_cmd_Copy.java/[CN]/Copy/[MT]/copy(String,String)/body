@@ -1,0 +1,20 @@
+{
+  final File src=mprop.dbpath(db);
+  final File trg=mprop.dbpath(newdb);
+  final String[] files=src.list();
+  if (files == null || !trg.mkdir())   return false;
+  tf=files.length;
+  boolean ok=true;
+  for (  final String file : files) {
+    of++;
+    try {
+      copy(new File(src,file),new File(trg,file));
+    }
+ catch (    final IOException ex) {
+      ok=false;
+      break;
+    }
+  }
+  if (!ok)   DropDB.drop(newdb,mprop);
+  return ok;
+}

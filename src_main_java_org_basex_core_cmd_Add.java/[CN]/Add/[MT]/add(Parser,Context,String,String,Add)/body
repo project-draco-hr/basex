@@ -9,8 +9,8 @@
     large=fl > rt.freeMemory() / 3;
   }
   final Data data=ctx.data;
-  final String dbname=large ? data.meta.random() : path;
-  final Builder build=large ? new DiskBuilder(parser,ctx.prop) : new MemBuilder(parser,ctx.prop);
+  final String dbname=large ? ctx.mprop.random(data.meta.name) : path;
+  final Builder build=large ? new DiskBuilder(parser,ctx.prop,ctx.mprop) : new MemBuilder(parser,ctx.prop);
   if (cmd != null)   cmd.build=build;
   Data tmp=null;
   try {
@@ -32,6 +32,6 @@
     }
  catch (    final IOException e) {
     }
-    if (large)     DropDB.drop(dbname,ctx.prop);
+    if (large)     DropDB.drop(dbname,ctx.mprop);
   }
 }

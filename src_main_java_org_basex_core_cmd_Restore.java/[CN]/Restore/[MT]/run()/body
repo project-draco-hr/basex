@@ -1,7 +1,7 @@
 {
   String db=args[0];
   if (!validName(db,false))   return error(NAMEINVALID,db);
-  File file=prop.dbpath(db + IO.ZIPSUFFIX);
+  File file=mprop.dbpath(db + IO.ZIPSUFFIX);
   if (!file.exists()) {
     final StringList list=list(db,context);
     if (list.size() != 0)     file=new File(list.get(0));
@@ -12,5 +12,5 @@
   if (!file.exists())   return error(DBBACKNF,db);
   if (!closed)   closed=close(context,db);
   if (context.pinned(db))   return error(DBLOCKED,db);
-  return restore(file,prop) && (!closed || new Open(db).run(context)) ? info(DBRESTORE,file.getName(),perf) : error(DBNORESTORE,db);
+  return restore(file) && (!closed || new Open(db).run(context)) ? info(DBRESTORE,file.getName(),perf) : error(DBNORESTORE,db);
 }
