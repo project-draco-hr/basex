@@ -1,47 +1,50 @@
 {
   final Context ctx=gui.context;
-  final String db=choice.getValue().trim();
-  ok=true;
   if (refresh) {
     choice.setData(List.list(ctx).toArray());
     choice.requestFocusInWindow();
     refresh=false;
   }
+  final StringList dbs=choice.getValues();
+  final String db=choice.getValue().trim();
+  final ObjList<Command> cmds=new ObjList<Command>();
+  ok=dbs.size() > 0;
   if (cmp == open) {
     close();
+  }
+ else   if (cmp == drop) {
+    if (!Dialog.confirm(gui,Util.info(DROPCONF,dbs.size())))     return;
+    refresh=true;
+    for (    final String s : dbs)     cmds.add(new DropDB(s));
   }
  else   if (cmp == rename) {
     final DialogInput dr=new DialogInput(db,RENAMETITLE,gui,1);
     if (!dr.ok() || dr.input().equals(db))     return;
     refresh=true;
-    DialogProgress.execute(this,"",new AlterDB(db,dr.input()));
+    cmds.add(new AlterDB(db,dr.input()));
   }
  else   if (cmp == copy) {
     final DialogInput dc=new DialogInput(db,COPYTITLE,gui,2);
     if (!dc.ok() || dc.input().equals(db))     return;
     refresh=true;
-    DialogProgress.execute(this,"",new Copy(db,dc.input()));
-  }
- else   if (cmp == drop) {
-    if (db.isEmpty() || !Dialog.confirm(gui,Util.info(DROPCONF,db)))     return;
-    refresh=true;
-    DialogProgress.execute(this,"",new DropDB(db));
+    cmds.add(new Copy(db,dc.input()));
   }
  else   if (cmp == backup) {
-    DialogProgress.execute(this,"",new CreateBackup(db));
+    for (    final String s : dbs)     cmds.add(new CreateBackup(s));
   }
  else   if (cmp == restore) {
-    DialogProgress.execute(this,"",new Restore(db));
+    for (    final String s : dbs)     cmds.add(new Restore(s));
   }
  else {
-    ok=ctx.prop.dbexists(db);
+    enableOK(buttons,BUTTONOPEN,ok);
+    enableOK(buttons,BUTTONBACKUP,ok);
     enableOK(buttons,BUTTONDROP,ok);
+    ok=ctx.mprop.dbexists(db);
     if (ok) {
-      doc.setText(db);
       DataInput in=null;
-      final MetaData meta=new MetaData(db,ctx.prop);
+      final MetaData meta=new MetaData(db,ctx);
       try {
-        in=new DataInput(meta.file(DATAINFO));
+        in=new DataInput(meta.dbfile(DATAINFO));
         meta.read(in);
         detail.setText(InfoDB.db(meta,true,true,true));
       }
@@ -57,10 +60,13 @@
         }
       }
     }
-    enableOK(buttons,BUTTONOPEN,ok);
     enableOK(buttons,BUTTONRENAME,ok);
-    enableOK(buttons,BUTTONBACKUP,ok);
     enableOK(buttons,BUTTONCOPY,ok);
-    enableOK(buttons,BUTTONRESTORE,ok && Restore.list(db,ctx).size() != 0);
+    ok=true;
+    for (    final String s : dbs)     ok&=Restore.list(s,ctx).size() != 0;
+    enableOK(buttons,BUTTONRESTORE,ok);
+  }
+  if (cmds.size() != 0) {
+    DialogProgress.execute(this,"",cmds.toArray(new Command[cmds.size()]));
   }
 }

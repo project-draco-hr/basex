@@ -1,11 +1,11 @@
 {
   if (!ctx.user.perm(User.CREATE))   throw new IOException(Util.info(PERMNO,CmdPerm.CREATE));
   final Prop prop=ctx.prop;
-  if (prop.is(Prop.MAINMEM))   return MemBuilder.build(parser,prop,name);
+  if (prop.is(Prop.MAINMEM))   return MemBuilder.build(name,parser,ctx.prop);
   if (ctx.pinned(name))   throw new IOException(Util.info(DBLOCKED,name));
-  final Builder builder=new DiskBuilder(parser,prop);
+  final Builder builder=new DiskBuilder(name,parser,ctx);
   try {
-    final Data data=builder.build(name);
+    final Data data=builder.build();
     if (prop.is(Prop.TEXTINDEX))     data.setIndex(IndexType.TEXT,new ValueBuilder(data,true).build());
     if (prop.is(Prop.ATTRINDEX))     data.setIndex(IndexType.ATTRIBUTE,new ValueBuilder(data,false).build());
     if (prop.is(Prop.FTINDEX))     data.setIndex(IndexType.FULLTEXT,FTBuilder.get(data).build());

@@ -8,16 +8,16 @@
     final String us=in.readString();
     final String pw=in.readString();
     context.user=context.users.get(us);
-    final boolean ok=context.user != null && md5(string(context.user.password) + ts).equals(pw);
-    if (ok) {
-      start();
+    running=context.user != null && md5(string(context.user.password) + ts).equals(pw);
+    if (running) {
+      log.write(this,"LOGIN " + context.user.name,OK);
+      send(true);
     }
  else     if (!us.isEmpty()) {
-      log.write(this,SERVERLOGIN + ": " + us);
-      Performance.sleep(2000);
+      log.write(this,SERVERLOGIN + COLS + us);
     }
-    send(ok);
-    return ok;
+    start();
+    return running;
   }
  catch (  final IOException ex) {
     Util.stack(ex);

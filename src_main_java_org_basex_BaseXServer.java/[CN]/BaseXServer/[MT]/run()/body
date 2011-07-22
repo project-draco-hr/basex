@@ -4,13 +4,23 @@
   while (running) {
     try {
       final Socket s=socket.accept();
-      final ClientListener sp=new ClientListener(s,context,log);
+      final ClientListener cl=new ClientListener(s,context,log);
       if (stop.exists()) {
         if (!stop.delete())         log.write(Util.info(DBNOTDELETED,stop));
         quit(false);
       }
- else       if (sp.init()) {
-        context.add(sp);
+ else {
+        final byte[] address=s.getInetAddress().getAddress();
+        if (cl.init()) {
+          failed.delete(address);
+          context.add(cl);
+        }
+ else {
+          int delay=failed.get(address);
+          delay=delay == -1 ? 1 : Math.min(delay,1024) * 2;
+          failed.add(address,delay);
+          new ClientDelayer(delay,cl,this);
+        }
       }
     }
  catch (    final IOException ex) {

@@ -5,9 +5,9 @@
   try {
     if (cmp == start || cmp == ports) {
       final int p=Integer.parseInt(ports.getText());
-      gui.set(Prop.SERVERPORT,p);
+      gui.setAdmin(MainProp.SERVERPORT,p);
       if (host.getText().equals(LOCALHOST)) {
-        gui.set(Prop.PORT,p);
+        gui.setAdmin(MainProp.PORT,p);
         portc.setText(ports.getText());
       }
       msg=BaseXServer.start(p,BaseXServer.class);
@@ -19,7 +19,7 @@
       }
     }
  else     if (cmp == stop) {
-      if (running)       BaseXServer.stop(ctx.prop.num(Prop.SERVERPORT),ctx.prop.num(Prop.EVENTPORT));
+      if (running)       BaseXServer.stop(ctx.mprop.num(MainProp.SERVERPORT),ctx.mprop.num(MainProp.EVENTPORT));
       running=ping(true);
       connected=connected && ping(false);
       if (!connected)       msg=SERVERSTOPPED;
@@ -29,8 +29,8 @@
  else     if (cmp == connect || cmp == loguser || cmp == logpass || cmp == host || cmp == portc) {
       gui.gprop.set(GUIProp.SERVERUSER,loguser.getText());
       final String pw=new String(logpass.getPassword());
-      gui.set(Prop.HOST,host.getText());
-      gui.set(Prop.PORT,Integer.parseInt(portc.getText()));
+      gui.setAdmin(MainProp.HOST,host.getText());
+      gui.setAdmin(MainProp.PORT,Integer.parseInt(portc.getText()));
       cs=new ClientSession(ctx,gui.gprop.get(GUIProp.SERVERUSER),pw);
       user.setSess(cs);
       dbsP.setSess(cs);
@@ -130,5 +130,5 @@
     logpass.setText("");
     connect.setEnabled(false);
   }
-  ctx.prop.write();
+  ctx.mprop.write();
 }

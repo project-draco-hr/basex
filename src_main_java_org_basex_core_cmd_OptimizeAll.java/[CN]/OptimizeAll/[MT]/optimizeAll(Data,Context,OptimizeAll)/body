@@ -1,0 +1,30 @@
+{
+  if (!(data instanceof DiskData))   throw new BaseXException(PROCMM);
+  final DiskData old=(DiskData)data;
+  final MetaData m=old.meta;
+  if (cmd != null)   cmd.size=m.size;
+  if (ctx.datas.pins(m.name) > 1)   throw new BaseXException(DBLOCKED,m.name);
+  final String tname=ctx.mprop.random(m.name);
+  final DiskBuilder builder=new DiskBuilder(tname,new DBParser(old,cmd),ctx);
+  try {
+    final DiskData d=builder.build();
+    if (m.textindex || ctx.prop.is(Prop.TEXTINDEX))     index(IndexType.TEXT,d,cmd);
+    if (m.attrindex || ctx.prop.is(Prop.ATTRINDEX))     index(IndexType.ATTRIBUTE,d,cmd);
+    if (m.ftindex || ctx.prop.is(Prop.FTINDEX))     index(IndexType.FULLTEXT,d,cmd);
+    d.meta.filesize=m.filesize;
+    d.meta.users=m.users;
+    d.meta.dirty=true;
+    d.close();
+  }
+  finally {
+    try {
+      builder.close();
+    }
+ catch (    final IOException ex) {
+      Util.debug(ex);
+    }
+  }
+  Close.close(data,ctx);
+  if (!DropDB.drop(m.name,ctx.mprop))   throw new BaseXException(DBDROPERROR,m.name);
+  if (!AlterDB.alter(tname,m.name,ctx.mprop))   throw new BaseXException(DBNOTALTERED,tname);
+}

@@ -1,0 +1,40 @@
+{
+  final File file=mprop.dbpath(db);
+  final boolean exists=file.exists();
+  if (!exists || path.equals(db))   return exists;
+  final IO io=IO.get(path);
+  DataInput in=null;
+  try {
+    in=new DataInput(file(file,DATAINFO));
+    boolean ok=true;
+    int i=3;
+    String k;
+    while (i != 0 && !(k=string(in.readBytes())).isEmpty()) {
+      final String v=string(in.readBytes());
+      if (k.equals(DBSTR)) {
+        ok&=STORAGE.equals(v);
+        i--;
+      }
+ else       if (k.equals(DBFNAME)) {
+        ok&=io.eq(IO.get(v));
+        i--;
+      }
+ else       if (k.equals(DBTIME)) {
+        ok&=io.date() == toLong(v);
+        i--;
+      }
+    }
+    return i == 0 && ok;
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    return false;
+  }
+ finally {
+    if (in != null)     try {
+      in.close();
+    }
+ catch (    final IOException ex) {
+    }
+  }
+}

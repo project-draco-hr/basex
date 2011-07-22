@@ -1,6 +1,6 @@
 {
   String key=args[0].toUpperCase();
-  String val=args[1];
+  final String val=args[1];
   CmdSet s=null;
   try {
     s=Enum.valueOf(CmdSet.class,key);
@@ -8,11 +8,17 @@
  catch (  final Exception ex) {
   }
   try {
-    val=set(key,val,prop);
-    if (val == null)     return whichKey();
+    String v=set(key,val,prop);
+    if (v == null && !context.client()) {
+      if (key.equals(MainProp.DBPATH[0]) && context.datas.size() > 0) {
+        return error(SETVAL,key,val);
+      }
+      v=set(key,val,mprop);
+    }
+    if (v == null)     return whichKey();
     final CmdSet[] cs=CmdSet.values();
     for (int c=0; c < cs.length; ++c)     if (cs[c] == s)     key=STRINGS[c];
-    return info(key + ": " + val);
+    return info(key + COLS + v);
   }
  catch (  final Exception ex) {
     Util.debug(ex);
