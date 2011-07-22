@@ -1,0 +1,18 @@
+{
+  final Iter iter=expr[1].iter(ctx);
+  Item next=null;
+  int index=1;
+  try {
+    while ((next=iter.next()) != null) {
+      if (next.toJava() instanceof BigInteger) {
+        stmt.setObject(index++,new BigDecimal((BigInteger)next.toJava()));
+      }
+ else       stmt.setObject(index++,next.toJava());
+    }
+    final boolean result=stmt.execute();
+    return result ? buildResult(stmt.getResultSet()) : new NodeCache();
+  }
+ catch (  final SQLException ex) {
+    throw SQLEXC.thrw(input,ex.getMessage());
+  }
+}
