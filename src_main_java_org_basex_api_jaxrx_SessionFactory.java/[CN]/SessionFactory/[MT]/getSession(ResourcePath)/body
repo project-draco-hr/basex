@@ -1,0 +1,19 @@
+{
+  if (localSession) {
+    return new LocalSession(context);
+  }
+  try {
+    return JaxRxServer.login(path);
+  }
+ catch (  final LoginException ex) {
+    final ResponseBuilder rb=new ResponseBuilderImpl();
+    rb.header(HttpHeaders.WWW_AUTHENTICATE,"Basic ");
+    rb.status(401);
+    rb.entity("Username/password is wrong.");
+    throw new JaxRxException(rb.build());
+  }
+catch (  final Exception ex) {
+    Util.stack(ex);
+    throw new JaxRxException(ex);
+  }
+}
