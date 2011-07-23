@@ -1,0 +1,34 @@
+{
+  final StringBuilder sb=new StringBuilder();
+  for (  final String g : glob.split(",")) {
+    boolean suf=false;
+    final String gl=g.trim();
+    if (sb.length() != 0) {
+      if (!suf)       sb.append(".*");
+      suf=false;
+      sb.append('|');
+    }
+    for (int f=0; f < gl.length(); f++) {
+      char ch=gl.charAt(f);
+      if (ch == '*') {
+        suf=true;
+        sb.append(gl.endsWith(".") ? "[^.]" : ".");
+      }
+ else       if (ch == '?') {
+        ch='.';
+        suf=true;
+      }
+ else       if (ch == '.') {
+        suf=true;
+        if (f + 1 == gl.length())         break;
+        sb.append('\\');
+      }
+ else       if (!Character.isLetterOrDigit(ch)) {
+        sb.append('\\');
+      }
+      sb.append(ch);
+    }
+    if (!suf && sub)     sb.append(".*");
+  }
+  return Prop.WIN ? sb.toString().toLowerCase() : sb.toString();
+}
