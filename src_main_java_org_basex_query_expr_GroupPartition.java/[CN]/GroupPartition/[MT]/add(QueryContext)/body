@@ -1,9 +1,8 @@
 {
-  if (!cachedVars)   cacheVars(ctx);
   final int gl=gv.length;
   final Value[] vals=new Value[gl];
-  for (int i=0; i < gl; ++i) {
-    final Value val=gv[i].value(ctx);
+  for (int i=0; i < gl; i++) {
+    final Value val=ctx.vars.get(gv[i]).value(ctx);
     if (val.size() > 1)     XGRP.thrw(input);
     vals[i]=val;
   }
@@ -30,13 +29,13 @@
     }
     pos.add(p);
   }
-  final int ngl=ngv.length;
+  final int ngl=ngv[0].length;
   if (ngl == 0)   return;
   if (p == items.size())   items.add(new ItemCache[ngl]);
   final ItemCache[] sq=items.get(p);
   for (int i=0; i < ngl; ++i) {
     ItemCache ic=sq[i];
-    final Value result=ngv[i].value(ctx);
+    final Value result=ctx.vars.get(ngv[0][i]).value(ctx);
     if (ic == null) {
       ic=new ItemCache();
       sq[i]=ic;
