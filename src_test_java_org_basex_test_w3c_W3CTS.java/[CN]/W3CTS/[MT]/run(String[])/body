@@ -43,8 +43,6 @@
   results=path + "ReportingResults/Results/";
   report=path + "ReportingResults/";
   sources=path + "TestSources/";
-  final SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-  final String dat=sdf.format(Calendar.getInstance().getTime());
   final Performance perf=new Performance();
   context.prop.set(Prop.CHOP,false);
   data=CreateDB.xml(new IOFile(path + input),context);
@@ -76,7 +74,7 @@
   init(root);
   if (reporting) {
     Util.outln("Delete old results...");
-    delete(new File[]{new File(results)});
+    new IOFile(results).delete();
   }
   if (verbose)   Util.outln();
   final Nodes nodes=minimum ? nodes("//*:test-group[starts-with(@name, 'Minim')]//*:test-case",root) : group != null ? nodes("//*:test-group[@name eq '" + group + "']//*:test-case",root) : nodes("//*:test-case",root);
@@ -90,32 +88,29 @@
   total=ok + ok2 + err+ err2;
   final String time=perf.getTimer();
   Util.outln("Writing log file..." + NL);
-  BufferedWriter bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path + pathlog),UTF8));
-  bw.write("TEST RESULTS ==================================================");
-  bw.write(NL + NL + "Total #Queries: "+ total+ NL);
-  bw.write("Correct / Empty Results: " + ok + " / "+ ok2+ NL);
-  bw.write("Conformance (w/Empty Results): ");
-  bw.write(pc(ok,total) + " / " + pc(ok + ok2,total)+ NL);
-  bw.write("Wrong Results / Errors: " + err + " / "+ err2+ NL);
-  bw.write("WRONG =========================================================");
-  bw.write(NL + NL + logErr+ NL);
-  bw.write("WRONG (ERRORS) ================================================");
-  bw.write(NL + NL + logErr2+ NL);
-  bw.write("CORRECT? (EMPTY) ==============================================");
-  bw.write(NL + NL + logOK2+ NL);
-  bw.write("CORRECT =======================================================");
-  bw.write(NL + NL + logOK+ NL);
-  bw.write("===============================================================");
-  bw.close();
-  bw=new BufferedWriter(new FileWriter(path + pathhis,true));
-  bw.write(dat + "\t" + ok+ "\t"+ ok2+ "\t"+ err+ "\t"+ err2+ NL);
-  bw.close();
+  PrintOutput po=new PrintOutput(path + pathlog);
+  po.println("TEST RESULTS ________________________________________________");
+  po.println(NL + "Total #Queries: " + total);
+  po.println("Correct / Empty Results: " + ok + " / "+ ok2);
+  po.print("Conformance (w/Empty Results): ");
+  po.println(pc(ok,total) + " / " + pc(ok + ok2,total));
+  po.println("Wrong Results / Errors: " + err + " / "+ err2+ NL);
+  po.println("WRONG _______________________________________________________");
+  po.print(NL + logErr);
+  po.println("WRONG (ERRORS) ______________________________________________");
+  po.print(NL + logErr2);
+  po.println("CORRECT? (EMPTY) ____________________________________________");
+  po.print(NL + logOK2);
+  po.println("CORRECT _____________________________________________________");
+  po.print(NL + logOK);
+  po.println("_____________________________________________________________");
+  po.close();
   if (reporting) {
-    bw=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(report + NAME + IO.XMLSUFFIX),UTF8));
-    write(bw,report + NAME + "Pre"+ IO.XMLSUFFIX);
-    bw.write(logReport.toString());
-    write(bw,report + NAME + "Pos"+ IO.XMLSUFFIX);
-    bw.close();
+    po=new PrintOutput(report + NAME + IO.XMLSUFFIX);
+    print(po,report + NAME + "Pre"+ IO.XMLSUFFIX);
+    po.print(logReport.toString());
+    print(po,report + NAME + "Pos"+ IO.XMLSUFFIX);
+    po.close();
   }
   Util.outln("Total #Queries: " + total);
   Util.outln("Correct / Empty results: " + ok + " / "+ ok2);
