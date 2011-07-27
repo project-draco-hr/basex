@@ -2,21 +2,19 @@
   try {
     final ResultSetMetaData metadata=rs.getMetaData();
     final int columnCount=metadata.getColumnCount();
-    final ArrayList<String> columns=new ArrayList<String>();
-    for (int i=1; i < columnCount + 1; i++)     columns.add(metadata.getColumnLabel(i));
     final NodeCache tuples=new NodeCache();
     while (rs.next()) {
       final NodeCache a=new NodeCache();
-      for (int k=0; k < columns.size(); k++) {
-        String label=columns.get(k);
-        a.add(new FAttr(new QNm(token(label),EMPTY),token(rs.getString(label)),null));
+      for (int k=1; k <= columnCount; k++) {
+        final String label=metadata.getColumnLabel(k);
+        final Object value=rs.getObject(label);
+        if (value != null)         a.add(new FAttr(new QNm(token(label),EMPTY),new Jav(value).atom(input),null));
       }
       tuples.add(new FElem(new QNm(TUPLE,SQLURI),null,a,null,new Atts().add(SQL,SQLURI),null));
     }
     return tuples;
   }
  catch (  final SQLException ex) {
-    ex.printStackTrace();
-    return null;
+    throw SQLEXC.thrw(input,ex.getMessage());
   }
 }
