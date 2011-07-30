@@ -4,7 +4,7 @@
   }
  else {
     src=io;
-    if (!b.meta.prop.is(Prop.ADDARCHIVES) && src.archive())     return;
+    if (!archives && src.archive())     return;
     while (io.more()) {
       final String nm=Prop.WIN ? io.name().toLowerCase() : io.name();
       if (filter != null && !filter.matcher(nm).matches())       continue;
@@ -17,8 +17,32 @@
         if (path.startsWith(root))         path=path.substring(root.length());
         targ=(targ + path).replace("//","/");
       }
-      parser=Parser.fileParser(io,prop,targ);
-      parser.parse(b);
+      boolean ok=true;
+      IO in=io;
+      if (skip) {
+        BufferInput bi=null;
+        try {
+          bi=io.buffer();
+          in=new IOContent(bi.token().toArray());
+          in.name(io.name());
+          parser=Parser.fileParser(in,prop,targ);
+          MemBuilder.build("",parser,prop);
+        }
+ catch (        final IOException ex) {
+          Util.debug(ex.getMessage());
+          skipped.add(io.path());
+          ok=false;
+        }
+ finally {
+          if (bi != null)           try {
+            bi.close();
+          }
+ catch (          final Exception ex) {
+          }
+        }
+      }
+      parser=Parser.fileParser(in,prop,targ);
+      if (ok)       parser.parse(b);
       if (Util.debug && (++c & 0x3FF) == 0)       Util.err(";");
     }
   }
