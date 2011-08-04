@@ -1,13 +1,13 @@
 {
-  final Iter iter=expr[1].iter(ctx);
-  Item next=null;
   int index=1;
   try {
-    while ((next=iter.next()) != null) {
-      if (next.toJava() instanceof BigInteger) {
-        stmt.setObject(index++,new BigDecimal((BigInteger)next.toJava()));
+    for (int e=1; e < expr.length; e++) {
+      final Item item=expr[e].item(ctx,input);
+      final Object next=item == null ? null : item.toJava();
+      if (next instanceof BigInteger) {
+        stmt.setObject(index++,new BigDecimal((BigInteger)next));
       }
- else       stmt.setObject(index++,next.toJava());
+ else       stmt.setObject(index++,next);
     }
     final boolean result=stmt.execute();
     return result ? buildResult(stmt.getResultSet()) : new NodeCache();
