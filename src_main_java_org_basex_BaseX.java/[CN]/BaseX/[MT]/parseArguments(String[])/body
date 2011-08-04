@@ -2,6 +2,7 @@
   final StringBuilder serial=new StringBuilder();
   final StringBuilder bind=new StringBuilder();
   try {
+    final HashMap<Object[],Object> options=new HashMap<Object[],Object>();
     final Args arg=new Args(args,this,sa() ? LOCALINFO : CLIENTINFO,Util.info(CONSOLE,sa() ? LOCALMODE : CLIENTMODE));
     while (arg.more()) {
       if (arg.dash()) {
@@ -9,7 +10,7 @@
         if (c == 'b') {
           if (bind.length() != 0)           bind.append(',');
           bind.append(arg.string());
-          arg.check(set(Prop.BINDINGS,bind));
+          options.put(Prop.BINDINGS,bind);
         }
  else         if (c == 'c') {
           commands=arg.remaining();
@@ -18,7 +19,7 @@
           context.mprop.set(MainProp.DEBUG,true);
         }
  else         if (c == 'D' && sa()) {
-          arg.check(set(Prop.DOTPLAN,true));
+          options.put(Prop.DOTPLAN,true);
         }
  else         if (c == 'i' && sa()) {
           input=arg.string();
@@ -40,15 +41,15 @@
           query=arg.remaining();
         }
  else         if (c == 'r') {
-          arg.check(set(Prop.RUNS,arg.string()));
+          options.put(Prop.RUNS,arg.string());
         }
  else         if (c == 's') {
           if (serial.length() != 0)           serial.append(',');
           serial.append(arg.string());
-          arg.check(set(Prop.SERIALIZER,serial));
+          options.put(Prop.SERIALIZER,serial);
         }
  else         if (c == 'u') {
-          arg.check(set(Prop.WRITEBACK,true));
+          options.put(Prop.WRITEBACK,true);
         }
  else         if (c == 'U' && !sa()) {
           user=arg.string();
@@ -58,26 +59,26 @@
         }
  else         if (c == 'V') {
           verbose=true;
-          arg.check(set(Prop.QUERYINFO,true));
+          options.put(Prop.QUERYINFO,true);
         }
  else         if (c == 'w') {
-          arg.check(set(Prop.CHOP,false));
+          options.put(Prop.CHOP,false);
         }
  else         if (c == 'W') {
           writeProps=true;
         }
  else         if (c == 'x' && sa()) {
-          arg.check(set(Prop.COMPPLAN,false));
+          options.put(Prop.COMPPLAN,false);
         }
  else         if (c == 'X') {
-          arg.check(set(Prop.XMLPLAN,true));
+          options.put(Prop.XMLPLAN,true);
           verbose=true;
         }
  else         if (c == 'z') {
-          arg.check(set(Prop.SERIALIZE,false));
+          options.put(Prop.SERIALIZE,false);
         }
  else {
-          arg.check(false);
+          arg.ok(false);
         }
       }
  else {
@@ -85,6 +86,9 @@
       }
     }
     console=file == null && commands == null && query == null;
+    for (    final Map.Entry<Object[],Object> entry : options.entrySet()) {
+      if (!arg.ok(set(entry.getKey(),entry.getValue())))       break;
+    }
     return arg.finish();
   }
  catch (  final IOException ex) {
