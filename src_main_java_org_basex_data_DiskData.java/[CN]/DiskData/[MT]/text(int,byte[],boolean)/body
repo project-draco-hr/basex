@@ -1,37 +1,23 @@
 {
   final DataAccess store=text ? texts : values;
   final long len=store.length();
-  final long v=toSimpleInt(val);
+  final long v=toSimpleInt(value);
   final boolean vn=v != Integer.MIN_VALUE;
-  final byte[] txt=vn ? null : comp.pack(val);
+  final byte[] vl=vn ? null : comp.pack(value);
   final long old=textOff(pre);
-  long off=old & IO.OFFCOMP - 1;
+  final long off;
   if (num(old)) {
     off=len;
   }
  else {
-    int ts=vn ? 0 : txt.length + Num.length(txt.length);
-    int os=store.readNum(off) + (int)(store.cursor() - off);
-    store.cursor(off + os);
-    for (; off + os < len && os < ts && store.read1() == 0; os++)     ;
-    if (off + os == len) {
-      store.length(off);
-    }
- else {
-      if (os < ts) {
-        store.cursor(off);
-        ts=0;
-        off=len;
-      }
-      store.cursor(off + ts);
-      while (ts++ < os)       store.write1(0);
-    }
+    final int l=vn ? 0 : vl.length + Num.length(vl.length);
+    off=store.free(old & IO.OFFCOMP - 1,l);
   }
   if (vn) {
     textOff(pre,v | IO.OFFNUM);
   }
  else {
-    store.writeToken(off,txt);
-    textOff(pre,off | (txt == val ? 0 : IO.OFFCOMP));
+    store.writeToken(off,vl);
+    textOff(pre,vl == value ? off : off | IO.OFFCOMP);
   }
 }
