@@ -1,0 +1,18 @@
+{
+  new Set(Prop.TEXTINDEX,false).execute(CONTEXT);
+  new Set(Prop.ATTRINDEX,false).execute(CONTEXT);
+  new CreateDB(DBNAME,"<X><A>1</A><A>1</A></X>").execute(CONTEXT);
+  long len1=CONTEXT.data.meta.dbfile(DataText.DATATXT).length();
+  new Set(Prop.FORCEFLUSH,false).execute(CONTEXT);
+  final Random rnd=new Random();
+  for (int i=0; i < NQUERIES; i++) {
+    final double d=rnd.nextDouble();
+    final String qu="for $a in //A return replace node $a/text() with " + d;
+    new XQuery(qu).execute(CONTEXT);
+  }
+  new Set(Prop.FORCEFLUSH,true).execute(CONTEXT);
+  long len2=CONTEXT.data.meta.dbfile(DataText.DATATXT).length();
+  assertEquals(len1,len2);
+  new DropDB(DBNAME).execute(CONTEXT);
+  CONTEXT.close();
+}
