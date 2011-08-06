@@ -1,26 +1,37 @@
 {
-  final long v=Token.toSimpleInt(val);
-  if (v != Integer.MIN_VALUE) {
+  final DataAccess store=text ? texts : values;
+  final long len=store.length();
+  final long v=toSimpleInt(val);
+  final boolean vn=v != Integer.MIN_VALUE;
+  final byte[] txt=vn ? null : comp.pack(val);
+  final long old=textOff(pre);
+  long off=old & IO.OFFCOMP - 1;
+  if (num(old)) {
+    off=len;
+  }
+ else {
+    int ts=vn ? 0 : txt.length + Num.length(txt.length);
+    int os=store.readNum(off) + (int)(store.cursor() - off);
+    store.cursor(off + os);
+    for (; off + os < len && os < ts && store.read1() == 0; os++)     ;
+    if (off + os == len) {
+      store.length(off);
+    }
+ else {
+      if (os < ts) {
+        store.cursor(off);
+        ts=0;
+        off=len;
+      }
+      store.cursor(off + ts);
+      while (ts++ < os)       store.write1(0);
+    }
+  }
+  if (vn) {
     textOff(pre,v | IO.OFFNUM);
   }
  else {
-    final DataAccess da=txt ? texts : values;
-    final byte[] pack=comp.pack(val);
-    final long old=textOff(pre);
-    long o=old & IO.OFFCOMP - 1;
-    if (!num(old)) {
-      final int len=da.readNum(o);
-      if (da.pos() + len == da.length()) {
-        da.length(da.pos() + pack.length);
-      }
- else       if (pack.length > len) {
-        o=da.length();
-      }
-    }
- else {
-      o=da.length();
-    }
-    da.writeBytes(o,pack);
-    textOff(pre,o | (pack == val ? 0 : IO.OFFCOMP));
+    store.writeToken(off,txt);
+    textOff(pre,off | (txt == val ? 0 : IO.OFFCOMP));
   }
 }
