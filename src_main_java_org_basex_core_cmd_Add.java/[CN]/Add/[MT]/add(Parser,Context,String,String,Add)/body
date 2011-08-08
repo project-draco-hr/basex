@@ -1,5 +1,6 @@
 {
   final Performance p=new Performance();
+  final String input=name == null ? parser.src.path() : name;
   final String path=target + (target.isEmpty() ? "/" : "") + (name == null ? parser.src.name() : name);
   final long fl=parser.src.length();
   boolean large=false;
@@ -8,7 +9,7 @@
     Performance.gc(2);
     large=fl > rt.freeMemory() / 3;
   }
-  final Data data=ctx.data;
+  final Data data=ctx.data();
   final String dbname=large ? ctx.mprop.random(data.meta.name) : path;
   final Builder build=large ? new DiskBuilder(dbname,parser,ctx) : new MemBuilder(dbname,parser,ctx.prop);
   if (cmd != null)   cmd.build=build;
@@ -20,13 +21,18 @@
       ctx.update();
       data.flush();
     }
-    return Util.info(PATHADDED,path,p);
+    return Util.info(parser.info() + PATHADDED,input,p);
   }
  catch (  final IOException ex) {
     Util.debug(ex);
     throw new BaseXException(ex);
   }
  finally {
+    try {
+      build.close();
+    }
+ catch (    final IOException e) {
+    }
     if (tmp != null)     try {
       tmp.close();
     }

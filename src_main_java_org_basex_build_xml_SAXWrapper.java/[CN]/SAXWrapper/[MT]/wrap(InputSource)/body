@@ -1,16 +1,37 @@
 {
-  if (!(src instanceof IOFile) || is == null || is.getByteStream() != null || is.getSystemId() == null || is.getSystemId().isEmpty())   return is;
-  final InputSource in=new InputSource(new FileInputStream(src.path()){
-    @Override public int read(    final byte[] b,    final int off,    final int len) throws IOException {
-      final int i=super.read(b,off,len);
-      for (int o=off; o < len; ++o)       if (b[off + o] == '\n')       ++line;
-      counter+=i;
+  if (is == null)   return is;
+  final InputStream in;
+  if (is.getByteStream() != null) {
+    in=is.getByteStream();
+  }
+ else   if (is.getSystemId() == null || is.getSystemId().isEmpty()) {
+    return is;
+  }
+ else   if (src instanceof IOFile) {
+    in=new FileInputStream(src.path());
+  }
+ else   if (src instanceof IOContent) {
+    in=new ByteArrayInputStream(src.content());
+  }
+ else {
+    return is;
+  }
+  length=src.length();
+  if (length == 0)   length=in.available();
+  final InputSource tmp=new InputSource(new InputStream(){
+    final InputStream buffer=in instanceof ByteArrayInputStream ? in : new BufferedInputStream(in);
+    @Override public int read() throws IOException {
+      final int i=buffer.read();
+      if (i == '\n')       ++line;
+      ++counter;
       return i;
+    }
+    @Override public void close() throws IOException {
+      buffer.close();
     }
   }
 );
-  saxs.setInputSource(in);
+  saxs.setInputSource(tmp);
   saxs.setSystemId(is.getSystemId());
-  length=src.length();
-  return in;
+  return tmp;
 }

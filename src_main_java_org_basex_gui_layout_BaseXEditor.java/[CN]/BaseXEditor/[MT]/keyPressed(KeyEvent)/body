@@ -37,11 +37,12 @@
     text.setCaret();
     return;
   }
-  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e);
-  final boolean nomark=text.start() == -1;
+  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e);
+  final boolean nomark=!text.marked();
   if (marking && nomark)   text.startMark();
   boolean down=true;
   boolean consumed=true;
+  final byte[] txt=text.text;
   if (NEXTWORD.is(e)) {
     text.nextToken(marking);
   }
@@ -89,7 +90,6 @@
  else {
     consumed=false;
   }
-  final byte[] txt=text.text;
   if (marking) {
     text.endMark();
     text.checkMark();
@@ -106,6 +106,9 @@
     }
  else     if (REDO.is(e)) {
       redo();
+    }
+ else     if (COMMENT.is(e)) {
+      text.comment(rend.getSyntax());
     }
  else     if (DELLINEEND.is(e) || DELNEXTWORD.is(e) || DELNEXT.is(e)) {
       if (nomark) {

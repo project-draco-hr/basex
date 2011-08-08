@@ -1,8 +1,8 @@
 {
-  for (  final Expr p : pred)   checkUp(p,ctx);
+  for (  final Expr p : preds)   checkUp(p,ctx);
   Expr e=this;
-  for (int p=0; p < pred.length; ++p) {
-    Expr pr=pred[p].comp(ctx).compEbv(ctx);
+  for (int p=0; p < preds.length; ++p) {
+    Expr pr=preds[p].comp(ctx).compEbv(ctx);
     pr=Pos.get(CmpV.Op.EQ,pr,pr,input);
     if (pr.value()) {
       if (!pr.ebv(ctx,input).bool(input)) {
@@ -11,21 +11,21 @@
         break;
       }
       ctx.compInfo(OPTREMOVE,desc(),pr);
-      pred=Array.delete(pred,p--);
+      preds=Array.delete(preds,p--);
     }
  else {
-      pred[p]=pr;
-      if (pred[p] instanceof And) {
-        ctx.compInfo(OPTPRED,pred[p].desc());
-        final Expr[] and=((And)pred[p]).expr;
+      preds[p]=pr;
+      if (preds[p] instanceof And) {
+        ctx.compInfo(OPTPRED,preds[p].desc());
+        final Expr[] and=((And)preds[p]).expr;
         final int m=and.length - 1;
-        final ObjList<Expr> tmp=new ObjList<Expr>(pred.length + m);
-        for (int i=0; i < p; i++)         tmp.add(pred[i]);
+        final ObjList<Expr> tmp=new ObjList<Expr>(preds.length + m);
+        for (int i=0; i < p; i++)         tmp.add(preds[i]);
         for (        final Expr a : and) {
           tmp.add(Function.BOOLEAN.get(input,a).compEbv(ctx));
         }
-        for (int i=p + 1; i < pred.length; i++)         tmp.add(pred[i]);
-        pred=tmp.toArray(new Expr[tmp.size()]);
+        for (int i=p + 1; i < preds.length; i++)         tmp.add(preds[i]);
+        preds=tmp.toArray(new Expr[tmp.size()]);
       }
     }
   }

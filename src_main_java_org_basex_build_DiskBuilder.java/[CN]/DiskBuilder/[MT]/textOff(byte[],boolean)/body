@@ -1,14 +1,9 @@
 {
-  long v=Token.toSimpleInt(value);
+  final long v=Token.toSimpleInt(value);
   if (v != Integer.MIN_VALUE)   return v | IO.OFFNUM;
-  final byte[] cpr=comp.pack(value);
-  if (text) {
-    v=txtlen;
-    txtlen+=xout.writeToken(cpr);
-  }
- else {
-    v=vallen;
-    vallen+=vout.writeToken(cpr);
-  }
-  return cpr != value ? v | IO.OFFCOMP : v;
+  final DataOutput store=text ? xout : vout;
+  final long off=store.size();
+  final byte[] val=comp.pack(value);
+  store.writeToken(val);
+  return val == value ? off : off | IO.OFFCOMP;
 }

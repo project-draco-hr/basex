@@ -1,0 +1,17 @@
+{
+  final IOFile io=new IOFile(Prop.TMP,DBNAME);
+  io.write(Token.token("<x"));
+  new Set(Prop.SKIPCORRUPT,true).execute(CONTEXT);
+  assertEquals(0,CONTEXT.data().doc("").size());
+  new Add("<x").execute(CONTEXT);
+  new Add(CORRUPT).execute(CONTEXT);
+  assertEquals(0,CONTEXT.data().doc("").size());
+  new Set(Prop.SKIPCORRUPT,false).execute(CONTEXT);
+  try {
+    new Add("<x").execute(CONTEXT);
+    fail("Broken file was added to the database.");
+  }
+ catch (  final Exception ex) {
+  }
+  assertTrue(io.delete());
+}
