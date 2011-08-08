@@ -1,26 +1,25 @@
 {
-  for (  final Expr s : step)   checkUp(s,ctx);
+  for (  final Expr s : steps)   checkUp(s,ctx);
   if (root instanceof AxisPath) {
-    Expr[] st=((AxisPath)root).step;
+    Expr[] st=((AxisPath)root).steps;
     root=((AxisPath)root).root;
-    for (    final Expr s : step)     st=Array.add(st,s);
-    step=st;
+    for (    final Expr s : steps)     st=Array.add(st,s);
+    steps=st;
     ctx.compInfo(OPTPATH);
     ctx.value=root(ctx);
   }
-  final AxisStep s=voidStep(step);
+  final AxisStep s=voidStep(steps);
   if (s != null)   COMPSELF.thrw(input,s);
-  for (int i=0; i != step.length; ++i) {
-    final Expr e=step[i].comp(ctx);
+  for (int i=0; i != steps.length; ++i) {
+    final Expr e=steps[i].comp(ctx);
     if (!(e instanceof AxisStep))     return e;
-    step[i]=e;
+    steps[i]=e;
   }
   optSteps(ctx);
   final Data data=ctx.data();
   if (data != null && ctx.value.type == NodeType.DOC) {
-    Expr e=this;
-    if (root != null && !uses(Use.POS))     e=index(ctx,data);
-    if (e == this)     e=children(ctx,data);
+    Expr e=children(ctx,data);
+    if (e == this)     e=index(ctx,data);
     if (e != this)     return e.comp(ctx);
   }
   cache=root != null && !uses(Use.VAR);

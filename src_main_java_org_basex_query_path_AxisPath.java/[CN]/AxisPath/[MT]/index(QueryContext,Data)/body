@@ -1,17 +1,18 @@
 {
+  if (root == null || uses(Use.POS))   return this;
   IndexContext ics=null;
   int pmin=0;
   int smin=0;
-  for (int s=0; s < step.length; ++s) {
+  for (int s=0; s < steps.length; ++s) {
     final AxisStep stp=step(s);
     if (!stp.axis.down)     break;
     final boolean i=pathNodes(data,s) != null;
-    for (int p=0; p < stp.pred.length; ++p) {
+    for (int p=0; p < stp.preds.length; ++p) {
       final IndexContext ic=new IndexContext(ctx,data,stp,i);
-      if (!stp.pred[p].indexAccessible(ic))       continue;
+      if (!stp.preds[p].indexAccessible(ic))       continue;
       if (ic.costs() == 0) {
         if (ic.not) {
-          stp.pred[p]=Bln.TRUE;
+          stp.preds[p]=Bln.TRUE;
           continue;
         }
         ctx.compInfo(OPTNOINDEX,this);
@@ -26,47 +27,64 @@
   }
   if (ics == null || ics.costs() > data.meta.size)   return this;
   final AxisStep stp=step(smin);
-  final Expr ie=stp.pred[pmin].indexEquivalent(ics);
+  final Expr ie=stp.preds[pmin].indexEquivalent(ics);
   if (ics.seq) {
-    stp.pred[pmin]=ie;
+    stp.preds[pmin]=ie;
   }
  else {
-    AxisStep[] inv={};
-    final Expr[] newPreds=new Expr[stp.pred.length - 1];
+    AxisStep[] invSteps={};
+    final Expr[] newPreds=new Expr[stp.preds.length - 1];
     int c=0;
-    for (int p=0; p != stp.pred.length; ++p) {
-      if (p != pmin)       newPreds[c++]=stp.pred[p];
+    for (int p=0; p != stp.preds.length; ++p) {
+      if (p != pmin)       newPreds[c++]=stp.preds[p];
     }
-    for (int j=smin; j >= 0; j--) {
-      final Axis ax=step(j).axis.invert();
-      if (ax == null)       break;
-      if (j != 0) {
-        final AxisStep prev=step(j - 1);
-        inv=Array.add(inv,AxisStep.get(input,ax,prev.test,prev.pred));
+    final Test test=DocTest.get(ctx,data);
+    boolean inv=true;
+    if (test == Test.DOC && data.meta.pathindex || data.meta.uptodate) {
+      int j=0;
+      for (; j <= smin; ++j) {
+        final AxisStep s=axisStep(j);
+        if (s == null)         break;
+        if (s.axis != Axis.CHILD || s.preds.length > 0 && j != smin)         break;
+        if (s.test.test == Name.ALL || s.test.test == null)         continue;
+        if (s.test.test != Name.NAME)         break;
+        final int name=data.tagindex.id(s.test.name.ln());
+        final ObjList<PathNode> pn=data.pthindex.desc(name,Data.ELEM);
+        if (pn.size() != 1 || pn.get(0).level() != j + 1)         break;
       }
+      inv=j <= smin;
+    }
+    if (inv) {
+      for (int j=smin; j >= 0; --j) {
+        final Axis ax=step(j).axis.invert();
+        if (ax == null)         break;
+        if (j != 0) {
+          final AxisStep prev=step(j - 1);
+          invSteps=Array.add(invSteps,AxisStep.get(input,ax,prev.test,prev.preds));
+        }
  else {
-        final Test test=DocTest.get(ctx,data);
-        if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)         inv=Array.add(inv,AxisStep.get(input,ax,test));
+          if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)           invSteps=Array.add(invSteps,AxisStep.get(input,ax,test));
+        }
       }
     }
-    final boolean simple=inv.length == 0 && newPreds.length == 0;
     AxisPath result=null;
+    final boolean simple=invSteps.length == 0 && newPreds.length == 0;
     if (ie instanceof AxisPath) {
       result=(AxisPath)ie;
     }
- else     if (smin + 1 < step.length || !simple) {
+ else     if (smin + 1 < steps.length || !simple) {
       result=simple ? new AxisPath(input,ie) : new AxisPath(input,ie,AxisStep.get(input,Axis.SELF,Test.NOD));
     }
  else {
       return ie;
     }
-    final int sl=result.step.length - 1;
-    if (sl >= 0) {
-      result.step[sl]=result.step(sl).addPreds(newPreds);
-      if (inv.length != 0)       result.step[sl]=result.step(sl).addPreds(Path.get(input,null,inv));
+    final int ls=result.steps.length - 1;
+    if (ls >= 0) {
+      result.steps[ls]=result.step(ls).addPreds(newPreds);
+      if (invSteps.length != 0)       result.steps[ls]=result.step(ls).addPreds(Path.get(input,null,invSteps));
     }
-    for (int s=smin + 1; s < step.length; ++s) {
-      result.step=Array.add(result.step,step[s]);
+    for (int s=smin + 1; s < steps.length; ++s) {
+      result.steps=Array.add(result.steps,steps[s]);
     }
     return result;
   }
