@@ -3,7 +3,10 @@
     scanner.more();
     final byte[] tag=consumeToken(Type.TAGNAME);
     skipSpace();
-    builder.endElem(tag);
+    if (tags.empty())     throw new BuildException(AFTERROOT,det());
+    final byte[] open=tags.pop();
+    if (!eq(open,tag))     throw new BuildException(CLOSINGTAG,det(),tag,open);
+    builder.endElem();
     return consume(Type.R_BR);
   }
   consume(Type.L_BR);
@@ -40,5 +43,6 @@
     return scanner.more();
   }
   builder.startElem(tag,atts);
+  tags.add(tag);
   return consume(Type.R_BR);
 }
