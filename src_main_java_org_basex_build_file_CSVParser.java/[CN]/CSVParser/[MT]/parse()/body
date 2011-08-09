@@ -16,6 +16,10 @@
           continue;
         }
       }
+      while (ch == 0x0D) {
+        ch=bi.readChar();
+        if (ch != 0x0A)         tb.add(0x0A);
+      }
       if (ch != 0x0D)       tb.add(ch);
     }
  else     if (ch == separator) {
@@ -25,6 +29,12 @@
       }
       add(tb);
     }
+ else     if (ch == 0x0D) {
+      ch=bi.readChar();
+      if (ch == 0x0A)       continue;
+      finish(tb,open);
+      open=true;
+    }
  else     if (ch == 0x0A) {
       finish(tb,open);
       open=true;
@@ -32,7 +42,7 @@
  else     if (ch == '"') {
       quoted=true;
     }
- else     if (ch != 0x0D) {
+ else {
       tb.add(ch);
     }
     ch=0;
