@@ -1,0 +1,35 @@
+{
+  skipWS();
+  final char ch=curr();
+  byte[] type;
+  if (ch == '"') {
+    type=STR;
+    root.add(new FTxt(string()));
+  }
+ else   if (digit(ch) || ch == '-') {
+    type=NUM;
+    root.add(new FTxt(number()));
+  }
+ else   if (ch == '{') {
+    type=OBJ;
+    object(root);
+  }
+ else   if (ch == '[') {
+    type=ARR;
+    array(root);
+  }
+ else   if (ch == 't' || ch == 'f') {
+    type=BOOL;
+    root.add(new FTxt(bool()));
+  }
+ else   if (ch == 'n') {
+    type=NULL;
+    for (    final byte b : NULL)     check((char)b);
+  }
+ else {
+    if (mand)     error(INVALEXP,curr(),'"');
+    return false;
+  }
+  root.add(new FAttr(A_TYPE,type));
+  return true;
+}
