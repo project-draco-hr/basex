@@ -1,0 +1,27 @@
+{
+  if (trim(b).length == 0)   return;
+  if (tag(PAIR) || tag(ITEM)) {
+    final byte[] type=types.get(level() - 1);
+    if (eq(type,STR)) {
+      out.print("\"");
+      out.print(b);
+      out.print("\"");
+    }
+ else     if (eq(type,BOOL)) {
+      if (!eq(b,TRUE) && !eq(b,FALSE))       error("Invalid boolean value",b);
+      out.print(b);
+    }
+ else     if (eq(type,NUM)) {
+      out.print(b);
+    }
+ else     if (eq(type,NULL)) {
+      error("No value expected after \"null\"");
+    }
+ else {
+      error("Invalid type: \"%\"",type);
+    }
+  }
+ else {
+    error("No text allowed in \"%\" tag",tag);
+  }
+}

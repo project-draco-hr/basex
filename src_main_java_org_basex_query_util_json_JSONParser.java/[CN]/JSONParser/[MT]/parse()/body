@@ -1,6 +1,15 @@
 {
   final FElem root=new FElem(E_JSON);
-  root.add(new FAttr(A_TYPE,OBJ));
-  object(root);
+  if (object(root)) {
+    root.add(new FAttr(A_TYPE,OBJ));
+  }
+ else   if (array(root)) {
+    root.add(new FAttr(A_TYPE,ARR));
+  }
+ else {
+    error(INVALEXP,curr(),"\"{\" or \"[\"");
+  }
+  skipWS();
+  if (more())   error(INVALEXP,curr(),"end of file");
   return root;
 }

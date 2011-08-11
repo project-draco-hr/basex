@@ -1,0 +1,27 @@
+{
+  if (empty)   finishOpen();
+  final byte[] type=types.get(level());
+  if (type == null)   return;
+  final boolean struct=eq(type,ARR) || eq(type,OBJ);
+  if (empty) {
+    if (eq(type,NULL)) {
+      out.print(NULL);
+    }
+ else     if (eq(type,STR)) {
+      out.print("\"\"");
+    }
+ else     if (!eq(type,OBJ) && !eq(type,ARR)) {
+      if (eq(type,NUM) || eq(type,BOOL)) {
+        error("Value needed for % type",type);
+      }
+ else {
+        error("Invalid type: \"%\"",type);
+      }
+    }
+  }
+ else {
+    if (struct)     indent(true);
+  }
+  if (!struct)   return;
+  out.print(eq(type,ARR) ? "]" : "}");
+}
