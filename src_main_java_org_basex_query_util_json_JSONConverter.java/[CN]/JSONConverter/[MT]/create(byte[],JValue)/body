@@ -1,0 +1,20 @@
+{
+  final FElem root=new FElem(qname(name));
+  final Class<?> clz=types.get(name);
+  final boolean type=clz == null || clz == JValue.class;
+  if (value instanceof JStruct) {
+    final boolean obj=value instanceof JObject;
+    if (type && !obj)     root.add(new FAttr(Q_TYPE,ARR));
+    final JStruct n=(JStruct)value;
+    for (int s=0; s < n.size(); s++) {
+      root.add(create(obj ? ((JObject)n).name(s) : EMPTY,n.value(s)));
+    }
+  }
+ else {
+    final JAtom a=(JAtom)value;
+    if (type && !(a instanceof JString))     root.add(new FAttr(Q_TYPE,a.type()));
+    final byte[] v=a.value();
+    if (v != null && v.length != 0)     root.add(new FTxt(v));
+  }
+  return root;
+}

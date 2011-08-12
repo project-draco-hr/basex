@@ -1,0 +1,21 @@
+{
+  if (value instanceof JArray) {
+    final JArray n=(JArray)value;
+    for (int s=0; s < n.size(); s++)     analyze(n.value(s));
+  }
+ else   if (value instanceof JObject) {
+    final JObject n=(JObject)value;
+    for (int s=0; s < n.size(); s++) {
+      final byte[] name=n.name(s);
+      final Class<? extends JValue> clz=n.value(s).getClass();
+      final Class<?> type=types.get(name);
+      if (type == null) {
+        types.add(name,clz);
+      }
+ else       if (type != JValue.class && type != clz) {
+        types.add(name,JValue.class);
+      }
+      analyze(n.value(s));
+    }
+  }
+}

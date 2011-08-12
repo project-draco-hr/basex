@@ -1,0 +1,18 @@
+{
+  final TokenBuilder[] builders=new TokenBuilder[4];
+  for (int b=0; b < builders.length; b++)   builders[b]=new TokenBuilder();
+  for (int i=1; i <= types.size(); i++) {
+    final Class<? extends JValue> clz=types.value(i);
+    for (int b=0; b < builders.length; b++) {
+      if (clz == CLASSES[b]) {
+        if (builders[b].size() != 0)         builders[b].add(' ');
+        builders[b].add(types.key(i));
+        break;
+      }
+    }
+  }
+  for (int b=0; b < builders.length; b++) {
+    if (builders[b].size() == 0)     continue;
+    root.add(new FAttr(qname(NAMES[b]),builders[b].trim().finish()));
+  }
+}

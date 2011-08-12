@@ -1,0 +1,35 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  final byte[] buf=new byte[4];
+  for (int n=0; n < name.length; n+=cl(name,n)) {
+    int cp=cp(name,n);
+    if (cp == '_') {
+      tb.add('_').add('_');
+    }
+ else     if (cp == ' ') {
+      tb.add('_').add('_').add('_');
+    }
+ else     if (n == 0 ? XMLToken.isNCStartChar(cp) : XMLToken.isNCChar(cp)) {
+      tb.add(cp);
+    }
+ else {
+      tb.add('_');
+      int p=buf.length;
+      do {
+        final int b=cp & 0x0F;
+        buf[--p]=(byte)(b + (b > 9 ? 0x37 : '0'));
+        cp>>>=4;
+      }
+ while (p != 0);
+      tb.add(buf).add('_');
+    }
+  }
+  if (tb.size() == 0)   tb.add('_');
+  final byte[] nm=tb.finish();
+  QNm qname=qnames.get(nm);
+  if (qname == null) {
+    qname=new QNm(nm);
+    qnames.add(nm,qname);
+  }
+  return qname;
+}
