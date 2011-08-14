@@ -1,11 +1,18 @@
 {
-  if (eq(name,TYPE)) {
-    types.set(level(),value);
+  if (level == 0) {
+    final int tl=typeCache.length;
+    for (int t=0; t < tl; t++) {
+      if (eq(name,TYPES[t])) {
+        for (        final byte[] b : split(value,' '))         typeCache[t].add(b);
+        return;
+      }
+    }
   }
- else   if (eq(name,NAME)) {
-    if (tag(PAIR))     key=value;
+  if (eq(name,TYPE)) {
+    types.set(level,value);
+    if (!eq(value,TYPES))     error("Element <%> has invalid type \"%\"",tag,value);
   }
  else {
-    error("Invalid attribute: \"%\"",name);
+    error("Element <%> has invalid attribute \"%\"",tag,name);
   }
 }

@@ -1,46 +1,14 @@
 {
-  if (trim(text).length == 0)   return;
-  if (tag(PAIR) || tag(ITEM)) {
-    final byte[] type=types.get(level() - 1);
-    if (eq(type,STR)) {
-      print('"');
-      for (      final byte ch : text) {
-        if (ch == '\b') {
-          print("\\b");
-        }
- else         if (ch == '\f') {
-          print("\\f");
-        }
- else         if (ch == '\n') {
-          print("\\n");
-        }
- else         if (ch == '\r') {
-          print("\\r");
-        }
- else         if (ch == '\t') {
-          print("\\t");
-        }
- else {
-          print(ch);
-        }
-      }
-      print('"');
-    }
- else     if (eq(type,BOOL)) {
-      if (!eq(text,TRUE) && !eq(text,FALSE))       error("Invalid boolean value",text);
-      print(text);
-    }
- else     if (eq(type,NUM)) {
-      print(text);
-    }
- else     if (eq(type,NULL)) {
-      error("No value expected after \"null\"");
-    }
- else {
-      error("Invalid type: \"%\"",type);
-    }
+  byte[] type=types.get(level - 1);
+  if (eq(type,STR)) {
+    print('"');
+    for (    final byte ch : text)     ch(ch);
+    print('"');
   }
- else {
-    error("No text allowed in \"%\" tag",tag);
+ else   if (eq(type,BOOL) || eq(type,NUM)) {
+    print(text);
+  }
+ else   if (trim(text).length != 0) {
+    error("Element <%> is typed as \"%\" and cannot have a value",tags.get(level - 1),type);
   }
 }

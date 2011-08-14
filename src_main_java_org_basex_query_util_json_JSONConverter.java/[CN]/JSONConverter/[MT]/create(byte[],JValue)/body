@@ -1,10 +1,11 @@
 {
-  final FElem root=new FElem(qname(name));
-  final Class<?> clz=types.get(name);
+  final byte[] nm=convert(name);
+  final FElem root=new FElem(qname(nm));
+  final Class<?> clz=types.get(nm);
   final boolean type=clz == null || clz == JValue.class;
   if (value instanceof JStruct) {
     final boolean obj=value instanceof JObject;
-    if (type && !obj)     root.add(new FAttr(Q_TYPE,ARR));
+    if (type)     root.add(new FAttr(Q_TYPE,value.type()));
     final JStruct n=(JStruct)value;
     for (int s=0; s < n.size(); s++) {
       root.add(create(obj ? ((JObject)n).name(s) : EMPTY,n.value(s)));
