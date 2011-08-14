@@ -1,0 +1,17 @@
+{
+  final ANode node=checkNode(checkItem(expr[0],ctx));
+  final ArrayOutput ao=new ArrayOutput();
+  try {
+    final SerializerProp props=ctx.serProp(false);
+    final Serializer json=ml ? new JsonMLSerializer(ao,props) : new JSONSerializer(ao,props);
+    node.serialize(json);
+    json.close();
+  }
+ catch (  final SerializerException ex) {
+    throw new QueryException(input,ex);
+  }
+catch (  final IOException ex) {
+    SERANY.thrw(input,ex);
+  }
+  return Str.get(delete(ao.toArray(),'\r'));
+}
