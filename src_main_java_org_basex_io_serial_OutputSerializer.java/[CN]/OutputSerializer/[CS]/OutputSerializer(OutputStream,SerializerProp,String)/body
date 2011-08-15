@@ -12,7 +12,9 @@
   final String sa=p.check(S_STANDALONE,YES,NO,OMIT);
   p.check(S_NORMALIZATION_FORM,NFC,NONE);
   final String maps=p.get(S_USE_CHARACTER_MAPS);
-  enc=normEncoding(p.get(S_ENCODING),null);
+  final String enc=normEncoding(p.get(S_ENCODING),null);
+  utf8=enc == UTF8;
+  encoding=Charset.forName(enc);
   docsys=p.get(S_DOCTYPE_SYSTEM);
   docpub=p.get(S_DOCTYPE_PUBLIC);
   media=p.get(S_MEDIA_TYPE);
@@ -21,6 +23,7 @@
   escape=p.check(S_ESCAPE_URI_ATTRIBUTES,YES,NO).equals(YES);
   content=p.check(S_INCLUDE_CONTENT_TYPE,YES,NO).equals(YES);
   undecl=p.check(S_UNDECLARE_PREFIXES,YES,NO).equals(YES);
+  nl=utf8 ? token(Prop.NL) : Prop.NL.getBytes(encoding);
   if (!maps.isEmpty())   SERMAP.thrwSerial(maps);
   if (!supported(enc))   SERENCODING.thrwSerial(enc);
   if (docsys.isEmpty()) {
