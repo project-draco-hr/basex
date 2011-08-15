@@ -1,14 +1,10 @@
 {
-  if (value instanceof JArray) {
-    final JArray n=(JArray)value;
-    for (int s=0; s < n.size(); s++)     analyze(n.value(s));
-  }
- else   if (value instanceof JObject) {
-    final JObject n=(JObject)value;
+  if (value instanceof JStruct) {
+    final JStruct n=(JStruct)value;
     for (int s=0; s < n.size(); s++) {
-      if (n.name(s).length == 0)       continue;
-      final byte[] name=convert(n.name(s));
-      final Class<? extends JValue> clz=n.value(s).getClass();
+      final boolean obj=value instanceof JObject;
+      final byte[] name=convert(obj ? ((JObject)n).name(s) : VALUE);
+      final Class<?> clz=n.value(s).getClass();
       final Class<?> type=types.get(name);
       if (type == null) {
         types.add(name,clz);
