@@ -1,0 +1,43 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  int uc=0;
+  int mode=0;
+  for (int n=0; n < name.length; ) {
+    final int cp=cp(name,n);
+    if (mode >= 3) {
+      uc=(uc << 4) + cp - (cp >= '0' && cp <= '9' ? '0' : 0x37);
+      if (++mode == 7) {
+        tb.add(uc);
+        mode=0;
+      }
+    }
+ else     if (cp == '_') {
+      if (++mode == 3) {
+        tb.add('_');
+        mode=0;
+        continue;
+      }
+    }
+ else     if (mode == 1) {
+      mode=3;
+      continue;
+    }
+ else     if (mode == 2) {
+      tb.add('_');
+      mode=0;
+      continue;
+    }
+ else {
+      tb.add(cp);
+      mode=0;
+    }
+    n+=cl(name,n);
+  }
+  if (mode == 2) {
+    tb.add('_');
+  }
+ else   if (mode > 0 && tb.size() != 0) {
+    tb.add('?');
+  }
+  return tb.finish();
+}

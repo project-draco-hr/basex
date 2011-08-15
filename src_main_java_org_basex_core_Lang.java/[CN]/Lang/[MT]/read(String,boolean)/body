@@ -1,4 +1,5 @@
 {
+  BufferedReader br=null;
   try {
     if (DISALLOW)     throw new Error("Language file was accessed.");
     if (chk)     check=new HashMap<String,Boolean>();
@@ -8,7 +9,7 @@
       Util.errln("%." + SUFFIX + " not found.",lang);
     }
  else {
-      final BufferedReader br=new BufferedReader(new InputStreamReader(is,Token.UTF8));
+      br=new BufferedReader(new InputStreamReader(is,Token.UTF8));
       for (String line; (line=br.readLine()) != null; ) {
         final int i=line.indexOf('=');
         if (i == -1 || line.startsWith("#"))         continue;
@@ -24,10 +25,16 @@
         }
         if (chk)         check.put(key,true);
       }
-      br.close();
     }
   }
  catch (  final IOException ex) {
     Util.errln(ex);
+  }
+ finally {
+    if (br != null)     try {
+      br.close();
+    }
+ catch (    final IOException ex) {
+    }
   }
 }

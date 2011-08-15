@@ -1,6 +1,6 @@
 {
   super(args);
-  check(success);
+  if (failed)   return;
   final int port=context.mprop.num(MainProp.SERVERPORT);
   if (service) {
     Util.outln(start(port,getClass(),args));
@@ -10,7 +10,7 @@
   try {
     if (commands != null) {
       final Boolean b=execute(commands);
-      check(b == null || b);
+      if (failed(b == null || b))       return;
     }
     log=new Log(context,quiet);
     log.write(SERVERSTART);
@@ -33,6 +33,6 @@
  catch (  final Exception ex) {
     if (log != null)     log.write(ex.getMessage());
     Util.errln(Util.server(ex));
-    check(false);
+    failed=true;
   }
 }

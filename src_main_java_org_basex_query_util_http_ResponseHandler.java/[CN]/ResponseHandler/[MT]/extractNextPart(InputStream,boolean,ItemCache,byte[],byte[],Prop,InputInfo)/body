@@ -3,7 +3,7 @@
   String charset=null;
   final byte[] firstLine=readLine(io);
   if (firstLine == null || eq(firstLine,end))   return null;
-  final NodeCache partCh=new NodeCache();
+  final FElem root=new FElem(new QNm(PART,EMPTY),new Atts().add(HTTP,HTTPURI),EMPTY);
   if (firstLine.length == 0) {
     final byte[] p=extractPartPayload(io,sep,end,null);
     if (!statusOnly)     payloads.add(interpretPayload(p,partContType,prop,ii));
@@ -17,10 +17,10 @@
         final byte[] name=substring(nextHdr,0,pos);
         if (pos + 1 < nextHdr.length) {
           final byte[] value=trim(substring(nextHdr,pos + 1,nextHdr.length));
-          final FElem hdr=new FElem(new QNm(HEADER,HTTPURI),null);
-          hdr.atts.add(new FAttr(new QNm(HDR_NAME,EMPTY),name,null));
-          hdr.atts.add(new FAttr(new QNm(HDR_VALUE,EMPTY),value,null));
-          partCh.add(hdr);
+          final FElem hdr=new FElem(new QNm(HEADER,HTTPURI));
+          hdr.add(new FAttr(new QNm(HDR_NAME,EMPTY),name));
+          hdr.add(new FAttr(new QNm(HDR_VALUE,EMPTY),value));
+          root.add(hdr);
           if (eq(lc(name),CONT_TYPE_LC))           partContType=value;
         }
       }
@@ -31,6 +31,6 @@
       payloads.add(interpretPayload(p,partContType,prop,ii));
     }
   }
-  partCh.add(createBody(partContType));
-  return new FElem(new QNm(PART,EMPTY),partCh,null,EMPTY,new Atts().add(HTTP,HTTPURI),null);
+  root.add(createBody(partContType));
+  return root;
 }

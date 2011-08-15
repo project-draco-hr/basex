@@ -1,0 +1,43 @@
+{
+  if (!wsConsume('"'))   return null;
+  tb.reset();
+  while (more()) {
+    int ch=consume();
+    if (ch == '"')     return tb.finish();
+    if (ch == '\\') {
+      ch=consume();
+      if (ch == 'u') {
+        int i=0;
+        for (int s=0; s < 4; s++) {
+          ch=consume();
+          i<<=4;
+          if (ch >= '0' && ch <= '9')           i+=ch - 0x30;
+ else           if (ch >= 'A' && ch <= 'F')           i+=ch - 0x37;
+ else           if (ch >= 'a' && ch <= 'f')           i+=ch - 0x57;
+ else           error(INVALID,ch,"hex digit");
+        }
+        ch=i;
+      }
+ else       if (ch == 'b') {
+        ch='\b';
+      }
+ else       if (ch == 'f') {
+        ch='\f';
+      }
+ else       if (ch == 'n') {
+        ch='\n';
+      }
+ else       if (ch == 'r') {
+        ch='\r';
+      }
+ else       if (ch == 't') {
+        ch='\t';
+      }
+ else       if ("\\\"/".indexOf(ch) == -1) {
+        error(INVALID,"\\" + (char)ch);
+      }
+    }
+    tb.add(ch);
+  }
+  throw error(INVALEXP,0,'"');
+}

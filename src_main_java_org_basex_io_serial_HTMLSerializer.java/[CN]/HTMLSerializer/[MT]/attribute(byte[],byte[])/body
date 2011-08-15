@@ -1,0 +1,24 @@
+{
+  final byte[] tagatt=concat(lc(tag),COLON,lc(n));
+  if (BOOLEAN.id(tagatt) != 0 && eq(n,v))   return;
+  final byte[] val=escape && URIS.id(tagatt) != 0 ? escape(v) : v;
+  print(' ');
+  print(n);
+  print(ATT1);
+  for (int k=0; k < val.length; k+=cl(val,k)) {
+    final int ch=cp(val,k);
+    if (ch == '<' || ch == '&' && val[Math.min(k + 1,val.length - 1)] == '{') {
+      print(ch);
+    }
+ else     if (ch == '"') {
+      print(E_QU);
+    }
+ else     if (ch == 0x9 || ch == 0xA) {
+      hex(ch);
+    }
+ else {
+      code(ch);
+    }
+  }
+  print(ATT2);
+}

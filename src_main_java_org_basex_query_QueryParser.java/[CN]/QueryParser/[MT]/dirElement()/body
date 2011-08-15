@@ -18,8 +18,8 @@
     boolean simple=true;
     do {
       while (!consume(delim)) {
-        final char c=curr();
-        if (c == '{') {
+        final char ch=curr();
+        if (ch == '{') {
           if (next() == '{') {
             tb.add(consume());
             consume();
@@ -36,17 +36,21 @@
             tb.reset();
           }
         }
- else         if (c == '}') {
-          ++qp;
+ else         if (ch == '}') {
+          consume();
           check('}');
           tb.add('}');
         }
- else         if (c == '<' || c == 0) {
+ else         if (ch == '<' || ch == 0) {
           error(NOQUOTE,found());
         }
- else         if (c == 0x0A || c == 0x09) {
-          ++qp;
+ else         if (ch == '\n' || ch == '\t') {
           tb.add(' ');
+          consume();
+        }
+ else         if (ch == '\r') {
+          if (next() != '\n')           tb.add(' ');
+          consume();
         }
  else {
           entity(tb);

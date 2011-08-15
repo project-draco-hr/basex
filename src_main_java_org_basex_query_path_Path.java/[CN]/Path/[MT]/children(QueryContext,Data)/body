@@ -1,12 +1,14 @@
 {
-  for (int s=0; s < step.length; ++s) {
-    final AxisStep prev=s > 0 ? checkStep(s - 1) : null;
-    if (prev != null && prev.pred.length != 0)     break;
-    final AxisStep curr=checkStep(s);
+  if (!data.meta.pathindex || !data.meta.uptodate)   return this;
+  Path path=this;
+  for (int s=0; s < steps.length; ++s) {
+    final AxisStep prev=s > 0 ? axisStep(s - 1) : null;
+    if (prev != null && prev.preds.length != 0)     break;
+    final AxisStep curr=axisStep(s);
     if (curr == null || curr.axis != Axis.DESC || curr.uses(Use.POS))     continue;
     ObjList<PathNode> nodes=pathNodes(data,s);
     if (nodes == null)     continue;
-    ctx.compInfo(OPTCHILD,step[s]);
+    ctx.compInfo(OPTCHILD,steps[s]);
     final TokenList tl=new TokenList();
     while (nodes.get(0).par != null) {
       byte[] tag=data.tagindex.key(nodes.get(0).name);
@@ -17,15 +19,28 @@
       nodes=data.pthindex.parent(nodes);
     }
     int ts=tl.size();
-    final Expr[] steps=new Expr[ts + step.length - s - 1];
+    final Expr[] stps=new Expr[ts + steps.length - s - 1];
     for (int t=0; t < ts; ++t) {
-      final Expr[] preds=t == ts - 1 ? ((AxisStep)step[s]).pred : new Expr[0];
+      final Expr[] preds=t == ts - 1 ? ((AxisStep)steps[s]).preds : new Expr[0];
       final byte[] n=tl.get(ts - t - 1);
       final NameTest nt=n == null ? new NameTest(false,input) : new NameTest(new QNm(n),Name.NAME,false,input);
-      steps[t]=AxisStep.get(input,Axis.CHILD,nt,preds);
+      stps[t]=AxisStep.get(input,Axis.CHILD,nt,preds);
     }
-    while (++s < step.length)     steps[ts++]=step[s];
-    return get(input,root,steps);
+    while (++s < steps.length)     stps[ts++]=steps[s];
+    path=get(input,root,stps);
+    break;
   }
-  return this;
+  LOOP:   for (int s=0; s < path.steps.length; ++s) {
+    final AxisStep st=path.axisStep(s);
+    if (st == null || st.axis != Axis.CHILD)     break;
+    if (st.test.test == Name.ALL || st.test.test == null)     continue;
+    if (st.test.test != Name.NAME)     break;
+    final int name=data.tagindex.id(st.test.name.ln());
+    for (    final PathNode pn : data.pthindex.desc(name,Data.ELEM)) {
+      if (pn.level() == s + 1)       continue LOOP;
+    }
+    ctx.compInfo(OPTPATH,this);
+    return Empty.SEQ;
+  }
+  return path;
 }
