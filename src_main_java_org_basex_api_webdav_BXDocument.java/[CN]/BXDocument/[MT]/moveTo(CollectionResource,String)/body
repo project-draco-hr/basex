@@ -1,29 +1,32 @@
 {
   try {
-    Session s=factory.login(user,pass);
+    final Session s=factory.login(user,pass);
     try {
       if (target instanceof BXAllDatabasesResource) {
         createDb(s,name);
-        delete();
+        delete(s);
       }
  else       if (target instanceof BXDatabase) {
-        if (((BXDatabase)target).db.equals(db)) {
+        final BXDatabase trg=(BXDatabase)target;
+        if (trg.db.equals(db)) {
           s.execute(new Open(db));
           s.execute(new Rename(path,name));
         }
  else {
-          addToDb(s,((BXDatabase)target).db,name);
-          delete();
+          add(s,trg.db,name);
+          delete(s);
         }
       }
  else       if (target instanceof BXFolder) {
-        if (((BXFolder)target).db.equals(db)) {
+        final BXFolder trg=(BXFolder)target;
+        if (trg.db.equals(db)) {
           s.execute(new Open(db));
-          s.execute(new Rename(path,((BXFolder)target).path + SEP + name));
+          s.execute(new Rename(path,trg.path + SEP + name));
         }
  else {
-          addToFolder(s,((BXFolder)target).db,name,((BXFolder)target).path);
-          delete();
+          add(s,trg.db,name,trg.path);
+          deleteDummy(s,trg.db,trg.path);
+          delete(s);
         }
       }
     }
@@ -31,6 +34,7 @@
       s.close();
     }
   }
- catch (  Exception ex) {
+ catch (  Exception e) {
+    e.printStackTrace();
   }
 }
