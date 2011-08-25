@@ -14,8 +14,14 @@
     }
     log=new Log(context,quiet);
     log.write(SERVERSTART);
-    socket=new ServerSocket(port);
-    esocket=new ServerSocket(context.mprop.num(MainProp.EVENTPORT));
+    socket=new ServerSocket();
+    socket.setReuseAddress(true);
+    SocketAddress endpoint=new InetSocketAddress(port);
+    socket.bind(endpoint);
+    esocket=new ServerSocket();
+    esocket.setReuseAddress(true);
+    endpoint=new InetSocketAddress(context.mprop.num(MainProp.EVENTPORT));
+    esocket.bind(endpoint);
     stop=stopFile(port);
     Runtime.getRuntime().addShutdownHook(new Thread(){
       @Override public void run(){
