@@ -1,27 +1,20 @@
 {
   try {
     final Session s=factory.login(user,pass);
-    String trgdb=null;
-    String trgdir=null;
-    String prefix=null;
     try {
       if (target instanceof BXAllDatabasesResource) {
         s.execute(new CreateDB(name));
-        trgdb=name;
-        trgdir="";
-        prefix=path + SEP;
+        add(s,name,"",path);
       }
  else       if (target instanceof BXDatabase) {
-        trgdb=((BXDatabase)target).db;
-        trgdir="";
-        prefix=path.substring(0,path.lastIndexOf(SEP) + 1);
+        final BXFolder trg=(BXFolder)target;
+        add(s,trg.db,trg.path,path.substring(0,path.lastIndexOf(SEP)));
       }
  else       if (target instanceof BXFolder) {
-        trgdb=((BXFolder)target).db;
-        trgdir=((BXFolder)target).path;
-        prefix=path.substring(0,path.lastIndexOf(SEP) + 1);
+        final BXFolder trg=(BXFolder)target;
+        add(s,trg.db,trg.path,path.substring(0,path.lastIndexOf(SEP)));
+        deleteDummy(s,trg.db,trg.path);
       }
-      put(s,trgdb,trgdir,prefix);
     }
   finally {
       s.close();
