@@ -7,15 +7,25 @@
   final Table table=new Table();
   table.description=INFONDOCS;
   table.header.add(INFOPATH);
-  table.header.add(INFONODES);
+  table.header.add(INFOTYPE);
+  table.header.add(INFODBSIZE);
   try {
     final Data data=Open.open(db,context);
-    final IntList il=data.doc(path);
+    final IntList il=data.docs(path);
     for (int i=0, is=il.size(); i < is; i++) {
       final int pre=il.get(i);
       final TokenList tl=new TokenList(2);
       tl.add(data.text(pre,true));
+      tl.add(DataText.M_XML);
       tl.add(data.size(pre,Data.DOC));
+      table.contents.add(tl);
+    }
+    final int pref=data.meta.binaries().getPath().length() + 1;
+    for (    final File f : data.files(path)) {
+      final TokenList tl=new TokenList(2);
+      tl.add(f.getPath().substring(pref).replace('\\','/'));
+      tl.add(DataText.M_RAW);
+      tl.add(f.length());
       table.contents.add(tl);
     }
     Close.close(data,context);
