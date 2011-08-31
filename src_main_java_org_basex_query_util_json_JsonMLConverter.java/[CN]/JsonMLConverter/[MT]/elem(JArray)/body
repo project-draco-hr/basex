@@ -1,0 +1,28 @@
+{
+  FElem elem=null;
+  boolean txt=false;
+  for (int s=0; s < value.size(); s++) {
+    final JValue val=value.value(s);
+    if (s == 0) {
+      final JString str=(JString)check(val,STR,"element name");
+      elem=new FElem(qname(str.value));
+    }
+ else     if (s == 1 && val instanceof JObject) {
+      attr(elem,(JObject)val);
+    }
+ else     if (val instanceof JArray) {
+      elem.add(elem((JArray)val));
+      txt=false;
+    }
+ else     if (val instanceof JString) {
+      if (txt)       error("No subsequent texts allowed");
+      txt=true;
+      elem.add(new FTxt(((JString)val).value));
+    }
+ else {
+      error("No % allowed at this stage",val.type());
+    }
+  }
+  if (elem == null)   error("No element name specified in array");
+  return elem;
+}

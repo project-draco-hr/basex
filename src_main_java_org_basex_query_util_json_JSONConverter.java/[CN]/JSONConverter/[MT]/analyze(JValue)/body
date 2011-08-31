@@ -1,0 +1,18 @@
+{
+  if (value instanceof JStruct) {
+    final JStruct n=(JStruct)value;
+    for (int s=0; s < n.size(); s++) {
+      final boolean obj=value instanceof JObject;
+      final byte[] name=convert(obj ? ((JObject)n).name(s) : VALUE);
+      final Class<?> clz=n.value(s).getClass();
+      final Class<?> type=types.get(name);
+      if (type == null) {
+        types.add(name,clz);
+      }
+ else       if (type != JValue.class && type != clz) {
+        types.add(name,JValue.class);
+      }
+      analyze(n.value(s));
+    }
+  }
+}

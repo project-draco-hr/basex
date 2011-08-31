@@ -1,0 +1,34 @@
+{
+  if (comma.get(level))   print(',');
+ else   comma.set(level,true);
+  if (level > 0) {
+    indent(level);
+    final byte[] par=types.get(level - 1);
+    if (eq(par,OBJ)) {
+      print('"');
+      print(name(tag));
+      print("\": ");
+    }
+ else     if (!eq(par,ARR)) {
+      error("Element <%> is typed as \"%\" and cannot be nested",tags.get(level - 1),par);
+    }
+  }
+  byte[] type=types.get(level);
+  if (type == null) {
+    int t=-1;
+    final int tl=typeCache.length;
+    while (++t < tl && typeCache[t].id(tag) == 0)     ;
+    if (t != tl)     type=TYPES[t];
+ else     type=STR;
+    types.set(level,type);
+  }
+  if (eq(type,OBJ)) {
+    print('{');
+  }
+ else   if (eq(type,ARR)) {
+    print('[');
+  }
+ else   if (level == 0) {
+    error("Element <%> must be typed as \"%\" or \"%\"",JSON,OBJ,ARR);
+  }
+}

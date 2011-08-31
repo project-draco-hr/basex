@@ -1,7 +1,8 @@
 {
   super(args);
-  check(success);
+  if (failed)   return;
   final int port=context.mprop.num(MainProp.SERVERPORT);
+  final int eport=context.mprop.num(MainProp.EVENTPORT);
   if (service) {
     Util.outln(start(port,getClass(),args));
     Performance.sleep(1000);
@@ -10,12 +11,16 @@
   try {
     if (commands != null) {
       final Boolean b=execute(commands);
-      check(b == null || b);
+      if (failed(b == null || b))       return;
     }
     log=new Log(context,quiet);
     log.write(SERVERSTART);
-    socket=new ServerSocket(port);
-    esocket=new ServerSocket(context.mprop.num(MainProp.EVENTPORT));
+    socket=new ServerSocket();
+    socket.setReuseAddress(true);
+    socket.bind(new InetSocketAddress(port));
+    esocket=new ServerSocket();
+    esocket.setReuseAddress(true);
+    esocket.bind(new InetSocketAddress(eport));
     stop=stopFile(port);
     Runtime.getRuntime().addShutdownHook(new Thread(){
       @Override public void run(){
@@ -33,6 +38,6 @@
  catch (  final Exception ex) {
     if (log != null)     log.write(ex.getMessage());
     Util.errln(Util.server(ex));
-    check(false);
+    failed=true;
   }
 }
