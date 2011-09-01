@@ -1,14 +1,10 @@
 {
-  final File bin=data.meta.binaries();
-  final ObjList<File> files=new ObjList<File>();
-  final File file=new File(bin,path);
-  if (file.exists()) {
-    if (file.isDirectory()) {
-      add(file,files);
-    }
- else {
-      files.add(file);
-    }
+  final StringList sl=new StringList();
+  final String exact=Prop.WIN ? path.toLowerCase() : path;
+  final String start=path.endsWith("/") ? exact : exact + '/';
+  for (  final String s : new IOFile(data.meta.binaries()).descendants()) {
+    final String lc=Prop.WIN ? s.toLowerCase() : s;
+    if (lc.equals(exact) || lc.startsWith(start))     sl.add(s);
   }
-  return files;
+  return sl;
 }
