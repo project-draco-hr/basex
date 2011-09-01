@@ -4,11 +4,14 @@
   final StringBuilder sb=new StringBuilder(REPLACE + " ");
   if (!path.isEmpty())   sb.append(TO + ' ' + path+ ' ');
   log.write(this,sb.append("[...]"));
+  final ClientInputStream wis=new ClientInputStream(in);
   try {
-    final InputSource is=new InputSource(new WrapInputStream(in));
-    info(true,Replace.replace(path,is,context,true),perf);
+    final InputSource is=new InputSource(wis);
+    final String info=Replace.replace(path,is,context,true);
+    info(true,info,perf);
   }
  catch (  final BaseXException ex) {
+    wis.close();
     info(false,ex.getMessage(),perf);
   }
   out.flush();

@@ -1,5 +1,34 @@
 {
   super(args);
   if (failed)   return;
-  run();
+  try {
+    session();
+    boolean u=false;
+    if (input != null) {
+      if (failed(execute(new Check(input),verbose)))       return;
+    }
+    if (file != null) {
+      context.query=IO.get(file);
+      final String qu=content();
+      failed(qu != null && execute(new XQuery(qu),verbose));
+    }
+ else     if (query != null) {
+      failed(execute(new XQuery(query),verbose));
+    }
+ else     if (commands != null) {
+      final Boolean b=execute(commands);
+      failed(b == null || b);
+    }
+ else {
+      Util.outln(CONSOLE + CONSOLE2,sa() ? LOCALMODE : CLIENTMODE);
+      u=console();
+    }
+    if (failed)     return;
+    if (writeProps)     context.mprop.write();
+    quit(u);
+  }
+ catch (  final IOException ex) {
+    Util.errln(Util.server(ex));
+    failed=true;
+  }
 }
