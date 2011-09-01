@@ -1,5 +1,6 @@
 {
-  final SerializerProp sp=new SerializerProp(prop.get(Prop.EXPORTER));
+  final String exp=data.meta.prop.get(Prop.EXPORTER);
+  final SerializerProp sp=new SerializerProp(exp);
   final IOFile root=new IOFile(target);
   root.md();
   final HashSet<String> exported=new HashSet<String>();
@@ -9,17 +10,15 @@
     final IOFile file=root.merge(Token.string(data.text(pre,true)));
     final IOFile dir=new IOFile(file.dir());
     if (!dir.exists())     dir.md();
-    final String fp=file.path();
-    String path=fp;
-    int c=1;
-    while (exported.contains(path)) {
-      path=fp.indexOf('.') == -1 ? fp + '(' + ++c+ ')' : fp.replaceAll("(.*)\\.(.*)","$1(" + ++c + ").$2");
-    }
-    exported.add(fp);
-    final PrintOutput po=new PrintOutput(path);
+    final PrintOutput po=new PrintOutput(unique(exported,file.path()));
     final Serializer xml=Serializer.get(po,sp);
     xml.node(data,pre);
     xml.close();
     po.close();
+  }
+  final File bin=data.meta.binaries();
+  for (  final String s : new IOFile(bin).descendants()) {
+    final String u=unique(exported,new IOFile(root.path(),s).path());
+    Copy.copy(new File(bin,s),new File(u));
   }
 }
