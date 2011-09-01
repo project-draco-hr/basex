@@ -6,11 +6,14 @@
   if (!name.isEmpty())   sb.append(AS + ' ' + name+ ' ');
   if (!path.isEmpty())   sb.append(TO + ' ' + path+ ' ');
   log.write(this,sb.append("[...]"));
+  final ClientInputStream wis=new ClientInputStream(in);
+  final InputSource is=new InputSource(wis);
   try {
-    final InputSource is=new InputSource(new WrapInputStream(in));
-    info(true,Add.add(name,path,is,context,null,true),perf);
+    final String info=Add.add(name,path,is,context,null,true);
+    info(true,info,perf);
   }
  catch (  final BaseXException ex) {
+    wis.close();
     info(false,ex.getMessage(),perf);
   }
   out.flush();
