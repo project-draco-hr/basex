@@ -1,0 +1,26 @@
+{
+  try {
+    if (isMultiPart()) {
+      parseQueryString(params,req.getQueryString());
+      @SuppressWarnings("unchecked") final List<FileItem> items=new ServletFileUpload().parseRequest(req);
+      for (      final FileItem item : items) {
+        if (item.isFormField())         params.put(item.getFieldName(),item.getString());
+ else         files.put(item.getFieldName(),new FileItemWrapper(item));
+      }
+    }
+ else {
+      @SuppressWarnings("unchecked") final Enumeration<String> en=req.getParameterNames();
+      while (en.hasMoreElements()) {
+        final String nm=en.nextElement();
+        final String val=req.getParameter(nm);
+        params.put(nm,val);
+      }
+    }
+  }
+ catch (  FileUploadException ex) {
+    throw new RequestParseException("FileUploadException",ex);
+  }
+catch (  Throwable ex) {
+    throw new RequestParseException(ex.getMessage(),ex);
+  }
+}

@@ -1,0 +1,30 @@
+{
+  super(args);
+  set(DBHOST,context.mprop.get(MainProp.HOST));
+  set(DBPORT,Integer.toString(context.mprop.num(MainProp.SERVERPORT)));
+  final HttpManager m=new HttpManager(new BXResourceFactory(standalone));
+  final Handler h=new AbstractHandler(){
+    @Override public void handle(    final String target,    final HttpServletRequest request,    final HttpServletResponse response,    final int dispatch) throws IOException, ServletException {
+      final Request req=new BXServletRequest(request);
+      final Response res=new BXServletResponse(response);
+      try {
+        m.process(req,res);
+      }
+  finally {
+        res.getOutputStream().flush();
+        response.flushBuffer();
+      }
+    }
+  }
+;
+  final String p=System.getProperty(WEBDAVPORT);
+  final int port=p == null ? 8985 : Integer.parseInt(p);
+  jetty=new Server(port);
+  jetty.setHandler(h);
+  try {
+    jetty.start();
+  }
+ catch (  Exception ex) {
+    Util.server(ex);
+  }
+}
