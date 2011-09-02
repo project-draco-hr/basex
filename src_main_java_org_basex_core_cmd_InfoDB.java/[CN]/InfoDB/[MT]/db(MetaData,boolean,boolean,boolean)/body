@@ -1,16 +1,17 @@
 {
   final TokenBuilder tb=new TokenBuilder();
-  final String header=(bold ? new TokenBuilder().bold().add("%").norm().toString() : "%") + NL;
+  final String header=(bold ? new TokenBuilder().bold().add('%').norm().toString() : "%") + NL;
   tb.addExt(header,INFODB);
   format(tb,INFODBNAME,meta.name);
   format(tb,INFODBSIZE,Performance.format(meta.dbsize()));
   format(tb,INFONODES,Integer.toString(meta.size));
+  final int raw=new IOFile(meta.binaries()).descendants().size();
+  format(tb,INFONRES,Integer.toString(meta.ndocs + raw));
   tb.add(NL).addExt(header,INFOCREATE);
   format(tb,INFOTIME,DATE.format(new Date(meta.time)));
   if (create && !meta.original.isEmpty())   format(tb,INFOPATH,meta.original);
   if (meta.filesize != 0)   format(tb,INFODOCSIZE,Performance.format(meta.filesize));
   format(tb,INFOENCODING,meta.encoding);
-  format(tb,INFONDOCS,Integer.toString(meta.ndocs));
   format(tb,INFOCHOP,flag(meta.chop));
   if (index) {
     tb.add(NL).addExt(header,INFOINDEX);

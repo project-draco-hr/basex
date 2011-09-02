@@ -3,7 +3,7 @@
   table.description=DATABASES;
   final boolean create=context.user.perm(User.CREATE);
   table.header.add(INFODBNAME);
-  table.header.add(INFONDOCS);
+  table.header.add(INFONRES);
   table.header.add(INFODBSIZE);
   if (create)   table.header.add(INFOPATH);
   for (  final String name : list(context)) {
@@ -29,10 +29,12 @@
  catch (      final IOException ex) {
       }
     }
+    final File bin=new File(mprop.dbpath(name),M_RAW);
+    final int raw=new IOFile(bin).descendants().size();
     if (file != null) {
-      final TokenList tl=new TokenList();
+      final TokenList tl=new TokenList(4);
       tl.add(name);
-      tl.add(ndocs);
+      tl.add(ndocs + raw);
       tl.add(size);
       if (create)       tl.add(file);
       table.contents.add(tl);
