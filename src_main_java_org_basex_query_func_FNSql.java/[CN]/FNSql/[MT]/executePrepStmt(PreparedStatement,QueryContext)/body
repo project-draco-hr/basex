@@ -1,14 +1,9 @@
 {
-  int index=1;
+  final ANode params=(ANode)checkType(expr[1].item(ctx,input),NodeType.ELM);
   try {
-    for (int e=1; e < expr.length; e++) {
-      final Item item=expr[e].item(ctx,input);
-      final Object next=item == null ? null : item.toJava();
-      if (next instanceof BigInteger) {
-        stmt.setObject(index++,new BigDecimal((BigInteger)next));
-      }
- else       stmt.setObject(index++,next);
-    }
+    final int placeCount=stmt.getParameterMetaData().getParameterCount();
+    if (placeCount != countParams(params))     PARAMS.thrw(input);
+ else     setParameters(params.children(),stmt);
     final boolean result=stmt.execute();
     return result ? buildResult(stmt.getResultSet()) : new NodeCache();
   }
