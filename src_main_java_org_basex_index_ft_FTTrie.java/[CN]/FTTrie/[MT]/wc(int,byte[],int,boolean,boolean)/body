@@ -4,12 +4,12 @@
   byte[] bw=null;
   final int currentLength=0;
   int resultNode;
-  FTIndexIterator d=FTIndexIterator.EMP;
+  FTIndexIterator d=FTIndexIterator.FTEMPTY;
   if (posw > 0) {
     bw=new byte[posw];
     System.arraycopy(vsn,0,bw,0,posw);
     resultNode=wc(id,bw);
-    if (resultNode == -1)     return FTIndexIterator.EMP;
+    if (resultNode == -1)     return FTIndexIterator.FTEMPTY;
   }
  else {
     resultNode=0;
@@ -59,7 +59,7 @@
       d=iter(0,searchChar,fast);
       if (bw != null && counter[1] != bw.length)       return d;
     }
-    idata=FTIndexIterator.EMP;
+    idata=FTIndexIterator.FTEMPTY;
     wc(resultNode,aw,false,counter[0],0,fast);
     return FTIndexIterator.union(d,idata);
   }
@@ -76,13 +76,13 @@
     }
     nvsn[l + 1]='.';
     nvsn[l + 2]='*';
-    FTIndexIterator tmpres=FTIndexIterator.EMP;
+    FTIndexIterator tmpres=FTIndexIterator.FTEMPTY;
     if (rne[0] > counter[0] && resultNode > 0) {
       nvsn[l]=(byte)rne[counter[0] + 1];
       tmpres=wc(nvsn,l + 1,fast);
     }
  else     if (rne[0] == counter[0] || resultNode == 0) {
-      if (!more(rne))       return FTIndexIterator.EMP;
+      if (!more(rne))       return FTIndexIterator.FTEMPTY;
       for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
         nvsn[l]=(byte)rne[t + 1];
         tmpres=FTIndexIterator.union(wc(nvsn,l + 1,fast),tmpres);
@@ -94,14 +94,14 @@
   if (rne[0] > counter[0] && resultNode > 0) {
     vsn[posw]=(byte)rne[counter[0] + 1];
     final FTIndexIterator resultData=iter(0,vsn,fast);
-    if (resultData.size != 0 && first) {
+    if (resultData.size() != 0 && first) {
       valuesFound=new byte[]{(byte)rne[counter[0] + 1]};
     }
     return resultData;
   }
   if (rne[0] == counter[0] || resultNode == 0) {
-    if (!more(rne))     return FTIndexIterator.EMP;
-    FTIndexIterator tmpNode=FTIndexIterator.EMP;
+    if (!more(rne))     return FTIndexIterator.FTEMPTY;
+    FTIndexIterator tmpNode=FTIndexIterator.FTEMPTY;
     aw=new byte[vsn.length - posw];
     System.arraycopy(vsn,posw + 1,aw,1,aw.length - 1);
     if (!first) {
@@ -118,5 +118,5 @@
       tmpNode=FTIndexIterator.union(iter(rne[t],aw,fast),tmpNode);
     }
   }
-  return FTIndexIterator.EMP;
+  return FTIndexIterator.FTEMPTY;
 }
