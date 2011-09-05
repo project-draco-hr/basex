@@ -1,5 +1,12 @@
 {
   final Data data=data(0,ctx);
-  final String path=string(path(checkStr(expr[1],ctx)));
-  return Bln.get(data.docs(path).size() == 1);
+  final byte[] path=path(checkStr(expr[1],ctx));
+  if (path.length == 0)   return Bln.FALSE;
+  final byte[] exct=Prop.WIN ? lc(path) : path;
+  final IntList il=data.docs(string(path));
+  for (int i=0; i < il.size(); i++) {
+    final byte[] txt=data.text(il.get(i),true);
+    if (eq(exct,Prop.WIN ? lc(txt) : txt))     return Bln.TRUE;
+  }
+  return Bln.FALSE;
 }
