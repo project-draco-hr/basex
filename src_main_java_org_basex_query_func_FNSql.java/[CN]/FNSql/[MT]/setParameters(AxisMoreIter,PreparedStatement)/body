@@ -1,0 +1,18 @@
+{
+  int i=0;
+  for (ANode next; (next=params.next()) != null; ) {
+    final AxisIter attrs=next.attributes();
+    byte[] paramType=null;
+    boolean isNull=false;
+    ANode attr;
+    while ((attr=attrs.next()) != null) {
+      if (eq(attr.nname(),TYPE))       paramType=attr.atom();
+ else       if (eq(attr.nname(),NULL))       isNull=attr.atom() != null && Bln.parse(attr.atom(),input);
+ else       throw NOTEXPATTR.thrw(input,string(attr.nname()));
+    }
+    if (paramType == null)     NOPARAMTYPE.thrw(input);
+    final byte[] v=next.atom();
+    isNull|=v.length == 0;
+    setParam(++i,stmt,paramType,isNull ? null : string(v),isNull);
+  }
+}
