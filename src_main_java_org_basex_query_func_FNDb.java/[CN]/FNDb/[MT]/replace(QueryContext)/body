@@ -1,28 +1,20 @@
 {
   checkWrite(ctx);
   final Data data=data(0,ctx);
-  final byte[] trg=path(checkStr(expr[1],ctx));
+  final String trg=path(checkStr(expr[1],ctx));
   final Item doc=checkItem(expr[2],ctx);
-  final IntList old=data.docs(string(trg));
+  final IntList old=data.docs(trg);
   if (old.size() > 0) {
     final int pre=old.get(0);
-    if (old.size() > 1 || !eq(data.text(pre,true),trg))     DOCTRGMULT.thrw(input);
+    if (old.size() > 1 || !eq(data.text(pre,true),token(trg)))     DOCTRGMULT.thrw(input);
     ctx.updates.add(new DeleteNode(pre,data,input),ctx);
   }
-  final byte[] trgname;
-  final byte[] trgpath;
-  final int p=lastIndexOf(trg,'/');
-  if (p < 0) {
-    trgname=trg;
-    trgpath=null;
-  }
- else {
-    trgname=subtoken(trg,p + 1);
-    trgpath=subtoken(trg,0,p);
-  }
+  final int p=trg.lastIndexOf('/');
+  final String name=p < 0 ? trg : trg.substring(p + 1);
+  final String path=p < 0 ? null : trg.substring(0,p);
   final ObjList<Item> docs=new ObjList<Item>(1);
   docs.add(doc);
-  final Add add=new Add(data,input,docs,trgname,trgpath,ctx.context);
+  final Add add=new Add(data,input,docs,name,path,ctx.context);
   ctx.updates.add(add,ctx);
   return null;
 }
