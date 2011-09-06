@@ -4,8 +4,8 @@
   try {
     final Session s=factory.login(user,pass);
     try {
-      final Query q=s.query("declare variable $d as xs:string external; " + "declare variable $p as xs:string external; " + "for $r in db:list($d) return substring-after($r,$p)");
-      q.bind("$d",db + SEP + path);
+      final Query q=s.query("for $r in db:list($d, $p) return substring-after($r,$p)");
+      q.bind("$d",db);
       q.bind("$p",path);
       while (q.more()) {
         final String p=stripLeadingSlash(q.next());
@@ -26,7 +26,7 @@
       s.close();
     }
   }
- catch (  Exception ex) {
+ catch (  final Exception ex) {
     handle(ex);
   }
   return ch;
