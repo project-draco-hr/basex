@@ -1,14 +1,19 @@
 {
+  Session s=null;
   try {
-    final Session s=factory.login(user,pass);
-    try {
-      delete(s);
-    }
-  finally {
-      s.close();
-    }
+    s=factory.login(user,pass);
+    delete(s);
   }
  catch (  final Exception ex) {
     handle(ex);
+    throw new BadRequestException(this,ex.getMessage());
+  }
+ finally {
+    try {
+      if (s != null)       s.close();
+    }
+ catch (    final IOException e) {
+      handle(e);
+    }
   }
 }

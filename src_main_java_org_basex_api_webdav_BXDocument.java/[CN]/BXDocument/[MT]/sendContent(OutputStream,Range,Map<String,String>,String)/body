@@ -1,15 +1,22 @@
 {
-  final Session s=factory.login(user,pass);
+  Session s=null;
   try {
+    s=factory.login(user,pass);
     s.setOutputStream(out);
     final Query q=s.query("collection($path)");
     q.bind("$path",db + SEP + path);
     q.execute();
   }
- catch (  final BaseXException ex) {
+ catch (  final Exception ex) {
     handle(ex);
+    throw new BadRequestException(this,ex.getMessage());
   }
  finally {
-    s.close();
+    try {
+      if (s != null)       s.close();
+    }
+ catch (    final IOException e) {
+      handle(e);
+    }
   }
 }
