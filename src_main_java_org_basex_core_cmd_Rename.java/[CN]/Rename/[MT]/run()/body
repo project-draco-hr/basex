@@ -5,10 +5,10 @@
   if (!new IOFile(trg).valid())   return error(NAMEINVALID,trg);
   boolean ok=true;
   int c=0;
-  final IntList il=data.docs(args[0]);
+  final IntList il=data.docs(src);
   for (int i=0, is=il.size(); i < is; i++) {
     final int pre=il.get(i);
-    final String target=newName(data,pre,src,trg);
+    final String target=target(data,pre,src,trg);
     if (target.isEmpty()) {
       info(NAMEINVALID,target);
       ok=false;
@@ -19,6 +19,14 @@
     }
   }
   if (c != 0)   data.flush();
+  final IOFile io=data.meta.binary(src);
+  if (io.exists() && !io.rename(data.meta.binary(trg))) {
+    ok=false;
+    info(NAMEINVALID,trg);
+  }
+ else {
+    c++;
+  }
   info(PATHRENAMED,c,perf);
   return ok;
 }
