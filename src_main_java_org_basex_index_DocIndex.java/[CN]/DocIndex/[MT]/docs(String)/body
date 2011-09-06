@@ -2,21 +2,13 @@
   if (data.empty())   return new IntList(0);
   final IntList doc=docs();
   if (path.isEmpty())   return doc;
-  final int ds=doc.size();
-  if (paths == null) {
-    paths=new byte[ds][];
-    for (int d=0; d < ds; d++) {
-      final byte[] txt=data.text(doc.get(d),true);
-      paths[d]=concat(SLASH,Prop.WIN ? lc(txt) : txt);
-    }
-    order=Array.createOrder(paths,false,true);
-  }
-  final String np=path.replaceAll("[\\\\//]+","/").replaceAll("^/|/$","");
-  final byte[] exact=concat(SLASH,Prop.WIN ? lc(token(np)) : token(np));
-  final byte[] start=endsWith(exact,SLASH) ? exact : concat(exact,SLASH);
+  if (paths == null)   initPaths();
+  final byte[] np=token(IOFile.normalize(path));
+  final byte[] exct=concat(SLASH,Prop.WIN ? lc(np) : np);
+  final byte[] pref=concat(exct,SLASH);
   final IntList il=new IntList();
-  for (int p=find(exact); p < paths.length; p++) {
-    if (eq(paths[p],exact) || startsWith(paths[p],start))     il.add(doc.get(order[p]));
+  for (int p=find(exct); p < paths.length; p++) {
+    if (eq(paths[p],exct) || startsWith(paths[p],pref))     il.add(doc.get(order[p]));
   }
   return il.sort();
 }

@@ -1,10 +1,10 @@
 {
-  final MemData docData;
+  final MemData mdata;
   if (doc.node()) {
     final ANode nd=(ANode)doc;
     if (nd.ndType() != NodeType.DOC)     UPDOCTYPE.thrw(input,nd);
-    docData=new MemData(data);
-    new DataBuilder(docData).build(nd);
+    mdata=new MemData(data);
+    new DataBuilder(mdata).build(nd);
   }
  else   if (doc.str()) {
     final String docpath=string(doc.atom(input));
@@ -12,29 +12,28 @@
     final DirParser p=new DirParser(IO.get(docpath),ctx.prop);
     final MemBuilder b=new MemBuilder(nm,p,ctx.prop);
     try {
-      docData=b.build();
+      mdata=b.build();
     }
- catch (    final IOException e) {
-      throw DOCERR.thrw(input,docpath);
+ catch (    final IOException ex) {
+      throw IOERR.thrw(input,ex);
     }
   }
  else {
-    STRNODTYPE.thrw(input,this,doc.type);
-    return null;
+    throw STRNODTYPE.thrw(input,this,doc.type);
   }
-  final IntList pres=docData.docs();
+  final IntList pres=mdata.docs();
   if (pres.size() == 1 && name != null) {
     final byte[] nm=path == null ? name : concat(path,SLASH,name);
-    docData.update(pres.get(0),Data.DOC,nm);
+    mdata.update(pres.get(0),Data.DOC,nm);
   }
  else   if (path != null) {
     for (int i=0, is=pres.size(); i < is; i++) {
       final int d=pres.get(i);
-      final byte[] old=docData.text(d,true);
+      final byte[] old=mdata.text(d,true);
       final int p=lastIndexOf(old,'/');
       final byte[] nm=p < 0 ? old : subtoken(old,p + 1);
-      docData.update(d,Data.DOC,concat(path,SLASH,nm));
+      mdata.update(d,Data.DOC,concat(path,SLASH,nm));
     }
   }
-  return docData;
+  return mdata;
 }

@@ -1,0 +1,12 @@
+{
+  final String url=string(checkStr(expr[0],ctx));
+  final boolean autoComm=expr.length < 2 || checkBln(expr[1],ctx);
+  try {
+    final Connection conn=expr.length == 4 ? DriverManager.getConnection(url,string(checkStr(expr[2],ctx)),string(checkStr(expr[3],ctx))) : DriverManager.getConnection(url);
+    conn.setAutoCommit(autoComm);
+    return Itr.get(ctx.jdbc.add(conn));
+  }
+ catch (  final SQLException ex) {
+    throw SQLEXC.thrw(input,ex.getMessage());
+  }
+}
