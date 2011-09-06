@@ -9,12 +9,17 @@
     if (old.size() > 1 || !eq(data.text(pre,true),token(trg)))     DOCTRGMULT.thrw(input);
     ctx.updates.add(new DeleteNode(pre,data,input),ctx);
   }
+  final TokenList raw=Delete.files(data,trg);
+  ctx.updates.add(new DBDelete(data,raw,input),ctx);
   final int p=trg.lastIndexOf('/');
   final String name=p < 0 ? trg : trg.substring(p + 1);
   final String path=p < 0 ? null : trg.substring(0,p);
   final ObjList<Item> docs=new ObjList<Item>(1);
   docs.add(doc);
-  final Add add=new Add(data,input,docs,name,path,ctx.context);
-  ctx.updates.add(add,ctx);
+  ctx.updates.add(new DBAdd(data,input,docs,name,path,ctx.context),ctx);
+  if (data.meta.binary(path).exists()) {
+    final byte[] val=checkBin(doc,ctx);
+    ctx.updates.add(new DBPut(data,token(trg),val,input),ctx);
+  }
   return null;
 }
