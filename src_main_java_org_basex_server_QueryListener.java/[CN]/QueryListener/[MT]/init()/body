@@ -1,17 +1,20 @@
 {
   monitored=true;
-  ctx.register(qp.ctx.updating);
   try {
     qp.parse();
   }
  catch (  final QueryException ex) {
+    throw ex;
+  }
+ finally {
     try {
       qp.close();
     }
  catch (    final Exception e) {
+      Util.debug(e);
     }
-    throw ex;
   }
+  ctx.register(qp.ctx.updating);
   xml=qp.getSerializer(out);
   iter=qp.iter();
 }
