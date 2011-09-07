@@ -1,18 +1,22 @@
 {
+  Session s=null;
   try {
-    final Session s=factory.login(user,pass);
-    try {
-      deleteDummy(s,db,path);
-      final String newFolder=path + SEP + folder;
-      createDummy(s,db,newFolder);
-      return new BXFolder(db,newFolder,factory,user,pass);
-    }
-  finally {
-      s.close();
-    }
+    s=factory.login(user,pass);
+    deleteDummy(s,db,path);
+    final String newFolder=path + SEP + folder;
+    createDummy(s,db,newFolder);
+    return new BXFolder(db,newFolder,factory,user,pass);
   }
  catch (  final Exception ex) {
     handle(ex);
+    throw new BadRequestException(this,ex.getMessage());
   }
-  return null;
+ finally {
+    try {
+      if (s != null)       s.close();
+    }
+ catch (    final IOException e) {
+      handle(e);
+    }
+  }
 }

@@ -1,15 +1,20 @@
 {
+  Session s=null;
   try {
-    final Session s=factory.login(user,pass);
-    try {
-      if (target instanceof BXAllDatabasesResource)       copyToRoot(s,name);
- else       if (target instanceof BXFolder)       copyTo(s,(BXFolder)target,name);
-    }
-  finally {
-      s.close();
-    }
+    s=factory.login(user,pass);
+    if (target instanceof BXAllDatabasesResource)     copyToRoot(s,name);
+ else     if (target instanceof BXFolder)     copyTo(s,(BXFolder)target,name);
   }
  catch (  final Exception ex) {
     handle(ex);
+    throw new BadRequestException(this,ex.getMessage());
+  }
+ finally {
+    try {
+      if (s != null)       s.close();
+    }
+ catch (    final IOException e) {
+      handle(e);
+    }
   }
 }

@@ -1,18 +1,22 @@
 {
+  Session s=null;
   try {
-    final Session s=factory.login(user,pass);
-    try {
-      final String dbname=dbname(newName);
-      s.create(dbname,inputStream);
-      return new BXDatabase(dbname,factory,user,pass);
-    }
-  finally {
-      s.execute(new Close());
-      s.close();
-    }
+    s=factory.login(user,pass);
+    final String dbname=dbname(newName);
+    s.create(dbname,inputStream);
+    s.execute(new Close());
+    return new BXDatabase(dbname,factory,user,pass);
   }
  catch (  final Exception ex) {
     handle(ex);
+    throw new BadRequestException(this,ex.getMessage());
   }
-  return null;
+ finally {
+    try {
+      if (s != null)       s.close();
+    }
+ catch (    final IOException e) {
+      handle(e);
+    }
+  }
 }
