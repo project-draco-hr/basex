@@ -1,29 +1,34 @@
 {
-  final Args a=new Args(args,this,Text.WEBDAVINFO);
-  while (a.more()) {
-    final char c=a.next();
+  final Args arg=new Args(args,this,Text.WEBDAVINFO);
+  while (arg.more()) {
+    if (arg.dash()) {
+      final char c=arg.next();
 switch (c) {
-case 'h':
-      set(DBHOST,a.string());
-    break;
+case 'n':
+        set(DBHOST,arg.string());
+      break;
+case 'P':
+    set(DBPASS,arg.string());
+  break;
 case 'r':
-  set(DBPORT,a.string());
-break;
-case 'u':
-set(DBUSER,a.string());
-break;
-case 'p':
-set(DBPASS,a.string());
-break;
-case 'w':
-set(WEBDAVPORT,a.string());
+set(DBPORT,arg.string());
 break;
 case 's':
 standalone=true;
 break;
-default :
+case 'U':
+set(DBUSER,arg.string());
 break;
+case 'w':
+set(WEBDAVPORT,arg.string());
+break;
+default :
+arg.ok(false);
 }
 }
-return true;
+ else {
+arg.ok(false);
+}
+}
+return arg.finish();
 }
