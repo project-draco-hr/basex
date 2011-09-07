@@ -1,34 +1,25 @@
 {
   super(args);
-  if (failed)   return;
-  try {
-    session();
-    boolean u=false;
-    if (input != null) {
-      if (failed(execute(new Check(input),verbose)))       return;
-    }
-    if (file != null) {
-      context.query=IO.get(file);
-      final String qu=content();
-      failed(qu != null && execute(new XQuery(qu),verbose));
-    }
- else     if (query != null) {
-      failed(execute(new XQuery(query),verbose));
-    }
- else     if (commands != null) {
-      final Boolean b=execute(commands);
-      failed(b == null || b);
-    }
+  session();
+  if (input != null) {
+    execute(new Check(input),verbose);
+  }
+  if (file != null) {
+    final IO io=IO.get(file);
+    if (!io.exists())     throw new BaseXException(INFOERROR + FILEWHICH,file);
+    query=TextInput.content(io).toString().trim();
+    context.query=io;
+  }
+  if (query != null) {
+    execute(new XQuery(query),verbose);
+  }
+ else   if (commands != null) {
+    execute(commands);
+  }
  else {
-      Util.outln(CONSOLE + CONSOLE2,sa() ? LOCALMODE : CLIENTMODE);
-      u=console();
-    }
-    if (failed)     return;
-    if (writeProps)     context.mprop.write();
-    quit(u);
+    Util.outln(CONSOLE + CONSOLE2,sa() ? LOCALMODE : CLIENTMODE);
+    console();
   }
- catch (  final IOException ex) {
-    Util.errln(Util.server(ex));
-    failed=true;
-  }
+  if (writeProps)   context.mprop.write();
+  quit();
 }

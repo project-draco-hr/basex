@@ -1,6 +1,6 @@
 {
   super(args);
-  if (failed)   return;
+  if (stopped)   return;
   final int port=context.mprop.num(MainProp.SERVERPORT);
   final int eport=context.mprop.num(MainProp.EVENTPORT);
   if (service) {
@@ -9,10 +9,7 @@
     return;
   }
   try {
-    if (commands != null) {
-      final Boolean b=execute(commands);
-      if (failed(b == null || b))       return;
-    }
+    if (commands != null)     execute(commands);
     log=new Log(context,quiet);
     log.write(SERVERSTART);
     socket=new ServerSocket();
@@ -33,11 +30,13 @@
     new Thread(this).start();
     while (!running)     Performance.sleep(100);
     Util.outln(CONSOLE + (console ? CONSOLE2 : SERVERSTART),SERVERMODE);
-    if (console)     quit(console());
+    if (console) {
+      console();
+      quit();
+    }
   }
- catch (  final Exception ex) {
+ catch (  final IOException ex) {
     if (log != null)     log.write(ex.getMessage());
-    Util.errln(Util.server(ex));
-    failed=true;
+    throw ex;
   }
 }

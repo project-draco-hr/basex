@@ -1,98 +1,97 @@
 {
   final StringBuilder serial=new StringBuilder();
   final StringBuilder bind=new StringBuilder();
-  try {
-    final HashMap<Object[],Object> options=new HashMap<Object[],Object>();
-    final Args arg=new Args(args,this,sa() ? LOCALINFO : CLIENTINFO,Util.info(CONSOLE,sa() ? LOCALMODE : CLIENTMODE));
-    while (arg.more()) {
-      if (arg.dash()) {
-        final char c=arg.next();
-        if (c == 'b') {
-          if (bind.length() != 0)           bind.append(',');
-          bind.append(arg.string());
-          options.put(Prop.BINDINGS,bind);
-        }
- else         if (c == 'c') {
-          commands=arg.remaining();
-        }
- else         if (c == 'd') {
-          context.mprop.set(MainProp.DEBUG,true);
-        }
- else         if (c == 'D' && sa()) {
-          options.put(Prop.DOTPLAN,true);
-        }
- else         if (c == 'i' && sa()) {
-          input=arg.string();
-        }
- else         if (c == 'n' && !sa()) {
-          context.mprop.set(MainProp.HOST,arg.string());
-        }
- else         if (c == 'o') {
-          out=new PrintOutput(arg.string());
-          if (session != null)           session.setOutputStream(out);
-        }
- else         if (c == 'p' && !sa()) {
-          context.mprop.set(MainProp.PORT,arg.num());
-        }
- else         if (c == 'P' && !sa()) {
-          pass=arg.string();
-        }
- else         if (c == 'q') {
-          query=arg.remaining();
-        }
- else         if (c == 'r') {
-          options.put(Prop.RUNS,arg.string());
-        }
- else         if (c == 's') {
-          if (serial.length() != 0)           serial.append(',');
-          serial.append(arg.string());
-          options.put(Prop.SERIALIZER,serial);
-        }
- else         if (c == 'u') {
-          options.put(Prop.WRITEBACK,true);
-        }
- else         if (c == 'U' && !sa()) {
-          user=arg.string();
-        }
- else         if (c == 'v') {
-          verbose=true;
-        }
- else         if (c == 'V') {
-          verbose=true;
-          options.put(Prop.QUERYINFO,true);
-        }
- else         if (c == 'w') {
-          options.put(Prop.CHOP,false);
-        }
- else         if (c == 'W') {
-          writeProps=true;
-        }
- else         if (c == 'x' && sa()) {
-          options.put(Prop.COMPPLAN,false);
-        }
- else         if (c == 'X') {
-          options.put(Prop.XMLPLAN,true);
-          verbose=true;
-        }
- else         if (c == 'z') {
-          options.put(Prop.SERIALIZE,false);
-        }
- else {
-          arg.ok(false);
-        }
+  final HashMap<Object[],Object> options=new HashMap<Object[],Object>();
+  final Args arg=new Args(args,this,sa() ? LOCALINFO : CLIENTINFO,Util.info(CONSOLE,sa() ? LOCALMODE : CLIENTMODE));
+  while (arg.more()) {
+    if (arg.dash()) {
+      final char c=arg.next();
+      if (c == 'b') {
+        if (bind.length() != 0)         bind.append(',');
+        bind.append(arg.string());
+        options.put(Prop.BINDINGS,bind);
+      }
+ else       if (c == 'c') {
+        commands=arg.remaining();
+      }
+ else       if (c == 'd') {
+        context.mprop.set(MainProp.DEBUG,true);
+      }
+ else       if (c == 'D' && sa()) {
+        options.put(Prop.DOTPLAN,true);
+      }
+ else       if (c == 'i' && sa()) {
+        input=arg.string();
+      }
+ else       if (c == 'n' && !sa()) {
+        context.mprop.set(MainProp.HOST,arg.string());
+      }
+ else       if (c == 'o') {
+        out=new PrintOutput(arg.string());
+        if (session != null)         session.setOutputStream(out);
+      }
+ else       if (c == 'p' && !sa()) {
+        context.mprop.set(MainProp.PORT,arg.num());
+      }
+ else       if (c == 'P' && !sa()) {
+        pass=arg.string();
+      }
+ else       if (c == 'q') {
+        query=arg.remaining();
+      }
+ else       if (c == 'r') {
+        options.put(Prop.RUNS,arg.string());
+      }
+ else       if (c == 's') {
+        if (serial.length() != 0)         serial.append(',');
+        serial.append(arg.string());
+        options.put(Prop.SERIALIZER,serial);
+      }
+ else       if (c == 'u') {
+        options.put(Prop.WRITEBACK,true);
+      }
+ else       if (c == 'U' && !sa()) {
+        user=arg.string();
+      }
+ else       if (c == 'v') {
+        verbose=true;
+      }
+ else       if (c == 'V') {
+        verbose=true;
+        options.put(Prop.QUERYINFO,true);
+      }
+ else       if (c == 'w') {
+        options.put(Prop.CHOP,false);
+      }
+ else       if (c == 'W') {
+        writeProps=true;
+      }
+ else       if (c == 'x' && sa()) {
+        options.put(Prop.COMPPLAN,false);
+      }
+ else       if (c == 'X') {
+        options.put(Prop.XMLPLAN,true);
+        verbose=true;
+      }
+ else       if (c == 'z') {
+        options.put(Prop.SERIALIZE,false);
       }
  else {
-        file=file == null ? arg.string() : file + " " + arg.string();
+        arg.usage();
       }
     }
-    console=file == null && commands == null && query == null;
-    for (    final Map.Entry<Object[],Object> entry : options.entrySet()) {
-      if (!arg.ok(set(entry.getKey(),entry.getValue())))       break;
+ else {
+      file=file == null ? arg.string() : file + " " + arg.string();
     }
-    return arg.finish();
   }
- catch (  final IOException ex) {
-    Util.errln(Util.server(ex));
-    return false;
+  console=file == null && commands == null && query == null;
+  for (  final Map.Entry<Object[],Object> entry : options.entrySet()) {
+    try {
+      execute(new Set(entry.getKey(),entry.getValue()),false);
+    }
+ catch (    final IOException ex) {
+      Util.errln(ex);
+      arg.usage();
+    }
   }
 }
