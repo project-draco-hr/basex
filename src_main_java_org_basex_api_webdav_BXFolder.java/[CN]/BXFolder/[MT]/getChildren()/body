@@ -2,7 +2,7 @@
   final List<BXResource> ch=new ArrayList<BXResource>();
   final HashSet<String> paths=new HashSet<String>();
   try {
-    final Session s=factory.login(user,pass);
+    final Session s=session.login();
     try {
       final Query q=s.query("for $r in db:list($d, $p) return substring-after($r,$p)");
       q.bind("$d",db);
@@ -11,13 +11,13 @@
         final String p=stripLeadingSlash(q.next());
         final int ix=p.indexOf(SEP);
         if (ix < 0) {
-          if (!p.equals(DUMMY))           ch.add(new BXDocument(db,path + SEP + p,factory,user,pass));
+          if (!p.equals(DUMMY))           ch.add(new BXDocument(db,path + SEP + p,session));
         }
  else {
           final String folder=path + SEP + p.substring(0,ix);
           if (!paths.contains(folder)) {
             paths.add(folder);
-            ch.add(new BXFolder(db,folder,factory,user,pass));
+            ch.add(new BXFolder(db,folder,session));
           }
         }
       }

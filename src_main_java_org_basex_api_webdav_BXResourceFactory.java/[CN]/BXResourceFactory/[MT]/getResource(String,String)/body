@@ -1,23 +1,16 @@
 {
   final Auth a=HttpManager.request().getAuthorization();
-  final String u;
-  final String p;
-  if (a == null) {
-    if (System.getProperty(DBUSER) == null)     return NOAUTH;
-    u=System.getProperty(DBUSER);
-    p=System.getProperty(DBPASS);
-  }
- else {
-    u=a.getUser();
-    p=a.getPassword();
-  }
+  final String user=a != null ? a.getUser() : null;
+  final String pass=a != null ? a.getPassword() : null;
+  final HTTPSession session=new HTTPSession(http,user,pass);
+  if (session.user == null)   return NOAUTH;
   final Path path=Path.path(dbpath);
-  if (path.isRoot())   return new BXAllDatabasesResource(this,u,p);
+  if (path.isRoot())   return new BXAllDatabasesResource(session);
   final String db=path.getFirst();
   try {
-    final Session s=login(u,p);
+    final Session s=session.login();
     try {
-      return path.getLength() == 1 ? listDbs(s).contains(db) ? new BXDatabase(db,this,u,p) : null : resource(s,db,path.getStripFirst().toString(),u,p);
+      return path.getLength() == 1 ? listDbs(s).contains(db) ? new BXDatabase(db,session) : null : resource(s,db,path.getStripFirst().toString(),session);
     }
   finally {
       s.close();

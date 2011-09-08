@@ -1,0 +1,60 @@
+{
+  final Args arg=new Args(args,this,HTTPINFO,Util.info(CONSOLE,HTTP));
+  final StringBuilder serial=new StringBuilder();
+  final MainProp mprop=http.context.mprop;
+  while (arg.more()) {
+    if (arg.dash()) {
+      final char c=arg.next();
+switch (c) {
+case 'c':
+        http.client=true;
+      break;
+case 'd':
+    mprop.set(MainProp.DEBUG,true);
+  break;
+case 'e':
+mprop.set(MainProp.EVENTPORT,arg.num());
+break;
+case 'j':
+mprop.set(MainProp.JAXRXPORT,arg.num());
+break;
+case 'n':
+mprop.set(MainProp.HOST,arg.num());
+break;
+case 'p':
+mprop.set(MainProp.PORT,arg.num());
+mprop.set(MainProp.SERVERPORT,arg.num());
+break;
+case 'P':
+System.setProperty(DBPASS,arg.string());
+break;
+case 'S':
+if (serial.length() != 0) serial.append(',');
+serial.append(arg);
+break;
+case 'U':
+System.setProperty(DBUSER,arg.string());
+break;
+case 'w':
+mprop.set(MainProp.WEBDAVPORT,arg.num());
+break;
+case 'z':
+quiet=true;
+break;
+default :
+arg.usage();
+}
+}
+ else {
+if (arg.string().equalsIgnoreCase("stop")) {
+stopped=true;
+}
+ else {
+arg.usage();
+}
+}
+}
+if (serial.length() != 0) {
+http.context.prop.set(Prop.SERIALIZER,serial.toString());
+}
+}

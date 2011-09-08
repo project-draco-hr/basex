@@ -1,0 +1,20 @@
+{
+  final HttpManager m=new HttpManager(new BXResourceFactory(http));
+  final Handler h=new AbstractHandler(){
+    @Override public void handle(    final String target,    final HttpServletRequest request,    final HttpServletResponse response,    final int dispatch) throws IOException, ServletException {
+      final Request req=new BXServletRequest(request);
+      final Response res=new BXServletResponse(response);
+      try {
+        m.process(req,res);
+      }
+  finally {
+        res.getOutputStream().flush();
+        response.flushBuffer();
+      }
+    }
+  }
+;
+  jetty=new Server(http.context.mprop.num(MainProp.WEBDAVPORT));
+  jetty.setHandler(h);
+  jetty.start();
+}
