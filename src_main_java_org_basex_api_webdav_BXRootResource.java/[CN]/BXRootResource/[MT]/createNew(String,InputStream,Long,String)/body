@@ -1,21 +1,11 @@
 {
-  Session s=null;
-  try {
-    s=session.login();
-    final String dbname=dbname(newName);
-    s.create(dbname,inputStream);
-    s.execute(new Close());
-    return new BXDatabase(dbname,session);
-  }
- catch (  final Exception ex) {
-    throw error(ex);
-  }
- finally {
-    try {
-      if (s != null)       s.close();
-    }
- catch (    final IOException e) {
-      error(e);
+  return new BXCode<BXDatabase>(this){
+    @Override public BXDatabase get() throws BaseXException {
+      final String dbname=dbname(newName);
+      s.create(dbname,inputStream);
+      s.execute(new Close());
+      return new BXDatabase(dbname,session);
     }
   }
+.eval();
 }

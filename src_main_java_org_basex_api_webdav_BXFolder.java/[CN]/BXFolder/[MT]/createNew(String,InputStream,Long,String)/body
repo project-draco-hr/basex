@@ -1,28 +1,17 @@
 {
-  Session s=null;
-  try {
-    s=session.login();
-    s.execute(new Open(db));
-    final String doc=path.isEmpty() ? newName : path + SEP + newName;
-    if (count(s,db,doc) == 0) {
-      s.add(newName,path,inputStream);
-      deleteDummy(s,db,path);
-    }
+  return new BXCode<BXDocument>(this){
+    @Override public BXDocument get() throws BaseXException {
+      s.execute(new Open(db));
+      final String doc=path.isEmpty() ? newName : path + SEP + newName;
+      if (count(s,db,doc) == 0) {
+        s.add(newName,path,input);
+        deleteDummy(s,db,path);
+      }
  else {
-      s.replace(doc,inputStream);
-    }
-    s.execute(new Close());
-    return new BXDocument(db,doc,session);
-  }
- catch (  final Exception ex) {
-    throw error(ex);
-  }
- finally {
-    try {
-      if (s != null)       s.close();
-    }
- catch (    final IOException e) {
-      error(e);
+        s.replace(doc,input);
+      }
+      return new BXDocument(db,doc,session);
     }
   }
+.eval();
 }

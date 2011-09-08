@@ -1,9 +1,8 @@
 {
-  final List<BXResource> ch=new ArrayList<BXResource>();
-  final HashSet<String> paths=new HashSet<String>();
-  try {
-    final Session s=session.login();
-    try {
+  return new BXCode<List<BXResource>>(this){
+    @Override public List<BXResource> get() throws BaseXException {
+      final List<BXResource> ch=new ArrayList<BXResource>();
+      final HashSet<String> paths=new HashSet<String>();
       final Query q=s.query("for $r in db:list($d, $p) return substring-after($r,$p)");
       q.bind("$d",db);
       q.bind("$p",path);
@@ -22,13 +21,8 @@
         }
       }
       q.close();
-    }
-  finally {
-      s.close();
+      return ch;
     }
   }
- catch (  final Exception ex) {
-    Util.errln(ex);
-  }
-  return ch;
+.evalNoEx();
 }

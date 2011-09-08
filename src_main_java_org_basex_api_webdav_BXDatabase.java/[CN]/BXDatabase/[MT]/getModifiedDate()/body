@@ -1,15 +1,13 @@
 {
   try {
-    final String info;
-    final Session s=session.login();
-    try {
-      final Query q=s.query("db:info($p)");
-      q.bind("$p",db);
-      info=q.execute();
+    final String info=new BXCode<String>(this){
+      @Override public String get() throws BaseXException {
+        final Query q=s.query("db:info($p)");
+        q.bind("$p",db);
+        return q.execute();
+      }
     }
-  finally {
-      s.close();
-    }
+.eval();
     final String timestamp="Time Stamp: ";
     final int p=info.indexOf(timestamp);
     if (p >= 0) {
