@@ -1,6 +1,5 @@
 {
   out.write(10);
-  send(name);
   if (esocket == null) {
     final int eport=Integer.parseInt(receive());
     esocket=new Socket();
@@ -9,8 +8,11 @@
     receive(in,os);
     os.write(0);
     os.flush();
-    listen(esocket.getInputStream());
+    InputStream is=esocket.getInputStream();
+    is.read();
+    listen(is);
   }
+  send(name);
   info=receive();
   if (!ok())   throw new IOException(info);
   notifiers.put(name,notifier);
