@@ -1,10 +1,27 @@
 {
   final String url=string(checkStr(expr[0],ctx));
-  final boolean autoComm=expr.length < 2 || checkBln(expr[1],ctx);
   try {
-    final Connection conn=expr.length == 4 ? DriverManager.getConnection(url,string(checkStr(expr[2],ctx)),string(checkStr(expr[3],ctx))) : DriverManager.getConnection(url);
-    conn.setAutoCommit(autoComm);
-    return Itr.get(ctx.jdbc.add(conn));
+    if (expr.length > 2) {
+      final String user=string(checkStr(expr[1],ctx));
+      final String pass=string(checkStr(expr[2],ctx));
+      if (expr.length == 4) {
+        final TokenObjMap<Object> options=options(3,E_OPS,ctx);
+        boolean autoCommit=true;
+        final Object commit=options.get(AUTO_COMM);
+        if (commit != null) {
+          autoCommit=Boolean.parseBoolean(commit.toString());
+          options.delete(AUTO_COMM);
+        }
+        final Properties props=connProps(options(3,E_OPS,ctx));
+        props.setProperty(USER,user);
+        props.setProperty(PASS,pass);
+        final Connection conn=getConnection(url,props);
+        conn.setAutoCommit(autoCommit);
+        return Itr.get(ctx.jdbc.add(conn));
+      }
+      return Itr.get(ctx.jdbc.add(getConnection(url,user,pass)));
+    }
+    return Itr.get(ctx.jdbc.add(getConnection(url)));
   }
  catch (  final SQLException ex) {
     throw SQLEXC.thrw(input,ex.getMessage());
