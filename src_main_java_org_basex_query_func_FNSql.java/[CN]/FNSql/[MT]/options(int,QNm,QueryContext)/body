@@ -1,0 +1,17 @@
+{
+  final TokenObjMap<Object> tm=new TokenObjMap<Object>();
+  if (arg >= expr.length)   return tm;
+  final Item it=expr[arg].item(ctx,input);
+  if (it == null)   return tm;
+  if (it instanceof Map)   return ((Map)it).tokenJavaMap(input);
+  if (!it.type().eq(SeqType.ELM))   throw NODFUNTYPE.thrw(input,this,it.type);
+  ANode node=(ANode)it;
+  if (!node.qname().eq(root))   PARWHICH.thrw(input,node.qname());
+  final AxisIter ai=node.children();
+  while ((node=ai.next()) != null) {
+    final QNm qn=node.qname();
+    if (!qn.uri().eq(U_SQL))     PARWHICH.thrw(input,qn);
+    tm.add(qn.ln(),node.children().next());
+  }
+  return tm;
+}
