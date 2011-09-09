@@ -12,7 +12,9 @@
     Util.outln(CONSOLE + SERVERSTART,SERVERMODE);
   }
   jetty=new Server(http.context.mprop.num(MainProp.HTTPPORT));
-  if (webdav)   new WebDAVServer(jetty);
-  if (jaxrx)   new JaxRxServer(jetty);
+  final Context ctx=new Context(jetty,"/");
+  if (rest)   ctx.addServlet(RESTServlet.class,"/rest/*");
+  if (webdav)   ctx.addServlet(WebDAVServlet.class,"/webdav/*");
+  if (jaxrx)   new JaxRxServer(ctx);
   jetty.start();
 }
