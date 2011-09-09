@@ -5,7 +5,14 @@
     stop(mprop.num(MainProp.SERVERPORT),mprop.num(MainProp.EVENTPORT));
     return;
   }
-  if (http.client)   server=new BaseXServer(http.context,quiet ? "-z" : "");
-  webdav=new WebDAVServer();
-  jaxrx=new JaxRxServer();
+  if (http.client) {
+    server=new BaseXServer(http.context,quiet ? "-z" : "");
+  }
+ else {
+    Util.outln(CONSOLE + SERVERSTART,SERVERMODE);
+  }
+  jetty=new Server(http.context.mprop.num(MainProp.HTTPPORT));
+  if (webdav)   new WebDAVServer(jetty);
+  if (jaxrx)   new JaxRxServer(jetty);
+  jetty.start();
 }
