@@ -1,27 +1,22 @@
 {
-  try {
-    sout.write(ServerCmd.WATCH.code);
-    if (esocket == null) {
-      sout.flush();
-      final BufferInput bi=new BufferInput(sin);
-      final int eport=Integer.parseInt(bi.readString());
-      esocket=new Socket();
-      esocket.connect(new InetSocketAddress(ehost,eport),5000);
-      final PrintOutput po=PrintOutput.get(esocket.getOutputStream());
-      po.print(bi.readString());
-      po.write(0);
-      po.flush();
-      InputStream is=esocket.getInputStream();
-      is.read();
-      listen(is);
-    }
-    send(name);
+  sout.write(ServerCmd.WATCH.code);
+  if (esocket == null) {
+    sout.flush();
     final BufferInput bi=new BufferInput(sin);
-    info=bi.readString();
-    if (!ok(bi))     throw new IOException(info);
-    notifiers.put(name,notifier);
+    final int eport=Integer.parseInt(bi.readString());
+    esocket=new Socket();
+    esocket.connect(new InetSocketAddress(ehost,eport),5000);
+    final PrintOutput po=PrintOutput.get(esocket.getOutputStream());
+    po.print(bi.readString());
+    po.write(0);
+    po.flush();
+    InputStream is=esocket.getInputStream();
+    is.read();
+    listen(is);
   }
- catch (  final IOException ex) {
-    throw new BaseXException(ex);
-  }
+  send(name);
+  final BufferInput bi=new BufferInput(sin);
+  info=bi.readString();
+  if (!ok(bi))   throw new IOException(info);
+  notifiers.put(name,notifier);
 }
