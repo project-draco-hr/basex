@@ -1,0 +1,25 @@
+{
+  System.out.println("=== POST: execute a query ===");
+  URL url=new URL("http://localhost:8984/rest/factbook");
+  System.out.println("\n* URL: " + url);
+  String request="<query xmlns='http://www.basex.org/rest'>\n" + "  <text>//city/name</text>\n" + "  <parameter name='wrap' value='yes'/>\n"+ "  <parameter name='count' value='2'/>\n"+ "</query>";
+  System.out.println("\n* Query:\n" + request);
+  HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+  conn.setDoOutput(true);
+  conn.setRequestMethod("POST");
+  conn.setRequestProperty("Content-Type","application/query+xml");
+  OutputStream out=conn.getOutputStream();
+  out.write(request.getBytes("UTF-8"));
+  out.close();
+  int code=conn.getResponseCode();
+  System.out.println("\n* HTTP response: " + code + " ("+ conn.getResponseMessage()+ ")");
+  if (code == HttpURLConnection.HTTP_OK) {
+    System.out.println("\n* Result:");
+    BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
+    for (String line; (line=br.readLine()) != null; ) {
+      System.out.println(line);
+    }
+    br.close();
+  }
+  conn.disconnect();
+}
