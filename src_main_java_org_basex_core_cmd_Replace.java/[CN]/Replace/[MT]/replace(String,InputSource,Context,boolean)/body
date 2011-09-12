@@ -1,28 +1,27 @@
 {
   final Data data=ctx.data();
   if (data == null)   throw new BaseXException(PROCNODB);
-  String path=IOFile.normalize(p);
-  String target="";
-  if (path.isEmpty())   throw new BaseXException(DIRERR,path);
-  final byte[] src=token(path);
-  final IntList docs=data.docs(p);
+  String pth=IOFile.normalize(path);
+  String trg="";
+  if (pth.isEmpty())   throw new BaseXException(DIRERR,pth);
+  final byte[] src=token(pth);
+  final IntList docs=data.docs(path);
   final int is=docs.size();
   for (int i=0; i < is; i++) {
-    if (!eq(data.text(docs.get(i),true),src))     throw new BaseXException(DIRERR,path);
+    if (!eq(data.text(docs.get(i),true),src))     throw new BaseXException(DIRERR,pth);
   }
-  final int i=path.lastIndexOf('/');
+  final int i=pth.lastIndexOf('/');
   if (i != -1) {
-    target=path.substring(0,i);
-    path=path.substring(i + 1);
+    trg=pth.substring(0,i);
+    pth=pth.substring(i + 1);
   }
   try {
     if (lock)     ctx.register(true);
-    if (docs.size() > 0) {
-      Add.add(path,target,input,ctx,null,false);
+    if (!replace(data,pth,input)) {
+      Add.add(pth,trg,input,ctx,null,false);
       for (int d=docs.size() - 1; d >= 0; d--)       data.delete(docs.get(d));
       data.flush();
     }
-    if (!replace(data,path,input))     throw new BaseXException(PARSEERR,path);
   }
   finally {
     if (lock)     ctx.unregister(true);
