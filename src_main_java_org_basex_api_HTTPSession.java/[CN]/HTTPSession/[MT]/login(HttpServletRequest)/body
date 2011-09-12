@@ -1,0 +1,13 @@
+{
+  final String auth=req.getHeader(AUTHORIZATION);
+  if (auth != null) {
+    final String[] values=auth.split(" ");
+    if (values[0].equals(BASIC)) {
+      final String[] cred=Base64.decode(values[1]).split(":",2);
+      if (cred.length != 2)       throw new LoginException(NOPASSWD);
+      return cred;
+    }
+    throw new LoginException(WHICHAUTH,values[0]);
+  }
+  return new String[2];
+}

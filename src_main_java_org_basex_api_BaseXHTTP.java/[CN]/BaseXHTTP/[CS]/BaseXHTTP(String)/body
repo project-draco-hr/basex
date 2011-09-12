@@ -1,20 +1,20 @@
 {
   parseArguments(args);
-  final MainProp mprop=http.context.mprop;
+  final Context ctx=HTTPSession.context();
+  final MainProp mprop=ctx.mprop;
   if (stopped) {
     stop(mprop.num(MainProp.SERVERPORT),mprop.num(MainProp.EVENTPORT));
     return;
   }
-  if (http.client) {
-    server=new BaseXServer(http.context,quiet ? "-z" : "");
+  if (HTTPSession.client()) {
+    server=new BaseXServer(ctx,quiet ? "-z" : "");
   }
  else {
     Util.outln(CONSOLE + SERVERSTART,SERVERMODE);
   }
-  jetty=new Server(http.context.mprop.num(MainProp.HTTPPORT));
-  final Context ctx=new Context(jetty,"/");
-  if (rest)   ctx.addServlet(RESTServlet.class,"/rest/*");
-  if (webdav)   ctx.addServlet(WebDAVServlet.class,"/webdav/*");
-  if (jaxrx)   new JaxRxServer(ctx);
+  jetty=new Server(mprop.num(MainProp.HTTPPORT));
+  final org.mortbay.jetty.servlet.Context jcontext=new org.mortbay.jetty.servlet.Context(jetty,"/");
+  if (rest)   jcontext.addServlet(RESTServlet.class,"/rest/*");
+  if (webdav)   jcontext.addServlet(WebDAVServlet.class,"/webdav/*");
   jetty.start();
 }

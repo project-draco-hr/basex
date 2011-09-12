@@ -1,0 +1,21 @@
+{
+  open(ctx);
+  final Session session=ctx.session;
+  session.execute(new Set(Prop.SERIALIZER,serial(ctx)));
+  String query=in.isEmpty() ? "." : in;
+  if (query.equals(".") && ctx.depth() > 1) {
+    final String args="'" + ctx.db() + "','"+ ctx.dbpath()+ "'";
+    final String raw="db:is-raw(" + args + ")";
+    if (session.query(raw).execute().equals("true"))     query="declare option output:method '" + M_RAW + "';"+ "db:get("+ args+ ")";
+  }
+  session.setOutputStream(ctx.out);
+  final Query qu=session.query(query);
+  for (  final Entry<String,String[]> e : variables.entrySet()) {
+    final String[] val=e.getValue();
+    if (val.length == 2)     qu.bind(e.getKey(),val[0],val[1]);
+    if (val.length == 1)     qu.bind(e.getKey(),val[0]);
+  }
+  final SerializerProp prop=new SerializerProp(qu.options());
+  initOutput(prop,ctx);
+  qu.execute();
+}

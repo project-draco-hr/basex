@@ -1,0 +1,22 @@
+{
+  open(ctx);
+  final SerializerProp sprop=new SerializerProp(ctx.serialization);
+  final Serializer ser=Serializer.get(ctx.out,sprop);
+  initOutput(sprop,ctx);
+  final Session session=ctx.session;
+  if (ctx.depth() == 0) {
+    final Table table=new Table(session.execute(new List()));
+    ser.openElement(DATABASES,RESOURCES,token(table.contents.size()));
+    ser.namespace(REST,RESTURI);
+    list(table,ser,DATABASE,1);
+    ser.closeElement();
+  }
+ else {
+    final Table table=new Table(session.execute(new ListDB(ctx.all())));
+    ser.openElement(DATABASE,NAME,token(ctx.db()),RESOURCES,token(table.contents.size()));
+    ser.namespace(REST,RESTURI);
+    list(table,ser,RESOURCE,0);
+    ser.closeElement();
+  }
+  ser.close();
+}

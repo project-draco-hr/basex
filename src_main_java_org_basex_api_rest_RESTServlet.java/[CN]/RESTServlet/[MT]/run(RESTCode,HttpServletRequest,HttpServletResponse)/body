@@ -1,0 +1,26 @@
+{
+  final RESTContext ctx=new RESTContext(req,res);
+  try {
+    ctx.session=new HTTPSession(req).login();
+  }
+ catch (  final LoginException ex) {
+    error(SC_UNAUTHORIZED,ex.getMessage(),ctx);
+    return;
+  }
+  try {
+    code.run(ctx);
+  }
+ catch (  final RESTException ex) {
+    error(ex.getStatus(),ex.getMessage(),ctx);
+  }
+catch (  final IOException ex) {
+    error(SC_BAD_REQUEST,Util.message(ex),ctx);
+  }
+catch (  final Exception ex) {
+    Util.errln(Util.bug(ex));
+    error(SC_INTERNAL_SERVER_ERROR,ERR_UNEXPECTED + ex.getMessage(),ctx);
+  }
+ finally {
+    ctx.session.close();
+  }
+}

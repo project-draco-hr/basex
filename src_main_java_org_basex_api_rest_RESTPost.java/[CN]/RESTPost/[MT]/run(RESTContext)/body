@@ -1,0 +1,83 @@
+{
+  final Map<?,?> map=ctx.req.getParameterMap();
+  if (map.size() != 0)   throw new RESTException(SC_BAD_REQUEST,ERR_NOPARAM);
+  final InputStream is=ctx.req.getInputStream();
+  String enc=ctx.req.getCharacterEncoding();
+  if (enc == null)   enc=Token.UTF8;
+  if (DataText.APP_QUERYXML.equals(ctx.req.getContentType())) {
+    final BufferedInputStream bis=new BufferedInputStream(is);
+    final ByteList bl=new ByteList();
+    for (int i=0; (i=bis.read()) != -1; )     bl.add(i);
+    final IOContent cont=new IOContent(bl.toArray());
+    final String input=TextInput.content(cont,enc).toString();
+    final Context context=HTTPSession.context();
+    Result node=null;
+    try {
+      node=new QueryProcessor(CHECK,input,context).execute();
+    }
+ catch (    final QueryException ex) {
+      throw new RESTException(SC_BAD_REQUEST,ex.getMessage().replaceAll("\\r?\\n+"," ").replaceAll(".*\\[\\w+\\d*\\] ",""));
+    }
+    final SerializerProp sp=new SerializerProp();
+    QueryProcessor qp;
+    RESTCode code=null;
+    try {
+      final TokenBuilder ser=new TokenBuilder();
+      qp=new QueryProcessor(".//*:parameter",node,context);
+      Iter ir=qp.iter();
+      for (Item param; (param=ir.next()) != null; ) {
+        final String name=value("data(@name)",param,context);
+        final String value=value("data(@value)",param,context);
+        if (sp.get(name) != null) {
+          ser.add(name).add('=').add(value).add(',');
+        }
+ else         if (name.equals("wrap")) {
+          wrap(value,ctx);
+        }
+ else {
+          throw new RESTException(SC_BAD_REQUEST,ERR_PARAM + name);
+        }
+      }
+      ctx.serialization=ser.toString();
+      final Map<String,String[]> vars=new HashMap<String,String[]>();
+      qp=new QueryProcessor(".//*:variable",node,context);
+      ir=qp.iter();
+      for (Item var; (var=ir.next()) != null; ) {
+        final String name=value("data(@name)",var,context);
+        final String value=value("data(@value)",var,context);
+        final String type=value("data(@type)",var,context);
+        vars.put(name,new String[]{value,type});
+      }
+      final String request=value("name(.)",node,context);
+      final String text=value("*:text/text()",node,context);
+      if (request.equals(COMMAND)) {
+        code=new RESTCommand(text);
+      }
+ else       if (request.equals(RUN)) {
+        code=new RESTRun(text,vars);
+      }
+ else {
+        code=new RESTQuery(text,vars);
+      }
+      code.run(ctx);
+    }
+ catch (    final QueryException ex) {
+      throw new RESTException(SC_BAD_REQUEST,ex.getMessage().replaceAll("\\r?\\n+"," ").replaceAll(".*\\[\\w+\\d*\\] ",""));
+    }
+  }
+ else {
+    if (ctx.depth() == 0)     throw new RESTException(SC_NOT_FOUND,ERR_NOPATH);
+    open(ctx);
+    String name=ctx.dbpath();
+    String path="";
+    final int i=name.indexOf('/');
+    if (i != -1) {
+      path=name.substring(i + 1);
+      name=name.substring(i);
+    }
+    final Session session=ctx.session;
+    session.add(name,path,ctx.req.getInputStream());
+    ctx.res.setStatus(SC_CREATED);
+    ctx.out.write(token(session.info()));
+  }
+}

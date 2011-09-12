@@ -1,0 +1,24 @@
+{
+  req=rq;
+  res=rs;
+  out=res.getOutputStream();
+  res.setCharacterEncoding(UTF8);
+  final StringList sl=new StringList();
+  final String p=req.getPathInfo();
+  if (p != null) {
+    final TokenBuilder tb=new TokenBuilder();
+    for (int s=0; s < p.length(); s++) {
+      final char ch=p.charAt(s);
+      if (ch == '/') {
+        if (tb.size() == 0)         continue;
+        sl.add(tb.toString());
+        tb.reset();
+      }
+ else {
+        tb.add(ch);
+      }
+    }
+    if (tb.size() != 0)     sl.add(tb.toString());
+  }
+  path=sl.toArray();
+}

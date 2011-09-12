@@ -1,0 +1,32 @@
+{
+  final Map<String,String[]> vars=new HashMap<String,String[]>();
+  RESTCode code=null;
+  final TokenBuilder ser=new TokenBuilder();
+  final Map<?,?> map=ctx.req.getParameterMap();
+  final SerializerProp sp=new SerializerProp();
+  for (  final Entry<?,?> s : map.entrySet()) {
+    final String key=s.getKey().toString();
+    final String[] vals=s.getValue() instanceof String[] ? (String[])s.getValue() : new String[]{s.getValue().toString()};
+    final String val=vals[0];
+    if (key.equals(COMMAND) || key.equals(QUERY) || key.equals(RUN)) {
+      if (code != null || vals.length > 1)       throw new RESTException(SC_BAD_REQUEST,ERR_ONLYONE);
+      code=key.equals(QUERY) ? new RESTQuery(val,vars) : key.equals(RUN) ? new RESTRun(val,vars) : new RESTCommand(val);
+    }
+ else     if (key.startsWith("$")) {
+      vars.put(key,new String[]{val});
+    }
+ else     if (key.equals(WRAP)) {
+      wrap(val,ctx);
+    }
+ else {
+      if (sp.get(key) != null) {
+        for (        final String v : vals)         ser.add(key).add('=').add(v).add(',');
+      }
+ else {
+        throw new RESTException(SC_BAD_REQUEST,ERR_PARAM + key);
+      }
+    }
+  }
+  ctx.serialization=ser.toString();
+  (code == null ? new RESTList() : code).run(ctx);
+}

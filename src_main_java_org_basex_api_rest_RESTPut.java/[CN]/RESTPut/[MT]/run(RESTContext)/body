@@ -1,0 +1,17 @@
+{
+  final Map<?,?> map=ctx.req.getParameterMap();
+  if (map.size() != 0)   throw new RESTException(SC_BAD_REQUEST,ERR_NOPARAM);
+  final Session session=ctx.session;
+  if (ctx.depth() == 0) {
+    throw new RESTException(SC_NOT_FOUND,ERR_NOPATH);
+  }
+ else   if (ctx.depth() == 1) {
+    session.create(ctx.db(),ctx.req.getInputStream());
+  }
+ else {
+    open(ctx);
+    session.replace(ctx.dbpath(),ctx.req.getInputStream());
+  }
+  ctx.res.setStatus(SC_CREATED);
+  ctx.out.write(token(session.info()));
+}

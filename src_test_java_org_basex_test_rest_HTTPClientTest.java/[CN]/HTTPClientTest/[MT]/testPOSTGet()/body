@@ -1,0 +1,13 @@
+{
+  final Command get1=new XQuery("http:send-request(" + "<http:request method='get' href=" + URL + "/>)");
+  get1.execute(context);
+  checkResponse(get1,HttpURLConnection.HTTP_OK,2);
+  assertTrue(((ItemCache)get1.result()).item[1].type == NodeType.DOC);
+  final Command get2=new XQuery("http:send-request(" + "<http:request method='get' override-media-type='text/plain'/>," + URL + ")");
+  get2.execute(context);
+  checkResponse(get2,HttpURLConnection.HTTP_OK,2);
+  assertTrue(((ItemCache)get2.result()).item[1].type == AtomType.STR);
+  final Command get3=new XQuery("http:send-request(" + "<http:request method='get' status-only='true'/>," + URL + ")");
+  get3.execute(context);
+  checkResponse(get3,HttpURLConnection.HTTP_OK,1);
+}

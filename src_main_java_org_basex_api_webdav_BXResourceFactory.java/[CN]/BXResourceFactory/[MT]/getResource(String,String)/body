@@ -2,21 +2,23 @@
   final Auth a=HttpManager.request().getAuthorization();
   final String user=a != null ? a.getUser() : null;
   final String pass=a != null ? a.getPassword() : null;
-  final HTTPSession session=HTTPContext.get().session(user,pass);
-  if (!session.valid())   return NOAUTH;
-  final Path path=Path.path(dbpath).getStripFirst();
-  if (path.isRoot())   return new BXRootResource(session);
-  final String db=path.getFirst();
+  final HTTPSession session=new HTTPSession(user,pass);
   try {
     final Session s=session.login();
     try {
+      final Path path=Path.path(dbpath).getStripFirst();
+      if (path.isRoot())       return new BXRootResource(session);
+      final String db=path.getFirst();
       return path.getLength() == 1 ? listDBs(s).contains(db) ? new BXDatabase(db,session) : null : resource(s,db,path.getStripFirst().toString(),session);
     }
   finally {
       s.close();
     }
   }
- catch (  final Exception ex) {
+ catch (  final LoginException ex) {
+    return BXNotAuthorizedResource.NOAUTH;
+  }
+catch (  final Exception ex) {
     Util.errln(ex);
   }
   return null;

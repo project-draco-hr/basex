@@ -1,43 +1,35 @@
 {
   final Args arg=new Args(args,this,HTTPINFO,Util.info(CONSOLE,HTTP));
-  final StringBuilder serial=new StringBuilder();
-  final MainProp mprop=http.context.mprop;
+  final Context ctx=HTTPSession.context();
   while (arg.more()) {
     if (arg.dash()) {
       final char c=arg.next();
 switch (c) {
 case 'c':
-        System.setProperty(DBCLIENT,Boolean.TRUE.toString());
+        System.setProperty(DBCLIENT,Boolean.toString(true));
       break;
 case 'd':
-    mprop.set(MainProp.DEBUG,true);
+    ctx.mprop.set(MainProp.DEBUG,true);
   break;
 case 'e':
-mprop.set(MainProp.EVENTPORT,arg.num());
+ctx.mprop.set(MainProp.EVENTPORT,arg.num());
 break;
 case 'h':
-mprop.set(MainProp.HTTPPORT,arg.num());
-break;
-case 'J':
-jaxrx=false;
+ctx.mprop.set(MainProp.HTTPPORT,arg.num());
 break;
 case 'n':
-mprop.set(MainProp.HOST,arg.num());
+ctx.mprop.set(MainProp.HOST,arg.num());
 break;
 case 'p':
 final int p=arg.num();
-mprop.set(MainProp.PORT,p);
-mprop.set(MainProp.SERVERPORT,p);
+ctx.mprop.set(MainProp.PORT,p);
+ctx.mprop.set(MainProp.SERVERPORT,p);
 break;
 case 'R':
 rest=false;
 break;
 case 'P':
 System.setProperty(DBPASS,arg.string());
-break;
-case 'S':
-if (serial.length() != 0) serial.append(',');
-serial.append(arg);
 break;
 case 'U':
 System.setProperty(DBUSER,arg.string());
@@ -61,8 +53,4 @@ arg.usage();
 }
 }
 }
-if (serial.length() != 0) {
-http.context.prop.set(Prop.SERIALIZER,serial.toString());
-}
-http.update();
 }
