@@ -1,0 +1,25 @@
+{
+  final Performance perf=new Performance();
+  final Data data=ctx.data();
+  if (data == null)   throw new BaseXException(PROCNODB);
+  final IOFile bin=data.meta.binary(target);
+  if (target.isEmpty() || !bin.valid())   throw new BaseXException(NAMEINVALID,target);
+  new IOFile(bin.dir()).md();
+  try {
+    if (lock)     ctx.register(true);
+    final DataOutput out=new DataOutput(bin.file());
+    try {
+      for (int b; (b=input.read()) != -1; )       out.write(b);
+    }
+  finally {
+      out.close();
+    }
+  }
+ catch (  final IOException ex) {
+    throw new BaseXException(DBNOTSTORED,target);
+  }
+ finally {
+    if (lock)     ctx.unregister(true);
+  }
+  return Util.info(QUERYEXEC,perf);
+}

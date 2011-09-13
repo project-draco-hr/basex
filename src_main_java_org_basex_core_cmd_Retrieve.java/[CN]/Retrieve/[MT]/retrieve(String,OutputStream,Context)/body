@@ -1,0 +1,20 @@
+{
+  final Performance perf=new Performance();
+  final Data data=ctx.data();
+  if (data == null)   throw new BaseXException(PROCNODB);
+  final IOFile bin=data.meta.binary(source);
+  if (!bin.exists() || bin.isDir())   throw new BaseXException(FILEWHICH,source);
+  try {
+    try {
+      final BufferedInputStream bis=new BufferedInputStream(new FileInputStream(bin.file()));
+      for (int b; (b=bis.read()) != -1; )       out.write(b);
+    }
+  finally {
+      out.close();
+    }
+  }
+ catch (  final IOException ex) {
+    throw new BaseXException(ex.getMessage());
+  }
+  return Util.info(QUERYEXEC,perf);
+}
