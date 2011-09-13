@@ -1,26 +1,26 @@
 {
+  final Object o=new Object();
 synchronized (mutex) {
-    final Object o=new Object();
     queue.add(o);
-    try {
-      while (true) {
-        if (o == queue.get(0) && !writer) {
-          if (w) {
-            if (readers == 0) {
-              writer=true;
-              break;
-            }
-          }
- else           if (readers < Math.max(ctx.mprop.num(MainProp.PARALLEL),1)) {
-            ++readers;
+    while (true) {
+      if (!writer && o == queue.get(0)) {
+        if (w) {
+          if (readers == 0) {
+            writer=true;
             break;
           }
         }
+ else         if (readers < Math.max(ctx.mprop.num(MainProp.PARALLEL),1)) {
+          ++readers;
+          break;
+        }
+      }
+      try {
         mutex.wait();
       }
-    }
- catch (    final InterruptedException ex) {
-      Util.stack(ex);
+ catch (      final InterruptedException ex) {
+        Util.stack(ex);
+      }
     }
     queue.remove(0);
   }
