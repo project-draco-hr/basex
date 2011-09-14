@@ -1,0 +1,24 @@
+{
+  final Version disk=new Version(gprop.get(GUIProp.UPDATEVERSION));
+  final Version used=new Version(VERSION.replaceAll(" .*",""));
+  if (disk.compareTo(used) < 0) {
+    gprop.set(GUIProp.UPDATEVERSION,used.toString());
+  }
+ else {
+    try {
+      final String page=Token.string(new IOUrl(VERSION_URL).read());
+      final Matcher m=Pattern.compile("^(Version )?([\\w\\d.]*?)( .*|$)",Pattern.DOTALL).matcher(page);
+      if (m.matches()) {
+        final Version latest=new Version(m.group(2));
+        if (disk.compareTo(latest) < 0 && Dialog.confirm(this,Util.info(GUICHECKVER,NAME,latest))) {
+          Dialog.browse(this,UPDATE_URL);
+        }
+ else {
+          gprop.set(GUIProp.UPDATEVERSION,latest.toString());
+        }
+      }
+    }
+ catch (    final Exception ex) {
+    }
+  }
+}
