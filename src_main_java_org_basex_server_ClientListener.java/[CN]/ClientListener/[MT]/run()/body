@@ -5,6 +5,10 @@
     while (running) {
       try {
         final int b=in.read();
+        if (b == -1) {
+          exit();
+          break;
+        }
         sc=get(b);
         cmd=null;
         if (sc == CREATE) {
@@ -55,7 +59,6 @@
       }
       if (command instanceof Exit) {
         exit();
-        running=false;
         break;
       }
       command.startTimeout(context.mprop.num(MainProp.TIMEOUT));
@@ -75,7 +78,6 @@
       out.write(0);
       info(ok,info,perf);
     }
-    if (!running)     log.write(this,"LOGOUT " + context.user.name,OK);
   }
  catch (  final IOException ex) {
     log.write(this,sc == COMMAND ? cmd : sc,INFOERROR + ex.getMessage());
