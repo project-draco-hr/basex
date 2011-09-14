@@ -3,7 +3,7 @@
   String err=null;
   String inf="";
   try {
-    final boolean ser=prop.is(Prop.SERIALIZE);
+    final boolean serial=prop.is(Prop.SERIALIZE);
     long hits=0;
     int updates=0;
     for (int i=0; i < runs; ++i) {
@@ -15,13 +15,13 @@
       qp.compile();
       comp+=per.getTime();
       if (i == 0)       plan(true);
-      final PrintOutput po=i == 0 && ser ? out : new NullOutput();
-      Serializer xml;
+      final PrintOutput po=i == 0 && serial ? out : new NullOutput();
+      Serializer ser;
       if (prop.is(Prop.CACHEQUERY)) {
         result=qp.execute();
         eval+=per.getTime();
-        xml=qp.getSerializer(po);
-        result.serialize(xml);
+        ser=qp.getSerializer(po);
+        result.serialize(ser);
         hits=result.size();
       }
  else {
@@ -29,18 +29,18 @@
         eval+=per.getTime();
         hits=0;
         Item it=ir.next();
-        xml=qp.getSerializer(po);
+        ser=qp.getSerializer(po);
         while (it != null) {
           checkStop();
-          xml.openResult();
-          it.serialize(xml);
-          xml.closeResult();
+          ser.openResult();
+          it.serialize(ser);
+          ser.closeResult();
           it=ir.next();
           ++hits;
         }
       }
       updates=qp.updates();
-      xml.close();
+      ser.close();
       qp.close();
       prnt+=per.getTime();
     }

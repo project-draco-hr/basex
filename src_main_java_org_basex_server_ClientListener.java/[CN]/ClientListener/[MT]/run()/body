@@ -36,7 +36,7 @@
           query(sc);
         }
  else {
-          cmd=new ByteList().add(b).add(in.token().toArray()).toString();
+          cmd=new ByteList().add(b).add(in.readBytes()).toString();
         }
       }
  catch (      final IOException ex) {
@@ -57,16 +57,12 @@
         send(false);
         continue;
       }
-      if (command instanceof Exit) {
-        exit();
-        break;
-      }
       command.startTimeout(context.mprop.num(MainProp.TIMEOUT));
       log.write(this,command.toString().replace('\r',' ').replace('\n',' '));
       boolean ok=true;
       String info=null;
       try {
-        command.execute(context,out);
+        command.execute(context,new EncodingOutput(out));
         info=command.info();
       }
  catch (      final BaseXException ex) {
@@ -77,6 +73,10 @@
       command.stopTimeout();
       out.write(0);
       info(ok,info,perf);
+      if (command instanceof Exit) {
+        exit();
+        break;
+      }
     }
   }
  catch (  final IOException ex) {
