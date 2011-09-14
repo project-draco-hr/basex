@@ -1,0 +1,37 @@
+{
+  final Performance perf=new Performance();
+  new IOFile(target.dir()).md();
+  PrintOutput out=null;
+  try {
+    out=new PrintOutput(target.path());
+    final Reader r=input.getCharacterStream();
+    final InputStream is=input.getByteStream();
+    final String id=input.getSystemId();
+    if (r != null) {
+      for (int c; (c=r.read()) != -1; )       out.utf8(c);
+    }
+ else     if (is != null) {
+      for (int b; (b=is.read()) != -1; )       out.write(b);
+    }
+ else     if (id != null) {
+      final BufferInput bi=IO.get(id).buffer();
+      try {
+        for (int b; (b=bi.read()) != -1; )         out.write(b);
+      }
+  finally {
+        bi.close();
+      }
+    }
+  }
+ catch (  final IOException ex) {
+    throw new BaseXException(DBNOTSTORED,target);
+  }
+ finally {
+    if (out != null)     try {
+      out.close();
+    }
+ catch (    final IOException ex) {
+    }
+  }
+  return Util.info(QUERYEXEC,perf);
+}
