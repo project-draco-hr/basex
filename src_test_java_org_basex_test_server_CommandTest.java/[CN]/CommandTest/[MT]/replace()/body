@@ -1,13 +1,18 @@
 {
+  final String count="count(db:open('" + NAME + "'))";
   no(new Replace(FILE,"xxx"));
   ok(new CreateDB(NAME,FILE));
+  assertEquals("1",ok(new XQuery(count)));
   ok(new Replace(FN,"<a/>"));
+  assertEquals("1",ok(new XQuery(count)));
   ok(new Replace(FN,"<a/>"));
+  assertEquals("1",ok(new XQuery(count)));
   no(new Replace(FN,""));
+  assertEquals("1",ok(new XQuery(count)));
   ok(new XQuery("db:store('" + NAME + "', 'a', 'a')"));
   ok(new Replace("a","<b/>"));
-  assertTrue(!ok(new XQuery("db:open('" + NAME + "')")).isEmpty());
+  assertTrue(ok(new XQuery("db:open('" + NAME + "')")).length() != 0);
   ok(new XQuery("db:retrieve('" + NAME + "', 'a')"));
   no(new Replace(FN,"<a>"));
-  assertTrue(!ok(new XQuery("doc('" + NAME + "')")).isEmpty());
+  assertEquals("1",ok(new XQuery(count)));
 }

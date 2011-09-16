@@ -1,21 +1,65 @@
 {
-  final String input=args[0];
-  final IO io=IO.get(input);
-  if (!io.exists())   return error(FILEWHICH,io);
-  String name=args[1];
-  if (name != null && !name.isEmpty()) {
-    io.name(name);
+  String name=args[0];
+  String target=IOFile.normalize(args[1]);
+  if (!target.isEmpty())   target+='/';
+  Parser parser;
+  if (is == null) {
+    final String input=args[2];
+    final IO io=IO.get(input);
+    if (!io.exists())     return error(FILEWHICH,io);
+    if (name != null && !name.isEmpty()) {
+      io.name(name);
+    }
+ else     if (io instanceof IOContent) {
+      name=context.data().meta.name + IO.XMLSUFFIX;
+      io.name(name);
+    }
+    parser=new DirParser(io,target,prop);
   }
- else   if (io instanceof IOContent) {
-    name=context.data().meta.name + IO.XMLSUFFIX;
-    io.name(name);
+ else {
+    final SAXSource sax=new SAXSource(is);
+    parser=new SAXWrapper(sax,name,target,context.prop);
   }
-  final String trg=IOFile.normalize(args[2]);
-  final DirParser p=new DirParser(io,trg,prop);
+  final String input=name == null ? parser.src.path() : name;
+  final String nm=name == null ? parser.src.name() : name;
+  if (nm.endsWith(".") || nm.indexOf('/') != -1)   return error(NAMEINVALID,nm);
+  final String path=target + (target.isEmpty() ? "/" : "") + nm;
+  if (!new IOFile(path).isValid())   return error(NAMEINVALID,path);
+  final long fl=parser.src.length();
+  boolean large=false;
+  final Runtime rt=Runtime.getRuntime();
+  if (fl > rt.freeMemory() / 3) {
+    Performance.gc(2);
+    large=fl > rt.freeMemory() / 3;
+  }
+  final Data data=context.data();
+  final String dbname=large ? context.mprop.random(data.meta.name) : path;
+  build=large ? new DiskBuilder(dbname,parser,context) : new MemBuilder(dbname,parser,context.prop);
+  Data tmp=null;
   try {
-    return info(add(p,context,trg,name,this));
+    tmp=build.build();
+    if (tmp.meta.size > 1) {
+      data.insert(data.meta.size,-1,tmp);
+      context.update();
+      data.flush();
+    }
+    return info(parser.info() + PATHADDED,input,perf);
   }
- catch (  final BaseXException ex) {
-    return error(ex.getMessage());
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    return error(Util.message(ex));
+  }
+ finally {
+    try {
+      build.close();
+    }
+ catch (    final IOException e) {
+    }
+    if (tmp != null)     try {
+      tmp.close();
+    }
+ catch (    final IOException e) {
+    }
+    if (large)     DropDB.drop(dbname,context.mprop);
   }
 }

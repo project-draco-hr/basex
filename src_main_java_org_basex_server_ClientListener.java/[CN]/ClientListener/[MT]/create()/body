@@ -1,15 +1,14 @@
 {
-  final Performance perf=new Performance();
   final String name=in.readString();
   log.write(this,CREATE + " " + CmdCreate.DATABASE+ " "+ name+ " [...]");
   final DecodingInput di=new DecodingInput(in);
   final LookupInput lis=new LookupInput(di);
   try {
     final String info=lis.lookup() == -1 ? CreateDB.create(name,Parser.emptyParser(),context) : CreateDB.create(name,lis,context);
-    info(true,info,perf);
+    success(info);
   }
  catch (  final BaseXException ex) {
     di.flush();
-    info(false,ex.getMessage(),perf);
+    error(ex.getMessage());
   }
 }
