@@ -17,9 +17,10 @@
   final ObjList<Item> docs=new ObjList<Item>(1);
   docs.add(doc);
   ctx.updates.add(new DBAdd(data,input,docs,name,path,ctx.context),ctx);
-  if (data.meta.binary(path).exists()) {
+  final IOFile file=data.meta.binary(trg);
+  if (file != null && file.exists() && !file.isDir()) {
     final byte[] val=checkBin(doc,ctx);
-    ctx.updates.add(new DBPut(data,token(trg),val,input),ctx);
+    ctx.updates.add(new DBStore(data,token(trg),val,input),ctx);
   }
   return null;
 }
