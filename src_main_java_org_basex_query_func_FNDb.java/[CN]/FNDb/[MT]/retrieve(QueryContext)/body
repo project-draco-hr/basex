@@ -1,12 +1,7 @@
 {
   final Data data=data(0,ctx);
-  final String key=path(1,ctx);
-  final IOFile bin=data.meta.binary(key);
-  if (!bin.exists())   RESFNF.thrw(input,key);
-  try {
-    return new B64(bin.read());
-  }
- catch (  final IOException ex) {
-    throw IOERR.thrw(input,ex);
-  }
+  final String path=path(1,ctx);
+  final IOFile file=data.meta.binary(path);
+  if (!file.exists() || file.isDir())   RESFNF.thrw(input,path);
+  return new Raw(file,path);
 }
