@@ -1,29 +1,27 @@
 {
   final String name=args[0];
-  if (parser == null) {
-    parser=Parser.emptyParser();
-    if (args.length < 1 || args[1] == null) {
-      if (in != null && in.getByteStream() != null) {
-        InputStream is=in.getByteStream();
-        if (!(is instanceof BufferedInputStream || is instanceof BufferInput))         is=new BufferedInputStream(is);
-        try {
-          final LookupInput li=new LookupInput(is);
-          if (li.lookup() != -1) {
-            parser=new SAXWrapper(new SAXSource(new InputSource(li)),name + IO.XMLSUFFIX,"",context.prop);
-          }
-        }
- catch (        final IOException ex) {
-          Util.debug(ex);
-          return error(Util.message(ex));
+  Parser parser=Parser.emptyParser();
+  if (args.length < 1 || args[1] == null) {
+    if (in != null && in.getByteStream() != null) {
+      InputStream is=in.getByteStream();
+      if (!(is instanceof BufferedInputStream || is instanceof BufferInput))       is=new BufferedInputStream(is);
+      try {
+        final LookupInput li=new LookupInput(is);
+        if (li.lookup() != -1) {
+          parser=new SAXWrapper(new SAXSource(new InputSource(li)),name + IO.XMLSUFFIX,"",context.prop);
         }
       }
+ catch (      final IOException ex) {
+        Util.debug(ex);
+        return error(Util.message(ex));
+      }
     }
+  }
  else {
-      final IO io=IO.get(args[1]);
-      if (!io.exists())       return error(FILEWHICH,io);
-      if (io instanceof IOContent)       io.name(name + IO.XMLSUFFIX);
-      parser=new DirParser(io,prop);
-    }
+    final IO io=IO.get(args[1]);
+    if (!io.exists())     return error(FILEWHICH,io);
+    if (io instanceof IOContent)     io.name(name + IO.XMLSUFFIX);
+    parser=new DirParser(io,prop);
   }
   return build(parser,name);
 }
