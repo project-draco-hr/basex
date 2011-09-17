@@ -9,5 +9,8 @@
     Close.close(data,ctx);
     if (found)     throw new IOException(Util.info(PERMNO,CmdPerm.READ));
   }
-  return MetaData.found(path,name,ctx.mprop) ? Open.open(name,ctx) : ctx.prop.is(Prop.FORCECREATE) ? CreateDB.xml(name,io,ctx) : CreateDB.xml(io,ctx);
+  if (MetaData.found(path,name,ctx.mprop))   return Open.open(name,ctx);
+  if (!ctx.prop.is(Prop.FORCECREATE))   return CreateDB.mainMem(io,ctx);
+  if (!io.exists())   throw new FileNotFoundException(Util.info(FILEWHICH,io));
+  return CreateDB.create(name,new DirParser(io,ctx.prop),ctx);
 }
