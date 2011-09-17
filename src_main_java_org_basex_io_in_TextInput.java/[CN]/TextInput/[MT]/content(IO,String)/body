@@ -1,9 +1,18 @@
 {
+  final TokenBuilder tb=new TokenBuilder();
   final TextInput ti=new TextInput(in);
-  if (enc != null)   ti.encoding(enc);
-  final int len=(int)ti.length();
-  final TokenBuilder tb=new TokenBuilder(len);
-  while (ti.pos() < len)   tb.add(ti.next());
-  ti.close();
+  try {
+    if (enc != null)     ti.encoding(enc);
+    for (int ch; (ch=ti.next()) != -1; ) {
+      if (ch == '\r') {
+        if (ti.next() != '\n')         ti.prev(1);
+        ch='\n';
+      }
+      tb.add(ch);
+    }
+  }
+  finally {
+    ti.close();
+  }
   return tb;
 }

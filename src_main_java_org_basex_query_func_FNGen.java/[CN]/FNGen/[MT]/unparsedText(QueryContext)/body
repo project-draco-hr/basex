@@ -1,19 +1,9 @@
 {
   final IO io=checkIO(expr[0],ctx);
   final String enc=expr.length < 2 ? null : string(checkStr(expr[1],ctx));
+  if (enc != null && !Charset.isSupported(enc))   WHICHENC.thrw(input,enc);
   try {
-    final TokenBuilder tb=TextInput.content(io,enc);
-    final ByteList bl=new ByteList();
-    final int ts=tb.size();
-    for (int t=0; t < ts; t++) {
-      int c=tb.get(t);
-      if (c == '\r') {
-        if (t + 1 < ts && tb.get(t + 1) == '\n')         continue;
-        c='\n';
-      }
-      bl.add(c);
-    }
-    return Str.get(bl.toArray());
+    return Str.get(TextInput.content(io,enc).finish());
   }
  catch (  final IOException ex) {
     throw WRONGINPUT.thrw(input,io,ex);
