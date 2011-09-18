@@ -1,0 +1,23 @@
+{
+  final String c=contentType(n);
+  if (c == null && DataText.APP_OCTET.equals(mime)) {
+    final BufferedInputStream bi=new BufferedInputStream(in);
+    bi.mark(BufferedInputStream.MAX);
+    try {
+      addXML(s,n,bi);
+    }
+ catch (    final IOException e) {
+      if (bi.pos() >= BufferedInputStream.MAX)       throw e;
+      bi.reset();
+      addRaw(s,n,bi);
+    }
+ finally {
+      if (bi.pos() < BufferedInputStream.MAX)       bi.reset();
+      bi.close();
+    }
+  }
+ else {
+    if (mime.contains("xml"))     addXML(s,n,in);
+ else     addRaw(s,n,in);
+  }
+}
