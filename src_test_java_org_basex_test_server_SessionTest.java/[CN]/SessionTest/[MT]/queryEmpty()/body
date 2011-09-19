@@ -1,5 +1,10 @@
 {
-  final Query query=session.query("()");
-  assertFalse("No result was expected.",query.more());
-  query.close();
+  session.execute("create db " + DB);
+  session.store("X",new ArrayInput(""));
+  check("",session.execute("xquery " + RAW + DBRETRIEVE.args(DB,"X")));
+  check("",session.query(RAW + DBRETRIEVE.args(DB,"X")).execute());
+  final Query q=session.query(RAW + DBRETRIEVE.args(DB,"X"));
+  assertTrue(q.more());
+  check("",q.next());
+  assertNull(q.next());
 }

@@ -1,13 +1,14 @@
 {
-  final String fun=check(Function.DBREPLACE);
-  new Add("etc/test/input.xml",null,"test").execute(CONTEXT);
-  query(fun + "('" + DB+ "', 'test/input.xml', '<root1/>')");
-  query("count(collection('" + DB + "/test/input.xml')/html)","0");
-  query("count(collection('" + DB + "/test/input.xml')/root1)","1");
-  query(fun + "('" + DB+ "', 'test/input.xml', document { <root2/> })");
-  query("count(collection('" + DB + "/test/input.xml')/root1)","0");
-  query("count(collection('" + DB + "/test/input.xml')/root2)","1");
-  query(fun + "('" + DB+ "', 'test/input.xml', 'etc/test/input.xml')");
-  query("count(collection('" + DB + "/test/input.xml')/html)","1");
-  query("count(collection('" + DB + "/test/input.xml')/root2)","0");
+  check(DBREPLACE);
+  new Add(FILE,null,"test").execute(CONTEXT);
+  query(DBREPLACE.args(DB,FILE,"\"<R1/>\""));
+  query(COUNT.args(COLL.args(DB + '/' + FILE) + "/R1"),1);
+  query(COUNT.args(COLL.args(DB + '/' + FILE) + "/R2"),0);
+  query(DBREPLACE.args(DB,FILE," document { <R2/> }"));
+  query(COUNT.args(COLL.args(DB + '/' + FILE) + "/R1"),0);
+  query(COUNT.args(COLL.args(DB + '/' + FILE) + "/R2"),1);
+  query(DBREPLACE.args(DB,FILE,FILE));
+  query(COUNT.args(COLL.args(DB + '/' + FILE) + "/R1"),0);
+  query(COUNT.args(COLL.args(DB + '/' + FILE) + "/R2"),0);
+  query(COUNT.args(COLL.args(DB + '/' + FILE) + "/html"),1);
 }

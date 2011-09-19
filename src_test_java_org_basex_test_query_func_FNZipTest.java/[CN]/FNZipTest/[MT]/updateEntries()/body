@@ -1,11 +1,11 @@
 {
-  final String fun=check(Function.ZIPUPDATE);
-  String list=query("zip:entries('" + ZIP + "')");
-  query(fun + "(" + list+ ", '"+ TMPZIP+ "')");
-  final String list2=query("zip:entries('" + TMPZIP + "')");
+  check(ZIPUPDATE);
+  String list=query(ZIPENTRIES.args(ZIP));
+  query(ZIPUPDATE.args(list,TMPZIP));
+  final String list2=query(ZIPENTRIES.args(TMPZIP));
   assertEquals(list.replaceAll(" href=\\\".*?\\\"",""),list2.replaceAll(" href=\\\".*?\\\"",""));
   list=list.replaceAll("<zip:dir name=.test.>.*</zip:dir>","");
-  query(fun + "(" + list+ ", '"+ TMPZIP+ "')");
+  query(ZIPUPDATE.args(list,TMPZIP));
   list=list.replaceAll("<zip:dir.*</zip:dir>","");
-  error(fun + "(" + list+ ", '"+ new File(TMPZIP).getCanonicalPath()+ "')",Err.ZIPFAIL);
+  error(ZIPUPDATE.args(list,new File(TMPZIP).getCanonicalPath()),Err.ZIPFAIL);
 }

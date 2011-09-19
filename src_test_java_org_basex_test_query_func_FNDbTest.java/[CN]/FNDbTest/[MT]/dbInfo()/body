@@ -1,15 +1,12 @@
 {
-  final String fun=check(Function.DBINFO);
-  contains(fun + "('" + DB+ "')",INFOON);
+  check(DBINFO);
+  contains(DBINFO.args(DB),INFOON);
   final String[] types={"text","attribute","fulltext"};
   for (  final String type : types)   new DropIndex(type).execute(CONTEXT);
-  for (  final String type : types) {
-    query(fun + "('" + DB+ "', '"+ type+ "')");
-  }
+  for (  final String type : types)   query(DBINFO.args(DB,type));
   for (  final String type : types)   new CreateIndex(type).execute(CONTEXT);
-  for (  final String type : types) {
-    query(fun + "('" + DB+ "', '"+ type+ "')");
-  }
-  query(fun + "('" + DB+ "', 'tag')");
-  query(fun + "('" + DB+ "', 'attname')");
+  for (  final String type : types)   query(DBINFO.args(DB,type));
+  query(DBINFO.args(DB,"tag"));
+  query(DBINFO.args(DB,"attname"));
+  error(DBINFO.args(DB,"XXX"),Err.NOIDX);
 }

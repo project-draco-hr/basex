@@ -1,12 +1,12 @@
 {
-  final String fun=check(Function.DBOPEN);
-  query("count(" + fun + "('"+ DB+ "'))","1");
-  query("count(" + fun + "('"+ DB+ "', ''))","1");
-  query("count(" + fun + "('"+ DB+ "', 'unknown'))","0");
+  check(DBOPEN);
+  query(COUNT.args(DBOPEN.args(DB)),"1");
+  query(COUNT.args(DBOPEN.args(DB,"")),"1");
+  query(COUNT.args(DBOPEN.args(DB,"unknown")),"0");
   new Close().execute(CONTEXT);
-  query("count(" + fun + "(<a>"+ DB+ "</a>))","1");
-  query("count(" + fun + "('"+ DB+ "', 'unknown'))","0");
-  query(fun + "('" + DB+ "')//title/text()","XML");
+  query(COUNT.args(DBOPEN.args("<a>" + DB + "</a>")),"1");
+  query(COUNT.args(DBOPEN.args(DB,"unknown")),"0");
+  query(DBOPEN.args(DB) + "//title/text()","XML");
   new DropDB(DB).execute(CONTEXT);
-  error(fun + "('" + DB+ "')",Err.NODB);
+  error(DBOPEN.args(DB),Err.NODB);
 }

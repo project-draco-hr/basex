@@ -1,0 +1,52 @@
+{
+  boolean mon=false;
+  try {
+    qp.parse();
+    ctx.register(qp.ctx.updating);
+    mon=true;
+    final Iter ir=qp.iter();
+    final SerializerProp sprop=qp.ctx.serProp(false);
+    final boolean wrap=!sprop.get(S_WRAP_PREFIX).isEmpty();
+    options=qp.ctx.serProp(false).toString();
+    final PrintOutput po=PrintOutput.get(enc ? new EncodingOutput(out) : out);
+    if (iter && wrap)     po.write(1);
+    final Serializer ser=Serializer.get(po,sprop);
+    int c=0;
+    for (Item it; (it=ir.next()) != null; ) {
+      if (iter && !wrap) {
+        po.write(1);
+        ser.reset();
+      }
+      ser.openResult();
+      it.serialize(ser);
+      ser.closeResult();
+      if (iter && !wrap) {
+        po.flush();
+        out.write(0);
+      }
+      c++;
+    }
+    ser.close();
+    if (iter) {
+      if (wrap)       out.write(0);
+      out.write(0);
+    }
+    final int up=qp.updates();
+    final TokenBuilder tb=new TokenBuilder();
+    tb.addExt(QUERYHITS + "% %" + NL,c,c == 1 ? VALHIT : VALHITS);
+    tb.addExt(QUERYUPDATED + "% %" + NL,up,up == 1 ? VALHIT : VALHITS);
+    tb.addExt(QUERYTOTAL + "%",perf);
+    info=tb.toString();
+  }
+ catch (  final QueryException ex) {
+    throw new BaseXException(ex);
+  }
+ finally {
+    try {
+      qp.close();
+    }
+ catch (    final IOException ex) {
+    }
+    if (mon)     ctx.unregister(qp.ctx.updating);
+  }
+}

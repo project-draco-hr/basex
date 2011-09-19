@@ -1,19 +1,19 @@
 {
-  final String fun=check(Function.DBADD);
-  query(fun + "('" + DB+ "', '<root/>', 'test1.xml')");
-  query("count(collection('" + DB + "/test1.xml')/root)","1");
-  query(fun + "('" + DB+ "', document { <root/> }, 'test2.xml')");
-  query("count(collection('" + DB + "/test2.xml')/root)","1");
-  query(fun + "('" + DB+ "', document { <root/> }, 'test3.xml', 'test')");
-  query("count(collection('" + DB + "/test/test3.xml')/root)","1");
-  query(fun + "('" + DB+ "', 'etc/test/input.xml', '', 'test')");
-  query("count(collection('" + DB + "/test/input.xml')/html)","1");
-  query(fun + "('" + DB+ "', 'etc/test/input.xml', 'test4.xml', 'test')");
-  query("count(collection('" + DB + "/test/test4.xml')/html)","1");
-  query(fun + "('" + DB+ "', '"+ FLDR+ "', '', 'test/dir')");
-  query("count(collection('" + DB + "/test/dir'))",NFLDR);
-  query("for $f in file:list('" + FLDR + "') "+ "return "+ fun+ "('"+ DB+ "', $f, '', 'dir')");
-  query("count(collection('" + DB + "/dir'))",NFLDR);
-  query("for $i in 1 to 3 return " + fun + "('"+ DB+ "', '<root/>',"+ "'doc' || $i)");
-  query("count(for $i in 1 to 3 return collection('" + DB + "/doc' || $i))","3");
+  check(DBADD);
+  query(DBADD.args(DB,"\"<root/>\"","t1.xml"));
+  query(COUNT.args(COLL.args(DB + "/t1.xml") + "/root"),"1");
+  query(DBADD.args(DB," document { <root/> }","t2.xml"));
+  query(COUNT.args(COLL.args(DB + "/t2.xml") + "/root"),"1");
+  query(DBADD.args(DB," document { <root/> }","t3.xml","test"));
+  query(COUNT.args(COLL.args(DB + "/test/t3.xml") + "/root"),"1");
+  query(DBADD.args(DB,FILE,"","in"));
+  query(COUNT.args(COLL.args(DB + "/in/input.xml") + "/html"),"1");
+  query(DBADD.args(DB,FILE,"t4.xml","test"));
+  query(COUNT.args(COLL.args(DB + "/test/t4.xml") + "/html"),"1");
+  query(DBADD.args(DB,FLDR,"","test/dir"));
+  query(COUNT.args(COLL.args(DB + "/test/dir")),NFLDR);
+  query("for $f in " + FLLIST.args(FLDR) + " return "+ DBADD.args(DB,"$f","","dir"));
+  query(COUNT.args(COLL.args(DB + "/dir")),NFLDR);
+  query("for $i in 1 to 3 return " + DBADD.args(DB,"\"<root/>\"","\"doc\" || $i"));
+  query(COUNT.args(" for $i in 1 to 3 return " + COLL.args("\"" + DB + "/doc\" || $i")),3);
 }
