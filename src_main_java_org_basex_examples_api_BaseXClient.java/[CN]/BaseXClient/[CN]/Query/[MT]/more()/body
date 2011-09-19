@@ -1,4 +1,15 @@
 {
-  next=exec(1,id);
-  return next.length() != 0;
+  if (cache == null) {
+    out.write(4);
+    send(id);
+    cache=new ArrayList<byte[]>();
+    final ByteArrayOutputStream os=new ByteArrayOutputStream();
+    while (in.read() == 1) {
+      receive(in,os);
+      cache.add(os.toByteArray());
+      os.reset();
+    }
+    if (!ok())     throw new IOException(receive());
+  }
+  return pos < cache.size();
 }
