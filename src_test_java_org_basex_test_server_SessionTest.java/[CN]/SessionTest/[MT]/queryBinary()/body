@@ -1,11 +1,20 @@
 {
+  if (out == null)   return;
   session.execute("create db " + DB);
-  session.store("X",new ArrayInput("\0"));
-  check("\0",session.execute("xquery " + RAW + DBRETRIEVE.args(DB,"X")));
-  check("\0",session.query(RAW + DBRETRIEVE.args(DB,"X")).execute());
-  final Query q=session.query(RAW + DBRETRIEVE.args(DB,"X"));
-  assertTrue(q.more());
-  check("\0",q.next());
-  assertFalse(q.more());
+  final byte[] tmp={0,1,2,127,0,-1,-2,-128};
+  session.store("X",new ArrayInput(tmp));
+  final String retr=DBRETRIEVE.args(DB,"X");
+  session.execute("xquery " + RAW + retr+ ','+ retr);
+  assertTrue(eq(out.toArray(),concat(tmp,tmp)));
+  out.reset();
+  session.query(RAW + retr + ','+ retr).execute();
+  assertTrue(eq(out.toArray(),concat(tmp,tmp)));
+  out.reset();
+  final Query q=session.query(RAW + retr + ','+ retr);
+  q.next();
+  assertTrue(eq(out.toArray(),tmp));
+  out.reset();
+  q.next();
+  assertTrue(eq(out.toArray(),tmp));
   assertNull(q.next());
 }
