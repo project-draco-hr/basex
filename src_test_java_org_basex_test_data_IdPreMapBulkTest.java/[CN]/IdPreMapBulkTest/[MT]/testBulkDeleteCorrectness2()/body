@@ -1,0 +1,26 @@
+{
+  for (int k=0; k < iterations; ++k) {
+    setUp();
+    int n=baseid + 1;
+    for (int i=0; i < opcount; ++i) {
+      final int c=RANDOM.nextInt(bulkcount) + 1;
+      insert(RANDOM.nextInt(n),n,c);
+      check();
+      n+=c;
+    }
+    check();
+    for (; n > 0; ) {
+      final int pre=RANDOM.nextInt(n);
+      final int c=-Math.min(n - pre,RANDOM.nextInt(bulkcount) + 1);
+      try {
+        delete(pre,c);
+        check();
+      }
+ catch (      final ArrayIndexOutOfBoundsException e) {
+        dump();
+        throw e;
+      }
+      n+=c;
+    }
+  }
+}

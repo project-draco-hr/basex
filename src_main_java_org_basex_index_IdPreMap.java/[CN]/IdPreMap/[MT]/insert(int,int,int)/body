@@ -1,33 +1,42 @@
 {
-  int i=0;
+  if (rows == 0 && pre == id && id == baseid + 1) {
+    baseid+=c;
+    return;
+  }
+  int pos=0;
   int inc=c;
   int oid=pre;
-  if (pres.size() > 0) {
-    i=pres.sortedIndexOf(pre);
-    if (i < 0) {
-      i=-i - 1;
-      if (i != 0) {
-        oid=pre - incs.get(i - 1);
-        inc+=incs.get(i - 1);
+  if (rows > 0) {
+    pos=Arrays.binarySearch(pres,0,rows,pre);
+    if (pos < 0) {
+      pos=-pos - 1;
+      if (pos != 0) {
+        final int prev=pos - 1;
+        final int prevcnt=nids[prev] - fids[prev] + 1;
+        final int prevpre=pres[prev];
+        if (pre < prevpre + prevcnt) {
+          final int split=pre - prevpre;
+          final int fid=fids[prev] + split;
+          add(pos,pre,fid,nids[prev],incs[prev],oids[prev]);
+          nids[prev]=fid - 1;
+          incs[prev]-=prevcnt - split;
+          oid=oids[prev];
+          inc+=incs[prev];
+        }
+ else {
+          oid=pre - incs[prev];
+          inc+=incs[prev];
+        }
       }
     }
- else     if (i > 0) {
-      oid=oids.get(i);
-      inc+=incs.get(i - 1);
+ else     if (pos > 0) {
+      oid=oids[pos];
+      inc+=incs[pos - 1];
     }
-    pres.add(pre,i);
-    incs.add(inc,i);
-    ids.add(id,i);
-    oids.add(oid,i);
-    for (int k=pres.size() - 1; k > i; --k) {
-      pres.inc(k,c);
-      incs.inc(k,c);
+    for (int k=pos; k < rows; ++k) {
+      pres[k]+=c;
+      incs[k]+=c;
     }
   }
- else {
-    pres.set(i,pre);
-    incs.set(i,inc);
-    ids.set(i,id);
-    oids.set(i,oid);
-  }
+  add(pos,pre,id,id + c - 1,inc,oid);
 }
