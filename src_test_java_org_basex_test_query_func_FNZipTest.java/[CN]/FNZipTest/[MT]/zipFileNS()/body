@@ -1,0 +1,20 @@
+{
+  query(ZIPFILE.args(zipParams("<entry name='1'><a/></entry>")));
+  checkZipEntry("1",token("<a/>"));
+  query(ZIPFILE.args(zipParams("<entry name='2'><a b='c'/></entry>")));
+  checkZipEntry("2",token("<a b=\"c\"/>"));
+  query(ZIPFILE.args(zipParams("<entry name='3'><a><b/></a></entry>")));
+  checkZipEntry("3",token("<a>" + Prop.NL + "  <b/>"+ Prop.NL+ "</a>"));
+  query(ZIPFILE.args(zipParams("<entry name='4'><a xmlns=''/></entry>")));
+  checkZipEntry("4",token("<a/>"));
+  query(ZIPFILE.args(zipParamsPref("5","<a/>")));
+  checkZipEntry("5",token("<a/>"));
+  query(ZIPFILE.args(zipParamsPref("6","<a><b/></a>")));
+  checkZipEntry("6",token("<a>" + Prop.NL + "  <b/>"+ Prop.NL+ "</a>"));
+  query(ZIPFILE.args(zipParamsPref("7","<z:a xmlns:z='z'/>")));
+  checkZipEntry("7",token("<z:a xmlns:z=\"z\"/>"));
+  query(ZIPFILE.args(zipParamsPref("8","<zip:a xmlns:zip='z'/>")));
+  checkZipEntry("8",token("<zip:a xmlns:zip=\"z\"/>"));
+  query(ZIPFILE.args(zipParamsPref("9","<a xmlns='z'/>")));
+  checkZipEntry("9",token("<a xmlns=\"z\"/>"));
+}

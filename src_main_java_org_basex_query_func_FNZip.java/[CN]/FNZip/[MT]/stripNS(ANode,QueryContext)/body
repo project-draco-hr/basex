@@ -1,0 +1,25 @@
+{
+  if (node.type != NodeType.ELM)   return node;
+  final MemData md=new MemData(ctx.context.prop);
+  final DataBuilder db=new DataBuilder(md);
+  db.build(node);
+  boolean del=true;
+  for (int pre=0; pre < md.meta.size; pre++) {
+    final int kind=md.kind(pre);
+    if (kind != Data.ELEM && kind != Data.ATTR)     continue;
+    final byte[] uri=md.ns.uri(md.uri(pre,kind));
+    if (uri == null || !eq(uri,ZIPURI))     continue;
+    final byte[] name=md.name(pre,kind);
+    if (pref(name).length == 0) {
+      if (kind == Data.ELEM) {
+        md.update(pre,kind,name,EMPTY);
+        md.nsFlag(pre,false);
+      }
+    }
+ else {
+      del=false;
+    }
+  }
+  if (del)   md.ns.delete(ZIPURI);
+  return new DBNode(md,0);
+}
