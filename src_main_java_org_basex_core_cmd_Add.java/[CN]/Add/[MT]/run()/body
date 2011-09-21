@@ -1,6 +1,7 @@
 {
   String name=args[0];
-  String target=IOFile.normalize(args[1]);
+  String target=MetaData.normPath(args[1]);
+  if (target == null)   return error(NAMEINVALID,args[1]);
   if (!target.isEmpty())   target+='/';
   Parser parser;
   if (in == null) {
@@ -24,7 +25,6 @@
   final String nm=name == null ? parser.src.name() : name;
   if (nm.isEmpty() || nm.endsWith(".") || nm.indexOf('/') != -1)   return error(NAMEINVALID,nm);
   final String path=target + (target.isEmpty() ? "/" : "") + nm;
-  if (!new IOFile(path).isValid())   return error(NAMEINVALID,path);
   final long fl=parser.src.length();
   boolean large=false;
   final Runtime rt=Runtime.getRuntime();
