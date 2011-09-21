@@ -3,16 +3,16 @@
   final Context context=HTTPSession.context();
   final MainProp mprop=context.mprop;
   final int port=mprop.num(MainProp.SERVERPORT);
-  final int eport=context.mprop.num(MainProp.EVENTPORT);
-  final int http=mprop.num(MainProp.HTTPPORT);
+  final int eport=mprop.num(MainProp.EVENTPORT);
+  final int hport=mprop.num(MainProp.HTTPPORT);
   if (service) {
-    start(http,args);
+    start(hport,args);
     Util.outln(HTTP + ' ' + SERVERSTART);
     Performance.sleep(1000);
     return;
   }
   if (stopped) {
-    stop(port,eport);
+    BaseXServer.stop(port,eport);
     return;
   }
   if (System.getProperty(DBUSER) != null) {
@@ -28,9 +28,12 @@
  else {
     Util.outln(CONSOLE + HTTP + ' '+ SERVERSTART,SERVERMODE);
   }
-  jetty=new Server(mprop.num(MainProp.HTTPPORT));
+  jetty=new Server(hport);
   final org.mortbay.jetty.servlet.Context jcontext=new org.mortbay.jetty.servlet.Context(jetty,"/");
   if (rest)   jcontext.addServlet(RESTServlet.class,"/rest/*");
   if (webdav)   jcontext.addServlet(WebDAVServlet.class,"/webdav/*");
   jetty.start();
+  final ServerSocket socket=new ServerSocket();
+  socket.setReuseAddress(true);
+  socket.bind(new InetSocketAddress(hport + 1));
 }
