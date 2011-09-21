@@ -1,9 +1,18 @@
 {
   parseArguments(args);
-  final Context ctx=HTTPSession.context();
-  final MainProp mprop=ctx.mprop;
+  final Context context=HTTPSession.context();
+  final MainProp mprop=context.mprop;
+  final int port=mprop.num(MainProp.SERVERPORT);
+  final int eport=context.mprop.num(MainProp.EVENTPORT);
+  final int http=mprop.num(MainProp.HTTPPORT);
+  if (service) {
+    start(http,args);
+    Util.outln(HTTP + ' ' + SERVERSTART);
+    Performance.sleep(1000);
+    return;
+  }
   if (stopped) {
-    stop(mprop.num(MainProp.SERVERPORT),mprop.num(MainProp.EVENTPORT));
+    stop(port,eport);
     return;
   }
   if (System.getProperty(DBUSER) != null) {
@@ -13,10 +22,11 @@
     }
   }
   if (HTTPSession.client()) {
-    server=new BaseXServer(ctx,quiet ? "-z" : "");
+    server=new BaseXServer(context,quiet ? "-z" : "");
+    Util.outln(HTTP + ' ' + SERVERSTART);
   }
  else {
-    Util.outln(CONSOLE + SERVERSTART,SERVERMODE);
+    Util.outln(CONSOLE + HTTP + ' '+ SERVERSTART,SERVERMODE);
   }
   jetty=new Server(mprop.num(MainProp.HTTPPORT));
   final org.mortbay.jetty.servlet.Context jcontext=new org.mortbay.jetty.servlet.Context(jetty,"/");
