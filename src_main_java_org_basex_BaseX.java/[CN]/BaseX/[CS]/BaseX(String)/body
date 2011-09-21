@@ -1,25 +1,29 @@
 {
   super(args);
-  session();
-  if (input != null) {
-    execute(new Check(input),verbose);
-  }
-  if (file != null) {
-    final IO io=IO.get(file);
-    if (!io.exists())     throw new BaseXException(INFOERROR + FILEWHICH,file);
-    query=TextInput.content(io).toString().trim();
-    context.query=io;
-  }
-  if (query != null) {
-    execute(new XQuery(query),verbose);
-  }
- else   if (commands != null) {
-    execute(commands);
-  }
+  try {
+    session();
+    if (input != null) {
+      execute(new Check(input),verbose);
+    }
+    if (file != null) {
+      final IO io=IO.get(file);
+      if (!io.exists())       throw new BaseXException(INFOERROR + FILEWHICH,file);
+      query=TextInput.content(io).toString().trim();
+      context.query=io;
+    }
+    if (query != null) {
+      execute(new XQuery(query),verbose);
+    }
+ else     if (commands != null) {
+      execute(commands);
+    }
  else {
-    Util.outln(CONSOLE + CONSOLE2,sa() ? LOCALMODE : CLIENTMODE);
-    console();
+      Util.outln(CONSOLE + CONSOLE2,sa() ? LOCALMODE : CLIENTMODE);
+      console();
+    }
+    if (writeProps)     context.mprop.write();
   }
-  if (writeProps)   context.mprop.write();
-  quit();
+  finally {
+    quit();
+  }
 }

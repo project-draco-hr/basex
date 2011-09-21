@@ -9,7 +9,6 @@
       if (c == 'b') {
         if (bind.length() != 0)         bind.append(',');
         bind.append(arg.string());
-        options.put(Prop.BINDINGS,bind);
       }
  else       if (c == 'c') {
         commands=arg.remaining();
@@ -45,7 +44,6 @@
  else       if (c == 's') {
         if (serial.length() != 0)         serial.append(',');
         serial.append(arg.string());
-        options.put(Prop.SERIALIZER,serial);
       }
  else       if (c == 'u') {
         options.put(Prop.WRITEBACK,true);
@@ -85,12 +83,15 @@
     }
   }
   console=file == null && commands == null && query == null;
+  if (serial.length() != 0)   options.put(Prop.SERIALIZER,serial);
+  if (bind.length() != 0)   options.put(Prop.BINDINGS,bind);
   for (  final Map.Entry<Object[],Object> entry : options.entrySet()) {
     try {
       execute(new Set(entry.getKey(),entry.getValue()),false);
     }
  catch (    final IOException ex) {
       Util.errln(ex);
+      out.close();
       arg.usage();
     }
   }
