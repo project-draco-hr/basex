@@ -48,16 +48,26 @@
         final String type=value("data(@type)",var,context);
         vars.put(name,new String[]{value,type});
       }
+      byte[] item=null;
+      qp=new QueryProcessor(".//*:input/node()",node,context);
+      ir=qp.iter();
+      for (Item n; (n=ir.next()) != null; ) {
+        if (item != null)         throw new RESTException(SC_BAD_REQUEST,ERR_CTXITEM);
+        n=DataBuilder.stripNS((ANode)n,RESTURI,qp.ctx);
+        final ArrayOutput ao=new ArrayOutput();
+        n.serialize(Serializer.get(ao));
+        item=ao.toArray();
+      }
       final String request=value("name(.)",node,context);
       final String text=value("*:text/text()",node,context);
       if (request.equals(COMMAND)) {
         code=new RESTCommand(text);
       }
  else       if (request.equals(RUN)) {
-        code=new RESTRun(text,vars);
+        code=new RESTRun(text,vars,item);
       }
  else {
-        code=new RESTQuery(text,vars);
+        code=new RESTQuery(text,vars,item);
       }
       code.run(ctx);
     }

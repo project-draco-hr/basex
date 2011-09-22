@@ -1,11 +1,19 @@
 {
-  open(ctx);
+  if (item != null) {
+    final boolean mm=ctx.session.execute(new Get(Prop.MAINMEM)).split(Text.COLS)[1].equals(Text.TRUE);
+    ctx.session.execute(new Set(Prop.MAINMEM,true));
+    ctx.session.create(Util.name(RESTQuery.class),new ArrayInput(item));
+    if (!mm)     ctx.session.execute(new Set(Prop.MAINMEM,false));
+  }
+ else {
+    open(ctx);
+  }
   final Session session=ctx.session;
   session.execute(new Set(Prop.SERIALIZER,serial(ctx)));
   String query=in.isEmpty() ? "." : in;
   if (query.equals(".") && ctx.depth() > 1) {
     final String raw=DBISRAW.args(ctx.db(),ctx.dbpath());
-    if (session.query(raw).execute().equals("true"))     query="declare option output:method '" + M_RAW + "';"+ DBRETRIEVE.args(ctx.db(),ctx.dbpath());
+    if (session.query(raw).execute().equals(Text.TRUE))     query="declare option output:method '" + M_RAW + "';"+ DBRETRIEVE.args(ctx.db(),ctx.dbpath());
   }
   session.setOutputStream(ctx.out);
   final Query qu=session.query(query);
