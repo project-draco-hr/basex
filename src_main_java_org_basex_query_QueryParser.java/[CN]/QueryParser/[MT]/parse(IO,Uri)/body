@@ -1,5 +1,5 @@
 {
-  file=f;
+  file=input;
   if (!more())   error(QUERYEMPTY);
   int cp;
   for (int p=0; p < ql; p+=Character.charCount(cp)) {
@@ -8,5 +8,17 @@
     qp=p;
     error(QUERYINV,query.codePointAt(p));
   }
-  return parse(u,true);
+  final Expr expr=parse(uri);
+  if (more()) {
+    if (alter != null)     error();
+    error(QUERYEND,rest());
+  }
+  ctx.funcs.check();
+  ctx.vars.check();
+  ctx.ns.finish(ctx.nsElem);
+  final byte[] empty=new QNm(EMPTY).full();
+  if (ctx.decFormats.get(empty) == null) {
+    ctx.decFormats.add(empty,new DecFormatter());
+  }
+  return expr;
 }
