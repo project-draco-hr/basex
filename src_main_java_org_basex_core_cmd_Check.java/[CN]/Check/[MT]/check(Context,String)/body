@@ -1,4 +1,5 @@
 {
+  final boolean create=ctx.user.perm(User.CREATE);
   final IO io=IO.get(path);
   final String name=io.dbname();
   final Data data=ctx.pin(name);
@@ -9,8 +10,8 @@
     Close.close(data,ctx);
     if (found)     throw new IOException(Util.info(PERMNO,CmdPerm.READ));
   }
-  if (MetaData.found(path,name,ctx.mprop))   return Open.open(name,ctx);
-  if (!ctx.prop.is(Prop.FORCECREATE))   return CreateDB.mainMem(io,ctx);
+  if (!create || MetaData.found(path,name,ctx.mprop))   return Open.open(name,ctx);
   if (!io.exists())   throw new FileNotFoundException(Util.info(FILEWHICH,io));
+  if (!ctx.prop.is(Prop.FORCECREATE))   return CreateDB.mainMem(io,ctx);
   return CreateDB.create(name,new DirParser(io,ctx.prop),ctx);
 }
