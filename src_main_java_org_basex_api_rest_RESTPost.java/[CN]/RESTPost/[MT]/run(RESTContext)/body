@@ -23,7 +23,7 @@
     RESTCode code=null;
     try {
       final TokenBuilder ser=new TokenBuilder();
-      qp=new QueryProcessor(".//*:parameter",node,context);
+      qp=new QueryProcessor("*:parameter",node,context);
       Iter ir=qp.iter();
       for (Item param; (param=ir.next()) != null; ) {
         final String name=value("data(@name)",param,context);
@@ -40,7 +40,7 @@
       }
       ctx.serialization=ser.toString();
       final Map<String,String[]> vars=new HashMap<String,String[]>();
-      qp=new QueryProcessor(".//*:variable",node,context);
+      qp=new QueryProcessor("*:variable",node,context);
       ir=qp.iter();
       for (Item var; (var=ir.next()) != null; ) {
         final String name=value("data(@name)",var,context);
@@ -49,7 +49,7 @@
         vars.put(name,new String[]{value,type});
       }
       byte[] item=null;
-      qp=new QueryProcessor(".//*:context/node()",node,context);
+      qp=new QueryProcessor("*:context/node()",node,context);
       ir=qp.iter();
       for (Item n; (n=ir.next()) != null; ) {
         if (item != null)         throw new RESTException(SC_BAD_REQUEST,ERR_CTXITEM);
@@ -58,7 +58,7 @@
         n.serialize(Serializer.get(ao));
         item=ao.toArray();
       }
-      final String request=value("name(.)",node,context);
+      final String request=value("local-name(.)",node,context);
       final String text=value("*:text/text()",node,context);
       if (request.equals(COMMAND)) {
         code=new RESTCommand(text);
