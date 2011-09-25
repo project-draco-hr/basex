@@ -8,6 +8,7 @@
   table.description=INFONRES;
   table.header.add(INFOPATH);
   table.header.add(INFOTYPE);
+  table.header.add(DataText.CONTENT_TYPE);
   table.header.add(INFODBSIZE);
   try {
     final Data data=Open.open(db,context);
@@ -17,14 +18,17 @@
       final TokenList tl=new TokenList(3);
       tl.add(data.text(pre,true));
       tl.add(DataText.M_XML);
+      tl.add(DataText.APP_XML);
       tl.add(data.size(pre,Data.DOC));
       table.contents.add(tl);
     }
-    for (    final byte[] file : data.files(path)) {
+    for (    final byte[] fl : data.files(path)) {
+      final IOFile io=data.meta.binary(string(fl));
       final TokenList tl=new TokenList(3);
-      tl.add(file);
+      tl.add(fl);
       tl.add(DataText.M_RAW);
-      tl.add(data.meta.binary(string(file)).length());
+      tl.add(io.contentType());
+      tl.add(io.length());
       table.contents.add(tl);
     }
     Close.close(data,context);
