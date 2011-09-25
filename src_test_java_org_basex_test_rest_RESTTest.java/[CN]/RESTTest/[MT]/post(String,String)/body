@@ -1,0 +1,21 @@
+{
+  final URL url=new URL(ROOT + path);
+  final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+  conn.setDoOutput(true);
+  conn.setRequestMethod("POST");
+  conn.setRequestProperty(CONTENT_TYPE,APP_XML);
+  final String encoded=Base64.encode(ADMIN + ':' + ADMIN);
+  conn.setRequestProperty(AUTHORIZATION,BASIC + ' ' + encoded);
+  final OutputStream out=conn.getOutputStream();
+  out.write(token(query));
+  out.close();
+  try {
+    return read(conn.getInputStream()).replaceAll("\r?\n *","");
+  }
+ catch (  final IOException ex) {
+    throw error(conn,ex);
+  }
+ finally {
+    conn.disconnect();
+  }
+}

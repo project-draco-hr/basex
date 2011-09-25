@@ -3,12 +3,13 @@
     @Override public BXDocument get() throws IOException {
       s.execute(new Open(db));
       final String doc=path.isEmpty() ? newName : path + SEP + newName;
-      if (count(s,db,doc) == 0) {
-        addFile(s,newName,input,contentType);
-        deleteDummy(s,db,path);
+      System.out.println(doc);
+      if (pathExists(s,db,doc)) {
+        s.replace(doc,input);
       }
  else {
-        s.replace(doc,input);
+        addFile(s,newName,input);
+        deleteDummy(s,db,path);
       }
       return new BXDocument(db,doc,session,isRaw(s,db,doc));
     }

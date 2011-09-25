@@ -1,0 +1,39 @@
+{
+  open(ctx);
+  final Session session=ctx.session;
+  if (ctx.depth() == 0) {
+    final Table table=new Table(session.execute(new List()));
+    final SerializerProp sprop=new SerializerProp(ctx.serialization);
+    final Serializer ser=Serializer.get(ctx.out,sprop);
+    initResponse(sprop,ctx);
+    ser.openElement(DATABASES,RESOURCES,token(table.contents.size()));
+    ser.namespace(REST,RESTURI);
+    list(table,ser,DATABASE,1);
+    ser.closeElement();
+    ser.close();
+  }
+ else   if (!exists(ctx)) {
+    final Table table=new Table(session.execute(new ListDB(ctx.all())));
+    if (table.contents.size() == 0)     throw new RESTException(SC_NOT_FOUND,ERR_NORES);
+    final String serial=ctx.serialization;
+    final SerializerProp sprop=new SerializerProp(serial);
+    final Serializer ser=Serializer.get(ctx.out,sprop);
+    initResponse(sprop,ctx);
+    ser.openElement(DATABASE,DataText.NAME,token(ctx.db()),RESOURCES,token(table.contents.size()));
+    ser.namespace(REST,RESTURI);
+    list(table,ser,RESOURCE,0);
+    ser.closeElement();
+    ser.close();
+  }
+ else   if (isRaw(ctx)) {
+    final String ct=SerializerProp.S_MEDIA_TYPE[0] + "=" + contentType(ctx);
+    initResponse(new SerializerProp(ct + "," + ctx.serialization),ctx);
+    session.setOutputStream(ctx.out);
+    session.execute(new Retrieve(ctx.dbpath()));
+  }
+ else {
+    initResponse(new SerializerProp(ctx.serialization),ctx);
+    session.setOutputStream(ctx.out);
+    session.query(".").execute();
+  }
+}

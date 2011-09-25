@@ -10,18 +10,13 @@
   }
   final Session session=ctx.session;
   session.execute(new Set(Prop.SERIALIZER,serial(ctx)));
-  String query=in.isEmpty() ? "." : in;
-  if (query.equals(".") && ctx.depth() > 1) {
-    final String raw=DBISRAW.args(ctx.db(),ctx.dbpath());
-    if (session.query(raw).execute().equals(Text.TRUE))     query="declare option output:method '" + M_RAW + "';"+ DBRETRIEVE.args(ctx.db(),ctx.dbpath());
-  }
   session.setOutputStream(ctx.out);
-  final Query qu=session.query(query);
+  final Query qu=session.query(in);
   for (  final Entry<String,String[]> e : variables.entrySet()) {
     final String[] val=e.getValue();
     if (val.length == 2)     qu.bind(e.getKey(),val[0],val[1]);
     if (val.length == 1)     qu.bind(e.getKey(),val[0]);
   }
-  initOutput(new SerializerProp(qu.options()),ctx);
+  initResponse(new SerializerProp(qu.options()),ctx);
   qu.execute();
 }
