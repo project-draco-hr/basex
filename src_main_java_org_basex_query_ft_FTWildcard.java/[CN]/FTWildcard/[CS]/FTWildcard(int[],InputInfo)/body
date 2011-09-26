@@ -1,0 +1,62 @@
+{
+  final int[] tmpwc=new int[q.length];
+  final int[] tmpmin=new int[q.length];
+  final int[] tmpmax=new int[q.length];
+  int pos=-1;
+  int ql=0;
+  while (ql < q.length) {
+    if (q[ql] == '.') {
+      int c=++ql < q.length ? q[ql] : 0;
+      int n=0;
+      int m=Integer.MAX_VALUE;
+      if (c == '?') {
+        ++ql;
+        m=1;
+      }
+ else       if (c == '*') {
+        ++ql;
+      }
+ else       if (c == '+') {
+        ++ql;
+        n=1;
+      }
+ else       if (c == '{') {
+        m=0;
+        while (true) {
+          c=++ql < q.length ? q[ql] : 0;
+          if (c >= '0' && c <= '9')           n=(n << 3) + (n << 1) + c - '0';
+ else           if (c == ',')           break;
+ else           FTREG.thrw(ii,q);
+        }
+        while (true) {
+          c=++ql < q.length ? q[ql] : 0;
+          if (c >= '0' && c <= '9')           m=(m << 3) + (m << 1) + c - '0';
+ else           if (c == '}')           break;
+ else           FTREG.thrw(ii,q);
+        }
+        ++ql;
+      }
+ else {
+        m=1;
+        n=1;
+      }
+      tmpmin[++pos]=n;
+      tmpmax[pos]=m;
+      tmpwc[pos]=DOT;
+    }
+ else {
+      if (q[ql] == '\\' && ++ql == q.length)       FTREG.thrw(ii,q);
+      tmpwc[++pos]=q[ql++];
+    }
+  }
+  if (++pos < tmpwc.length) {
+    wc=Arrays.copyOf(tmpwc,pos);
+    min=Arrays.copyOf(tmpmin,pos);
+    max=Arrays.copyOf(tmpmax,pos);
+  }
+ else {
+    wc=tmpwc;
+    min=tmpmin;
+    max=tmpmax;
+  }
+}
