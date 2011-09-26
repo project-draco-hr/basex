@@ -4,7 +4,15 @@
   lserr=pr.num(Prop.LSERROR);
   cmp=new TokenComparator(){
     @Override public boolean equal(    final byte[] in,    final byte[] qu) throws QueryException {
-      return opt.sw != null && opt.sw.id(qu) != 0 || (opt.is(FZ) ? ls.similar(in,qu,lserr) : opt.is(WC) ? wc(words.input,in,qu,0,0) : eq(in,qu));
+      FTWildcard ftw=null;
+      if (opt.is(WC)) {
+        ftw=wcCache.get(qu);
+        if (ftw == null) {
+          ftw=new FTWildcard(qu,words.input);
+          wcCache.add(qu,ftw);
+        }
+      }
+      return opt.sw != null && opt.sw.id(qu) != 0 || (opt.is(FZ) ? ls.similar(in,qu,lserr) : ftw != null ? ftw.match(in) : eq(in,qu));
     }
   }
 ;

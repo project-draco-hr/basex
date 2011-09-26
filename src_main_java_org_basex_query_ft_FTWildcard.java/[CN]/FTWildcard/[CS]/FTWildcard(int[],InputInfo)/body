@@ -1,9 +1,12 @@
 {
-  int ql=qp;
-  int tl=tp;
+  final int[] tmpwc=new int[q.length];
+  final int[] tmpmin=new int[q.length];
+  final int[] tmpmax=new int[q.length];
+  int pos=-1;
+  int ql=0;
   while (ql < q.length) {
     if (q[ql] == '.') {
-      byte c=++ql < q.length ? q[ql] : 0;
+      int c=++ql < q.length ? q[ql] : 0;
       int n=0;
       int m=Integer.MAX_VALUE;
       if (c == '?') {
@@ -37,14 +40,23 @@
         m=1;
         n=1;
       }
-      while (!wc(ii,t,q,tl + n,ql))       if (tl + ++n > t.length)       return false;
-      if (n > m)       return false;
-      tl+=n;
+      tmpmin[++pos]=n;
+      tmpmax[pos]=m;
+      tmpwc[pos]=DOT;
     }
  else {
       if (q[ql] == '\\' && ++ql == q.length)       FTREG.thrw(ii,q);
-      if (tl >= t.length || t[tl++] != q[ql++])       return false;
+      tmpwc[++pos]=q[ql++];
     }
   }
-  return tl == t.length;
+  if (++pos < tmpwc.length) {
+    wc=Arrays.copyOf(tmpwc,pos);
+    min=Arrays.copyOf(tmpmin,pos);
+    max=Arrays.copyOf(tmpmax,pos);
+  }
+ else {
+    wc=tmpwc;
+    min=tmpmin;
+    max=tmpmax;
+  }
 }
