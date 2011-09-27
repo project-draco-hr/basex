@@ -1,14 +1,12 @@
 {
   final String[] events=new String[EVENT_COUNT];
   for (int i=0; i < EVENT_COUNT; i++)   events[i]=NAME + i;
-  Arrays.sort(events);
   for (  final String e : events)   session.execute("create event " + e);
+  final HashSet<String> names=new HashSet<String>();
   String result=session.execute("show events");
-  result=result.substring(result.indexOf('\n') + 1);
-  result=result.replaceAll("- ","");
-  final String[] names=result.split("\\r?\\n");
-  Arrays.sort(names);
-  assertTrue(Arrays.equals(events,names));
-  for (  final String e : events)   session.execute("drop event " + e);
-  assertEquals("0 ",session.execute("show events").substring(0,2));
+  for (  final String line : result.split("\\r?\\n|\\r"))   if (line.startsWith("- "))   names.add(line.substring(2));
+  for (  final String ev : events) {
+    assertTrue("Event '" + ev + "' not created!",names.contains(ev));
+    session.execute("drop event " + ev);
+  }
 }
