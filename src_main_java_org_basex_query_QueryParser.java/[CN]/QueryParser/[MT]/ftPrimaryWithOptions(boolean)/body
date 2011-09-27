@@ -3,7 +3,9 @@
   final FTOpt fto=new FTOpt();
   boolean found=false;
   while (ftMatchOption(fto))   found=true;
-  if (!Language.supported(fto.ln,fto.is(ST) && fto.sd == null))   error(Err.FTLAN,fto.ln);
+  if (fto.ln == null)   fto.ln=Language.def();
+  if (!Tokenizer.supportFor(fto.ln))   error(Err.FTNOTOK,fto.ln);
+  if (fto.is(ST) && fto.sd == null && !Stemmer.supportFor(fto.ln))   error(Err.FTNOSTEM,fto.ln);
   if (wsConsumeWs(WEIGHT))   expr=new FTWeight(input(),expr,enclosed(NOENCLEXPR));
   return found ? new FTOptions(input(),expr,fto) : expr;
 }

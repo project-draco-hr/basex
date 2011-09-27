@@ -1,3 +1,63 @@
 {
-  this(cps(query),ii);
+  final int[] q=cps(query);
+  final int[] tmpwc=new int[q.length];
+  final int[] tmpmin=new int[q.length];
+  final int[] tmpmax=new int[q.length];
+  int pos=-1;
+  final int ql=q.length;
+  for (int qi=0; qi < ql; ) {
+    if (q[qi] == '.') {
+      int c=++qi < ql ? q[qi] : 0;
+      int n=0;
+      int m=Integer.MAX_VALUE;
+      if (c == '?') {
+        ++qi;
+        m=1;
+      }
+ else       if (c == '*') {
+        ++qi;
+      }
+ else       if (c == '+') {
+        ++qi;
+        n=1;
+      }
+ else       if (c == '{') {
+        m=0;
+        while (true) {
+          c=++qi < ql ? q[qi] : 0;
+          if (c >= '0' && c <= '9')           n=(n << 3) + (n << 1) + c - '0';
+ else           if (c == ',')           break;
+ else           FTREG.thrw(ii,q);
+        }
+        while (true) {
+          c=++qi < ql ? q[qi] : 0;
+          if (c >= '0' && c <= '9')           m=(m << 3) + (m << 1) + c - '0';
+ else           if (c == '}')           break;
+ else           FTREG.thrw(ii,q);
+        }
+        ++qi;
+      }
+ else {
+        m=1;
+        n=1;
+      }
+      tmpmin[++pos]=n;
+      tmpmax[pos]=m;
+      tmpwc[pos]=DOT;
+    }
+ else {
+      if (q[qi] == '\\' && ++qi == ql)       FTREG.thrw(ii,q);
+      tmpwc[++pos]=q[qi++];
+    }
+  }
+  if (++pos < tmpwc.length) {
+    wc=Arrays.copyOf(tmpwc,pos);
+    min=Arrays.copyOf(tmpmin,pos);
+    max=Arrays.copyOf(tmpmax,pos);
+  }
+ else {
+    wc=tmpwc;
+    min=tmpmin;
+    max=tmpmax;
+  }
 }
