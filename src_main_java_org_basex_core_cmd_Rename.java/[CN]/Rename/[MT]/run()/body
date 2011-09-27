@@ -21,7 +21,9 @@
   }
   if (c != 0)   data.flush();
   final IOFile file=data.meta.binary(src);
-  if (file == null || file.exists() && !file.rename(data.meta.binary(trg))) {
+  final IOFile target=data.meta.binary(trg);
+  final IOFile trgdir=new IOFile(target.dir());
+  if (file == null || !(trgdir.exists() || trgdir.md()) || file.exists() && !file.rename(target)) {
     ok=false;
     info(NAMEINVALID,trg);
   }
