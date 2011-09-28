@@ -1,0 +1,17 @@
+{
+  final Class<?> clz=Reflect.find(PATTERN,name);
+  if (clz == null) {
+    Util.errln("Could not initialize \"%\" Lucene stemmer class.",lang);
+    return;
+  }
+  boolean ch=false;
+  Method m=Reflect.method(clz,"stem",String.class);
+  ch=m == null;
+  if (ch)   m=Reflect.method(clz,"stem",char[].class,int.class);
+  if (m == null) {
+    Util.errln("Could not initialize \"%\" Lucene stemmer method.",lang);
+  }
+ else {
+    CLASSES.put(lang,new StemmerClass(clz,m,ch));
+  }
+}
