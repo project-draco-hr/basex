@@ -1,16 +1,14 @@
 {
-  final ResettableInput bi=new ResettableInput(in);
-  bi.mark(ResettableInput.MAX);
+  final BufferInput bi=new BufferInput(in,1 << 22);
   try {
     addXML(s,n,bi);
   }
  catch (  final IOException ex) {
-    if (bi.pos() >= ResettableInput.MAX)     throw ex;
+    if (!bi.markSupported())     throw ex;
     bi.reset();
     addRaw(s,n,bi);
   }
  finally {
-    if (bi.pos() < ResettableInput.MAX)     bi.reset();
     bi.close();
   }
 }

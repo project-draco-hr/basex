@@ -2,15 +2,11 @@
   return new BXCode<BXResource>(this){
     @Override public BXDocument get() throws IOException {
       s.execute(new Open(db));
-      final String doc=path.isEmpty() ? newName : path + SEP + newName;
-      if (pathExists(s,db,doc)) {
-        s.replace(doc,input);
-      }
- else {
-        addFile(s,newName,input);
-        deleteDummy(s,db,path);
-      }
-      return new BXDocument(db,doc,session,isRaw(s,db,doc),contentType);
+      final String dbp=path.isEmpty() ? newName : path + SEP + newName;
+      if (pathExists(s,db,dbp))       s.execute(new Delete(dbp));
+ else       deleteDummy(s,db,path);
+      addFile(s,newName,input);
+      return new BXDocument(db,dbp,session,isRaw(s,db,dbp),contentType);
     }
   }
 .eval();
