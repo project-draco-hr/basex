@@ -1,0 +1,18 @@
+{
+  final String uri=req.getRequestURI();
+  if (uri.endsWith("/"))   return false;
+  final Map<?,?> map=req.getParameterMap();
+  if (map.size() == 0)   return false;
+  char ch='?';
+  final StringBuilder sb=new StringBuilder(uri).append('/');
+  for (  final Entry<?,?> s : map.entrySet()) {
+    final String key=s.getKey().toString();
+    for (    final String v : s.getValue() instanceof String[] ? (String[])s.getValue() : new String[]{s.getValue().toString()}) {
+      sb.append(ch).append(key).append('=').append(v);
+      ch='&';
+    }
+  }
+  res.setStatus(SC_MOVED_PERMANENTLY);
+  res.setHeader(LOCATION,sb.toString());
+  return true;
+}
