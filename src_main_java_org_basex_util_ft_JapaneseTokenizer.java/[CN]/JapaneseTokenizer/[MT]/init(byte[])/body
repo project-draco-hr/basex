@@ -1,4 +1,26 @@
 {
-  lexer=new IgoLexer(txt,opt);
+  final String source=string(txt);
+  final ArrayList<?> morpheme=(ArrayList<?>)Reflect.invoke(parse,tagger,source);
+  final StringList sl=new StringList();
+  try {
+    int prev=0;
+    for (int i=0; i < morpheme.size(); i++) {
+      final Object m=morpheme.get(i);
+      final String srfc=surface.get(m).toString();
+      final int s=start.getInt(m);
+      if (i != 0) {
+        final int l=s - prev;
+        if (l != 0) {
+          sl.add(source.substring(s - 1,s + l - 1));
+        }
+      }
+      prev=srfc.length() + s;
+      sl.add(srfc);
+    }
+  }
+ catch (  final Exception ex) {
+    Util.errln(Util.name(this) + ": " + ex);
+  }
+  tokens=sl.iterator();
   return this;
 }
