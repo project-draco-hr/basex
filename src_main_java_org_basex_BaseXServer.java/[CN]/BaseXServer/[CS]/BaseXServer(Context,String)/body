@@ -1,6 +1,8 @@
 {
   super(args,ctx);
   final int port=context.mprop.num(MainProp.SERVERPORT);
+  final String host=context.mprop.get(MainProp.SERVERHOST);
+  final InetAddress hostAddress=host.isEmpty() ? null : InetAddress.getByName(host);
   final int eport=context.mprop.num(MainProp.EVENTPORT);
   if (service) {
     start(port,args);
@@ -19,10 +21,10 @@
     log.write(SERVERSTART);
     socket=new ServerSocket();
     socket.setReuseAddress(true);
-    socket.bind(new InetSocketAddress(port));
+    socket.bind(new InetSocketAddress(hostAddress,port));
     esocket=new ServerSocket();
     esocket.setReuseAddress(true);
-    esocket.bind(new InetSocketAddress(eport));
+    esocket.bind(new InetSocketAddress(hostAddress,eport));
     stop=stopFile(port);
     Runtime.getRuntime().addShutdownHook(new Thread(){
       @Override public void run(){
