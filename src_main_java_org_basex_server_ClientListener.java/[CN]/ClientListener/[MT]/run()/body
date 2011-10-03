@@ -1,4 +1,38 @@
 {
+  try {
+    final String ts=Long.toString(System.nanoTime());
+    final byte[] address=socket.getInetAddress().getAddress();
+    out=PrintOutput.get(socket.getOutputStream());
+    out.print(ts);
+    send(true);
+    in=new BufferInput(socket.getInputStream());
+    final String us=in.readString();
+    final String pw=in.readString();
+    context.user=context.users.get(us);
+    running=context.user != null && md5(string(context.user.password) + ts).equals(pw);
+    if (running) {
+      log.write(this,"LOGIN " + context.user.name,OK);
+      send(true);
+synchronized (server.blocked) {
+        server.blocked.delete(address);
+      }
+      context.add(this);
+    }
+ else     if (!us.isEmpty()) {
+      log.write(this,SERVERDENIED + COLS + us);
+      int delay;
+synchronized (server.blocked) {
+        delay=server.blocked.get(address);
+        delay=delay == -1 ? 1 : Math.min(delay,1024) * 2;
+        server.blocked.add(address,delay);
+      }
+      new ClientDelayer(delay,this,server);
+    }
+  }
+ catch (  final IOException ex) {
+    Util.stack(ex);
+    log.write(ex.getMessage());
+  }
   ServerCmd sc=null;
   String cmd=null;
   try {
