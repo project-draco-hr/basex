@@ -1,8 +1,8 @@
 {
-  final Query q=s.query("for $d in " + DBLIST.args("$db","$path") + "let $t := tokenize(substring($d, string-length($path) + 1), '/') "+ "let $p := string-join(($trgdir, $t[position() < last()]), '/') "+ "let $n := $t[last()] return "+ "if ("+ DBISRAW.args("$db","$d")+ ") then "+ DBSTORE.args("$trgdb","$p||'/'||$n",DBRETRIEVE.args("$db","$d"))+ " else "+ DBADD.args("$trgdb",DBOPEN.args("$db","$d"),"$n","$p"));
+  final Query q=s.query("for $d in " + DBLIST.args("$db","$path") + "let $t := $tpath ||'/'|| substring($d, string-length($path) + 1) "+ "return if ("+ DBISRAW.args("$db","$d")+ ") then "+ DBSTORE.args("$tdb","$t",DBRETRIEVE.args("$db","$d"))+ " else "+ DBADD.args("$tdb",DBOPEN.args("$db","$d"),"$t"));
   q.bind("db",db);
   q.bind("path",path);
-  q.bind("trgdb",trgdb);
-  q.bind("trgdir",trgdir);
+  q.bind("tdb",tdb);
+  q.bind("tpath",tpath);
   q.execute();
 }
