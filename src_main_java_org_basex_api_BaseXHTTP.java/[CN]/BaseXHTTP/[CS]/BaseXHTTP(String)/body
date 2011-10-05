@@ -6,6 +6,7 @@
   final int eport=mprop.num(MainProp.EVENTPORT);
   final int hport=mprop.num(MainProp.HTTPPORT);
   final String host=mprop.get(MainProp.HOST);
+  final String shost=mprop.get(MainProp.SERVERHOST);
   if (service) {
     start(hport,args);
     Util.outln(HTTP + ' ' + SERVERSTART);
@@ -29,7 +30,11 @@
     server=new BaseXServer(context,quiet ? "-z" : "");
     Util.outln(HTTP + ' ' + SERVERSTART);
   }
-  jetty=new Server(hport);
+  jetty=new Server();
+  final Connector conn=new SelectChannelConnector();
+  if (!shost.isEmpty())   conn.setHost(shost);
+  conn.setPort(hport);
+  jetty.addConnector(conn);
   final org.mortbay.jetty.servlet.Context jcontext=new org.mortbay.jetty.servlet.Context(jetty,"/",org.mortbay.jetty.servlet.Context.SESSIONS);
   if (rest)   jcontext.addServlet(RESTServlet.class,"/rest/*");
   if (webdav)   jcontext.addServlet(WebDAVServlet.class,"/webdav/*");
