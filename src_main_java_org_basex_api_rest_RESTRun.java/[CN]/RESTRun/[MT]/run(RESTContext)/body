@@ -1,10 +1,9 @@
 {
   final Context context=HTTPSession.context();
   final String path=context.mprop.get(MainProp.HTTPPATH);
-  final IOFile dir=new IOFile(path);
-  final IOFile file=new IOFile(path + '/' + input);
-  final IO io=file.path().startsWith(dir.path()) ? file : null;
-  if ((null == io) || !io.exists())   throw new RESTException(HttpServletResponse.SC_NOT_FOUND,Util.info(FILEWHICH,input));
+  final IOFile root=new IOFile(path);
+  final IOFile io=new IOFile(path,input);
+  if (!io.exists() || io.isDir() || !io.path().startsWith(root.path()))   throw new RESTException(HttpServletResponse.SC_NOT_FOUND,Util.info(FILEWHICH,input));
   ctx.session.execute(new Set(Prop.QUERYPATH,io.path()));
   query(string(io.read()),ctx);
 }
