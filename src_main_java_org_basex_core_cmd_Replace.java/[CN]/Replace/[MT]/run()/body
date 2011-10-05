@@ -4,25 +4,19 @@
     if (!io.exists())     return error(FILEWHICH,io);
     in=io.inputSource();
   }
-  String name=MetaData.normPath(args[0]);
-  if (name == null || name.isEmpty())   return error(DIRERR,args[0]);
+  final String path=MetaData.normPath(args[0]);
+  if (path == null || path.isEmpty())   return error(DIRERR,args[0]);
   final Data data=context.data();
-  final int pre=data.doc(name);
-  if (pre != -1 && data.docs(name).size() != 1)   return error(DIRERR,name);
-  final IOFile file=data.meta.binary(name);
+  final int pre=data.doc(path);
+  if (pre != -1 && data.docs(path).size() != 1)   return error(DIRERR,path);
+  final IOFile file=data.meta.binary(path);
   if (file != null && file.exists()) {
-    final Store store=new Store(name);
+    final Store store=new Store(path);
     store.setInput(in);
     if (!store.run(context))     return error(store.info());
   }
  else {
-    String trg="";
-    final int i=name.lastIndexOf('/');
-    if (i != -1) {
-      trg=name.substring(0,i);
-      name=name.substring(i + 1);
-    }
-    final Add add=new Add(null,name,trg);
+    final Add add=new Add(path);
     add.setInput(in);
     if (!add.run(context))     return error(add.info());
     if (pre != -1)     data.delete(pre);

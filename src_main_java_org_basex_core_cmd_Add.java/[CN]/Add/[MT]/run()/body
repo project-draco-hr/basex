@@ -1,30 +1,30 @@
 {
-  String name=args[0];
-  String target=MetaData.normPath(args[1]);
-  if (target == null)   return error(NAMEINVALID,args[1]);
-  if (!target.isEmpty())   target+='/';
-  Parser parser;
+  final String path=args[0];
+  String name=MetaData.normPath(path);
+  if (name == null)   return error(NAMEINVALID,path);
+  if (path.endsWith("/"))   name+='/';
+  IO io=null;
   if (in == null) {
-    final String input=args[2];
-    final IO io=IO.get(input);
+    io=IO.get(args[1]);
     if (!io.exists())     return error(FILEWHICH,io);
-    if (name != null && !name.isEmpty()) {
-      io.name(name);
-    }
- else     if (io instanceof IOContent) {
-      name=context.data().meta.name + IO.XMLSUFFIX;
-      io.name(name);
-    }
+    if (!path.endsWith("/") && (io.isDir() || io.isArchive()))     name+='/';
+  }
+  String target="";
+  final int s=name.lastIndexOf('/');
+  if (s != -1) {
+    target=name.substring(0,s);
+    name=name.substring(s + 1);
+  }
+  Parser parser;
+  if (io != null) {
+    if (!name.isEmpty())     io.name(name);
+ else     if (!(io instanceof IOContent))     name=io.name();
     parser=new DirParser(io,target,prop);
   }
  else {
-    final SAXSource sax=new SAXSource(in);
-    parser=new SAXWrapper(sax,name,target,context.prop);
+    parser=new SAXWrapper(new SAXSource(in),name,target,context.prop);
   }
-  final String input=name == null ? parser.src.path() : name;
-  final String nm=name == null ? parser.src.name() : name;
-  if (nm.isEmpty() || nm.endsWith(".") || nm.indexOf('/') != -1)   return error(NAMEINVALID,nm);
-  final String path=target + (target.isEmpty() ? "/" : "") + nm;
+  if (name.isEmpty() || name.endsWith("."))   return error(NAMEINVALID,name);
   final long fl=parser.src.length();
   boolean large=false;
   final Runtime rt=Runtime.getRuntime();
@@ -33,7 +33,7 @@
     large=fl > rt.freeMemory() / 3;
   }
   final Data data=context.data();
-  final String dbname=large ? context.mprop.random(data.meta.name) : path;
+  final String dbname=large ? context.mprop.random(data.meta.name) : name;
   build=large ? new DiskBuilder(dbname,parser,context) : new MemBuilder(dbname,parser,context.prop);
   Data tmp=null;
   try {
@@ -43,7 +43,7 @@
       context.update();
       data.flush();
     }
-    return info(parser.info() + PATHADDED,input,perf);
+    return info(parser.info() + PATHADDED,name,perf);
   }
  catch (  final IOException ex) {
     Util.debug(ex);

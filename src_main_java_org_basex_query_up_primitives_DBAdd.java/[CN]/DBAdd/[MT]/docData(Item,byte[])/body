@@ -1,0 +1,42 @@
+{
+  final MemData mdata;
+  String name=string(pth);
+  IO io=null;
+  if (doc.str()) {
+    io=IO.get(string(doc.atom(input)));
+    if (!io.exists())     throw RESFNF.thrw(input,pth);
+    if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+="/";
+  }
+  String target="";
+  final int s=name.lastIndexOf('/');
+  if (s != -1) {
+    target=name.substring(0,s);
+    name=name.substring(s + 1);
+  }
+  if (doc.str()) {
+    if (!name.isEmpty())     io.name(name);
+ else     if (!(io instanceof IOContent))     name=io.name();
+  }
+  if (name.isEmpty() || name.endsWith("."))   RESINV.thrw(input,pth);
+  if (doc.node()) {
+    final ANode nd=(ANode)doc;
+    if (nd.ndType() != NodeType.DOC)     UPDOCTYPE.thrw(input,nd);
+    mdata=new MemData(data);
+    new DataBuilder(mdata).build(nd);
+    mdata.update(0,Data.DOC,pth);
+  }
+ else   if (doc.str()) {
+    final DirParser p=new DirParser(io,target,ctx.prop);
+    final MemBuilder b=new MemBuilder(data.meta.name,p,ctx.prop);
+    try {
+      mdata=b.build();
+    }
+ catch (    final IOException ex) {
+      throw IOERR.thrw(input,ex);
+    }
+  }
+ else {
+    throw STRNODTYPE.thrw(input,this,doc.type);
+  }
+  return mdata;
+}

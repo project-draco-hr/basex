@@ -1,25 +1,20 @@
 {
   checkWrite(ctx);
   final Data data=data(0,ctx);
-  final String trg=path(1,ctx);
+  final String path=path(1,ctx);
   final Item doc=checkItem(expr[2],ctx);
-  final int pre=data.doc(trg);
+  final int pre=data.doc(path);
   if (pre != -1) {
-    if (data.docs(trg).size() != 1)     DOCTRGMULT.thrw(input);
+    if (data.docs(path).size() != 1)     DOCTRGMULT.thrw(input);
     ctx.updates.add(new DeleteNode(pre,data,input),ctx);
   }
-  final TokenList raw=Delete.files(data,trg);
+  final TokenList raw=Delete.files(data,path);
   ctx.updates.add(new DBDelete(data,raw,input),ctx);
-  final int p=trg.lastIndexOf('/');
-  final String name=p < 0 ? trg : trg.substring(p + 1);
-  final String path=p < 0 ? null : trg.substring(0,p);
-  final ObjList<Item> docs=new ObjList<Item>(1);
-  docs.add(doc);
-  ctx.updates.add(new DBAdd(data,input,docs,name,path,ctx.context),ctx);
-  final IOFile file=data.meta.binary(trg);
+  ctx.updates.add(new DBAdd(data,input,doc,path,ctx.context),ctx);
+  final IOFile file=data.meta.binary(path);
   if (file != null && file.exists() && !file.isDir()) {
     final byte[] val=checkBin(doc,ctx);
-    ctx.updates.add(new DBStore(data,token(trg),val,input),ctx);
+    ctx.updates.add(new DBStore(data,token(path),val,input),ctx);
   }
   return null;
 }
