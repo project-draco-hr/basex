@@ -1,0 +1,24 @@
+{
+  String xmlString=null;
+  DBNode dbn=null;
+  try {
+    TransformerFactory transfac=TransformerFactory.newInstance();
+    Transformer trans=transfac.newTransformer();
+    StringWriter sw=new StringWriter();
+    StreamResult result=new StreamResult(sw);
+    DOMSource source=new DOMSource(n);
+    trans.transform(source,result);
+    xmlString=sw.toString();
+    final Parser parser=Parser.xmlParser(IO.get(xmlString),new Prop());
+    final MemBuilder builder=new MemBuilder("",parser,new Prop());
+    final Data mem=builder.build();
+    dbn=new DBNode(mem,1);
+  }
+ catch (  IOException e) {
+    CRYPTOIOEXC.thrw(input,e);
+  }
+catch (  TransformerException e) {
+    CRYPTOIOEXC.thrw(input,e);
+  }
+  return dbn;
+}
