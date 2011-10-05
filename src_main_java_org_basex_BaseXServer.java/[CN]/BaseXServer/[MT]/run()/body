@@ -9,18 +9,7 @@
         quit();
       }
  else {
-        final byte[] address=s.getInetAddress().getAddress();
-        final ClientListener cl=new ClientListener(s,context,log);
-        if (cl.init()) {
-          blocked.delete(address);
-          context.add(cl);
-        }
- else {
-          int delay=blocked.get(address);
-          delay=delay == -1 ? 1 : Math.min(delay,1024) * 2;
-          blocked.add(address,delay);
-          new ClientDelayer(delay,cl,this);
-        }
+        new ClientListener(s,context,log,this).start();
       }
     }
  catch (    final IOException ex) {
