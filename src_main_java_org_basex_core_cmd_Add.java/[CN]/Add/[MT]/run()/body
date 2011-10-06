@@ -2,12 +2,12 @@
   final boolean create=context.user.perm(User.CREATE);
   final String path=args[0];
   String name=MetaData.normPath(path);
-  if (name == null)   return error(NAMEINVALID,path);
+  if (name == null || name.endsWith("."))   return error(NAMEINVALID,path);
   IO io=null;
   if (in == null) {
     io=IO.get(args[1]);
     if (!io.exists())     return error(FILEWHICH,create ? io : args[1]);
-    if (!path.endsWith("/") && (io.isDir() || io.isArchive()))     name+='/';
+    if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+='/';
   }
   String target="";
   final int s=name.lastIndexOf('/');
@@ -24,7 +24,7 @@
  else {
     parser=new SAXWrapper(new SAXSource(in),name,target,context.prop);
   }
-  if (name.isEmpty() || name.endsWith("."))   return error(NAMEINVALID,name);
+  if (name.isEmpty())   return error(NAMEINVALID,name);
   final long fl=parser.src.length();
   boolean large=false;
   final Runtime rt=Runtime.getRuntime();
