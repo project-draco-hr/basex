@@ -1,26 +1,28 @@
 {
   final String source=string(txt);
   final ArrayList<?> morpheme=(ArrayList<?>)Reflect.invoke(parse,tagger,source);
-  final StringList sl=new StringList();
+  final ArrayList<Morpheme> list=new ArrayList<Morpheme>();
   try {
     int prev=0;
     for (int i=0; i < morpheme.size(); i++) {
       final Object m=morpheme.get(i);
       final String srfc=surface.get(m).toString();
+      final String ftr=feature.get(m).toString();
+      final int hinshi=getHinshi(srfc,ftr);
       final int s=start.getInt(m);
       if (i != 0) {
         final int l=s - prev;
         if (l != 0) {
-          sl.add(source.substring(s - 1,s + l - 1));
+          list.add(new Morpheme(source.substring(s - 1,s + l - 1),HINSHI_MARK));
         }
       }
       prev=srfc.length() + s;
-      sl.add(srfc);
+      list.add(new Morpheme(srfc,hinshi));
     }
   }
  catch (  final Exception ex) {
     Util.errln(Util.name(this) + ": " + ex);
   }
-  tokens=sl.iterator();
+  tokens=list.iterator();
   return this;
 }
