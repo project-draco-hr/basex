@@ -1,18 +1,15 @@
 {
   running=false;
+  log.write(this,"LOGOUT " + context.user.name,OK);
   try {
-    if (events != null) {
+    if (events) {
       esocket.close();
-      for (      final String e : events) {
-        final Sessions sess=context.events.get(e);
-        if (sess != null)         sess.remove(this);
-      }
+      for (      final Sessions s : context.events.values())       s.remove(this);
     }
     new Close().execute(context);
     if (command != null)     command.stop();
     context.delete(this);
     socket.close();
-    log.write(this,"LOGOUT " + context.user.name,OK);
   }
  catch (  final Exception ex) {
     log.write(ex.getMessage());

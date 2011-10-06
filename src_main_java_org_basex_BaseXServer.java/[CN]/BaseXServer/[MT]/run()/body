@@ -9,6 +9,13 @@
         quit();
       }
  else {
+        final long ka=context.mprop.num(MainProp.KEEPALIVE) * 1000L;
+        if (ka > 0) {
+          final long ms=System.currentTimeMillis();
+          for (          final ClientListener cs : context.sessions) {
+            if (ms - cs.last > ka)             cs.exit();
+          }
+        }
         new ClientListener(s,context,log,this).start();
       }
     }
