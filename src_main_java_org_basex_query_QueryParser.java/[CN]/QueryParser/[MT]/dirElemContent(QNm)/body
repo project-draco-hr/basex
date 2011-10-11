@@ -1,14 +1,15 @@
 {
   final TokenBuilder tb=new TokenBuilder();
+  boolean strip=true;
   do {
     final char c=curr();
     if (c == '<') {
       if (wsConsume(CDATA)) {
         tb.add(cDataSection());
-        tb.ent=true;
+        strip=false;
       }
  else {
-        final Str txt=text(tb);
+        final Str txt=text(tb,strip);
         return txt != null ? txt : next() == '/' ? null : constructor();
       }
     }
@@ -18,7 +19,7 @@
         consume();
       }
  else {
-        final Str txt=text(tb);
+        final Str txt=text(tb,strip);
         return txt != null ? txt : enclosed(NOENCLEXPR);
       }
     }
@@ -28,7 +29,7 @@
       tb.add('}');
     }
  else     if (c != 0) {
-      entity(tb);
+      strip&=!entity(tb);
     }
  else {
       error(NOCLOSING,tag.atom());
