@@ -1,28 +1,22 @@
 {
+  final BaseXClient session=new BaseXClient("localhost",1984,"admin","admin");
   try {
-    final BaseXClient session=new BaseXClient("localhost",1984,"admin","admin");
-    try {
-      session.execute("create db database");
-      System.out.println(session.info());
-      InputStream bais=new ByteArrayInputStream("<x>Hello World!</x>".getBytes());
-      session.add("world.xml","/world",bais);
-      System.out.println(session.info());
-      bais=new ByteArrayInputStream("<x>Hello Universe!</x>".getBytes());
-      session.add("universe.xml","",bais);
-      System.out.println(session.info());
-      System.out.println(session.execute("xquery collection('database')"));
-      bais=new ByteArrayInputStream("<x>Hello Replacement!</x>".getBytes());
-      session.replace("universe.xml",bais);
-      System.out.println(session.info());
-      System.out.println(session.execute("xquery collection('database')"));
-      session.execute("drop db database");
-    }
- catch (    final IOException ex) {
-      ex.printStackTrace();
-    }
-    session.close();
+    session.execute("create db database");
+    System.out.println(session.info());
+    InputStream bais=new ByteArrayInputStream("<x>Hello World!</x>".getBytes());
+    session.add("world/world.xml",bais);
+    System.out.println(session.info());
+    bais=new ByteArrayInputStream("<x>Hello Universe!</x>".getBytes());
+    session.add("universe.xml",bais);
+    System.out.println(session.info());
+    System.out.println(session.execute("xquery collection('database')"));
+    bais=new ByteArrayInputStream("<x>Hello Replacement!</x>".getBytes());
+    session.replace("universe.xml",bais);
+    System.out.println(session.info());
+    System.out.println(session.execute("xquery collection('database')"));
+    session.execute("drop db database");
   }
- catch (  final IOException ex) {
-    ex.printStackTrace();
+  finally {
+    session.close();
   }
 }
