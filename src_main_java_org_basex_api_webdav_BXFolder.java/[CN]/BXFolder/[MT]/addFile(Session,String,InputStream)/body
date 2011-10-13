@@ -1,14 +1,22 @@
 {
   final BufferInput bi=new BufferInput(in,1 << 22);
   try {
-    addXML(s,n,bi);
-  }
- catch (  final IOException ex) {
-    if (!bi.markSupported())     throw ex;
+    bi.encoding();
+    final boolean xml=bi.readChar() == '<';
     bi.reset();
+    if (xml) {
+      try {
+        addXML(s,n,bi);
+        return;
+      }
+ catch (      final IOException ex) {
+        if (!bi.markSupported())         throw ex;
+        bi.reset();
+      }
+    }
     addRaw(s,n,bi);
   }
- finally {
+  finally {
     bi.close();
   }
 }
