@@ -1,0 +1,15 @@
+{
+  final String msg="messagemessagemessagemessagemessagemessagemessage";
+  PublicKey puk=null;
+  PrivateKey prk=null;
+  try {
+    final KeyPairGenerator gen=KeyPairGenerator.getInstance("RSA");
+    final KeyPair kp=gen.generateKeyPair();
+    puk=kp.getPublic();
+    prk=kp.getPrivate();
+  }
+ catch (  NoSuchAlgorithmException e) {
+    e.printStackTrace();
+  }
+  query("declare namespace c = 'http://expath.org/ns/crypto';" + "let $e := c:encrypt('" + msg + "','asymmetric','"+ prk+ "','RSA')"+ "return c:decrypt($e,'asymmetric','"+ puk+ "','RSA')",msg);
+}
