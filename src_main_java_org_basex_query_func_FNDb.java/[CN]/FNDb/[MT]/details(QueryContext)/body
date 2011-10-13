@@ -1,0 +1,11 @@
+{
+  final Data d=data(0,ctx);
+  final String path=path(1,ctx);
+  final IntList il=d.docs(path);
+  final TokenList tl=d.files(path);
+  if (il.size() + tl.size() != 1)   throw RESFNF.thrw(input,path);
+  if (il.size() == 1)   return resource(d.text(il.get(0),true),false,0,APP_XML,d.meta.time);
+  final byte[] file=tl.get(0);
+  final IOFile f=d.meta.binary(string(file));
+  return resource(file,true,f.length(),MimeTypes.get(file),f.date());
+}
