@@ -1,12 +1,14 @@
 {
   final boolean create=context.user.perm(User.CREATE);
+  String path=MetaData.normPath(args[0]);
+  if (path == null || path.endsWith("."))   return error(NAMEINVALID,args[0]);
   if (in == null) {
-    final IO file=IO.get(args[1]);
-    if (!file.exists() || file.isDir())     return error(FILEWHICH,create ? file : args[1]);
-    in=file.inputSource();
+    final IO io=IO.get(args[1]);
+    if (!io.exists() || io.isDir())     return error(FILEWHICH,create ? io : args[1]);
+    in=io.inputSource();
+    if ((path.isEmpty() || path.endsWith("/")) && !(io instanceof IOContent))     path+=io.name();
   }
-  final String path=MetaData.normPath(args[0]);
-  if (path == null)   return error(NAMEINVALID,args[0]);
+  if (path.isEmpty())   return error(NAMEINVALID,path);
   final IOFile file=context.data().meta.binary(path);
   if (path.isEmpty() || path.endsWith(".") || file == null || file.isDir())   return error(NAMEINVALID,create ? path : args[0]);
   new IOFile(file.dir()).md();
