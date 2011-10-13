@@ -3,20 +3,22 @@
     @Override public List<BXResource> get() throws IOException {
       final List<BXResource> ch=new ArrayList<BXResource>();
       final HashSet<String> paths=new HashSet<String>();
-      final Query q=s.query("for $r in " + DBLIST.args("$d","$p") + "return ("+ SUBAFTER.args("$r","$p")+ ','+ DBISRAW.args("$d","$r")+ ','+ DBCTYPE.args("$d","$r")+ ')');
+      final Query q=s.query("for $r in " + DBLIST.args("$d","$p") + "let $a := "+ DBDETAILS.args("$d","$r")+ "return ("+ SUBAFTER.args("$a/@path/data()","$p")+ ','+ "$a/@raw/data(),"+ "$a/@content-type/data(),"+ "$a/@modified-date/data(),"+ "$a/@size/data())");
       q.bind("d",db);
       q.bind("p",path);
       while (q.more()) {
         final String p=stripLeadingSlash(q.next());
         final boolean raw=Boolean.parseBoolean(q.next());
         final String ctype=q.next();
+        final long mod=Long.parseLong(q.next());
+        final Long size=raw ? Long.valueOf(q.next()) : null;
         final int ix=p.indexOf(SEP);
         if (ix < 0) {
-          if (!p.equals(DUMMY))           ch.add(new BXDocument(db,path + SEP + p,session,raw,ctype));
+          if (!p.equals(DUMMY))           ch.add(new BXFile(db,path + SEP + p,mod,raw,ctype,size,session));
         }
  else {
-          final String folder=path + SEP + p.substring(0,ix);
-          if (paths.add(folder))           ch.add(new BXFolder(db,folder,session));
+          final String dir=path + SEP + p.substring(0,ix);
+          if (paths.add(dir))           ch.add(new BXFolder(db,dir,mod,session));
         }
       }
       q.close();
