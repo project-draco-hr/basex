@@ -1,0 +1,22 @@
+{
+  for (int d=0; d < data.length; d++)   data[d]=(byte)d;
+  final IOFile io=new IOFile(Prop.TMP,DB);
+  io.write(data);
+  final ArrayOutput ao=new ArrayOutput();
+  final BufferInput bi=new BufferInput(io.file());
+  bi.reset();
+  bi.encoding();
+  bi.readChar();
+  bi.reset();
+  for (int b; (b=bi.read()) != -1; )   ao.write(b);
+  try {
+    bi.reset();
+    assertTrue("Mark should not be supported for data size of " + data.length,data.length < IO.BLOCKSIZE);
+    ao.reset();
+    for (int b; (b=bi.read()) != -1; )     ao.write(b);
+    assertEquals(data,ao.toArray());
+  }
+ catch (  final IOException ex) {
+    assertTrue("Mark could not be reset for data size of " + data.length,data.length >= IO.BLOCKSIZE);
+  }
+}
