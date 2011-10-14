@@ -1,0 +1,19 @@
+{
+  final Query q=s.query(DBINFO.args("$p"));
+  q.bind("p",d);
+  final String inf=q.execute();
+  final String ts=Text.INFOTIME + Text.COLS;
+  final int p=inf.indexOf(ts);
+  if (p >= 0) {
+    final String dt=inf.substring(p + ts.length(),inf.indexOf(Text.NL,p));
+    if (!dt.isEmpty()) {
+      try {
+        return new SimpleDateFormat(DATEFORMAT).parse(dt).getTime();
+      }
+ catch (      final ParseException e) {
+        Util.errln(e);
+      }
+    }
+  }
+  return null;
+}

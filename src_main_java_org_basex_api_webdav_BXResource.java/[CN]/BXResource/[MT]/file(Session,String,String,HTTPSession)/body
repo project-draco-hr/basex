@@ -1,0 +1,16 @@
+{
+  final Query q=s.query("let $a := " + DBDETAILS.args("$d","$p") + "return ("+ "$a/@path/data(),"+ "$a/@raw/data(),"+ "$a/@content-type/data(),"+ "$a/@modified-date/data(),"+ "$a/@size/data())");
+  q.bind("d",d);
+  q.bind("p",p);
+  try {
+    final String path=stripLeadingSlash(q.next());
+    final boolean raw=Boolean.parseBoolean(q.next());
+    final String ctype=q.next();
+    final long mod=Long.parseLong(q.next());
+    final Long size=raw ? Long.valueOf(q.next()) : null;
+    return new BXFile(d,path,mod,raw,ctype,size,hs);
+  }
+  finally {
+    q.close();
+  }
+}
