@@ -3,15 +3,23 @@
   try {
     bi.encoding();
     final boolean xml=bi.readChar() == '<';
-    bi.reset();
+    try {
+      bi.reset();
+    }
+ catch (    final IOException e) {
+    }
     if (xml) {
       try {
         addXML(s,n,bi);
         return;
       }
  catch (      final IOException ex) {
-        if (!bi.markSupported())         throw ex;
-        bi.reset();
+        try {
+          bi.reset();
+        }
+ catch (        final IOException e) {
+          throw ex;
+        }
       }
     }
     addRaw(s,n,bi);
