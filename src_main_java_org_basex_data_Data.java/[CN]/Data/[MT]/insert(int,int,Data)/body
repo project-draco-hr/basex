@@ -1,5 +1,6 @@
 {
   meta.update();
+  if (meta.updindex)   indexBegin();
   docindex.insert(ipre,data);
   final boolean dummy=empty() && data.kind(0) == DOC;
   final int dsize=data.meta.size;
@@ -53,7 +54,7 @@
 switch (dkind) {
 case DOC:
       final int s=data.size(dpre,dkind);
-    doc(pre,s,data.text(dpre,true));
+    doc(s,data.text(dpre,true));
   meta.ndocs++;
 ns.open();
 preStack.push(pre);
@@ -78,7 +79,7 @@ break;
 case TEXT:
 case COMM:
 case PI:
-text(pre,dis,data.text(dpre,true),dkind);
+text(dis,data.text(dpre,true),dkind);
 break;
 case ATTR:
 nm=data.name(dpre,dkind);
@@ -87,7 +88,7 @@ if (data.nsFlag(dpre) && nsScope.get(attPref) == null) {
 ns.add(par,preStack.size() == 0 ? -1 : preStack.peek(),attPref,data.ns.uri(data.uri(dpre,dkind)));
 flagPres.add(par);
 }
-attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
+attr(dis,atnindex.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
 break;
 }
 }
@@ -104,5 +105,9 @@ p=parent(p,k);
 }
 updateDist(ipre + dsize,dsize);
 ns.update(ipre,dsize,true,newNodes);
+if (meta.updindex) {
+idmap.insert(ipre,id(ipre),dsize);
+indexEnd();
+}
 if (dummy) delete(0);
 }

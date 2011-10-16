@@ -6,6 +6,10 @@
   final int rkind=kind(rpre);
   final int rsize=size(rpre,rkind);
   final int rpar=parent(rpre,rkind);
+  if (meta.updindex) {
+    indexDelete(rpre,rsize);
+    indexBegin();
+  }
   for (int dpre=0; dpre < dsize; dpre++) {
     final int dkind=data.kind(dpre);
     final int dpar=data.parent(dpre,dkind);
@@ -13,7 +17,7 @@
     final int dis=dpar >= 0 ? dpre - dpar : pre - parent(rpre,rkind);
 switch (dkind) {
 case DOC:
-      doc(pre,data.size(dpre,dkind),data.text(dpre,true));
+      doc(data.size(dpre,dkind),data.text(dpre,true));
     meta.ndocs++;
   break;
 case ELEM:
@@ -23,13 +27,18 @@ break;
 case TEXT:
 case COMM:
 case PI:
-text(pre,dis,data.text(dpre,true),dkind);
+text(dis,data.text(dpre,true),dkind);
 break;
 case ATTR:
 nm=data.name(dpre,dkind);
-attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
+attr(dis,atnindex.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
 break;
 }
+}
+if (meta.updindex) {
+indexEnd();
+idmap.delete(rpre,id(rpre),-rsize);
+idmap.insert(rpre,meta.lastid - dsize + 1,dsize);
 }
 table.replace(rpre,buffer(),rsize);
 buffer(1);

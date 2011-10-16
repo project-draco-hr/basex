@@ -1,0 +1,15 @@
+{
+  final long oldpos=idxr.read5(ix * 5L);
+  final int numold=idxl.readNum(oldpos);
+  final int[] ids=new int[numold + nids.length];
+  for (int i=0; i < numold; ++i) {
+    final int v=idxl.readNum();
+    nids[0]-=v;
+    ids[i]=v;
+  }
+  System.arraycopy(nids,0,ids,numold,nids.length);
+  final long newpos=idxl.appendNums(ids);
+  idxr.write5(ix * 5L,newpos);
+  final int cacheid=cache.id(key);
+  if (cacheid > 0)   cache.update(cacheid,ids.length,newpos + Num.length(ids.length));
+}

@@ -2,6 +2,8 @@
   if (tok instanceof RangeToken)   return idRange((RangeToken)tok);
   final int id=cache.id(tok.get());
   if (id > 0)   return iter(cache.size(id),cache.pointer(id));
-  final long pos=get(tok.get());
-  return pos == 0 ? IndexIterator.EMPTY : iter(idxl.readNum(pos),idxl.cursor());
+  final int ix=get(tok.get());
+  if (ix < 0)   return IndexIterator.EMPTY;
+  final long pos=idxr.read5(ix * 5L);
+  return iter(idxl.readNum(pos),idxl.cursor());
 }
