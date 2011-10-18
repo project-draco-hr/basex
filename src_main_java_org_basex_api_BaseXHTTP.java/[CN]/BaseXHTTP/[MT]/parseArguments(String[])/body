@@ -1,21 +1,27 @@
 {
   final Args arg=new Args(args,this,HTTPINFO,Util.info(CONSOLE,HTTP));
   final Context ctx=HTTPSession.context();
+  boolean local=false, client=false;
   while (arg.more()) {
     if (arg.dash()) {
       final char c=arg.next();
 switch (c) {
+case 'c':
+        System.setProperty(DBMODE,CLIENT);
+      client=true;
+    break;
 case 'd':
-        ctx.mprop.set(MainProp.DEBUG,true);
-      break;
+  ctx.mprop.set(MainProp.DEBUG,true);
+break;
 case 'e':
-    ctx.mprop.set(MainProp.EVENTPORT,arg.num());
-  break;
+ctx.mprop.set(MainProp.EVENTPORT,arg.num());
+break;
 case 'h':
 ctx.mprop.set(MainProp.HTTPPORT,arg.num());
 break;
 case 'l':
-System.setProperty(DBLOCAL,Boolean.toString(true));
+System.setProperty(DBMODE,LOCAL);
+local=true;
 break;
 case 'n':
 ctx.mprop.set(MainProp.HOST,arg.string());
@@ -52,5 +58,9 @@ stopped=true;
 arg.usage();
 }
 }
+}
+if (local && client) {
+Util.errln(INVMODE);
+arg.usage();
 }
 }
