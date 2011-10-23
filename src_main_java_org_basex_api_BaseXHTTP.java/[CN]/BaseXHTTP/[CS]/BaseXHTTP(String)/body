@@ -1,10 +1,11 @@
 {
   parseArguments(args);
-  final Context context=HTTPSession.context();
-  final MainProp mprop=context.mprop;
+  final Context ctx=HTTPSession.context();
+  final MainProp mprop=ctx.mprop;
   final int port=mprop.num(MainProp.SERVERPORT);
   final int eport=mprop.num(MainProp.EVENTPORT);
   final int hport=mprop.num(MainProp.HTTPPORT);
+  final int sport=mprop.num(MainProp.HTTPSTOP);
   final String shost=mprop.get(MainProp.SERVERHOST);
   if (service) {
     start(hport,args);
@@ -14,6 +15,7 @@
   }
   if (stopped) {
     BaseXServer.stop(port,eport);
+    stop(sport);
     return;
   }
   if (System.getProperty(DBUSER) != null) {
@@ -26,7 +28,7 @@
     Util.outln(CONSOLE + HTTP + ' '+ SERVERSTART,SERVERMODE);
   }
  else {
-    server=new BaseXServer(context,quiet ? "-z" : "");
+    server=new BaseXServer(ctx,quiet ? "-z" : "");
     Util.outln(HTTP + ' ' + SERVERSTART);
   }
   jetty=new Server();
@@ -38,4 +40,5 @@
   if (rest)   jcontext.addServlet(RESTServlet.class,"/rest/*");
   if (webdav)   jcontext.addServlet(WebDAVServlet.class,"/webdav/*");
   jetty.start();
+  new StopServer(sport,shost).start();
 }
