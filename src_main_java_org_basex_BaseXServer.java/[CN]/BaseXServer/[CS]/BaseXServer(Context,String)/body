@@ -1,9 +1,11 @@
 {
   super(args,ctx);
-  final int port=context.mprop.num(MainProp.SERVERPORT);
-  final String host=context.mprop.get(MainProp.SERVERHOST);
-  final InetAddress hostAddress=host.isEmpty() ? null : InetAddress.getByName(host);
-  final int eport=context.mprop.num(MainProp.EVENTPORT);
+  final MainProp mprop=context.mprop;
+  final int port=mprop.num(MainProp.SERVERPORT);
+  final int eport=mprop.num(MainProp.EVENTPORT);
+  if (port == eport)   throw new BaseXException(SERVERPORTS,port);
+  final String host=mprop.get(MainProp.SERVERHOST);
+  final InetAddress addr=host.isEmpty() ? null : InetAddress.getByName(host);
   if (service) {
     start(port,args);
     Util.outln(SERVERSTART);
@@ -12,6 +14,7 @@
   }
   if (stopped) {
     stop(port,eport);
+    Util.outln(SERVERSTOPPED);
     Performance.sleep(1000);
     return;
   }
@@ -21,10 +24,10 @@
     log.write(SERVERSTART);
     socket=new ServerSocket();
     socket.setReuseAddress(true);
-    socket.bind(new InetSocketAddress(hostAddress,port));
+    socket.bind(new InetSocketAddress(addr,port));
     esocket=new ServerSocket();
     esocket.setReuseAddress(true);
-    esocket.bind(new InetSocketAddress(hostAddress,eport));
+    esocket.bind(new InetSocketAddress(addr,eport));
     stop=stopFile(port);
     Runtime.getRuntime().addShutdownHook(new Thread(){
       @Override public void run(){

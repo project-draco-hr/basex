@@ -16,23 +16,26 @@
       server.unblock(address);
       context.add(this);
     }
- else     if (!us.isEmpty()) {
-      log.write(this,SERVERDENIED + COLS + us);
-      new ClientDelayer(server.block(address),this,server);
+ else {
+      if (!us.isEmpty())       log.write(this,SERVERDENIED + COLS + us);
+      new ClientDelayer(server.block(address),this,server).start();
     }
   }
  catch (  final IOException ex) {
     Util.stack(ex);
     log.write(ex.getMessage());
+    return;
   }
+  if (!running)   return;
   ServerCmd sc=null;
   String cmd=null;
   try {
     while (running) {
+      command=null;
       try {
         final int b=in.read();
         if (b == -1) {
-          exit();
+          quit();
           break;
         }
         last=System.currentTimeMillis();
@@ -65,11 +68,10 @@
         }
       }
  catch (      final IOException ex) {
-        exit();
+        quit();
         break;
       }
       if (sc != COMMAND)       continue;
-      command=null;
       try {
         command=new CommandParser(cmd,context).parseSingle();
       }
@@ -98,14 +100,16 @@
       out.write(0);
       info(info,ok);
       if (command instanceof Exit) {
-        exit();
-        break;
+        command=null;
+        quit();
       }
     }
   }
  catch (  final IOException ex) {
     log.write(this,sc == COMMAND ? cmd : sc,INFOERROR + ex.getMessage());
-    Util.stack(ex);
-    exit();
+    Util.debug(ex);
+    command=null;
+    quit();
   }
+  command=null;
 }
