@@ -3,45 +3,45 @@
   boolean daemon=false;
   while (arg.more()) {
     if (arg.dash()) {
-      final char c=arg.next();
-      if (c == 'c') {
+switch (arg.next()) {
+case 'c':
         commands=arg.remaining();
-      }
- else       if (c == 'd') {
-        context.mprop.set(MainProp.DEBUG,true);
-      }
- else       if (c == 'D') {
-        daemon=true;
-      }
- else       if (c == 'e') {
-        context.mprop.set(MainProp.EVENTPORT,arg.num());
-      }
- else       if (c == 'i') {
-        console=true;
-      }
- else       if (c == 'p') {
-        context.mprop.set(MainProp.SERVERPORT,arg.num());
-      }
- else       if (c == 's') {
-        service=!daemon;
-      }
- else       if (c == 'z') {
-        quiet=true;
-      }
+      break;
+case 'd':
+    context.mprop.set(MainProp.DEBUG,true);
+  break;
+case 'D':
+daemon=true;
+break;
+case 'e':
+context.mprop.set(MainProp.EVENTPORT,arg.num());
+break;
+case 'i':
+console=true;
+break;
+case 'p':
+context.mprop.set(MainProp.SERVERPORT,arg.num());
+break;
+case 's':
+service=!daemon;
+break;
+case 'z':
+quiet=true;
+break;
+default :
+arg.usage();
+}
+}
  else {
-        arg.usage();
-      }
-    }
+if (arg.string().equalsIgnoreCase("stop")) {
+stopped=true;
+}
  else {
-      if (arg.string().equalsIgnoreCase("stop")) {
-        stopped=true;
-      }
- else {
-        arg.usage();
-      }
-    }
-  }
-  if (context.mprop.num(MainProp.SERVERPORT) == context.mprop.num(MainProp.EVENTPORT)) {
-    throw new BaseXException(SERVERPORTS);
-  }
+arg.usage();
+}
+}
+}
+if (context.mprop.num(MainProp.SERVERPORT) == context.mprop.num(MainProp.EVENTPORT)) {
+throw new BaseXException(SERVERPORTS);
+}
 }
