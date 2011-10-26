@@ -4,22 +4,23 @@
   System.out.println("\n* Create a client session.");
   session=new ClientSession("localhost",1984,"admin","admin");
   System.out.println("\n* Create a database.");
-  session.execute("CREATE DB input etc/xml/input.xml");
+  session.execute(new CreateDB("input","etc/xml/input.xml"));
   System.out.println("\n* Run a query:");
-  System.out.println(session.execute("XQUERY //li"));
+  System.out.println(session.query("//li").execute());
   System.out.println("\n* Run a query (faster):");
   session.setOutputStream(System.out);
-  session.execute("XQUERY //li");
+  session.query("//li").execute();
+  System.out.println();
   session.setOutputStream(null);
-  System.out.println("\n* Run a buggy query: ");
+  System.out.println("\n\n* Run a buggy query: ");
   try {
-    session.execute("XQUERY ///");
+    session.execute(new XQuery("///"));
   }
  catch (  final BaseXException ex) {
     System.out.println(ex.getMessage());
   }
   System.out.println("\n* Close and drop the database.");
-  session.execute("DROP DB input");
+  session.execute(new DropDB("input"));
   System.out.println("\n* Close the client session.");
   session.close();
   System.out.println("\n* Stop the server.");
