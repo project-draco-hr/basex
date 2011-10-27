@@ -1,0 +1,41 @@
+{
+  final String name=string("@name",test);
+  if (!name.startsWith(single))   return;
+  final String quvalue=string("data(.//*:test)",test);
+  final String quexpected=".//*:result/*[1]";
+  final QueryProcessor qpexpected=new QueryProcessor(quexpected,context);
+  qpexpected.context(test);
+  final ANode expected=(ANode)qpexpected.iter().next();
+  qpexpected.close();
+  final Performance perf=new Performance();
+  final QueryProcessor qpvalue=new QueryProcessor(quvalue,context);
+  final Result result=new Result();
+  try {
+    result.value=qpvalue.value();
+  }
+ catch (  final QueryException ex) {
+    result.exception=ex;
+  }
+catch (  final Throwable ex) {
+    result.error=ex;
+  }
+  qpvalue.close();
+  final long time=perf.getTime() / 1000000;
+  if (verbose)   Util.outln(name + ": " + time+ " ms");
+  final String msg=test(result,expected);
+  final TokenBuilder tmp=new TokenBuilder();
+  tmp.add(name).add(NL);
+  tmp.add("Query : ").add(norm(quvalue)).add(NL);
+  tmp.add("Result: " + norm(result.toString())).add(NL);
+  if (msg == null) {
+    tmp.add(NL);
+    right.add(tmp.finish());
+    correct++;
+  }
+ else {
+    tmp.add("Expect: " + norm(msg)).add(NL).add(NL);
+    ;
+    wrong.add(tmp.finish());
+  }
+  if (++total % 500 == 0)   Util.out(".");
+}

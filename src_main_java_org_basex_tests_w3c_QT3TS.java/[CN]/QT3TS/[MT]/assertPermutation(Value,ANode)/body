@@ -1,0 +1,24 @@
+{
+  final String string=string("data(.)",expected);
+  final QueryProcessor qp=new QueryProcessor(string,context);
+  try {
+    final TokenSet exp=new TokenSet();
+    Iter ir=qp.iter();
+    for (Item it; (it=ir.next()) != null; )     exp.add(it.atom(null));
+    final TokenSet res=new TokenSet();
+    ir=value.iter();
+    for (Item it; (it=ir.next()) != null; )     res.add(it.atom(null));
+    if (exp.size() != res.size())     return Util.info("Result sizes are different (% vs. %).",exp.size(),res.size());
+    for (int i=1; i <= exp.size(); i++) {
+      if (res.id(exp.key(i)) == 0)       return Util.info("'%' missing in actual result.",exp.key(i));
+      if (exp.id(res.key(i)) == 0)       return Util.info("'%' missing in expected result.",res.key(i));
+    }
+    return null;
+  }
+ catch (  final QueryException ex) {
+    return ex.getMessage();
+  }
+ finally {
+    qp.close();
+  }
+}
