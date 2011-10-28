@@ -1,0 +1,32 @@
+{
+  final Query qudoc=new Query("doc(' " + path + '/'+ name+ "')");
+  final ANode doc=(ANode)qudoc.value();
+  final String base=IO.get(Token.string(doc.base())).dir();
+  final Query qpenv=new Query("/*:test-set/*:environment",doc);
+  final ObjList<Environment> envs=new ObjList<Environment>();
+  for (Item itenv; (itenv=qpenv.next()) != null; ) {
+    final Environment env=new Environment();
+    env.name=string("@name",itenv);
+    final Query qpsrc=new Query("*:source",itenv);
+    for (Item itsrc; (itsrc=qpsrc.next()) != null; ) {
+      env.sources.add(string("@role",itsrc));
+      env.sources.add(base + string("@file",itsrc));
+      env.sources.add(string("@uri",itsrc));
+    }
+    qpsrc.close();
+    final Query qppar=new Query("*:param",itenv);
+    for (Item itpar; (itpar=qppar.next()) != null; ) {
+      env.params.add(string("@name",itpar));
+      env.params.add(string("@as",itpar));
+      env.params.add(string("@select",itpar));
+      env.params.add(string("@declared",itpar));
+    }
+    qppar.close();
+    envs.add(env);
+  }
+  qpenv.close();
+  final Query qpts=new Query("/*:test-set/*:test-case",doc);
+  for (Item itts; (itts=qpts.next()) != null; )   testCase(itts,envs);
+  qpts.close();
+  qudoc.close();
+}

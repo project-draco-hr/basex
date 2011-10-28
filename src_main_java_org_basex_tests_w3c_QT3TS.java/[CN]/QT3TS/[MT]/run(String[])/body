@@ -1,18 +1,17 @@
 {
   parseArguments(args);
   final Performance perf=new Performance();
-  final String qudoc="doc(' " + path + "/catalog.xml')";
-  final QueryProcessor qpdoc=new QueryProcessor(qudoc,context);
-  final Value doc=qpdoc.value();
+  new Set(Prop.CHOP,false).execute(context);
+  final Query qudoc=new Query("doc(' " + path + "/catalog.xml')");
+  final Value doc=qudoc.value();
   final String version=string("/*:catalog/@version",doc);
   Util.outln(NL + "QT3 Test Suite " + version);
   Util.out("Parsing queries");
   final String quset="for $f in //*:test-set/@file return string($f)";
-  final QueryProcessor qpset=new QueryProcessor(quset,context);
-  qpset.context(doc);
-  final Iter ir=qpset.iter();
-  for (Item it; (it=ir.next()) != null && total < MAX; )   testSet(it);
+  final Query qpset=new Query(quset,doc);
+  for (Item it; (it=qpset.next()) != null; )   testSet(it.toJava().toString());
   qpset.close();
+  qudoc.close();
   Util.outln(NL + "Writing log file...");
   final PrintOutput po=new PrintOutput(path + "qt3ts.log");
   po.println("TEST RESULTS ___________________________");

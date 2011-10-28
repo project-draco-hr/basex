@@ -1,16 +1,29 @@
 {
   final String name=string("@name",test);
   if (!name.startsWith(single))   return;
-  final String quvalue=string("data(.//*:test)",test);
-  final String quexpected=".//*:result/*[1]";
-  final QueryProcessor qpexpected=new QueryProcessor(quexpected,context);
-  qpexpected.context(test);
-  final ANode expected=(ANode)qpexpected.iter().next();
-  qpexpected.close();
+  final String quvalue=string("data(*:test)",test);
+  final Query quexp=new Query("*:result/*[1]",test);
+  final ANode expected=(ANode)quexp.next();
   final Performance perf=new Performance();
-  final QueryProcessor qpvalue=new QueryProcessor(quvalue,context);
+  Query qusrc=null;
+  final String env=string("*:environment/@ref",test);
+  for (  final Environment e : envs) {
+    if (!e.name.equals(env))     continue;
+    final StringList src=e.sources;
+    for (int i=0, is=src.size(); i < is; i+=3) {
+      final String role=src.get(i);
+      if (role.isEmpty())       continue;
+      if (role.equals(".")) {
+        qusrc=new Query("doc('" + src.get(i + 1) + "')");
+      }
+    }
+    break;
+  }
+  Query qpvalue=null;
   final Result result=new Result();
   try {
+    final Value src=qusrc != null ? qusrc.value() : null;
+    qpvalue=new Query(quvalue,src);
     result.value=qpvalue.value();
   }
  catch (  final QueryException ex) {
@@ -19,7 +32,6 @@
 catch (  final Throwable ex) {
     result.error=ex;
   }
-  qpvalue.close();
   final long time=perf.getTime() / 1000000;
   if (verbose)   Util.outln(name + ": " + time+ " ms");
   final String msg=test(result,expected);
@@ -38,4 +50,7 @@ catch (  final Throwable ex) {
     wrong.add(tmp.finish());
   }
   if (++total % 500 == 0)   Util.out(".");
+  if (qpvalue != null)   qpvalue.close();
+  if (qusrc != null)   qusrc.close();
+  quexp.close();
 }
