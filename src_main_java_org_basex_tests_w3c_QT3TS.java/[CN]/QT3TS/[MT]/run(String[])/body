@@ -1,17 +1,19 @@
 {
   parseArguments(args);
   final Performance perf=new Performance();
-  new Set(Prop.CHOP,false).execute(context);
-  final Query qudoc=new Query("doc(' " + path + "/catalog.xml')");
-  final Value doc=qudoc.value();
-  final String version=string("/*:catalog/@version",doc);
+  new Set(Prop.CHOP,false).execute(ctx);
+  final XQuery qdoc=new XQuery("doc(' " + path + "/"+ CATALOG+ "')",ctx);
+  final XQItem doc=qdoc.next();
+  final String version=string("*:catalog/@version",doc);
   Util.outln(NL + "QT3 Test Suite " + version);
   Util.out("Parsing queries");
-  final String quset="for $f in //*:test-set/@file return string($f)";
-  final Query qpset=new Query(quset,doc);
-  for (Item it; (it=qpset.next()) != null; )   testSet(it.toJava().toString());
-  qpset.close();
-  qudoc.close();
+  final XQuery qenv=new XQuery("*:catalog/*:environment",ctx).context(doc);
+  for (  final XQItem ienv : qenv)   genvs.add(new QT3Env(ctx,ienv,""));
+  qenv.close();
+  final XQuery qset=new XQuery("for $f in //*:test-set/@file return string($f)",ctx).context(doc);
+  for (  final XQItem it : qset)   testSet(it.getString());
+  qset.close();
+  qdoc.close();
   Util.outln(NL + "Writing log file...");
   final PrintOutput po=new PrintOutput(path + "qt3ts.log");
   po.println("TEST RESULTS ___________________________");
@@ -22,6 +24,11 @@
   po.println("WRONG __________________________________");
   po.print(NL);
   po.print(wrong.finish());
+  if (verbose) {
+    po.println("CORRECT ________________________________");
+    po.print(NL);
+    po.print(right.finish());
+  }
   po.close();
   Util.outln(NL + "Total #Queries: " + total);
   Util.outln("Correct Results: " + correct);
