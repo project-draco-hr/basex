@@ -1,13 +1,18 @@
 {
-  final XQuery qudoc=new XQuery("doc(' " + path + '/'+ name+ "')",ctx);
-  final XQItem doc=qudoc.next();
+  final XQuery qdoc=new XQuery("doc(' " + path + '/'+ name+ "')",ctx);
+  final XQItem doc=qdoc.next();
   final String base=IO.get(doc.getBaseURI()).dir();
-  final XQuery qenv=new XQuery("*:test-set/*:environment",ctx).context(doc);
-  final ObjList<QT3Env> envs=new ObjList<QT3Env>();
-  for (  final XQItem ienv : qenv)   envs.add(new QT3Env(ctx,ienv,base));
-  qenv.close();
-  final XQuery qts=new XQuery("*:test-set/*:test-case",ctx).context(doc);
-  for (  final XQItem its : qts)   testCase(its,envs,base);
-  qts.close();
-  qudoc.close();
+  final XQuery qset=new XQuery("*:test-set",ctx).context(doc);
+  final XQItem set=qset.next();
+  if (supported(set)) {
+    final XQuery qenv=new XQuery("*:environment",ctx).context(set);
+    final ObjList<QT3Env> envs=new ObjList<QT3Env>();
+    for (    final XQItem ienv : qenv)     envs.add(new QT3Env(ctx,ienv,base));
+    qenv.close();
+    final XQuery qts=new XQuery("*:test-case",ctx).context(set);
+    for (    final XQItem its : qts)     testCase(its,envs,base);
+    qts.close();
+  }
+  qset.close();
+  qdoc.close();
 }
