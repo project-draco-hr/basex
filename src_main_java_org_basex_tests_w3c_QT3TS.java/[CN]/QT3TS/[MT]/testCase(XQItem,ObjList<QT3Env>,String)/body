@@ -2,63 +2,65 @@
   if (!supported(test))   return;
   final String name=string("@name",test);
   if (!name.startsWith(single))   return;
-  final String quvalue=string("data(*:test)",test);
+  final String string=string("data(*:test)",test);
+  final XQuery query=new XQuery(string,ctx);
   final XQuery qexp=new XQuery("*:result/*[1]",ctx).context(test);
   final XQItem expected=qexp.next();
   final Performance perf=new Performance();
-  final HashMap<String,XQuery> vars=new HashMap<String,XQuery>();
-  XQuery qusrc=null;
   QT3Env e=null;
   final XQuery qenv=new XQuery("*:environment[*]",ctx).context(test);
   final XQItem ienv=qenv.next();
-  if (ienv != null)   e=new QT3Env(ctx,ienv,base);
+  if (ienv != null)   e=new QT3Env(ctx,ienv);
   qenv.close();
+  String b=base;
   if (e == null) {
     final String env=string("*:environment/@ref",test);
     if (!env.isEmpty()) {
       e=envs(envs,env);
-      if (e == null)       e=envs(genvs,env);
+      if (e == null) {
+        e=envs(genvs,env);
+        b=null;
+      }
       if (e == null)       Util.errln("%: environment '%' not found.",name,env);
     }
   }
-  if (e != null) {
-    for (    final HashMap<String,String> src : e.sources) {
-      final String role=src.get(ROLE);
-      if (".".equals(role)) {
-        qusrc=new XQuery("doc('" + src.get(FILE) + "')",ctx);
-      }
-    }
-    for (    final HashMap<String,String> par : e.params) {
-      final String select=par.get(SELECT).replaceAll("\"|'","");
-      for (      final HashMap<String,String> src : e.sources) {
-        if (!select.equals(src.get(URI)))         continue;
-        vars.put(par.get(NNAME),new XQuery("'" + src.get(FILE) + "'",ctx));
-        break;
-      }
-    }
-  }
-  XQuery qvalue=null;
+  if (b != null)   query.baseURI(base);
   final QT3Result result=new QT3Result();
   try {
-    final XQItem context=qusrc != null ? qusrc.next() : null;
-    qvalue=new XQuery(quvalue,ctx).context(context);
-    for (    final Entry<String,XQuery> s : vars.entrySet()) {
-      qvalue.bind(s.getKey(),s.getValue().next());
+    if (e != null) {
+      for (      final HashMap<String,String> par : e.params) {
+        query.bind(par.get(NNAME),new XQuery(par.get(SELECT),ctx).next());
+      }
+      for (      final HashMap<String,String> src : e.sources) {
+        query.addDocument(src.get(URI),src.get(FILE));
+        final String role=src.get(ROLE);
+        if (role == null)         continue;
+        final Object call=Function.DOC.get(null,Str.get(src.get(FILE)));
+        if (role.equals("."))         query.context(call);
+ else         query.bind(role,call);
+      }
+      query.addCollection(e.collURI,e.collSources.toArray());
+      if (e.collContext) {
+        query.context(Function.COLL.get(null,Str.get(e.collURI)));
+      }
+      if (e.baseURI != null)       query.baseURI(e.baseURI);
     }
-    result.value=qvalue.value();
+    result.value=query.value();
   }
  catch (  final XQException ex) {
     result.exc=ex.getException();
   }
 catch (  final Throwable ex) {
     result.error=ex;
+    Util.errln("Query: " + name);
+    ex.printStackTrace();
   }
   final long time=perf.getTime() / 1000000;
   if (verbose)   Util.outln(name + ": " + time+ " ms");
   final String msg=test(result,expected);
   final TokenBuilder tmp=new TokenBuilder();
   tmp.add(name).add(NL);
-  tmp.add(norm(quvalue)).add(NL);
+  tmp.add(norm(string)).add(NL);
   String res;
   try {
     res=result.error != null ? "Error: " + result.error.toString() : result.exc != null ? "Error: " + result.exc.getLocalizedMessage() : string("serialize(., map {'indent':='no'})",result.value);
@@ -78,8 +80,6 @@ catch (  final Throwable ex) {
     wrong.add(tmp.finish());
   }
   if (++total % 500 == 0)   Util.out(".");
-  for (  final String s : vars.keySet())   vars.get(s).close();
-  if (qvalue != null)   qvalue.close();
-  if (qusrc != null)   qusrc.close();
+  query.close();
   qexp.close();
 }

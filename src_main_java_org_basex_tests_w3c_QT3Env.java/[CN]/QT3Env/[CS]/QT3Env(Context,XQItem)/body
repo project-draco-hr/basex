@@ -1,0 +1,18 @@
+{
+  name=XQuery.string("@" + NNAME,env,ctx);
+  sources=list(ctx,env,SOURCE);
+  params=list(ctx,env,PARAM);
+  namespaces=list(ctx,env,NAMESPACE);
+  formats=list(ctx,env,DECIMAL_FORMAT);
+  schemas=list(ctx,env,SCHEMA).get(0);
+  collations=list(ctx,env,COLLATION).get(0);
+  baseURI=string(STATIC_BASE_URI,ctx,env);
+  collURI=XQuery.string("*:collection/@uri",env,ctx);
+  final XQuery cc=new XQuery("*:collection/*:source/@role = '.'",ctx).context(env);
+  collContext=cc.next().getBoolean();
+  cc.close();
+  collSources=new StringList();
+  final XQuery qsrc=new XQuery("*:collection/*:source/@file",ctx).context(env);
+  for (  final XQItem iatt : qsrc)   collSources.add(iatt.getString());
+  qsrc.close();
+}

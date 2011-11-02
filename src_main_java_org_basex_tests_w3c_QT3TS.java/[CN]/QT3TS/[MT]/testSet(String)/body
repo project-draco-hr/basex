@@ -4,15 +4,15 @@
   final String base=IO.get(doc.getBaseURI()).dir();
   final XQuery qset=new XQuery("*:test-set",ctx).context(doc);
   final XQItem set=qset.next();
+  qdoc.close();
   if (supported(set)) {
     final XQuery qenv=new XQuery("*:environment",ctx).context(set);
     final ObjList<QT3Env> envs=new ObjList<QT3Env>();
-    for (    final XQItem ienv : qenv)     envs.add(new QT3Env(ctx,ienv,base));
+    for (    final XQItem ienv : qenv)     envs.add(new QT3Env(ctx,ienv));
     qenv.close();
     final XQuery qts=new XQuery("*:test-case",ctx).context(set);
     for (    final XQItem its : qts)     testCase(its,envs,base);
     qts.close();
   }
   qset.close();
-  qdoc.close();
 }
