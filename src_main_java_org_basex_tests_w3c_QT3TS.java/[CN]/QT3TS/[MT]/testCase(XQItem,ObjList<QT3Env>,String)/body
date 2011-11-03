@@ -5,11 +5,11 @@
   final String string=string("data(*:test)",test);
   final XQuery query=new XQuery(string,ctx);
   final XQuery qexp=new XQuery("*:result/*[1]",ctx).context(test);
-  final XQItem expected=qexp.next();
+  final XQValue expected=qexp.value();
   final Performance perf=new Performance();
   QT3Env e=null;
   final XQuery qenv=new XQuery("*:environment[*]",ctx).context(test);
-  final XQItem ienv=qenv.next();
+  final XQValue ienv=qenv.next();
   if (ienv != null)   e=new QT3Env(ctx,ienv);
   qenv.close();
   String b=base;
@@ -29,7 +29,7 @@
   try {
     if (e != null) {
       for (      final HashMap<String,String> par : e.params) {
-        query.bind(par.get(NNAME),new XQuery(par.get(SELECT),ctx).next());
+        query.bind(par.get(NNAME),new XQuery(par.get(SELECT),ctx).value());
       }
       for (      final HashMap<String,String> src : e.sources) {
         query.addDocument(src.get(URI),src.get(FILE));
@@ -48,7 +48,7 @@
     result.value=query.value();
   }
  catch (  final XQException ex) {
-    result.exc=ex.getException();
+    result.exc=ex;
   }
 catch (  final Throwable ex) {
     result.error=ex;
@@ -61,14 +61,16 @@ catch (  final Throwable ex) {
   final TokenBuilder tmp=new TokenBuilder();
   tmp.add(name).add(NL);
   tmp.add(norm(string)).add(NL);
+  boolean err=result.value == null;
   String res;
   try {
-    res=result.error != null ? "Error: " + result.error.toString() : result.exc != null ? "Error: " + result.exc.getLocalizedMessage() : string("serialize(., map {'indent':='no'})",result.value);
+    res=result.error != null ? result.error.toString() : result.exc != null ? result.exc.getCode() + ": " + result.exc.getLocalizedMessage() : string("serialize(., map { 'indent' := 'no' })",result.value);
   }
- catch (  final Exception ex) {
-    res=ex.getLocalizedMessage();
+ catch (  final XQException ex) {
+    res=ex.getCode() + ": " + ex.getLocalizedMessage();
+    err=true;
   }
-  tmp.add("Result: " + norm(res)).add(NL);
+  tmp.add(err ? "Error : " : "Result: ").add(norm(res)).add(NL);
   if (msg == null) {
     tmp.add(NL);
     right.add(tmp.finish());
