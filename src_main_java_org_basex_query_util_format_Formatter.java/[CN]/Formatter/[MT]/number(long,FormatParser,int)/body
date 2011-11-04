@@ -1,7 +1,7 @@
 {
-  final IntList pr=new IntList(mp.primary.length);
-  for (int p=0; p < mp.primary.length; p+=cl(mp.primary,p)) {
-    pr.add(cp(mp.primary,p));
+  final IntList pr=new IntList(fp.primary.length);
+  for (int p=0; p < fp.primary.length; p+=cl(fp.primary,p)) {
+    pr.add(cp(fp.primary,p));
   }
   int rp=-1;
   boolean reg=false;
@@ -14,23 +14,32 @@
   final int rc=reg ? pr.get(pr.size() - rp) : 0;
   if (!reg)   rp=Integer.MAX_VALUE;
   final IntList cache=new IntList();
-  final byte[] s=token(n);
-  int b=s.length - 1, p=pr.size() - 1;
-  while (p >= 0 && b >= 0) {
-    final int ch=pr.get(p--);
-    if (ch == '#' && cache.size() % rp == rp - 1)     cache.add(rc);
-    cache.add(ch == '#' || ch >= z && ch <= z + 9 ? s[b--] - '0' + z : ch);
-  }
-  while (b >= 0) {
-    if (cache.size() % rp == rp - 1)     cache.add(rc);
-    cache.add(s[b--] - '0' + z);
-  }
-  while (p >= 0) {
-    final int ch=pr.get(p--);
-    if (ch == '#')     break;
-    cache.add(ch >= z && ch <= z + 9 ? z : ch);
+  final byte[] n=token(num);
+  int b=n.length - 1, p=pr.size() - 1;
+  int mn=fp.min;
+  int mx=fp.max;
+  while ((--mn >= 0 || b >= 0 || p >= 0) && --mx >= 0) {
+    final boolean sep=cache.size() % rp == rp - 1;
+    if (p >= 0) {
+      final int c=pr.get(p--);
+      if (b >= 0) {
+        if (c == '#' && sep)         cache.add(rc);
+        cache.add(c == '#' || c >= z && c <= z + 9 ? n[b--] - '0' + z : c);
+      }
+ else {
+        if (c == '#')         break;
+        cache.add(c >= z && c <= z + 9 ? z : c);
+      }
+    }
+ else     if (b >= 0) {
+      if (sep)       cache.add(rc);
+      cache.add(n[b--] - '0' + z);
+    }
+ else {
+      cache.add(z);
+    }
   }
   final TokenBuilder tb=new TokenBuilder();
   for (int c=cache.size() - 1; c >= 0; --c)   tb.add(cache.get(c));
-  return tb.add(ordinal(n,mp.ordinal)).finish();
+  return tb.add(ordinal(num,fp.ordinal)).finish();
 }

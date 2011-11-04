@@ -8,11 +8,12 @@
       tb.add(ch);
     }
  else {
-      byte[] m=dp.marker();
-      if (m.length == 0)       PICDATE.thrw(ii,pic);
-      final int spec=ch(m,0);
-      m=substring(m,cl(m,0));
+      byte[] p=dp.marker();
+      if (p.length == 0)       PICDATE.thrw(ii,pic);
+      final int spec=ch(p,0);
+      p=substring(p,cl(p,0));
       byte[] pres=ONE;
+      boolean max=false;
       long num=0;
       final boolean dat=date.type == AtomType.DAT;
       final boolean tim=date.type == AtomType.TIM;
@@ -20,11 +21,12 @@
       boolean err=false;
 switch (spec) {
 case 'Y':
-        num=gc.getYear();
-      err=tim;
-    break;
+        num=Math.abs(gc.getYear());
+      max=true;
+    err=tim;
+  break;
 case 'M':
-  num=gc.getMonth();
+num=gc.getMonth();
 err=tim;
 break;
 case 'D':
@@ -92,7 +94,12 @@ err=true;
 break;
 }
 if (err) PICCOMP.thrw(ii,pic);
-final FormatParser fp=new FormatParser(ii,m,pres);
+final FormatParser fp=new FormatParser(ii,p,pres);
+if (max) {
+int mx=0;
+for (int s=0; s < fp.primary.length; s+=cl(fp.primary,s)) mx++;
+if (mx > 1) fp.max=mx;
+}
 if (fp.digit == 'n') {
 byte[] in=EMPTY;
 if (spec == 'M') {
