@@ -1,13 +1,15 @@
 {
-  final String work=System.getProperty("user.dir");
-  final File wconf=new File(work,IO.BASEXSUFFIX);
-  if (wconf.exists())   return wconf.getParent() + File.separator;
-  final String app=applicationPath();
-  if (app != null) {
-    final File f=new File(app);
-    final String home=f.isFile() ? f.getParent() : f.getPath();
-    final File hconf=new File(home,IO.BASEXSUFFIX);
-    if (hconf.exists())     return hconf.getParent() + File.separator;
+  String path=System.getProperty("org.basex.path");
+  if (path != null)   return path + File.separator;
+  path=System.getProperty("user.dir");
+  File config=new File(path,IO.BASEXSUFFIX);
+  if (config.exists())   return config.getParent() + File.separator;
+  path=applicationPath();
+  if (path != null) {
+    final File app=new File(path);
+    final String dir=app.isFile() ? app.getParent() : app.getPath();
+    config=new File(dir,IO.BASEXSUFFIX);
+    if (config.exists())     return config.getParent() + File.separator;
   }
   return Prop.USERHOME;
 }
