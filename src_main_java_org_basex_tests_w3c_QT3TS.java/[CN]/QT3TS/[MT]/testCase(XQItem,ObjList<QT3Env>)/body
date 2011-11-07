@@ -2,11 +2,11 @@
   if (!supported(test))   return;
   final String name=string("@name",test);
   if (!name.startsWith(single))   return;
-  final String string=string("data(*:test)",test);
-  final XQuery query=new XQuery(string,ctx);
   final XQuery qexp=new XQuery("*:result/*[1]",ctx).context(test);
   final XQValue expected=qexp.value();
-  final Performance perf=new Performance();
+  final XQuery q=new XQuery("*:dependency[@type='spec']" + "[matches(@value,'(XQ10|XP20)([^+]|$)')]",ctx);
+  if (q.context(test).next() != null)   ctx.prop.set(Prop.XQUERY3,false);
+  q.close();
   QT3Env e=null;
   final XQuery qenv=new XQuery("*:environment[*]",ctx).context(test);
   final XQValue ienv=qenv.next();
@@ -24,7 +24,17 @@
       if (e == null)       Util.errln("%: environment '%' not found.",name,env);
     }
   }
-  if (b != null)   query.baseURI(base);
+  final Performance perf=new Performance();
+  final String string=string("data(*:test)",test);
+  final XQuery query=new XQuery(string,ctx);
+  if (b != null)   query.baseURI(b);
+  final XQuery qmod=new XQuery("for $m in *:module return ($m/@uri, $m/@file)",ctx).context(test);
+  while (true) {
+    final XQItem uri=qmod.next();
+    if (uri == null)     break;
+    final XQItem file=qmod.next();
+    query.addModule(base + file.getString(),uri.getString());
+  }
   final QT3Result result=new QT3Result();
   try {
     if (e != null) {
@@ -60,6 +70,7 @@ catch (  final Throwable ex) {
   }
   final long time=perf.getTime() / 1000000;
   if (verbose)   Util.outln(name + ": " + time+ " ms");
+  ctx.prop.set(Prop.XQUERY3,true);
   final String msg=test(result,expected);
   final TokenBuilder tmp=new TokenBuilder();
   tmp.add(name).add(NL);
