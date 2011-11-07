@@ -1,0 +1,82 @@
+{
+  int m=Pattern.UNIX_LINES;
+  if (mod != null) {
+    for (    final byte b : mod) {
+      if (b == 'i')       m|=Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE;
+ else       if (b == 'm')       m|=Pattern.MULTILINE;
+ else       if (b == 's')       m|=Pattern.DOTALL;
+ else       if (b == 'q' && ext)       m|=Pattern.LITERAL;
+ else       if (b == 'x') {
+        boolean cc=false;
+        final StringBuilder sb=new StringBuilder();
+        for (int s=0; s < pattern.length(); s++) {
+          final char c=pattern.charAt(s);
+          if (cc || !ws(c))           sb.append(c);
+          if (c == '[')           cc=true;
+ else           if (c == ']')           cc=false;
+        }
+        pattern=sb.toString();
+      }
+ else {
+        REGMOD.thrw(input,(char)b);
+      }
+    }
+  }
+  final StringBuilder bl=new StringBuilder();
+  for (int i=0; i < pattern.length(); ++i) {
+    char b=pattern.charAt(i);
+    if (b != '\\') {
+      bl.append(b);
+      continue;
+    }
+    char c=next(++i);
+    if (c != 'p' && c != 'P') {
+      if ("0123456789cCdDniIrsStwW|.-^$?*+{}()[]\\".indexOf(c) == -1)       REGESC.thrw(input,c);
+      bl.append(b);
+      bl.append(c);
+    }
+ else {
+      b=next(++i);
+      if (b != '{')       REGCC.thrw(input,b);
+      final StringBuilder tmp=new StringBuilder();
+      while (true) {
+        b=next(++i);
+        if (b == 0)         REGCC.thrw(input,b);
+        if (b == '}') {
+          bl.append(replace(tmp.toString(),c));
+          break;
+        }
+        tmp.append(b);
+      }
+    }
+  }
+  pattern=bl.toString();
+  try {
+    if ((m & Pattern.LITERAL) == 0 && pattern.indexOf('[') != -1 && pattern.indexOf('-') != -1) {
+      while (true) {
+        final Matcher mt=CLASSES.matcher(pattern);
+        if (!mt.matches())         break;
+        final char c1=mt.group(1).charAt(0);
+        final char c2=mt.group(2).charAt(0);
+        final TokenBuilder tb2=new TokenBuilder("[");
+        for (char c=c1; c <= c2; ++c)         tb2.add(c);
+        pattern=pattern.replaceAll("\\[" + c1 + "-"+ c2,tb2.toString());
+      }
+      String old="";
+      for (Matcher mt; (mt=EXCLUDE.matcher(pattern)).matches() && !old.equals(pattern); ) {
+        old=pattern;
+        final String in=mt.group(1);
+        final String ex=mt.group(2);
+        String out=in;
+        for (int e=0; e < ex.length(); ++e) {
+          out=out.replaceAll(ex.substring(e,e + 1),"");
+        }
+        pattern=pattern.replaceAll("\\[" + in + "-\\[.*?\\]","[" + out);
+      }
+    }
+    return Pattern.compile(pattern,m);
+  }
+ catch (  final Exception ex) {
+    throw REGINV.thrw(input,pattern);
+  }
+}
