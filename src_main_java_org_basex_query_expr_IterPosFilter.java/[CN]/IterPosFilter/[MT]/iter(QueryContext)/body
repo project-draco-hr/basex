@@ -1,20 +1,7 @@
 {
   return new Iter(){
-    /** 
- * Indicates if more items can be expected. 
- */
-    boolean skip;
-    /** 
- * Fast evaluation. 
- */
-    boolean direct;
-    /** 
- * Iterator. 
- */
+    boolean skip, direct;
     Iter iter;
-    /** 
- * Current position. 
- */
     long cpos;
     @Override public Item next() throws QueryException {
       if (skip)       return null;
@@ -40,25 +27,30 @@
       }
       final Value cv=ctx.value;
       final long cp=ctx.pos;
+      final long cs=ctx.size;
       Item item=null;
       if (direct) {
         item=iter.size() < cpos ? null : iter.get(cpos - 1);
         ctx.pos=cpos++;
       }
  else {
-        Item old=null;
+        Item lnode=null;
         while ((item=iter.next()) != null) {
           ctx.checkStop();
+          ctx.size=0;
           ctx.pos=cpos++;
           if (preds(item,ctx))           break;
-          old=item;
+          lnode=item;
+          ctx.pos=cp;
+          ctx.size=cs;
         }
-        if (last)         item=old;
+        if (last)         item=lnode;
       }
       skip=last || pos != null && pos.skip(ctx);
       if (skip && direct)       iter.reset();
       ctx.value=cv;
       ctx.pos=cp;
+      ctx.size=cs;
       return item;
     }
   }

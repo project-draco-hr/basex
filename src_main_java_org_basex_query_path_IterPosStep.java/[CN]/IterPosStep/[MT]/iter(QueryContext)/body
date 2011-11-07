@@ -10,28 +10,27 @@
         if (!v.node())         NODESPATH.thrw(input,IterPosStep.this,v.type);
         ai=axis.iter((ANode)v);
       }
-      ANode lnod=null;
+      ANode lnode=null, node;
       while (true) {
         ctx.checkStop();
-        final ANode node=ai.next();
+        node=ai.next();
         if (node == null) {
           skip=last;
-          return lnod;
+          return lnode;
         }
-        if (test.eval(node)) {
-          final long cp=ctx.pos;
-          final long cs=ctx.size;
-          ctx.size=0;
-          ctx.pos=++cpos;
-          final boolean p=preds(node,ctx);
-          ctx.pos=cp;
-          ctx.size=cs;
-          if (p) {
-            skip=pos != null && pos.skip(ctx);
-            return node.finish();
-          }
-          if (last)           lnod=node.finish();
+        if (!test.eval(node))         continue;
+        final long cp=ctx.pos;
+        final long cs=ctx.size;
+        ctx.size=0;
+        ctx.pos=++cpos;
+        final boolean p=preds(node,ctx);
+        ctx.pos=cp;
+        ctx.size=cs;
+        if (p) {
+          skip=pos != null && pos.skip(ctx);
+          return node.finish();
         }
+        if (last)         lnode=node.finish();
       }
     }
     @Override public boolean reset(){
