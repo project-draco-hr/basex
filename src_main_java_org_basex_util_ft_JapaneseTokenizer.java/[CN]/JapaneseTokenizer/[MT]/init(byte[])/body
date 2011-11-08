@@ -1,5 +1,8 @@
 {
-  final String source=string(txt);
+  String source=string(txt);
+  if (wc) {
+    source=source.replaceAll("\u3000","\u0020");
+  }
   final ArrayList<?> morpheme=(ArrayList<?>)Reflect.invoke(parse,tagger,source);
   final ArrayList<Morpheme> list=new ArrayList<Morpheme>();
   try {
@@ -8,21 +11,31 @@
       final Object m=morpheme.get(i);
       final String srfc=surface.get(m).toString();
       final String ftr=feature.get(m).toString();
-      final int hinshi=getHinshi(srfc,ftr);
       final int s=start.getInt(m);
       if (i != 0) {
         final int l=s - prev;
         if (l != 0) {
-          list.add(new Morpheme(source.substring(s - 1,s + l - 1),HINSHI_MARK));
+          list.add(new Morpheme(source.substring(s - 1,s + l - 1),KIGOU_FEATURE));
         }
       }
       prev=srfc.length() + s;
-      list.add(new Morpheme(srfc,hinshi));
+      boolean cont=true;
+      ArrayList<Morpheme> marks=new ArrayList<Morpheme>();
+      for (int j=0; j < srfc.length(); j++) {
+        String c=String.valueOf(srfc.charAt(j));
+        final byte[] t=token(c);
+        if (t.length == 1)         if (letter(t[0]) || digit(t[0]))         cont=false;
+ else         marks.add(new Morpheme(c,KIGOU_FEATURE));
+ else         cont=false;
+      }
+      if (cont)       list.addAll(marks);
+ else       list.add(new Morpheme(srfc,ftr));
     }
   }
  catch (  final Exception ex) {
     Util.errln(Util.name(this) + ": " + ex);
   }
+  tokenList=list;
   tokens=list.iterator();
   return this;
 }
