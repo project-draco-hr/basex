@@ -1,0 +1,11 @@
+{
+  StringBuilder qs=new StringBuilder("xquery\n");
+  qs.append("declare namespace rdf = " + "\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\";\n");
+  qs.append("for $c in /rdf:RDF/*[//*:raiseOn<\"2011-11-02T14:19:07Z\"]\n");
+  qs.append("return <item about=\"{data($c/@rdf:about)}\" " + "raiseOn=\"{data($c//*:raiseOn)}\"/>\n");
+  String results=session.execute(qs.toString());
+  Assert.assertEquals("Missing results!",expected,results.isEmpty() ? 0 : results.split("\r\n|\r|\n").length);
+  qs=new StringBuilder("xquery\n" + "declare namespace rdf = " + "\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\";\n"+ "declare namespace wfdata = \"http://rdfs.cyim.com/WorkflowData#\";\n"+ "for $c in /rdf:RDF/*[//wfdata:raiseOn<\"2011-11-02T14:19:07Z\"]\n"+ "return <item about=\"{data($c/@rdf:about)}\" "+ "raiseOn=\"{data($c//wfdata:raiseOn)}\"/>\n");
+  results=session.execute(qs.toString());
+  Assert.assertEquals("Missing results!",expected,results.isEmpty() ? 0 : results.split("\r\n|\r|\n").length);
+}
