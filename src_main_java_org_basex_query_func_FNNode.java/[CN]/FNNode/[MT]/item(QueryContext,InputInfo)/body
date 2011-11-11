@@ -1,11 +1,11 @@
 {
   final Item it=(expr.length != 0 ? expr[0] : checkCtx(ctx)).item(ctx,input);
 switch (def) {
-case NODENAME:
+case NODE_NAME:
     if (it == null)     return null;
   QNm qname=checkNode(it).qname();
 return qname != null && qname.atom().length != 0 ? qname : null;
-case DOCURI:
+case DOCUMENT_URI:
 if (it == null) return null;
 ANode node=checkNode(it);
 if (node.type != NodeType.DOC) return null;
@@ -13,7 +13,7 @@ final byte[] uri=node.baseURI();
 return uri.length == 0 ? null : Uri.uri(uri);
 case NILLED:
 return it == null || checkNode(it).type != NodeType.ELM ? null : Bln.FALSE;
-case BASEURI:
+case BASE_URI:
 if (it == null) return null;
 ANode n=checkNode(it);
 if (n.type != NodeType.ELM && n.type != NodeType.DOC && n.parent() == null) return null;
@@ -31,11 +31,11 @@ case NAME:
 if (it == null) return Str.ZERO;
 qname=checkNode(it).qname();
 return qname != null ? Str.get(qname.atom()) : Str.ZERO;
-case LOCNAME:
+case LOCAL_NAME:
 if (it == null) return Str.ZERO;
 qname=checkNode(it).qname();
 return qname != null ? Str.get(qname.ln()) : Str.ZERO;
-case NSURI:
+case NAMESPACE_URI:
 if (it == null || it.type == NodeType.PI) return Uri.EMPTY;
 node=checkNode(it);
 while (node != null) {
@@ -55,9 +55,9 @@ if (it == null) return null;
 n=checkNode(it);
 while (n.parent() != null) n=n.parent();
 return n;
-case GENID:
+case GENERATE_ID:
 return it == null ? Str.ZERO : Str.get(new TokenBuilder(QueryText.ID).addLong(checkNode(it).id).finish());
-case CHILDREN:
+case HAS_CHILDREN:
 return Bln.get(it != null && checkNode(it).hasChildren());
 case PATH:
 if (it == null) return null;
