@@ -1,14 +1,16 @@
 {
   String exp=expect.getString();
-  final XQuery qspace=new XQuery("@normalize-space = 'true'",ctx);
-  if (qspace.context(expect).next().getBoolean())   exp=Token.string(Token.norm(Token.token(exp)));
+  final XQuery qspace=new XQuery("@normalize-space='true'",ctx);
+  final boolean norm=qspace.context(expect).value().getBoolean();
+  if (norm)   exp=string(norm(token(exp)));
   qspace.close();
-  final TokenBuilder res=new TokenBuilder();
+  final TokenBuilder tb=new TokenBuilder();
   int c=0;
   for (  final XQItem it : value) {
-    if (c != 0)     res.add(' ');
-    res.add(it.getString());
+    if (c != 0)     tb.add(' ');
+    tb.add(it.getString());
     c++;
   }
-  return exp.equals(res.toString()) ? null : exp;
+  final String res=norm ? string(norm(tb.finish())) : tb.toString();
+  return exp.equals(res) ? null : exp;
 }
