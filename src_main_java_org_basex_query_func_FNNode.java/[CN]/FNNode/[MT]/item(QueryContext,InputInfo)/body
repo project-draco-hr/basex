@@ -7,11 +7,12 @@ case NODENAME:
 return qname != null && qname.atom().length != 0 ? qname : null;
 case DOCURI:
 if (it == null) return null;
-final byte[] uri=checkNode(it).base();
+ANode node=checkNode(it);
+if (node.type != NodeType.DOC) return null;
+final byte[] uri=node.baseURI();
 return uri.length == 0 ? null : Uri.uri(uri);
 case NILLED:
-if (it == null) return null;
-return checkNode(it).type != NodeType.ELM ? null : Bln.FALSE;
+return it == null || checkNode(it).type != NodeType.ELM ? null : Bln.FALSE;
 case BASEURI:
 if (it == null) return null;
 ANode n=checkNode(it);
@@ -22,7 +23,7 @@ if (n == null) {
 base=ctx.baseURI.resolve(base);
 break;
 }
-base=Uri.uri(n.base()).resolve(base);
+base=Uri.uri(n.baseURI()).resolve(base);
 n=n.parent();
 }
 return base;
@@ -36,7 +37,7 @@ qname=checkNode(it).qname();
 return qname != null ? Str.get(qname.ln()) : Str.ZERO;
 case NSURI:
 if (it == null || it.type == NodeType.PI) return Uri.EMPTY;
-ANode node=checkNode(it);
+node=checkNode(it);
 while (node != null) {
 qname=node.qname();
 if (qname == null) break;
