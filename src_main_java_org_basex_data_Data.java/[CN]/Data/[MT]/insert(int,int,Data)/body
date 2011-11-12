@@ -84,7 +84,7 @@ case ATTR:
 nm=data.name(dpre,dkind);
 final byte[] attPref=pref(nm);
 if (data.nsFlag(dpre) && (nsScope.get(attPref) == null)) {
-ns.add(par,preStack.size() == 0 ? ipar : preStack.peek(),attPref,data.ns.uri(data.uri(dpre,dkind)));
+ns.add(par,preStack.size() == 0 ? -1 : preStack.peek(),attPref,data.ns.uri(data.uri(dpre,dkind)));
 flagPres.add(par);
 }
 attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
@@ -95,9 +95,7 @@ while (preStack.size() != 0) ns.close(preStack.pop());
 ns.setRoot(t);
 if (bp != 0) insert(ipre + dpre - 1 - (dpre - 1) % buf);
 buffer(1);
-for (final int toFlag : flagPres.toArray()) {
-table.write2(toFlag,1,name(toFlag));
-}
+for (final int toFlag : flagPres.toArray()) table.write2(toFlag,1,name(toFlag) | 1 << 15);
 int p=ipar;
 while (p >= 0) {
 final int k=kind(p);
