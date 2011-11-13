@@ -1,6 +1,17 @@
 {
-  final Expr ex=o instanceof Expr ? (Expr)o : JavaFunc.type(o).e(o,null);
-  final QNm nm=new QNm(token(n.indexOf('$') == 0 ? n.substring(1) : n));
+  final Expr ex=val instanceof Expr ? (Expr)val : JavaFunc.type(val).e(val,null);
+  String loc=name.indexOf('$') == 0 ? name.substring(1) : name;
+  String uri="";
+  final Pattern p=Pattern.compile("^((\"|')(.*?)\\2:|(\\{(.*?)\\}))(.+)$");
+  final Matcher m=p.matcher(loc);
+  if (m.find()) {
+    uri=m.group(3);
+    if (uri == null)     uri=m.group(5);
+    loc=m.group(6);
+  }
+  final byte[] ln=token(loc);
+  if (loc.isEmpty() || !XMLToken.isNCName(ln))   return;
+  final QNm nm=new QNm(ln,token(uri));
   ns.uri(nm);
   final Var gl=vars.global().get(nm);
   if (gl == null) {

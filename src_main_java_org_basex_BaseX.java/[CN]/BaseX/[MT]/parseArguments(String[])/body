@@ -1,6 +1,7 @@
 {
   final StringBuilder serial=new StringBuilder();
   final StringBuilder bind=new StringBuilder();
+  ops=new StringList();
   final HashMap<Object[],Object> options=new HashMap<Object[],Object>();
   final Args arg=new Args(args,this,sa() ? LOCALINFO : CLIENTINFO,Util.info(CONSOLE,sa() ? LOCALMODE : CLIENTMODE));
   while (arg.more()) {
@@ -8,10 +9,10 @@
       final char c=arg.next();
       if (c == 'b') {
         if (bind.length() != 0)         bind.append(',');
-        bind.append(arg.string());
+        bind.append(arg.string().replaceAll(",",",,"));
       }
  else       if (c == 'c') {
-        commands=arg.remaining();
+        ops.add("c").add(arg.string());
       }
  else       if (c == 'd') {
         context.mprop.set(MainProp.DEBUG,true);
@@ -20,7 +21,7 @@
         options.put(Prop.DOTPLAN,true);
       }
  else       if (c == 'i') {
-        input=arg.string();
+        ops.add("i").add(arg.string());
       }
  else       if (c == 'n' && !sa()) {
         context.mprop.set(MainProp.HOST,arg.string());
@@ -30,13 +31,13 @@
         if (session != null)         session.setOutputStream(out);
       }
  else       if (c == 'p' && !sa()) {
-        context.mprop.set(MainProp.PORT,arg.num());
+        context.mprop.set(MainProp.PORT,arg.number());
       }
  else       if (c == 'P' && !sa()) {
         pass=arg.string();
       }
  else       if (c == 'q') {
-        query=arg.remaining();
+        ops.add("q").add(arg.string());
       }
  else       if (c == 'r') {
         options.put(Prop.RUNS,arg.string());
@@ -79,10 +80,10 @@
       }
     }
  else {
-      file=file == null ? arg.string() : file + " " + arg.string();
+      ops.add("f").add(arg.string());
     }
   }
-  console=file == null && commands == null && query == null;
+  console=ops.size() == 0;
   if (serial.length() != 0)   options.put(Prop.SERIALIZER,serial);
   if (bind.length() != 0)   options.put(Prop.BINDINGS,bind);
   for (  final Map.Entry<Object[],Object> entry : options.entrySet()) {

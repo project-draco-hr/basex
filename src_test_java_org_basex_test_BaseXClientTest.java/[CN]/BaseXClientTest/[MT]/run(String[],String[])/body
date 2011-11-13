@@ -1,0 +1,17 @@
+{
+  System.setOut(NULL);
+  System.setErr(NULL);
+  StringList sl=new StringList().add("-p9999").add("-e9998").add(sargs);
+  final BaseXServer bxs=new BaseXServer(sl.toArray());
+  final ArrayOutput ao=new ArrayOutput();
+  System.setOut(new PrintStream(ao));
+  try {
+    sl.reset();
+    sl.add("-p9999").add("-U" + Text.ADMIN).add("-P" + Text.ADMIN).add(args);
+    new BaseXClient(sl.toArray());
+    return ao.toString();
+  }
+  finally {
+    bxs.stop();
+  }
+}
