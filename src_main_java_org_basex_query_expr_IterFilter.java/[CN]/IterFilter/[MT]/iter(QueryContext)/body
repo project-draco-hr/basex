@@ -6,11 +6,21 @@
     Iter iter;
     @Override public Item next() throws QueryException {
       if (iter == null)       iter=ctx.iter(root);
-      while (true) {
-        ctx.checkStop();
-        final Item it=iter.next();
-        if (it == null)         return null;
-        if (preds(it,ctx))         return it;
+      final Value cv=ctx.value;
+      final long cp=ctx.pos;
+      final long cs=ctx.size;
+      try {
+        while (true) {
+          ctx.checkStop();
+          final Item it=iter.next();
+          if (it == null)           return null;
+          if (preds(it,ctx))           return it;
+        }
+      }
+  finally {
+        ctx.value=cv;
+        ctx.pos=cp;
+        ctx.size=cs;
       }
     }
   }
