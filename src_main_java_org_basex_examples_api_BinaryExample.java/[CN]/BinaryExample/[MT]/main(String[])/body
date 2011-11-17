@@ -1,0 +1,24 @@
+{
+  final BaseXClient session=new BaseXClient("localhost",1984,"admin","admin");
+  try {
+    session.execute("create db database");
+    System.out.println(session.info());
+    final byte[] bytes=new byte[256];
+    for (int b=0; b < bytes.length; b++)     bytes[b]=(byte)b;
+    final ByteArrayInputStream bais=new ByteArrayInputStream(bytes);
+    session.store("test.bin",bais);
+    System.out.println(session.info());
+    final ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    session.execute("retrieve test.bin",baos);
+    if (Arrays.equals(bytes,baos.toByteArray())) {
+      System.out.println("Stored and retrieved bytes are equal.");
+    }
+ else {
+      System.err.println("Stored and retrieved bytes differ!");
+    }
+    session.execute("drop db database");
+  }
+  finally {
+    session.close();
+  }
+}
