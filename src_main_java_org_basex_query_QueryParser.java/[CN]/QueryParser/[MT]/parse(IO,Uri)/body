@@ -1,12 +1,15 @@
 {
   file=input;
   if (!more())   error(QUERYEMPTY);
-  int cp;
-  for (int p=0; p < ql; p+=Character.charCount(cp)) {
-    cp=query.codePointAt(p);
-    if (XMLToken.valid(cp))     continue;
-    qp=p;
-    error(QUERYINV,cp);
+  for (int p=0; p < ql; ) {
+    int cp=query.charAt(p);
+    final boolean hs=cp >= Character.MIN_HIGH_SURROGATE;
+    if (hs)     cp=query.codePointAt(p);
+    if (!XMLToken.valid(cp)) {
+      qp=p;
+      error(QUERYINV,cp);
+    }
+    p+=hs ? Character.charCount(cp) : 1;
   }
   final Expr expr=parse(uri);
   if (more()) {
