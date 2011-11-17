@@ -1,20 +1,21 @@
 {
   if (!wsConsumeWs(SWITCH,PAR1,TYPEPAR))   return null;
   wsCheck(PAR1);
-  Expr[] exprs={check(expr(),NOSWITCH)};
+  final Expr expr=check(expr(),NOSWITCH);
+  SwitchCase[] exprs={};
   wsCheck(PAR2);
-  Expr[] cases;
-  while (true) {
-    cases=new Expr[0];
+  Expr[] cases={};
+  do {
+    cases=new Expr[1];
     while (wsConsumeWs(CASE))     cases=add(cases,single());
-    if (cases.length == 0)     break;
+    if (cases.length == 1) {
+      if (exprs.length == 0)       error(WRONGCHAR,CASE,found());
+      wsCheck(DEFAULT);
+    }
     wsCheck(RETURN);
-    final Expr ret=single();
-    for (    final Expr c : cases)     exprs=add(add(exprs,c),ret);
+    cases[0]=single();
+    exprs=Array.add(exprs,new SwitchCase(input(),cases));
   }
-  if (exprs.length == 1)   error(WRONGCHAR,CASE,found());
-  wsCheck(DEFAULT);
-  wsCheck(RETURN);
-  exprs=add(exprs,single());
-  return new Switch(input(),exprs);
+ while (cases.length != 1);
+  return new Switch(input(),expr,exprs);
 }
