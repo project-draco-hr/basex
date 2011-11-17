@@ -4,36 +4,40 @@
   final long cs=ctx.size;
   final long cp=ctx.pos;
   Iter res=v.iter();
-  final int el=steps.length;
-  for (int ex=0; ex < el; ex++) {
-    final Expr e=steps[ex];
-    final boolean last=ex + 1 == el;
-    final ItemCache ic=new ItemCache();
-    boolean nodes=false;
-    ctx.size=res.size();
-    ctx.pos=1;
-    for (Item it; (it=res.next()) != null; ) {
-      if (!it.node())       NODESPATH.thrw(input,this,it.type);
-      ctx.value=it;
-      final Iter ir=ctx.iter(e);
-      for (Item i; (i=ir.next()) != null; ) {
-        if (ic.size() == 0)         nodes=i.node();
- else         if (last && nodes != i.node())         EVALNODESVALS.thrw(input);
-        ic.add(i);
+  try {
+    final int el=steps.length;
+    for (int ex=0; ex < el; ex++) {
+      final Expr e=steps[ex];
+      final boolean last=ex + 1 == el;
+      final ItemCache ic=new ItemCache();
+      boolean nodes=false;
+      ctx.size=res.size();
+      ctx.pos=1;
+      for (Item it; (it=res.next()) != null; ) {
+        if (!it.node())         NODESPATH.thrw(input,this,it.type);
+        ctx.value=it;
+        final Iter ir=ctx.iter(e);
+        for (Item i; (i=ir.next()) != null; ) {
+          if (ic.size() == 0)           nodes=i.node();
+ else           if (last && nodes != i.node())           EVALNODESVALS.thrw(input);
+          ic.add(i);
+        }
+        ctx.pos++;
       }
-      ctx.pos++;
-    }
-    if (nodes) {
-      final NodeCache nc=new NodeCache().random();
-      for (Item it; (it=ic.next()) != null; )       nc.add((ANode)it);
-      res=nc.value().cache();
-    }
+      if (nodes) {
+        final NodeCache nc=new NodeCache().random();
+        for (Item it; (it=ic.next()) != null; )         nc.add((ANode)it);
+        res=nc.value().cache();
+      }
  else {
-      res=ic;
+        res=ic;
+      }
     }
   }
-  ctx.value=cv;
-  ctx.size=cs;
-  ctx.pos=cp;
+  finally {
+    ctx.value=cv;
+    ctx.size=cs;
+    ctx.pos=cp;
+  }
   return res;
 }
