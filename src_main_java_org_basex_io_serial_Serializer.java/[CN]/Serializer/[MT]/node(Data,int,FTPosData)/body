@@ -2,8 +2,6 @@
   boolean doc=false;
   final TokenList nsp=data.ns.size() != 0 ? new TokenList() : null;
   final IntList pars=new IntList();
-  final TokenList names=new TokenList();
-  names.set(0,ns(EMPTY));
   int l=0;
   int p=pre;
   final int s=pre + data.size(pre,data.kind(p));
@@ -36,46 +34,34 @@
  else {
       final byte[] name=data.name(p,k);
       openElement(name);
-      byte[] empty=names.get(l);
       if (nsp != null) {
         nsp.reset();
         int pp=p;
+        byte[] key=pref(name);
+        byte[] val=data.ns.uri(data.uri(p,k));
+        if (val == null)         val=EMPTY;
+        final byte[] old=ns(key);
+        if (old == null || !eq(old,val))         namespace(key,val);
         do {
           final Atts atn=data.ns(pp);
           for (int n=0; n < atn.size; ++n) {
-            final byte[] key=atn.key[n];
-            final byte[] val=atn.val[n];
+            key=atn.key[n];
+            val=atn.val[n];
             if (!nsp.contains(key)) {
               nsp.add(key);
               namespace(key,val);
-              if (key.length == 0)               empty=val;
             }
           }
+          if (level != 0 || l != 0)           break;
           pp=data.parent(pp,data.kind(pp));
         }
- while (pp >= 0 && data.kind(pp) == Data.ELEM && l == 0 && level == 0);
-        final byte[] key=pref(name);
-        byte[] val=data.ns.uri(data.uri(p,k));
-        if (val == null)         val=EMPTY;
-        if (ns.get(key) == -1) {
-          if (key.length != 0) {
-            namespace(key,val);
-          }
- else           if (!eq(val,empty)) {
-            namespace(key,val);
-            empty=val;
-          }
-        }
-      }
- else       if (l == 0 && ns(EMPTY) != EMPTY) {
-        namespace(EMPTY,EMPTY);
+ while (pp >= 0 && data.kind(pp) == Data.ELEM);
       }
       final int as=p + data.attSize(p,k);
       while (++p != as) {
         attribute(data.name(p,Data.ATTR),data.text(p,false));
       }
       pars.set(l++,r);
-      names.set(l,empty);
     }
   }
   while (--l >= 0)   closeElement();
