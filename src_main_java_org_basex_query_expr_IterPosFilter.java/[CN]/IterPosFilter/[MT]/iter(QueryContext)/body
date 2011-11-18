@@ -21,37 +21,41 @@
           if (s != -1) {
             cpos=last ? s : pos.min;
             if (cpos > s)             return null;
-            direct=true;
+            direct=preds.length == 1;
           }
         }
       }
       final Value cv=ctx.value;
       final long cp=ctx.pos;
       final long cs=ctx.size;
-      Item item=null;
-      if (direct) {
-        item=iter.size() < cpos ? null : iter.get(cpos - 1);
-        ctx.pos=cpos++;
-      }
- else {
-        Item lnode=null;
-        while ((item=iter.next()) != null) {
-          ctx.checkStop();
-          ctx.size=0;
+      try {
+        Item item=null;
+        if (direct) {
+          item=iter.size() < cpos ? null : iter.get(cpos - 1);
           ctx.pos=cpos++;
-          if (preds(item,ctx))           break;
-          lnode=item;
-          ctx.pos=cp;
-          ctx.size=cs;
         }
-        if (last)         item=lnode;
+ else {
+          Item lnode=null;
+          while ((item=iter.next()) != null) {
+            ctx.checkStop();
+            ctx.size=0;
+            ctx.pos=cpos++;
+            if (preds(item,ctx))             break;
+            lnode=item;
+            ctx.pos=cp;
+            ctx.size=cs;
+          }
+          if (last)           item=lnode;
+        }
+        skip=last || pos != null && pos.skip(ctx);
+        if (skip && direct)         iter.reset();
+        return item;
       }
-      skip=last || pos != null && pos.skip(ctx);
-      if (skip && direct)       iter.reset();
-      ctx.value=cv;
-      ctx.pos=cp;
-      ctx.size=cs;
-      return item;
+  finally {
+        ctx.value=cv;
+        ctx.pos=cp;
+        ctx.size=cs;
+      }
     }
   }
 ;
