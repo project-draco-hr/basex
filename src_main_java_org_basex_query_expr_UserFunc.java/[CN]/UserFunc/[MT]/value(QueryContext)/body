@@ -1,7 +1,11 @@
 {
   final Value cv=ctx.value;
   ctx.value=null;
-  final Value v=expr.value(ctx);
-  ctx.value=cv;
-  return cast ? ret.promote(v,ctx,input) : v;
+  try {
+    final Value v=expr.value(ctx);
+    return cast ? ret.promote(v,ctx,input) : v;
+  }
+  finally {
+    ctx.value=cv;
+  }
 }

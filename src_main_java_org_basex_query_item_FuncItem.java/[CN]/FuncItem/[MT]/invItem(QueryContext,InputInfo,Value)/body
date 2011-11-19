@@ -1,9 +1,14 @@
 {
-  final int s=bindVars(ctx,args);
+  final int s=ctx.vars.size();
   final Value cv=ctx.value;
-  ctx.value=null;
-  final Item it=expr.item(ctx,ii);
-  ctx.value=cv;
-  ctx.vars.reset(s);
-  return cast != null ? cast.cast(it,expr,false,ctx,ii) : it;
+  try {
+    bindVars(ctx,args);
+    ctx.value=null;
+    final Item it=expr.item(ctx,ii);
+    return cast != null ? cast.cast(it,expr,false,ctx,ii) : it;
+  }
+  finally {
+    ctx.value=cv;
+    ctx.vars.reset(s);
+  }
 }

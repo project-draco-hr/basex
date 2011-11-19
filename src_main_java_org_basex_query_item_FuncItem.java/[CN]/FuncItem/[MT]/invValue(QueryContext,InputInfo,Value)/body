@@ -1,9 +1,14 @@
 {
-  final int s=bindVars(ctx,args);
+  final int s=ctx.vars.size();
   final Value cv=ctx.value;
-  ctx.value=null;
-  final Value v=ctx.value(expr);
-  ctx.value=cv;
-  ctx.vars.reset(s);
-  return cast != null ? cast.promote(v,ctx,ii) : v;
+  try {
+    bindVars(ctx,args);
+    ctx.value=null;
+    final Value v=ctx.value(expr);
+    return cast != null ? cast.promote(v,ctx,ii) : v;
+  }
+  finally {
+    ctx.value=cv;
+    ctx.vars.reset(s);
+  }
 }
