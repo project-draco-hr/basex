@@ -1,11 +1,16 @@
 {
-  final String path=string(checkStr(expr[0],ctx));
-  final File dir=new File(path);
-  if (!dir.isDirectory())   NOTDIR.thrw(input,path);
+  File dir=null;
+  try {
+    dir=path.getCanonicalFile();
+  }
+ catch (  final IOException ex) {
+    throw PATHINVALID.thrw(input,path);
+  }
+  if (!dir.isDirectory())   NOTDIR.thrw(input,dir);
   final boolean rec=optionalBool(1,ctx);
   final Pattern pat=expr.length != 3 ? null : Pattern.compile(IOFile.regex(string(checkStr(expr[2],ctx))),Prop.WIN ? Pattern.CASE_INSENSITIVE : 0);
   final StringList list=new StringList();
-  list(dir,list,rec,pat);
+  list(dir.getPath().length() + 1,dir,list,rec,pat);
   return new Iter(){
     int c=-1;
     @Override public Item next(){
