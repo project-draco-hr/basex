@@ -1,7 +1,7 @@
 {
   final Context ctx=gui.context;
   if (refresh) {
-    choice.setData(List.list(ctx).toArray());
+    choice.setData(manage ? ShowBackups.listdbs(ctx).toArray() : List.list(ctx).toArray());
     choice.requestFocusInWindow();
     refresh=false;
   }
@@ -34,12 +34,13 @@
     for (    final String s : dbs)     cmds.add(new CreateBackup(s));
   }
  else   if (cmp == restore) {
-    for (    final String s : dbs)     cmds.add(new Restore(s));
+    System.out.println(backupchoice.getSelectedItem());
+    if (dbs.size() == 1)     cmds.add(new Restore((String)backupchoice.getSelectedItem()));
+ else     for (    final String s : dbs)     cmds.add(new Restore(s));
+  }
+ else   if (cmp == backupchoice) {
   }
  else {
-    enableOK(buttons,BUTTONOPEN,o);
-    enableOK(buttons,BUTTONBACKUP,o);
-    enableOK(buttons,BUTTONDROP,o);
     o=ctx.mprop.dbexists(db);
     if (o) {
       DataInput in=null;
@@ -61,6 +62,16 @@
         }
       }
     }
+    if (manage) {
+      final String[] backups=ShowBackups.findBackups(db,ctx).toArray();
+      if (!o && backups.length > 0) {
+        detail.setText(Token.token("Database only available as backup.\n" + "Please choose a backup to restore."));
+      }
+      backupchoice.setModel(new DefaultComboBoxModel(backups));
+    }
+    enableOK(buttons,BUTTONOPEN,o);
+    enableOK(buttons,BUTTONBACKUP,o);
+    enableOK(buttons,BUTTONDROP,o);
     enableOK(buttons,BUTTONRENAME,o);
     enableOK(buttons,BUTTONCOPY,o);
     o=true;

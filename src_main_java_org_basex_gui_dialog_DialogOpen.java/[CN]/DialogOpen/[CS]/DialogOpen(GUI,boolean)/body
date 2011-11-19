@@ -1,8 +1,8 @@
 {
   super(main,m ? MANAGETITLE : OPENTITLE);
   manage=m;
-  final StringList db=List.list(main.context);
-  choice=new BaseXList(db.toArray(),this,!m);
+  final StringList dbs=manage ? ShowBackups.listdbs(main.context) : List.list(main.context);
+  choice=new BaseXList(dbs.toArray(),this,!m);
   set(choice,BorderLayout.CENTER);
   choice.setSize(160,440);
   final BaseXBack info=new BaseXBack(new BorderLayout());
@@ -14,6 +14,8 @@
   detail=new BaseXEditor(false,this);
   detail.border(5,5,5,5).setFont(f);
   BaseXLayout.setWidth(detail,400);
+  backupchoice=new BaseXCombo(this,"");
+  if (manage)   info.add(backupchoice,BorderLayout.NORTH);
   info.add(detail,BorderLayout.CENTER);
   final BaseXBack pp=new BaseXBack(new BorderLayout()).border(0,12,0,0);
   pp.add(info,BorderLayout.CENTER);
@@ -29,6 +31,6 @@
   pp.add(p,BorderLayout.SOUTH);
   set(pp,BorderLayout.EAST);
   action(null);
-  if (db.size() == 0)   return;
+  if (dbs.size() == 0)   return;
   finish(null);
 }
