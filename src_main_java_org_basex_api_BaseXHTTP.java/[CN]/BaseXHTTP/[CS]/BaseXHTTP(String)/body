@@ -48,9 +48,16 @@
   if (!shost.isEmpty())   conn.setHost(shost);
   conn.setPort(hport);
   jetty.addConnector(conn);
-  final org.mortbay.jetty.servlet.Context jcontext=new org.mortbay.jetty.servlet.Context(jetty,"/",org.mortbay.jetty.servlet.Context.SESSIONS);
-  if (rest)   jcontext.addServlet(RESTServlet.class,"/rest/*");
-  if (webdav)   jcontext.addServlet(WebDAVServlet.class,"/webdav/*");
+  final org.mortbay.jetty.servlet.Context jctx=new org.mortbay.jetty.servlet.Context(jetty,"/",org.mortbay.jetty.servlet.Context.SESSIONS);
+  if (rest)   jctx.addServlet(RESTServlet.class,"/rest/*");
+  if (webdav)   jctx.addServlet(WebDAVServlet.class,"/webdav/*");
+  final ResourceHandler rh=new ResourceHandler();
+  rh.setWelcomeFiles(new String[]{"index.xml","index.xhtml","index.html"});
+  rh.setResourceBase(ctx.mprop.get(MainProp.HTTPPATH));
+  final HandlerList hl=new HandlerList();
+  hl.addHandler(rh);
+  hl.addHandler(jctx);
+  jetty.setHandler(hl);
   jetty.start();
   new StopServer(sport,shost).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
