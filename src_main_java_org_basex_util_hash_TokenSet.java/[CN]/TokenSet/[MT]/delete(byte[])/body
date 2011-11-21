@@ -1,12 +1,15 @@
 {
-  final int p=Token.hash(key) & bucket.length - 1;
-  for (int id=bucket[p]; id != 0; id=next[id]) {
-    if (Token.eq(key,keys[id])) {
-      if (bucket[p] == id)       bucket[p]=next[id];
- else       next[id]=next[next[id]];
+  final int p=hash(key) & bucket.length - 1;
+  int o=0, n;
+  for (int id=bucket[p]; id != 0; id=n) {
+    n=next[id];
+    if (eq(key,keys[id])) {
+      if (bucket[p] == id)       bucket[p]=n;
+ else       next[o]=next[n];
       keys[id]=null;
       return id;
     }
+    o=id;
   }
   return 0;
 }

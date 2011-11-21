@@ -1,0 +1,21 @@
+{
+  File dir=null;
+  try {
+    dir=path.getCanonicalFile();
+  }
+ catch (  final IOException ex) {
+    throw PATHINVALID.thrw(input,path);
+  }
+  if (!dir.isDirectory())   NOTDIR.thrw(input,dir);
+  final boolean rec=optionalBool(1,ctx);
+  final Pattern pat=expr.length != 3 ? null : Pattern.compile(IOFile.regex(string(checkStr(expr[2],ctx))),Prop.WIN ? Pattern.CASE_INSENSITIVE : 0);
+  final StringList list=new StringList();
+  list(dir.getPath().length(),dir,list,rec,pat);
+  return new Iter(){
+    int c;
+    @Override public Item next(){
+      return c < list.size() ? Str.get(path + list.get(c++)) : null;
+    }
+  }
+;
+}
