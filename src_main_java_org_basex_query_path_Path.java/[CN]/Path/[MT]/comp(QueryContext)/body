@@ -4,8 +4,11 @@
     if (root instanceof Context)     root=null;
   }
   final Value v=ctx.value;
-  ctx.value=root(ctx);
-  final Expr e=compPath(ctx);
-  ctx.value=v;
-  return e;
+  try {
+    ctx.value=root(ctx);
+    return compPath(ctx);
+  }
+  finally {
+    ctx.value=v;
+  }
 }
