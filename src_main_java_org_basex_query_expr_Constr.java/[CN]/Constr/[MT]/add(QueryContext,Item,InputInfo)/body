@@ -1,8 +1,16 @@
 {
   if (it == null)   return false;
-  if (it.node() && it.type != NodeType.TXT) {
+  if (!it.isNode()) {
+    if (more)     text.add(' ');
+    text.add(it.string(ii));
+    more=true;
+  }
+ else {
     ANode node=(ANode)it;
-    if (it.type == NodeType.ATT) {
+    if (it.type == NodeType.TXT) {
+      text.add(node.string());
+    }
+ else     if (it.type == NodeType.ATT) {
       if (text.size() != 0 || children.size() != 0) {
         errAtt=true;
         return false;
@@ -10,7 +18,7 @@
       final QNm qname=node.qname();
       for (int a=0; a < atts.size(); ++a) {
         if (qname.eq(atts.get(a).qname())) {
-          duplAtt=qname.atom();
+          duplAtt=qname.string();
           return false;
         }
       }
@@ -27,8 +35,8 @@
       }
       node=node.copy();
       children.add(node);
-      final Atts ats=node.ns();
-      if (ats != null && ats.size != 0) {
+      if (it.type == NodeType.ELM) {
+        final Atts ats=node.ns();
         node=node.parent();
         while (node != null && node.type == NodeType.ELM) {
           final Atts ns=node.ns();
@@ -40,11 +48,6 @@
       }
     }
     more=false;
-  }
- else {
-    if (more && it.type != NodeType.TXT)     text.add(' ');
-    text.add(it.atom(ii));
-    more=it.type != NodeType.TXT;
   }
   return true;
 }

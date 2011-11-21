@@ -11,15 +11,15 @@
   Type t=Types.find(type,atom);
   tok.reset();
   if (!atom) {
-    if (t != null && t.func()) {
+    if (t != null && t.isFunction()) {
       if (!wsConsume(ASTERISK)) {
-        if (t.map()) {
+        if (t.isMap()) {
           final Type keyType=itemType();
-          if (keyType == null)           throw error(MAPTKV,type.atom());
-          if (!keyType.instance(AtomType.AAT))           throw error(MAPTAAT,keyType);
+          if (keyType == null)           throw error(MAPTKV,type.string());
+          if (!keyType.instanceOf(AtomType.AAT))           throw error(MAPTAAT,keyType);
           wsCheck(COMMA);
           t=MapType.get((AtomType)keyType,sequenceType());
-          if (!wsConsume(PAR2))           error(FUNCMISS,type.atom());
+          if (!wsConsume(PAR2))           error(FUNCMISS,type.string());
         }
  else {
           SeqType[] args={};
@@ -28,14 +28,14 @@
               args=Array.add(args,sequenceType());
             }
  while (wsConsume(COMMA));
-            if (!wsConsume(PAR2))             error(FUNCMISS,type.atom());
+            if (!wsConsume(PAR2))             error(FUNCMISS,type.string());
           }
           wsCheck(AS);
           t=FuncType.get(args,sequenceType());
         }
       }
  else       if (!wsConsume(PAR2)) {
-        error(FUNCMISS,type.atom());
+        error(FUNCMISS,type.string());
       }
     }
  else {
@@ -49,7 +49,7 @@ case ')':
       par--;
     break;
 case '\0':
-  error(FUNCMISS,type.atom());
+  error(FUNCMISS,type.string());
 }
 tok.add(consume());
 }
@@ -57,7 +57,7 @@ tok.add(consume());
 }
 if (t == null) {
 if (atom) error(TYPEUNKNOWN,type);
-error(NOTYPE,new TokenBuilder(type.atom()).add('(').add(tok.finish()).add(')'));
+error(NOTYPE,new TokenBuilder(type.string()).add('(').add(tok.finish()).add(')'));
 }
 return t;
 }

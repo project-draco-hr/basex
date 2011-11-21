@@ -3,8 +3,8 @@
   String name=string(pth);
   if (name.endsWith("."))   RESINV.thrw(input,pth);
   IO io=null;
-  if (doc.str()) {
-    io=IO.get(string(doc.atom(input)));
+  if (doc.isString()) {
+    io=IO.get(string(doc.string(input)));
     if (!io.exists())     RESFNF.thrw(input,pth);
     if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+="/";
   }
@@ -14,19 +14,19 @@
     target=name.substring(0,s);
     name=name.substring(s + 1);
   }
-  if (doc.str()) {
+  if (doc.isString()) {
     if (!name.isEmpty())     io.name(name);
  else     if (!(io instanceof IOContent))     name=io.name();
   }
   if (name.isEmpty())   RESINV.thrw(input,pth);
-  if (doc.node()) {
+  if (doc.isNode()) {
     final ANode nd=(ANode)doc;
-    if (nd.ndType() != NodeType.DOC)     UPDOCTYPE.thrw(input,nd);
+    if (nd.type != NodeType.DOC)     UPDOCTYPE.thrw(input,nd);
     mdata=new MemData(data);
     new DataBuilder(mdata).build(nd);
     mdata.update(0,Data.DOC,pth);
   }
- else   if (doc.str()) {
+ else   if (doc.isString()) {
     final DirParser p=new DirParser(io,target,ctx.prop);
     final MemBuilder b=new MemBuilder(data.meta.name,p,ctx.prop);
     try {
