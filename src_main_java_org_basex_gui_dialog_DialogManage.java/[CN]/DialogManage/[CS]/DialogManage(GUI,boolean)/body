@@ -1,7 +1,6 @@
 {
   super(main,m ? MANAGETITLE : OPENTITLE);
-  manage=m;
-  final StringList dbs=manage ? ShowBackups.listdbs(main.context) : List.list(main.context);
+  final StringList dbs=ShowBackups.listdbs(main.context);
   choice=new BaseXList(dbs.toArray(),this,!m);
   set(choice,BorderLayout.CENTER);
   choice.setSize(160,450);
@@ -15,16 +14,15 @@
   detail.border(5,5,5,5).setFont(f);
   BaseXLayout.setWidth(detail,400);
   backupchoice=new BaseXCombo(this,"");
-  if (manage) {
-    final BaseXBack b=new BaseXBack(new BorderLayout(5,5));
-    b.add(new BaseXLabel(AVAILABLE),BorderLayout.NORTH);
-    final BaseXBack bb=new BaseXBack(new BorderLayout(5,5));
-    delete=new BaseXButton("delete",this);
-    bb.add(backupchoice,BorderLayout.WEST);
-    bb.add(delete,BorderLayout.EAST);
-    b.add(bb,BorderLayout.CENTER);
-    info.add(b,BorderLayout.NORTH);
-  }
+  BaseXLayout.setWidth(backupchoice,440);
+  final BaseXBack b=new BaseXBack(new BorderLayout(5,5));
+  b.add(new BaseXLabel(AVAILABLE),BorderLayout.NORTH);
+  final BaseXBack bb=new BaseXBack(new BorderLayout(5,5));
+  delete=new BaseXButton(BUTTONDELETE,this);
+  bb.add(backupchoice,BorderLayout.WEST);
+  bb.add(delete,BorderLayout.EAST);
+  b.add(bb,BorderLayout.CENTER);
+  info.add(b,BorderLayout.NORTH);
   info.add(detail,BorderLayout.CENTER);
   final BaseXBack pp=new BaseXBack(new BorderLayout()).border(0,12,0,0);
   pp.add(info,BorderLayout.CENTER);
@@ -35,7 +33,7 @@
   rename=new BaseXButton(BUTTONRENAME,this);
   open=new BaseXButton(BUTTONOPEN,this);
   drop=new BaseXButton(BUTTONDROP,this);
-  buttons=manage ? newButtons(this,drop,rename,copy,backup,restore,BUTTONOK) : newButtons(this,open,BUTTONCANCEL);
+  buttons=newButtons(this,drop,rename,copy,backup,restore,open);
   p.add(buttons,BorderLayout.EAST);
   pp.add(p,BorderLayout.SOUTH);
   set(pp,BorderLayout.EAST);
