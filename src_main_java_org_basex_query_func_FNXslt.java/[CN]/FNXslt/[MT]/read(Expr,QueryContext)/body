@@ -1,12 +1,13 @@
 {
-  final Item in=checkEmpty(e.item(ctx,input));
-  if (in.isNode()) {
+  final Item it=checkEmpty(e.item(ctx,input));
+  final Type ip=it.type;
+  if (ip.isNode()) {
     final ArrayOutput ao=new ArrayOutput();
     final Serializer ser=Serializer.get(ao);
-    in.serialize(ser);
+    it.serialize(ser);
     ser.close();
     return new IOContent(ao.toArray());
   }
-  if (in.isString())   return IO.get(string(in.string(input)));
-  throw STRNODTYPE.thrw(input,this,in.type);
+  if (ip.isString())   return IO.get(string(it.string(input)));
+  throw STRNODTYPE.thrw(input,this,ip);
 }

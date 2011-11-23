@@ -1,16 +1,18 @@
 {
   if (it == null)   return false;
-  if (!it.isNode()) {
+  final Type ip=it.type;
+  if (ip.isFunction())   CONSFUNC.thrw(ii,it);
+  if (!ip.isNode()) {
     if (more)     text.add(' ');
     text.add(it.string(ii));
     more=true;
   }
  else {
     ANode node=(ANode)it;
-    if (it.type == NodeType.TXT) {
+    if (ip == NodeType.TXT) {
       text.add(node.string());
     }
- else     if (it.type == NodeType.ATT) {
+ else     if (ip == NodeType.ATT) {
       if (text.size() != 0 || children.size() != 0) {
         errAtt=true;
         return false;
@@ -22,9 +24,9 @@
           return false;
         }
       }
-      atts.add(node.copy());
+      atts.add(new FAttr(node.qname(),node.string()));
     }
- else     if (it.type == NodeType.DOC) {
+ else     if (ip == NodeType.DOC) {
       final AxisIter ai=node.children();
       for (ANode ch; (ch=ai.next()) != null; )       add(ctx,ch,ii);
     }
@@ -35,7 +37,7 @@
       }
       node=node.copy();
       children.add(node);
-      if (it.type == NodeType.ELM) {
+      if (ip == NodeType.ELM) {
         final Atts ats=node.ns();
         node=node.parent();
         while (node != null && node.type == NodeType.ELM) {

@@ -24,17 +24,17 @@ case NAMESPACE_URI_FOR_PREFIX:
 final byte[] pre=checkEStr(it);
 final ANode an=(ANode)checkType(it2,NodeType.ELM);
 final boolean copied=ctx.copiedNods != null && ctx.copiedNods.contains(an.data());
-final Atts at=an.nsScope(!copied || ctx.nsInherit);
+final Atts at=an.nsScope(!copied);
 final int i=at != null ? at.get(pre) : -1;
 return i != -1 ? Uri.uri(at.val(i)) : null;
 case RESOLVE_URI:
 if (it == null) return null;
 final Uri rel=Uri.uri(checkEStr(it));
-if (!rel.valid()) URIINV.thrw(input,it);
-if (rel.absolute()) return rel;
+if (!rel.isValid()) URIINV.thrw(input,it);
+if (rel.isAbsolute()) return rel;
 final Uri base=it2 == null ? ctx.baseURI : Uri.uri(checkEStr(it2));
-if (!base.valid()) URIINV.thrw(input,base);
-if (!base.absolute()) URIABS.thrw(input,base);
+if (!base.isValid()) URIINV.thrw(input,base);
+if (!base.isAbsolute()) URIABS.thrw(input,base);
 return base.resolve(rel);
 default :
 return super.item(ctx,ii);

@@ -3,7 +3,7 @@
   Item res=iter.next();
   if (res == null)   return null;
   cmp.e(input,res,res);
-  if (!res.isUntyped() && res.isString() || res.isDate()) {
+  if (!res.type.isUntyped() && res.type.isString() || res.type.isDate()) {
     for (Item it; (it=iter.next()) != null; ) {
       if (it.type != res.type) {
         FUNCMP.thrw(input,desc(),res.type,it.type);
@@ -12,11 +12,11 @@
     }
     return res;
   }
-  Type t=res.isUntyped() ? DBL : res.type;
+  Type t=res.type.isUntyped() ? DBL : res.type;
   if (res.type != t)   res=t.e(res,ctx,input);
   for (Item it; (it=iter.next()) != null; ) {
     t=type(res,it);
-    if (!it.isDuration() && Double.isNaN(it.dbl(input)) || cmp.e(input,res,it))     res=it;
+    if (!it.type.isDuration() && Double.isNaN(it.dbl(input)) || cmp.e(input,res,it))     res=it;
     if (res.type != t)     res=t.e(res,ctx,input);
   }
   return res;

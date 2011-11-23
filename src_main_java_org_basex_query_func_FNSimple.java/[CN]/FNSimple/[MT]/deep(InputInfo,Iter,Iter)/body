@@ -1,37 +1,37 @@
 {
   while (true) {
-    final Item it1=iter1.next();
-    final Item it2=iter2.next();
+    final Item it1=iter1.next(), it2=iter2.next();
+    if (it1 == null && it2 == null)     return true;
     if (it1 == null) {
-      if (it2 == null)       return true;
-      if (it2.isFunction())       FNCMP.thrw(ii,it2);
+      if (it2.type.isFunction())       FNCMP.thrw(ii,it2);
       return false;
     }
- else     if (it2 == null) {
-      if (it1.isFunction())       FNCMP.thrw(ii,it1);
+    if (it2 == null) {
+      if (it1.type.isFunction())       FNCMP.thrw(ii,it1);
       return false;
     }
-    if (it1.isFunction() || it2.isFunction()) {
-      if (it1.isMap() && it2.isMap()) {
+    Type t1=it1.type, t2=it2.type;
+    if (t1.isFunction() || t2.isFunction()) {
+      if (t1.isMap() && t2.isMap()) {
         final Map map1=(Map)it1, map2=(Map)it2;
         if (!map1.deep(ii,map2))         return false;
         continue;
       }
-      FNCMP.thrw(ii,it1.isFunction() ? it1 : it2);
+      FNCMP.thrw(ii,t1.isFunction() ? it1 : it2);
     }
-    if (!it1.isNode() && !it2.isNode()) {
+    if (!t1.isNode() && !t2.isNode()) {
       if (!it1.equiv(ii,it2))       return false;
       continue;
     }
-    if (it1.type != it2.type)     return false;
+    if (t1 != t2)     return false;
     ANode s1=(ANode)it1, s2=(ANode)it2;
     final Stack<AxisIter[]> chld=new Stack<AxisIter[]>();
     AxisIter[] ch={s1.children(),s2.children()};
     chld.push(ch);
     boolean desc=false;
     do {
-      final Type t1=s1 != null ? s1.type : null;
-      final Type t2=s2 != null ? s2.type : null;
+      t1=s1 != null ? s1.type : null;
+      t2=s2 != null ? s2.type : null;
       if (desc) {
         if (t1 == NodeType.PI || t1 == NodeType.COM) {
           s1=ch[0].next();

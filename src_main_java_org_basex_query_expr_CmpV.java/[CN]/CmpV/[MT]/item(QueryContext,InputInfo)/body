@@ -3,6 +3,8 @@
   if (a == null)   return null;
   final Item b=expr[1].item(ctx,input);
   if (b == null)   return null;
-  if (!a.comparable(b))   XPTYPECMP.thrw(input,a.type,b.type);
-  return Bln.get(op.e(input,a,b));
+  if (a.comparable(b))   return Bln.get(op.e(input,a,b));
+  if (a.type.isFunction())   FNEQ.thrw(input,a);
+  if (b.type.isFunction())   FNEQ.thrw(input,b);
+  throw XPTYPECMP.thrw(input,a.type,b.type);
 }
