@@ -1,10 +1,13 @@
 {
   super.comp(ctx);
-  final Type t=expr[expr.length - 1].type().type;
+  final int ar=expr.length - 1;
+  final Expr f=expr[ar];
+  final Type t=f.type().type;
   if (t instanceof FuncType) {
     final FuncType ft=(FuncType)t;
+    if (ft.args != null && ft.args.length != ar)     throw INVARITY.thrw(input,f,ar);
     if (ft.ret != null)     type=ft.ret;
   }
-  if (allAreValues() && expr[expr.length - 1] instanceof Map)   return optPre(value(ctx),ctx);
+  if (allAreValues() && f instanceof Map)   return optPre(value(ctx),ctx);
   return this;
 }
