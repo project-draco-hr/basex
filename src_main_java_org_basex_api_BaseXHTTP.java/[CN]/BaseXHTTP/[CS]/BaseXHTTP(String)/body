@@ -1,7 +1,6 @@
 {
   parseArguments(args);
-  final boolean start=!Token.eqic(System.getProperty(DBMODE),LOCAL,CLIENT);
-  final Context ctx=HTTPSession.context();
+  server=!Token.eqic(System.getProperty(DBMODE),LOCAL,CLIENT);
   final MainProp mprop=ctx.mprop;
   final int port=mprop.num(MainProp.SERVERPORT);
   final int eport=mprop.num(MainProp.EVENTPORT);
@@ -16,17 +15,14 @@
   if (service) {
     start(hport,args);
     Util.outln(HTTP + ' ' + SERVERSTART);
-    if (start)     Util.outln(SERVERSTART);
+    if (server)     Util.outln(SERVERSTART);
     Performance.sleep(1000);
     return;
   }
   if (stopped) {
-    stop(sport);
+    stop();
     Util.outln(HTTP + ' ' + SERVERSTOPPED);
-    if (start) {
-      BaseXServer.stop(port,eport);
-      Util.outln(SERVERSTOPPED);
-    }
+    if (server)     Util.outln(SERVERSTOPPED);
     Performance.sleep(1000);
     return;
   }
@@ -36,7 +32,7 @@
       System.setProperty(DBPASS,Util.password());
     }
   }
-  if (start) {
+  if (server) {
     if (quiet)     new BaseXServer(ctx,"-z");
  else     new BaseXServer(ctx);
     Util.outln(HTTP + ' ' + SERVERSTART);
