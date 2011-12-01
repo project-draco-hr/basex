@@ -1,0 +1,24 @@
+{
+  final int p=qp;
+  if (ctx.xquery3 && quote(curr())) {
+    final byte[] uri=stringLiteral();
+    if (consume(':')) {
+      final byte[] name=ncName(null);
+      if (name.length != 0) {
+        if (def == URICHECK && uri.length == 0)         error(NOURI,name);
+        return new QNm(name,uri);
+      }
+    }
+    qp=p;
+  }
+  final byte[] nm=qName(err);
+  if (nm.length == 0)   return null;
+  if (def == SKIPCHECK)   return new QNm(nm);
+  final QNm name=new QNm(nm,ctx);
+  if (!name.hasURI()) {
+    if (def == URICHECK)     error(NSMISS,name);
+    if (name.hasPrefix())     error(NOURI,name);
+    name.uri(def);
+  }
+  return name;
+}

@@ -1,4 +1,5 @@
 {
+  final Performance per=new Performance();
   final int runs=Math.max(1,prop.num(Prop.RUNS));
   String err=null;
   String inf="";
@@ -7,10 +8,11 @@
     long hits=0;
     int updates=0;
     for (int i=0; i < runs; ++i) {
-      final Performance per=new Performance();
-      qp=progress(new QueryProcessor(query,context));
+      if (i != 0)       qp=null;
+      qp=queryProcessor(query,context);
       qp.parse();
-      pars+=per.getTime();
+      pars+=init + per.getTime();
+      init=0;
       if (i == 0)       plan(false);
       qp.compile();
       comp+=per.getTime();

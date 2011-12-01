@@ -3,15 +3,17 @@
   if (!elem && !wsConsumeWs(FUNCTION))   return false;
   wsCheck(NSPACE);
   final byte[] uri=stringLiteral();
+  if (eq(XMLURI,uri))   error(BINDXMLURI,uri,XML);
+  if (eq(XMLNSURI,uri))   error(BINDXMLURI,uri,XMLNS);
   if (elem) {
     if (declElem)     error(DUPLNS);
     declElem=true;
-    ctx.nsElem=uri;
+    ctx.nsElem=uri.length == 0 ? null : uri;
   }
  else {
     if (declFunc)     error(DUPLNS);
     declFunc=true;
-    ctx.nsFunc=uri;
+    ctx.nsFunc=uri.length == 0 ? null : uri;
   }
   return true;
 }

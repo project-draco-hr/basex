@@ -1,6 +1,6 @@
 {
-  final byte[] uri=name.uri().string();
-  final byte[] ln=name.ln();
+  final byte[] uri=name.uri();
+  final byte[] ln=name.local();
   if (eq(uri,XSURI)) {
     final Type type=AtomType.find(name,true);
     if (type == null || type == AtomType.NOT || type == AtomType.AAT) {
@@ -38,12 +38,17 @@
   }
   final FuncCall fun=FNIndex.get().get(ln,uri,args,qp);
   if (fun != null) {
-    ctx.updating|=fun.def == Function.PUT || fun.def == Function._DB_ADD || fun.def == Function._DB_DELETE || fun.def == Function._DB_RENAME || fun.def == Function._DB_REPLACE || fun.def == Function._DB_OPTIMIZE || fun.def == Function._DB_STORE;
+    for (    final Function f : Function.UPDATING) {
+      if (fun.def == f) {
+        ctx.updating=true;
+        break;
+      }
+    }
     return new TypedFunc(fun,fun.def.type(args.length));
   }
   for (int l=0; l < func.length; ++l) {
     final QNm qn=func[l].name;
-    if (eq(ln,qn.ln()) && eq(uri,qn.uri().string()) && args.length == func[l].args.length)     return new TypedFunc(add(qp.input(),qn,l,args),FuncType.get(func[l]));
+    if (eq(ln,qn.local()) && eq(uri,qn.uri()) && args.length == func[l].args.length)     return new TypedFunc(add(qp.input(),qn,l,args),FuncType.get(func[l]));
   }
   if (Types.find(name,false) == null) {
     return new TypedFunc(add(qp.input(),name,add(new UserFunc(qp.input(),name,new Var[args.length],null,false),qp),args),FuncType.arity(args.length));

@@ -1,21 +1,20 @@
 {
   final int p=qp;
-  final QNm name=new QNm(qName(null),ctx,input());
-  Expr[] args;
-  if (NodeType.find(name) != null || (args=argumentList(name.string())) == null) {
-    qp=p;
-    return null;
-  }
-  alter=FUNCUNKNOWN;
-  alterFunc=name;
-  ap=qp;
-  name.uri(name.ns() ? ctx.ns.uri(name.pref(),false,input()) : ctx.nsFunc);
-  final Var[] vars=new Var[args.length];
-  final boolean part=partial(args,vars);
-  final TypedFunc f=ctx.funcs.get(name,args,ctx,this);
-  if (f != null) {
-    alter=null;
-    return part ? new PartFunApp(input(),f,vars) : f.fun;
+  final QNm name=eQName(null,ctx.nsFunc);
+  if (!keyword(name)) {
+    final Expr[] args=argumentList(name.string());
+    if (args != null) {
+      alter=FUNCUNKNOWN;
+      alterFunc=name;
+      ap=qp;
+      final Var[] vars=new Var[args.length];
+      final boolean part=partial(args,vars);
+      final TypedFunc f=ctx.funcs.get(name,args,ctx,this);
+      if (f != null) {
+        alter=null;
+        return part ? new PartFunApp(input(),f,vars) : f.fun;
+      }
+    }
   }
   qp=p;
   return null;

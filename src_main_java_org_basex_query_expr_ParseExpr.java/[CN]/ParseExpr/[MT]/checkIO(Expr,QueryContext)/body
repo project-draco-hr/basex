@@ -2,7 +2,12 @@
   checkAdmin(ctx);
   final String name=string(checkStr(e,ctx));
   IO io=IO.get(name);
-  if (!io.exists())   io=new IOFile(string(ctx.baseURI.string()),name);
-  if (!io.exists())   RESFNF.thrw(input,name);
+  if (!io.exists()) {
+    final IO iob=ctx.baseIO();
+    if (iob != null) {
+      io=new IOFile(iob.path(),name);
+      if (!io.exists())       RESFNF.thrw(input,name);
+    }
+  }
   return io;
 }

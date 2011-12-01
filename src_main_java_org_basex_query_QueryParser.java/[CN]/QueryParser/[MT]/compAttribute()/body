@@ -1,16 +1,18 @@
 {
   skipWS();
-  Expr nm;
-  if (XMLToken.isNCStartChar(curr())) {
-    nm=new QNm(qName(null));
+  Expr name;
+  final QNm qn=eQName(null,SKIPCHECK);
+  if (qn != null) {
+    name=qn;
+    names.add(new QNmCheck(qn,false));
   }
  else {
     if (!wsConsume(BRACE1))     return null;
-    nm=expr();
+    name=expr();
     wsCheck(BRACE2);
   }
   if (!wsConsume(BRACE1))   return null;
   final Expr e=expr();
   wsCheck(BRACE2);
-  return new CAttr(input(),true,nm,e == null ? Empty.SEQ : e);
+  return new CAttr(input(),true,name,e == null ? Empty.SEQ : e);
 }

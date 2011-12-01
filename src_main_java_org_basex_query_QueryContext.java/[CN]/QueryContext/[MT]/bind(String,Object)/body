@@ -1,17 +1,17 @@
 {
   final Expr ex=val instanceof Expr ? (Expr)val : JavaFunc.type(val).e(val,null);
   String loc=name.indexOf('$') == 0 ? name.substring(1) : name;
-  String uri="";
+  byte[] uri=EMPTY;
   final Matcher m=BIND.matcher(loc);
   if (m.find()) {
-    uri=m.group(3);
-    if (uri == null)     uri=m.group(5);
+    String u=m.group(3);
+    if (u == null)     u=m.group(5);
+    uri=token(u);
     loc=m.group(6);
   }
   final byte[] ln=token(loc);
   if (loc.isEmpty() || !XMLToken.isNCName(ln))   return;
-  final QNm nm=new QNm(ln,token(uri));
-  if (nm.ns())   nm.uri(ns.uri(nm.pref()));
+  final QNm nm=uri.length == 0 ? new QNm(ln,this) : new QNm(ln,uri);
   final Var gl=vars.global().get(nm);
   if (gl == null) {
     vars.setGlobal(Var.create(this,null,nm).bind(ex,this));

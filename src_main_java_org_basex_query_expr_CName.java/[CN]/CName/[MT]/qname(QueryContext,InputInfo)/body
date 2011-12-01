@@ -1,0 +1,12 @@
+{
+  final Item it=checkItem(name,ctx);
+  final Type ip=it.type;
+  if (ip == AtomType.QNM)   return (QNm)it;
+  final byte[] str=it.string(ii);
+  if (!XMLToken.isQName(str)) {
+    (ip.isString() || ip.isUntyped() ? INVNAME : INVQNAME).thrw(input,str);
+  }
+  final QNm nm=new QNm(str,ctx);
+  if (!nm.hasURI() && nm.hasPrefix())   INVPREF.thrw(input,nm);
+  return nm;
+}

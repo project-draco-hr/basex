@@ -1,5 +1,4 @@
 {
-  if (it == null)   return false;
   final Type ip=it.type;
   if (ip.isFunction())   CONSFUNC.thrw(ii,it);
   if (!ip.isNode()) {
@@ -26,26 +25,53 @@
       }
       atts.add(new FAttr(node.qname(),node.string()));
     }
+ else     if (ip == NodeType.NSP) {
+      if (text.size() != 0 || children.size() != 0) {
+        errNS=true;
+        return false;
+      }
+      final byte[] name=node.name();
+      final byte[] val=node.string();
+      int a=-1;
+      while (++a < ns.size()) {
+        if (Token.eq(name,ns.key(a))) {
+          if (Token.eq(val,ns.value(a)))           break;
+          duplNS=name;
+          return false;
+        }
+      }
+      if (a == ns.size())       ns.add(name,val);
+    }
  else     if (ip == NodeType.DOC) {
       final AxisIter ai=node.children();
-      for (ANode ch; (ch=ai.next()) != null; )       add(ctx,ch,ii);
+      for (ANode ch; (ch=ai.next()) != null; ) {
+        if (!add(ctx,ch,ii))         return false;
+      }
     }
  else {
       if (text.size() != 0) {
         children.add(new FTxt(text.finish()));
         text.reset();
       }
-      node=node.copy();
+      node=node.copy(ctx);
       children.add(node);
       if (ip == NodeType.ELM) {
-        final Atts ats=node.ns();
-        node=node.parent();
-        while (node != null && node.type == NodeType.ELM) {
-          final Atts ns=node.ns();
-          for (int a=0; a < ns.size(); ++a) {
-            if (!ats.contains(ns.key(a)))             ats.add(ns.key(a),ns.val(a));
+        final Atts ats=node.namespaces();
+        if (ctx.nsInherit) {
+          final Atts nsp=ctx.ns.stack();
+          for (int a=0; a < nsp.size(); ++a) {
+            final byte[] key=nsp.key(a);
+            if (!ats.contains(key))             ats.add(key,nsp.value(a));
           }
+        }
+        while (true) {
           node=node.parent();
+          if (node == null || node.type != NodeType.ELM)           break;
+          final Atts nsp=node.namespaces();
+          for (int a=0; a < nsp.size(); ++a) {
+            final byte[] key=nsp.key(a);
+            if (!ats.contains(key))             ats.add(key,nsp.value(a));
+          }
         }
       }
     }

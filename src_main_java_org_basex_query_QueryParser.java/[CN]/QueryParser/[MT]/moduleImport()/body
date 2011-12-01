@@ -4,15 +4,14 @@
     ns=ncName(XPNAME);
     wsCheck(IS);
   }
-  final byte[] uri=stringLiteral();
+  final byte[] uri=trim(stringLiteral());
   if (uri.length == 0)   error(NSMODURI);
   if (modules.contains(uri))   error(DUPLMODULE,uri);
-  final QNm name=new QNm(ns,uri);
-  if (ns != EMPTY)   ctx.ns.add(name,input());
+  if (ns != EMPTY)   ctx.ns.add(ns,uri,input());
   try {
     if (wsConsumeWs(AT)) {
       do {
-        module(stringLiteral(),name.uri());
+        module(stringLiteral(),uri);
       }
  while (wsConsumeWs(COMMA));
     }
@@ -27,7 +26,7 @@
         boolean found=false;
         for (        final byte[] u : MODULES)         found|=eq(uri,u);
         final byte[] path=ctx.modDeclared.get(uri);
-        if (path != null)         module(path,name.uri());
+        if (path != null)         module(path,uri);
  else         if (!found)         error(NOMODULE,uri);
       }
     }

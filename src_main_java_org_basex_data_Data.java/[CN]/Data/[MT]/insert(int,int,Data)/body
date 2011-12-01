@@ -8,7 +8,7 @@
   final TokenMap nsScope=new TokenMap();
   NSNode n=ns.current;
   do {
-    for (int i=0; i < n.vals.length; i+=2)     nsScope.add(ns.pref(n.vals[i]),ns.uri(n.vals[i + 1]));
+    for (int i=0; i < n.vals.length; i+=2)     nsScope.add(ns.prefix(n.vals[i]),ns.uri(n.vals[i + 1]));
     final int pos=n.fnd(ipar);
     if (pos < 0)     break;
     n=n.ch[pos];
@@ -64,8 +64,8 @@ if (data.nsFlag(dpre)) {
 final Atts at=data.ns(dpre);
 for (int a=0; a < at.size(); ++a) {
 final byte[] old=nsScope.get(at.key(a));
-if (old == null || !eq(old,at.val(a))) {
-newNodes.add(ns.add(at.key(a),at.val(a),pre));
+if (old == null || !eq(old,at.value(a))) {
+newNodes.add(ns.add(at.key(a),at.value(a),pre));
 ne=true;
 }
 }
@@ -82,8 +82,8 @@ text(pre,dis,data.text(dpre,true),dkind);
 break;
 case ATTR:
 nm=data.name(dpre,dkind);
-final byte[] attPref=pref(nm);
-if (data.nsFlag(dpre) && (nsScope.get(attPref) == null)) {
+final byte[] attPref=prefix(nm);
+if (data.nsFlag(dpre) && nsScope.get(attPref) == null) {
 ns.add(par,preStack.size() == 0 ? -1 : preStack.peek(),attPref,data.ns.uri(data.uri(dpre,dkind)));
 flagPres.add(par);
 }

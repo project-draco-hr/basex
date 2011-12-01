@@ -1,61 +1,62 @@
 {
-  final Item it=checkItem(tag,ctx);
-  final int s=ctx.ns.size();
+  final int s=prepare(ctx);
   try {
-    addNS(ctx);
-    final Atts nns=new Atts();
-    for (int i=0; i < nsp.size(); ++i)     nns.add(nsp.key(i),nsp.val(i));
-    final QNm nnm=qname(ctx,it,false,ii);
-    final Uri nuri=nnm.uri();
-    final byte[] np=nnm.pref(), nu=nuri.string();
-    if (eq(np,XMLNS) || eq(nu,XMLNSURI) || eq(np,XML) ^ eq(nu,XMLURI))     CEINS.thrw(input,nu,np);
-    if (!eq(np,XML)) {
-      final byte[] uri=ctx.ns.uri(np);
-      if (nnm.hasUri()) {
-        if (uri == null || !eq(uri,nu)) {
-          ctx.ns.add(new QNm(np,nuri),ii);
-          nns.add(np,nu);
+    final Atts cns=new Atts();
+    for (int i=0; i < nsp.size(); ++i)     cns.add(nsp.key(i),nsp.value(i));
+    final QNm nm=qname(ctx,ii);
+    final byte[] cp=nm.prefix(), cu=nm.uri();
+    if (eq(cp,XML) ^ eq(cu,XMLURI))     CEXML.thrw(input,cu,cp);
+    if (eq(cu,XMLNSURI))     CEINV.thrw(input,cu);
+    if (eq(cp,XMLNS))     CEINV.thrw(input,cp);
+    if (!eq(cp,XML)) {
+      final byte[] uri=ctx.ns.uri(cp);
+      if (nm.hasURI()) {
+        if (!comp && (uri == null || !eq(uri,cu))) {
+          ctx.ns.add(cp,cu);
         }
- else         if (!nns.contains(np) && !(eq(np,EMPTY) && eq(uri,EMPTY))) {
-          nns.add(np,uri);
-        }
+        if (!cns.contains(cp))         cns.add(cp,cu);
       }
- else       if (uri != null) {
-        nnm.uri(uri);
+ else {
+        nm.uri(uri);
       }
     }
     final Constr c=new Constr(ii,ctx,expr);
     if (c.errAtt)     NOATTALL.thrw(input);
+    if (c.errNS)     NONSALL.thrw(input);
     if (c.duplAtt != null)     (comp ? CATTDUPL : ATTDUPL).thrw(input,c.duplAtt);
-    final FElem node=new FElem(nnm,c.children,c.atts,nns);
+    if (c.duplNS != null)     DUPLNSCONS.thrw(input,c.duplNS);
+    for (int n=0; n < c.ns.size(); ++n) {
+      cns.add(c.ns.key(n),c.ns.value(n));
+    }
+    final FElem node=new FElem(nm,c.children,c.atts,cns);
     for (int n=0; n < c.children.size(); ++n) {
       c.children.get(n).parent(node);
     }
     for (int n=0; n < c.atts.size(); ++n) {
       final ANode att=c.atts.get(n).parent(node);
-      final QNm name=att.qname();
-      if (name.ns() && name.hasUri()) {
-        byte[] apref=name.pref();
-        final byte[] auri=name.uri().string();
-        final int pos=nns.get(apref);
-        if (pos == -1) {
-          nns.add(apref,auri);
+      final QNm qnm=att.qname();
+      if (!qnm.hasPrefix() || !qnm.hasURI())       continue;
+      byte[] apref=qnm.prefix();
+      if (eq(apref,XML))       continue;
+      final byte[] auri=qnm.uri();
+      final int pos=cns.get(apref);
+      if (pos == -1) {
+        cns.add(apref,auri);
+      }
+ else       if (!eq(cns.value(pos),auri)) {
+        apref=null;
+        for (int a=0; a < cns.size(); a++) {
+          if (eq(cns.value(a),auri))           apref=cns.key(a);
         }
- else         if (!eq(nns.val(pos),auri)) {
-          apref=null;
-          for (int a=0; a < nns.size(); a++) {
-            if (eq(nns.val(a),auri))             apref=nns.key(a);
+        if (apref == null) {
+          int i=1;
+          do {
+            apref=concat(qnm.prefix(),new byte[]{'_'},token(i++));
           }
-          if (apref == null) {
-            int i=1;
-            do {
-              apref=concat(name.pref(),token(i++));
-            }
- while (nns.contains(apref));
-            nns.add(apref,auri);
-          }
-          c.atts.item[n]=new FAttr(new QNm(concat(apref,COLON,name.ln()),name.uri()),c.atts.get(n).string());
+ while (cns.contains(apref));
+          cns.add(apref,auri);
         }
+        c.atts.item[n]=new FAttr(new QNm(concat(apref,COLON,qnm.local()),qnm.uri()),c.atts.get(n).string());
       }
     }
     return node;

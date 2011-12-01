@@ -1,7 +1,19 @@
 {
   tok.reset();
-  final boolean ok=ncName();
-  if (ok && consume(':'))   ncName2();
-  if (!ok && err != null)   error(err);
+  if (!ncName()) {
+    if (err != null)     error(err,consume());
+  }
+ else   if (consume(':')) {
+    if (!XMLToken.isNCStartChar(curr())) {
+      --qp;
+    }
+ else {
+      tok.add(':');
+      do {
+        tok.add(consume());
+      }
+ while (XMLToken.isNCChar(curr()));
+    }
+  }
   return tok.finish();
 }

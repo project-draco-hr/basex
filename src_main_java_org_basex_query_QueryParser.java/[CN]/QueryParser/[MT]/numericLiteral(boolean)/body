@@ -1,11 +1,14 @@
 {
   tok.reset();
   while (digit(curr()))   tok.add(consume());
-  if (consume('.')) {
+  final boolean dec=consume('.');
+  if (dec) {
     if (itr)     error(NUMBERITR);
-    return decimalLiteral();
+    tok.add('.');
+    while (digit(curr()))     tok.add(consume());
   }
   if (XMLToken.isNCStartChar(curr()))   return checkDbl();
+  if (dec)   return new Dec(tok.finish());
   final long l=toLong(tok.finish());
   if (l == Long.MIN_VALUE)   error(RANGE,tok);
   return Int.get(l);

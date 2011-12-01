@@ -1,5 +1,7 @@
 {
+  skipWS();
   final int pos=qp;
+  while (curr('%'))   annotation();
   if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
     final int s=ctx.vars.size();
     final Var[] args=paramList();
@@ -10,19 +12,15 @@
     return new InlineFunc(input(),type,args,body);
   }
   qp=pos;
-  skipWS();
-  final byte[] fn=qName(null);
-  if (fn.length > 0 && consume(HASH)) {
-    final QNm name=new QNm(fn);
-    if (name.ns())     name.uri(ctx.ns.uri(name.pref(),false,input()));
- else     name.uri(ctx.nsFunc);
+  final QNm name=eQName(null,ctx.nsFunc);
+  if (name != null && consume('#')) {
     final long card=((Int)numericLiteral(true)).itr(null);
-    if (card < 0 || card > Integer.MAX_VALUE)     error(FUNCUNKNOWN,fn);
+    if (card < 0 || card > Integer.MAX_VALUE)     error(FUNCUNKNOWN,name);
     final Expr[] args=new Expr[(int)card];
     final Var[] vars=new Var[args.length];
     partial(args,vars);
     final TypedFunc f=ctx.funcs.get(name,args,ctx,this);
-    if (f == null)     error(FUNCUNKNOWN,fn);
+    if (f == null)     error(FUNCUNKNOWN,name);
     return new LitFunc(input(),name,f,vars);
   }
   qp=pos;
