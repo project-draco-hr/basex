@@ -1,9 +1,17 @@
 {
-  if (!supported(test))   return;
-  if (++count % 500 == 0)   Util.out(".");
+  if (total++ % 500 == 0)   Util.out(".");
+  if (!supported(test)) {
+    if (ignoring)     ignore.add(asString("@name",test)).add(NL);
+    ignored++;
+    return;
+  }
   final String name=asString("@name",test);
-  if (!name.startsWith(single))   return;
-  ++total;
+  if (!name.startsWith(single)) {
+    if (ignoring)     ignore.add(name).add(NL);
+    ignored++;
+    return;
+  }
+  tested++;
   final XQuery qexp=new XQuery("*:result/*[1]",ctx).context(test);
   final XQValue expected=qexp.value();
   final XQuery q=new XQuery("*:dependency[@type='spec']" + "[matches(@value,'(XQ10|XP20)([^+]|$)')]",ctx);

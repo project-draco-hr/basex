@@ -15,24 +15,27 @@
   for (  final XQItem it : qset)   testSet(it.getString());
   qset.close();
   qdoc.close();
-  Util.outln(NL + "Writing log file...");
+  final StringBuilder result=new StringBuilder();
+  result.append(" Rate    : ").append(pc(correct,tested)).append(NL);
+  result.append(" Correct : ").append(correct).append(NL);
+  result.append(" Tested  : ").append(tested).append(NL);
+  result.append(" Total   : ").append(total).append(NL);
+  result.append(" Ignored : ").append(ignored).append(NL);
+  Util.outln(NL + "Writing log file..." + NL);
   final PrintOutput po=new PrintOutput(path + "qt3ts.log");
-  po.println("TEST RESULTS ___________________________");
-  po.println(NL + "Total #Queries: " + total);
-  po.println("Correct Results: " + correct);
-  po.println("Conformance: " + pc(correct,total));
-  po.print(NL);
-  po.println("WRONG __________________________________");
-  po.print(NL);
+  po.println("QT3TS RESULTS __________________________" + NL);
+  po.println(result.toString());
+  po.println("WRONG __________________________________" + NL);
   po.print(wrong.finish());
-  if (verbose || !single.isEmpty()) {
-    po.println("CORRECT ________________________________");
-    po.print(NL);
+  if (all || !single.isEmpty()) {
+    po.println("CORRECT ________________________________" + NL);
     po.print(right.finish());
   }
+  if (ignoring) {
+    po.println("IGNORED ________________________________" + NL);
+    po.print(ignore.finish());
+  }
   po.close();
-  Util.outln(NL + "Total #Queries: " + total);
-  Util.outln("Correct Results: " + correct);
-  Util.outln("Conformance: " + pc(correct,total));
-  Util.outln("Total time: " + perf);
+  Util.out(result);
+  Util.outln(" Time    : " + perf);
 }

@@ -1,9 +1,16 @@
 {
   final String file=asString("@file",expect);
+  final boolean norm=asBoolean("@normalize-space=('true','1')",expect);
+  final boolean pref=asBoolean("@ignore-prefixes=('true','1')",expect);
   try {
-    final String exp=normNL(file.isEmpty() ? expect.getString() : string(new IOFile(base,file).read()));
-    final String res=asString("serialize(., map {'indent':='no'})",value);
-    return exp.equals(normNL(res)) ? null : exp;
+    String exp=normNL(file.isEmpty() ? expect.getString() : string(new IOFile(base,file).read()));
+    if (norm)     exp=string(norm(token(exp)));
+    final String res=normNL(asString("serialize(.,map{'indent':='no'})",value));
+    if (exp.equals(res))     return null;
+    String flags="'" + Flag.ALLNODES + "'";
+    if (!pref)     flags+=",'" + Flag.NAMESPACES + "'";
+    final String query="util:deep-equal(<X>" + exp + "</X>,"+ "<X>"+ res+ "</X>,("+ flags+ "))";
+    return asBoolean(query,expect) ? null : exp;
   }
  catch (  final IOException ex) {
     return Util.message(ex);
