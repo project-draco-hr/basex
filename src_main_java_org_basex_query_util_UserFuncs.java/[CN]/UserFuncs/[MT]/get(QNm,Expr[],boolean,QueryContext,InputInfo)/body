@@ -6,13 +6,13 @@
     if (type == null || type == AtomType.NOT || type == AtomType.AAT) {
       final Levenshtein ls=new Levenshtein();
       for (      final AtomType t : AtomType.values()) {
-        if (t.par != null && ls.similar(lc(ln),lc(t.string()),0))         qp.error(FUNSIMILAR,name.string(),t.string());
+        if (t.par != null && ls.similar(lc(ln),lc(t.string()),0))         FUNSIMILAR.thrw(ii,name.string(),t.string());
       }
-      qp.error(FUNCUNKNOWN,name.string());
+      FUNCUNKNOWN.thrw(ii,name.string());
     }
-    if (args.length != 1)     qp.error(FUNCTYPE,name.string());
+    if (args.length != 1)     FUNCTYPE.thrw(ii,name.string());
     final SeqType to=SeqType.get(type,SeqType.Occ.ZO);
-    return TypedFunc.constr(new Cast(qp.input(),args[0],to),to);
+    return TypedFunc.constr(new Cast(ii,args[0],to),to);
   }
   if (startsWith(uri,JAVAPRE) && ctx.context.user.perm(User.ADMIN)) {
     final String c=string(substring(uri,JAVAPRE.length));
@@ -32,11 +32,11 @@
     final String java=tb.toString();
     final int i=java.lastIndexOf(".");
     final Class<?> cls=Reflect.find(java.substring(0,i));
-    if (cls == null)     qp.error(FUNCJAVA,java);
+    if (cls == null)     FUNCJAVA.thrw(ii,java);
     final String mth=java.substring(i + 1);
-    return TypedFunc.java(new JavaFunc(qp.input(),cls,mth,args));
+    return TypedFunc.java(new JavaFunc(ii,cls,mth,args));
   }
-  final FuncCall fun=FNIndex.get().get(ln,uri,args,qp);
+  final FuncCall fun=FNIndex.get().get(ln,uri,args,ctx,ii);
   if (fun != null) {
     for (    final Function f : Function.UPDATING) {
       if (fun.def == f) {
@@ -48,10 +48,10 @@
   }
   for (int l=0; l < func.length; ++l) {
     final QNm qn=func[l].name;
-    if (eq(ln,qn.local()) && eq(uri,qn.uri()) && args.length == func[l].args.length)     return new TypedFunc(add(qp.input(),qn,l,args),FuncType.get(func[l]));
+    if (eq(ln,qn.local()) && eq(uri,qn.uri()) && args.length == func[l].args.length)     return new TypedFunc(add(ii,qn,l,args),FuncType.get(func[l]));
   }
-  if (Types.find(name,false) == null) {
-    return new TypedFunc(add(qp.input(),name,add(new UserFunc(qp.input(),name,new Var[args.length],null,false),qp),args),FuncType.arity(args.length));
+  if (!dyn && Types.find(name,false) == null) {
+    return new TypedFunc(add(ii,name,add(new UserFunc(ii,name,new Var[args.length],null,false),ii),args),FuncType.arity(args.length));
   }
   return null;
 }
