@@ -5,10 +5,10 @@
   if (t.next() != null)   UPWRTRGTYP.thrw(input);
   CFrag ex=null;
   if (i.type == NodeType.ELM) {
-    ex=new CElem(input,expr[1],new Atts(),true);
+    ex=new CElem(input,expr[1],null);
   }
  else   if (i.type == NodeType.ATT) {
-    ex=new CAttr(input,false,expr[1]);
+    ex=new CAttr(input,false,expr[1],Empty.SEQ);
   }
  else   if (i.type == NodeType.PI) {
     ex=new CPI(input,expr[1],Empty.SEQ);
@@ -19,13 +19,11 @@
   final QNm rename=ex.item(ctx,input).qname();
   final ANode targ=(ANode)i;
   if (targ.type == NodeType.ELM || targ.type == NodeType.ATT) {
-    final byte[] renPref=rename.pref();
-    final byte[] renURI=rename.uri().atom();
+    final byte[] rp=rename.prefix();
+    final byte[] ru=rename.uri();
     final Atts at=targ.nsScope();
-    for (int n=0; n < at.size; ++n) {
-      if (eq(at.key[n],renPref)) {
-        if (!eq(at.val[n],renURI))         UPNSCONFL.thrw(input);
-      }
+    for (int n=0; n < at.size(); ++n) {
+      if (eq(at.key(n),rp) && !eq(at.value(n),ru))       UPNSCONFL.thrw(input);
     }
   }
   final DBNode dbn=ctx.updates.determineDataRef(targ,ctx);

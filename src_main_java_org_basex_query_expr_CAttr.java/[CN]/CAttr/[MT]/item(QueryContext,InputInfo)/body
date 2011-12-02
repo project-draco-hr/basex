@@ -1,19 +1,14 @@
 {
-  final QNm name=qname(ctx,checkItem(atn,ctx),true,ii);
-  final byte[] pre=name.pref();
-  final byte[] ln=name.ln();
+  QNm nm=qname(ctx,ii);
+  final byte[] cp=nm.prefix();
   if (comp) {
-    final byte[] uri=name.uri().atom();
-    if (eq(pre,XMLNS) || eq(ln,XMLNS) || eq(uri,XMLNSURI)|| eq(pre,XML) ^ eq(uri,XMLURI)) {
-      CAINS.thrw(input,ln,uri);
-    }
-    if (eq(pre,EMPTY) && !eq(uri,EMPTY)) {
-      name.name(concat(NS0,name.atom()));
-    }
+    final byte[] cu=nm.uri();
+    if (eq(cp,XML) ^ eq(cu,XMLURI))     CAXML.thrw(input);
+    if (eq(cu,XMLNSURI))     CAINV.thrw(input,cu);
+    if (eq(cp,XMLNS) || cp.length == 0 && eq(nm.string(),XMLNS))     CAINV.thrw(input,nm.string());
+    if (eq(cp,EMPTY) && !eq(cu,EMPTY))     nm=new QNm(concat(NS0,nm.string()),cu);
   }
-  final TokenBuilder tb=new TokenBuilder();
-  for (  final Expr e : expr)   add(tb,ctx.iter(e),ii);
-  byte[] val=tb.finish();
-  if (eq(pre,XML) && eq(ln,ID))   val=norm(val);
-  return new FAttr(name,val);
+  byte[] val=value(ctx,ii);
+  if (eq(cp,XML) && eq(nm.local(),ID))   val=norm(val);
+  return new FAttr(nm,val);
 }

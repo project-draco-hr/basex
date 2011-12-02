@@ -1,10 +1,11 @@
 {
   final Item it=checkEmpty(expr[i].item(ctx,input));
-  if (it.node())   return checkDBNode(it).data;
-  if (it.str()) {
-    final String name=string(it.atom(input));
+  final Type ip=it.type;
+  if (ip.isNode())   return checkDBNode(it).data;
+  if (ip.isString()) {
+    final String name=string(it.string(input));
     if (!MetaData.validName(name,false))     INVDB.thrw(input,name);
     return ctx.resource.data(name,input);
   }
-  throw STRNODTYPE.thrw(input,this,it.type);
+  throw STRNODTYPE.thrw(input,this,ip);
 }

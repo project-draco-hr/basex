@@ -3,39 +3,17 @@
   final Item it2=expr.length == 2 ? expr[1].item(ctx,input) : null;
 switch (def) {
 case RESOLVE_QNAME:
-    return it == null ? null : resolve(ctx,it,checkEmpty(it2));
+    return resolveQName(ctx,it,it2);
 case QNAME:
-  final byte[] uri=checkEStr(it);
-final byte[] atm=checkEStr(it2);
-final byte[] str=!contains(atm,':') && eq(uri,XMLURI) ? concat(XMLC,atm) : atm;
-if (!XMLToken.isQName(str)) Err.value(input,AtomType.QNM,atm);
-QNm nm=new QNm(str,uri);
-if (nm.ns() && uri.length == 0) Err.value(input,AtomType.URI,nm.uri());
-return nm;
+  return qName(it,it2);
 case LOCAL_NAME_FROM_QNAME:
-if (it == null) return null;
-nm=(QNm)checkType(it,AtomType.QNM);
-return AtomType.NCN.e(Str.get(nm.ln()),ctx,input);
+return lnFromQName(ctx,it);
 case PREFIX_FROM_QNAME:
-if (it == null) return null;
-nm=(QNm)checkType(it,AtomType.QNM);
-return !nm.ns() ? null : AtomType.NCN.e(Str.get(nm.pref()),ctx,input);
+return prefixFromQName(ctx,it);
 case NAMESPACE_URI_FOR_PREFIX:
-final byte[] pre=checkEStr(it);
-final ANode an=(ANode)checkType(it2,NodeType.ELM);
-final boolean copied=ctx.copiedNods != null && ctx.copiedNods.contains(an.data());
-final Atts at=an.nsScope(!copied || ctx.nsInherit);
-final int i=at != null ? at.get(pre) : -1;
-return i != -1 ? Uri.uri(at.val[i]) : null;
+return nsUriForPrefix(it,it2);
 case RESOLVE_URI:
-if (it == null) return null;
-final Uri rel=Uri.uri(checkEStr(it));
-if (!rel.valid()) URIINV.thrw(input,it);
-if (rel.absolute()) return rel;
-final Uri base=it2 == null ? ctx.baseURI : Uri.uri(checkEStr(it2));
-if (!base.valid()) URIINV.thrw(input,base);
-if (!base.absolute()) URIABS.thrw(input,base);
-return base.resolve(rel);
+return resolveURI(ctx,it,it2);
 default :
 return super.item(ctx,ii);
 }

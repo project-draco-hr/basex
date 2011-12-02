@@ -7,15 +7,15 @@
   for (int f=0; f < fl.length; ++f) {
     final ForLet flt=fl[f];
     flt.comp(ctx);
-    if (flt.expr.value() || count(flt.var,f) == 1)     flt.bind(ctx);
+    if (flt.expr.isValue() || count(flt.var,f) == 1)     flt.bind(ctx);
   }
   boolean empty=false;
   if (where != null) {
     where=checkUp(where,ctx).comp(ctx).compEbv(ctx);
-    if (where.value()) {
+    if (where.isValue()) {
       empty=!where.ebv(ctx,input).bool(input);
       if (!empty) {
-        ctx.compInfo(OPTREMOVE,desc(),where);
+        ctx.compInfo(OPTREMOVE,description(),where);
         where=null;
       }
     }
@@ -23,10 +23,10 @@
   if (group != null)   group.comp(ctx);
   if (order != null)   order.comp(ctx);
   ret=ret.comp(ctx);
-  ctx.vars.reset(vs);
+  ctx.vars.size(vs);
   ctx.grouping=grp;
   if (empty) {
-    ctx.compInfo(OPTREMOVE,desc(),where);
+    ctx.compInfo(OPTREMOVE,description(),where);
     return Empty.SEQ;
   }
   if (ret == Empty.SEQ) {

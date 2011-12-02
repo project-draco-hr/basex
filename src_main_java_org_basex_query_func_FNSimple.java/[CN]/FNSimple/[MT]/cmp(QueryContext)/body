@@ -3,16 +3,16 @@
 switch (def) {
 case EMPTY:
 case EXISTS:
-    return e.size() == -1 || e.uses(Use.NDT) ? this : Bln.get(def == Function.EMPTY ^ e.size() != 0);
+    return e.size() == -1 || e.uses(Use.NDT) || e.uses(Use.CNS) ? this : Bln.get(def == Function.EMPTY ^ e.size() != 0);
 case BOOLEAN:
   return e.type().eq(SeqType.BLN) ? e : this;
 case NOT:
-if (e.isFun(Function.EMPTY)) {
+if (e.isFunction(Function.EMPTY)) {
   ctx.compInfo(QueryText.OPTWRITE,this);
   expr=((FuncCall)e).expr;
   def=Function.EXISTS;
 }
- else if (e.isFun(Function.EXISTS)) {
+ else if (e.isFunction(Function.EXISTS)) {
   ctx.compInfo(QueryText.OPTWRITE,this);
   expr=((FuncCall)e).expr;
   def=Function.EMPTY;
@@ -21,7 +21,7 @@ if (e.isFun(Function.EMPTY)) {
   final Cmp c=((Cmp)e).invert();
   return c == e ? this : c;
 }
- else if (e.isFun(Function.NOT)) {
+ else if (e.isFunction(Function.NOT)) {
   return compBln(((FuncCall)e).expr[0]);
 }
  else {

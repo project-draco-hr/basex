@@ -1,0 +1,57 @@
+{
+  final byte[] uri=name.uri();
+  final byte[] ln=name.local();
+  if (eq(uri,XSURI)) {
+    final Type type=AtomType.find(name,true);
+    if (type == null || type == AtomType.NOT || type == AtomType.AAT) {
+      final Levenshtein ls=new Levenshtein();
+      for (      final AtomType t : AtomType.values()) {
+        if (t.par != null && ls.similar(lc(ln),lc(t.string()),0))         FUNSIMILAR.thrw(ii,name.string(),t.string());
+      }
+      FUNCUNKNOWN.thrw(ii,name.string());
+    }
+    if (args.length != 1)     FUNCTYPE.thrw(ii,name.string());
+    final SeqType to=SeqType.get(type,SeqType.Occ.ZO);
+    return TypedFunc.constr(new Cast(ii,args[0],to),to);
+  }
+  if (startsWith(uri,JAVAPRE) && ctx.context.user.perm(User.ADMIN)) {
+    final String c=string(substring(uri,JAVAPRE.length));
+    final TokenBuilder tb=new TokenBuilder().add(c).add('.');
+    boolean dash=false;
+    for (int p=0; p < ln.length; p+=cl(ln,p)) {
+      final int ch=cp(ln,p);
+      if (dash) {
+        tb.add(Character.toUpperCase(ch));
+        dash=false;
+      }
+ else {
+        dash=ch == '-';
+        if (!dash)         tb.add(ch);
+      }
+    }
+    final String java=tb.toString();
+    final int i=java.lastIndexOf(".");
+    final Class<?> cls=Reflect.find(java.substring(0,i));
+    if (cls == null)     FUNCJAVA.thrw(ii,java);
+    final String mth=java.substring(i + 1);
+    return TypedFunc.java(new JavaFunc(ii,cls,mth,args));
+  }
+  final FuncCall fun=FNIndex.get().get(ln,uri,args,ctx,ii);
+  if (fun != null) {
+    for (    final Function f : Function.UPDATING) {
+      if (fun.def == f) {
+        ctx.updating=true;
+        break;
+      }
+    }
+    return new TypedFunc(fun,fun.def.type(args.length));
+  }
+  for (int l=0; l < func.length; ++l) {
+    final QNm qn=func[l].name;
+    if (eq(ln,qn.local()) && eq(uri,qn.uri()) && args.length == func[l].args.length)     return new TypedFunc(add(ii,qn,l,args),FuncType.get(func[l]));
+  }
+  if (!dyn && Types.find(name,false) == null) {
+    return new TypedFunc(add(ii,name,add(new UserFunc(ii,name,new Var[args.length],null,false),ii),args),FuncType.arity(args.length));
+  }
+  return null;
+}

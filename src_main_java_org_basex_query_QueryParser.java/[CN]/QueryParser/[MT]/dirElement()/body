@@ -1,17 +1,20 @@
 {
-  if (skipWS())   error(NOTAGNAME);
-  final QNm tag=new QNm(qName(NOTAGNAME));
-  consumeWSS();
-  Expr[] cont={};
-  final Atts ns=new Atts();
   final int s=ctx.ns.size();
-  boolean xmlDef=false;
-  while (XMLToken.isNCStartChar(curr())) {
+  final byte[] nse=ctx.nsElem;
+  final int npos=names.size();
+  final QNm tag=new QNm(qName(TAGNAME));
+  names.add(new QNmCheck(tag));
+  consumeWS();
+  final Atts ns=new Atts();
+  Expr[] cont={};
+  boolean xmlDecl=false;
+  while (true) {
     final byte[] atn=qName(null);
+    if (atn.length == 0)     break;
     Expr[] attv={};
-    consumeWSS();
+    consumeWS();
     check('=');
-    consumeWSS();
+    consumeWS();
     final char delim=consume();
     if (!quote(delim))     error(NOQUOTE,found());
     final TokenBuilder tb=new TokenBuilder();
@@ -61,32 +64,36 @@
     }
  while (true);
     if (tb.size() != 0)     attv=add(attv,Str.get(tb.finish()));
-    if (eq(atn,XMLNS)) {
+    final boolean pr=startsWith(atn,XMLNSC);
+    if (pr || eq(atn,XMLNS)) {
       if (!simple)       error(NSCONS);
-      final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
-      if (!tag.ns())       tag.uri(v);
-      addNS(ns,EMPTY,v);
-    }
- else     if (startsWith(atn,XMLNSC)) {
-      if (!simple)       error(NSCONS);
-      final byte[] v=attv.length == 0 ? EMPTY : ((Str)attv[0]).atom();
-      if (v.length == 0)       error(NSEMPTYURI);
-      final QNm nsd=new QNm(atn,v);
-      final byte[] pref=nsd.ln();
-      if (!eq(pref,XML) || !eq(v,XMLURI)) {
-        ctx.ns.add(nsd,input());
-        addNS(ns,pref,v);
-        if (eq(pref,tag.pref()))         tag.uri(v);
+      final byte[] pref=pr ? local(atn) : EMPTY;
+      final byte[] uri=attv.length == 0 ? EMPTY : ((Str)attv[0]).string();
+      if (eq(pref,XML) && eq(uri,XMLURI)) {
+        if (xmlDecl)         error(DUPLNSDEF,XML);
+        xmlDecl=true;
       }
  else {
-        if (xmlDef)         error(DUPLNSDEF,XML);
-        xmlDef=true;
+        if (pr) {
+          if (uri.length == 0)           error(NSEMPTYURI);
+          if (eq(pref,XML) || eq(pref,XMLNS))           error(BINDXML,pref);
+          if (eq(XMLURI,uri))           error(BINDXMLURI,uri,XML);
+          if (eq(XMLNSURI,uri))           error(BINDXMLURI,uri,XMLNS);
+          ctx.ns.add(pref,uri);
+        }
+ else {
+          ctx.nsElem=uri;
+        }
+        if (ns.get(pref) != -1)         error(DUPLNSDEF,pref);
+        ns.add(pref,uri);
       }
     }
  else {
-      cont=add(cont,new CAttr(input(),false,new QNm(atn,contains(atn,':') ? null : Uri.EMPTY),attv));
+      final QNm attn=new QNm(atn);
+      names.add(new QNmCheck(attn,false));
+      cont=add(cont,new CAttr(input(),false,attn,attv));
     }
-    if (!consumeWSS())     break;
+    if (!consumeWS())     break;
   }
   if (consume('/')) {
     check('>');
@@ -94,17 +101,18 @@
  else {
     check('>');
     while (curr() != '<' || next() != '/') {
-      final Expr e=dirElemContent(tag);
+      final Expr e=dirElemContent(tag.string());
       if (e == null)       continue;
       cont=add(cont,e);
     }
     qp+=2;
-    if (skipWS())     error(NOTAGNAME);
-    final byte[] close=qName(NOTAGNAME);
-    consumeWSS();
+    final byte[] close=qName(TAGNAME);
+    consumeWS();
     check('>');
-    if (!eq(tag.atom(),close))     error(TAGWRONG,tag.atom(),close);
+    if (!eq(tag.string(),close))     error(TAGWRONG,tag.string(),close);
   }
+  assignURI(npos);
   ctx.ns.size(s);
-  return new CElem(input(),tag,ns,false,cont);
+  ctx.nsElem=nse;
+  return new CElem(input(),tag,ns,cont);
 }

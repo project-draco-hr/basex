@@ -1,0 +1,25 @@
+{
+  final QNm name=fun.name;
+  final byte[] uri=name.uri();
+  if (uri.length == 0)   FUNNONS.thrw(ii,name.string());
+  if (NSGlobal.standard(uri)) {
+    if (fun.declared)     NAMERES.thrw(ii,name.string());
+    funError(name,ii);
+  }
+  final byte[] ln=name.local();
+  for (int l=0; l < func.length; ++l) {
+    final QNm qn=func[l].name;
+    final byte[] u=qn.uri();
+    final byte[] nm=qn.local();
+    if (eq(ln,nm) && eq(uri,u) && fun.args.length == func[l].args.length) {
+      if (!func[l].declared) {
+        func[l]=fun;
+        return l;
+      }
+      FUNCDEFINED.thrw(ii,fun);
+    }
+  }
+  func=Array.add(func,fun);
+  calls=Array.add(calls,new UserFuncCall[0]);
+  return func.length - 1;
+}

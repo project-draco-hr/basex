@@ -1,0 +1,23 @@
+{
+  if (def && !wsConsumeWs(DECFORMAT))   return false;
+  final QNm name=def ? new QNm() : eQName(QNAMEINV,null);
+  if (ctx.decFormats.get(name.full()) != null)   error(DECDUPL);
+  final HashMap<String,String> map=new HashMap<String,String>();
+  int n;
+  do {
+    n=map.size();
+    skipWS();
+    final String prop=string(ncName(null));
+    for (    final String s : DECFORMATS) {
+      if (!prop.equals(s))       continue;
+      if (map.get(s) != null)       error(DECDUPLPROP,s);
+      wsCheck(IS);
+      map.put(s,string(stringLiteral()));
+      break;
+    }
+    if (map.size() == 0)     error(NODECLFORM,prop);
+  }
+ while (n != map.size());
+  ctx.decFormats.add(name.full(),new DecFormatter(input(),map));
+  return true;
+}

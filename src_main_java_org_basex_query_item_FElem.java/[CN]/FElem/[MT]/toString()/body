@@ -1,6 +1,10 @@
 {
-  final StringBuilder sb=new StringBuilder("<");
-  sb.append(Token.string(name.atom()));
-  if (atts.size() != 0 || ns != null && ns.size != 0 || children.size() != 0)   sb.append(" ...");
-  return sb.append("/>").toString();
+  final TokenBuilder tb=new TokenBuilder().add('<').add(name.string());
+  for (int a=0; a < atts.size(); a++)   tb.add(atts.get(a).toString());
+  for (int a=0; a < ns.size(); a++) {
+    tb.add(new FNames(ns.key(a),ns.value(a)).toString());
+  }
+  if (children.size() != 0)   tb.add(">...</").add(name.string());
+ else   tb.add("/");
+  return tb.add(">").toString();
 }

@@ -7,21 +7,30 @@
       if (s)       error(XPINVNAME,nm);
       error(TESTINVALID,t,k);
     }
-    return new KindTest((NodeType)t,new QNm(nm,ctx,input()),null);
+    return new KindTest((NodeType)t,new QNm(nm),null);
   }
-  if (t != NodeType.ELM && t != NodeType.ATT)   error(TESTINVALID,t,k);
+  final boolean elm=t == NodeType.ELM;
+  if (!elm && t != NodeType.ATT)   error(TESTINVALID,t,k);
   Type tp=t;
   final int i=indexOf(nm,',');
   if (i != -1) {
-    final QNm test=new QNm(trim(substring(nm,i + 1)),ctx,input());
-    if (!eq(test.uri().atom(),XSURI))     error(TYPEUNDEF,test);
-    final byte[] ln=test.ln();
-    tp=Types.find(test,true);
-    if (tp == null && !eq(ln,AtomType.ATY.nam()) && !eq(ln,AtomType.AST.nam()) && !eq(ln,AtomType.UTY.nam()))     error(VARUNDEF,test);
+    byte[] type=trim(substring(nm,i + 1));
+    if (elm && endsWith(type,'?'))     type=substring(type,0,type.length - 1);
+    final QNm qnm=new QNm(type,ctx);
+    if (qnm.hasPrefix() && !qnm.hasURI())     error(NOURI,qnm);
+    if (!eq(qnm.uri(),XSURI))     error(TYPEUNDEF,type);
+    final byte[] ln=qnm.local();
+    tp=Types.find(qnm,true);
+    if (tp == null && !eq(ln,AtomType.ATY.string()) && !eq(ln,AtomType.AST.string()) && !eq(ln,AtomType.UTY.string()))     error(VARUNDEF,qnm);
     if (tp == AtomType.ATM || tp == AtomType.AAT)     tp=null;
     nm=trim(substring(nm,0,i));
   }
   if (nm.length == 1 && nm[0] == '*')   return new KindTest((NodeType)t,null,tp);
   if (!XMLToken.isQName(nm))   error(TESTINVALID,t,k);
-  return new KindTest((NodeType)t,new QNm(nm,ctx,input()),tp);
+  final QNm qnm=new QNm(nm,ctx);
+  if (!qnm.hasURI()) {
+    if (qnm.hasPrefix())     error(NOURI,qnm);
+    if (elm)     qnm.uri(ctx.nsElem);
+  }
+  return new KindTest((NodeType)t,qnm,tp);
 }

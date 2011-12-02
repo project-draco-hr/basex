@@ -5,11 +5,11 @@
       obj=JsonMapConverter.parse(token(val.toString()),null);
     }
  else {
-      final QNm nm=new QNm(token(type));
-      if (nm.ns())       nm.uri(ns.uri(nm.pref(),false,null));
+      final QNm nm=new QNm(token(type),this);
+      if (!nm.hasURI() && nm.hasPrefix())       NOURI.thrw(null,nm);
       final Type typ=Types.find(nm,true);
-      if (typ != null)       obj=typ.e(obj,null);
- else       NOTYPE.thrw(null,nm);
+      if (typ == null)       NOTYPE.thrw(null,nm);
+      obj=typ.e(obj,null);
     }
   }
   bind(name,obj);

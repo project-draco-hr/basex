@@ -5,29 +5,30 @@
     int i=1;
     final TokenBuilder tb=new TokenBuilder();
     if (n.type == NodeType.ATT) {
-      tb.add("@\"");
+      tb.add('@');
       final QNm qnm=n.qname();
-      if (qnm.uri().atom().length != 0)       tb.add(qnm.uri().atom());
-      tb.add("\":").add(qnm.ln());
+      final byte[] uri=qnm.uri();
+      if (uri.length != 0)       tb.add('"').add(uri).add("\":");
+      tb.add(qnm.local());
     }
  else     if (n.type == NodeType.ELM) {
       final QNm qnm=n.qname();
-      final AxisIter ai=n.precSibl();
+      final AxisIter ai=n.precedingSibling();
       for (ANode fs; (fs=ai.next()) != null; )       if (fs.qname().eq(qnm))       i++;
-      tb.addExt("\"%\":%[%]",qnm.uri().atom(),qnm.ln(),i);
+      tb.addExt("\"%\":%[%]",qnm.uri(),qnm.local(),i);
     }
  else     if (n.type == NodeType.COM || n.type == NodeType.TXT) {
-      final AxisIter ai=n.precSibl();
+      final AxisIter ai=n.precedingSibling();
       for (ANode fs; (fs=ai.next()) != null; )       if (fs.type == n.type)       i++;
       tb.addExt(n.type() + "[%]",i);
     }
  else     if (n.type == NodeType.PI) {
       final QNm qnm=n.qname();
-      final AxisIter ai=n.precSibl();
+      final AxisIter ai=n.precedingSibling();
       for (ANode fs; (fs=ai.next()) != null; ) {
         if (fs.type == n.type && fs.qname().eq(qnm))         i++;
       }
-      tb.addExt("%(\"%\")[%]",n.type.nam(),qnm.ln(),i);
+      tb.addExt("%(\"%\")[%]",n.type.string(),qnm.local(),i);
     }
     tl.add(tb.finish());
     n=n.parent();

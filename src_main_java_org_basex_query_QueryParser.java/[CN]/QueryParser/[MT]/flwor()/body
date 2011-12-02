@@ -1,0 +1,67 @@
+{
+  final int s=ctx.vars.size();
+  final ForLet[] fl=forLet();
+  if (fl == null)   return null;
+  Expr where=null;
+  if (wsConsumeWs(WHERE)) {
+    ap=qp;
+    where=check(single(),NOWHERE);
+    alter=NOWHERE;
+  }
+  Var[][] group=null;
+  if (ctx.xquery3 && wsConsumeWs(GROUP)) {
+    wsCheck(BY);
+    ap=qp;
+    Var[] grp=null;
+    do     grp=groupSpec(fl,grp);
+ while (wsConsume(COMMA));
+    final ObjList<Var> ng=new ObjList<Var>();
+    Map ngp=Map.EMPTY;
+    for (    final ForLet f : fl) {
+      vars:       for (      final Var v : f.vars()) {
+        final Value old=ngp.get(v.name,null);
+        final int pos=old.isItem() ? (int)old.itemAt(0).itr(null) : -1;
+        for (        final Var g : grp) {
+          if (v.is(g)) {
+            if (pos >= 0) {
+              ng.delete(pos);
+              ngp=ngp.delete(old.itemAt(0),null);
+            }
+            continue vars;
+          }
+        }
+        if (pos >= 0)         ng.set(pos,v);
+ else {
+          ng.add(v);
+          ngp=ngp.insert(v.name,Int.get(ng.size() - 1),null);
+        }
+      }
+    }
+    final Var[] ngrp=new Var[ng.size()];
+    for (int i=ng.size(); --i >= 0; ) {
+      final Var v=ng.get(i);
+      ngrp[i]=Var.create(ctx,input(),v.name,v.type != null && v.type.one() ? SeqType.get(v.type.type,Occ.OM) : null);
+      ctx.vars.add(ngrp[i]);
+    }
+    group=new Var[][]{grp,ng.toArray(new Var[ng.size()]),ngrp};
+    alter=GRPBY;
+  }
+  OrderBy[] order=null;
+  final boolean stable=wsConsumeWs(STABLE);
+  if (stable)   wsCheck(ORDER);
+  if (stable || wsConsumeWs(ORDER)) {
+    wsCheck(BY);
+    ap=qp;
+    do     order=orderSpec(order);
+ while (wsConsume(COMMA));
+    if (order != null)     order=Array.add(order,new OrderByStable(input()));
+    alter=ORDERBY;
+  }
+  if (!wsConsumeWs(RETURN)) {
+    if (alter != null)     error();
+    error(where == null ? FLWORWHERE : order == null ? FLWORORD : FLWORRET);
+  }
+  final Expr ret=check(single(),NORETURN);
+  ctx.vars.size(s);
+  return GFLWOR.get(fl,where,order,group,ret,input());
+}

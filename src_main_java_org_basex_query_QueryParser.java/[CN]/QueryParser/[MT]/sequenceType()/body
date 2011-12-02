@@ -1,10 +1,11 @@
 {
   skipWS();
   final Type t=itemType();
-  final Occ occ=consume('?') ? Occ.ZO : consume('+') ? Occ.OM : consume('*') ? Occ.ZM : Occ.O;
   skipWS();
+  final Occ occ=consume('?') ? Occ.ZO : consume('+') ? Occ.OM : consume('*') ? Occ.ZM : Occ.O;
   if (t == AtomType.EMP && occ != Occ.O)   error(EMPTYSEQOCC,t);
   final KindTest kt=tok.size() == 0 ? null : kindTest(t,tok.finish());
   tok.reset();
-  return SeqType.get(t,occ,kt == null ? null : kt.extype == null || t == kt.extype || !kt.extype.node() ? kt.name : new QNm(EMPTY));
+  skipWS();
+  return SeqType.get(t,occ,kt == null ? null : kt.extype == null || t == kt.extype || !kt.extype.isNode() ? kt.name : new QNm());
 }

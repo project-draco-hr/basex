@@ -1,14 +1,16 @@
 {
-  Item res=it.unt() ? Dbl.get(it.atom(input),input) : it;
-  if (!res.num() && (!res.dur() || res.type == DUR))   SUMTYPE.thrw(input,this,res.type);
-  final boolean n=res.num();
+  Item res=it.type.isUntyped() ? Dbl.get(it.string(input),input) : it;
+  Type t=res.type;
+  if (!t.isNumber() && (!t.isDuration() || t == DUR))   SUMTYPE.thrw(input,this,t);
+  final boolean n=t.isNumber();
   int c=1;
   for (Item i; (i=iter.next()) != null; ) {
-    final boolean un=i.unt() || i.num();
-    if (n && !un)     FUNNUM.thrw(input,this,i.type);
-    if (!n && un)     FUNDUR.thrw(input,this,i.type);
+    t=i.type;
+    final boolean un=t.isUntyped() || t.isNumber();
+    if (n && !un)     FUNNUM.thrw(input,this,t);
+    if (!n && un)     FUNDUR.thrw(input,this,t);
     res=Calc.PLUS.ev(input,res,i);
     ++c;
   }
-  return avg ? Calc.DIV.ev(input,res,Itr.get(c)) : res;
+  return avg ? Calc.DIV.ev(input,res,Int.get(c)) : res;
 }

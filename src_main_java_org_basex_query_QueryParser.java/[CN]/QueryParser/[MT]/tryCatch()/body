@@ -7,19 +7,15 @@
     QNm[] codes={};
     do {
       skipWS();
-      if (XMLToken.isNCStartChar(curr())) {
-        codes=Array.add(codes,new QNm(qName(QNAMEINV)));
-      }
- else {
-        wsCheck("*");
-        codes=Array.add(codes,(QNm)null);
-      }
+      final Test test=nodeTest(false,false);
+      if (test == null)       error(NOCATCH);
+      codes=Array.add(codes,test.name);
     }
  while (wsConsumeWs(PIPE));
     final Catch c=new Catch(input(),codes,ctx);
     final int s=c.prepare(ctx);
     c.expr=enclosed(NOENCLEXPR);
-    c.finish(s,ctx);
+    ctx.vars.size(s);
     ct=Array.add(ct,c);
   }
  while (wsConsumeWs(CATCH));

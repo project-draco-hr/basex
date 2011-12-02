@@ -2,9 +2,16 @@
   final long size=val.size();
   if (!occ.check(size))   return false;
   if (size == 0)   return true;
-  final MapType mt=type.map() ? (MapType)type : null;
+  final MapType mt=type.isMap() ? (MapType)type : null;
   for (long i=0; i < size; i++) {
-    if (!check(val.itemAt(i),mt))     return false;
+    final Item it=val.itemAt(i);
+    final Type ip=it.type;
+    if (mt == null) {
+      if (!(ip.instanceOf(type) && checkExt(it)))       return false;
+    }
+ else {
+      if (!(ip.isMap() && ((Map)it).hasType(mt)))       return false;
+    }
     if (i == 0 && val.homogenous())     break;
   }
   return true;
