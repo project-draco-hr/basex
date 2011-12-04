@@ -3,8 +3,6 @@
   final String nu=elem.getNamespaceURI();
   name=new QNm(token(elem.getNodeName()),nu == null ? EMPTY : token(nu));
   par=p;
-  children=new NodeCache();
-  atts=new NodeCache();
   ns=new Atts();
   final NamedNodeMap at=elem.getAttributes();
   final int as=at.getLength();
@@ -21,11 +19,11 @@
       add(new FAttr(att));
     }
   }
-  for (int i=0; i < ns.size(); ++i)   nss.add(ns.key(i),ns.value(i));
+  for (int i=0; i < ns.size(); ++i)   nss.add(ns.name(i),ns.string(i));
   if (p == null) {
     nsScope(elem.getParentNode(),nss);
-    for (    final byte[] key : nss.keys()) {
-      if (!ns.contains(key))       ns.add(key,nss.get(key));
+    for (    final byte[] pref : nss.keys()) {
+      if (!ns.contains(pref))       ns.add(pref,nss.get(pref));
     }
   }
   final byte[] pref=name.prefix();
@@ -55,4 +53,5 @@ default :
 break;
 }
 }
+optimize();
 }

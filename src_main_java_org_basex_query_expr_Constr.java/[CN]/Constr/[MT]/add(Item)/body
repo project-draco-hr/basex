@@ -1,0 +1,62 @@
+{
+  final Type ip=it.type;
+  if (ip.isFunction())   CONSFUNC.thrw(input,it);
+  if (!ip.isNode()) {
+    if (more)     text.add(' ');
+    text.add(it.string(input));
+    more=true;
+  }
+ else {
+    ANode node=(ANode)it;
+    if (ip == NodeType.TXT) {
+      text.add(node.string());
+    }
+ else     if (ip == NodeType.ATT) {
+      if (text.size() != 0 || children.size() != 0) {
+        errAtt=true;
+        return false;
+      }
+      final QNm name=node.qname();
+      for (int a=0; a < atts.size(); ++a) {
+        if (name.eq(atts.get(a).qname())) {
+          duplAtt=name.string();
+          return false;
+        }
+      }
+      atts.add(new FAttr(name,node.string()));
+      if (name.hasURI()) {
+        ctx.ns.add(name.prefix(),name.uri());
+      }
+    }
+ else     if (ip == NodeType.NSP) {
+      if (text.size() != 0 || children.size() != 0) {
+        errNS=true;
+        return false;
+      }
+      final byte[] name=node.name();
+      final byte[] uri=node.string();
+      final byte[] u=nspaces.string(name);
+      if (u == null) {
+        nspaces.add(name,uri);
+      }
+ else       if (!Token.eq(uri,u)) {
+        duplNS=name;
+        return false;
+      }
+    }
+ else     if (ip == NodeType.DOC) {
+      final AxisIter ai=node.children();
+      for (ANode ch; (ch=ai.next()) != null && add(ch); )       ;
+    }
+ else {
+      if (text.size() != 0) {
+        children.add(new FTxt(text.finish()));
+        text.reset();
+      }
+      node=node.copy(ctx);
+      children.add(node);
+    }
+    more=false;
+  }
+  return true;
+}
