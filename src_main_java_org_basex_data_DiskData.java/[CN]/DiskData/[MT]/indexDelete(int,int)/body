@@ -6,7 +6,7 @@
   for (int p=pre; p < l; ++p) {
     final int k=kind(p);
     final boolean isAttr=k == ATTR;
-    if (isAttr || k == TEXT || k == COMM || k == PI) {
+    if (meta.attrindex && isAttr || meta.textindex && (k == TEXT || k == COMM || k == PI)) {
       final byte[] key=text(p,!isAttr);
       if (len(key) <= MAXLEN) {
         final IntList ids;
@@ -23,8 +23,8 @@
       }
     }
   }
-  final Thread txtupdater=txts.size() > 0 ? runIndexDelete(txtindex,txts) : null;
-  final Thread atvupdater=atvs.size() > 0 ? runIndexDelete(atvindex,atvs) : null;
+  final Thread txtupdater=meta.textindex && txts.size() > 0 ? runIndexDelete(txtindex,txts) : null;
+  final Thread atvupdater=meta.attrindex && atvs.size() > 0 ? runIndexDelete(atvindex,atvs) : null;
   try {
     if (txtupdater != null)     txtupdater.join();
     if (atvupdater != null)     atvupdater.join();
