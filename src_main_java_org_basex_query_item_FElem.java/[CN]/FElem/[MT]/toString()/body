@@ -1,10 +1,14 @@
 {
   final TokenBuilder tb=new TokenBuilder().add('<').add(name.string());
-  for (int a=0; a < atts.size(); a++)   tb.add(atts.get(a).toString());
-  for (int a=0; a < ns.size(); a++) {
-    tb.add(new FNames(ns.key(a),ns.value(a)).toString());
+  if (ns != null) {
+    for (int n=0; n < ns.size(); n++) {
+      tb.add(new FNames(ns.name(n),ns.string(n)).toString());
+    }
   }
-  if (children.size() != 0)   tb.add(">...</").add(name.string());
+  if (atts != null) {
+    for (int a=0; a < atts.size(); a++)     tb.add(atts.get(a).toString());
+  }
+  if (hasChildren())   tb.add(">...</").add(name.string());
  else   tb.add("/");
   return tb.add(">").toString();
 }

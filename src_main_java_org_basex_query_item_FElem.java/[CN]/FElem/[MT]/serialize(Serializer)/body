@@ -1,26 +1,18 @@
 {
-  final byte[] tag=name.string();
-  ser.openElement(tag);
-  if (name.hasURI())   ser.namespace(name.prefix(),name.uri());
-  if (ser.level() == 0) {
-    final Atts nns=nsScope();
-    for (int a=0; a < nns.size(); ++a) {
-      ser.namespace(nns.key(a),nns.value(a));
-    }
-  }
- else   if (ns != null) {
+  ser.openElement(name.string());
+  if (ns != null) {
     for (int p=ns.size() - 1; p >= 0; p--) {
-      ser.namespace(ns.key(p),ns.value(p));
+      ser.namespace(ns.name(p),ns.string(p));
     }
   }
-  for (int n=0; n < atts.size(); ++n) {
-    final ANode node=atts.get(n);
-    final QNm atn=node.qname();
-    if (atn.hasPrefix() && !NSGlobal.standard(atn.uri())) {
-      ser.namespace(atn.prefix(),atn.uri());
+  if (atts != null) {
+    for (int n=0; n < atts.size(); ++n) {
+      final ANode node=atts.get(n);
+      ser.attribute(node.name(),node.string());
     }
-    ser.attribute(atn.string(),node.string());
   }
-  for (int n=0; n < children.size(); ++n)   children.get(n).serialize(ser);
+  if (children != null) {
+    for (int n=0; n < children.size(); ++n)     children.get(n).serialize(ser);
+  }
   ser.closeElement();
 }

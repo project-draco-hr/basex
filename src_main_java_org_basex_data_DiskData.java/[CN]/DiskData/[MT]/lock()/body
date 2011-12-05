@@ -1,9 +1,13 @@
 {
-  try {
-    return lockFile().createNewFile();
+  final File lock=lockFile();
+  for (int i=0; i < 10; i++) {
+    try {
+      if (lock.createNewFile())       return true;
+    }
+ catch (    final IOException ex) {
+      Performance.sleep(10);
+      Util.debug(ex);
+    }
   }
- catch (  final IOException ex) {
-    Util.debug(ex);
-    return false;
-  }
+  return false;
 }
