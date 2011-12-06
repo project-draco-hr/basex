@@ -40,7 +40,12 @@
     for (    final String s : dbs)     cmds.add(new CreateBackup(s));
   }
  else   if (cmp == restore) {
-    if (dbs.size() == 1)     cmds.add(new Restore((String)backupchoice.getSelectedItem()));
+    int exist=0;
+    for (    final String d : dbs)     if (gui.context.mprop.dbexists(d))     exist++;
+    if (exist > 0 && !Dialog.confirm(gui,Util.info(RESTOREEXIST,exist)))     return;
+    if (dbs.size() == 1) {
+      cmds.add(new Restore((String)backupchoice.getSelectedItem()));
+    }
  else     for (    final String s : dbs)     cmds.add(new Restore(s));
   }
  else   if (cmp == backupchoice) {
