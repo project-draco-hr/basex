@@ -15,10 +15,16 @@
  else       if (k.equals(DBDOCS))       docindex.read(in);
     }
     init();
-    if (meta.textindex)     txtindex=new DiskValues(this,true);
-    if (meta.attrindex)     atvindex=new DiskValues(this,false);
+    if (meta.updindex) {
+      idmap=new IdPreMap(meta.dbfile(DATAIDP));
+      if (meta.textindex)       txtindex=new UpdatableDiskValues(this,true);
+      if (meta.attrindex)       atvindex=new UpdatableDiskValues(this,false);
+    }
+ else {
+      if (meta.textindex)       txtindex=new DiskValues(this,true);
+      if (meta.attrindex)       atvindex=new DiskValues(this,false);
+    }
     if (meta.ftxtindex)     ftxindex=FTIndex.get(this,meta.wildcards);
-    if (meta.updindex)     idmap=new IdPreMap(meta.dbfile(DATAIDP));
   }
   finally {
     try {
