@@ -1,12 +1,12 @@
 {
-  byte[] partContType=TXT_PLAIN;
+  String partCType=MimeTypes.TEXT_PLAIN;
   String charset=null;
   final byte[] firstLine=readLine(io);
   if (firstLine == null || eq(firstLine,end))   return null;
-  final FElem root=new FElem(new QNm(PART,EMPTY),new Atts().add(HTTP,HTTPURI));
+  final FElem root=new FElem(new QNm(PART,EMPTY),new Atts(HTTP,HTTPURI));
   if (firstLine.length == 0) {
     final byte[] p=extractPartPayload(io,sep,end,null);
-    if (!statusOnly)     payloads.add(interpretPayload(p,partContType,prop,ii));
+    if (!statusOnly)     payloads.add(interpretPayload(p,partCType,prop,ii));
   }
  else {
     byte[] nextHdr=firstLine;
@@ -17,20 +17,20 @@
         final byte[] name=substring(nextHdr,0,pos);
         if (pos + 1 < nextHdr.length) {
           final byte[] value=trim(substring(nextHdr,pos + 1,nextHdr.length));
-          final FElem hdr=new FElem(new QNm(HEADER,HTTPURI));
+          final FElem hdr=new FElem(new QNm(HTTP_HEADER,HTTPURI));
           hdr.add(new FAttr(new QNm(HDR_NAME,EMPTY),name));
           hdr.add(new FAttr(new QNm(HDR_VALUE,EMPTY),value));
           root.add(hdr);
-          if (eq(lc(name),CONT_TYPE_LC))           partContType=value;
+          if (eq(lc(name),CONT_TYPE_LC))           partCType=string(value);
         }
       }
       nextHdr=readLine(io);
     }
     final byte[] p=extractPartPayload(io,sep,end,charset);
     if (!statusOnly) {
-      payloads.add(interpretPayload(p,partContType,prop,ii));
+      payloads.add(interpretPayload(p,partCType,prop,ii));
     }
   }
-  root.add(createBody(partContType));
+  root.add(createBody(partCType));
   return root;
 }
