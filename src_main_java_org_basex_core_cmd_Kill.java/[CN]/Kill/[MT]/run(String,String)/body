@@ -1,10 +1,9 @@
 {
-  if (user.equals(ADMIN))   return !info(USERADMIN);
-  if (user.equals(context.user.name))   return !info(USERKILLSELF,user);
   final Sessions ss=context.sessions;
-  for (int i=0; i < ss.size(); ++i) {
-    if (user.equals(ss.get(i).user().name)) {
-      ss.get(i--).quit();
+  for (int s=ss.size() - 1; s >= 0; --s) {
+    final ClientListener cl=ss.get(s);
+    if (cl.context() != context && user.equals(cl.context().user.name)) {
+      cl.quit();
       count++;
     }
   }

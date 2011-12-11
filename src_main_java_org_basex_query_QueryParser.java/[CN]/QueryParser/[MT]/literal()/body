@@ -1,5 +1,16 @@
 {
   final char c=curr();
   if (digit(c) || c == '.')   return numericLiteral(false);
-  return quote(c) ? Str.get(stringLiteral()) : null;
+  if (!quote(c))   return null;
+  final int p=qp;
+  final byte[] s=stringLiteral();
+  final int q=qp;
+  if (consume(':')) {
+    if (!consume('=')) {
+      qp=p;
+      return null;
+    }
+    qp=q;
+  }
+  return Str.get(s);
 }

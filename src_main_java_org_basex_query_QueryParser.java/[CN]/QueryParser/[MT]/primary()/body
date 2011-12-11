@@ -4,19 +4,16 @@
   if (c == '$')   return new VarRef(input(),checkVar(varName(),VARUNDEF));
   if (c == '(' && next() != '#')   return parenthesized();
   if (c == '<')   return constructor();
-  if (c == '%' || XMLToken.isNCStartChar(c)) {
-    Expr e;
-    if (ctx.xquery3) {
-      e=functionItem();
-      if (e != null)       return e;
-    }
-    e=functionCall();
+  if (ctx.xquery3) {
+    final Expr e=functionItem();
     if (e != null)     return e;
-    e=compConstructor();
-    if (e != null)     return e;
-    if (wsConsumeWs(ORDERED,BRACE1,INCOMPLETE) || wsConsumeWs(UNORDERED,BRACE1,INCOMPLETE))     return enclosed(NOENCLEXPR);
-    if (wsConsumeWs(MAPSTR,BRACE1,INCOMPLETE))     return mapLiteral();
   }
+  Expr e=functionCall();
+  if (e != null)   return e;
+  e=compConstructor();
+  if (e != null)   return e;
+  if (wsConsumeWs(ORDERED,BRACE1,INCOMPLETE) || wsConsumeWs(UNORDERED,BRACE1,INCOMPLETE))   return enclosed(NOENCLEXPR);
+  if (wsConsumeWs(MAPSTR,BRACE1,INCOMPLETE))   return mapLiteral();
   if (c == '.' && !digit(next())) {
     if (next() == '.')     return null;
     consume('.');

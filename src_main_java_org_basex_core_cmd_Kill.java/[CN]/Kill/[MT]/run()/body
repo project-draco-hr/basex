@@ -1,3 +1,22 @@
 {
-  return run(0,false) && info(USERKILL,count);
+  boolean ok=run(0,false);
+  if (!ok || count == 0) {
+    ok=true;
+    error("");
+    final Sessions ss=context.sessions;
+    final String arg=args[0];
+    for (int s=ss.size() - 1; s >= 0; --s) {
+      final ClientListener cl=ss.get(s);
+      final String cs=cl.toString().replaceAll("\\[|\\]","");
+      if (cl.context() == context) {
+        if (cs.equals(arg))         return error(USERKILLSELF,arg);
+      }
+ else       if (cs.startsWith(arg)) {
+        info(LI + cs);
+        cl.quit();
+        count++;
+      }
+    }
+  }
+  return ok && info(USERKILL,count);
 }
