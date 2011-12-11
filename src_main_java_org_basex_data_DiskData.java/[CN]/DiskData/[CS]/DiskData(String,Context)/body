@@ -1,17 +1,16 @@
 {
   meta=new MetaData(db,ctx);
   if (updateFile().exists())   throw new BaseXException(Text.DBUPDATED,meta.name);
-  final int cats=ctx.prop.num(Prop.CATEGORIES);
   final DataInput in=new DataInput(meta.dbfile(DATAINF));
   try {
     meta.read(in);
     while (true) {
       final String k=string(in.readToken());
       if (k.isEmpty())       break;
-      if (k.equals(DBTAGS))       tagindex=new Names(in,cats);
- else       if (k.equals(DBATTS))       atnindex=new Names(in,cats);
+      if (k.equals(DBTAGS))       tagindex=new Names(in,meta);
+ else       if (k.equals(DBATTS))       atnindex=new Names(in,meta);
  else       if (k.equals(DBPATH))       pthindex=new PathSummary(this,in);
- else       if (k.equals(DBNS))       ns=new Namespaces(in);
+ else       if (k.equals(DBNS))       nspaces=new Namespaces(in);
  else       if (k.equals(DBDOCS))       docindex.read(in);
     }
     init();
@@ -27,10 +26,6 @@
     if (meta.ftxtindex)     ftxindex=FTIndex.get(this,meta.wildcards);
   }
   finally {
-    try {
-      in.close();
-    }
- catch (    final IOException ex) {
-    }
+    in.close();
   }
 }
