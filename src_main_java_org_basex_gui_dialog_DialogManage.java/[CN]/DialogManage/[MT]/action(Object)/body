@@ -1,61 +1,61 @@
 {
   final Context ctx=gui.context;
   if (refresh) {
-    choice.setData(ShowBackups.listdbs(ctx).toArray());
+    choice.setData(List.list(ctx,true).toArray());
     choice.requestFocusInWindow();
     refresh=false;
   }
   final StringList dbs=choice.getValues();
-  final String db=choice.getValue().trim();
+  final String db=choice.getValue();
   final ObjList<Command> cmds=new ObjList<Command>();
-  boolean o=dbs.size() > 0;
-  ok=o;
+  boolean active=dbs.size() > 0;
   if (cmp == open) {
-    if (dbs.size() == 1) {
-      cmds.add(new Open(dbs.get(0)));
-    }
     close();
   }
  else   if (cmp == drop) {
-    if (!Dialog.confirm(gui,Util.info(DROPCONF,dbs.size())))     return;
+    for (    final String s : dbs) {
+      if (ctx.mprop.dbexists(s))       cmds.add(new DropDB(s));
+    }
+    if (!Dialog.confirm(gui,Util.info(DROPCONF,cmds.size())))     return;
     refresh=true;
-    for (    final String s : dbs)     cmds.add(new DropDB(s));
   }
  else   if (cmp == rename) {
     final DialogInput dr=new DialogInput(db,RENAMETITLE,gui,1);
     if (!dr.ok() || dr.input().equals(db))     return;
-    refresh=true;
     cmds.add(new AlterDB(db,dr.input()));
+    refresh=true;
   }
  else   if (cmp == copy) {
     final DialogInput dc=new DialogInput(db,COPYTITLE,gui,2);
     if (!dc.ok() || dc.input().equals(db))     return;
-    refresh=true;
     cmds.add(new Copy(db,dc.input()));
+    refresh=true;
   }
  else   if (cmp == backup) {
     for (    final String s : dbs)     cmds.add(new CreateBackup(s));
   }
  else   if (cmp == restore) {
-    int exist=0;
-    for (    final String d : dbs)     if (gui.context.mprop.dbexists(d))     exist++;
-    if (exist > 0 && !Dialog.confirm(gui,Util.info(RESTOREEXIST,exist)))     return;
-    if (dbs.size() == 1) {
-      cmds.add(new Restore((String)backupchoice.getSelectedItem()));
-    }
- else     for (    final String s : dbs)     cmds.add(new Restore(s));
+    if (!gui.context.mprop.dbexists(db) || Dialog.confirm(gui,OVERWRITE))     cmds.add(new Restore(db));
   }
- else   if (cmp == backupchoice) {
+ else   if (cmp == backups) {
   }
  else   if (cmp == delete) {
-    if (dbs.size() == 1) {
-      if (!Dialog.confirm(gui,DROPBACKUP))       return;
-      cmds.add(new DropBackup((String)backupchoice.getSelectedItem()));
-    }
+    cmds.add(new DropBackup(backups.getValue()));
+    refresh=backups.getList().length == 1;
+    backups.requestFocusInWindow();
   }
- else {
-    o=ctx.mprop.dbexists(db);
-    if (o) {
+ else   if (cmp == deleteAll) {
+    final String[] back=backups.getList();
+    if (!Dialog.confirm(gui,Util.info(DROPBACKUP,back.length)))     return;
+    for (    final String b : back)     cmds.add(new DropBackup(b));
+    refresh=true;
+  }
+ else   if (cmp != backups) {
+    final String title=dbs.size() == 1 ? db : dbs.size() + " " + DATABASES;
+    doc1.setText(title);
+    doc2.setText(title);
+    active=ctx.mprop.dbexists(db);
+    if (active) {
       DataInput in=null;
       final MetaData meta=new MetaData(db,ctx);
       try {
@@ -74,22 +74,24 @@
         }
       }
     }
-    final String[] backups=ShowBackups.findBackups(db,ctx).toArray();
-    if (!o && backups.length > 0) {
-      detail.setText(Token.token(ONLYBACKUP));
+ else {
+      detail.setText(dbs.size() == 1 ? Token.token(ONLYBACKUP) : Token.EMPTY);
     }
-    backupsavl=backups.length > 0;
-    backupchoice.setModel(backupsavl ? new DefaultComboBoxModel(backups) : new DefaultComboBoxModel(new String[]{NOBACKUPS}));
-    enableOK(buttons,BUTTONOPEN,o);
-    enableOK(buttons,BUTTONBACKUP,o);
-    enableOK(buttons,BUTTONDROP,o);
-    enableOK(buttons,BUTTONRENAME,o);
-    enableOK(buttons,BUTTONCOPY,o);
-    restore.setEnabled(backupsavl);
-    delete.setEnabled(backupsavl);
-    o=true;
-    for (    final String s : dbs)     o&=Restore.list(s,ctx).size() != 0;
-    enableOK(buttons,BUTTONRESTORE,o);
+    rename.setEnabled(active);
+    copy.setEnabled(active);
+    open.setEnabled(active);
+    restore.setEnabled(active);
+    active=false;
+    for (    final String d : dbs)     active|=ctx.mprop.dbexists(d);
+    drop.setEnabled(active);
+    backup.setEnabled(active);
+    final String[] back=ShowBackups.list(db,false,ctx).toArray();
+    active=back.length > 0;
+    backups.setData(back);
+    backups.setEnabled(active);
+    restore.setEnabled(active);
+    delete.setEnabled(active);
+    deleteAll.setEnabled(active);
   }
   if (cmds.size() != 0) {
     DialogProgress.execute(this,"",cmds.toArray(new Command[cmds.size()]));

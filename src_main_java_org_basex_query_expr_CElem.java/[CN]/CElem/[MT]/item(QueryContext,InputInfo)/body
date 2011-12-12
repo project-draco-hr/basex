@@ -11,9 +11,9 @@
     if (eq(cu,XMLNSURI))     CEINV.thrw(input,cu);
     if (eq(cp,XMLNS))     CEINV.thrw(input,cp);
     if (!eq(cp,XML)) {
-      final byte[] uri=ctx.ns.uri(cp);
+      final byte[] uri=ctx.sc.ns.uri(cp);
       if (nm.hasURI()) {
-        if (!comp && (uri == null || !eq(uri,cu)))         ctx.ns.add(cp,cu);
+        if (!comp && (uri == null || !eq(uri,cu)))         ctx.sc.ns.add(cp,cu);
         if (!ns.contains(cp))         ns.add(cp,cu);
       }
  else {
@@ -43,7 +43,7 @@
         constr.atts.item[a]=new FAttr(new QNm(concat(npref,COLON,qnm.local()),auri),att.string());
       }
     }
-    final Atts stack=ctx.ns.stack();
+    final Atts stack=ctx.sc.ns.stack();
     for (int a=stack.size() - 1; a >= 0; a--) {
       final byte[] pref=stack.name(a);
       if (!ns.contains(pref))       ns.add(pref,stack.string(a));
@@ -51,14 +51,14 @@
     for (int c=0; c < constr.children.size(); ++c) {
       final ANode child=constr.children.get(c).parent(node);
       if (child.type == NodeType.ELM) {
-        if (ctx.nsInherit)         inherit(child,ns);
-        if (!ctx.nsPreserve)         noPreserve(child);
+        if (ctx.sc.nsInherit)         inherit(child,ns);
+        if (!ctx.sc.nsPreserve)         noPreserve(child);
         child.optimize();
       }
     }
     return node.optimize();
   }
   finally {
-    ctx.ns.size(s);
+    ctx.sc.ns.size(s);
   }
 }

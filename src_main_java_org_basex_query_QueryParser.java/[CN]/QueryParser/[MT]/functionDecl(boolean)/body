@@ -1,15 +1,15 @@
 {
   skipWS();
-  final QNm name=eQName(FUNCNAME,ctx.nsFunc);
+  final QNm name=eQName(FUNCNAME,ctx.sc.nsFunc);
   if (keyword(name))   error(RESERVED,name);
   if (module != null && !eq(name.uri(),module.uri()))   error(MODNS,name);
   wsCheck(PAR1);
-  final int s=ctx.vars.size();
+  final VarStack vl=ctx.vars.cache(4);
   final Var[] args=paramList();
   wsCheck(PAR2);
   final UserFunc func=new UserFunc(input(),name,args,optAsType(),true);
   func.updating=up;
   ctx.funcs.add(func,input());
   if (!wsConsumeWs(EXTERNAL))   func.expr=enclosed(NOFUNBODY);
-  ctx.vars.size(s);
+  ctx.vars.reset(vl);
 }
