@@ -1,20 +1,26 @@
 {
   final int i=id(tok.get());
-  if (i == 0)   return IndexIterator.EMPTY;
-  return new IndexIterator(){
-    int p=-1;
-    @Override public boolean more(){
-      return ++p < len[i];
-    }
-    @Override public int next(){
-      return ids[i][p];
-    }
-    @Override public double score(){
-      return -1;
-    }
-    @Override public int size(){
-      return len[i];
+  if (i > 0) {
+    final int cnt=len[i];
+    if (cnt > 0) {
+      final int[] pres=ids[i];
+      return new IndexIterator(){
+        private int p;
+        @Override public boolean more(){
+          return p < cnt;
+        }
+        @Override public int next(){
+          return pres[p++];
+        }
+        @Override public double score(){
+          return -1;
+        }
+        @Override public int size(){
+          return cnt;
+        }
+      }
+;
     }
   }
-;
+  return IndexIterator.EMPTY;
 }

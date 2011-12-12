@@ -1,0 +1,53 @@
+{
+  d.pthindex.close();
+  d.tagindex.init();
+  d.atnindex.init();
+  final MetaData m=d.meta;
+  m.dirty=true;
+  final IntList pars=new IntList();
+  final IntList tags=new IntList();
+  int n=0;
+  for (int pre=0; pre < m.size; ++pre) {
+    final byte kind=(byte)d.kind(pre);
+    final int par=d.parent(pre,kind);
+    while (!pars.empty() && pars.peek() > par) {
+      pars.pop();
+      tags.pop();
+    }
+    if (kind == Data.DOC) {
+      pars.push(pre);
+      tags.push(0);
+      if (m.createpath)       d.pthindex.index(0,kind,pars.size());
+      ++n;
+    }
+ else     if (kind == Data.ELEM) {
+      final int id=d.name(pre);
+      d.tagindex.index(d.tagindex.key(id),null,true);
+      if (m.createpath)       d.pthindex.index(id,kind,pars.size());
+      pars.push(pre);
+      tags.push(id);
+    }
+ else     if (kind == Data.ATTR) {
+      final int id=d.name(pre);
+      d.atnindex.index(d.atnindex.key(id),d.text(pre,false),true);
+      if (m.createpath)       d.pthindex.index(id,kind,pars.size());
+    }
+ else {
+      final byte[] txt=d.text(pre,true);
+      if (kind == Data.TEXT)       d.tagindex.index(tags.peek(),txt);
+      if (m.createpath)       d.pthindex.index(0,kind,pars.size());
+    }
+    if (c != null)     c.pre=pre;
+  }
+  m.ndocs=n;
+  m.pathindex=m.createpath;
+  m.uptodate=true;
+  try {
+    optimize(IndexType.ATTRIBUTE,d,m.createattr,c);
+    optimize(IndexType.TEXT,d,m.createtext,c);
+    optimize(IndexType.FULLTEXT,d,m.createftxt,c);
+  }
+  finally {
+    d.flush();
+  }
+}

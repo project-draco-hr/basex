@@ -16,9 +16,11 @@
     final ArrayOutput ao=new ArrayOutput().max(gprop.num(GUIProp.MAXTEXT));
     final boolean up=c.updating(context);
     updating=up;
-    if (editor.visible()) {
-      if (main)       editor.reset();
- else       if (c instanceof XQuery)       editor.start();
+    if (edit) {
+      editor.start();
+    }
+ else     if (editor.visible()) {
+      editor.reset();
     }
     String inf=null;
     try {
@@ -35,13 +37,11 @@
     final String time=perf.getTimer();
     info.setInfo(inf,c,time,ok);
     info.reset();
-    boolean feedback=main;
-    if (!main && editor.visible() && c instanceof XQuery) {
+    if (edit) {
       editor.info(inf.startsWith(PROGERR) ? PROGERR : inf,ok);
-      feedback=true;
     }
     if (!ok) {
-      if ((!feedback || inf.startsWith(BUGINFO)) && !info.visible()) {
+      if ((!edit || inf.startsWith(BUGINFO)) && !info.visible()) {
         GUICommands.SHOWINFO.execute(this);
       }
     }

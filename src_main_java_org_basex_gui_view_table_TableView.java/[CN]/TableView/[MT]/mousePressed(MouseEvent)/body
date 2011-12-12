@@ -3,13 +3,14 @@
   if (pre == -1)   return;
   super.mousePressed(e);
   final Context context=gui.context;
+  final Data data=gui.context.data();
   if (tdata.rows == null)   return;
   if (e.getY() < header.getHeight())   return;
   if (SwingUtilities.isLeftMouseButton(e)) {
     if (e.getClickCount() == 1) {
       final int c=tdata.column(getWidth() - BaseXBar.SIZE,e.getX());
       final String str=content.focusedString;
-      if (str == null || str.length() > Token.MAXLEN)       return;
+      if (str == null || str.length() > data.meta.maxlen)       return;
       if (!e.isShiftDown())       tdata.resetFilter();
       tdata.cols[c].filter=str;
       query();
@@ -24,12 +25,12 @@
   }
  else {
     if (pre != -1) {
-      final TableIterator it=new TableIterator(context.data(),tdata);
+      final TableIterator it=new TableIterator(data,tdata);
       final int c=tdata.column(getWidth() - BaseXBar.SIZE,e.getX());
       it.init(pre);
       while (it.more()) {
         if (it.col == c) {
-          gui.notify.mark(new Nodes(it.pre,context.data()),null);
+          gui.notify.mark(new Nodes(it.pre,data),null);
           return;
         }
       }

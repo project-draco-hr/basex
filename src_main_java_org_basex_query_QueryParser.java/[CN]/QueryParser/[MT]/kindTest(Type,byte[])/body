@@ -26,8 +26,15 @@
     nm=trim(substring(nm,0,i));
   }
   if (nm.length == 1 && nm[0] == '*')   return new KindTest((NodeType)t,null,tp);
-  if (!XMLToken.isQName(nm))   error(TESTINVALID,t,k);
-  final QNm qnm=new QNm(nm,ctx);
+  if (!XMLToken.isEQName(nm))   error(TESTINVALID,t,k);
+  final QNm qnm;
+  if (quote(nm[0])) {
+    final int c=lastIndexOf(nm,':');
+    qnm=new QNm(substring(nm,c + 1),substring(nm,1,c - 1));
+  }
+ else {
+    qnm=new QNm(nm,ctx);
+  }
   if (!qnm.hasURI()) {
     if (qnm.hasPrefix())     error(NOURI,qnm);
     if (elm)     qnm.uri(ctx.nsElem);

@@ -3,9 +3,9 @@
   final FTOpt fto=ftt.opt;
   final boolean wc=fto.is(WC);
   if (wc && !md.wildcards)   return false;
-  if (fto.isSet(CS) && md.casesens != fto.is(CS) || fto.isSet(DC) && md.diacritics != fto.is(DC) || fto.isSet(ST) && md.stemming != fto.is(ST) || fto.ln != null && md.language != fto.ln || occ != null)   return false;
+  if (occ != null || fto.isSet(CS) && md.casesens != fto.is(CS) || fto.isSet(DC) && md.diacritics != fto.is(DC) || fto.isSet(ST) && md.stemming != fto.is(ST) || fto.ln != null && !fto.ln.equals(md.language))   return false;
   if (txt == null) {
-    ic.costs(Math.max(1,ic.data.meta.size / 20));
+    ic.costs(Math.max(1,ic.data.meta.size >> 10));
     return true;
   }
   fto.set(CS,md.casesens);
@@ -27,7 +27,7 @@
           if (w == '{' || w == '\\' || w == '.' && ++d > 1)           return false;
         }
       }
-      ic.addCosts(Math.max(1,ic.data.count(ft) >> 2));
+      ic.addCosts(Math.max(1,ic.data.count(ft) >> 10));
     }
   }
   return true;

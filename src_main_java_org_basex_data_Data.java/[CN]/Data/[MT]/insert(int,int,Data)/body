@@ -1,14 +1,15 @@
 {
   meta.update();
+  if (meta.updindex)   indexBegin();
   docindex.insert(ipre,data);
   final boolean dummy=empty() && data.kind(0) == DOC;
   final int dsize=data.meta.size;
   final int buf=Math.min(dsize,IO.BLOCKSIZE >> IO.NODEPOWER);
   buffer(buf);
   final TokenMap nsScope=new TokenMap();
-  NSNode n=ns.current;
+  NSNode n=nspaces.current;
   do {
-    for (int i=0; i < n.vals.length; i+=2)     nsScope.add(ns.prefix(n.vals[i]),ns.uri(n.vals[i + 1]));
+    for (int i=0; i < n.vals.length; i+=2)     nsScope.add(nspaces.prefix(n.vals[i]),nspaces.uri(n.vals[i + 1]));
     final int pos=n.fnd(ipar);
     if (pos < 0)     break;
     n=n.ch[pos];
@@ -16,7 +17,7 @@
  while (n.pre <= ipar && ipar < n.pre + size(n.pre,ELEM));
   final IntList preStack=new IntList();
   int dpre=-1;
-  final NSNode t=ns.current;
+  final NSNode t=nspaces.current;
   final Set<NSNode> newNodes=new HashSet<NSNode>();
   final IntList flagPres=new IntList();
   while (++dpre != dsize) {
@@ -28,17 +29,17 @@
     final int par=dis == 0 ? -1 : pre - dis;
     if (dpre == 0) {
       final List<NSNode> cand=new LinkedList<NSNode>();
-      NSNode cn=ns.root;
+      NSNode cn=nspaces.root;
       cand.add(cn);
       for (int cI; (cI=cn.fnd(par)) > -1; ) {
         cn=cn.ch[cI];
         cand.add(0,cn);
       }
-      cn=ns.root;
+      cn=nspaces.root;
       if (cand.size() > 1) {
         int ancPre=par;
         NSNode curr=cand.remove(0);
-        while (ancPre > -1 && cn == ns.root) {
+        while (ancPre > -1 && cn == nspaces.root) {
           if (curr.pre == ancPre)           cn=curr;
  else           if (curr.pre < ancPre) {
             while ((ancPre=parent(ancPre,kind(ancPre))) > curr.pre)             ;
@@ -47,15 +48,15 @@
           if (cand.size() > 0)           curr=cand.remove(0);
         }
       }
-      ns.setNearestRoot(cn,par);
+      nspaces.setNearestRoot(cn,par);
     }
-    while (preStack.size() != 0 && preStack.peek() > par)     ns.close(preStack.pop());
+    while (preStack.size() != 0 && preStack.peek() > par)     nspaces.close(preStack.pop());
 switch (dkind) {
 case DOC:
       final int s=data.size(dpre,dkind);
     doc(pre,s,data.text(dpre,true));
   meta.ndocs++;
-ns.open();
+nspaces.open();
 preStack.push(pre);
 break;
 case ELEM:
@@ -65,14 +66,14 @@ final Atts at=data.ns(dpre);
 for (int a=0; a < at.size(); ++a) {
 final byte[] old=nsScope.get(at.name(a));
 if (old == null || !eq(old,at.string(a))) {
-newNodes.add(ns.add(at.name(a),at.string(a),pre));
+newNodes.add(nspaces.add(at.name(a),at.string(a),pre));
 ne=true;
 }
 }
 }
-ns.open();
+nspaces.open();
 byte[] nm=data.name(dpre,dkind);
-elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),ns.uri(nm,true),ne);
+elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),nspaces.uri(nm,true),ne);
 preStack.push(pre);
 break;
 case TEXT:
@@ -84,15 +85,15 @@ case ATTR:
 nm=data.name(dpre,dkind);
 final byte[] attPref=prefix(nm);
 if (data.nsFlag(dpre) && nsScope.get(attPref) == null) {
-ns.add(par,preStack.size() == 0 ? -1 : preStack.peek(),attPref,data.ns.uri(data.uri(dpre,dkind)));
+nspaces.add(par,preStack.size() == 0 ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(dpre,dkind)));
 flagPres.add(par);
 }
-attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),ns.uri(nm,false),false);
+attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),nspaces.uri(nm,false),false);
 break;
 }
 }
-while (preStack.size() != 0) ns.close(preStack.pop());
-ns.setRoot(t);
+while (preStack.size() != 0) nspaces.close(preStack.pop());
+nspaces.setRoot(t);
 if (bp != 0) insert(ipre + dpre - 1 - (dpre - 1) % buf);
 buffer(1);
 for (final int toFlag : flagPres.toArray()) table.write2(toFlag,1,name(toFlag) | 1 << 15);
@@ -103,6 +104,10 @@ size(p,k,size(p,k) + dsize);
 p=parent(p,k);
 }
 updateDist(ipre + dsize,dsize);
-ns.update(ipre,dsize,true,newNodes);
+nspaces.update(ipre,dsize,true,newNodes);
+if (meta.updindex) {
+idmap.insert(ipre,id(ipre),dsize);
+indexEnd();
+}
 if (dummy) delete(0);
 }

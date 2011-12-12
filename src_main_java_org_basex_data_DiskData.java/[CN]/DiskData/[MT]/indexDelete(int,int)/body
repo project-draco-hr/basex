@@ -1,0 +1,35 @@
+{
+  if (!(meta.textindex || meta.attrindex))   return;
+  txts=new TokenObjMap<IntList>();
+  atvs=new TokenObjMap<IntList>();
+  final int l=pre + size;
+  for (int p=pre; p < l; ++p) {
+    final int k=kind(p);
+    final boolean isAttr=k == ATTR;
+    if (meta.attrindex && isAttr || meta.textindex && (k == TEXT || k == COMM || k == PI)) {
+      final byte[] key=text(p,!isAttr);
+      if (key.length <= meta.maxlen) {
+        final IntList ids;
+        final TokenObjMap<IntList> m=isAttr ? atvs : txts;
+        final int hash=m.id(key);
+        if (hash == 0) {
+          ids=new IntList();
+          m.add(key,ids);
+        }
+ else {
+          ids=m.value(hash);
+        }
+        ids.add(id(p));
+      }
+    }
+  }
+  final Thread txtupdater=txts.size() > 0 ? runIndexDelete((DiskValues)txtindex,txts) : null;
+  final Thread atvupdater=atvs.size() > 0 ? runIndexDelete((DiskValues)atvindex,atvs) : null;
+  try {
+    if (txtupdater != null)     txtupdater.join();
+    if (atvupdater != null)     atvupdater.join();
+  }
+ catch (  final InterruptedException ex) {
+    Util.errln(ex);
+  }
+}

@@ -2,7 +2,7 @@
   if (!MetaData.validName(db,false))   return error(NAMEINVALID,db);
   new Close().run(context);
   try {
-    if (context.pinned(db))     return error(DBLOCKED,db);
+    if (context.pinned(db))     return error(DBPINNED,db);
     final boolean mem=prop.is(Prop.MAINMEM);
     builder=mem ? new MemBuilder(db,parser,prop) : new DiskBuilder(db,parser,context);
     Data data=progress(builder).build();
@@ -15,9 +15,10 @@
       final Open open=new Open(db);
       if (!open.run(context))       return error(open.info());
       data=context.data();
-      if (prop.is(Prop.TEXTINDEX))       index(IndexType.TEXT,data);
-      if (prop.is(Prop.ATTRINDEX))       index(IndexType.ATTRIBUTE,data);
-      if (prop.is(Prop.FTINDEX))       index(IndexType.FULLTEXT,data);
+      if (data.meta.createtext)       create(IndexType.TEXT,data,this);
+      if (data.meta.createattr)       create(IndexType.ATTRIBUTE,data,this);
+      if (data.meta.createftxt)       create(IndexType.FULLTEXT,data,this);
+      data.meta.pathindex=data.meta.createpath;
       data.flush();
     }
     return info(parser.info() + DBCREATED,db,perf);

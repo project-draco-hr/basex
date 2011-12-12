@@ -1,11 +1,12 @@
 {
   if (it instanceof RangeToken)   return idRange((RangeToken)it).size();
-  if (it.get().length > MAXLEN)   return Integer.MAX_VALUE;
+  if (it.get().length > data.meta.maxlen)   return Integer.MAX_VALUE;
   final byte[] tok=it.get();
   final int id=cache.id(tok);
   if (id > 0)   return cache.size(id);
-  final long pos=get(tok);
-  if (pos == 0)   return 0;
+  final int ix=get(tok);
+  if (ix < 0)   return 0;
+  final long pos=idxr.read5(ix * 5L);
   final int nr=idxl.readNum(pos);
   cache.add(it.get(),nr,pos + Num.length(nr));
   return nr;
