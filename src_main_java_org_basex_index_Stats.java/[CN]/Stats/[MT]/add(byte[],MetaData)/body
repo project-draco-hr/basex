@@ -1,0 +1,39 @@
+{
+  final int vl=val.length;
+  if (vl == 0 || type == StatsType.TEXT || ws(val))   return;
+  if (cats != null && cats.size() <= meta.maxcats) {
+    if (val.length > meta.maxlen) {
+      type=StatsType.TEXT;
+      cats=null;
+    }
+ else {
+      cats.add(val,Math.max(1,cats.value(val) + 1));
+    }
+  }
+  if (type == StatsType.INTEGER) {
+    final long d=toLong(val);
+    if (d == Long.MIN_VALUE) {
+      type=StatsType.DOUBLE;
+    }
+ else {
+      if (min > d)       min=d;
+      if (max < d)       max=d;
+    }
+  }
+  if (type == StatsType.DOUBLE) {
+    final double d=toDouble(val);
+    if (Double.isNaN(d)) {
+      type=cats.size() <= meta.maxcats ? StatsType.CATEGORY : StatsType.TEXT;
+    }
+ else {
+      if (min > d)       min=d;
+      if (max < d)       max=d;
+    }
+  }
+ else   if (type == StatsType.CATEGORY) {
+    if (cats.size() > meta.maxcats) {
+      type=StatsType.TEXT;
+      cats=null;
+    }
+  }
+}
