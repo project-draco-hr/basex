@@ -3,11 +3,12 @@
   if (!MetaData.validName(db,false))   return error(NAMEINVALID,db);
   File file=mprop.dbpath(db + IO.ZIPSUFFIX);
   if (!file.exists()) {
-    final StringList list=list(db,context);
+    final StringList list=ShowBackups.list(db,true,context);
     if (list.size() != 0)     file=new File(list.get(0));
   }
  else {
-    db=db.replace(PATTERN + '$',"");
+    final Pattern pa=Pattern.compile(IO.DATEPATTERN + '$');
+    db=pa.split(db)[0];
   }
   if (!file.exists())   return error(DBBACKNF,db);
   if (!closed)   closed=close(context,db);

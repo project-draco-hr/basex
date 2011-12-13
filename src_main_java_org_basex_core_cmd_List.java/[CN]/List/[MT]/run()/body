@@ -3,20 +3,20 @@
   table.description=DATABASES;
   final boolean create=context.user.perm(User.CREATE);
   table.header.add(INFODBNAME);
-  table.header.add(INFONRES);
+  table.header.add(INFORES);
   table.header.add(INFODBSIZE);
   if (create)   table.header.add(INFOPATH);
   for (  final String name : list(context)) {
     DataInput di=null;
     String file=null;
     long size=0;
-    int ndocs=0;
+    int docs=0;
     final MetaData meta=new MetaData(name,context);
     try {
       di=new DataInput(meta.dbfile(DATAINF));
       meta.read(di);
       size=meta.dbsize();
-      ndocs=meta.ndocs;
+      docs=meta.ndocs;
       if (context.perm(User.READ,meta))       file=meta.original.toString();
     }
  catch (    final IOException ex) {
@@ -29,12 +29,12 @@
  catch (      final IOException ex) {
       }
     }
-    final File bin=new File(mprop.dbpath(name),M_RAW);
-    final int raw=new IOFile(bin).descendants().size();
+    final File dir=new File(mprop.dbpath(name),M_RAW);
+    final int bin=new IOFile(dir).descendants().size();
     if (file != null) {
       final TokenList tl=new TokenList(4);
       tl.add(name);
-      tl.add(ndocs + raw);
+      tl.add(docs + bin);
       tl.add(size);
       if (create)       tl.add(file);
       table.contents.add(tl);

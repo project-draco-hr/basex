@@ -1,20 +1,20 @@
 {
   final Expr ex=val instanceof Expr ? (Expr)val : JavaFunc.type(val).e(val,null);
-  String loc=name.indexOf('$') == 0 ? name.substring(1) : name;
+  String nm=name.indexOf('$') == 0 ? name.substring(1) : name;
   byte[] uri=EMPTY;
-  final Matcher m=BIND.matcher(loc);
+  final Matcher m=BIND.matcher(nm);
   if (m.find()) {
     String u=m.group(3);
     if (u == null)     u=m.group(5);
     uri=token(u);
-    loc=m.group(6);
+    nm=m.group(6);
   }
-  final byte[] ln=token(loc);
-  if (loc.isEmpty() || !XMLToken.isNCName(ln))   return;
-  final QNm nm=uri.length == 0 ? new QNm(ln,this) : new QNm(ln,uri);
-  final Var gl=vars.global().get(nm);
+  final byte[] ln=token(nm);
+  if (nm.isEmpty() || !XMLToken.isNCName(ln))   return;
+  final QNm qnm=uri.length == 0 ? new QNm(ln,this) : new QNm(ln,uri);
+  final Var gl=vars.globals().get(qnm);
   if (gl == null) {
-    vars.setGlobal(Var.create(this,null,nm).bind(ex,this));
+    vars.updateGlobal(Var.create(this,null,qnm).bind(ex,this));
   }
  else {
     gl.declared=false;

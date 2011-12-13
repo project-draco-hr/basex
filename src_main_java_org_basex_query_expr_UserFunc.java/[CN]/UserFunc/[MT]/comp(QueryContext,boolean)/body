@@ -1,0 +1,15 @@
+{
+  if (compiled)   return;
+  compiled=true;
+  final int vs=ctx.vars.size();
+  final VarStack vl=cache ? ctx.vars.cache(args.length) : null;
+  for (  final Var v : args)   ctx.vars.add(v);
+  expr=expr.comp(ctx);
+  if (cache)   ctx.vars.reset(vl);
+ else   ctx.vars.size(vs);
+  if (tco())   expr=expr.markTailCalls();
+  if (ret != null && (ret.type == AtomType.BLN || ret.type == AtomType.FLT || ret.type == AtomType.DBL || ret.type == AtomType.QNM || ret.type == AtomType.URI) && ret.eq(expr.type())) {
+    ctx.compInfo(OPTCAST,ret);
+    cast=false;
+  }
+}

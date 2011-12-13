@@ -2,15 +2,18 @@
   wsCheck(MODULE);
   wsCheck(NSPACE);
   skipWS();
-  final byte[] pref=ncName(XPNAME);
+  final byte[] name=ncName(XPNAME);
   wsCheck(IS);
   final byte[] uri=stringLiteral();
   if (uri.length == 0)   error(NSMODURI);
-  module=new QNm(pref,uri);
-  ctx.ns.add(pref,uri,input());
+  module=new QNm(name,uri);
+  ctx.sc.ns.add(name,uri,input());
   skipWS();
   check(';');
   prolog1();
   prolog2();
-  if (!eq(u,module.uri()))   error(WRONGMODULE,module.uri(),file);
+  if (u.length != 0 && !eq(u,module.uri())) {
+    final boolean admin=ctx.context.user.perm(User.ADMIN);
+    error(WRONGMODULE,module.uri(),admin ? file.toString() : file.name());
+  }
 }

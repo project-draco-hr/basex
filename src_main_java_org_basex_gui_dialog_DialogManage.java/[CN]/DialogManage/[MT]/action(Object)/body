@@ -1,0 +1,99 @@
+{
+  final Context ctx=gui.context;
+  if (refresh) {
+    choice.setData(List.list(ctx,true).toArray());
+    choice.requestFocusInWindow();
+    refresh=false;
+  }
+  final StringList dbs=choice.getValues();
+  final String db=choice.getValue();
+  final ObjList<Command> cmds=new ObjList<Command>();
+  boolean active=dbs.size() > 0;
+  if (cmp == open) {
+    close();
+  }
+ else   if (cmp == drop) {
+    for (    final String s : dbs) {
+      if (ctx.mprop.dbexists(s))       cmds.add(new DropDB(s));
+    }
+    if (!Dialog.confirm(gui,Util.info(DROPCONF,cmds.size())))     return;
+    refresh=true;
+  }
+ else   if (cmp == rename) {
+    final DialogInput dr=new DialogInput(db,RENAMETITLE,gui,1);
+    if (!dr.ok() || dr.input().equals(db))     return;
+    cmds.add(new AlterDB(db,dr.input()));
+    refresh=true;
+  }
+ else   if (cmp == copy) {
+    final DialogInput dc=new DialogInput(db,COPYTITLE,gui,2);
+    if (!dc.ok() || dc.input().equals(db))     return;
+    cmds.add(new Copy(db,dc.input()));
+    refresh=true;
+  }
+ else   if (cmp == backup) {
+    for (    final String s : dbs)     cmds.add(new CreateBackup(s));
+  }
+ else   if (cmp == restore) {
+    if (!gui.context.mprop.dbexists(db) || Dialog.confirm(gui,OVERWRITE))     cmds.add(new Restore(db));
+  }
+ else   if (cmp == backups) {
+  }
+ else   if (cmp == delete) {
+    cmds.add(new DropBackup(backups.getValue()));
+    refresh=backups.getList().length == 1;
+    backups.requestFocusInWindow();
+  }
+ else   if (cmp == deleteAll) {
+    final String[] back=backups.getList();
+    if (!Dialog.confirm(gui,Util.info(DROPBACKUP,back.length)))     return;
+    for (    final String b : back)     cmds.add(new DropBackup(b));
+    refresh=true;
+  }
+ else   if (cmp != backups) {
+    final String title=dbs.size() == 1 ? db : dbs.size() + " " + DATABASES;
+    doc1.setText(title);
+    doc2.setText(title);
+    active=ctx.mprop.dbexists(db);
+    if (active) {
+      DataInput in=null;
+      final MetaData meta=new MetaData(db,ctx);
+      try {
+        in=new DataInput(meta.dbfile(DATAINF));
+        meta.read(in);
+        detail.setText(InfoDB.db(meta,true,true,true));
+      }
+ catch (      final IOException ex) {
+        detail.setText(Token.token(ex.getMessage()));
+      }
+ finally {
+        if (in != null)         try {
+          in.close();
+        }
+ catch (        final IOException ex) {
+        }
+      }
+    }
+ else {
+      detail.setText(dbs.size() == 1 ? Token.token(ONLYBACKUP) : Token.EMPTY);
+    }
+    rename.setEnabled(active);
+    copy.setEnabled(active);
+    open.setEnabled(active);
+    restore.setEnabled(active);
+    active=false;
+    for (    final String d : dbs)     active|=ctx.mprop.dbexists(d);
+    drop.setEnabled(active);
+    backup.setEnabled(active);
+    final String[] back=ShowBackups.list(db,false,ctx).toArray();
+    active=back.length > 0;
+    backups.setData(back);
+    backups.setEnabled(active);
+    restore.setEnabled(active);
+    delete.setEnabled(active);
+    deleteAll.setEnabled(active);
+  }
+  if (cmds.size() != 0) {
+    DialogProgress.execute(this,"",cmds.toArray(new Command[cmds.size()]));
+  }
+}
