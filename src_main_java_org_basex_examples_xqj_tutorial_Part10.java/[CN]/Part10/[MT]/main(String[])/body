@@ -2,7 +2,7 @@
   init("10: XML Pipelines");
   XQConnection xqc=connect();
   XQExpression xqe=xqc.createExpression();
-  XQSequence xqs=xqe.executeQuery("doc('etc/xml/orders.xml')//order");
+  XQSequence xqs=xqe.executeQuery("doc('src/main/resources/xml/orders.xml')//order");
   XQExpression xqe2=xqc.createExpression();
   xqe2.bindSequence(new QName("orders"),xqs);
   XQSequence xqs2=xqe2.executeQuery("declare variable $orders as element(*, xs:untyped) external; " + "for $order in $orders where $order/@status = 'closed' " + "return <closed_order id = '{$order/@id}'>{ "+ " $order/* }</closed_order>");
@@ -11,8 +11,8 @@
   xqe.close();
   info("Passing XSLT results to XQuery");
   SAXTransformerFactory stf=(SAXTransformerFactory)TransformerFactory.newInstance();
-  XMLFilter xmlf=stf.newXMLFilter(new StreamSource("etc/xml/orders.xsl"));
-  SAXSource saxSource=new SAXSource(xmlf,new InputSource("etc/xml/orders.xml"));
+  XMLFilter xmlf=stf.newXMLFilter(new StreamSource("src/main/resources/xml/orders.xsl"));
+  SAXSource saxSource=new SAXSource(xmlf,new InputSource("src/main/resources/xml/orders.xml"));
   XQPreparedExpression xqp=xqc.prepareExpression("declare variable $var external; <result>{ $var }</result>");
   xqp.bindDocument(new QName("var"),saxSource,null);
   xqs=xqp.executeQuery();
