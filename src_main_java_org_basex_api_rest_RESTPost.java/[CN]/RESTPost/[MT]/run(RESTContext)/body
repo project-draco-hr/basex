@@ -3,11 +3,7 @@
   if (map.size() != 0)   throw new RESTException(SC_BAD_REQUEST,ERR_NOPARAM);
   String enc=ctx.req.getCharacterEncoding();
   if (enc == null)   enc=Token.UTF8;
-  final BufferInput bis=new BufferInput(ctx.in);
-  final ByteList bl=new ByteList();
-  for (int i=0; (i=bis.read()) != -1; )   bl.add(i);
-  final IOContent cont=new IOContent(bl.toArray());
-  final String input=TextInput.content(cont,enc).toString();
+  final String input=Token.string(new NewlineInput(ctx.in,enc).content());
   final Context context=HTTPSession.context();
   Result node=null;
   try {
