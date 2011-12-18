@@ -1,26 +1,21 @@
 {
   builder.startElem(CSV,atts);
   final TokenBuilder tb=new TokenBuilder();
-  final BufferInput bi=src.buffer();
-  bi.encoding(encoding);
+  final NewlineInput bi=new NewlineInput(src,encoding);
   boolean quoted=false, open=true;
   int ch=-1;
   while (true) {
-    if (ch == -1)     ch=bi.readChar();
+    if (ch == -1)     ch=bi.read();
     if (ch == -1)     break;
     if (quoted) {
       if (ch == '"') {
-        ch=bi.readChar();
+        ch=bi.read();
         if (ch != '"') {
           quoted=false;
           continue;
         }
       }
-      while (ch == '\r') {
-        ch=bi.readChar();
-        if (ch != '\n')         tb.add('\n');
-      }
-      if (ch != '\r')       tb.add(ch);
+      tb.add(ch);
     }
  else     if (ch == separator) {
       if (open) {
@@ -28,12 +23,6 @@
         open=false;
       }
       add(tb);
-    }
- else     if (ch == '\r') {
-      ch=bi.readChar();
-      if (ch == '\n')       continue;
-      finish(tb,open);
-      open=true;
     }
  else     if (ch == '\n') {
       finish(tb,open);
