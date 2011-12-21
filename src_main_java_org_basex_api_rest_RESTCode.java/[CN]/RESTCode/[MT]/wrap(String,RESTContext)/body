@@ -1,6 +1,11 @@
 {
   ctx.wrapping=Util.yes(val);
   if (!ctx.wrapping && !Util.no(val)) {
-    throw new RESTException(SC_BAD_REQUEST,SerializerProp.error(WRAP,val,Text.YES,Text.NO).getMessage());
+    try {
+      SerializerProp.error(WRAP,val,Text.YES,Text.NO);
+    }
+ catch (    final SerializerException ex) {
+      throw new RESTException(SC_BAD_REQUEST,ex.getMessage());
+    }
   }
 }
