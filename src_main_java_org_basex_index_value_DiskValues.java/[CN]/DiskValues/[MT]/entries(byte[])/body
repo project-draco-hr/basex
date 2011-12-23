@@ -1,0 +1,16 @@
+{
+  final TokenList tl=new TokenList();
+  int ix=get(prefix);
+  if (ix < 0)   ix=-ix - 1;
+  idxr.cursor(ix * 5l);
+  for (; ix < size; ix++) {
+    final long pos=idxr.read5();
+    final int nr=idxl.readNum(pos);
+    final int pre=idxl.readNum();
+    final byte[] key=data.text(pre,text);
+    cache.add(key,nr,pos + Num.length(nr));
+    if (!startsWith(key,prefix))     break;
+    tl.add(key);
+  }
+  return tl;
+}

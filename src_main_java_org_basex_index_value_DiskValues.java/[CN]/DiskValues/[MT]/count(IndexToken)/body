@@ -1,13 +1,13 @@
 {
   if (it instanceof RangeToken)   return idRange((RangeToken)it).size();
-  if (it.get().length > data.meta.maxlen)   return Integer.MAX_VALUE;
-  final byte[] tok=it.get();
-  final int id=cache.id(tok);
+  final byte[] key=it.get();
+  if (key.length > data.meta.maxlen)   return Integer.MAX_VALUE;
+  final int id=cache.id(key);
   if (id > 0)   return cache.size(id);
-  final int ix=get(tok);
+  final int ix=get(key);
   if (ix < 0)   return 0;
   final long pos=idxr.read5(ix * 5L);
   final int nr=idxl.readNum(pos);
-  cache.add(it.get(),nr,pos + Num.length(nr));
+  cache.add(key,nr,pos + Num.length(nr));
   return nr;
 }
