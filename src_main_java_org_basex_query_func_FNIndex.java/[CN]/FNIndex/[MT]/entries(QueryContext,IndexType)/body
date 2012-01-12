@@ -1,37 +1,5 @@
 {
   final Data data=data(0,ctx);
   final byte[] prefix=expr.length < 2 ? EMPTY : checkStr(expr[1],ctx);
-  final Index index;
-  final boolean avl;
-  if (it == IndexType.TEXT) {
-    index=data.txtindex;
-    avl=data.meta.textindex;
-  }
- else {
-    index=data.atvindex;
-    avl=data.meta.attrindex;
-  }
-  if (!avl)   NOINDEX.thrw(input,data.meta.name,it);
-  final TokenIntMap entries=index.entries(prefix);
-  return new ValueIter(){
-    final int es=entries.size();
-    int pos;
-    @Override public ANode get(    final long i){
-      final FElem elem=new FElem(Q_VALUE);
-      elem.add(new FAttr(Q_COUNT,token(entries.value((int)i + 1))));
-      elem.add(new FTxt(entries.key((int)i + 1)));
-      return elem;
-    }
-    @Override public ANode next(){
-      return pos < size() ? get(pos++) : null;
-    }
-    @Override public boolean reset(){
-      pos=0;
-      return true;
-    }
-    @Override public long size(){
-      return es;
-    }
-  }
-;
+  return entries(data,prefix,it,this);
 }
