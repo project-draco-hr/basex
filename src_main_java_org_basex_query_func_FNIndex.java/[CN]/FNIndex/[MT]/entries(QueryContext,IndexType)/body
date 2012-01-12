@@ -12,14 +12,17 @@
     avl=data.meta.attrindex;
   }
   if (!avl)   NOINDEX.thrw(input,data.meta.name,it);
-  final TokenList entries=index.entries(prefix);
+  final TokenIntMap entries=index.entries(prefix);
   return new ValueIter(){
     final int es=entries.size();
     int pos;
-    @Override public Str get(    final long i){
-      return Str.get(entries.get((int)i));
+    @Override public ANode get(    final long i){
+      final FElem elem=new FElem(Q_VALUE);
+      elem.add(new FAttr(Q_COUNT,token(entries.value((int)i + 1))));
+      elem.add(new FTxt(entries.key((int)i + 1)));
+      return elem;
     }
-    @Override public Str next(){
+    @Override public ANode next(){
       return pos < size() ? get(pos++) : null;
     }
     @Override public boolean reset(){
