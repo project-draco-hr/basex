@@ -22,7 +22,8 @@
   req.parts.add(p2);
   req.parts.add(p3);
   final FakeHttpConnection fakeConn=new FakeHttpConnection(new URL("http://www.test.com"));
-  HTTPClient.setRequestContent(fakeConn.getOutputStream(),req,null);
+  final HTTPClient hc=new HTTPClient(null,CONTEXT.prop);
+  hc.setRequestContent(fakeConn.getOutputStream(),req);
   final String expResult="--boundary42" + CRLF + "Content-Type: text/plain; charset=us-ascii"+ CRLF+ CRLF+ plain+ Prop.NL+ CRLF+ "--boundary42"+ CRLF+ "Content-Type: text/richtext"+ CRLF+ CRLF+ rich+ CRLF+ "--boundary42"+ CRLF+ "Content-Type: text/x-whatever"+ CRLF+ CRLF+ fancy+ CRLF+ "--boundary42--"+ CRLF;
   final String fake=fakeConn.getOutputStream().toString();
   assertEquals(expResult,fake);
