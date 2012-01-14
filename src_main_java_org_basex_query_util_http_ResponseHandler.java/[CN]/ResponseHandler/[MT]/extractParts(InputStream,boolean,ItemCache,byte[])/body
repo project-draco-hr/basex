@@ -1,0 +1,18 @@
+{
+  try {
+    byte[] next=readLine(io);
+    while (next != null && !eq(sep,next))     next=readLine(io);
+    if (next == null)     REQINV.thrw(input,"No body specified for http:part");
+    final byte[] end=concat(sep,token("--"));
+    FElem nextPart=extractNextPart(io,status,payloads,sep,end);
+    final NodeCache p=new NodeCache();
+    while (nextPart != null) {
+      p.add(nextPart);
+      nextPart=extractNextPart(io,status,payloads,sep,end);
+    }
+    return p;
+  }
+  finally {
+    io.close();
+  }
+}

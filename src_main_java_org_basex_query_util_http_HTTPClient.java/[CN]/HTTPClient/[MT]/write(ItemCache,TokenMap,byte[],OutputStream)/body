@@ -1,12 +1,11 @@
 {
   final TokenBuilder tb=new TokenBuilder();
-  tb.add(token("method=")).add(method);
-  final byte[][] keys=payloadAttrs.keys();
-  for (  final byte[] key : keys) {
-    if (!eq(key,SRC) && !eq(key,MEDIATYPE) && !eq(key,METHOD))     tb.add(',').add(key).add('=').add(payloadAttrs.get(key));
+  tb.add(METHOD).add('=').add(method);
+  for (  final byte[] key : payloadAttrs.keys()) {
+    if (!eq(key,SRC))     tb.add(',').add(key).add('=').add(payloadAttrs.get(key));
   }
-  final SerializerProp prop=new SerializerProp(tb.toString());
-  final Serializer ser=Serializer.get(out,prop);
+  final SerializerProp sp=new SerializerProp(tb.toString());
+  final Serializer ser=Serializer.get(out,sp);
   try {
     payload.serialize(ser);
   }
