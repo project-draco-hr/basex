@@ -1,10 +1,14 @@
 {
-  if (MimeTypes.isXML(c)) {
-    return new DBNode(Parser.xmlParser(new IOContent(p),prop),prop);
+  try {
+    if (MimeTypes.isXML(c)) {
+      return new DBNode(Parser.xmlParser(new IOContent(p),prop),prop);
+    }
+    if (c.equals(MimeTypes.TEXT_HTML)) {
+      return new DBNode(new HTMLParser(new IOContent(p),"",prop),prop);
+    }
   }
-  if (c.equals(MimeTypes.TEXT_HTML)) {
-    if (!HTMLParser.available())     throw HTMLERR.thrw(input);
-    return new DBNode(new HTMLParser(new IOContent(p),"",prop),prop);
+ catch (  final IOException ex) {
+    return new B64(p);
   }
   return c.startsWith(MimeTypes.MIME_TEXT_PREFIX) ? Str.get(p) : new B64(p);
 }
