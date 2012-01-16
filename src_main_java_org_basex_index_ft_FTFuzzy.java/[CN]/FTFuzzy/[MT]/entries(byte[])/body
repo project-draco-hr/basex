@@ -1,0 +1,28 @@
+{
+  final TokenIntMap tim=new TokenIntMap();
+  for (int s=prefix.length; s < tp.length - 1; s++) {
+    int p=tp[s];
+    if (p == -1)     continue;
+    int i=s + 1;
+    int r=-1;
+    do     r=tp[i++];
+ while (r == -1);
+    inY.cursor(p);
+    boolean f=false;
+    while (p < r) {
+      final byte[] tok=inY.readBytes(s);
+      final long poi=inY.read5();
+      final int size=inY.read4();
+      cache.add(tok,size,poi);
+      if (startsWith(tok,prefix)) {
+        tim.add(tok,size);
+        f=true;
+      }
+ else       if (f) {
+        break;
+      }
+      p+=s + ENTRY;
+    }
+  }
+  return tim;
+}

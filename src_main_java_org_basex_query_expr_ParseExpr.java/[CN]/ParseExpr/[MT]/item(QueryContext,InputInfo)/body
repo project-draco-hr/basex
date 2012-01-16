@@ -2,7 +2,14 @@
   final Iter ir=iter(ctx);
   final Item it=ir.next();
   if (it == null || ir.size() == 1)   return it;
-  final Item n=ir.next();
-  if (n != null)   XPSEQ.thrw(ii,this);
+  Item n=ir.next();
+  if (n != null) {
+    final ItemCache ic=new ItemCache();
+    ic.add(it);
+    ic.add(n);
+    n=ir.next();
+    if (n != null)     ic.add(Str.get("..."));
+    XPSEQ.thrw(ii,ic.value());
+  }
   return it;
 }
