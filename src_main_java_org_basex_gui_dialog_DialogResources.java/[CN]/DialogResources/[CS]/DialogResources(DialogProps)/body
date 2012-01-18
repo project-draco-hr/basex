@@ -1,10 +1,8 @@
 {
   setLayout(new BorderLayout(0,5));
   dialog=d;
-  filterText=new BaseXTextField("",d);
-  BaseXLayout.setWidth(filterText,220);
-  final DefaultMutableTreeNode root=new DefaultMutableTreeNode();
-  tree=new BaseXTree(root,d);
+  final DefaultMutableTreeNode rootNode=new DefaultMutableTreeNode();
+  tree=new BaseXTree(rootNode,d);
   tree.setBorder(new EmptyBorder(4,4,4,4));
   tree.setRootVisible(false);
   tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -13,20 +11,25 @@
   tree.setCellRenderer(new TreeNodeRenderer(xml,raw));
   tree.addTreeSelectionListener(new TreeSelectionListener(){
     @Override public void valueChanged(    final TreeSelectionEvent e){
-      final TreeNode n=(TreeNode)e.getPath().getLastPathComponent();
-      String path=n.equals(dbnode) ? "" : n.completePath();
-      if (!n.isLeaf()) {
-        path+="/";
-        dialog.add.target.setText(path);
+      TreeNode n=(TreeNode)e.getPath().getLastPathComponent();
+      String filt=n.equals(root) ? "" : n.path();
+      String trgt=filt + '/';
+      if (n.isLeaf()) {
+        n=(TreeNode)n.getParent();
+        trgt=(n.equals(root) ? "" : n.path()) + '/';
       }
-      filterText.setText(path);
+ else {
+        filt=trgt;
+      }
+      filterText.setText(filt);
+      dialog.add.target.setText(trgt);
     }
   }
 );
   final Data data=d.gui.context.data();
-  dbnode=new TreeRootFolder(token(data.meta.name),token("/"),tree,data);
-  ((DefaultTreeModel)tree.getModel()).insertNodeInto(dbnode,root,0);
-  tree.expandPath(new TreePath(dbnode.getPath()));
+  root=new TreeRootFolder(token(data.meta.name),token("/"),tree,data);
+  ((DefaultTreeModel)tree.getModel()).insertNodeInto(root,rootNode,0);
+  tree.expandPath(new TreePath(root.getPath()));
   filter=new BaseXButton(BUTTONFILTER,d);
   clear=new BaseXButton(BUTTONCLEAR,d);
   new BaseXPopup(tree,d.gui,new DeleteCmd(),new RenameCmd());
@@ -35,6 +38,8 @@
   buttons.add(clear);
   final BaseXBack btn=new BaseXBack(Fill.NONE).layout(new BorderLayout());
   btn.add(buttons,BorderLayout.EAST);
+  filterText=new BaseXTextField("",d.gui);
+  BaseXLayout.setWidth(filterText,220);
   final BaseXBack panel=new BaseXBack(new BorderLayout());
   panel.add(filterText,BorderLayout.CENTER);
   panel.add(btn,BorderLayout.SOUTH);
