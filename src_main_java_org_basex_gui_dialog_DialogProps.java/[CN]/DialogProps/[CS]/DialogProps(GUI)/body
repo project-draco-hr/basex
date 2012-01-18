@@ -1,0 +1,67 @@
+{
+  super(main,INFODB);
+  panel.setLayout(new BorderLayout(5,0));
+  final Data data=gui.context.data();
+  final BaseXButton okButton=new BaseXButton(BUTTONOK,this);
+  optimize=new BaseXButton(BUTTONOPT,this);
+  buttons=newButtons(optimize,okButton,BUTTONCANCEL);
+  resources=new DialogResources(this);
+  final BaseXBack tabInfo=new BaseXBack(new BorderLayout(0,8)).border(8);
+  final Font f=tabInfo.getFont();
+  final BaseXLabel doc=new BaseXLabel(data.meta.name).border(0,0,5,0);
+  doc.setFont(f.deriveFont(f.getSize2D() + 7f));
+  tabInfo.add(doc,BorderLayout.NORTH);
+  final byte[] db=InfoDB.db(data.meta,true,false,true);
+  final TokenBuilder info=new TokenBuilder(db);
+  if (data.nspaces.size() != 0) {
+    info.bold().add(NL + INFONS + NL).norm().add(data.nspaces.info());
+  }
+  final BaseXEditor text=text(info.finish());
+  text.setFont(f);
+  tabInfo.add(text,BorderLayout.CENTER);
+  add=new DialogAdd(this);
+  final BaseXBack tabRes=add.border(8);
+  final BaseXBack tabNames=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
+  tabNames.add(addIndex(true,data));
+  tabNames.add(addIndex(false,data));
+  final String[] cb={INFOPATHINDEX,INFOTEXTINDEX,INFOATTRINDEX,INFOFTINDEX};
+  final boolean[] val={data.meta.pathindex,data.meta.textindex,data.meta.attrindex,data.meta.ftxtindex};
+  final BaseXBack[] panels=new BaseXBack[indexes.length];
+  for (int i=0; i < indexes.length; ++i) {
+    indexes[i]=new BaseXCheckBox(cb[i],val[i],0,this);
+    indexes[i].setEnabled(data instanceof DiskData);
+    panels[i]=new BaseXBack(new BorderLayout());
+  }
+  final BaseXBack tabPath=new BaseXBack(new GridLayout(1,1)).border(8);
+  panels[0].add(indexes[0],BorderLayout.NORTH);
+  panels[0].add(text(val[0] ? data.info(IndexType.PATH) : Token.token(PATHINDEXINFO)),BorderLayout.CENTER);
+  tabPath.add(panels[0]);
+  final BaseXBack tabValues=new BaseXBack(new GridLayout(2,1)).border(8);
+  panels[1].add(indexes[1],BorderLayout.NORTH);
+  panels[1].add(text(val[1] ? data.info(IndexType.TEXT) : Token.token(TXTINDEXINFO)),BorderLayout.CENTER);
+  tabValues.add(panels[1]);
+  panels[2].add(indexes[2],BorderLayout.NORTH);
+  panels[2].add(text(val[2] ? data.info(IndexType.ATTRIBUTE) : Token.token(ATTINDEXINFO)),BorderLayout.CENTER);
+  tabValues.add(panels[2]);
+  final BaseXBack tabFT=new BaseXBack(new GridLayout(1,1)).border(8);
+  panels[3].add(indexes[3],BorderLayout.NORTH);
+  if (!val[3])   ft=new DialogFT(this,false);
+  panels[3].add(val[3] ? text(data.info(IndexType.FULLTEXT)) : ft,BorderLayout.CENTER);
+  tabFT.add(panels[3]);
+  final BaseXTabs tabs=new BaseXTabs(this);
+  tabs.addTab(GENERALINFO,tabInfo);
+  tabs.addTab("Add Resources",tabRes);
+  tabs.addTab(NAMESINFO,tabNames);
+  tabs.addTab(INFOPATHINDEX,tabPath);
+  tabs.addTab(INDEXINFO,tabValues);
+  tabs.addTab(FTINFO,tabFT);
+  final BaseXBack back=new BaseXBack(new BorderLayout());
+  back.add(tabs,BorderLayout.CENTER);
+  back.add(buttons,BorderLayout.SOUTH);
+  set(back,BorderLayout.CENTER);
+  set(resources,BorderLayout.WEST);
+  action(null);
+  setResizable(true);
+  setMinimumSize(getPreferredSize());
+  finish(null);
+}

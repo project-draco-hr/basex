@@ -1,0 +1,43 @@
+{
+  setLayout(new BorderLayout(0,5));
+  dialog=d;
+  filterText=new BaseXTextField("",d);
+  BaseXLayout.setWidth(filterText,220);
+  final DefaultMutableTreeNode root=new DefaultMutableTreeNode();
+  tree=new BaseXTree(root,d);
+  tree.setBorder(new EmptyBorder(4,4,4,4));
+  tree.setRootVisible(false);
+  tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+  final ImageIcon xml=BaseXLayout.icon("file_xml");
+  final ImageIcon raw=BaseXLayout.icon("file_raw");
+  tree.setCellRenderer(new TreeNodeRenderer(xml,raw));
+  tree.addTreeSelectionListener(new TreeSelectionListener(){
+    @Override public void valueChanged(    final TreeSelectionEvent e){
+      final TreeNode n=(TreeNode)e.getPath().getLastPathComponent();
+      String path=n.equals(dbnode) ? "" : n.completePath();
+      if (!n.isLeaf()) {
+        path+="/";
+        dialog.add.target.setText(path);
+      }
+      filterText.setText(path);
+    }
+  }
+);
+  final Data data=d.gui.context.data();
+  dbnode=new TreeRootFolder(token(data.meta.name),token("/"),tree,data);
+  ((DefaultTreeModel)tree.getModel()).insertNodeInto(dbnode,root,0);
+  tree.expandPath(new TreePath(dbnode.getPath()));
+  filter=new BaseXButton(BUTTONFILTER,d);
+  clear=new BaseXButton(BUTTONCLEAR,d);
+  new BaseXPopup(tree,d.gui,new DeleteCmd(),new RenameCmd());
+  final BaseXBack buttons=new BaseXBack(Fill.NONE);
+  buttons.add(filter);
+  buttons.add(clear);
+  final BaseXBack btn=new BaseXBack(Fill.NONE).layout(new BorderLayout());
+  btn.add(buttons,BorderLayout.EAST);
+  final BaseXBack panel=new BaseXBack(new BorderLayout());
+  panel.add(filterText,BorderLayout.CENTER);
+  panel.add(btn,BorderLayout.SOUTH);
+  add(new JScrollPane(tree),BorderLayout.CENTER);
+  add(panel,BorderLayout.SOUTH);
+}

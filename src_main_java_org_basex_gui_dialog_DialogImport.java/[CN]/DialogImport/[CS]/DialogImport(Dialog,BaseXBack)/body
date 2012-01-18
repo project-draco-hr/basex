@@ -1,0 +1,33 @@
+{
+  gui=dialog.gui;
+  layout(new TableLayout(9,1));
+  border(8);
+  add(new BaseXLabel(CREATETITLE + COL,true,true).border(0,0,4,0));
+  final BaseXBack b=new BaseXBack(new TableLayout(1,2,8,0));
+  input=new BaseXTextField(gui.gprop.get(GUIProp.CREATEPATH),dialog);
+  input.addKeyListener(dialog.keys);
+  b.add(input);
+  final BaseXButton browse=new BaseXButton(BUTTONBROWSE,dialog);
+  browse.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      final IOFile in=inputFile();
+      if (in != null)       input.setText(in.path());
+    }
+  }
+);
+  b.add(browse);
+  add(b);
+  final Prop prop=gui.context.prop;
+  skip=new BaseXCheckBox(CREATECORRUPT,prop.is(Prop.SKIPCORRUPT),dialog);
+  add(skip);
+  archives=new BaseXCheckBox(CREATEARCHIVES,prop.is(Prop.ADDARCHIVES),dialog);
+  add(archives);
+  add(new BaseXLabel(CREATEPATTERN + COL,true,true).border(8,0,4,0));
+  filter=new BaseXTextField(prop.get(Prop.CREATEFILTER),dialog);
+  add(filter);
+  raw=new BaseXCheckBox(CREATERAW,prop.is(Prop.ADDRAW),dialog);
+  add(raw);
+  add(panel);
+  info=new BaseXLabel(" ").border(24,0,4,0);
+  add(info);
+}

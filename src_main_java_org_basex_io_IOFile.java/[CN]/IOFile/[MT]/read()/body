@@ -1,11 +1,18 @@
 {
-  final DataInputStream dis=new DataInputStream(new FileInputStream(file));
-  final byte[] cont=new byte[(int)file.length()];
-  try {
-    dis.readFully(cont);
-  }
+  final long l=length();
+  if (l > -1) {
+    final DataInputStream dis=new DataInputStream(is == null ? new FileInputStream(file) : is);
+    final byte[] cont=new byte[(int)l];
+    try {
+      dis.readFully(cont);
+    }
   finally {
-    dis.close();
+      if (is == null)       dis.close();
+    }
+    return cont;
   }
-  return cont;
+  final BufferedInputStream bis=new BufferedInputStream(is);
+  final ByteList bl=new ByteList();
+  for (int b; (b=bis.read()) != -1; )   bl.add(b);
+  return bl.toArray();
 }

@@ -1,0 +1,27 @@
+{
+  if (archives) {
+    if (is == null) {
+      if (path.toLowerCase(Locale.ENGLISH).endsWith(GZSUFFIX)) {
+        is=new GZIPInputStream(new FileInputStream(file));
+        init(name + XMLSUFFIX);
+        len=-1;
+        return true;
+      }
+      if (isArchive()) {
+        is=new ZipInputStream(new FileInputStream(file)){
+          @Override public void close() throws IOException {
+            if (zip == null)             super.close();
+          }
+        }
+;
+      }
+    }
+    if (is != null) {
+      if (is instanceof ZipInputStream && moreZIP())       return true;
+      is.close();
+      is=null;
+      return false;
+    }
+  }
+  return super.more(archives);
+}
