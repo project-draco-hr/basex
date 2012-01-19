@@ -1,16 +1,11 @@
 {
   checkAdmin(ctx);
-  final Iterator<byte[]> i=ctx.context.repo.pkgDict().iterator();
 switch (def) {
 case _PKG_LIST:
-    return new Iter(){
-      @Override public Item next() throws QueryException {
-        final byte[] next=i.next();
-        return next == null ? null : Str.get(next);
-      }
-    }
-;
+    final ItemCache cache=new ItemCache();
+  for (  final byte[] p : ctx.context.repo.pkgDict())   if (p != null)   cache.add(Str.get(Package.name(p)));
+return cache;
 default :
-  return super.iter(ctx);
+return super.iter(ctx);
 }
 }
