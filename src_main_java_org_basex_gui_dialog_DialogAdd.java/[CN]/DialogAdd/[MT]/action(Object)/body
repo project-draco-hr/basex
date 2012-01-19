@@ -1,3 +1,22 @@
 {
-  action(cmp,false);
+  final String src=options.input();
+  final String trg=target.getText().trim();
+  if (comp == add) {
+    options.setOptions();
+    parsing.setOptions();
+    DialogProgress.execute(dialog,"",new Add(trg,src));
+    dialog.resources.action(comp);
+  }
+ else {
+    boolean ok=options.action(false);
+    parsing.action(comp);
+    String inf=!ok ? PATHWHICH : !ok ? DBWHICH : null;
+    Msg icon=Msg.ERROR;
+    if (ok) {
+      ok=MetaData.normPath(trg) != null;
+      if (!ok)       inf=Util.info(INVALID,CREATETARGET);
+    }
+    options.info.setText(inf,icon);
+    add.setEnabled(ok);
+  }
 }

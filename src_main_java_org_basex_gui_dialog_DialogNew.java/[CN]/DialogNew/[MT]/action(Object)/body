@@ -1,0 +1,26 @@
+{
+  final boolean valid=options.action(true);
+  parsing.action(cmp);
+  ft.action(ftxindex.isSelected());
+  final String nm=target.getText().trim();
+  ok=valid && !nm.isEmpty();
+  String inf=!valid ? PATHWHICH : !ok ? DBWHICH : null;
+  Msg icon=Msg.ERROR;
+  if (ok) {
+    ok=MetaData.validName(nm,false);
+    if (ok)     gui.gprop.set(GUIProp.CREATENAME,nm);
+    if (!ok) {
+      inf=Util.info(INVALID,EDITNAME);
+    }
+ else     if (options.input.getText().trim().isEmpty()) {
+      inf=EMPTYDATABASE;
+      icon=Msg.WARN;
+    }
+ else     if (db.contains(nm)) {
+      inf=RENAMEOVER;
+      icon=Msg.WARN;
+    }
+  }
+  options.info.setText(inf,icon);
+  enableOK(buttons,BUTTONOK,ok);
+}

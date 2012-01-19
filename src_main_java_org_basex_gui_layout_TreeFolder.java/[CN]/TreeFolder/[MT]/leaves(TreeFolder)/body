@@ -1,0 +1,20 @@
+{
+  final Set<TreeLeaf> leaves=new HashSet<TreeLeaf>();
+  for (  final IOFile f : rawChildren(node.subfolder(),node.data)) {
+    if (!f.isDir())     leaves.add(new TreeLeaf(token(f.name()),node.subfolder(),true,node.tree,node.data));
+  }
+  final DocIndex di=node.data.docindex;
+  for (  final byte[] c : di.children(node.subfolder(),true)) {
+    leaves.add(new TreeLeaf(c,node.subfolder(),false,node.tree,node.data));
+  }
+  final TreeLeaf[] tobesorted=leaves.toArray(new TreeLeaf[leaves.size()]);
+  Arrays.sort(tobesorted,new Comparator<TreeLeaf>(){
+    @Override public int compare(    final TreeLeaf l1,    final TreeLeaf l2){
+      final byte[] n1=l1.name;
+      final byte[] n2=l2.name;
+      return Prop.WIN ? diff(lc(n1),lc(n2)) : diff(n1,n2);
+    }
+  }
+);
+  return tobesorted;
+}

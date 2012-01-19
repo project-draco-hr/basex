@@ -4,11 +4,10 @@
   }
  else {
     src=io;
-    if (!archives && src.isArchive())     return;
-    while (io.more()) {
+    while (io.more(archives)) {
       final String nm=Prop.WIN ? io.name().toLowerCase(Locale.ENGLISH) : io.name();
-      if (filter != null && !filter.matcher(nm).matches())       continue;
-      b.meta.filesize+=src.length();
+      final long l=src.length();
+      if (l != -1)       b.meta.filesize+=l;
       String targ=trg;
       final String name=src.name();
       String path=src.path();
@@ -17,29 +16,34 @@
         if (path.startsWith(root))         path=path.substring(root.length());
         targ=(targ + path).replace("//","/");
       }
-      boolean ok=true;
-      IO in=io;
-      if (skip) {
-        try {
-          in=new IOContent(io.read());
-          in.name(io.name());
-          parser=Parser.fileParser(in,prop,targ);
-          MemBuilder.build("",parser,prop);
-        }
- catch (        final IOException ex) {
-          Util.debug(ex.getMessage());
-          skipped.add(io.path());
-          ok=false;
-        }
-      }
-      if (ok) {
-        parser=Parser.fileParser(in,prop,targ);
-        parser.parse(b);
+      if (filter != null && !filter.matcher(nm).matches()) {
+        if (raw)         Store.store(src.inputSource(),b.meta.binary(targ + name));
       }
  else {
-        parser=null;
+        boolean ok=true;
+        IO in=io;
+        if (skip) {
+          try {
+            in=new IOContent(io.read());
+            in.name(io.name());
+            parser=Parser.fileParser(in,prop,targ);
+            MemBuilder.build("",parser,prop);
+          }
+ catch (          final IOException ex) {
+            Util.debug(ex.getMessage());
+            skipped.add(io.path());
+            ok=false;
+          }
+        }
+        if (ok) {
+          parser=Parser.fileParser(in,prop,targ);
+          parser.parse(b);
+        }
+ else {
+          parser=null;
+        }
+        if (Util.debug && (++c & 0x3FF) == 0)         Util.err(";");
       }
-      if (Util.debug && (++c & 0x3FF) == 0)       Util.err(";");
     }
   }
 }

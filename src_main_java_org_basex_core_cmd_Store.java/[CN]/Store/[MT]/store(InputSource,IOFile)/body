@@ -1,0 +1,27 @@
+{
+  new IOFile(file.dir()).md();
+  PrintOutput po=new PrintOutput(file.path());
+  try {
+    final Reader r=in.getCharacterStream();
+    final InputStream is=in.getByteStream();
+    final String id=in.getSystemId();
+    if (r != null) {
+      for (int c; (c=r.read()) != -1; )       po.utf8(c);
+    }
+ else     if (is != null) {
+      for (int b; (b=is.read()) != -1; )       po.write(b);
+    }
+ else     if (id != null) {
+      final BufferInput bi=IO.get(id).buffer();
+      try {
+        for (int b; (b=bi.read()) != -1; )         po.write(b);
+      }
+  finally {
+        bi.close();
+      }
+    }
+  }
+  finally {
+    po.close();
+  }
+}
