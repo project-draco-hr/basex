@@ -1,8 +1,11 @@
 {
   final TreeNode n=selection();
-  if (n == null)   return;
-  if (!Dialog.confirm(dialog.gui,Text.DELETECONF))   return;
-  DialogProgress.execute(dialog,"",new Delete(n.path()));
-  final TreeFolder par=(TreeFolder)n.getParent();
-  if (par != null)   refreshFolder(par);
+  if (n == null || !Dialog.confirm(dialog.gui,Text.DELETECONF))   return;
+  final Thread post=new Thread(){
+    @Override public void run(){
+      refreshFolder((TreeFolder)n.getParent());
+    }
+  }
+;
+  DialogProgress.execute(dialog,"",post,new Delete(n.path()));
 }

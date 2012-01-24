@@ -3,7 +3,11 @@
   if (n == null)   return;
   final DialogInput d=new DialogInput(n.path(),RENAMETITLE,dialog.gui,0);
   if (!d.ok())   return;
-  DialogProgress.execute(dialog,"",new Rename(n.path(),d.input()));
-  final TreeFolder par=(TreeFolder)n.getParent();
-  if (par != null)   refreshFolder(par);
+  final Thread post=new Thread(){
+    @Override public void run(){
+      refreshFolder((TreeFolder)n.getParent());
+    }
+  }
+;
+  DialogProgress.execute(dialog,"",post,new Rename(n.path(),d.input()));
 }
