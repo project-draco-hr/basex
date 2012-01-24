@@ -2,11 +2,12 @@
   checkWrite(ctx);
   final Data data=data(0,ctx);
   final String path=path(1,ctx);
-  final IntList docs=data.docs(path);
+  final IntList docs=data.resources.docs(path);
   for (int i=0, is=docs.size(); i < is; i++) {
     ctx.updates.add(new DeleteNode(docs.get(i),data,input),ctx);
   }
-  final TokenList raw=Delete.files(data,path);
-  ctx.updates.add(new DBDelete(data,raw,input),ctx);
+  final IOFile bin=data.meta.binary(path);
+  if (bin == null)   UPDBDELERR.thrw(input,path);
+  ctx.updates.add(new DBDelete(data,path,input),ctx);
   return null;
 }

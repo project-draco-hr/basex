@@ -3,13 +3,14 @@
   final Data data=data(0,ctx);
   final String path=path(1,ctx);
   final Item doc=checkItem(expr[2],ctx);
-  final int pre=data.doc(path);
+  final Resources res=data.resources;
+  final int pre=res.doc(path);
   if (pre != -1) {
-    if (data.docs(path).size() != 1)     DOCTRGMULT.thrw(input);
+    if (res.docs(path).size() != 1)     DOCTRGMULT.thrw(input);
     ctx.updates.add(new DeleteNode(pre,data,input),ctx);
   }
-  final TokenList raw=Delete.files(data,path);
-  ctx.updates.add(new DBDelete(data,raw,input),ctx);
+  final IOFile bin=data.meta.binary(path);
+  if (bin != null)   ctx.updates.add(new DBDelete(data,path,input),ctx);
   ctx.updates.add(new DBAdd(data,input,doc,path,ctx.context),ctx);
   final IOFile file=data.meta.binary(path);
   if (file != null && file.exists() && !file.isDir()) {
