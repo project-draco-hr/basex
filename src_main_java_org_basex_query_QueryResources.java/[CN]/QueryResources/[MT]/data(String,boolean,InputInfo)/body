@@ -6,9 +6,29 @@
   for (int d=0; d < datas; ++d) {
     if (IO.get(data[d].meta.original).eq(io))     return data[d];
   }
-  final IO base=ctx.sc.baseIO();
-  Data d=doc(input,base == null,col,ii);
-  if (d == null)   d=doc(base.merge(input).path(),true,col,ii);
+  IOException ex=null;
+  Data d=null;
+  try {
+    d=Check.check(ctx.context,input);
+  }
+ catch (  final IOException e) {
+    ex=e;
+    final IO base=ctx.sc.baseIO();
+    if (base != null) {
+      try {
+        final String path=base.merge(input).path();
+        if (!path.equals(input))         d=Check.check(ctx.context,path);
+      }
+ catch (      final IOException exc) {
+      }
+    }
+  }
+  if (d == null) {
+    Util.debug(ex);
+    if (col)     NOCOLL.thrw(ii,ex);
+    if (ex instanceof FileNotFoundException)     RESFNF.thrw(ii,input);
+    IOERR.thrw(ii,ex);
+  }
   addData(d);
   return d;
 }
