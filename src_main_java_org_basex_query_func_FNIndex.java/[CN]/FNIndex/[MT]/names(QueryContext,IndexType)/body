@@ -1,0 +1,26 @@
+{
+  final Data data=data(0,ctx);
+  final Index index=it == IndexType.TAG ? data.tagindex : data.atnindex;
+  final TokenIntMap entries=index.entries(EMPTY);
+  return new ValueIter(){
+    final int es=entries.size();
+    int pos;
+    @Override public ANode get(    final long i){
+      final FElem elem=new FElem(Q_VALUE);
+      elem.add(new FAttr(Q_COUNT,token(entries.value((int)i + 1))));
+      elem.add(new FTxt(entries.key((int)i + 1)));
+      return elem;
+    }
+    @Override public ANode next(){
+      return pos < size() ? get(pos++) : null;
+    }
+    @Override public boolean reset(){
+      pos=0;
+      return true;
+    }
+    @Override public long size(){
+      return es;
+    }
+  }
+;
+}
