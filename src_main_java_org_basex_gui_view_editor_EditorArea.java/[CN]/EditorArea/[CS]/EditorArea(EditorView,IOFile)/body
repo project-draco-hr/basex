@@ -4,4 +4,20 @@
   file=f;
   label=new BaseXLabel(f.name());
   setSyntax(f);
+  addFocusListener(new FocusAdapter(){
+    @Override public void focusGained(    final FocusEvent e){
+      if (opened() && !mod) {
+        try {
+          final long t=tstamp;
+          if (file.date() != t) {
+            setText(new IOFile(file.path()).read());
+            tstamp=t;
+          }
+        }
+ catch (        final IOException ex) {
+        }
+      }
+    }
+  }
+);
 }
