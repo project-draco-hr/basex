@@ -15,26 +15,7 @@
     return TypedFunc.constr(new Cast(ii,args[0],to),to);
   }
   if (startsWith(uri,JAVAPRE) && ctx.context.user.perm(User.ADMIN)) {
-    final String c=string(substring(uri,JAVAPRE.length));
-    final TokenBuilder tb=new TokenBuilder().add(c).add('.');
-    boolean dash=false;
-    for (int p=0; p < ln.length; p+=cl(ln,p)) {
-      final int ch=cp(ln,p);
-      if (dash) {
-        tb.add(Character.toUpperCase(ch));
-        dash=false;
-      }
- else {
-        dash=ch == '-';
-        if (!dash)         tb.add(ch);
-      }
-    }
-    final String java=tb.toString();
-    final int i=java.lastIndexOf(".");
-    final Class<?> cls=Reflect.find(java.substring(0,i));
-    if (cls == null)     FUNCJAVA.thrw(ii,java);
-    final String mth=java.substring(i + 1);
-    return TypedFunc.java(new JavaFunc(ii,cls,mth,args));
+    return TypedFunc.java(JavaFunc.get(name,args,ctx,ii));
   }
   final FuncCall fun=Functions.get().get(ln,uri,args,ctx,ii);
   if (fun != null) {

@@ -1,25 +1,10 @@
 {
-  Class<?> c=classes.get(name);
+  final Class<?> c=classes.get(name);
+  if (c != null)   return c;
   try {
-    if (c == null) {
-      try {
-        c=Class.forName(name);
-        if (!accessible(c))         return null;
-        classes.put(name,c);
-        return c;
-      }
- catch (      final ClassNotFoundException ex) {
-        if (jarLoader != null) {
-          c=Class.forName(name,true,jarLoader);
-          if (!accessible(c))           return null;
-          classes.put(name,c);
-        }
-        return c;
-      }
-    }
-    return c;
+    return cache(name,Class.forName(name));
   }
- catch (  final Exception ex) {
+ catch (  final Throwable ex) {
+    return null;
   }
-  return null;
 }
