@@ -1,0 +1,24 @@
+{
+  try {
+    try {
+      return mth.invoke(module,(Object[])args);
+    }
+ catch (    final IllegalArgumentException iae) {
+      Object[] ar=new Object[args.length];
+      for (int a=0; a < args.length; a++)       ar[a]=args[a].toJava();
+      return mth.invoke(module,ar);
+    }
+  }
+ catch (  final InvocationTargetException ex) {
+    throw JAVAERR.thrw(input,ex.getCause());
+  }
+catch (  final Throwable ex) {
+    System.out.println("?");
+    final TokenBuilder found=new TokenBuilder();
+    for (    final Object a : args) {
+      if (found.size() != 0)       found.add(", ");
+      found.addExt(a instanceof Value ? ((Value)a).type : a.getClass().getSimpleName());
+    }
+    throw JAVAMOD.thrw(input,signature(),name() + '(' + found+ ')');
+  }
+}

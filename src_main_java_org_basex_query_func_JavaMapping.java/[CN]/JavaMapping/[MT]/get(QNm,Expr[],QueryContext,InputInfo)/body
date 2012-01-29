@@ -1,0 +1,31 @@
+{
+  final TokenBuilder m=new TokenBuilder();
+  final byte[] ln=name.local();
+  boolean dash=false;
+  for (int p=0; p < ln.length; p+=cl(ln,p)) {
+    final int ch=cp(ln,p);
+    if (dash) {
+      m.add(Character.toUpperCase(ch));
+      dash=false;
+    }
+ else {
+      dash=ch == '-';
+      if (!dash)       m.add(ch);
+    }
+  }
+  final String mth=m.toString();
+  final String clz=string(substring(name.uri(),JAVAPRE.length));
+  for (  final QueryModule jm : ctx.javaModules.keySet()) {
+    final Class<?> c=jm.getClass();
+    if (c.getName().equals(clz)) {
+      for (      final Method meth : c.getMethods()) {
+        if (meth.getName().equals(mth))         return new JavaModuleFunc(ii,jm,meth,args);
+      }
+      WHICHJAVA.thrw(ii,clz + '.' + mth);
+    }
+  }
+  Class<?> cls=Reflect.find(clz);
+  if (cls == null && ctx.jars != null)   cls=Reflect.find(clz,ctx.jars);
+  if (cls == null)   WHICHJAVA.thrw(ii,clz + '.' + mth);
+  return new JavaFunc(ii,cls,mth,args);
+}

@@ -1,0 +1,15 @@
+{
+  final ObjList<URL> urls=new ObjList<URL>();
+  if (ctx.jars != null)   for (  final URL u : ctx.jars.getURLs())   urls.add(u);
+  final JarDesc desc=new JarParser(ctx.context,input()).parse(jarDesc);
+  for (  final byte[] u : desc.jars) {
+    final IOFile path=new IOFile(new IOFile(pkgDir,modDir),string(u));
+    try {
+      urls.add(new URL(IO.FILEPREF + path));
+    }
+ catch (    final MalformedURLException ex) {
+      Util.errln(ex.getMessage());
+    }
+  }
+  ctx.jars=new JarLoader(urls.toArray(new URL[urls.size()]));
+}
