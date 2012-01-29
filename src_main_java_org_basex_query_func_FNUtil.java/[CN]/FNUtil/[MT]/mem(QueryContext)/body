@@ -1,0 +1,18 @@
+{
+  Performance.gc(3);
+  final long min=Performance.mem();
+  if (expr.length == 2 && checkBln(expr[1],ctx)) {
+    final Value v=ctx.value(expr[0]).cache().value();
+    dump(min,ctx);
+    return v.iter();
+  }
+  return new Iter(){
+    final Iter ir=expr[0].iter(ctx);
+    @Override public Item next() throws QueryException {
+      final Item i=ir.next();
+      if (i == null)       dump(min,ctx);
+      return i;
+    }
+  }
+;
+}
