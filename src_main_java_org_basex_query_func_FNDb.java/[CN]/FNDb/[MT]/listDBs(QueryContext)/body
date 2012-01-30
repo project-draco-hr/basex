@@ -1,0 +1,43 @@
+{
+  final StringList sl=List.list(ctx.context);
+  return new Iter(){
+    int pos;
+    @Override public ANode get(    final long i) throws QueryException {
+      final FElem res=new FElem(DATABASE);
+      final String name=sl.get((int)i);
+      final MetaData meta=new MetaData(name,ctx.context);
+      DataInput di=null;
+      try {
+        di=new DataInput(meta.dbfile(DATAINF));
+        meta.read(di);
+        res.add(new FAttr(RESOURCES,token(meta.ndocs)));
+        final String tstamp=InfoDB.DATE.format(new Date(meta.dbtime()));
+        res.add(new FAttr(MDATE,token(tstamp)));
+        if (ctx.context.perm(User.CREATE,meta))         res.add(new FAttr(PATH,token(meta.original.toString())));
+        res.add(new FTxt(token(name)));
+      }
+ catch (      final IOException ex) {
+        NODB.thrw(input,name);
+      }
+ finally {
+        if (di != null)         try {
+          di.close();
+        }
+ catch (        final IOException ex) {
+        }
+      }
+      return res;
+    }
+    @Override public ANode next() throws QueryException {
+      return pos < size() ? get(pos++) : null;
+    }
+    @Override public boolean reset(){
+      pos=0;
+      return true;
+    }
+    @Override public long size(){
+      return sl.size();
+    }
+  }
+;
+}
