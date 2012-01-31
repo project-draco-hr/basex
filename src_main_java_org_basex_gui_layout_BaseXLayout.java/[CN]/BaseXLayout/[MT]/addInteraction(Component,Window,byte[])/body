@@ -5,9 +5,7 @@
     }
   }
 );
-  final boolean dialog=win instanceof Dialog;
-  final GUI gui=dialog ? ((Dialog)win).gui : win instanceof GUI ? (GUI)win : null;
-  if (dialog) {
+  if (win instanceof Dialog) {
     final Dialog d=(Dialog)win;
     comp.addKeyListener(new KeyAdapter(){
       @Override public void keyPressed(      final KeyEvent e){
@@ -22,8 +20,13 @@
       }
     }
 );
+    return;
   }
-  if (gui == null)   return;
+  if (!(win instanceof GUI)) {
+    Util.notexpected("Reference to main window required to add shortcuts.");
+    return;
+  }
+  final GUI gui=(GUI)win;
   comp.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
       if (gui.context.data() != null) {
