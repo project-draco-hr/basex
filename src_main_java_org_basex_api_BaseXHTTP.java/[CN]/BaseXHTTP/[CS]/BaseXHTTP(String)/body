@@ -10,35 +10,35 @@
   if (port == eport || port == hport || port == sport)   same=port;
  else   if (eport == hport || eport == sport)   same=eport;
  else   if (hport == sport)   same=hport;
-  if (same != -1)   throw new BaseXException(SERVERPORTS,same);
+  if (same != -1)   throw new BaseXException(PORT_TWICE_X,same);
   final String shost=mprop.get(MainProp.SERVERHOST);
   if (service) {
     start(hport,args);
-    Util.outln(HTTP + ' ' + SERVERSTART);
-    if (server)     Util.outln(SERVERSTART);
+    Util.outln(HTTP + ' ' + SRV_STARTED);
+    if (server)     Util.outln(SRV_STARTED);
     Performance.sleep(1000);
     return;
   }
   if (stopped) {
     stop();
-    Util.outln(HTTP + ' ' + SERVERSTOPPED);
-    if (server)     Util.outln(SERVERSTOPPED);
+    Util.outln(HTTP + ' ' + SRV_STOPPED);
+    if (server)     Util.outln(SRV_STOPPED);
     Performance.sleep(1000);
     return;
   }
   if (System.getProperty(DBUSER) != null) {
     while (System.getProperty(DBPASS) == null) {
-      Util.out(SERVERPW + COLS);
+      Util.out(PASSWORD + COLS);
       System.setProperty(DBPASS,Util.password());
     }
   }
   if (server) {
     if (quiet)     new BaseXServer(ctx,"-z");
  else     new BaseXServer(ctx);
-    Util.outln(HTTP + ' ' + SERVERSTART);
+    Util.outln(HTTP + ' ' + SRV_STARTED);
   }
  else {
-    Util.outln(CONSOLE + HTTP + ' '+ SERVERSTART,SERVERMODE);
+    Util.outln(CONSOLE + HTTP + ' '+ SRV_STARTED,SERVERMODE);
   }
   jetty=new Server();
   final Connector conn=new SelectChannelConnector();
@@ -59,7 +59,7 @@
   new StopServer(sport,shost).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      Util.outln(HTTP + ' ' + SERVERSTOPPED);
+      Util.outln(HTTP + ' ' + SRV_STOPPED);
     }
   }
 );
