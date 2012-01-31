@@ -12,7 +12,7 @@
       }
       try {
         BaseXServer.start(p);
-        msg=SERVERSTART;
+        msg=SRV_STARTED;
         running=true;
       }
  catch (      final BaseXException ex) {
@@ -24,9 +24,9 @@
       if (running)       BaseXServer.stop(ctx.mprop.num(MainProp.SERVERPORT),ctx.mprop.num(MainProp.EVENTPORT));
       running=ping(true);
       connected=connected && ping(false);
-      if (!connected)       msg=SERVERSTOPPED;
+      if (!connected)       msg=SRV_STOPPED;
       if (host.getText().equals(LOCALHOST))       logpass.setText("");
-      if (!connected)       super.setTitle(GUISERVER);
+      if (!connected)       super.setTitle(S_SERVER_ADMIN);
     }
  else     if (cmp == connect || cmp == loguser || cmp == logpass || cmp == host || cmp == portc) {
       gui.gprop.set(GUIProp.SERVERUSER,loguser.getText());
@@ -37,16 +37,16 @@
       user.setSess(cs);
       dbsP.setSess(cs);
       connected=true;
-      super.setTitle(GUISERVER + LI + loguser.getText()+ "@"+ host.getText()+ COL+ portc.getText());
-      msg=Util.info(CONNECTED,host.getText(),portc.getText());
+      super.setTitle(S_SERVER_ADMIN + LI + loguser.getText()+ "@"+ host.getText()+ COL+ portc.getText());
+      msg=Util.info(S_CONNECTED,host.getText(),portc.getText());
       refreshSess();
     }
  else     if (cmp == disconnect) {
       cs.execute(new Exit());
       connected=false;
       logpass.setText("");
-      super.setTitle(GUISERVER);
-      msg=DISCONNECTED;
+      super.setTitle(S_SERVER_ADMIN);
+      msg=S_DISCONNECTED;
     }
  else     if (cmp == refreshSess) {
       refreshSess();
@@ -67,7 +67,7 @@
         refreshLog();
       }
  else {
-        msg2=Util.info(DBNOTDELETED,f.getName());
+        msg2=Util.info(FILE_NOT_DELETED_X,f.getName());
         icon=Msg.ERROR;
       }
     }
@@ -78,7 +78,7 @@
         if (!f.delete())         file=f;
       }
       if (file != null) {
-        msg2=Util.info(DBNOTDELETED,file.getName());
+        msg2=Util.info(FILE_NOT_DELETED_X,file.getName());
         icon=Msg.ERROR;
       }
       logc.setSelectedIndex(-1);
@@ -92,7 +92,7 @@
  catch (  final Exception ex) {
     icon=Msg.ERROR;
     msg=Util.message(ex);
-    if (msg.equals(Util.info(PERMNO,CmdPerm.values()[4]))) {
+    if (msg.equals(Util.info(PERM_NEEDED_X,CmdPerm.values()[4]))) {
       try {
         cs.execute(new Exit());
       }
@@ -107,7 +107,7 @@
   final boolean vallp=new String(logpass.getPassword()).matches("[^ ;'\\\"]*");
   final boolean valh=host.getText().matches("([\\w]+://)?[\\w.-]+");
   if (msg == null && msg2 == null && !(valpl && valh && valp&& vallu&& vallp)) {
-    msg=Util.info(INVALID,!valpl ? LOCALPORT : !valh ? HOST : !valp ? PORT : !vallu ? SERVERUSER : SERVERPW);
+    msg=Util.info(INVALID_X,!valpl ? S_LOCALPORT : !valh ? S_HOST : !valp ? S_PORT : !vallu ? USERNAME : PASSWORD);
     icon=Msg.WARN;
   }
   infoC.setText(msg,icon);

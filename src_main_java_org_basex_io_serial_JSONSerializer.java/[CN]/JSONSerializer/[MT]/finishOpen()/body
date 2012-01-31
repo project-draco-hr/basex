@@ -4,12 +4,12 @@
   if (level > 0) {
     indent(level);
     final byte[] par=types.get(level - 1);
-    if (eq(par,OBJ)) {
+    if (eq(par,T_OBJECT)) {
       print('"');
       print(name(tag));
       print("\": ");
     }
- else     if (!eq(par,ARR)) {
+ else     if (!eq(par,T_ARRAY)) {
       error("Element <%> is typed as \"%\" and cannot be nested",tags.get(level - 1),par);
     }
   }
@@ -19,16 +19,16 @@
     final int tl=typeCache.length;
     while (++t < tl && typeCache[t].id(tag) == 0)     ;
     if (t != tl)     type=TYPES[t];
- else     type=STR;
+ else     type=T_STRING;
     types.set(level,type);
   }
-  if (eq(type,OBJ)) {
+  if (eq(type,T_OBJECT)) {
     print('{');
   }
- else   if (eq(type,ARR)) {
+ else   if (eq(type,T_ARRAY)) {
     print('[');
   }
  else   if (level == 0) {
-    error("Element <%> must be typed as \"%\" or \"%\"",JSON,OBJ,ARR);
+    error("Element <%> must be typed as \"%\" or \"%\"",T_JSON,T_OBJECT,T_ARRAY);
   }
 }

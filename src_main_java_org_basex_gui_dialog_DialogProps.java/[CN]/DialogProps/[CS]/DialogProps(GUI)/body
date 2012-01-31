@@ -1,10 +1,10 @@
 {
-  super(main,INFODB);
+  super(main,DB_PROPS);
   panel.setLayout(new BorderLayout(5,0));
   final Data data=gui.context.data();
-  final BaseXButton okButton=new BaseXButton(BUTTONOK,this);
-  optimize=new BaseXButton(BUTTONOPT,this);
-  buttons=newButtons(optimize,okButton,BUTTONCANCEL);
+  final BaseXButton okButton=new BaseXButton(B_OK,this);
+  optimize=new BaseXButton(OPTIMIZE_D,this);
+  buttons=newButtons(optimize,okButton,CANCEL);
   resources=new DialogResources(this);
   final BaseXBack tabInfo=new BaseXBack(new BorderLayout(0,8)).border(8);
   final Font f=tabInfo.getFont();
@@ -14,7 +14,7 @@
   final String db=InfoDB.db(data.meta,true,false,true);
   final TokenBuilder info=new TokenBuilder(db);
   if (data.nspaces.size() != 0) {
-    info.bold().add(NL + INFONS + NL).norm().add(data.nspaces.info());
+    info.bold().add(NL + NAMESPACES + NL).norm().add(data.nspaces.info());
   }
   final BaseXEditor text=text(info.finish());
   text.setFont(f);
@@ -24,7 +24,7 @@
   final BaseXBack tabNames=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
   tabNames.add(addIndex(true,data));
   tabNames.add(addIndex(false,data));
-  final String[] cb={INFOPATHINDEX,INFOTEXTINDEX,INFOATTRINDEX,INFOFTINDEX};
+  final String[] cb={PATH_INDEX,TEXT_INDEX,ATTRIBUTE_INDEX,FULLTEXT_INDEX};
   final boolean[] val={data.meta.pathindex,data.meta.textindex,data.meta.attrindex,data.meta.ftxtindex};
   final BaseXBack[] panels=new BaseXBack[indexes.length];
   for (int i=0; i < indexes.length; ++i) {
@@ -34,14 +34,14 @@
   }
   final BaseXBack tabPath=new BaseXBack(new GridLayout(1,1)).border(8);
   panels[0].add(indexes[0],BorderLayout.NORTH);
-  panels[0].add(text(val[0] ? data.info(IndexType.PATH) : Token.token(PATHINDEXINFO)),BorderLayout.CENTER);
+  panels[0].add(text(val[0] ? data.info(IndexType.PATH) : Token.token(H_PATH_INDEX)),BorderLayout.CENTER);
   tabPath.add(panels[0]);
   final BaseXBack tabValues=new BaseXBack(new GridLayout(2,1)).border(8);
   panels[1].add(indexes[1],BorderLayout.NORTH);
-  panels[1].add(text(val[1] ? data.info(IndexType.TEXT) : Token.token(TXTINDEXINFO)),BorderLayout.CENTER);
+  panels[1].add(text(val[1] ? data.info(IndexType.TEXT) : Token.token(H_TEXT_INDEX)),BorderLayout.CENTER);
   tabValues.add(panels[1]);
   panels[2].add(indexes[2],BorderLayout.NORTH);
-  panels[2].add(text(val[2] ? data.info(IndexType.ATTRIBUTE) : Token.token(ATTINDEXINFO)),BorderLayout.CENTER);
+  panels[2].add(text(val[2] ? data.info(IndexType.ATTRIBUTE) : Token.token(H_ATTR_INDEX)),BorderLayout.CENTER);
   tabValues.add(panels[2]);
   final BaseXBack tabFT=new BaseXBack(new GridLayout(1,1)).border(8);
   panels[3].add(indexes[3],BorderLayout.NORTH);
@@ -49,12 +49,12 @@
   panels[3].add(val[3] ? text(data.info(IndexType.FULLTEXT)) : ft,BorderLayout.CENTER);
   tabFT.add(panels[3]);
   final BaseXTabs tabs=new BaseXTabs(this);
-  tabs.addTab(GENERALINFO,tabInfo);
-  tabs.addTab(INFORES,tabRes);
-  tabs.addTab(NAMESINFO,tabNames);
-  tabs.addTab(INFOPATHINDEX,tabPath);
-  tabs.addTab(INDEXINFO,tabValues);
-  tabs.addTab(FTINFO,tabFT);
+  tabs.addTab(GENERAL,tabInfo);
+  tabs.addTab(RESOURCES,tabRes);
+  tabs.addTab(NAMES,tabNames);
+  tabs.addTab(PATH_INDEX,tabPath);
+  tabs.addTab(INDEXES,tabValues);
+  tabs.addTab(FULLTEXT,tabFT);
   final BaseXBack back=new BaseXBack(new BorderLayout());
   back.add(tabs,BorderLayout.CENTER);
   back.add(buttons,BorderLayout.SOUTH);

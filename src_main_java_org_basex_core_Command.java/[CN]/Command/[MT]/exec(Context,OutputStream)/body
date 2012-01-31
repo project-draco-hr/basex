@@ -1,12 +1,12 @@
 {
   final Data data=ctx.data();
-  if (data == null && (flags & DATAREF) != 0)   return error(PROCNODB);
+  if (data == null && (flags & DATAREF) != 0)   return error(NO_DB_OPENED);
   if (!ctx.perm(flags & 0xFF,data != null ? data.meta : null)) {
     final CmdPerm[] perms=CmdPerm.values();
     int i=perms.length;
     final int f=flags & 0xFF;
     while (--i >= 0 && (1 << i & f) == 0)     ;
-    return error(PERMNO,perms[i + 1]);
+    return error(PERM_NEEDED_X,perms[i + 1]);
   }
   boolean ok=false;
   final boolean writing=updating(ctx);

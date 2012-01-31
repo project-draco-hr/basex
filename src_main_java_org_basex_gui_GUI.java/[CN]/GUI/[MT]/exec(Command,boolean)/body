@@ -37,20 +37,20 @@
     final String time=perf.getTimer();
     info.setInfo(inf,c,time,ok);
     info.reset();
-    final boolean stopped=inf.startsWith(PROGERR);
+    final boolean stopped=inf.startsWith(INTERRUPTED);
     if (edit) {
-      editor.info(stopped ? PROGERR : inf,ok);
+      editor.info(stopped ? INTERRUPTED : inf,ok);
     }
     if (!ok && !stopped) {
       if ((!edit || inf.startsWith(BUGINFO)) && !info.visible()) {
-        GUICommands.SHOWINFO.execute(this);
+        GUICommands.C_SHOWINFO.execute(this);
       }
     }
  else {
       final Result result=c.result();
       final Nodes nodes=result instanceof Nodes && ((Nodes)result).size() != 0 ? (Nodes)result : null;
       if (nodes == null) {
-        if (!text.visible())         GUICommands.SHOWTEXT.execute(this);
+        if (!text.visible())         GUICommands.C_SHOWTEXT.execute(this);
         text.setText(ao,c);
       }
       final Data ndata=context.data();
@@ -81,13 +81,13 @@
           }
         }
       }
-      setHits(result == null ? 0 : result.size());
-      status.setText(Util.info(PROCTIME,time));
+      setResults(result == null ? 0 : result.size());
+      status.setText(Util.info(TIME_NEEDED_X,time));
     }
   }
  catch (  final Exception ex) {
     Util.stack(ex);
-    Dialog.error(this,Util.info(PROCERR,c,!ex.toString().isEmpty() ? ex.toString() : ex.getMessage()));
+    Dialog.error(this,Util.info(EXEC_ERROR,c,!ex.toString().isEmpty() ? ex.toString() : ex.getMessage()));
     updating=false;
   }
   cursor(CURSORARROW,true);

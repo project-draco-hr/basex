@@ -10,13 +10,13 @@
   }
   final Enum<?>[] alt=list(cmp,token);
   if (token == null) {
-    throw par == null ? error(list(alt),CMDNO) : help(list(alt),par);
+    throw par == null ? error(list(alt),EXPECTING_CMD) : help(list(alt),par);
   }
   final byte[] name=lc(token(token));
   final Levenshtein ls=new Levenshtein();
   for (  final Enum<?> s : list(cmp,null)) {
     final byte[] sm=lc(token(s.name().toLowerCase(Locale.ENGLISH)));
-    if (ls.similar(name,sm,0) && Cmd.class.isInstance(s))     throw error(list(alt),CMDSIMILAR,name,sm);
+    if (ls.similar(name,sm,0) && Cmd.class.isInstance(s))     throw error(list(alt),UNKNOWN_SIMILAR_X,name,sm);
   }
-  throw par == null ? error(list(alt),CMDWHICH,token) : help(list(alt),par);
+  throw par == null ? error(list(alt),UNKNOWN_TRY_X,token) : help(list(alt),par);
 }

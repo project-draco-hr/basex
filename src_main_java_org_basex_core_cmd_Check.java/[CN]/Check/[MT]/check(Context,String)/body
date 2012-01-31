@@ -8,10 +8,10 @@
     final boolean found=!data.meta.original.isEmpty() && in.eq(io) && io.date() == in.date();
     if (found && ctx.perm(User.READ,data.meta))     return data;
     Close.close(data,ctx);
-    if (found)     throw new BaseXException(PERMNO,CmdPerm.READ);
+    if (found)     throw new BaseXException(PERM_NEEDED_X,CmdPerm.READ);
   }
   if (!create || MetaData.found(path,name,ctx.mprop))   return Open.open(name,ctx);
-  if (!io.exists())   throw new FileNotFoundException(Util.info(FILEWHICH,io));
+  if (!io.exists())   throw new FileNotFoundException(Util.info(FILE_NOT_FOUND_X,io));
   if (!ctx.prop.is(Prop.FORCECREATE))   return CreateDB.mainMem(io,ctx);
   return CreateDB.create(name,new DirParser(io,ctx.prop),ctx);
 }

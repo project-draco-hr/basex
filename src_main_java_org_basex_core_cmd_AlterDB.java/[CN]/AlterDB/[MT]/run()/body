@@ -1,11 +1,11 @@
 {
   final String db=args[0];
   final String name=args[1];
-  if (!MetaData.validName(db,false))   return error(NAMEINVALID,db);
-  if (!MetaData.validName(name,false))   return error(NAMEINVALID,name);
-  if (!mprop.dbexists(db))   return error(DBNOTFOUND,db);
-  if (mprop.dbexists(name))   return error(DBEXIST,name);
+  if (!MetaData.validName(db,false))   return error(NAME_INVALID_X,db);
+  if (!MetaData.validName(name,false))   return error(NAME_INVALID_X,name);
+  if (!mprop.dbexists(db))   return error(DB_NOT_FOUND_X,db);
+  if (mprop.dbexists(name))   return error(DB_EXISTS_X,name);
   if (!closed)   closed=close(context,db);
-  if (context.pinned(db))   return error(DBPINNED,db);
-  return alter(db,name,mprop) && (!closed || new Open(name).run(context)) ? info(DBALTERED,db,name) : error(DBNOTALTERED,db);
+  if (context.pinned(db))   return error(DB_PINNED_X,db);
+  return alter(db,name,mprop) && (!closed || new Open(name).run(context)) ? info(DB_RENAMED_X,db,name) : error(DB_NOT_RENAMED_X,db);
 }

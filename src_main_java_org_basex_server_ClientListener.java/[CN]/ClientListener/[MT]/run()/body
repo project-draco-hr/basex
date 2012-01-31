@@ -17,7 +17,7 @@
       context.add(this);
     }
  else {
-      if (!us.isEmpty())       log.write(this,SERVERDENIED + COLS + us);
+      if (!us.isEmpty())       log.write(this,ACCESS_DENIED + COLS + us);
       new ClientDelayer(server.block(address),this,server).start();
     }
   }
@@ -40,27 +40,27 @@
         }
         last=System.currentTimeMillis();
         perf.getTime();
-        sc=get(b);
+        sc=ServerCmd.get(b);
         cmd=null;
-        if (sc == CREATE) {
+        if (sc == ServerCmd.CREATE) {
           create();
         }
- else         if (sc == ADD) {
+ else         if (sc == ServerCmd.ADD) {
           add();
         }
- else         if (sc == WATCH) {
+ else         if (sc == ServerCmd.WATCH) {
           watch();
         }
- else         if (sc == UNWATCH) {
+ else         if (sc == ServerCmd.UNWATCH) {
           unwatch();
         }
- else         if (sc == REPLACE) {
+ else         if (sc == ServerCmd.REPLACE) {
           replace();
         }
- else         if (sc == STORE) {
+ else         if (sc == ServerCmd.STORE) {
           store();
         }
- else         if (sc != COMMAND) {
+ else         if (sc != ServerCmd.COMMAND) {
           query(sc);
         }
  else {
@@ -71,13 +71,13 @@
         quit();
         break;
       }
-      if (sc != COMMAND)       continue;
+      if (sc != ServerCmd.COMMAND)       continue;
       try {
         command=new CommandParser(cmd,context).parseSingle();
       }
  catch (      final QueryException ex) {
         final String msg=ex.getMessage();
-        log.write(this,cmd,INFOERROR + msg);
+        log.write(this,cmd,ERROR_C + msg);
         out.write(0);
         out.writeString(msg);
         send(false);
@@ -94,7 +94,7 @@
  catch (      final BaseXException ex) {
         ok=false;
         info=ex.getMessage();
-        if (info.startsWith(PROGERR))         info=SERVERTIMEOUT;
+        if (info.startsWith(INTERRUPTED))         info=TIMEOUT_EXCEEDED;
       }
       command.stopTimeout();
       out.write(0);
@@ -106,7 +106,7 @@
     }
   }
  catch (  final IOException ex) {
-    log.write(this,sc == COMMAND ? cmd : sc,INFOERROR + ex.getMessage());
+    log.write(this,sc == ServerCmd.COMMAND ? cmd : sc,ERROR_C + ex.getMessage());
     Util.debug(ex);
     command=null;
     quit();

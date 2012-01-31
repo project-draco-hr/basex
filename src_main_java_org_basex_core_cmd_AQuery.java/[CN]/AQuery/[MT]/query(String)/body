@@ -52,7 +52,7 @@
       }
       if (prop.is(Prop.QUERYINFO))       evalInfo(query,hits,updates,runs);
       out.flush();
-      return info(NL + QUERYEXEC,perf.getTimer(runs));
+      return info(NL + QUERY_EXECUTED_X,perf.getTimer(runs));
     }
  catch (    final QueryException ex) {
       Util.debug(ex);
@@ -63,7 +63,7 @@ catch (    final IOException ex) {
       err=ex.getMessage();
     }
 catch (    final ProgressException ex) {
-      err=PROGERR;
+      err=INTERRUPTED;
       inf=info();
     }
 catch (    final RuntimeException ex) {
@@ -81,9 +81,9 @@ catch (    final StackOverflowError ex) {
     }
   }
   error(err);
-  if (Util.debug || err.startsWith(PROGERR)) {
+  if (Util.debug || err.startsWith(INTERRUPTED)) {
     info(NL);
-    info(QUERYSTRING + query);
+    info(QUERY_CC + query);
     info(qp.info());
     info(inf);
   }

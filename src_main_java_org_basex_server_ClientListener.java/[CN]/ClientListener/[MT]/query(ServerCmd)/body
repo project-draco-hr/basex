@@ -3,7 +3,7 @@
   String err=null;
   try {
     final QueryListener qp;
-    if (sc == QUERY) {
+    if (sc == ServerCmd.QUERY) {
       final String query=arg;
       qp=new QueryListener(query,context);
       arg=Integer.toString(id++);
@@ -14,41 +14,41 @@
  else {
       qp=queries.get(arg);
       if (qp == null) {
-        if (sc != CLOSE)         throw new IOException("Unknown Query ID: " + arg);
+        if (sc != ServerCmd.CLOSE)         throw new IOException("Unknown Query ID: " + arg);
       }
- else       if (sc == BIND) {
+ else       if (sc == ServerCmd.BIND) {
         final String key=in.readString();
         final String val=in.readString();
         final String typ=in.readString();
         qp.bind(key,val,typ);
         log.write(this,sc + "(" + arg+ ")",key,val,typ,OK,perf);
       }
- else       if (sc == ITER) {
+ else       if (sc == ServerCmd.ITER) {
         qp.execute(true,out,true);
       }
- else       if (sc == EXEC) {
+ else       if (sc == ServerCmd.EXEC) {
         qp.execute(false,out,true);
       }
- else       if (sc == INFO) {
+ else       if (sc == ServerCmd.INFO) {
         out.print(qp.info());
       }
- else       if (sc == OPTIONS) {
+ else       if (sc == ServerCmd.OPTIONS) {
         out.print(qp.options());
       }
- else       if (sc == CLOSE) {
+ else       if (sc == ServerCmd.CLOSE) {
         queries.remove(arg);
       }
- else       if (sc == NEXT) {
+ else       if (sc == ServerCmd.NEXT) {
         throw new Exception("Protocol for query iteration is out-of-dated.");
       }
       out.write(0);
     }
     out.write(0);
-    if (sc != BIND)     log.write(this,sc + "(" + arg+ ")",OK,perf);
+    if (sc != ServerCmd.BIND)     log.write(this,sc + "(" + arg+ ")",OK,perf);
   }
  catch (  final Exception ex) {
     err=ex.getMessage();
-    log.write(this,sc + "(" + arg+ ")",INFOERROR + err);
+    log.write(this,sc + "(" + arg+ ")",ERROR_C + err);
     queries.remove(arg);
   }
   if (err != null) {
