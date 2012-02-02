@@ -1,0 +1,18 @@
+{
+  final HashSet<String> files=new HashSet<String>();
+  final Session session=new LocalSession(CTX);
+  try {
+    final Query q=session.query(Function._DB_LIST.args(DBNAME));
+    while (q.more())     files.add(q.next());
+    q.close();
+  }
+  finally {
+    session.close();
+  }
+  assertTrue("No files were imported",files.size() > 0);
+  for (  File f : FILES) {
+    final String fname=f.getName();
+    assertTrue("File " + fname + " is not imported",files.contains(fname));
+  }
+  assertEquals("Expected number of imported files is different",FILES.length,files.size());
+}
