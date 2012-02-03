@@ -1,5 +1,4 @@
 {
-  final byte[] vsn=token;
   byte[] aw=null;
   byte[] bw=null;
   final int currentLength=0;
@@ -7,54 +6,54 @@
   FTIndexIterator d=FTIndexIterator.FTEMPTY;
   if (posw > 0) {
     bw=new byte[posw];
-    System.arraycopy(vsn,0,bw,0,posw);
+    System.arraycopy(tok,0,bw,0,posw);
     resultNode=wc(id,bw);
     if (resultNode == -1)     return FTIndexIterator.FTEMPTY;
   }
  else {
     resultNode=0;
   }
-  final byte wildcard=posw + 1 >= vsn.length ? (byte)'.' : vsn[posw + 1];
-  if (wildcard == '?') {
-    byte[] sc=new byte[vsn.length - 2 - currentLength];
+  final byte wc=posw + 1 >= tok.length ? (byte)'.' : tok[posw + 1];
+  if (wc == '?') {
+    byte[] sc=new byte[tok.length - 2 - currentLength];
     if (bw != null) {
       System.arraycopy(bw,0,sc,0,bw.length);
     }
     if (bw == null) {
-      System.arraycopy(vsn,posw + 2,sc,0,sc.length);
+      System.arraycopy(tok,posw + 2,sc,0,sc.length);
     }
  else {
-      System.arraycopy(vsn,posw + 2,sc,bw.length,sc.length - bw.length);
+      System.arraycopy(tok,posw + 2,sc,bw.length,sc.length - bw.length);
     }
     d=iter(0,sc,fast);
-    sc=new byte[vsn.length - 1];
+    sc=new byte[tok.length - 1];
     if (bw != null) {
       System.arraycopy(bw,0,sc,0,bw.length);
       sc[bw.length]='.';
-      System.arraycopy(vsn,posw + 2,sc,bw.length + 1,sc.length - bw.length - 1);
+      System.arraycopy(tok,posw + 2,sc,bw.length + 1,sc.length - bw.length - 1);
     }
  else {
       sc[0]='.';
-      System.arraycopy(vsn,posw + 2,sc,1,sc.length - 1);
+      System.arraycopy(tok,posw + 2,sc,1,sc.length - 1);
     }
     d=FTIndexIterator.union(wc(0,sc,posw,false,fast),d);
     return d;
   }
-  if (wildcard == '*') {
-    if (!(posw == 0 && vsn.length == 2)) {
-      final byte[] searchChar=new byte[vsn.length - 2 - currentLength];
+  if (wc == '*') {
+    if (!(posw == 0 && tok.length == 2)) {
+      final byte[] searchChar=new byte[tok.length - 2 - currentLength];
       if (bw != null) {
         System.arraycopy(bw,0,searchChar,0,bw.length);
       }
       if (bw == null) {
         aw=new byte[searchChar.length];
-        System.arraycopy(vsn,posw + 2,searchChar,0,searchChar.length);
-        System.arraycopy(vsn,posw + 2,aw,0,searchChar.length);
+        System.arraycopy(tok,posw + 2,searchChar,0,searchChar.length);
+        System.arraycopy(tok,posw + 2,aw,0,searchChar.length);
       }
  else {
         aw=new byte[searchChar.length - bw.length];
-        System.arraycopy(vsn,posw + 2,searchChar,bw.length,searchChar.length - bw.length);
-        System.arraycopy(vsn,posw + 2,aw,0,searchChar.length - bw.length);
+        System.arraycopy(tok,posw + 2,searchChar,bw.length,searchChar.length - bw.length);
+        System.arraycopy(tok,posw + 2,aw,0,searchChar.length - bw.length);
       }
       d=iter(0,searchChar,fast);
       if (bw != null && counter[1] != bw.length)       return d;
@@ -63,16 +62,16 @@
     wc(resultNode,aw,false,counter[0],0,fast);
     return FTIndexIterator.union(d,idata);
   }
-  if (wildcard == '+') {
+  if (wc == '+') {
     final int[] rne=entry(resultNode);
-    final byte[] nvsn=new byte[vsn.length + 1];
+    final byte[] nvsn=new byte[tok.length + 1];
     int l=0;
     if (bw != null) {
       System.arraycopy(bw,0,nvsn,0,bw.length);
       l=bw.length;
     }
-    if (0 < vsn.length - posw - 2) {
-      System.arraycopy(vsn,posw + 2,nvsn,posw + 3,vsn.length - posw - 2);
+    if (0 < tok.length - posw - 2) {
+      System.arraycopy(tok,posw + 2,nvsn,posw + 3,tok.length - posw - 2);
     }
     nvsn[l + 1]='.';
     nvsn[l + 2]='*';
@@ -93,18 +92,14 @@
   final int[] rne=entry(resultNode);
   byte[] valuesFound;
   if (rne[0] > counter[0] && resultNode > 0) {
-    vsn[posw]=(byte)rne[counter[0] + 1];
-    final FTIndexIterator resultData=iter(0,vsn,fast);
-    if (resultData.size() != 0 && first) {
-      valuesFound=new byte[]{(byte)rne[counter[0] + 1]};
-    }
-    return resultData;
+    tok[posw]=(byte)rne[counter[0] + 1];
+    return iter(0,tok,fast);
   }
   if (rne[0] == counter[0] || resultNode == 0) {
     if (!more(rne))     return FTIndexIterator.FTEMPTY;
     FTIndexIterator tmpNode=FTIndexIterator.FTEMPTY;
-    aw=new byte[vsn.length - posw];
-    System.arraycopy(vsn,posw + 1,aw,1,aw.length - 1);
+    aw=new byte[tok.length - posw];
+    System.arraycopy(tok,posw + 1,aw,1,aw.length - 1);
     if (!first) {
       for (int t=rne[0] + 1; t < rne.length - 1; t+=2) {
         aw[0]=(byte)rne[t + 1];
