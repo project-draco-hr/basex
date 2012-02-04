@@ -1,0 +1,24 @@
+{
+  EditorArea edit=getEditor();
+  final Matcher m=FILEPATTERN.matcher(msg.replaceAll("[\\r\\n].*",""));
+  if (!m.matches())   return true;
+  errFile=m.group(3);
+  edit=find(IO.get(errFile),false);
+  if (edit == null)   return true;
+  final int el=Integer.parseInt(m.group(1));
+  final int ec=Integer.parseInt(m.group(2));
+  final int ll=edit.last.length;
+  errPos=ll;
+  for (int e=0, l=1, c=1; e < ll; ++c, e+=cl(edit.last,e)) {
+    if (l > el || l == el && c == ec) {
+      errPos=e;
+      break;
+    }
+    if (edit.last[e] == '\n') {
+      ++l;
+      c=0;
+    }
+  }
+  edit.markError(errPos,false);
+  return errPos != -1;
+}
