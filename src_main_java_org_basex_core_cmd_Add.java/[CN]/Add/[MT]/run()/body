@@ -14,11 +14,12 @@
     target=name.substring(0,s);
     name=name.substring(s + 1);
   }
+  final Data data=context.data();
   final Parser parser;
   if (io != null) {
     if (!name.isEmpty())     io.name(name);
  else     if (!(io instanceof IOContent))     name=io.name();
-    parser=new DirParser(io,target,prop);
+    parser=new DirParser(io,target,prop,data.meta.path);
   }
  else {
     parser=new SAXWrapper(new SAXSource(in),name,target,context.prop);
@@ -31,9 +32,9 @@
     Performance.gc(2);
     large=fl > rt.freeMemory() / 3;
   }
-  final Data data=context.data();
-  final String dbname=large ? context.mprop.random(data.meta.name) : name;
-  build=large ? new DiskBuilder(dbname,parser,context) : new MemBuilder(dbname,parser,context.prop);
+  if (prop.is(Prop.MAINMEM))   large=false;
+  final String db=large ? context.mprop.random(data.meta.name) : name;
+  build=large ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser,context.prop);
   Data tmp=null;
   try {
     tmp=build.build();
@@ -59,6 +60,6 @@
     }
  catch (    final IOException e) {
     }
-    if (large)     DropDB.drop(dbname,context.mprop);
+    if (large)     DropDB.drop(db,context.mprop);
   }
 }

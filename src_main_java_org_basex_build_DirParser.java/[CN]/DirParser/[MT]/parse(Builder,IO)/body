@@ -5,7 +5,8 @@
  else {
     src=io;
     while (io.more(archives)) {
-      final String nm=Prop.WIN ? io.name().toLowerCase(Locale.ENGLISH) : io.name();
+      String nm=io.name();
+      if (Prop.WIN)       nm=nm.toLowerCase(Locale.ENGLISH);
       final long l=src.length();
       if (l != -1)       b.meta.filesize+=l;
       String targ=trg;
@@ -17,8 +18,8 @@
         targ=(targ + path).replace("//","/");
       }
       if (filter != null && !filter.matcher(nm).matches()) {
-        if (raw) {
-          Store.store(src.inputSource(),b.meta.binary(targ + name));
+        if (binaries != null) {
+          Store.store(src.inputSource(),new IOFile(binaries,targ + name));
         }
       }
  else {
