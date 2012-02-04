@@ -24,7 +24,7 @@
   addCreateTab();
   addTab().setSearch(find);
   add(tabs,BorderLayout.CENTER);
-  BaseXBack south=new BaseXBack(Fill.NONE).layout(new BorderLayout(8,0));
+  final BaseXBack south=new BaseXBack(Fill.NONE).layout(new BorderLayout(8,0));
   info=new BaseXLabel(" ");
   info.setText(OK,Msg.SUCCESS);
   pos=new BaseXLabel(" ");
@@ -90,12 +90,9 @@
         edit=find(IO.get(errFile),false);
         if (edit == null)         edit=open(new IOFile(errFile));
         tabs.setSelectedComponent(edit);
-        edit.error=errPos;
       }
-      if (edit.error == -1)       return;
-      edit.setCaret(edit.error);
-      edit.requestFocusInWindow();
-      edit.markError();
+      if (errPos == -1)       return;
+      edit.markError(errPos,true);
       pos.setText(edit.pos());
     }
   }
@@ -122,6 +119,7 @@
       edit.setSearch(find);
       gui.refreshControls();
       refreshMark();
+      pos.setText(edit.pos());
       if (gui.gprop.is(GUIProp.EXECRT))       edit.query();
     }
   }
