@@ -1,15 +1,15 @@
 {
   builder.startElem(CSV,atts);
   final TokenBuilder tb=new TokenBuilder();
-  final NewlineInput bi=new NewlineInput(src,encoding);
+  final NewlineInput nli=new NewlineInput(src,encoding);
   boolean quoted=false, open=true;
   int ch=-1;
   while (true) {
-    if (ch == -1)     ch=bi.read();
+    if (ch == -1)     ch=nli.read();
     if (ch == -1)     break;
     if (quoted) {
       if (ch == '"') {
-        ch=bi.read();
+        ch=nli.read();
         if (ch != '"') {
           quoted=false;
           continue;
@@ -32,11 +32,11 @@
       quoted=true;
     }
  else {
-      tb.add(ch);
+      tb.add(XMLToken.valid(ch) ? ch : '?');
     }
     ch=-1;
   }
-  bi.close();
+  nli.close();
   finish(tb,open);
   builder.endElem();
 }

@@ -1,9 +1,9 @@
 {
   builder.startElem(TEXT,atts);
   final TokenBuilder tb=new TokenBuilder();
-  final NewlineInput ti=new NewlineInput(src,encoding);
+  final NewlineInput nli=new NewlineInput(src,encoding);
   try {
-    for (int ch; (ch=ti.read()) != -1; ) {
+    for (int ch; (ch=nli.read()) != -1; ) {
       if (ch == '\n' && lines) {
         builder.startElem(LINE,atts);
         builder.text(tb.finish());
@@ -11,12 +11,12 @@
         tb.reset();
       }
  else {
-        tb.add(ch);
+        tb.add(XMLToken.valid(ch) ? ch : '?');
       }
     }
   }
   finally {
-    ti.close();
+    nli.close();
   }
   if (!lines)   builder.text(tb.finish());
   builder.endElem();

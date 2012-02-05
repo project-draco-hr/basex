@@ -5,6 +5,19 @@
   IO io=null;
   if (in == null) {
     io=IO.get(args[1]);
+  }
+ else   if (in.getSystemId() != null) {
+    io=IO.get(in.getSystemId());
+  }
+ else   if (in.getByteStream() != null) {
+    try {
+      io=cache();
+    }
+ catch (    final IOException ex) {
+      return error(Util.message(ex));
+    }
+  }
+  if (io != null) {
     if (!io.exists())     return error(FILE_NOT_FOUND_X,create ? io : args[1]);
     if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+='/';
   }

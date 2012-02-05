@@ -1,0 +1,45 @@
+{
+  gui=dialog.gui;
+  parsing=parse;
+  layout(new TableLayout(8,1));
+  border(8);
+  add(new BaseXLabel(FILE_OR_DIR + COL,true,true).border(0,0,6,0));
+  input=new BaseXTextField(gui.gprop.get(GUIProp.CREATEPATH),dialog);
+  input.addKeyListener(dialog.keys);
+  browse=new BaseXButton(BROWSE_D,dialog);
+  browse.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      choose();
+    }
+  }
+);
+  final BaseXBack b=new BaseXBack(new TableLayout(1,2,8,0));
+  b.add(input);
+  b.add(browse);
+  add(b);
+  final Prop prop=gui.context.prop;
+  skip=new BaseXCheckBox(SKIP_CORRUPT_FILES,prop.is(Prop.SKIPCORRUPT),dialog);
+  add(skip);
+  archives=new BaseXCheckBox(PARSE_ARCHIVES,prop.is(Prop.ADDARCHIVES),dialog);
+  add(archives);
+  final StringList parsers=new StringList(PARSING.length);
+  final String type=prop.get(Prop.PARSER);
+  for (  final String p : PARSING)   parsers.add(p.toUpperCase(Locale.ENGLISH));
+  parser=new BaseXCombo(dialog,parsers.toArray());
+  parser.setSelectedItem(type.toUpperCase(Locale.ENGLISH));
+  filter=new BaseXTextField(prop.get(Prop.CREATEFILTER),dialog);
+  BaseXLayout.setWidth(filter,200);
+  raw=new BaseXCheckBox(ADD_RAW_FILES,prop.is(Prop.ADDRAW),dialog);
+  raw.setBorder(new EmptyBorder(12,0,0,0));
+  add(panel);
+  final BaseXBack p=new BaseXBack(new TableLayout(2,2,16,0));
+  p.add(new BaseXLabel(INPUT_FORMAT,false,true).border(12,0,6,0));
+  p.add(new BaseXLabel(FILE_PATTERNS + COL,false,true).border(12,0,6,0));
+  p.add(parser);
+  p.add(filter);
+  add(p);
+  add(raw);
+  info=new BaseXLabel(" ").border(24,0,6,0);
+  parsing.updateType(parser());
+  add(info);
+}

@@ -1,0 +1,19 @@
+{
+  final ParserProp props=new ParserProp(options);
+  final boolean jsonml=props.is(ParserProp.JSONML);
+  final String encoding=props.get(ParserProp.ENCODING);
+  final byte[] content=new NewlineInput(io,encoding).content();
+  final ANode node;
+  try {
+    final XMLConverter conv=jsonml ? new JsonMLConverter(null) : new JSONConverter(null);
+    node=conv.parse(content);
+  }
+ catch (  final QueryException ex) {
+    throw new BaseXException(ex.getLocalizedMessage());
+  }
+  final ArrayOutput ao=new ArrayOutput();
+  node.serialize(Serializer.get(ao));
+  final IOContent xml=new IOContent(ao.toArray());
+  xml.name(io.name());
+  return xml;
+}
