@@ -1,7 +1,10 @@
 {
   return new Statement(){
     @Override public void evaluate() throws Throwable {
-      final InputData input=method.getAnnotation(InputData.class);
+      InputData input=method.getAnnotation(InputData.class);
+      if (input == null) {
+        input=method.getMethod().getDeclaringClass().getAnnotation(InputData.class);
+      }
       if (input != null)       new CreateDB(db,input.value()).execute(ctx);
       base.evaluate();
     }
