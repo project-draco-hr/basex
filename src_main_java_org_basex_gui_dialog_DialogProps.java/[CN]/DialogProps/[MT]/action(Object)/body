@@ -1,8 +1,27 @@
 {
+  for (int i=0; i < LABELS.length; i++) {
+    if (indxs[i] == null || cmp != indxs[i])     continue;
+    final Command cmd=indxs[i].getText().equals(DROP) ? new DropIndex(TYPES[i]) : new CreateIndex(TYPES[i]);
+    DialogProgress.execute(this,"",cmd);
+    return;
+  }
   resources.action(cmp);
   add.action(cmp);
-  opt=cmp == optimize;
-  if (opt)   close();
-  if (ft != null)   ft.action(indexes[3].isSelected());
-  enableOK(buttons,OPTIMIZE_D,!gui.context.data().meta.uptodate);
+  final Data data=gui.context.data();
+  final boolean[] val={true,true,data.meta.pathindex,data.meta.textindex,data.meta.attrindex,data.meta.ftxtindex};
+  if (cmp == this) {
+    for (int i=0; i < LABELS.length; ++i) {
+      String lbl=LABELS[i];
+      if (i < 3 && !data.meta.uptodate)       lbl+=" (" + OUT_OF_DATE + ')';
+      labels[i].setText(lbl);
+      infos[i].setText(val[i] ? data.info(TYPES[i]) : Token.token(HELP[i]));
+      if (indxs[i] != null)       indxs[i].setText(val[i] ? DROP : CREATE);
+    }
+    tabFT.removeAll();
+    panels[5].removeAll();
+    add(5,tabFT,val[5] ? null : ft);
+    panels[5].revalidate();
+    panels[5].repaint();
+  }
+  ft.action();
 }
