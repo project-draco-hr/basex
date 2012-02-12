@@ -15,24 +15,24 @@
         if (r != 0)         qp=null;
         qp=queryProcessor(query,context);
         qp.parse();
-        pars+=init + p.getTime();
+        pars+=init + p.time();
         init=0;
         if (r == 0)         plan(false);
         qp.compile();
-        comp+=p.getTime();
+        comp+=p.time();
         if (r == 0)         plan(true);
         final PrintOutput po=r == 0 && serial ? out : new NullOutput();
         final Serializer ser;
         if (prop.is(Prop.CACHEQUERY)) {
           result=qp.execute();
-          eval+=p.getTime();
+          eval+=p.time();
           ser=qp.getSerializer(po);
           result.serialize(ser);
           hits=result.size();
         }
  else {
           final Iter ir=qp.iter();
-          eval+=p.getTime();
+          eval+=p.time();
           hits=0;
           Item it=ir.next();
           ser=qp.getSerializer(po);
@@ -48,11 +48,11 @@
         updates=qp.updates();
         ser.close();
         qp.close();
-        prnt+=p.getTime();
+        prnt+=p.time();
       }
       if (prop.is(Prop.QUERYINFO))       evalInfo(query,hits,updates,runs);
       out.flush();
-      return info(NL + QUERY_EXECUTED_X,perf.getTimer(runs));
+      return info(NL + QUERY_EXECUTED_X,perf.getTime(runs));
     }
  catch (    final QueryException ex) {
       Util.debug(ex);
