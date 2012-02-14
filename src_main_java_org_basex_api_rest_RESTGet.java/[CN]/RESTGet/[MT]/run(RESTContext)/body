@@ -3,13 +3,12 @@
   String operation=null;
   String input=null;
   byte[] item=null;
-  final Context context=HTTPSession.context();
+  final Map<String,String[]> params=params(ctx);
   final TokenBuilder ser=new TokenBuilder();
-  final Map<?,?> map=ctx.req.getParameterMap();
   final SerializerProp sp=new SerializerProp();
-  for (  final Entry<?,?> s : map.entrySet()) {
-    final String key=s.getKey().toString();
-    final String[] vals=s.getValue() instanceof String[] ? (String[])s.getValue() : new String[]{s.getValue().toString()};
+  for (  final Entry<String,String[]> param : params.entrySet()) {
+    final String key=param.getKey();
+    final String[] vals=param.getValue();
     final String val=vals[0];
     if (Token.eqic(key,COMMAND,QUERY,RUN)) {
       if (operation != null || vals.length > 1)       throw new RESTException(SC_BAD_REQUEST,ERR_ONLYONE);
@@ -25,10 +24,7 @@
  else     if (sp.get(key) != null) {
       for (      final String v : vals)       ser.add(key).add('=').add(v).add(',');
     }
- else     if (context.prop.get(key.toUpperCase(Locale.ENGLISH)) != null) {
-      ctx.session.execute(new Set(key,val));
-    }
- else {
+ else     if (!parseOption(ctx,param)) {
       vars.put(key,new String[]{val});
     }
   }
