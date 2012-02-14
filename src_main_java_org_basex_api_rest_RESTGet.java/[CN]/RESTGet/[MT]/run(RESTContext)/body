@@ -3,6 +3,7 @@
   String operation=null;
   String input=null;
   byte[] item=null;
+  final Context context=HTTPSession.context();
   final TokenBuilder ser=new TokenBuilder();
   final Map<?,?> map=ctx.req.getParameterMap();
   final SerializerProp sp=new SerializerProp();
@@ -23,6 +24,9 @@
     }
  else     if (sp.get(key) != null) {
       for (      final String v : vals)       ser.add(key).add('=').add(v).add(',');
+    }
+ else     if (context.prop.get(key.toUpperCase(Locale.ENGLISH)) != null) {
+      ctx.session.execute(new Set(key,val));
     }
  else {
       vars.put(key,new String[]{val});

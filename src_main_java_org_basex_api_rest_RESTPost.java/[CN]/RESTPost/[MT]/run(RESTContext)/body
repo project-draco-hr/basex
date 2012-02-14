@@ -3,21 +3,23 @@
   if (!map.isEmpty())   throw new RESTException(SC_BAD_REQUEST,ERR_NOPARAM);
   String enc=ctx.req.getCharacterEncoding();
   if (enc == null)   enc=Token.UTF8;
-  final String input=Token.string(new NewlineInput(ctx.in,enc).content());
+  final byte[] in=new NewlineInput(ctx.in,enc).content();
+  validate(in);
   final Context context=HTTPSession.context();
-  Result node;
+  DBNode doc;
   try {
-    node=new QueryProcessor(CHECK,input,context).execute();
+    final Parser parser=Parser.xmlParser(new IOContent(in),context.prop);
+    doc=new DBNode(parser,context.prop);
   }
- catch (  final QueryException ex) {
-    throw new RESTException(SC_BAD_REQUEST,ex.getMessage().replaceAll("\\r?\\n+"," ").replaceAll(".*\\[\\w+\\d*\\] ",""));
+ catch (  final IOException ex) {
+    throw new RESTException(SC_BAD_REQUEST,ex.getMessage());
   }
   final SerializerProp sp=new SerializerProp();
   QueryProcessor qp;
   RESTCode code;
   try {
     final TokenBuilder ser=new TokenBuilder();
-    qp=new QueryProcessor("*:parameter",node,context);
+    qp=new QueryProcessor("*/*:parameter",doc,context);
     Iter ir=qp.iter();
     for (Item param; (param=ir.next()) != null; ) {
       final String name=value("data(@name)",param,context);
@@ -33,8 +35,15 @@
       }
     }
     ctx.serialization=ser.toString();
+    qp=new QueryProcessor("*/*:option",doc,context);
+    ir=qp.iter();
+    for (Item opt; (opt=ir.next()) != null; ) {
+      final String name=value("data(@name)",opt,context);
+      final String value=value("data(@value)",opt,context);
+      ctx.session.execute(new Set(name,value));
+    }
     final Map<String,String[]> vars=new HashMap<String,String[]>();
-    qp=new QueryProcessor("*:variable",node,context);
+    qp=new QueryProcessor("*/*:variable",doc,context);
     ir=qp.iter();
     for (Item var; (var=ir.next()) != null; ) {
       final String name=value("data(@name)",var,context);
@@ -43,7 +52,7 @@
       vars.put(name,new String[]{value,type});
     }
     byte[] item=null;
-    qp=new QueryProcessor("*:context/node()",node,context);
+    qp=new QueryProcessor("*/*:context/node()",doc,context);
     ir=qp.iter();
     for (Item n; (n=ir.next()) != null; ) {
       if (item != null)       throw new RESTException(SC_BAD_REQUEST,ERR_CTXITEM);
@@ -52,8 +61,8 @@
       n.serialize(Serializer.get(ao));
       item=ao.toArray();
     }
-    final String request=value("local-name(.)",node,context);
-    final String text=value("*:text/text()",node,context);
+    final String request=value("local-name(*)",doc,context);
+    final String text=value("*/*:text/text()",doc,context);
     if (request.equals(COMMAND)) {
       code=new RESTCommand(text);
     }
