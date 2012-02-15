@@ -6,12 +6,12 @@
   names.add(new QNmCheck(tag));
   consumeWS();
   final Atts ns=new Atts();
-  Expr[] cont={};
+  final ExprList cont=new ExprList();
   boolean xmlDecl=false;
   while (true) {
     final byte[] atn=qName(null);
     if (atn.length == 0)     break;
-    Expr[] attv={};
+    final ExprList attv=new ExprList();
     consumeWS();
     check('=');
     consumeWS();
@@ -30,10 +30,10 @@
  else {
             final byte[] text=tb.finish();
             if (text.length != 0) {
-              attv=add(attv,Str.get(text));
+              add(attv,Str.get(text));
             }
  else {
-              attv=add(attv,enclosed(NOENCLEXPR));
+              add(attv,enclosed(NOENCLEXPR));
               simple=false;
             }
             tb.reset();
@@ -63,12 +63,12 @@
       tb.add(delim);
     }
  while (true);
-    if (tb.size() != 0)     attv=add(attv,Str.get(tb.finish()));
+    if (tb.size() != 0)     add(attv,Str.get(tb.finish()));
     final boolean pr=startsWith(atn,XMLNSC);
     if (pr || eq(atn,XMLNS)) {
       if (!simple)       error(NSCONS);
       final byte[] pref=pr ? local(atn) : EMPTY;
-      final byte[] uri=attv.length == 0 ? EMPTY : ((Str)attv[0]).string();
+      final byte[] uri=attv.size() == 0 ? EMPTY : ((Str)attv.get(0)).string();
       if (eq(pref,XML) && eq(uri,XMLURI)) {
         if (xmlDecl)         error(DUPLNSDEF,XML);
         xmlDecl=true;
@@ -91,7 +91,7 @@
  else {
       final QNm attn=new QNm(atn);
       names.add(new QNmCheck(attn,false));
-      cont=add(cont,new CAttr(input(),false,attn,attv));
+      add(cont,new CAttr(input(),false,attn,attv.finish()));
     }
     if (!consumeWS())     break;
   }
@@ -103,7 +103,7 @@
     while (curr() != '<' || next() != '/') {
       final Expr e=dirElemContent(tag.string());
       if (e == null)       continue;
-      cont=add(cont,e);
+      add(cont,e);
     }
     qp+=2;
     final byte[] close=qName(TAGNAME);
@@ -114,5 +114,5 @@
   assignURI(npos);
   ctx.sc.ns.size(s);
   ctx.sc.nsElem=nse;
-  return new CElem(input(),tag,ns,cont);
+  return new CElem(input(),tag,ns,cont.finish());
 }

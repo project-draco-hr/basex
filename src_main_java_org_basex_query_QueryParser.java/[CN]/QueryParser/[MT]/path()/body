@@ -14,24 +14,24 @@
   final boolean slash=consume('/');
   final boolean step=ex instanceof AxisStep;
   if (!slash && s == 0 && !step)   return ex;
-  Expr[] list={};
-  if (s == 2)   list=add(list,descOrSelf());
+  final ExprList el=new ExprList();
+  if (s == 2)   add(el,descOrSelf());
   final Expr root=s > 0 ? new Root(input()) : !step ? ex : null;
-  if (root != ex)   list=add(list,ex);
+  if (root != ex)   add(el,ex);
   if (slash) {
     do {
       final boolean desc=consume('/');
       qm=qp;
-      if (desc)       list=add(list,descOrSelf());
+      if (desc)       add(el,descOrSelf());
       checkAxis(desc ? Axis.DESC : Axis.CHILD);
       final Expr st=step();
       if (st == null)       error(PATHMISS,found());
-      if (!(st instanceof Context))       list=add(list,st);
+      if (!(st instanceof Context))       add(el,st);
     }
  while (consume('/'));
   }
-  if (list.length == 0) {
-    list=add(list,AxisStep.get(input(),Axis.SELF,Test.NOD));
+  if (el.size() == 0) {
+    add(el,AxisStep.get(input(),Axis.SELF,Test.NOD));
   }
-  return Path.get(input(),root,list);
+  return Path.get(input(),root,el.finish());
 }

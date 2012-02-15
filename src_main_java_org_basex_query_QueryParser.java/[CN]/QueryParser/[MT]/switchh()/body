@@ -4,18 +4,18 @@
   final Expr expr=check(expr(),NOSWITCH);
   SwitchCase[] exprs={};
   wsCheck(PAR2);
-  Expr[] cases;
+  ExprList cases;
   do {
-    cases=new Expr[1];
-    while (wsConsumeWs(CASE))     cases=add(cases,single());
-    if (cases.length == 1) {
+    cases=new ExprList(null);
+    while (wsConsumeWs(CASE))     add(cases,single());
+    if (cases.size() == 1) {
       if (exprs.length == 0)       error(WRONGCHAR,CASE,found());
       wsCheck(DEFAULT);
     }
     wsCheck(RETURN);
-    cases[0]=single();
-    exprs=Array.add(exprs,new SwitchCase(input(),cases));
+    cases.set(0,single());
+    exprs=Array.add(exprs,new SwitchCase(input(),cases.finish()));
   }
- while (cases.length != 1);
+ while (cases.size() != 1);
   return new Switch(input(),expr,exprs);
 }
