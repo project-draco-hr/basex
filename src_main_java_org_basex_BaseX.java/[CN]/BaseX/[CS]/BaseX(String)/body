@@ -8,6 +8,20 @@
       if (key.equals("c")) {
         execute(val);
       }
+ else       if (key.equals("C")) {
+        final IO io=IO.get(val);
+        if (!io.exists())         throw new BaseXException(FILE_NOT_FOUND_X,val);
+        final NewlineInput nli=new NewlineInput(io,null);
+        try {
+          for (String line; (line=nli.readLine()) != null; ) {
+            final String l=line.trim();
+            if (!l.isEmpty() && !l.startsWith("#"))             execute(l);
+          }
+        }
+  finally {
+          nli.close();
+        }
+      }
  else       if (key.equals("f")) {
         final IO io=IO.get(val);
         if (!io.exists())         throw new BaseXException(FILE_NOT_FOUND_X,val);
@@ -24,7 +38,6 @@
  else       if (key.equals("q")) {
         execute(new XQuery(val),verbose);
       }
-      if (newline && eq(key,"f","q"))       out.write(token(NL));
     }
     if (console) {
       Util.outln(CONSOLE + TRY_MORE_X,sa() ? LOCALMODE : CLIENTMODE);
