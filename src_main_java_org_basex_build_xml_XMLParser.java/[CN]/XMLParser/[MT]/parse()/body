@@ -1,24 +1,32 @@
 {
-  scanner.more();
-  while (true) {
-    if (scanner.type == Type.TEXT) {
-      builder.text(scanner.token.finish());
+  try {
+    scanner.more();
+    while (true) {
+      if (scanner.type == Type.TEXT) {
+        builder.text(scanner.token.finish());
+      }
+ else       if (scanner.type == Type.COMMENT) {
+        builder.comment(scanner.token.finish());
+      }
+ else       if (scanner.type == Type.PI) {
+        builder.pi(scanner.token.finish());
+      }
+ else       if (scanner.type == Type.EOF) {
+        break;
+      }
+ else       if (scanner.type != Type.DTD) {
+        if (!parseTag())         break;
+        continue;
+      }
+      if (!scanner.more())       break;
     }
- else     if (scanner.type == Type.COMMENT) {
-      builder.comment(scanner.token.finish());
-    }
- else     if (scanner.type == Type.PI) {
-      builder.pi(scanner.token.finish());
-    }
- else     if (scanner.type == Type.EOF) {
-      break;
-    }
- else     if (scanner.type != Type.DTD) {
-      if (!parseTag())       break;
-      continue;
-    }
-    if (!scanner.more())     break;
+    scanner.close();
+    builder.encoding(scanner.encoding);
   }
-  scanner.close();
-  builder.encoding(scanner.encoding);
+ catch (  final BuildException ex) {
+    final String msg=ex.getMessage() + H_PARSE_ERROR;
+    final BuildException e=new BuildException(msg);
+    e.setStackTrace(ex.getStackTrace());
+    throw e;
+  }
 }
