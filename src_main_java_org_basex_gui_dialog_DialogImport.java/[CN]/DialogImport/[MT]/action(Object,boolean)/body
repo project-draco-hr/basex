@@ -1,17 +1,20 @@
 {
   parsing.action();
-  if (comp == parser) {
-    final String type=parser();
-    parsing.updateType(type);
-    filter.setText("*." + type);
-  }
   final String in=input.getText().trim();
   final IO io=IO.get(in);
   gui.gprop.set(GUIProp.CREATEPATH,in);
+  final boolean dir=io.isDir();
+  final String type=parser();
+  final boolean r=type.equals(DataText.M_RAW);
+  if (comp == parser) {
+    parsing.updateType(type);
+    if (dir)     filter.setText(r ? "*" : "*." + type);
+  }
+  if (comp == input)   setType(in);
   info.setText(null,null);
   final boolean ok=empty ? in.isEmpty() || io.exists() : !in.isEmpty() && io.exists();
-  final boolean dir=ok && io.isDir();
-  filter.setEnabled(dir);
-  raw.setEnabled(dir && !gui.context.prop.is(Prop.MAINMEM));
+  filter.setEnabled(dir && ok);
+  addRaw.setEnabled(dir && !r && !gui.context.prop.is(Prop.MAINMEM));
+  skipCorrupt.setEnabled(!r);
   return ok;
 }

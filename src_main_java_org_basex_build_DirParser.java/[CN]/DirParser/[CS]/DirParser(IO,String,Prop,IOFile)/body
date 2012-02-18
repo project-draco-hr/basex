@@ -3,8 +3,10 @@
   prop=pr;
   final String parent=source.dir();
   root=parent.endsWith("/") ? parent : parent + '/';
-  skip=prop.is(Prop.SKIPCORRUPT);
+  skipCorrupt=prop.is(Prop.SKIPCORRUPT);
   archives=prop.is(Prop.ADDARCHIVES);
+  addRaw=prop.is(Prop.ADDRAW);
+  rawParser=prop.get(Prop.PARSER).toLowerCase(Locale.ENGLISH).equals(DataText.M_RAW);
   filter=!source.isDir() && !source.isArchive() ? null : Pattern.compile(IOFile.regex(pr.get(Prop.CREATEFILTER)));
-  binaries=path != null && prop.is(Prop.ADDRAW) ? new IOFile(path,M_RAW) : null;
+  rawPath=path != null && (addRaw || rawParser) ? new IOFile(path,M_RAW) : null;
 }

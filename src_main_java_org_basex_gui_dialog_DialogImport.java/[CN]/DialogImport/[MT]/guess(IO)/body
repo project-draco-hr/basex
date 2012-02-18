@@ -1,0 +1,24 @@
+{
+  if (!in.exists())   return null;
+  TextInput ti=null;
+  try {
+    ti=new TextInput(in);
+    int b=ti.read();
+    if (b == '<')     return DataText.M_XML;
+    for (int c=0; b >= 0 && ++c < IO.BLOCKSIZE; ) {
+      if (b < ' ' && !Token.ws(b) || b >= 128)       return DataText.M_RAW;
+      b=ti.read();
+    }
+    return DataText.M_TEXT;
+  }
+ catch (  final IOException ex) {
+  }
+ finally {
+    if (ti != null)     try {
+      ti.close();
+    }
+ catch (    final IOException ex) {
+    }
+  }
+  return null;
+}
