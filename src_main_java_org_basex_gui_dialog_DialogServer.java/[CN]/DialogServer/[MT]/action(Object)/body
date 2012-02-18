@@ -3,15 +3,16 @@
   String msg=null;
   String msg2=null;
   try {
-    if (cmp == start || cmp == ports) {
-      final int p=Integer.parseInt(ports.getText());
+    if (cmp == start) {
+      final String p=ports.getText();
       gui.setMain(MainProp.SERVERPORT,p);
       if (host.getText().equals(LOCALHOST)) {
         gui.setMain(MainProp.PORT,p);
-        portc.setText(ports.getText());
+        gui.setMain(MainProp.EVENTPORT,p + 1);
+        portc.setText(p);
       }
       try {
-        BaseXServer.start(p);
+        BaseXServer.start(Integer.parseInt(p),"-p",p,"-e",p + 1);
         msg=SRV_STARTED;
         running=true;
       }
@@ -21,6 +22,7 @@
       }
     }
  else     if (cmp == stop) {
+      gui.gprop.set(GUIProp.SERVERUSER,loguser.getText());
       if (running)       BaseXServer.stop(ctx.mprop.num(MainProp.SERVERPORT),ctx.mprop.num(MainProp.EVENTPORT));
       running=ping(true);
       connected=connected && ping(false);
@@ -28,8 +30,7 @@
       if (host.getText().equals(LOCALHOST))       logpass.setText("");
       if (!connected)       setTitle(S_SERVER_ADMIN);
     }
- else     if (cmp == connect || cmp == loguser || cmp == logpass || cmp == host || cmp == portc) {
-      gui.gprop.set(GUIProp.SERVERUSER,loguser.getText());
+ else     if (cmp == connect) {
       final String pw=new String(logpass.getPassword());
       gui.setMain(MainProp.HOST,host.getText());
       gui.setMain(MainProp.PORT,Integer.parseInt(portc.getText()));
