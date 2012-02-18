@@ -1,14 +1,12 @@
 {
   super(main,EXPORT_XML);
-  final BaseXBack pp=new BaseXBack(new TableLayout(3,1,0,4));
-  BaseXBack p=new BaseXBack(new TableLayout(2,2,8,0));
-  final BaseXLabel out=new BaseXLabel(OUTPUT_DIR + COL,true,true).border(0,0,6,0);
-  p.add(out);
-  p.add(new BaseXLabel());
+  final BaseXBack p=new BaseXBack(new TableLayout(4,1,0,0));
+  p.add(new BaseXLabel(OUTPUT_DIR + COL,true,true).border(0,0,6,0));
+  BaseXBack pp=new BaseXBack(new TableLayout(1,2,8,0));
   final String dir=new IOFile(gui.context.data().meta.original).dir();
   path=new BaseXTextField(dir,this);
   path.addKeyListener(keys);
-  p.add(path);
+  pp.add(path);
   final BaseXButton browse=new BaseXButton(BROWSE_D,this);
   browse.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
@@ -16,18 +14,23 @@
     }
   }
 );
-  p.add(browse);
-  pp.add(p);
-  p=new BaseXBack(new TableLayout(2,1));
-  p.add(new BaseXLabel(ENCODING + COL,true,true).border(0,0,6,0));
+  pp.add(browse);
+  p.add(pp);
   final Prop prop=gui.context.prop;
+  final String exporter=prop.get(Prop.EXPORTER);
   SerializerProp sp;
   try {
-    sp=new SerializerProp(prop.get(Prop.EXPORTER));
+    sp=new SerializerProp(exporter);
   }
  catch (  final IOException ex) {
     sp=new SerializerProp();
   }
+  final String[] methods=new String[DataText.METHODS.length - 1];
+  for (int m=0; m < methods.length; m++) {
+    methods[m]=DataText.METHODS[m].toUpperCase(Locale.ENGLISH);
+  }
+  method=new BaseXCombo(this,methods);
+  method.setSelectedItem(sp.get(SerializerProp.S_METHOD).toUpperCase(Locale.ENGLISH));
   encoding=new BaseXCombo(this,ENCODINGS);
   String enc=gui.context.data().meta.encoding;
   boolean f=false;
@@ -37,19 +40,23 @@
     for (    final String s : ENCODINGS)     f|=s.equals(enc);
   }
   encoding.setSelectedItem(f ? enc : sp.get(SerializerProp.S_ENCODING));
-  encoding.addKeyListener(keys);
-  BaseXLayout.setWidth(encoding,BaseXTextField.DWIDTH);
-  p.add(encoding);
-  pp.add(p);
-  format=new BaseXCheckBox(INDENT_WITH_WS,sp.get(SerializerProp.S_INDENT).equals(YES),0,this);
-  pp.add(format);
-  set(pp,BorderLayout.CENTER);
-  p=new BaseXBack(new BorderLayout());
-  info=new BaseXLabel(" ").border(18,0,0,0);
-  p.add(info,BorderLayout.WEST);
+  params=new BaseXTextField(exporter,this);
+  params.addKeyListener(keys);
+  pp=new BaseXBack(new TableLayout(3,2,16,6)).border(8,0,8,0);
+  pp.add(new BaseXLabel(METHOD + COL,true,true));
+  pp.add(method);
+  pp.add(new BaseXLabel(ENCODING + COL,true,true));
+  pp.add(encoding);
+  pp.add(new BaseXLabel(PARAMETERS + COL,true,true));
+  pp.add(params);
+  p.add(pp);
+  info=new BaseXLabel(" ").border(8,0,0,0);
+  p.add(info);
+  set(p,BorderLayout.CENTER);
+  pp=new BaseXBack(new BorderLayout());
   buttons=okCancel();
-  p.add(buttons,BorderLayout.EAST);
-  set(p,BorderLayout.SOUTH);
-  action(null);
+  pp.add(buttons,BorderLayout.EAST);
+  set(pp,BorderLayout.SOUTH);
+  action(method);
   finish(null);
 }

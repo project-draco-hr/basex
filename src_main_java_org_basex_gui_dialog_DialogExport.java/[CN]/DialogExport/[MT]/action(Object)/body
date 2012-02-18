@@ -1,6 +1,27 @@
 {
+  if (comp == method || comp == encoding) {
+    final StringBuilder sb=new StringBuilder();
+    final String meth=method.getSelectedItem().toString().toLowerCase(Locale.ENGLISH);
+    final boolean noxml=Token.eq(meth,DataText.M_XML,DataText.M_XHTML);
+    add(sb,SerializerProp.S_METHOD,meth);
+    if (add(sb,SerializerProp.S_ENCODING,encoding.getSelectedItem()) && noxml) {
+      sb.append(',');
+      sb.append(SerializerProp.S_OMIT_XML_DECLARATION[0]).append('=').append(NO);
+    }
+    params.setText(sb.toString());
+  }
   final IOFile io=new IOFile(path());
+  String inf=io.isDir() && io.children().length > 0 ? DIR_NOT_EMPTY : null;
   ok=!path().isEmpty();
-  info.setText(io.children().length > 0 ? DIR_NOT_EMPTY : null,ok ? Msg.WARN : Msg.ERROR);
+  if (ok && comp == params) {
+    try {
+      Serializer.get(new ArrayOutput(),new SerializerProp(params.getText()));
+    }
+ catch (    final IOException ex) {
+      ok=false;
+      inf=ex.getLocalizedMessage();
+    }
+  }
+  info.setText(inf,ok ? Msg.WARN : Msg.ERROR);
   enableOK(buttons,B_OK,ok);
 }
