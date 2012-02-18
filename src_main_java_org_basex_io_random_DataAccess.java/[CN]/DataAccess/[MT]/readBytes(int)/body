@@ -1,5 +1,17 @@
 {
+  int l=n;
+  int ll=IO.BLOCKSIZE - off;
   final byte[] b=new byte[l];
-  for (int i=0; i < b.length; ++i)   b[i]=read1();
+  System.arraycopy(buffer(false).data,off,b,0,Math.min(l,ll));
+  if (l > ll) {
+    l-=ll;
+    while (l > IO.BLOCKSIZE) {
+      System.arraycopy(buffer(true).data,0,b,ll,IO.BLOCKSIZE);
+      ll+=IO.BLOCKSIZE;
+      l-=IO.BLOCKSIZE;
+    }
+    System.arraycopy(buffer(true).data,0,b,ll,l);
+  }
+  off+=l;
   return b;
 }
