@@ -18,19 +18,6 @@
       indxs[i].setEnabled(data instanceof DiskData);
     }
   }
-  final BaseXBack tabInfo=new BaseXBack(new BorderLayout(0,8)).border(8);
-  final Font f=tabInfo.getFont();
-  final BaseXLabel doc=new BaseXLabel(data.meta.name).border(0,0,6,0).large();
-  BaseXLayout.setWidth(doc,400);
-  tabInfo.add(doc,BorderLayout.NORTH);
-  final String db=InfoDB.db(data.meta,true,false,true);
-  final TokenBuilder info=new TokenBuilder(db);
-  if (data.nspaces.size() != 0) {
-    info.bold().add(NL + NAMESPACES + NL).norm().add(data.nspaces.info());
-  }
-  final BaseXEditor text=text(info.finish());
-  text.setFont(f);
-  tabInfo.add(text,BorderLayout.CENTER);
   final BaseXBack tabNames=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
   add(0,tabNames,null);
   add(1,tabNames,null);
@@ -41,13 +28,26 @@
   add(4,tabValues,null);
   tabFT=new BaseXBack(new GridLayout(1,1)).border(8);
   add(5,tabFT,null);
+  final BaseXBack tabGeneral=new BaseXBack(new BorderLayout(0,8)).border(8);
+  final Font f=tabGeneral.getFont();
+  final BaseXLabel doc=new BaseXLabel(data.meta.name).border(0,0,6,0).large();
+  BaseXLayout.setWidth(doc,400);
+  tabGeneral.add(doc,BorderLayout.NORTH);
+  final String db=InfoDB.db(data.meta,true,false,true);
+  final TokenBuilder info=new TokenBuilder(db);
+  if (data.nspaces.size() != 0) {
+    info.bold().add(NL + NAMESPACES + NL).norm().add(data.nspaces.info());
+  }
+  final BaseXEditor text=text(info.finish());
+  text.setFont(f);
+  tabGeneral.add(text,BorderLayout.CENTER);
   final BaseXTabs tabs=new BaseXTabs(this);
   tabs.addTab(RESOURCES,tabRes);
-  tabs.addTab(INFORMATION,tabInfo);
   tabs.addTab(NAMES,tabNames);
   tabs.addTab(PATH_INDEX,tabPath);
   tabs.addTab(INDEXES,tabValues);
   tabs.addTab(FULLTEXT,tabFT);
+  tabs.addTab(GENERAL,tabGeneral);
   set(resources,BorderLayout.WEST);
   set(tabs,BorderLayout.CENTER);
   action(this);
