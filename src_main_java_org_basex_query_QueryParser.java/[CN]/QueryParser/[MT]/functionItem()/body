@@ -1,7 +1,7 @@
 {
   skipWS();
   final int pos=qp;
-  while (curr('%'))   annotation();
+  final Ann ann=curr('%') ? annotations() : null;
   if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
     final int s=ctx.vars.size();
     final Var[] args=paramList();
@@ -9,8 +9,9 @@
     final SeqType type=optAsType();
     final Expr body=enclosed(NOFUNBODY);
     ctx.vars.size(s);
-    return new InlineFunc(input(),type,args,body);
+    return new InlineFunc(input(),type,args,body,ann);
   }
+  if (ann != null)   error(NOANN);
   qp=pos;
   final QNm name=eQName(null,ctx.sc.nsFunc);
   if (name != null && consume('#')) {
