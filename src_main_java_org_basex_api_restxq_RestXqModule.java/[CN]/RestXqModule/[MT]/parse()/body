@@ -3,11 +3,14 @@
     final String query=Token.string(file.read());
     final Context ctx=HTTPSession.context();
     final QueryContext qc=new QueryContext(ctx);
+    qc.sc.baseURI(file.path());
     qc.module(query);
     return qc;
   }
- catch (  final Exception ex) {
-    Util.errln(ex.getMessage());
-    return null;
+ catch (  final QueryException ex) {
+    throw new HTTPException(SC_NOT_IMPLEMENTED,ex.getMessage());
+  }
+catch (  final IOException ex) {
+    throw new HTTPException(SC_NOT_IMPLEMENTED,ex.getMessage());
   }
 }

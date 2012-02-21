@@ -8,12 +8,15 @@
     RestXqModule module=modules.get(path);
     boolean parsed=false;
     if (module != null) {
-      parsed=!module.modified();
+      parsed=module.uptodate();
     }
  else {
       module=new RestXqModule(file);
     }
-    if (parsed || module.init())     tmp.put(path,module);
+    if (parsed || module.update()) {
+      module.touch();
+      tmp.put(path,module);
+    }
   }
   modules=tmp;
 }

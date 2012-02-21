@@ -6,7 +6,11 @@
     boolean f=true;
     if (name.eq(PATH)) {
       final Value v=func.ann.values[a];
-      if (v instanceof Str)       paths.add(HTTPContext.toSteps(((Str)v).toJava()));
+      if (!(v instanceof Str)) {
+        throw new HTTPException(SC_NOT_IMPLEMENTED,ERR_PATH_ANN,file.name(),func);
+      }
+      final String[] steps=HTTPContext.toSteps(((Str)v).toJava());
+      paths.add(steps);
     }
  else     if (name.eq(GET)) {
       rxm.add(HTTPMethod.GET);
