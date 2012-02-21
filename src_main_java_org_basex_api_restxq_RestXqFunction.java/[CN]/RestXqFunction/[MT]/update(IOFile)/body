@@ -1,0 +1,43 @@
+{
+  final EnumSet<HTTPMethod> rxm=EnumSet.noneOf(HTTPMethod.class);
+  boolean found=false;
+  for (int a=0; a < funct.ann.size(); a++) {
+    final QNm name=funct.ann.names[a];
+    final Value val=funct.ann.values[a];
+    boolean f=true;
+    if (name.eq(PATH)) {
+      if (!(val instanceof Str))       error(Util.info(SINGLE_STRING,PATH),funct,file);
+      final String[] steps=HTTPContext.toSteps(((Str)val).toJava());
+      for (      final String s : steps) {
+        if (!STEP.matcher(s).matches())         error(Util.info(STEP_SYNTAX,s),funct,file);
+      }
+      paths.add(steps);
+    }
+ else     if (name.eq(GET)) {
+      rxm.add(HTTPMethod.GET);
+    }
+ else     if (name.eq(POST)) {
+      rxm.add(HTTPMethod.POST);
+    }
+ else     if (name.eq(PUT)) {
+      rxm.add(HTTPMethod.PUT);
+    }
+ else     if (name.eq(DELETE)) {
+      rxm.add(HTTPMethod.DELETE);
+    }
+ else     if (name.eq(CONSUMES)) {
+      if (!(val instanceof Str))       error(Util.info(SINGLE_STRING,CONSUMES),funct,file);
+      consumes=((Str)val).toJava();
+    }
+ else     if (name.eq(PRODUCES)) {
+      if (!(val instanceof Str))       error(Util.info(SINGLE_STRING,PRODUCES),funct,file);
+      produces=((Str)val).toJava();
+    }
+ else {
+      f=false;
+    }
+    found|=f;
+  }
+  if (!rxm.isEmpty())   methods=rxm;
+  return found;
+}
