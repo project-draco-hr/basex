@@ -1,0 +1,19 @@
+{
+  final Context ctx=HTTPSession.context();
+  final HashMap<String,RestXqModule> tmp=new HashMap<String,RestXqModule>();
+  final IOFile root=new IOFile(ctx.mprop.get(MainProp.HTTPPATH));
+  for (  final IOFile file : root.children()) {
+    if (!file.path().endsWith(IO.XQMSUFFIX))     continue;
+    final String path=file.path();
+    RestXqModule module=modules.get(path);
+    boolean parsed=false;
+    if (module != null) {
+      parsed=!module.modified();
+    }
+ else {
+      module=new RestXqModule(file);
+    }
+    if (parsed || module.init())     tmp.put(path,module);
+  }
+  modules=tmp;
+}

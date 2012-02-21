@@ -1,0 +1,30 @@
+{
+  final EnumSet<HTTPMethod> rxm=EnumSet.noneOf(HTTPMethod.class);
+  boolean found=false;
+  for (int a=0; a < func.ann.size(); a++) {
+    final QNm name=func.ann.names[a];
+    boolean f=true;
+    if (name.eq(PATH)) {
+      final Value v=func.ann.values[a];
+      if (v instanceof Str)       paths.add(HTTPContext.toSteps(((Str)v).toJava()));
+    }
+ else     if (name.eq(GET)) {
+      rxm.add(HTTPMethod.GET);
+    }
+ else     if (name.eq(POST)) {
+      rxm.add(HTTPMethod.POST);
+    }
+ else     if (name.eq(PUT)) {
+      rxm.add(HTTPMethod.PUT);
+    }
+ else     if (name.eq(DELETE)) {
+      rxm.add(HTTPMethod.DELETE);
+    }
+ else {
+      f=false;
+    }
+    found|=f;
+  }
+  if (!rxm.isEmpty())   methods=rxm;
+  return found;
+}

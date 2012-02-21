@@ -1,0 +1,15 @@
+{
+  parseOptions(ctx);
+  open(ctx);
+  final Session session=ctx.session;
+  if (ctx.depth() == 0) {
+    throw new HTTPException(SC_NOT_FOUND,ERR_NOPATH);
+  }
+ else   if (ctx.depth() == 1) {
+    session.execute(new DropDB(ctx.db()));
+  }
+ else {
+    session.execute(new Delete(ctx.dbpath()));
+  }
+  ctx.out.write(token(session.info()));
+}
