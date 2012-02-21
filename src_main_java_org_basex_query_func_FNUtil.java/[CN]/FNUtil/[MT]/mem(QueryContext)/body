@@ -1,16 +1,17 @@
 {
   Performance.gc(3);
   final long min=Performance.memory();
-  if (expr.length == 2 && checkBln(expr[1],ctx)) {
+  final byte[] msg=expr.length > 2 ? checkStr(expr[2],ctx) : null;
+  if (expr.length > 1 && checkBln(expr[1],ctx)) {
     final Value v=ctx.value(expr[0]).cache().value();
-    dump(min,ctx);
+    dump(min,msg,ctx);
     return v.iter();
   }
   return new Iter(){
     final Iter ir=expr[0].iter(ctx);
     @Override public Item next() throws QueryException {
       final Item i=ir.next();
-      if (i == null)       dump(min,ctx);
+      if (i == null)       dump(min,msg,ctx);
       return i;
     }
   }

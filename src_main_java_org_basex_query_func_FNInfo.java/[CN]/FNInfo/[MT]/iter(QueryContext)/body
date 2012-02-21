@@ -18,14 +18,10 @@ throw new QueryException(input,name,msg).value(val);
 case TRACE:
 return new Iter(){
 final Iter ir=expr[0].iter(ctx);
-final byte[] s=checkEStr(expr[1],ctx);
+final byte[] s=checkStr(expr[1],ctx);
 @Override public Item next() throws QueryException {
 final Item i=ir.next();
-if (i != null) {
-final TokenBuilder tb=new TokenBuilder(s);
-if (s.length != 0) tb.add(COLS);
-dump(tb.add(i.toString()).toString(),ctx);
-}
+if (i != null) dump(Token.token(i.toString()),s,ctx);
 return i;
 }
 }
