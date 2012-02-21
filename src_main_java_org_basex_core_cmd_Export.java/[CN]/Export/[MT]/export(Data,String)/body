@@ -5,16 +5,18 @@
   root.md();
   final HashSet<String> exported=new HashSet<String>();
   final IntList il=data.resources.docs();
-  for (int i=0, is=il.size(); i < is; i++) {
-    final int pre=il.get(i);
-    final IO file=root.merge(Token.string(data.text(pre,true)));
-    final IOFile dir=new IOFile(file.dir());
-    if (!dir.exists())     dir.md();
-    final PrintOutput po=new PrintOutput(unique(exported,file.path()));
-    final Serializer ser=Serializer.get(po,sp);
-    ser.node(data,pre);
-    ser.close();
-    po.close();
+  if (!data.empty()) {
+    for (int i=0, is=il.size(); i < is; i++) {
+      final int pre=il.get(i);
+      final IO file=root.merge(Token.string(data.text(pre,true)));
+      final IOFile dir=new IOFile(file.dir());
+      if (!dir.exists())       dir.md();
+      final PrintOutput po=new PrintOutput(unique(exported,file.path()));
+      final Serializer ser=Serializer.get(po,sp);
+      ser.node(data,pre);
+      ser.close();
+      po.close();
+    }
   }
   final IOFile bin=data.meta.binaries();
   for (  final String s : bin.descendants()) {
