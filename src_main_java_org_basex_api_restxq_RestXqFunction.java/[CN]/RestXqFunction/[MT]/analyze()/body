@@ -1,0 +1,47 @@
+{
+  final EnumSet<HTTPMethod> mth=EnumSet.noneOf(HTTPMethod.class);
+  boolean found=false;
+  for (int a=0; a < funct.ann.size(); a++) {
+    final QNm name=funct.ann.names[a];
+    final Value value=funct.ann.values[a];
+    boolean f=true;
+    if (name.eq(PATH)) {
+      final String v=string(value,SINGLE_STRING,PATH);
+      final String[] steps=HTTPContext.toSteps(v);
+      for (      final String s : steps) {
+        if (!STEP.matcher(s).matches())         error(STEP_SYNTAX,s);
+      }
+      paths.add(steps);
+    }
+ else     if (name.eq(GET)) {
+      mth.add(HTTPMethod.GET);
+    }
+ else     if (name.eq(POST)) {
+      mth.add(HTTPMethod.POST);
+    }
+ else     if (name.eq(PUT)) {
+      mth.add(HTTPMethod.PUT);
+    }
+ else     if (name.eq(DELETE)) {
+      mth.add(HTTPMethod.DELETE);
+    }
+ else     if (name.eq(CONSUMES)) {
+      consumes.add(string(value,SINGLE_STRING,CONSUMES));
+    }
+ else     if (name.eq(PRODUCES)) {
+      produces.add(string(value,SINGLE_STRING,PRODUCES));
+    }
+ else     if (Token.eq(name.uri(),QueryText.OUTPUTURI)) {
+      final String key=Token.string(name.local());
+      final String val=string(value,OUTPUT_STRING,key);
+      if (output.get(key) == null)       error(UNKNOWN_SER,key);
+      output.set(key,val);
+    }
+ else {
+      f=false;
+    }
+    found|=f;
+  }
+  if (!mth.isEmpty())   methods=mth;
+  return found;
+}
