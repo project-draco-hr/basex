@@ -15,7 +15,7 @@
     Var[] grp=null;
     do     grp=groupSpec(fl,grp);
  while (wsConsume(COMMA));
-    final ObjList<Var> ng=new ObjList<Var>();
+    final ArrayList<Var> ng=new ArrayList<Var>();
     Map ngp=Map.EMPTY;
     for (    final ForLet f : fl) {
       vars:       for (      final Var v : f.vars()) {
@@ -24,13 +24,16 @@
         for (        final Var g : grp) {
           if (v.is(g)) {
             if (pos >= 0) {
-              ng.delete(pos);
+              ng.remove(pos);
               ngp=ngp.delete(old.itemAt(0),null);
             }
             continue vars;
           }
         }
-        if (pos >= 0)         ng.set(pos,v);
+        if (pos >= 0) {
+          while (pos >= ng.size())           ng.add(null);
+          ng.set(pos,v);
+        }
  else {
           ng.add(v);
           ngp=ngp.insert(v.name,Int.get(ng.size() - 1),null);
