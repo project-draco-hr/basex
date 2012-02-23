@@ -1,0 +1,17 @@
+{
+  final QueryContext qc=rxf.context;
+  for (int s=0; s < segments.length; s++) {
+    final String seg=segments[s];
+    final Matcher m=TEMPLATE.matcher(seg);
+    if (!m.find())     continue;
+    final QNm qnm=new QNm(token(m.group(1)),qc);
+    final String val=http.segment(s);
+    for (    final Var var : rxf.function.args) {
+      if (!var.name.eq(qnm))       continue;
+      Item item=new Atm(token(val));
+      if (var.type != null)       item=var.type.type.cast(item,qc,null);
+      var.bind(var.type != null ? item : item,qc);
+      break;
+    }
+  }
+}

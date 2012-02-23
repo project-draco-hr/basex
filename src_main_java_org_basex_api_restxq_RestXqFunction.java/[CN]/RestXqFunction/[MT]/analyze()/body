@@ -1,39 +1,41 @@
 {
   final EnumSet<HTTPMethod> mth=EnumSet.noneOf(HTTPMethod.class);
   boolean found=false;
-  for (int a=0; a < funct.ann.size(); a++) {
-    final QNm name=funct.ann.names[a];
-    final Value value=funct.ann.values[a];
+  for (int a=0, as=function.ann.size(); a < as; a++) {
+    final QNm name=function.ann.names[a];
+    final Value value=function.ann.values[a];
     boolean f=true;
-    if (name.eq(PATH)) {
-      final String v=string(value,SINGLE_STRING,PATH);
-      final String[] steps=HTTPContext.toSteps(v);
-      for (      final String s : steps) {
-        if (!STEP.matcher(s).matches())         error(STEP_SYNTAX,s);
+    final byte[] local=name.local();
+    final byte[] uri=name.uri();
+    if (eq(uri,QueryText.REXQURI)) {
+      if (eq(PATH,local)) {
+        path=new RestXqPath(toString(value,SINGLE_STRING,PATH),this);
       }
-      paths.add(steps);
+ else       if (eq(GET,local)) {
+        mth.add(HTTPMethod.GET);
+      }
+ else       if (eq(POST,local)) {
+        mth.add(HTTPMethod.POST);
+      }
+ else       if (eq(PUT,local)) {
+        mth.add(HTTPMethod.PUT);
+      }
+ else       if (eq(DELETE,local)) {
+        mth.add(HTTPMethod.DELETE);
+      }
+ else       if (eq(CONSUMES,local)) {
+        consumes.add(toString(value,SINGLE_STRING,CONSUMES));
+      }
+ else       if (eq(PRODUCES,local)) {
+        produces.add(toString(value,SINGLE_STRING,PRODUCES));
+      }
+ else {
+        error(NOT_SUPPORTED,name);
+      }
     }
- else     if (name.eq(GET)) {
-      mth.add(HTTPMethod.GET);
-    }
- else     if (name.eq(POST)) {
-      mth.add(HTTPMethod.POST);
-    }
- else     if (name.eq(PUT)) {
-      mth.add(HTTPMethod.PUT);
-    }
- else     if (name.eq(DELETE)) {
-      mth.add(HTTPMethod.DELETE);
-    }
- else     if (name.eq(CONSUMES)) {
-      consumes.add(string(value,SINGLE_STRING,CONSUMES));
-    }
- else     if (name.eq(PRODUCES)) {
-      produces.add(string(value,SINGLE_STRING,PRODUCES));
-    }
- else     if (Token.eq(name.uri(),QueryText.OUTPUTURI)) {
-      final String key=Token.string(name.local());
-      final String val=string(value,OUTPUT_STRING,key);
+ else     if (eq(uri,QueryText.OUTPUTURI)) {
+      final String key=string(local);
+      final String val=toString(value,OUTPUT_STRING,key);
       if (output.get(key) == null)       error(UNKNOWN_SER,key);
       output.set(key,val);
     }
@@ -43,5 +45,8 @@
     found|=f;
   }
   if (!mth.isEmpty())   methods=mth;
+  for (  final Var v : function.args) {
+    if (!v.declared)     error(VAR_UNDEFINED,v.name.string());
+  }
   return found;
 }

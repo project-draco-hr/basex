@@ -1,0 +1,22 @@
+{
+  rxf=rf;
+  final Var[] args=rxf.function.args;
+  segments=HTTPContext.toSegments(path);
+  for (  final String s : segments) {
+    if (s.startsWith("{")) {
+      final Matcher m=TEMPLATE.matcher(s);
+      if (!m.find())       rxf.error(INVALID_TEMPLATE,s);
+      final byte[] vn=token(m.group(1));
+      if (!XMLToken.isQName(vn))       rxf.error(INVALID_VAR,vn);
+      final QNm qnm=new QNm(vn,rxf.context);
+      int r=-1;
+      while (++r < args.length) {
+        if (args[r].name.eq(qnm))         break;
+      }
+      if (r == args.length)       rxf.error(UNKNOWN_VAR,vn);
+      if (args[r].declared)       rxf.error(VAR_ASSIGNED,vn);
+      if (!args[r].type.type.instanceOf(AtomType.AAT))       rxf.error(VAR_ATOMIC,vn,AtomType.AAT);
+      args[r].declared=true;
+    }
+  }
+}
