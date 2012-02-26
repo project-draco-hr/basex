@@ -1,0 +1,32 @@
+{
+  final HTTPRequest r=new HTTPRequest();
+  parseAttrs(request,r.attrs);
+  checkRequest(r);
+  final ANode payload=parseHdrs(request.children(),r.headers);
+  final byte[] method=lc(r.attrs.get(METHOD));
+  if ((eq(method,TRACE,DELETE)) && (payload != null || bodies != null))   REQINV.thrw(input,"Body not expected for method " + string(method));
+  if (payload != null) {
+    final QNm pl=payload.qname();
+    if (pl.eq(HTTP_BODY)) {
+      Item it=null;
+      if (bodies != null) {
+        if (bodies.size() != 1)         REQINV.thrw(input,"Number of items with request body content differs " + "from number of body descriptors.");
+        it=bodies.next();
+      }
+      parseBody(payload,it,r.payloadAttrs,r.bodyContent);
+      r.isMultipart=false;
+    }
+ else     if (pl.eq(HTTP_MULTIPART)) {
+      int i=0;
+      final AxisMoreIter ch=payload.children();
+      while (ch.next() != null)       i++;
+      if (bodies != null && bodies.size() != i)       REQINV.thrw(input,"Number of items with request body content differs " + "from number of body descriptors.");
+      parseMultipart(payload,bodies,r.payloadAttrs,r.parts);
+      r.isMultipart=true;
+    }
+ else {
+      REQINV.thrw(input,"Unknown payload element " + pl);
+    }
+  }
+  return r;
+}

@@ -1,23 +1,34 @@
 {
-  final byte[] mediaType=payloadAtts.get(MEDIATYPE);
-  byte[] method=payloadAtts.get(METHOD);
+  final byte[] t=payloadAtts.get(MEDIA_TYPE);
+  String type=t == null ? null : string(t);
   final byte[] src=payloadAtts.get(SRC);
   if (src == null) {
-    if (method == null) {
-      if (eq(mediaType,APPL_XHTML))       method=token(M_XHTML);
- else       if (eq(mediaType,APPL_XML) || eq(mediaType,APPL_EXT_XML) || eq(mediaType,TXT_XML)|| eq(mediaType,TXT_EXT_XML)|| endsWith(mediaType,MIME_XML_SUFFIX))       method=token(M_XML);
- else       if (eq(mediaType,TXT_HTML))       method=token(M_HTML);
- else       if (startsWith(mediaType,MIME_TEXT_PREFIX))       method=token(M_TEXT);
- else       method=token(M_XML);
+    byte[] m=payloadAtts.get(METHOD);
+    if (m == null) {
+      if (eq(type,APP_HTML_XML)) {
+        m=token(M_XHTML);
+      }
+ else       if (isXML(type)) {
+        m=token(M_XML);
+      }
+ else       if (eq(type,TEXT_HTML)) {
+        m=token(M_HTML);
+      }
+ else       if (type != null && type.startsWith(MIME_TEXT_PREFIX)) {
+        m=token(M_TEXT);
+      }
+ else {
+        m=token(M_XML);
+      }
     }
-    if (eq(method,BASE64)) {
+    if (eq(m,BASE64)) {
       writeBase64(payload,out);
     }
- else     if (eq(method,HEXBIN)) {
+ else     if (eq(m,HEXBIN)) {
       writeHex(payload,out);
     }
  else {
-      write(payload,payloadAtts,method,out);
+      write(payload,payloadAtts,m,out);
     }
   }
  else {

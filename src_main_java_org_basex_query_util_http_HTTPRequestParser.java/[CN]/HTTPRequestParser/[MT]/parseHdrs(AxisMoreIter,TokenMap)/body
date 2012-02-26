@@ -1,0 +1,23 @@
+{
+  ANode n;
+  while (true) {
+    n=i.next();
+    if (n == null)     break;
+    final QNm nm=n.qname();
+    if (nm == null)     continue;
+    if (!nm.eq(HTTP_HEADER))     break;
+    final AxisIter hdrAttrs=n.attributes();
+    byte[] name=null;
+    byte[] value=null;
+    for (ANode attr; (attr=hdrAttrs.next()) != null; ) {
+      final QNm qn=attr.qname();
+      if (qn.eq(Q_NAME))       name=attr.string();
+      if (qn.eq(Q_VALUE))       value=attr.string();
+      if (name != null && name.length != 0 && value != null && value.length != 0) {
+        hdrs.add(name,value);
+        break;
+      }
+    }
+  }
+  return n;
+}

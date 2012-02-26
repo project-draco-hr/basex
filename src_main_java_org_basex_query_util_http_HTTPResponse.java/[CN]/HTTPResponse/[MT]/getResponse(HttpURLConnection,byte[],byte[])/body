@@ -1,0 +1,25 @@
+{
+  final NodeCache attrs=extractAttrs(conn);
+  final NodeCache hdrs=extractHdrs(conn);
+  final String cType=mediaTypeOvr == null ? extractContentType(conn.getContentType()) : string(mediaTypeOvr);
+  final ItemCache payloads=new ItemCache();
+  final FNode body;
+  final boolean s=status != null && Bln.parse(status,input);
+  if (cType.startsWith(MULTIPART)) {
+    final byte[] boundary=extractBoundary(conn.getContentType());
+    final NodeCache a=new NodeCache();
+    a.add(new FAttr(Q_MEDIA_TYPE,token(cType)));
+    a.add(new FAttr(Q_BOUNDARY,boundary));
+    body=new FElem(HTTP_MULTIPART,extractParts(conn.getInputStream(),s,payloads,concat(token("--"),boundary)),a,new Atts(HTTP,HTTPURI));
+  }
+ else {
+    body=createBody(cType);
+    if (!s)     payloads.add(interpretPayload(extractPayload(conn.getInputStream(),cType,extractCharset(conn.getContentType())),cType));
+  }
+  final FElem responseEl=new FElem(HTTP_RESPONSE,hdrs,attrs,new Atts(HTTP,HTTPURI));
+  responseEl.add(body);
+  final ItemCache result=new ItemCache();
+  result.add(responseEl);
+  result.add(payloads.value());
+  return result;
+}

@@ -4,13 +4,13 @@
       if (href == null || href.length == 0)       NOPARAMS.thrw(input);
       final HttpURLConnection conn=openConnection(string(href));
       try {
-        return new ResponseHandler(input,prop).getResponse(conn,Bln.FALSE.string(),null);
+        return new HTTPResponse(input,prop).getResponse(conn,Bln.FALSE.string(),null);
       }
   finally {
         conn.disconnect();
       }
     }
-    final Request r=new RequestParser(input).parse(request,bodies);
+    final HTTPRequest r=new HTTPRequestParser(input).parse(request,bodies);
     final byte[] dest=href == null ? r.attrs.get(HREF) : href;
     if (dest == null)     NOURL.thrw(input);
     final HttpURLConnection conn=openConnection(string(dest));
@@ -21,7 +21,7 @@
         setContentType(conn,r);
         setRequestContent(conn.getOutputStream(),r);
       }
-      return new ResponseHandler(input,prop).getResponse(conn,r.attrs.get(STATUSONLY),r.attrs.get(OVERMEDIATYPE));
+      return new HTTPResponse(input,prop).getResponse(conn,r.attrs.get(STATUS_ONLY),r.attrs.get(OVERRIDE_MEDIA_TYPE));
     }
   finally {
       conn.disconnect();
