@@ -1,10 +1,8 @@
 {
-  final byte[] req=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "method='POST' href='http://basex.org'>"+ "<http:header name='hdr1' value='hdr1val'/>"+ "<http:header name='hdr2' value='hdr2val'/>"+ "<http:body media-type='text/xml'>"+ "Test body content"+ "</http:body>"+ "</http:request>");
-  final IO io=new IOContent(req);
-  final Parser reqParser=Parser.xmlParser(io,CONTEXT.prop);
-  final DBNode dbNode=new DBNode(reqParser,CONTEXT.prop);
-  final RequestParser rp=new RequestParser(null);
-  final Request r=rp.parse(dbNode.children().next(),null);
+  final String req="<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='POST' href='http://basex.org'>"+ "<http:header name='hdr1' value='hdr1val'/>"+ "<http:header name='hdr2' value='hdr2val'/>"+ "<http:body media-type='text/xml'>"+ "Test body content"+ "</http:body>"+ "</http:request>";
+  final DBNode dbNode=new DBNode(new IOContent(req),CONTEXT.prop);
+  final HTTPRequestParser rp=new HTTPRequestParser(null);
+  final HTTPRequest r=rp.parse(dbNode.children().next(),null);
   assertEquals(2,r.attrs.size());
   assertEquals(2,r.headers.size());
   assertTrue(r.bodyContent.size() != 0);

@@ -1,14 +1,12 @@
 {
-  final byte[] multiReq=token("<http:request " + "xmlns:http=\"http://expath.org/ns/http\" " + "method='POST' href='http://basex.org'>"+ "<http:header name='hdr1' value='hdr1val'/>"+ "<http:header name='hdr2' value='hdr2val'/>"+ "<http:multipart media-type='multipart/mixed' boundary='xxxx'>"+ "<part>"+ "<http:header name='p1hdr1' value='p1hdr1val'/>"+ "<http:header name='p1hdr2' value='p1hdr2val'/>"+ "<http:body media-type='text/plain'/>"+ "</part>"+ "<part>"+ "<http:header name='p2hdr1' value='p2hdr1val'/>"+ "<http:body media-type='text/plain'/>"+ "</part>"+ "<part>"+ "<http:body media-type='text/plain'/>"+ "</part>"+ "</http:multipart>"+ "</http:request>");
-  final IO io=new IOContent(multiReq);
-  final Parser p=Parser.xmlParser(io,CONTEXT.prop);
-  final DBNode dbNode1=new DBNode(p,CONTEXT.prop);
+  final String multiReq="<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='POST' href='http://basex.org'>"+ "<http:header name='hdr1' value='hdr1val'/>"+ "<http:header name='hdr2' value='hdr2val'/>"+ "<http:multipart media-type='multipart/mixed' boundary='xxxx'>"+ "<part>"+ "<http:header name='p1hdr1' value='p1hdr1val'/>"+ "<http:header name='p1hdr2' value='p1hdr2val'/>"+ "<http:body media-type='text/plain'/>"+ "</part>"+ "<part>"+ "<http:header name='p2hdr1' value='p2hdr1val'/>"+ "<http:body media-type='text/plain'/>"+ "</part>"+ "<part>"+ "<http:body media-type='text/plain'/>"+ "</part>"+ "</http:multipart>"+ "</http:request>";
+  final DBNode dbNode1=new DBNode(new IOContent(multiReq),CONTEXT.prop);
   final ItemCache bodies=new ItemCache();
   bodies.add(Str.get("Part1"));
   bodies.add(Str.get("Part2"));
   bodies.add(Str.get("Part3"));
-  final RequestParser rp=new RequestParser(null);
-  final Request r=rp.parse(dbNode1.children().next(),bodies);
+  final HTTPRequestParser rp=new HTTPRequestParser(null);
+  final HTTPRequest r=rp.parse(dbNode1.children().next(),bodies);
   assertEquals(2,r.attrs.size());
   assertEquals(2,r.headers.size());
   assertTrue(r.isMultipart);
