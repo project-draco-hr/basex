@@ -1,0 +1,20 @@
+{
+  name=XQuery.string('@' + NNAME,env,ctx);
+  sources=list(ctx,env,SOURCE);
+  params=list(ctx,env,PARAM);
+  namespaces=list(ctx,env,NAMESPACE);
+  formats=list(ctx,env,DECIMAL_FORMAT);
+  ArrayList<HashMap<String,String>> al=list(ctx,env,SCHEMA);
+  schemas=al.isEmpty() ? null : al.get(0);
+  al=list(ctx,env,COLLATION);
+  collations=al.isEmpty() ? null : al.get(0);
+  baseURI=string(STATIC_BASE_URI,ctx,env);
+  collURI=XQuery.string("*:collection/@uri",env,ctx);
+  final XQuery cc=new XQuery("*:collection/*:source/@role = '.'",ctx).context(env);
+  collContext=cc.next().getBoolean();
+  cc.close();
+  collSources=new StringList();
+  final XQuery qsrc=new XQuery("*:collection/*:source/@file",ctx).context(env);
+  for (  final XdmItem iatt : qsrc)   collSources.add(iatt.getString());
+  qsrc.close();
+}
