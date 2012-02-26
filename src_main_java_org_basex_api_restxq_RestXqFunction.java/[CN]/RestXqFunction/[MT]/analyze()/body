@@ -6,10 +6,10 @@
     final Value value=function.ann.values[a];
     final byte[] local=name.local();
     final byte[] uri=name.uri();
-    boolean rexq=startsWith(uri,QueryText.REXQURI);
+    final boolean rexq=startsWith(uri,QueryText.REXQURI);
     if (rexq) {
       if (eq(PATH,local)) {
-        path=new RestXqPath(toString(value,SINGLE_STRING,PATH),this);
+        path=new RestXqPath(toString(value,name),this);
       }
  else       if (eq(GET,local)) {
         mth.add(HTTPMethod.GET);
@@ -24,18 +24,18 @@
         mth.add(HTTPMethod.DELETE);
       }
  else       if (eq(CONSUMES,local)) {
-        consumes.add(toString(value,SINGLE_STRING,CONSUMES));
+        consumes.add(toString(value,name));
       }
  else       if (eq(PRODUCES,local)) {
-        produces.add(toString(value,SINGLE_STRING,PRODUCES));
+        produces.add(toString(value,name));
       }
  else {
-        error(NOT_SUPPORTED,name);
+        error(NOT_SUPPORTED,"%",name.string());
       }
     }
  else     if (eq(uri,QueryText.OUTPUTURI)) {
       final String key=string(local);
-      final String val=toString(value,OUTPUT_STRING,key);
+      final String val=toString(value,name);
       if (output.get(key) == null)       error(UNKNOWN_SER,key);
       output.set(key,val);
     }
