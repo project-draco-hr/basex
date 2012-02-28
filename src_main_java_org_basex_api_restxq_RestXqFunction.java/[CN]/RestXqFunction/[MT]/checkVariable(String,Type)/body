@@ -1,0 +1,17 @@
+{
+  final Var[] args=function.args;
+  final Matcher m=TEMPLATE.matcher(template);
+  if (!m.find())   error(INVALID_TEMPLATE,template);
+  final byte[] vn=token(m.group(1));
+  if (!XMLToken.isQName(vn))   error(INVALID_VAR,vn);
+  final QNm qnm=new QNm(vn,context);
+  int r=-1;
+  while (++r < args.length) {
+    if (args[r].name.eq(qnm))     break;
+  }
+  if (r == args.length)   error(UNKNOWN_VAR,vn);
+  if (args[r].declared)   error(VAR_ASSIGNED,vn);
+  final SeqType st=args[r].type;
+  if (st != null && !st.type.instanceOf(type))   error(VAR_TYPE,vn,type);
+  args[r].declared=true;
+}

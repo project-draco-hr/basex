@@ -3,9 +3,15 @@
   final BaseFuncCall bfc=new BaseFuncCall(null,uf.name,uf.args);
   bfc.init(uf);
   rxf.bind(http);
-  final ValueIter ir=bfc.comp(qc).value(qc).iter();
+  final Value result=bfc.comp(qc).value(qc);
+  if (rxf.methods.size() == 1 && rxf.methods.contains(HTTPMethod.HEAD)) {
+    final QNm response=new QNm(RESPONSE,QueryText.REXQURI);
+    final SeqType type=SeqType.get(NodeType.ELM,Occ.ONE,response);
+    if (!type.instance(result))     rxf.error(HEAD_METHOD);
+  }
   http.initResponse(rxf.output);
   final Serializer ser=Serializer.get(http.out);
+  final ValueIter ir=result.iter();
   for (Item it; (it=ir.next()) != null; )   it.serialize(ser);
   ser.close();
   http.status(SC_OK,null);
