@@ -1,0 +1,46 @@
+{
+  map.add("Test0");
+  map.add("Test");
+  map.add(token("Test2"));
+  map.add(3);
+  try {
+    map.add("Test");
+    fail("May not insert value twice, Exception should have been thrown!");
+  }
+ catch (  IllegalArgumentException e) {
+  }
+  assertEquals(0,map.getKey("Test0"));
+  assertEquals(1,map.getKey("Test"));
+  assertEquals(2,map.getKey(token("Test2")));
+  assertEquals(3,map.getKey(token(3)));
+  assertEquals(-1,map.getKey("not-there"));
+  assertArrayEquals(token("Test0"),map.get(0));
+  assertArrayEquals(token("Test"),map.get(1));
+  assertEquals("Test2",string(map.get(2)));
+  assertEquals(3,toLong(map.get(3)));
+  try {
+    if (null != map.get(5)) {
+      fail("No Key for value, Exception should have been thrown!");
+    }
+  }
+ catch (  IndexOutOfBoundsException e) {
+  }
+  map.set(0,token("Test-updated"));
+  assertFalse(map.contains(token("Test0")));
+  assertArrayEquals(token("Test-updated"),map.get(0));
+  assertEquals(0,map.getKey(token("Test-updated")));
+  assertEquals(-1,map.getKey(token("Test0")));
+  assertTrue(map.contains(token("Test")));
+  assertFalse(map.contains(token("notthere")));
+  map.push(token("Stack1"));
+  map.push(token("Stack2"));
+  assertArrayEquals(map.peek(),token("Stack2"));
+  assertArrayEquals(map.pop(),token("Stack2"));
+  assertArrayEquals(map.peek(),token("Stack1"));
+  try {
+    map.push(token("Stack1"));
+    fail("May not insert value twice, Exception should have been thrown!");
+  }
+ catch (  IllegalArgumentException e) {
+  }
+}
