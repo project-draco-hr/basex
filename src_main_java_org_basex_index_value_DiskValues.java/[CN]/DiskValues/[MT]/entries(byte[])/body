@@ -1,16 +1,22 @@
 {
-  final TokenIntMap tim=new TokenIntMap();
-  int ix=get(prefix);
-  if (ix < 0)   ix=-ix - 1;
-  idxr.cursor(ix * 5l);
-  for (; ix < size; ix++) {
-    final long pos=idxr.read5();
-    final int nr=idxl.readNum(pos);
-    final int pre=idxl.readNum();
-    final byte[] key=data.text(pre,text);
-    cache.add(key,nr,pos + Num.length(nr));
-    if (!startsWith(key,prefix))     break;
-    tim.add(key,nr);
+  final int i=get(prefix);
+  return new EntryIterator(){
+    int ix=(i < 0 ? -i - 1 : i) - 1;
+    int nr;
+    @Override public synchronized byte[] next(){
+      while (++ix < size) {
+        final long pos=idxr.read5(ix * 5l);
+        nr=idxl.readNum(pos);
+        final byte[] key=data.text(idxl.readNum(),text);
+        if (!startsWith(key,prefix))         break;
+        if (prefix.length != 0)         cache.add(key,nr,pos + Num.length(nr));
+        return key;
+      }
+      return null;
+    }
+    @Override public int count(){
+      return nr;
+    }
   }
-  return tim;
+;
 }
