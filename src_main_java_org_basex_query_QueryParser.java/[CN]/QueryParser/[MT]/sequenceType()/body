@@ -4,8 +4,9 @@
   skipWS();
   final Occ occ=consume('?') ? Occ.ZERO_ONE : consume('+') ? Occ.ONE_MORE : consume('*') ? Occ.ZERO_MORE : Occ.ONE;
   if (t == AtomType.EMP && occ != Occ.ONE)   error(EMPTYSEQOCC,t);
-  final KindTest kt=tok.isEmpty() ? null : kindTest(t,tok.finish());
-  tok.reset();
   skipWS();
-  return SeqType.get(t,occ,kt == null ? null : kt.extype == null || t == kt.extype || !kt.extype.isNode() ? kt.name : new QNm());
+  if (tok.trim().isEmpty())   return SeqType.get(t,occ);
+  final KindTest kt=kindTest(t);
+  if (kt instanceof DocTest)   return SeqType.get(t,occ);
+  return SeqType.get(t,occ,kt.extype == null || t == kt.extype || !kt.extype.isNode() ? kt.name : new QNm());
 }

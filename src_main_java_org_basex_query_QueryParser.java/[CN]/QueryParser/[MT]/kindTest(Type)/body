@@ -1,0 +1,48 @@
+{
+  byte[] k=tok.finish();
+  byte[] nm=k;
+  tok.reset();
+  if (t == NodeType.PI) {
+    final boolean s=startsWith(k,'\'') || startsWith(k,'"');
+    nm=trim(delete(delete(k,'\''),'"'));
+    if (!XMLToken.isNCName(nm)) {
+      if (s)       error(XPINVNAME,nm);
+      error(TESTINVALID,t,k);
+    }
+    return new KindTest((NodeType)t,new QNm(nm),null);
+  }
+  if (t == NodeType.DOC) {
+    return new DocTest(NodeType.ELM);
+  }
+  final boolean elm=t == NodeType.ELM;
+  if (!elm && t != NodeType.ATT)   error(TESTINVALID,t,k);
+  Type tp=t;
+  final int i=indexOf(nm,',');
+  if (i != -1) {
+    byte[] type=trim(substring(nm,i + 1));
+    if (elm && endsWith(type,'?'))     type=substring(type,0,type.length - 1);
+    final QNm qnm=new QNm(type,ctx);
+    if (qnm.hasPrefix() && !qnm.hasURI())     error(NOURI,qnm);
+    if (!eq(qnm.uri(),XSURI))     error(TYPEUNDEF,type);
+    final byte[] ln=qnm.local();
+    tp=Types.find(qnm,true);
+    if (tp == null && !eq(ln,AtomType.ATY.string()) && !eq(ln,AtomType.AST.string()) && !eq(ln,AtomType.UTY.string()))     error(VARUNDEF,qnm);
+    if (tp == AtomType.ATM || tp == AtomType.AAT)     tp=null;
+    nm=trim(substring(nm,0,i));
+  }
+  if (nm.length == 1 && nm[0] == '*')   return new KindTest((NodeType)t,null,tp);
+  if (!XMLToken.isEQName(nm))   error(TESTINVALID,t,k);
+  final QNm qnm;
+  if (quote(nm[0])) {
+    final int c=lastIndexOf(nm,':');
+    qnm=new QNm(substring(nm,c + 1),substring(nm,1,c - 1));
+  }
+ else {
+    qnm=new QNm(nm,ctx);
+  }
+  if (!qnm.hasURI()) {
+    if (qnm.hasPrefix())     error(NOURI,qnm);
+    if (elm)     qnm.uri(ctx.sc.nsElem);
+  }
+  return new KindTest((NodeType)t,qnm,tp);
+}
