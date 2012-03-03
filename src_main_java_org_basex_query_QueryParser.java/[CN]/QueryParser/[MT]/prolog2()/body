@@ -5,30 +5,39 @@
     if (ctx.xquery3 && wsConsumeWs(CONTEXT)) {
       contextItemDecl();
     }
- else     if (wsConsumeWs(VARIABLE)) {
-      varDecl(null);
-    }
- else     if (wsConsumeWs(UPDATING)) {
-      ctx.updating(true);
-      wsCheck(FUNCTION);
-      skipWS();
-      functionDecl(true,null);
-    }
- else     if (wsConsumeWs(FUNCTION)) {
-      functionDecl(false,null);
-    }
  else     if (wsConsumeWs(OPTION)) {
       optionDecl();
     }
  else     if (wsConsumeWs(DEFAULT)) {
       error(PROLOGORDER);
     }
- else     if (ctx.xquery3 && curr('%')) {
-      annotatedDecl();
-    }
  else {
-      qp=p;
-      return;
+      Ann ann=new Ann();
+      while (true) {
+        if (wsConsumeWs(UPDATING)) {
+          addAnnotation(ann,Ann.UPDATING,Empty.SEQ);
+        }
+ else         if (ctx.xquery3 && consume('%')) {
+          annotation(ann);
+        }
+ else {
+          break;
+        }
+      }
+      if (wsConsumeWs(VARIABLE)) {
+        if (ann.contains(Ann.UPDATING))         error(UPDATINGVAR);
+        varDecl(ann);
+      }
+ else       if (wsConsumeWs(FUNCTION)) {
+        functionDecl(ann);
+      }
+ else       if (!ann.isEmpty()) {
+        error(VARFUNC);
+      }
+ else {
+        qp=p;
+        return;
+      }
     }
     skipWS();
     check(';');
