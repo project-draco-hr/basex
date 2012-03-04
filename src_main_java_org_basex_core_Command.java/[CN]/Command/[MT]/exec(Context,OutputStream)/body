@@ -8,10 +8,12 @@
     while (--i >= 0 && (1 << i & f) == 0)     ;
     return error(PERM_NEEDED_X,perms[i + 1]);
   }
-  final boolean ok;
-  final boolean writing=updating(ctx);
-  ctx.register(writing);
-  ok=run(ctx,os);
-  ctx.unregister(writing);
-  return ok;
+  updating=updating(ctx);
+  try {
+    ctx.register(this);
+    return run(ctx,os);
+  }
+  finally {
+    ctx.unregister(this);
+  }
 }

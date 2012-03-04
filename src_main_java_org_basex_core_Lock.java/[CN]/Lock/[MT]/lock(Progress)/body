@@ -2,19 +2,21 @@
   final Object o=new Object();
 synchronized (mutex) {
     queue.add(o);
+    final int maxReaders=Math.max(ctx.mprop.num(MainProp.PARALLEL),1);
     while (true) {
       if (!writer && o == queue.get(0)) {
-        if (w) {
+        if (pr.updating) {
           if (readers == 0) {
             writer=true;
             break;
           }
         }
- else         if (readers < Math.max(ctx.mprop.num(MainProp.PARALLEL),1)) {
+ else         if (readers < maxReaders) {
           ++readers;
           break;
         }
       }
+      pr.checkStop();
       try {
         mutex.wait();
       }
