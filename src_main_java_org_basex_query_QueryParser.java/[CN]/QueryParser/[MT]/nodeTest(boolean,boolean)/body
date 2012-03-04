@@ -2,34 +2,26 @@
   final int p=qp;
   if (consume('*')) {
     if (!consume(':'))     return new NameTest(att);
-    return new NameTest(new QNm(ncName(QNAMEINV)),NameTest.Name.NAME,att);
+    return new NameTest(new QNm(ncName(QNAMEINV)),NameTest.Mode.NAME,att);
   }
   final QNm name=eQName(null,SKIPCHECK);
   if (name != null) {
     final int p2=qp;
     if (all && wsConsumeWs(PAR1)) {
       final NodeType type=NodeType.find(name);
-      if (type != null) {
-        tok.reset();
-        while (!consume(PAR2)) {
-          if (!more())           error(TESTINCOMPLETE);
-          tok.add(consume());
-        }
-        skipWS();
-        return tok.trim().isEmpty() ? Test.get(type) : kindTest(type);
-      }
+      if (type != null)       return kindTest(type);
     }
  else {
       qp=p2;
       if (name.hasPrefix() || !consume(':')) {
         skipWS();
         names.add(new QNmCheck(name,!att));
-        return new NameTest(name,NameTest.Name.STD,att);
+        return new NameTest(name,NameTest.Mode.STD,att);
       }
       if (consume('*')) {
         final QNm nm=new QNm(concat(name.string(),COLON));
         names.add(new QNmCheck(nm,!att));
-        return new NameTest(nm,NameTest.Name.NS,att);
+        return new NameTest(nm,NameTest.Mode.NS,att);
       }
     }
   }
@@ -37,7 +29,7 @@
     final byte[] u=stringLiteral();
     if (consume(':') && consume('*')) {
       final QNm nm=new QNm(COLON,u);
-      return new NameTest(nm,NameTest.Name.NS,att);
+      return new NameTest(nm,NameTest.Mode.NS,att);
     }
   }
   qp=p;

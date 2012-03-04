@@ -1,12 +1,12 @@
 {
-  skipWS();
-  final Type t=itemType();
+  if (wsConsumeWs(string(AtomType.EMP.string()),PAR1,null)) {
+    wsCheck(PAR1);
+    wsCheck(PAR2);
+    return SeqType.get(AtomType.EMP,Occ.ONE,null);
+  }
+  final TypeWrapper tw=itemType();
   skipWS();
   final Occ occ=consume('?') ? Occ.ZERO_ONE : consume('+') ? Occ.ONE_MORE : consume('*') ? Occ.ZERO_MORE : Occ.ONE;
-  if (t == AtomType.EMP && occ != Occ.ONE)   error(EMPTYSEQOCC,t);
   skipWS();
-  if (tok.trim().isEmpty())   return SeqType.get(t,occ);
-  final KindTest kt=kindTest(t);
-  if (kt instanceof DocTest)   return SeqType.get(t,occ);
-  return SeqType.get(t,occ,kt.extype == null || t == kt.extype || !kt.extype.isNode() ? kt.name : new QNm());
+  return SeqType.get(tw.type,occ,tw.test);
 }

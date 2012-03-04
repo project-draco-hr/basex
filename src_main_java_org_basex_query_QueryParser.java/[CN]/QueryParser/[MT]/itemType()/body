@@ -1,64 +1,32 @@
 {
   skipWS();
   if (consume(PAR1)) {
-    final Type ret=itemType();
+    final TypeWrapper ret=itemType();
     wsCheck(PAR2);
     return ret;
   }
   final Ann ann=ctx.xquery3 && curr('%') ? annotations() : null;
   final QNm name=eQName(TYPEINVALID,null);
-  final boolean atom=!wsConsumeWs(PAR1);
-  Type t=Types.find(name,atom);
-  if (ann != null && (t == null || !t.isFunction()))   error(NOANN);
-  tok.reset();
-  if (!atom) {
-    if (t != null && t.isFunction()) {
-      if (!wsConsume(ASTERISK)) {
-        if (t.isMap()) {
-          final Type key=itemType();
-          if (key == null)           throw error(MAPTKV,name.string());
-          if (!key.instanceOf(AtomType.AAT))           throw error(MAPTAAT,key);
-          wsCheck(COMMA);
-          t=MapType.get((AtomType)key,sequenceType());
-          if (!wsConsume(PAR2))           error(FUNCMISS,name.string());
-        }
- else {
-          SeqType[] args={};
-          if (!wsConsume(PAR2)) {
-            do {
-              args=Array.add(args,sequenceType());
-            }
- while (wsConsume(COMMA));
-            if (!wsConsume(PAR2))             error(FUNCMISS,name.string());
-          }
-          wsCheck(AS);
-          t=FuncType.get(sequenceType(),args);
-        }
-      }
- else       if (!wsConsume(PAR2)) {
-        error(FUNCMISS,name.string());
-      }
+  skipWS();
+  final boolean func=curr('(');
+  Type t=null;
+  if (func) {
+    consume(PAR1);
+    if (name.eq(AtomType.ITEM.name))     t=AtomType.ITEM;
+    if (t == null)     t=NodeType.find(name);
+    if (t == null) {
+      t=FuncType.find(name);
+      if (t != null)       return new TypeWrapper(functionTest(t));
     }
+    if (t == null)     error(NOTYPE,new TokenBuilder(name.string()));
+  }
  else {
-      int par=0;
-      while (par != 0 || !consume(PAR2)) {
-switch (curr()) {
-case '(':
-          par++;
-        break;
-case ')':
-      par--;
-    break;
-case '\0':
-  error(FUNCMISS,name.string());
-}
-tok.add(consume());
-}
-}
-}
-if (t == null) {
-if (atom) error(TYPEUNKNOWN,name);
-error(NOTYPE,new TokenBuilder(name.string()).add('(').add(tok.finish()).add(')'));
-}
-return t;
+    if (!name.hasURI())     name.uri(ctx.sc.nsElem);
+    t=AtomType.find(name,false);
+    if (t == null)     error(TYPEUNKNOWN,name);
+  }
+  if (ann != null)   error(NOANN);
+  if (!func || wsConsume(PAR2))   return new TypeWrapper(t);
+  if (!(t instanceof NodeType))   wsCheck(PAR2);
+  return new TypeWrapper(t,kindTest((NodeType)t));
 }

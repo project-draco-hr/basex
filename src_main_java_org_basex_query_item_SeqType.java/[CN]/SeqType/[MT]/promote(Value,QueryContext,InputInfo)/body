@@ -1,14 +1,20 @@
 {
   final long size=val.size();
-  if (!occ.check(size))   Err.promote(ii,type,val);
+  if (!occ.check(size))   Err.promote(ii,this,val);
   if (size == 0)   return val;
   final Item f=val.itemAt(0);
-  if (size == 1)   return check(instance(f,ii) ? f : type.cast(f,ctx,ii),ii);
-  if (val.homogenous() && instance(f,ii) && checkExt(f))   return val;
+  if (size == 1) {
+    final Item it=instance(f,ii) ? f : type.cast(f,ctx,ii);
+    if (!checkKind(it))     Err.promote(ii,this,val);
+    return it;
+  }
+  if (val.homogenous() && instance(f,ii) && checkKind(f))   return val;
   final ItemCache ic=new ItemCache((int)size);
   for (long i=0; i < size; i++) {
-    final Item n=val.itemAt(i);
-    ic.add(check(instance(n,ii) ? n : type.cast(n,ctx,ii),ii));
+    Item n=val.itemAt(i);
+    if (!instance(n,ii))     n=type.cast(n,ctx,ii);
+    if (!checkKind(n))     Err.promote(ii,this,n);
+    ic.add(n);
   }
   return ic.value();
 }

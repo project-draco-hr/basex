@@ -4,14 +4,14 @@
   final byte[] ns=data.nspaces.globalNS();
   if (ns == null)   return true;
   boolean ok=true;
-  if (test == Name.STD && !name.hasPrefix()) {
-    ok=type == NodeType.ATT || ctx.sc.nsElem == null || eq(ns,ctx.sc.nsElem);
+  if (mode == Mode.STD && !name.hasPrefix()) {
+    ok=type == NodeType.ATT || ctx.sc.nsElem == null || Token.eq(ns,ctx.sc.nsElem);
     if (ok) {
       if (ns.length != 0)       ctx.compInfo(OPTPREF,ln);
-      test=Name.NAME;
+      mode=Mode.NAME;
     }
   }
-  ok=ok && (test != Name.NAME || (type == NodeType.ELM ? data.tagindex : data.atnindex).id(ln) != 0);
+  ok=ok && (mode != Mode.NAME || (type == NodeType.ELM ? data.tagindex : data.atnindex).id(ln) != 0);
   if (!ok)   ctx.compInfo(OPTNAME,name);
   return ok;
 }
