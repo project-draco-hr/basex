@@ -7,6 +7,7 @@
   final byte[] uri=trim(stringLiteral());
   if (uri.length == 0)   error(NSMODURI);
   if (modules.contains(uri))   error(DUPLMODULE,uri);
+  modules.add(uri);
   if (ns != EMPTY)   ctx.sc.ns.add(ns,uri,input());
   try {
     if (wsConsumeWs(AT)) {
@@ -41,7 +42,9 @@
     boolean found=false;
     for (    final byte[] u : MODULES)     found|=eq(uri,u);
     final byte[] path=ctx.modDeclared.get(uri);
-    if (path != null)     module(path,uri);
+    if (path != null) {
+      module(path,uri);
+    }
  else     if (!found)     error(NOMODULE,uri);
   }
  catch (  final StackOverflowError ex) {
