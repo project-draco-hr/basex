@@ -4,17 +4,14 @@
     boolean inner;
     @Override public synchronized byte[] next(){
       if (inner) {
-        while (i < e) {
+        if (i < e) {
           final byte[] entry=inY.readBytes(i,ti);
-          i+=ti + ENTRY;
           if (startsWith(entry,prefix)) {
             final long poi=inY.read5();
             nr=inY.read4();
             if (prefix.length != 0)             cache.add(entry,nr,poi);
+            i+=ti + ENTRY;
             return entry;
-          }
- else           if (nr != 0) {
-            break;
           }
         }
       }
@@ -26,6 +23,7 @@
  while (e == -1);
           nr=0;
           inner=true;
+          i=find(prefix,i,e,ti);
           final byte[] n=next();
           if (n != null)           return n;
         }
