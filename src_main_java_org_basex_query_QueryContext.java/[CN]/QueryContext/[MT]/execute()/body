@@ -1,21 +1,24 @@
 {
+  int maxhits=context.prop.num(Prop.MAXHITS);
+  if (!Prop.gui || maxhits < 0)   maxhits=Integer.MAX_VALUE;
   final Iter ir=iter();
   final ItemCache ic=new ItemCache();
-  Item it;
+  Item it=null;
   if (serProp == null && nodes != null) {
     final IntList pre=new IntList();
-    while ((it=ir.next()) != null) {
+    while (pre.size() < maxhits && (it=ir.next()) != null) {
       checkStop();
-      if (!(it instanceof DBNode))       break;
-      if (it.data() != nodes.data)       break;
+      if (!(it instanceof DBNode) || it.data() != nodes.data)       break;
       pre.add(((DBNode)it).pre);
     }
     final int ps=pre.size();
-    if (it == null)     return ps == 0 ? ic : new Nodes(pre.toArray(),nodes.data,ftpos).checkRoot();
+    if (it == null || ps == maxhits) {
+      return ps == 0 ? ic : new Nodes(pre.toArray(),nodes.data,ftpos).checkRoot();
+    }
     for (int p=0; p < ps; ++p)     ic.add(new DBNode(nodes.data,pre.get(p)));
     ic.add(it);
   }
-  while ((it=ir.next()) != null) {
+  while (ic.size() < maxhits && (it=ir.next()) != null) {
     checkStop();
     ic.add(it);
   }
