@@ -32,11 +32,12 @@
   if (io != null) {
     if (!name.isEmpty())     io.name(name);
  else     if (!(io instanceof IOContent))     name=io.name();
-    parser=new DirParser(io,target,prop,data.meta.path);
+    parser=new DirParser(io,prop,data.meta.path);
   }
  else {
-    parser=new SAXWrapper(new SAXSource(in),name,target,context.prop);
+    parser=new SAXWrapper(new SAXSource(in),name,context.prop);
   }
+  parser.target(target);
   if (name.isEmpty())   return error(NAME_INVALID_X,name);
   final long fl=parser.src.length();
   boolean large=false;
@@ -47,7 +48,7 @@
   }
   if (prop.is(Prop.MAINMEM))   large=false;
   final String db=large ? context.mprop.random(data.meta.name) : name;
-  build=large ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser,context.prop);
+  build=large ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser);
   Data tmp=null;
   try {
     tmp=build.build();
