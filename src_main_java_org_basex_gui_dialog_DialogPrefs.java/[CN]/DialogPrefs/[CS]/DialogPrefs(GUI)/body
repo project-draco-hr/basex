@@ -24,13 +24,14 @@
   pp.add(focus);
   simpfd=new BaseXCheckBox(SIMPLE_FILE_CHOOSER,gprop.is(GUIProp.SIMPLEFD),this);
   pp.add(simpfd);
-  names=new BaseXCheckBox(SHOW_NAME_ATTS,gprop.is(GUIProp.SHOWNAME),6,this);
+  final boolean sn=gprop.is(GUIProp.SHOWNAME);
+  names=new BaseXCheckBox(SHOW_NAME_ATTS,sn,6,this);
   final Data data=gui.context.data();
   names.setEnabled(data != null && data.nameID != 0);
+  oldShowNames=sn;
   pp.add(names);
-  int mh=gui.gprop.num(Prop.MAXHITS);
-  mh=mh == -1 ? 6 : Math.min(6,(int)Math.log10(Math.max(10,mh)) - 1);
-  limit=new BaseXSlider(0,6,mh,this,new ActionListener(){
+  final int mh=hitsForSlider();
+  limit=new BaseXSlider(0,HITS.length - 1,mh,this,new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       action(limit);
     }
