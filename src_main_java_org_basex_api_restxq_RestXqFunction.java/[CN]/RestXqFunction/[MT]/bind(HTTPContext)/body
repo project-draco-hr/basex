@@ -1,17 +1,23 @@
 {
-  final QueryContext qc=context;
   for (int s=0; s < path.segments.length; s++) {
     final String seg=path.segments[s];
     final Matcher m=RestXqFunction.TEMPLATE.matcher(seg);
     if (!m.find())     continue;
-    final QNm qnm=new QNm(token(m.group(1)),qc);
-    final String val=http.segment(s);
-    for (    final Var var : function.args) {
-      if (!var.name.eq(qnm))       continue;
-      Item item=new Atm(token(val));
-      if (var.type != null)       item=var.type.type.cast(item,qc,null);
-      var.bind(var.type != null ? item : item,qc);
-      break;
+    final QNm qnm=new QNm(token(m.group(1)),context);
+    bind(qnm,new Atm(token(http.segment(s))));
+  }
+  final Prop prop=context.context.prop;
+  if (postPut != null) {
+    final BufferInput bi=new BufferInput(http.in);
+    final IOContent io=new IOContent(bi.content());
+    io.name(http.method.toString() + IO.XMLSUFFIX);
+    Item item=null;
+    try {
+      item=Parser.item(io,prop,http.req.getContentType());
     }
+ catch (    final IOException ex) {
+      error(INPUT_CONV,ex);
+    }
+    bind(postPut,item);
   }
 }
