@@ -1,0 +1,23 @@
+{
+  return new BXCode<List<BXResource>>(this){
+    @Override public List<BXResource> get() throws IOException {
+      final List<BXResource> dbs=new ArrayList<BXResource>();
+      final Query q=http.session().query("for $d in " + _DB_LIST_DETAILS.args() + "return ($d/text(), $d/@modified-date/data())");
+      try {
+        while (q.more()) {
+          final String name=q.next();
+          final long mod=Dtm.parse(q.next());
+          dbs.add(new BXDatabase(name,mod,http));
+        }
+      }
+ catch (      final Exception ex) {
+        Util.errln(ex);
+      }
+ finally {
+        q.close();
+      }
+      return dbs;
+    }
+  }
+.evalNoEx();
+}

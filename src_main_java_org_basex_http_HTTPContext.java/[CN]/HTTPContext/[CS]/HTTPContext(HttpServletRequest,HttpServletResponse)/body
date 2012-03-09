@@ -1,0 +1,26 @@
+{
+  req=rq;
+  res=rs;
+  method=HTTPMethod.get(rq.getMethod());
+  in=req.getInputStream();
+  out=res.getOutputStream();
+  res.setCharacterEncoding(UTF8);
+  segments=toSegments(req.getPathInfo());
+  path=join(0);
+  user=System.getProperty(DBUSER);
+  pass=System.getProperty(DBPASS);
+  final String auth=req.getHeader(DataText.AUTHORIZATION);
+  if (auth != null) {
+    final String[] values=auth.split(" ");
+    if (values[0].equals(DataText.BASIC)) {
+      final String[] cred=Base64.decode(values[1]).split(":",2);
+      if (cred.length != 2)       throw new LoginException(NOPASSWD);
+      user=cred[0];
+      pass=cred[1];
+    }
+ else {
+      throw new LoginException(WHICHAUTH,values[0]);
+    }
+  }
+  init();
+}

@@ -1,0 +1,21 @@
+{
+  final HashMap<String,RestXqModule> tmp=new HashMap<String,RestXqModule>();
+  final IOFile root=new IOFile(http.context().mprop.get(MainProp.HTTPPATH));
+  for (  final IOFile file : root.children()) {
+    if (!file.path().endsWith(IO.XQMSUFFIX))     continue;
+    final String path=file.path();
+    RestXqModule module=modules.get(path);
+    boolean parsed=false;
+    if (module != null) {
+      parsed=module.uptodate();
+    }
+ else {
+      module=new RestXqModule(file);
+    }
+    if (parsed || module.analyze(http)) {
+      module.touch();
+      tmp.put(path,module);
+    }
+  }
+  modules=tmp;
+}

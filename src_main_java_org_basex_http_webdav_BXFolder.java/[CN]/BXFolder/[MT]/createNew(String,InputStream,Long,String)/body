@@ -1,0 +1,14 @@
+{
+  return new BXCode<BXResource>(this){
+    @Override public BXResource get() throws IOException {
+      final Session session=http.session();
+      session.execute(new Open(db));
+      final String dbp=path.isEmpty() ? newName : path + SEP + newName;
+      if (pathExists(db,dbp,http))       session.execute(new Delete(dbp));
+ else       deleteDummy(path);
+      addFile(newName,input);
+      return file(db,dbp,http);
+    }
+  }
+.eval();
+}

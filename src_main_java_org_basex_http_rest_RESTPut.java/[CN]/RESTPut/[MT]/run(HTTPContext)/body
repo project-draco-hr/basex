@@ -1,0 +1,47 @@
+{
+  parseOptions(http);
+  final Session session=http.session();
+  if (http.depth() == 0)   throw new HTTPException(SC_NOT_FOUND,ERR_NOPATH);
+  boolean xml=true;
+  final InputStream in=http.in;
+  final String ct=http.req.getContentType();
+  if (APP_JSON.equals(ct)) {
+    session.execute("set parser json");
+  }
+ else   if (APP_JSONML.equals(ct)) {
+    session.execute("set parser json");
+    session.execute("set parseropt jsonml=true");
+  }
+ else   if (TEXT_CSV.equals(ct)) {
+    session.execute("set parser csv");
+  }
+ else   if (TEXT_HTML.equals(ct)) {
+    session.execute("set parser html");
+  }
+ else   if (TEXT_PLAIN.equals(ct)) {
+    session.execute("set parser text");
+  }
+ else   if (ct != null && !APP_XML.equals(ct)) {
+    xml=false;
+  }
+  if (http.depth() == 1) {
+    if (xml) {
+      session.create(http.db(),in);
+    }
+ else {
+      session.create(http.db(),new ArrayInput(""));
+      session.store(http.db(),in);
+    }
+  }
+ else {
+    open(http);
+    if (xml) {
+      session.replace(http.dbpath(),in);
+    }
+ else {
+      session.execute(new Delete(http.dbpath()));
+      session.store(http.dbpath(),in);
+    }
+  }
+  throw new HTTPException(SC_CREATED,session.info());
+}

@@ -1,0 +1,30 @@
+{
+  final BufferInput bi=new BufferInput(in,1 << 22);
+  try {
+    bi.encoding();
+    final boolean xml=bi.readChar() == '<';
+    try {
+      bi.reset();
+    }
+ catch (    final IOException e) {
+    }
+    if (xml) {
+      try {
+        addXML(n,bi);
+        return;
+      }
+ catch (      final IOException ex) {
+        try {
+          bi.reset();
+        }
+ catch (        final IOException e) {
+          throw ex;
+        }
+      }
+    }
+    addRaw(n,bi);
+  }
+  finally {
+    bi.close();
+  }
+}
