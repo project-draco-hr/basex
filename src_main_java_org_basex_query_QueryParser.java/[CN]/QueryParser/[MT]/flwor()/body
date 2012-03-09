@@ -8,35 +8,22 @@
     where=check(single(),NOWHERE);
     alter=NOWHERE;
   }
-  Var[][] group=null;
+  Group group=null;
   if (ctx.xquery3 && wsConsumeWs(GROUP)) {
     wsCheck(BY);
     ap=qp;
-    Var[] grp=null;
+    Group.Spec[] grp=null;
     do     grp=groupSpec(fl,grp);
  while (wsConsume(COMMA));
     final ArrayList<Var> ng=new ArrayList<Var>();
-    Map ngp=Map.EMPTY;
-    for (    final ForLet f : fl) {
-      vars:       for (      final Var v : f.vars()) {
-        final Value old=ngp.get(v.name,null);
-        final int pos=old.isItem() ? (int)old.itemAt(0).itr(null) : -1;
-        for (        final Var g : grp) {
-          if (v.is(g)) {
-            if (pos >= 0) {
-              ng.remove(pos);
-              ngp=ngp.delete(old.itemAt(0),null);
-            }
-            continue vars;
-          }
-        }
-        if (pos >= 0) {
-          while (pos >= ng.size())           ng.add(null);
-          ng.set(pos,v);
-        }
- else {
+    final TokenSet set=new TokenSet();
+    for (    final Group.Spec spec : grp)     set.add(spec.grp.name.eqname());
+    for (int i=fl.length; --i >= 0; ) {
+      for (      final Var v : fl[i].vars()) {
+        final byte[] eqn=v.name.eqname();
+        if (set.id(eqn) == 0) {
           ng.add(v);
-          ngp=ngp.insert(v.name,Int.get(ng.size() - 1),null);
+          set.add(eqn);
         }
       }
     }
@@ -46,18 +33,22 @@
       ngrp[i]=Var.create(ctx,input(),v.name,v.type != null && v.type.one() ? SeqType.get(v.type.type,Occ.ONE_MORE) : null,null);
       ctx.vars.add(ngrp[i]);
     }
-    group=new Var[][]{grp,ng.toArray(new Var[ng.size()]),ngrp};
+    group=new Group(grp[0].input,grp,new Var[][]{ng.toArray(new Var[ng.size()]),ngrp});
     alter=GRPBY;
   }
-  OrderBy[] order=null;
+  Order order=null;
   final boolean stable=wsConsumeWs(STABLE);
   if (stable)   wsCheck(ORDER);
   if (stable || wsConsumeWs(ORDER)) {
     wsCheck(BY);
     ap=qp;
-    do     order=orderSpec(order);
+    OrderBy[] ob=null;
+    do     ob=orderSpec(ob);
  while (wsConsume(COMMA));
-    if (order != null)     order=Array.add(order,new OrderByStable(input()));
+    if (ob != null) {
+      ob=Array.add(ob,new OrderByStable(input()));
+      order=new Order(ob[0].input,ob);
+    }
     alter=ORDERBY;
   }
   if (!wsConsumeWs(RETURN)) {

@@ -1,0 +1,30 @@
+{
+  final InputInfo ii=input();
+  final QNm name=varName();
+  final SeqType type=optAsType();
+  final Var var=Var.create(ctx,ii,name,type,null);
+  final Expr by;
+  if (type != null || wsConsume(ASSIGN)) {
+    if (type != null)     wsCheck(ASSIGN);
+    by=check(single(),NOVARDECL);
+  }
+ else {
+    final Var v=checkVar(var.name,GVARNOTDEFINED);
+    boolean dec=false;
+    for (    final ForLet f : fl) {
+      if (f.declares(v)) {
+        dec=true;
+        break;
+      }
+    }
+    if (!dec)     throw error(GVARNOTDEFINED,v);
+    by=new VarRef(ii,v);
+  }
+  if (wsConsumeWs(COLLATION)) {
+    final byte[] coll=stringLiteral();
+    if (!eq(URLCOLL,coll))     throw error(INVCOLL,coll);
+  }
+  ctx.vars.add(var);
+  final Group.Spec grp=new Group.Spec(ii,var,by);
+  return group == null ? new Group.Spec[]{grp} : Array.add(group,grp);
+}
