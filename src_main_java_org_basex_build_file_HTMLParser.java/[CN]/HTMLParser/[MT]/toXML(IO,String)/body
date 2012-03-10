@@ -1,0 +1,85 @@
+{
+  if (READER == null)   return io;
+  try {
+    byte[] content=io.read();
+    final ArrayInput ai=new ArrayInput(content);
+    String enc=ai.encoding();
+    content=ai.readBytes();
+    final byte[] encoding=token("charset=");
+    int cs=indexOf(content,encoding);
+    if (cs > 0) {
+      cs+=encoding.length;
+      int ce=cs;
+      while (++ce < content.length && content[ce] > 0x28)       ;
+      enc=string(substring(content,cs,ce));
+    }
+    final InputSource is=new InputSource(new ArrayInput(content));
+    is.setEncoding(supported(enc) ? normEncoding(enc,null) : UTF8);
+    final StringWriter sw=new StringWriter();
+    final XMLReader reader=(XMLReader)Reflect.get(READER);
+    final Object writer=Reflect.get(WRITER,sw);
+    final HTMLProp props=new HTMLProp(options);
+    String p="";
+    if (props.is(HTMLProp.HTML)) {
+      reader.setFeature("http://xml.org/sax/features/namespaces",false);
+      opt("method","html");
+      opt("omit-xml-declaration","yes");
+    }
+    if (props.is(HTMLProp.NONS)) {
+      reader.setFeature("http://xml.org/sax/features/namespaces",false);
+    }
+    if (props.is(HTMLProp.OMITXML)) {
+      opt("omit-xml-declaration","yes");
+    }
+    if ((p=props.get(HTMLProp.METHOD)) != null) {
+      opt("method",p);
+    }
+    if (props.is(HTMLProp.NOBOGONS)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/ignore-bogons",true);
+    }
+    if (props.is(HTMLProp.NODEFAULTS)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/default-attributes",false);
+    }
+    if (props.is(HTMLProp.NOCOLONS)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/translate-colons",true);
+    }
+    if (props.is(HTMLProp.NORESTART)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/restart-elements",false);
+    }
+    if (props.is(HTMLProp.IGNORABLE)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/ignorable-whitespace",true);
+    }
+    if (props.is(HTMLProp.EMPTYBOGONS)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/bogons-empty",true);
+    }
+    if (props.is(HTMLProp.ANY)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/bogons-empty",false);
+    }
+    if (props.is(HTMLProp.NOROOTBOGONS)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/root-bogons",false);
+    }
+    if (props.is(HTMLProp.NOCDATA)) {
+      reader.setFeature("http://www.ccil.org/~cowan/tagsoup/features/cdata-elements",false);
+    }
+    if (props.is(HTMLProp.LEXICAL)) {
+      reader.setProperty("http://xml.org/sax/properties/lexical-handler",writer);
+    }
+    if ((p=props.get(HTMLProp.DOCTYPESYS)) != null) {
+      opt("doctype-system",p);
+    }
+    if ((p=props.get(HTMLProp.DOCTYPEPUB)) != null) {
+      opt("doctype-public",p);
+    }
+    if ((p=props.get(HTMLProp.ENCODING)) != null) {
+      is.setEncoding(p);
+    }
+    reader.setContentHandler((ContentHandler)writer);
+    reader.parse(is);
+    return new IOContent(token(sw.toString()),io.name());
+  }
+ catch (  final SAXException ex) {
+    System.out.println("problem!");
+    Util.debug(ex);
+    return io;
+  }
+}
