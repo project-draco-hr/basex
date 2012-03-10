@@ -1,6 +1,6 @@
 {
   final SerializerProp p=props == null ? PROPS : props;
-  final String ver=p.get(S_VERSION).isEmpty() ? versions.length > 0 ? versions[0] : "" : p.check(S_VERSION,versions);
+  final String ver=versions.length == 0 ? "" : p.get(S_VERSION).isEmpty() ? versions[0] : p.check(S_VERSION,versions);
   final boolean decl=!p.yes(S_OMIT_XML_DECLARATION);
   final boolean bom=p.yes(S_BYTE_ORDER_MARK);
   final String sa=p.check(S_STANDALONE,YES,NO,OMIT);
@@ -18,7 +18,6 @@
   format=p.yes(S_FORMAT);
   tab=p.yes(S_TABULATOR) ? '\t' : ' ';
   wPre=token(p.get(S_WRAP_PREFIX));
-  final byte[] wUri=token(p.get(S_WRAP_URI));
   wrap=wPre.length != 0;
   final String eol=p.check(S_NEWLINE,S_NL,S_CR,S_CRNL);
   nl=utf8(token(eol.equals(S_NL) ? "\n" : eol.equals(S_CR) ? "\r" : "\r\n"),enc);
@@ -86,7 +85,7 @@
     }
   }
   if (wrap) {
-    openElement(wPre.length != 0 ? concat(wPre,COLON,T_RESULTS) : T_RESULTS);
-    namespace(wPre,wUri);
+    openElement(concat(wPre,COLON,T_RESULTS));
+    namespace(wPre,token(p.get(S_WRAP_URI)));
   }
 }
