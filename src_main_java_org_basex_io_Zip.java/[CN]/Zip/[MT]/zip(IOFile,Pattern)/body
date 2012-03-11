@@ -1,0 +1,39 @@
+{
+  if (!(archive instanceof IOFile))   throw new FileNotFoundException(archive.path());
+  final byte[] data=new byte[IO.BLOCKSIZE];
+  ZipOutputStream out=null;
+  curr=0;
+  try {
+    out=new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(archive.path())));
+    out.setLevel(1);
+    out.putNextEntry(new ZipEntry(source.name() + '/'));
+    out.closeEntry();
+    final StringList files=source.descendants();
+    total=files.size();
+    for (    final String io : files) {
+      curr++;
+      if (pattern != null && !pattern.matcher(io).matches())       continue;
+      FileInputStream in=null;
+      try {
+        in=new FileInputStream(new File(source.file(),io));
+        out.putNextEntry(new ZipEntry(source.name() + '/' + io));
+        for (int c; (c=in.read(data)) != -1; )         out.write(data,0,c);
+        out.closeEntry();
+      }
+  finally {
+        if (in != null)         try {
+          in.close();
+        }
+ catch (        final IOException e) {
+        }
+      }
+    }
+  }
+  finally {
+    if (out != null)     try {
+      out.close();
+    }
+ catch (    final IOException e) {
+    }
+  }
+}

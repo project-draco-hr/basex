@@ -1,12 +1,14 @@
 {
-  final File src=mprop.dbpath(db).file();
-  final File trg=mprop.dbpath(newdb).file();
+  final File src=mprop.dbpath(source).file();
+  final File trg=mprop.dbpath(target).file();
   final StringList files=new IOFile(src).descendants();
   tf=files.size();
   boolean ok=true;
   try {
     for (    final String file : files) {
-      copy(new File(src,file),new File(trg,file));
+      if (Databases.FILES.matcher(file).matches()) {
+        copy(new File(src,file),new File(trg,file));
+      }
       of++;
     }
   }
@@ -14,7 +16,7 @@
     Util.debug(ex);
     ok=false;
   }
-  if (!ok)   DropDB.drop(newdb,context);
- else   context.databases().add(newdb);
+  if (!ok)   DropDB.drop(target,context);
+ else   context.databases().add(target);
   return ok;
 }

@@ -9,14 +9,16 @@
     if ((path.isEmpty() || path.endsWith("/")) && !(io instanceof IOContent))     path+=io.name();
   }
   if (path.isEmpty())   return error(NAME_INVALID_X,path);
-  final IOFile file=context.data().meta.binary(path);
+  final Data data=context.data();
+  final IOFile file=data.meta.binary(path);
   if (path.isEmpty() || path.endsWith(".") || file == null || file.isDir())   return error(NAME_INVALID_X,create ? path : args[0]);
-  new IOFile(file.dir()).md();
+  if (!startUpdate(data))   return false;
+  boolean ok=true;
   try {
     store(in,file);
   }
  catch (  final IOException ex) {
-    return error(FILE_NOT_STORED_X,ex.getMessage());
+    ok=error(FILE_NOT_STORED_X,ex.getMessage());
   }
-  return info(QUERY_EXECUTED_X,perf);
+  return stopUpdate(data) && ok && info(QUERY_EXECUTED_X,perf);
 }

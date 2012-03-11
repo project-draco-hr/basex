@@ -1,12 +1,14 @@
 {
-  final Data d=context.data();
-  final MetaData m=d.meta;
+  final Data data=context.data();
+  final MetaData m=data.meta;
   size=m.size;
+  if (!startUpdate(data))   return false;
+  boolean ok=true;
   try {
-    optimize(d,this);
+    optimize(data,this);
   }
  catch (  final IOException ex) {
-    Util.debug(ex);
+    ok=error(Util.message(ex));
   }
-  return info(DB_OPTIMIZED_X,m.name,perf);
+  return stopUpdate(data) && ok && info(DB_OPTIMIZED_X,m.name,perf);
 }
