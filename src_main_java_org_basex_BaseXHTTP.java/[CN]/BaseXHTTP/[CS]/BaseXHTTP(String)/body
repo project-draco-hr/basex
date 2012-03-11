@@ -1,7 +1,7 @@
 {
   parseArguments(args);
   server=!Token.eqic(System.getProperty(DBMODE),LOCAL,CLIENT);
-  final MainProp mprop=ctx.mprop;
+  final MainProp mprop=context.mprop;
   final int port=mprop.num(MainProp.SERVERPORT);
   final int eport=mprop.num(MainProp.EVENTPORT);
   final int hport=mprop.num(MainProp.HTTPPORT);
@@ -33,8 +33,8 @@
     }
   }
   if (server) {
-    if (quiet)     new BaseXServer(ctx,"-z");
- else     new BaseXServer(ctx);
+    if (quiet)     new BaseXServer(context,"-z");
+ else     new BaseXServer(context);
     Util.outln(HTTP + ' ' + SRV_STARTED);
   }
  else {
@@ -51,7 +51,7 @@
   if (webdav)   jctx.addServlet(WebDAVServlet.class,"/webdav/*");
   final ResourceHandler rh=new ResourceHandler();
   rh.setWelcomeFiles(new String[]{"index.xml","index.xhtml","index.html"});
-  rh.setResourceBase(ctx.mprop.get(MainProp.HTTPPATH));
+  rh.setResourceBase(context.mprop.get(MainProp.HTTPPATH));
   final HandlerList hl=new HandlerList();
   hl.addHandler(rh);
   hl.addHandler(jctx);
@@ -61,6 +61,7 @@
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       Util.outln(HTTP + ' ' + SRV_STOPPED);
+      context.close();
     }
   }
 );
