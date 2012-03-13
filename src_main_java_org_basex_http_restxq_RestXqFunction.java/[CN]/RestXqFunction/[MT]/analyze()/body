@@ -9,24 +9,40 @@
     final boolean rexq=startsWith(uri,QueryText.REXQURI);
     if (rexq) {
       if (eq(PATH,local)) {
-        path=new RestXqPath(toString(value,name),this);
+        if (segments != null)         error(ANN_ONCE,"%",name.string());
+        segments=HTTPContext.toSegments(toString(value,name));
+        for (        final String s : segments) {
+          if (s.startsWith("{"))           checkVariable(s,AtomType.AAT);
+        }
       }
  else       if (eq(CONSUMES,local)) {
-        consumes.add(toString(value,name));
+        strings(value,name,consumes);
       }
  else       if (eq(PRODUCES,local)) {
-        produces.add(toString(value,name));
+        strings(value,name,produces);
+      }
+ else       if (eq(QUERY_PARAM,local)) {
+        queryParams.add(param(value,name));
+      }
+ else       if (eq(FORM_PARAM,local)) {
+        formParams.add(param(value,name));
+      }
+ else       if (eq(HEADER_PARAM,local)) {
+        headerParams.add(param(value,name));
+      }
+ else       if (eq(COOKIE_PARAM,local)) {
+        cookieParams.add(param(value,name));
       }
  else {
         final HTTPMethod m=HTTPMethod.get(string(local));
         if (m == null)         error(NOT_SUPPORTED,"%",name.string());
         if (!value.isEmpty()) {
+          if (postPut != null)           error(ANN_ONCE,"%",name.string());
           if (m != POST && m != PUT)           error(METHOD_VALUE,m);
           final String val=toString(value,name);
-          checkVariable(val,AtomType.ITEM);
-          final Matcher mt=TEMPLATE.matcher(val);
-          if (mt.find())           postPut=new QNm(token(mt.group(1)));
+          postPut=checkVariable(val,AtomType.ITEM);
         }
+        if (mth.contains(m))         error(ANN_ONCE,"%",name.string());
         mth.add(m);
       }
     }
@@ -40,7 +56,7 @@
   }
   if (!mth.isEmpty())   methods=mth;
   if (found) {
-    if (path == null)     error(ANN_MISSING,PATH);
+    if (segments == null)     error(ANN_MISSING,PATH);
     for (    final Var v : function.args) {
       if (!v.declared)       error(VAR_UNDEFINED,v.name.string());
     }

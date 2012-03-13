@@ -1,16 +1,16 @@
 {
-  for (int s=0; s < path.segments.length; s++) {
-    final String seg=path.segments[s];
+  for (int s=0; s < segments.length; s++) {
+    final String seg=segments[s];
     final Matcher m=RestXqFunction.TEMPLATE.matcher(seg);
     if (!m.find())     continue;
     final QNm qnm=new QNm(token(m.group(1)),context);
-    bind(qnm,new Atm(token(http.segment(s))));
+    bind(qnm,new Atm(http.segment(s)));
   }
   final Prop prop=context.context.prop;
   if (postPut != null) {
     final BufferInput bi=new BufferInput(http.in);
     final IOContent io=new IOContent(bi.content());
-    io.name(http.method.toString() + IO.XMLSUFFIX);
+    io.name(http.method + IO.XMLSUFFIX);
     Item item=null;
     try {
       item=Parser.item(io,prop,http.req.getContentType());
@@ -19,5 +19,10 @@
       error(INPUT_CONV,ex);
     }
     bind(postPut,item);
+  }
+  final Map<String,String[]> params=http.params();
+  for (  final RestXqParam rxp : queryParams) {
+    final String[] values=params.get(rxp.key);
+    bind(rxp.name,values == null ? rxp.item : new Atm(values[0]));
   }
 }
