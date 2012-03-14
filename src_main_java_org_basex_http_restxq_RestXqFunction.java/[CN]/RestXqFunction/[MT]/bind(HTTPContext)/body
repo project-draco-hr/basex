@@ -8,23 +8,31 @@
   }
   final Prop prop=context.context.prop;
   final String ct=http.req.getContentType();
-  final BufferInput bi=new BufferInput(http.in);
-  IOContent cache=null;
+  IOContent body=null;
   if (requestBody != null) {
-    cache=new IOContent(bi.content());
-    cache.name(http.method + IO.XMLSUFFIX);
-    Item item=null;
+    body=cache(http,body);
     try {
-      item=Parser.item(cache,prop,ct);
+      body.name(http.method + IO.XMLSUFFIX);
+      bind(requestBody,Parser.item(body,prop,ct));
     }
  catch (    final IOException ex) {
       error(INPUT_CONV,ex);
     }
-    bind(requestBody,item);
   }
+  Map<String,String[]> params=http.params();
   for (  final RestXqParam rxp : queryParams) {
-    final String v=http.req.getParameter(rxp.key);
-    bind(rxp.name,v == null ? rxp.item : new Atm(v));
+    final String[] v=params.get(rxp.key);
+    bind(rxp.name,v == null ? rxp.item : new Atm(v[0]));
+  }
+  if (formParams.size() != 0) {
+    if (MimeTypes.APP_FORM.equals(ct)) {
+      body=cache(http,body);
+      params=convert(body.toString());
+    }
+    for (    final RestXqParam rxp : formParams) {
+      final String[] v=params.get(rxp.key);
+      bind(rxp.name,v == null ? rxp.item : new Atm(v[0]));
+    }
   }
   for (  final RestXqParam rxp : headerParams) {
     final String v=http.req.getHeader(rxp.key);
