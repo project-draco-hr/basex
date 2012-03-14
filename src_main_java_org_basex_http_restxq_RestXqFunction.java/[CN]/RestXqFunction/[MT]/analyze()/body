@@ -9,7 +9,7 @@
     final boolean rexq=startsWith(uri,QueryText.REXQURI);
     if (rexq) {
       if (eq(PATH,local)) {
-        if (segments != null)         error(ANN_ONCE,"%",name.string());
+        if (segments != null)         error(ANN_TWICE,"%",name.string());
         segments=HTTPContext.toSegments(toString(value,name));
         for (        final String s : segments) {
           if (s.startsWith("{"))           checkVariable(s,AtomType.AAT);
@@ -35,14 +35,13 @@
       }
  else {
         final HTTPMethod m=HTTPMethod.get(string(local));
-        if (m == null)         error(NOT_SUPPORTED,"%",name.string());
+        if (m == null)         error(ANN_UNKNOWN,"%",name.string());
         if (!value.isEmpty()) {
-          if (postPut != null)           error(ANN_ONCE,"%",name.string());
+          if (requestBody != null)           error(ANN_TWICE,"%",name.string());
           if (m != POST && m != PUT)           error(METHOD_VALUE,m);
-          final String val=toString(value,name);
-          postPut=checkVariable(val,AtomType.ITEM);
+          requestBody=checkVariable(toString(value,name));
         }
-        if (mth.contains(m))         error(ANN_ONCE,"%",name.string());
+        if (mth.contains(m))         error(ANN_TWICE,"%",name.string());
         mth.add(m);
       }
     }

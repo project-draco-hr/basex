@@ -7,22 +7,37 @@
     bind(qnm,new Atm(http.segment(s)));
   }
   final Prop prop=context.context.prop;
-  if (postPut != null) {
-    final BufferInput bi=new BufferInput(http.in);
-    final IOContent io=new IOContent(bi.content());
-    io.name(http.method + IO.XMLSUFFIX);
+  final String ct=http.req.getContentType();
+  final BufferInput bi=new BufferInput(http.in);
+  IOContent cache=null;
+  if (requestBody != null) {
+    cache=new IOContent(bi.content());
+    cache.name(http.method + IO.XMLSUFFIX);
     Item item=null;
     try {
-      item=Parser.item(io,prop,http.req.getContentType());
+      item=Parser.item(cache,prop,ct);
     }
  catch (    final IOException ex) {
       error(INPUT_CONV,ex);
     }
-    bind(postPut,item);
+    bind(requestBody,item);
   }
-  final Map<String,String[]> params=http.params();
   for (  final RestXqParam rxp : queryParams) {
-    final String[] values=params.get(rxp.key);
-    bind(rxp.name,values == null ? rxp.item : new Atm(values[0]));
+    final String v=http.req.getParameter(rxp.key);
+    bind(rxp.name,v == null ? rxp.item : new Atm(v));
+  }
+  for (  final RestXqParam rxp : headerParams) {
+    final String v=http.req.getHeader(rxp.key);
+    bind(rxp.name,v == null ? rxp.item : new Atm(v));
+  }
+  final Cookie[] cookies=http.req.getCookies();
+  if (cookies != null) {
+    for (    final RestXqParam rxp : cookieParams) {
+      for (      final Cookie c : cookies) {
+        if (!rxp.key.equals(c.getName()))         continue;
+        final String v=c.getValue();
+        bind(rxp.name,v == null ? rxp.item : new Atm(v));
+      }
+    }
   }
 }
