@@ -1,25 +1,31 @@
 {
-  try {
-    Expr expr=null;
-    versionDecl();
-    if (u == null) {
-      final int p=qp;
-      if (wsConsumeWs(MODULE,NSPACE,null))       error(MAINMOD);
+  file(ctx.sc.baseIO(),ctx.context);
+  if (!more())   error(QUERYEMPTY);
+  for (int p=0; p < ql; ) {
+    int cp=query.charAt(p);
+    final boolean hs=cp >= Character.MIN_HIGH_SURROGATE;
+    if (hs)     cp=query.codePointAt(p);
+    if (!XMLToken.valid(cp)) {
       qp=p;
-      expr=mainModule();
-      if (expr == null) {
-        if (alter != null)         error();
- else         error(EXPREMPTY);
-      }
+      error(QUERYINV,cp);
     }
- else {
-      moduleDecl(u);
-    }
-    return expr;
+    p+=hs ? Character.charCount(cp) : 1;
   }
- catch (  final QueryException ex) {
-    mark();
-    ex.pos(this);
-    throw ex;
+  final Expr expr=module(uri);
+  if (more()) {
+    if (alter != null)     error();
+    final String rest=rest();
+    qp++;
+    if (uri != null)     error(MODEXPR,rest);
+    error(QUERYEND,rest);
   }
+  assignURI(0);
+  ctx.funcs.check();
+  ctx.vars.checkUp();
+  if (ctx.sc.nsElem != null)   ctx.sc.ns.add(EMPTY,ctx.sc.nsElem,null);
+  final byte[] empty=new QNm(EMPTY).eqname();
+  if (ctx.sc.decFormats.get(empty) == null) {
+    ctx.sc.decFormats.add(empty,new DecFormatter());
+  }
+  return expr;
 }

@@ -3,7 +3,12 @@
   try {
     return new BufferInput(url.openStream());
   }
- catch (  final RuntimeException ex) {
+ catch (  final IOException ex) {
+    final IOException io=new IOException(Util.message(ex));
+    io.setStackTrace(ex.getStackTrace());
+    throw io;
+  }
+catch (  final RuntimeException ex) {
     Util.debug(ex);
     throw new BaseXException(NOT_PARSED_X,path);
   }
