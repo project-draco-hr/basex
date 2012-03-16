@@ -17,7 +17,7 @@
   RESTCode code;
   try {
     final TokenBuilder ser=new TokenBuilder();
-    qp=new QueryProcessor("*/*:parameter",doc,ctx);
+    qp=new QueryProcessor("*/*:parameter",ctx).context(doc);
     Iter ir=qp.iter();
     for (Item param; (param=ir.next()) != null; ) {
       final String name=value("data(@name)",param,ctx);
@@ -33,7 +33,7 @@
       }
     }
     http.serialization=ser.toString();
-    qp=new QueryProcessor("*/*:option",doc,ctx);
+    qp=new QueryProcessor("*/*:option",ctx).context(doc);
     ir=qp.iter();
     for (Item opt; (opt=ir.next()) != null; ) {
       final String name=value("data(@name)",opt,ctx);
@@ -41,7 +41,7 @@
       http.session().execute(new Set(name,value));
     }
     final Map<String,String[]> vars=new HashMap<String,String[]>();
-    qp=new QueryProcessor("*/*:variable",doc,ctx);
+    qp=new QueryProcessor("*/*:variable",ctx).context(doc);
     ir=qp.iter();
     for (Item var; (var=ir.next()) != null; ) {
       final String name=value("data(@name)",var,ctx);
@@ -50,7 +50,7 @@
       vars.put(name,new String[]{value,type});
     }
     byte[] item=null;
-    qp=new QueryProcessor("*/*:context/node()",doc,ctx);
+    qp=new QueryProcessor("*/*:context/node()",ctx).context(doc);
     ir=qp.iter();
     for (Item n; (n=ir.next()) != null; ) {
       if (item != null)       throw new HTTPException(SC_BAD_REQUEST,ERR_CTXITEM);
