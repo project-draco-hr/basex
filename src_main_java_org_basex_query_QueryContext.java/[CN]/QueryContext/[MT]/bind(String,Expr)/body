@@ -1,5 +1,4 @@
 {
-  final Expr ex=val instanceof Expr ? (Expr)val : JavaMapping.toValue(val);
   String nm=name.indexOf('$') == 0 ? name.substring(1) : name;
   byte[] uri=EMPTY;
   final Matcher m=BIND.matcher(nm);
@@ -14,10 +13,10 @@
   final QNm qnm=uri.length == 0 ? new QNm(ln,this) : new QNm(ln,uri);
   final Var gl=vars.globals().get(qnm);
   if (gl == null) {
-    vars.updateGlobal(Var.create(this,null,qnm,null).bind(ex,this));
+    vars.updateGlobal(Var.create(this,null,qnm,null).bind(val,this));
   }
  else {
     gl.declared=false;
-    gl.bind(gl.type != null ? gl.type.type.cast(ex.item(this,null),this,null) : ex,this);
+    gl.bind(gl.type == null ? val : gl.type.type.cast(val.item(this,null),this,null),this);
   }
 }
