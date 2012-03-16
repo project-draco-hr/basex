@@ -1,26 +1,19 @@
 {
-  final Context ctx=gui.context;
-  final Data data=ctx.data();
+  final Data data=initHistory(gui.context);
   if (data != null) {
-    cont[0]=ctx.current();
-    marked[0]=new Nodes(data);
-    final long fs=data.meta.dbsize();
-    boolean close=false;
-    for (    final View v : view)     close|=v.visible() && v.db();
-    if (close && fs > LARGEDB && Dialog.confirm(gui,Util.info(H_LARGE_DB,Performance.format(fs)))) {
+    final long size=data.meta.dbsize();
+    boolean open=false;
+    for (    final View v : view)     open|=v.visible() && v.db();
+    if (open && size > LARGEDB && Dialog.confirm(gui,Util.info(H_LARGE_DB,Performance.format(size)))) {
       for (      final View v : view)       if (v.visible() && v.db())       v.visible(false);
     }
   }
  else {
     for (    final Window w : gui.getOwnedWindows()) {
-      if (!(w.isVisible() && w instanceof Dialog))       continue;
-      final Dialog d=(Dialog)w;
-      if (!d.isModal())       ((Dialog)w).cancel();
+      if (w.isVisible() && w instanceof Dialog)       ((Dialog)w).cancel();
     }
   }
   gui.context.focused=-1;
-  hist=0;
-  maxhist=0;
   for (  final View v : view)   v.refreshInit();
   gui.layoutViews();
   gui.setTitle(data != null ? data.meta.name : null);
