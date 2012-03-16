@@ -78,7 +78,14 @@
     }
     result.value=query.value();
     final Value v=result.value.internal();
-    if (v instanceof StrStream || v instanceof B64Stream)     ((Item)v).string(null);
+    if (v instanceof Streamable) {
+      try {
+        ((Streamable)v).input(null).close();
+      }
+ catch (      final QueryException ex) {
+        throw new XQueryException(ex);
+      }
+    }
   }
  catch (  final XQueryException ex) {
     result.exc=ex;

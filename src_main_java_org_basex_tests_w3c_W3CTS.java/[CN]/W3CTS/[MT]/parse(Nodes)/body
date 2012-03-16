@@ -35,21 +35,21 @@
       parse(xq,state);
       for (      final int p : nodes("*:module",root).list) {
         final String uri=text("@namespace",new Nodes(p,data));
-        final String file=mods.get(string(data.atom(p))) + IO.XQSUFFIX;
+        final String file=IO.get(mods.get(string(data.atom(p))) + IO.XQSUFFIX).path();
         xq.module(uri,file);
       }
-      final SerializerProp sp=new SerializerProp();
-      sp.set(SerializerProp.S_INDENT,context.prop.is(Prop.CHOP) ? YES : NO);
-      final Serializer ser=Serializer.get(ao,sp);
       iter=xq.value().cache();
+      final SerializerProp sp=new SerializerProp();
+      sp.set(SerializerProp.S_INDENT,NO);
+      final Serializer ser=Serializer.get(ao,sp);
       for (Item it; (it=iter.next()) != null; )       it.serialize(ser);
       ser.close();
     }
  catch (    final Exception ex) {
       if (!(ex instanceof QueryException || ex instanceof IOException)) {
-        System.err.println("\n*** " + outname + " ***");
-        System.err.println(in + '\n');
-        ex.printStackTrace();
+        Util.errln("\n*** " + outname + " ***");
+        Util.errln(in + '\n');
+        Util.stack(ex);
       }
       er=ex.getMessage();
       if (er.startsWith(STOPPED_AT))       er=er.substring(er.indexOf('\n') + 1);
@@ -124,8 +124,8 @@
             if (Compare.deep(ia,ic,null))             break;
           }
  catch (          final Throwable ex) {
-            System.err.println('\n' + outname + ':');
-            ex.printStackTrace();
+            Util.errln('\n' + outname + ':');
+            Util.stack(ex);
           }
         }
       }
