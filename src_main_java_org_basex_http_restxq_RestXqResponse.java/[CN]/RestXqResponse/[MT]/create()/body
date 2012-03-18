@@ -1,0 +1,23 @@
+{
+  final UserFunc uf=function.function;
+  final BaseFuncCall bfc=new BaseFuncCall(null,uf.name,uf.args);
+  bfc.init(uf);
+  function.bind(http);
+  final Value result=bfc.comp(qc).value(qc);
+  final int rs=(int)result.size();
+  if (qc.updating())   qc.updates.apply();
+  final Item item=rs > 0 ? result.itemAt(0) : null;
+  final SeqType st=SeqType.get(REST_RESPONSE.type,Occ.ONE,REST_RESPONSE);
+  final ANode response=item != null && st.instance(item) ? (ANode)item : null;
+  if (function.methods.size() == 1 && function.methods.contains(HTTPMethod.HEAD)) {
+    if (rs != 1 || response == null)     function.error(HEAD_METHOD);
+  }
+  SerializerProp sp=response != null ? process(response) : null;
+  if (sp == null)   sp=function.output;
+  http.initResponse(sp);
+  final Serializer ser=Serializer.get(http.out,sp);
+  for (int v=response != null ? 1 : 0; v < rs; v++) {
+    result.itemAt(v).serialize(ser);
+  }
+  ser.close();
+}
