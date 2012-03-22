@@ -1,0 +1,22 @@
+{
+  if (context != null)   return;
+  final String path=sc.getRealPath("/");
+  System.setProperty(Prop.PATH,path);
+  final HashMap<String,String> map=new HashMap<String,String>();
+  final Enumeration<?> en=sc.getInitParameterNames();
+  while (en.hasMoreElements()) {
+    final String key=en.nextElement().toString();
+    if (!key.startsWith(Prop.DBPREFIX))     continue;
+    String val=sc.getInitParameter(key);
+    if (eq(key,DBUSER,DBPASS,DBMODE,DBVERBOSE)) {
+      System.setProperty(key,val);
+    }
+ else {
+      if (key.endsWith("path") && !new File(val).isAbsolute()) {
+        val=path + File.separator + val;
+      }
+      map.put(key.substring(Prop.DBPREFIX.length()).toUpperCase(Locale.ENGLISH),val);
+    }
+  }
+  context=new Context(map);
+}
