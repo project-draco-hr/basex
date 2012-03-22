@@ -1,8 +1,14 @@
 {
+  Thread currentThread=Thread.currentThread();
+  ClassLoader origLoader=currentThread.getContextClassLoader();
   try {
+    currentThread.setContextClassLoader(jar);
     return cache(name,Class.forName(name,true,jar));
   }
  catch (  final Throwable ex) {
     return null;
+  }
+ finally {
+    currentThread.setContextClassLoader(origLoader);
   }
 }
