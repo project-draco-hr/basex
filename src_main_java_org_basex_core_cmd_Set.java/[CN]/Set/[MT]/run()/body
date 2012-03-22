@@ -2,15 +2,14 @@
   final String key=args[0].toUpperCase(Locale.ENGLISH);
   final String val=args[1];
   try {
-    String v=set(key,val,prop);
+    String v=prop.set(key,val);
     if (v == null && !context.client()) {
       if (key.equals(MainProp.DBPATH[0]) && context.datas.size() > 0) {
         return error(INVALID_VALUE_X_X,key,val);
       }
-      v=set(key,val,mprop);
+      v=mprop.set(key,val);
     }
-    if (v == null)     return whichKey();
-    return info(key + COLS + v);
+    return v == null ? error(prop.unknown(key)) : info(key + COLS + v);
   }
  catch (  final Exception ex) {
     Util.debug(ex);
