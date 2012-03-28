@@ -17,28 +17,7 @@
  while (wsConsumeWs(COMMA));
       return;
     }
-    if (startsWith(uri,JAVAPRE)) {
-      final String path=string(substring(uri,JAVAPRE.length));
-      final Class<?> clz=Reflect.find(path);
-      if (clz == null)       error(NOMODULE,uri);
-      if (clz.getSuperclass() != QueryModule.class)       error(NOCONS,path,QueryModule.class);
-      final QueryModule jm=(QueryModule)Reflect.get(clz);
-      if (jm == null)       error(NOINV,uri);
-      jm.init(ctx,input());
-      final ArrayList<Method> list=new ArrayList<Method>();
-      for (      final Method m : clz.getMethods()) {
-        if (m.getDeclaringClass() == clz)         list.add(m);
-      }
-      ctx.javaModules.put(jm,list);
-      return;
-    }
-    final TokenSet pkgs=ctx.context.repo.nsDict().get(uri);
-    if (pkgs != null) {
-      for (      final byte[] pkg : pkgs) {
-        if (pkg != null)         loadPackage(pkg,new TokenSet(),new TokenSet());
-      }
-      return;
-    }
+    if (ctx.modules.load(uri,input(),this))     return;
     boolean found=false;
     for (    final byte[] u : MODULES)     found|=eq(uri,u);
     final byte[] path=ctx.modDeclared.get(uri);

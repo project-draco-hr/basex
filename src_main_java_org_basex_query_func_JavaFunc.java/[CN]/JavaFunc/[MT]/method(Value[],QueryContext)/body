@@ -1,0 +1,25 @@
+{
+  try {
+    final Field f=cls.getField(mth);
+    final boolean st=Modifier.isStatic(f.getModifiers());
+    if (ar.length == (st ? 0 : 1)) {
+      return f.get(st ? null : instObj(ar[0]));
+    }
+  }
+ catch (  final NoSuchFieldException ex) {
+  }
+  for (  final Method meth : cls.getMethods()) {
+    if (!meth.getName().equals(mth))     continue;
+    final boolean st=Modifier.isStatic(meth.getModifiers());
+    final Object[] arg=args(meth.getParameterTypes(),ar,st);
+    if (arg != null) {
+      Object inst=null;
+      if (!st) {
+        inst=instObj(ar[0]);
+        if (inst instanceof QueryModule)         ((QueryModule)inst).init(ctx);
+      }
+      return meth.invoke(inst,arg);
+    }
+  }
+  throw new Exception();
+}

@@ -2,7 +2,7 @@
   int max=context.prop.num(Prop.MAXHITS);
   if (!Prop.gui || max < 0)   max=Integer.MAX_VALUE;
   final Iter ir=iter();
-  final ItemCache ic=new ItemCache();
+  final ValueBuilder vb=new ValueBuilder();
   Item it=null;
   if (serProp == null && nodes != null) {
     final IntList pre=new IntList();
@@ -13,14 +13,14 @@
     }
     final int ps=pre.size();
     if (it == null || ps == max) {
-      return ps == 0 ? ic : new Nodes(pre.toArray(),nodes.data,ftpos).checkRoot();
+      return ps == 0 ? vb : new Nodes(pre.toArray(),nodes.data,ftpos).checkRoot();
     }
-    for (int p=0; p < ps; ++p)     ic.add(new DBNode(nodes.data,pre.get(p)));
-    ic.add(it);
+    for (int p=0; p < ps; ++p)     vb.add(new DBNode(nodes.data,pre.get(p)));
+    vb.add(it);
   }
   while ((it=ir.next()) != null) {
     checkStop();
-    if (ic.size() < max)     ic.add(it);
+    if (vb.size() < max)     vb.add(it);
   }
-  return ic;
+  return vb;
 }

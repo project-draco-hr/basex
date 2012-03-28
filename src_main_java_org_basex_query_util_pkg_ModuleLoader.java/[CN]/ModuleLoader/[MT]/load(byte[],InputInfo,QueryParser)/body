@@ -1,0 +1,22 @@
+{
+  if (startsWith(uri,JAVAPRE)) {
+    final String path=string(substring(uri,JAVAPRE.length));
+    final Class<?> clz=Reflect.find(path);
+    if (clz == null)     qp.error(NOMODULE,path);
+    final boolean qm=clz.getSuperclass() == QueryModule.class;
+    final Object jm=Reflect.get(clz);
+    if (jm == null)     qp.error(NOINV,path);
+    final ArrayList<Method> list=new ArrayList<Method>();
+    for (    final Method m : clz.getMethods()) {
+      if (!qm || m.getDeclaringClass() == clz)       list.add(m);
+    }
+    javaModules.put(jm,list);
+    return true;
+  }
+  final TokenSet pkgs=context.repo.nsDict().get(uri);
+  if (pkgs == null)   return false;
+  for (  final byte[] name : pkgs) {
+    if (name != null)     load(name,new TokenSet(),new TokenSet(),ii,qp);
+  }
+  return true;
+}

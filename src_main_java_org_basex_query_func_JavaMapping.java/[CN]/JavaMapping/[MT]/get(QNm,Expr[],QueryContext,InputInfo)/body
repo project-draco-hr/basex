@@ -14,18 +14,16 @@
     }
   }
   final String mth=m.toString();
-  final String clz=string(substring(name.uri(),JAVAPRE.length));
-  for (  final QueryModule jm : ctx.javaModules.keySet()) {
-    final Class<?> c=jm.getClass();
-    if (c.getName().equals(clz)) {
-      for (      final Method meth : c.getMethods()) {
-        if (meth.getName().equals(mth))         return new JavaModuleFunc(ii,jm,meth,args);
-      }
-      WHICHJAVA.thrw(ii,clz + '.' + mth);
+  final String path=string(substring(name.uri(),JAVAPRE.length));
+  final Object jm=ctx.modules.findJava(path);
+  if (jm != null) {
+    for (    final Method meth : jm.getClass().getMethods()) {
+      if (meth.getName().equals(mth))       return new JavaModuleFunc(ii,jm,meth,args);
     }
+    WHICHJAVA.thrw(ii,path + '.' + mth);
   }
-  Class<?> cls=Reflect.find(clz);
-  if (cls == null && ctx.jars != null)   cls=Reflect.find(clz,ctx.jars);
-  if (cls == null)   WHICHJAVA.thrw(ii,clz + '.' + mth);
+  Class<?> cls=Reflect.find(path);
+  if (cls == null)   cls=ctx.modules.find(path);
+  if (cls == null)   WHICHJAVA.thrw(ii,path + '.' + mth);
   return new JavaFunc(ii,cls,mth,args);
 }
