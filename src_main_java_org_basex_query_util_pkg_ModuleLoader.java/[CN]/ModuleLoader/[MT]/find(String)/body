@@ -1,4 +1,18 @@
 {
+  if (!init) {
+    init=true;
+    final ArrayList<URL> urls=new ArrayList<URL>();
+    final IOFile repo=new IOFile(context.mprop.get(MainProp.REPOPATH));
+    for (    final IOFile file : repo.children()) {
+      if (file.name().endsWith(IO.JARSUFFIX)) {
+        addJar(file,urls);
+        System.out.println("?");
+      }
+    }
+    if (!urls.isEmpty()) {
+      loader=new JarLoader(urls.toArray(new URL[urls.size()]),loader);
+    }
+  }
   if (loader == LOADER)   return Reflect.forName(clz);
   final Thread thread=Thread.currentThread();
   try {
