@@ -1,11 +1,20 @@
 {
   if (startsWith(uri,JAVAPRE)) {
     final String path=string(substring(uri,JAVAPRE.length));
-    final Class<?> clz=Reflect.find(path);
-    if (clz == null)     qp.error(NOMODULE,path);
+    Class<?> clz=null;
+    try {
+      clz=find(path);
+    }
+ catch (    final ClassNotFoundException ex) {
+      NOMODULE.thrw(ii,path);
+    }
+catch (    final Throwable th) {
+      Util.debug(th);
+      MODINIT.thrw(ii,th);
+    }
     final boolean qm=clz.getSuperclass() == QueryModule.class;
     final Object jm=Reflect.get(clz);
-    if (jm == null)     qp.error(NOINV,path);
+    if (jm == null)     NOINV.thrw(ii,path);
     final ArrayList<Method> list=new ArrayList<Method>();
     for (    final Method m : clz.getMethods()) {
       if (!qm || m.getDeclaringClass() == clz)       list.add(m);

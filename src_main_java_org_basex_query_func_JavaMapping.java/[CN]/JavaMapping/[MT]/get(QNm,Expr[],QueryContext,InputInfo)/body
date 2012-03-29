@@ -20,17 +20,16 @@
     for (    final Method meth : jm.getClass().getMethods()) {
       if (meth.getName().equals(mth))       return new JavaModuleFunc(ii,jm,meth,args);
     }
+    throw WHICHJAVA.thrw(ii,path + '.' + mth);
   }
- else {
-    try {
-      return new JavaFunc(ii,ctx.modules.find(path),mth,args);
-    }
- catch (    final ClassNotFoundException ex) {
-      WHICHJAVA.thrw(ii,path + '.' + mth);
-    }
-catch (    final Throwable th) {
-      Util.debug(th);
-    }
+  try {
+    return new JavaFunc(ii,ctx.modules.find(path),mth,args);
   }
-  throw WHICHJAVA.thrw(ii,path + '.' + mth);
+ catch (  final ClassNotFoundException ex) {
+    throw WHICHJAVA.thrw(ii,path + '.' + mth);
+  }
+catch (  final Throwable th) {
+    Util.debug(th);
+    throw INITJAVA.thrw(ii,th);
+  }
 }

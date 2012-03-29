@@ -1,7 +1,7 @@
 {
   if (loaded.contains(name))   return;
   final byte[] pDir=context.repo.pkgDict().get(name);
-  if (pDir == null)   qp.error(NECPKGNOTINST,name);
+  if (pDir == null)   NECPKGNOTINST.thrw(ii,name);
   final IOFile pkgDir=context.repo.path(string(pDir));
   final IO pkgDesc=new IOFile(pkgDir,PkgText.DESCRIPTOR);
   if (!pkgDesc.exists())   Util.debug(PkgText.MISSDESC,string(name));
@@ -13,10 +13,10 @@
     if (d.pkg != null) {
       final byte[] depPkg=new PkgValidator(context.repo,ii).depPkg(d);
       if (depPkg == null) {
-        qp.error(NECPKGNOTINST,string(d.pkg));
+        NECPKGNOTINST.thrw(ii,string(d.pkg));
       }
  else {
-        if (toLoad.contains(depPkg))         qp.error(CIRCMODULE);
+        if (toLoad.contains(depPkg))         CIRCMODULE.thrw(ii);
         load(depPkg,toLoad,loaded,ii,qp);
       }
     }
