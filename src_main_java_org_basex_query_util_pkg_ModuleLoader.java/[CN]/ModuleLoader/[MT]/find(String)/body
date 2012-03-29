@@ -1,8 +1,11 @@
 {
-  if (urls.size() == 0)   return null;
-  if (jars == null) {
-    final ClassLoader cl=Thread.currentThread().getContextClassLoader();
-    jars=new JarLoader(urls.toArray(new URL[urls.size()]),cl);
+  if (loader == LOADER)   return Reflect.forName(clz);
+  final Thread thread=Thread.currentThread();
+  try {
+    thread.setContextClassLoader(loader);
+    return Class.forName(clz,true,loader);
   }
-  return Reflect.find(clz,jars);
+  finally {
+    thread.setContextClassLoader(LOADER);
+  }
 }

@@ -15,15 +15,22 @@
   }
   final String mth=m.toString();
   final String path=string(substring(name.uri(),JAVAPRE.length));
-  final Object jm=ctx.modules.findJava(path);
+  final Object jm=ctx.modules.findImported(path);
   if (jm != null) {
     for (    final Method meth : jm.getClass().getMethods()) {
       if (meth.getName().equals(mth))       return new JavaModuleFunc(ii,jm,meth,args);
     }
-    WHICHJAVA.thrw(ii,path + '.' + mth);
   }
-  Class<?> cls=Reflect.find(path);
-  if (cls == null)   cls=ctx.modules.find(path);
-  if (cls == null)   WHICHJAVA.thrw(ii,path + '.' + mth);
-  return new JavaFunc(ii,cls,mth,args);
+ else {
+    try {
+      return new JavaFunc(ii,ctx.modules.find(path),mth,args);
+    }
+ catch (    final ClassNotFoundException ex) {
+      WHICHJAVA.thrw(ii,path + '.' + mth);
+    }
+catch (    final Throwable th) {
+      Util.debug(th);
+    }
+  }
+  throw WHICHJAVA.thrw(ii,path + '.' + mth);
 }
