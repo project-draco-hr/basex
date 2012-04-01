@@ -1,0 +1,27 @@
+{
+  final TokenSet pkgs=context.repo.nsDict().get(uri);
+  if (pkgs != null) {
+    for (    final byte[] name : pkgs) {
+      if (name != null)       addRepo(name,new TokenSet(),new TokenSet(),ii,qp);
+    }
+    return true;
+  }
+  final boolean java=startsWith(uri,JAVAPREF);
+  final String uriPath=uri2path(string(java ? substring(uri,JAVAPREF.length) : uri));
+  final String path=context.mprop.get(MainProp.REPOPATH) + uriPath;
+  if (IO.suffix(path).isEmpty()) {
+    if (!java) {
+      for (      final String suf : IO.XQSUFFIXES) {
+        if (addModule(new IOFile(path + suf),uri,qp))         return true;
+      }
+    }
+    addJar(new IOFile(path + IO.JARSUFFIX));
+  }
+ else {
+    final IOFile file=new IOFile(path);
+    if (!java && file.hasSuffix(IO.XQSUFFIXES))     return addModule(file,uri,qp);
+    if (file.hasSuffix(IO.JARSUFFIX))     addJar(file);
+  }
+  addJava(uriPath.replace("/",".").substring(1),ii);
+  return true;
+}

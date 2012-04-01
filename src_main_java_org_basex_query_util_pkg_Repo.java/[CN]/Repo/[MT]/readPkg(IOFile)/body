@@ -1,27 +1,23 @@
 {
   final IOFile desc=new IOFile(dir,DESCRIPTOR);
-  if (desc.exists()) {
-    try {
-      final Package pkg=new PkgParser(context.repo,null).parse(desc);
-      final byte[] name=pkg.uniqueName();
-      for (      final Component comp : pkg.comps) {
-        if (comp.uri != null) {
-          final TokenSet ts=nsDict.get(comp.uri);
-          if (ts != null) {
-            ts.add(name);
-          }
+  if (!desc.exists())   return;
+  try {
+    final Package pkg=new PkgParser(context.repo,null).parse(desc);
+    final byte[] name=pkg.uniqueName();
+    for (    final Component comp : pkg.comps) {
+      if (comp.uri != null) {
+        final TokenSet ts=nsDict.get(comp.uri);
+        if (ts != null) {
+          ts.add(name);
+        }
  else {
-            nsDict.add(comp.uri,new TokenSet(name));
-          }
+          nsDict.add(comp.uri,new TokenSet(name));
         }
       }
-      pkgDict.add(name,token(dir.name()));
     }
- catch (    final QueryException ex) {
-      Util.errln(ex.getMessage());
-    }
+    pkgDict.add(name,token(dir.name()));
   }
- else {
-    Util.errln(MISSDESC,dir);
+ catch (  final QueryException ex) {
+    Util.errln(ex.getMessage());
   }
 }

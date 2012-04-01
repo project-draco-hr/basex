@@ -10,22 +10,22 @@
       old=null;
     }
  else     if (wsConsumeWs(WINDOW)) {
-      expr=new FTWindow(input(),expr,additive(),ftUnit());
+      expr=new FTWindow(info(),expr,additive(),ftUnit());
     }
  else     if (wsConsumeWs(DISTANCE)) {
       final Expr[] rng=ftRange(false);
       if (rng == null)       error(FTRANGE);
-      expr=new FTDistance(input(),expr,rng,ftUnit());
+      expr=new FTDistance(info(),expr,rng,ftUnit());
     }
  else     if (wsConsumeWs(AT)) {
       final boolean start=wsConsumeWs(START);
       final boolean end=!start && wsConsumeWs(END);
       if (!start && !end)       error(INCOMPLETE);
-      expr=new FTContent(input(),expr,start,end);
+      expr=new FTContent(info(),expr,start,end);
     }
  else     if (wsConsumeWs(ENTIRE)) {
       wsCheck(CONTENT);
-      expr=new FTContent(input(),expr,false,false);
+      expr=new FTContent(info(),expr,false,false);
     }
  else {
       final boolean same=wsConsumeWs(SAME);
@@ -35,15 +35,15 @@
         if (wsConsumeWs(SENTENCE))         unit=FTUnit.SENTENCE;
  else         if (wsConsumeWs(PARAGRAPH))         unit=FTUnit.PARAGRAPH;
  else         error(INCOMPLETE);
-        expr=new FTScope(input(),expr,unit,same);
+        expr=new FTScope(info(),expr,unit,same);
       }
     }
     if (first == null && old != null && old != expr)     first=expr;
   }
  while (old != expr);
   if (ordered) {
-    if (first == null)     return new FTOrder(input(),expr);
-    first.expr[0]=new FTOrder(input(),first.expr[0]);
+    if (first == null)     return new FTOrder(info(),expr);
+    first.expr[0]=new FTOrder(info(),first.expr[0]);
   }
   return expr;
 }

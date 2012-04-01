@@ -8,7 +8,7 @@
   if (uri.length == 0)   error(NSMODURI);
   if (modules.contains(uri))   error(DUPLMODULE,uri);
   modules.add(uri);
-  if (ns != EMPTY)   ctx.sc.ns.add(ns,uri,input());
+  if (ns != EMPTY)   ctx.sc.ns.add(ns,uri,info());
   try {
     if (wsConsumeWs(AT)) {
       do {
@@ -17,12 +17,14 @@
  while (wsConsumeWs(COMMA));
       return;
     }
-    if (ctx.modules.load(uri,input(),this))     return;
-    boolean found=false;
-    for (    final byte[] u : MODULES)     found|=eq(uri,u);
     final byte[] path=ctx.modDeclared.get(uri);
-    if (path != null)     module(path,uri);
- else     if (!found)     error(NOMODULE,uri);
+    if (path != null) {
+      module(path,uri);
+      return;
+    }
+    for (    final byte[] u : MODULES)     if (eq(uri,u))     return;
+    if (ctx.modules.addImport(uri,info(),this))     return;
+    error(NOMODULE,uri);
   }
  catch (  final StackOverflowError ex) {
     Util.debug(ex);

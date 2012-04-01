@@ -4,14 +4,14 @@
   if (fl == null)   return null;
   Expr where=null;
   if (wsConsumeWs(WHERE)) {
-    ap=qp;
+    ap=ip;
     where=check(single(),NOWHERE);
     alter=NOWHERE;
   }
   Group group=null;
   if (ctx.xquery3 && wsConsumeWs(GROUP)) {
     wsCheck(BY);
-    ap=qp;
+    ap=ip;
     Group.Spec[] grp=null;
     do     grp=groupSpec(fl,grp);
  while (wsConsume(COMMA));
@@ -30,10 +30,10 @@
     final Var[] ngrp=new Var[ng.size()];
     for (int i=ng.size(); --i >= 0; ) {
       final Var v=ng.get(i);
-      ngrp[i]=Var.create(ctx,input(),v.name,v.type != null && v.type.one() ? SeqType.get(v.type.type,Occ.ONE_MORE) : null,null);
+      ngrp[i]=Var.create(ctx,info(),v.name,v.type != null && v.type.one() ? SeqType.get(v.type.type,Occ.ONE_MORE) : null,null);
       ctx.vars.add(ngrp[i]);
     }
-    group=new Group(grp[0].input,grp,new Var[][]{ng.toArray(new Var[ng.size()]),ngrp});
+    group=new Group(grp[0].info,grp,new Var[][]{ng.toArray(new Var[ng.size()]),ngrp});
     alter=GRPBY;
   }
   Order order=null;
@@ -41,13 +41,13 @@
   if (stable)   wsCheck(ORDER);
   if (stable || wsConsumeWs(ORDER)) {
     wsCheck(BY);
-    ap=qp;
+    ap=ip;
     OrderBy[] ob=null;
     do     ob=orderSpec(ob);
  while (wsConsume(COMMA));
     if (ob != null) {
-      ob=Array.add(ob,new OrderByStable(input()));
-      order=new Order(ob[0].input,ob);
+      ob=Array.add(ob,new OrderByStable(info()));
+      order=new Order(ob[0].info,ob);
     }
     alter=ORDERBY;
   }
@@ -57,5 +57,5 @@
   }
   final Expr ret=check(single(),NORETURN);
   ctx.vars.size(s);
-  return GFLWOR.get(fl,where,order,group,ret,input());
+  return GFLWOR.get(fl,where,order,group,ret,info());
 }

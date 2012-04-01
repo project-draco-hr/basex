@@ -2,26 +2,26 @@
   checkInit();
   final int s=consume('/') ? consume('/') ? 2 : 1 : 0;
   if (s > 0)   checkAxis(s == 2 ? Axis.DESC : Axis.CHILD);
-  qm=qp;
+  im=ip;
   final Expr ex=step();
   if (ex == null) {
     if (s == 2) {
       if (more())       checkInit();
       error(PATHMISS,found());
     }
-    return s == 1 ? new Root(input()) : null;
+    return s == 1 ? new Root(info()) : null;
   }
   final boolean slash=consume('/');
   final boolean step=ex instanceof AxisStep;
   if (!slash && s == 0 && !step)   return ex;
   final ExprList el=new ExprList();
   if (s == 2)   add(el,descOrSelf());
-  final Expr root=s > 0 ? new Root(input()) : !step ? ex : null;
+  final Expr root=s > 0 ? new Root(info()) : !step ? ex : null;
   if (root != ex)   add(el,ex);
   if (slash) {
     do {
       final boolean desc=consume('/');
-      qm=qp;
+      im=ip;
       if (desc)       add(el,descOrSelf());
       checkAxis(desc ? Axis.DESC : Axis.CHILD);
       final Expr st=step();
@@ -30,6 +30,6 @@
     }
  while (consume('/'));
   }
-  if (el.size() == 0)   add(el,AxisStep.get(input(),Axis.SELF,Test.NOD));
-  return Path.get(input(),root,el.finish());
+  if (el.size() == 0)   add(el,AxisStep.get(info(),Axis.SELF,Test.NOD));
+  return Path.get(info(),root,el.finish());
 }

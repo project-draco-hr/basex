@@ -1,6 +1,6 @@
 {
   skipWS();
-  final int pos=qp;
+  final int pos=ip;
   final Ann ann=ctx.xquery3 && curr('%') ? annotations() : null;
   if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
     final int s=ctx.vars.size();
@@ -9,16 +9,16 @@
     final SeqType type=optAsType();
     final Expr body=enclosed(NOFUNBODY);
     ctx.vars.size(s);
-    return new InlineFunc(input(),type,args,body,ann);
+    return new InlineFunc(info(),type,args,body,ann);
   }
   if (ann != null)   error(NOANN);
-  qp=pos;
+  ip=pos;
   final QNm name=eQName(null,ctx.sc.nsFunc);
   if (name != null && consume('#')) {
     final long card=((Int)numericLiteral(true)).itr(null);
     if (card < 0 || card > Integer.MAX_VALUE)     error(FUNCUNKNOWN,name);
-    return Functions.get(name,card,false,ctx,input());
+    return Functions.get(name,card,false,ctx,info());
   }
-  qp=pos;
+  ip=pos;
   return null;
 }

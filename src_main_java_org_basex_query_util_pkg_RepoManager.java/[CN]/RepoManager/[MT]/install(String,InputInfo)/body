@@ -1,21 +1,23 @@
 {
   final IO io=IO.get(path);
-  IOContent cont=null;
+  byte[] cont=null;
   try {
-    cont=new IOContent(io.read());
+    cont=io.read();
   }
  catch (  final IOException ex) {
     Util.debug(ex);
     PKGNOTEXIST.thrw(ii,path);
   }
   try {
-    final Zip zip=new Zip(cont);
-    final byte[] dsc=zip.read(DESCRIPTOR);
-    final Package pkg=new PkgParser(repo,ii).parse(new IOContent(dsc));
-    new PkgValidator(repo,ii).check(pkg);
-    final IOFile file=uniqueDir(string(pkg.uniqueName()).replaceAll("[^\\w.-]+","-"));
-    zip.unzip(file);
-    repo.add(pkg,file.name());
+    if (io.hasSuffix(IO.XQSUFFIXES)) {
+      installXQ(cont,ii);
+    }
+ else     if (io.hasSuffix(IO.JARSUFFIX)) {
+      installJAR(cont,io.name(),ii);
+    }
+ else {
+      installXAR(cont,ii);
+    }
   }
  catch (  final FileNotFoundException ex) {
     Util.debug(ex);

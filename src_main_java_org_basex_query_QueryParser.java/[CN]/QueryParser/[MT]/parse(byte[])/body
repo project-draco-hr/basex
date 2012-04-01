@@ -1,21 +1,21 @@
 {
   file(ctx.sc.baseIO(),ctx.context);
   if (!more())   error(QUERYEMPTY);
-  for (int p=0; p < ql; ) {
-    int cp=query.charAt(p);
+  for (int i=0; i < il; ) {
+    int cp=input.charAt(i);
     final boolean hs=cp >= Character.MIN_HIGH_SURROGATE;
-    if (hs)     cp=query.codePointAt(p);
+    if (hs)     cp=input.codePointAt(i);
     if (!XMLToken.valid(cp)) {
-      qp=p;
+      ip=i;
       error(QUERYINV,cp);
     }
-    p+=hs ? Character.charCount(cp) : 1;
+    i+=hs ? Character.charCount(cp) : 1;
   }
   final Expr expr=module(uri);
   if (more()) {
     if (alter != null)     error();
     final String rest=rest();
-    qp++;
+    ip++;
     if (uri != null)     error(MODEXPR,rest);
     error(QUERYEND,rest);
   }

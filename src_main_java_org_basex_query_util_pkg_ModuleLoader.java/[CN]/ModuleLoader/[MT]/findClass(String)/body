@@ -1,0 +1,16 @@
+{
+  final int us=urls.size();
+  if (us != 0) {
+    loader=new JarLoader(urls.toArray(new URL[us]),loader);
+    urls.clear();
+  }
+  if (loader == LOADER)   return Reflect.forName(clz);
+  final Thread thread=Thread.currentThread();
+  try {
+    thread.setContextClassLoader(loader);
+    return Class.forName(clz,true,loader);
+  }
+  finally {
+    thread.setContextClassLoader(LOADER);
+  }
+}

@@ -1,0 +1,22 @@
+{
+  Class<?> clz=null;
+  try {
+    clz=findClass(path);
+  }
+ catch (  final ClassNotFoundException ex) {
+    NOMODULE.thrw(ii,path);
+  }
+catch (  final Throwable th) {
+    Util.debug(th);
+    MODINIT.thrw(ii,th);
+  }
+  final boolean qm=clz.getSuperclass() == QueryModule.class;
+  final Object jm=Reflect.get(clz);
+  if (jm == null)   NOINV.thrw(ii,path);
+  final ArrayList<Method> list=new ArrayList<Method>();
+  for (  final Method m : clz.getMethods()) {
+    if (!qm || m.getDeclaringClass() == clz)     list.add(m);
+  }
+  if (javaModules == null)   javaModules=new HashMap<Object,ArrayList<Method>>();
+  javaModules.put(jm,list);
+}

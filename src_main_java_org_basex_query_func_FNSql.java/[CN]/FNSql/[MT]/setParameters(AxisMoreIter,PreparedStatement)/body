@@ -1,16 +1,16 @@
 {
   int i=0;
   for (ANode next; (next=params.next()) != null; ) {
-    if (!next.qname().eq(E_PARAM))     PARWHICH.thrw(input,next.qname());
+    if (!next.qname().eq(E_PARAM))     PARWHICH.thrw(info,next.qname());
     final AxisIter attrs=next.attributes();
     byte[] paramType=null;
     boolean isNull=false;
     for (ANode attr; (attr=attrs.next()) != null; ) {
       if (eq(attr.name(),TYPE))       paramType=attr.string();
- else       if (eq(attr.name(),NULL))       isNull=attr.string() != null && Bln.parse(attr.string(),input);
- else       throw NOTEXPATTR.thrw(input,string(attr.name()));
+ else       if (eq(attr.name(),NULL))       isNull=attr.string() != null && Bln.parse(attr.string(),info);
+ else       throw NOTEXPATTR.thrw(info,string(attr.name()));
     }
-    if (paramType == null)     NOPARAMTYPE.thrw(input);
+    if (paramType == null)     NOPARAMTYPE.thrw(info);
     final byte[] v=next.string();
     isNull|=v.length == 0;
     setParam(++i,stmt,paramType,isNull ? null : string(v),isNull);

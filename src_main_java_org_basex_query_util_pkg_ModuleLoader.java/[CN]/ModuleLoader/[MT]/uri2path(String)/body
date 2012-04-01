@@ -1,0 +1,23 @@
+{
+  try {
+    final URI u=new URI(uri);
+    final TokenBuilder tb=new TokenBuilder();
+    final String auth=u.getAuthority();
+    if (auth != null) {
+      final String[] comp=auth.split("\\.");
+      for (int c=comp.length - 1; c >= 0; c--)       tb.add('/').add(comp[c]);
+    }
+ else {
+      tb.add('/');
+    }
+    final String path=u.getPath().replace('.','/');
+    tb.add(path.isEmpty() ? "/" : path);
+    String pth=tb.toString();
+    if (pth.endsWith("/"))     pth+="index";
+    return pth;
+  }
+ catch (  final URISyntaxException ex) {
+    Util.debug(ex);
+    return null;
+  }
+}

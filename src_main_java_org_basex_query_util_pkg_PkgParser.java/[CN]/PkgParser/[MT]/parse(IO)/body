@@ -1,14 +1,15 @@
 {
   final Package pkg=new Package();
   try {
-    final DBNode doc=new DBNode(io,repo.context.prop);
+    final byte[] content=io.read();
+    final DBNode doc=new DBNode(new IOContent(content),repo.context.prop);
     final ANode node=childElements(doc).next();
-    if (!eqNS(PACKAGE,node.qname()))     PKGDESCINV.thrw(input,Util.info(WHICHELEM,node.qname()));
+    if (!eqNS(PACKAGE,node.qname()))     PKGDESCINV.thrw(info,Util.info(WHICHELEM,node.qname()));
     parseAttributes(node,pkg,PACKAGE);
     parseChildren(node,pkg);
     return pkg;
   }
  catch (  final IOException ex) {
-    throw PKGREADFAIL.thrw(input,io.name(),ex.getMessage());
+    throw PKGREADFAIL.thrw(info,io.name(),ex.getMessage());
   }
 }

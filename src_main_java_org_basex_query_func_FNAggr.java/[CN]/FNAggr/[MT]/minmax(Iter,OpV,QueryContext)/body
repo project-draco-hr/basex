@@ -2,22 +2,22 @@
   if (expr.length == 2)   checkColl(expr[1],ctx);
   Item res=iter.next();
   if (res == null)   return null;
-  cmp.eval(input,res,res);
+  cmp.eval(info,res,res);
   if (!res.type.isUntyped() && res.type.isString() || res.type.isDate()) {
     for (Item it; (it=iter.next()) != null; ) {
       if (it.type != res.type) {
-        FUNCMP.thrw(input,description(),res.type,it.type);
+        FUNCMP.thrw(info,description(),res.type,it.type);
       }
-      if (cmp.eval(input,res,it))       res=it;
+      if (cmp.eval(info,res,it))       res=it;
     }
     return res;
   }
   Type t=res.type.isUntyped() ? DBL : res.type;
-  if (res.type != t)   res=t.cast(res,ctx,input);
+  if (res.type != t)   res=t.cast(res,ctx,info);
   for (Item it; (it=iter.next()) != null; ) {
     t=type(res,it);
-    if (!it.type.isDuration() && Double.isNaN(it.dbl(input)) || cmp.eval(input,res,it))     res=it;
-    if (res.type != t)     res=t.cast(res,ctx,input);
+    if (!it.type.isDuration() && Double.isNaN(it.dbl(info)) || cmp.eval(info,res,it))     res=it;
+    if (res.type != t)     res=t.cast(res,ctx,info);
   }
   return res;
 }

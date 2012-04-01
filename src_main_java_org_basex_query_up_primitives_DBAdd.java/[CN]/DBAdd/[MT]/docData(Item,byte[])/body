@@ -1,12 +1,12 @@
 {
   final MemData mdata;
   String name=string(pth);
-  if (name.endsWith("."))   RESINV.thrw(input,pth);
+  if (name.endsWith("."))   RESINV.thrw(info,pth);
   IO io=null;
   final Type dt=doc.type;
   if (dt.isString()) {
-    io=IO.get(string(doc.string(input)));
-    if (!io.exists())     RESFNF.thrw(input,pth);
+    io=IO.get(string(doc.string(info)));
+    if (!io.exists())     RESFNF.thrw(info,pth);
     if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+="/";
   }
   String target="";
@@ -19,10 +19,10 @@
     if (!name.isEmpty())     io.name(name);
  else     if (!(io instanceof IOContent))     name=io.name();
   }
-  if (name.isEmpty())   RESINV.thrw(input,pth);
+  if (name.isEmpty())   RESINV.thrw(info,pth);
   if (dt.isNode()) {
     final ANode nd=(ANode)doc;
-    if (nd.type != NodeType.DOC)     UPDOCTYPE.thrw(input,nd);
+    if (nd.type != NodeType.DOC)     UPDOCTYPE.thrw(info,nd);
     mdata=new MemData(data);
     new DataBuilder(mdata).build(nd);
     mdata.update(0,Data.DOC,pth);
@@ -34,11 +34,11 @@
       mdata=b.build();
     }
  catch (    final IOException ex) {
-      throw IOERR.thrw(input,ex);
+      throw IOERR.thrw(info,ex);
     }
   }
  else {
-    throw STRNODTYPE.thrw(input,this,doc.type);
+    throw STRNODTYPE.thrw(info,this,doc.type);
   }
   return mdata;
 }
