@@ -1,20 +1,18 @@
 {
   final Context ctx=gui.context;
   if (refresh) {
-    packages.setData(RepoList.list(ctx).toArray());
+    packages.setData(new RepoManager(ctx).list().toArray());
     packages.requestFocusInWindow();
     refresh=false;
   }
   final StringList pkgs=packages.getValues();
   final ArrayList<Command> cmds=new ArrayList<Command>();
-  final byte[] key=Token.token(packages.getValue());
-  final TokenMap pkg=ctx.repo.pkgDict();
-  final boolean single=pkg.get(key) != null;
-  final String dir=single ? Token.string(pkg.get(key)) : "";
   if (cmp == install) {
     final String path=gui.gprop.get(GUIProp.PKGPATH);
     final BaseXFileChooser fc=new BaseXFileChooser(FILE_OR_DIR,path,gui);
     fc.addFilter(XML_ARCHIVES,IO.XARSUFFIX);
+    fc.addFilter(JAVA_ARCHIVES,IO.JARSUFFIX);
+    fc.addFilter(XQUERY_FILES,IO.XQSUFFIXES);
     final IOFile file=fc.select(Mode.FDOPEN);
     if (file == null)     return;
     gui.gprop.set(GUIProp.PKGPATH,file.path());
@@ -24,16 +22,26 @@
  else   if (cmp == delete) {
     if (!Dialog.confirm(gui,Util.info(DELETE_PACKAGES_X,pkgs.size())))     return;
     refresh=true;
-    for (    final String p : pkgs) {
-      cmds.add(new RepoDelete(Token.string(pkg.get(Token.token(p))),null));
-    }
+    for (    final String p : pkgs)     cmds.add(new RepoDelete(p,null));
   }
  else {
-    if (single) {
+    final byte[] key=Token.token(packages.getValue());
+    final TokenMap pkg=ctx.repo.pkgDict();
+    if (pkg.get(key) != null) {
       title.setText(key.length == 0 ? DOTS : Token.string(key));
-      uri.setText(Token.string(Package.name(key)));
+      name.setText(Token.string(Package.name(key)));
       version.setText(Token.string(Package.version(key)));
-      directory.setText(dir);
+      type.setText(PkgText.EXPATH);
+      directory.setText(Token.string(pkg.get(key)));
+    }
+ else {
+      final String path=Token.string(key);
+      final IOFile file=RepoManager.file(path,ctx.repo);
+      title.setText(key.length == 0 ? DOTS : path);
+      name.setText(file != null ? file.name() : "-");
+      version.setText("-");
+      type.setText(PkgText.INTERNAL);
+      directory.setText(path.replace('.','/'));
     }
     delete.setEnabled(pkgs.size() > 0);
   }

@@ -1,0 +1,31 @@
+{
+  final Table t=new Table();
+  t.description=PACKAGES_X;
+  t.header.add(NAME);
+  t.header.add(VERSINFO);
+  t.header.add(TYPE);
+  t.header.add(DIRECTORY);
+  final TokenMap pkg=repo.pkgDict();
+  for (  final byte[] p : pkg) {
+    if (p == null)     continue;
+    final TokenList tl=new TokenList();
+    tl.add(Package.name(p));
+    tl.add(Package.version(p));
+    tl.add(EXPATH);
+    tl.add(pkg.get(p));
+    t.contents.add(tl);
+  }
+  for (  final IOFile dir : repo.path().children()) {
+    if (dir.name().indexOf('-') != -1)     continue;
+    for (    final String s : dir.descendants()) {
+      final TokenList tl=new TokenList();
+      tl.add(dir.name() + '.' + s.replaceAll("\\..*","").replace('/','.'));
+      tl.add("-");
+      tl.add(INTERNAL);
+      tl.add(dir.name() + '/' + s);
+      t.contents.add(tl);
+    }
+  }
+  t.sort();
+  return t;
+}

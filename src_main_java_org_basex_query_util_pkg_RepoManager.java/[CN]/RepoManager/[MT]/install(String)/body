@@ -1,0 +1,30 @@
+{
+  final IO io=IO.get(path);
+  byte[] cont=null;
+  try {
+    cont=io.read();
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    PKGNOTEXIST.thrw(info,path);
+  }
+  try {
+    if (io.hasSuffix(IO.XQSUFFIXES)) {
+      installXQ(cont);
+    }
+ else     if (io.hasSuffix(IO.JARSUFFIX)) {
+      installJAR(cont);
+    }
+ else {
+      installXAR(cont);
+    }
+  }
+ catch (  final FileNotFoundException ex) {
+    Util.debug(ex);
+    PKGREADFNF.thrw(info,io.name(),ex.getMessage());
+  }
+catch (  final IOException ex) {
+    Util.debug(ex);
+    PKGREADFAIL.thrw(info,io.name(),ex.getMessage());
+  }
+}

@@ -1,0 +1,9 @@
+{
+  final Zip zip=new Zip(new IOContent(cont));
+  final IOContent dsc=new IOContent(zip.read(DESCRIPTOR));
+  final Package pkg=new PkgParser(repo,info).parse(dsc);
+  new PkgValidator(repo,info).check(pkg);
+  final IOFile file=uniqueDir(string(pkg.uniqueName()).replaceAll("[^\\w.-]+","-"));
+  zip.unzip(file);
+  repo.add(pkg,file.name());
+}

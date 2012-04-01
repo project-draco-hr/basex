@@ -8,6 +8,7 @@
   }
   final boolean java=startsWith(uri,JAVAPREF);
   final String uriPath=uri2path(string(java ? substring(uri,JAVAPREF.length) : uri));
+  if (uriPath == null)   return false;
   final String path=context.mprop.get(MainProp.REPOPATH) + uriPath;
   if (IO.suffix(path).isEmpty()) {
     if (!java) {
@@ -22,6 +23,6 @@
     if (!java && file.hasSuffix(IO.XQSUFFIXES))     return addModule(file,uri,qp);
     if (file.hasSuffix(IO.JARSUFFIX))     addJar(file);
   }
-  addJava(uriPath.replace("/",".").substring(1),ii);
+  addJava(uriPath,uri,ii);
   return true;
 }
