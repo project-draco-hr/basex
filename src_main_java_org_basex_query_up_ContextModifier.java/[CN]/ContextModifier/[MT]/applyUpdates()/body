@@ -1,4 +1,21 @@
 {
-  for (  final DatabaseUpdates c : pendingUpdates.values())   c.check();
-  for (  final DatabaseUpdates c : pendingUpdates.values())   c.apply();
+  final Collection<DatabaseUpdates> updates=pendingUpdates.values();
+  for (  final DatabaseUpdates c : updates)   c.check();
+  int i=0;
+  try {
+    for (    final DatabaseUpdates c : updates) {
+      c.writeLock(true);
+      i++;
+    }
+    for (    final DatabaseUpdates c : updates)     c.apply();
+  }
+ catch (  final QueryException ex) {
+    throw ex;
+  }
+ finally {
+    for (    final DatabaseUpdates c : updates) {
+      c.writeLock(false);
+      if (i-- == 0)       break;
+    }
+  }
 }

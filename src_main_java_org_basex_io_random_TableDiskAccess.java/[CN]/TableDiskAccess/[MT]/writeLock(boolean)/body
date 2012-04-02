@@ -1,0 +1,14 @@
+{
+  try {
+    lock.release();
+    final FileChannel fc=file.getChannel();
+    lock=fc.tryLock(0,Long.MAX_VALUE,!yes);
+    if (lock != null)     return true;
+    if (yes)     lock=fc.tryLock(0,Long.MAX_VALUE,false);
+    if (lock != null)     return false;
+  }
+ catch (  final IOException ex) {
+    Util.errln(ex);
+  }
+  throw Util.notexpected((yes ? "Exclusive" : "Shared") + " lock could not be acquired.");
+}
