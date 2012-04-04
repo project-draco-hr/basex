@@ -1,6 +1,6 @@
 {
   optimize();
-  if (!data.update(true))   LOCK.thrw(null,data.meta.name);
+  if (!data.startUpdate())   LOCK.thrw(null,data.meta.name);
   try {
     NodeUpdates recent=null;
     for (int i=nodes.size() - 1; i >= 0; i--) {
@@ -12,8 +12,7 @@
     recent.resolveExternalTextNodeAdjacency(0);
   }
   finally {
-    data.flush();
-    if (!data.update(false))     UNLOCK.thrw(null,data.meta.name);
+    data.finishUpdate();
   }
   if (data.meta.prop.is(Prop.WRITEBACK) && !data.meta.original.isEmpty()) {
     try {

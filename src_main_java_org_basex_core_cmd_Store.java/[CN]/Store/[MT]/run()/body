@@ -12,13 +12,15 @@
   final Data data=context.data();
   final IOFile file=data.meta.binary(path);
   if (path.isEmpty() || path.endsWith(".") || file == null || file.isDir())   return error(NAME_INVALID_X,create ? path : args[0]);
-  if (!startUpdate(data))   return false;
-  boolean ok=true;
+  if (!data.startUpdate())   return error(LOCK_X,data.meta.name);
   try {
     store(in,file);
+    return info(QUERY_EXECUTED_X,perf);
   }
  catch (  final IOException ex) {
-    ok=error(FILE_NOT_STORED_X,ex.getMessage());
+    return error(FILE_NOT_STORED_X,ex.getMessage());
   }
-  return stopUpdate(data) && ok && info(QUERY_EXECUTED_X,perf);
+ finally {
+    data.finishUpdate();
+  }
 }

@@ -1,10 +1,12 @@
 {
   final Data data=context.data();
   final String target=args[0];
-  if (!startUpdate(data))   return false;
+  if (!data.startUpdate())   return error(LOCK_X,data.meta.name);
   final IntList docs=data.resources.docs(target);
-  delete(context,docs);
+  for (int d=docs.size() - 1; d >= 0; d--)   data.delete(docs.get(d));
+  if (docs.size() != 0)   context.update();
   final TokenList bins=data.resources.binaries(target);
   delete(data,target);
-  return stopUpdate(data) && info(DOCS_DELETED_X_X,docs.size() + bins.size(),perf);
+  data.finishUpdate();
+  return info(DOCS_DELETED_X_X,docs.size() + bins.size(),perf);
 }

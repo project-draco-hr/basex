@@ -52,14 +52,6 @@
   Data tmp=null;
   try {
     tmp=build.build();
-    if (tmp.meta.size > 1) {
-      if (!startUpdate(data))       return false;
-      data.insert(data.meta.size,-1,tmp);
-      context.update();
-      data.flush();
-      if (!stopUpdate(data))       return false;
-    }
-    return info(parser.info() + PATH_ADDED_X_X,name,perf);
   }
  catch (  final IOException ex) {
     Util.debug(ex);
@@ -71,11 +63,14 @@
     }
  catch (    final IOException e) {
     }
-    if (tmp != null)     try {
-      tmp.close();
-    }
- catch (    final IOException e) {
-    }
+    if (tmp != null)     tmp.close();
     if (large)     DropDB.drop(db,context);
   }
+  if (tmp.meta.size > 1) {
+    if (!data.startUpdate())     return error(LOCK_X,data.meta.name);
+    data.insert(data.meta.size,-1,tmp);
+    context.update();
+    data.finishUpdate();
+  }
+  return info(parser.info() + PATH_ADDED_X_X,name,perf);
 }

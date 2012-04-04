@@ -2,17 +2,28 @@
   final Data data=context.data();
   if (data instanceof MemData)   return error(NO_MAINMEM);
   final CmdIndex ci=getOption(CmdIndex.class);
+  final IndexType it;
 switch (ci) {
 case TEXT:
     data.meta.createtext=false;
-  return drop(IndexType.TEXT);
+  it=IndexType.TEXT;
+break;
 case ATTRIBUTE:
 data.meta.createattr=false;
-return drop(IndexType.ATTRIBUTE);
+it=IndexType.ATTRIBUTE;
+break;
 case FULLTEXT:
 data.meta.createftxt=false;
-return drop(IndexType.FULLTEXT);
+it=IndexType.FULLTEXT;
+break;
 default :
 return error(UNKNOWN_CMD_X,this);
+}
+if (!data.startUpdate()) return error(LOCK_X,data.meta.name);
+try {
+return drop(it,context.data()) ? info(INDEX_DROPPED_X_X,it,perf) : error(INDEX_NOT_DROPPED_X,it);
+}
+  finally {
+data.finishUpdate();
 }
 }
