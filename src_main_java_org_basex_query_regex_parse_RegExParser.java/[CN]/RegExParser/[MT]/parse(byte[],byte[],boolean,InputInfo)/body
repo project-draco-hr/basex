@@ -1,0 +1,25 @@
+{
+  int m=Pattern.UNIX_LINES;
+  boolean strip=false, dotAll=false, multi=false;
+  if (mod != null) {
+    for (    final byte b : mod) {
+      if (b == 'i')       m|=CASE_INSENSITIVE | UNICODE_CASE;
+ else       if (b == 'm')       m|=MULTILINE;
+ else       if (b == 's')       m|=DOTALL;
+ else       if (b == 'q' && ext)       m|=LITERAL;
+ else       if (b == 'x')       strip=true;
+ else       REGMOD.thrw(ii,(char)b);
+    }
+  }
+  if ((m & LITERAL) != 0)   return Pattern.compile(string(regex),m);
+  try {
+    final RegExParser parser=new RegExParser(regex,strip,(m & DOTALL) != 0,(m & MULTILINE) != 0,(m & CASE_INSENSITIVE) != 0);
+    return Pattern.compile(parser.parse().toString(),m);
+  }
+ catch (  final ParseException pe) {
+    throw Err.REGERR.thrw(ii,pe.getMessage());
+  }
+catch (  final TokenMgrError err) {
+    throw Err.REGERR.thrw(ii,err.getMessage());
+  }
+}
