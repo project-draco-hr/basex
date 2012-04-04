@@ -4,7 +4,7 @@
   if (src == null)   return error(NAME_INVALID_X,args[0]);
   final String trg=MetaData.normPath(args[1]);
   if (trg == null)   return error(NAME_INVALID_X,args[1]);
-  if (!startUpdate(data))   return false;
+  if (!data.startUpdate())   return error(LOCK_X,data.meta.name);
   boolean ok=true;
   int c=0;
   final IntList docs=data.resources.docs(src);
@@ -19,7 +19,6 @@
       c++;
     }
   }
-  if (c != 0)   data.flush();
   final IOFile file=data.meta.binary(src);
   if (file != null && file.exists()) {
     final IOFile target=data.meta.binary(trg);
@@ -29,5 +28,6 @@
     }
     c++;
   }
-  return stopUpdate(data) && info(DOCS_RENAMED_X_X,c,perf) && ok;
+  data.finishUpdate();
+  return info(DOCS_RENAMED_X_X,c,perf) && ok;
 }

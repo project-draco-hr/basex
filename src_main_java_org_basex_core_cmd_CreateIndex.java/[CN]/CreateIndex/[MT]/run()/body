@@ -1,14 +1,13 @@
 {
   final Data data=context.data();
   if (data instanceof MemData)   return error(NO_MAINMEM);
-  try {
-    final IndexType index;
-    final CmdIndex ci=getOption(CmdIndex.class);
+  final IndexType index;
+  final CmdIndex ci=getOption(CmdIndex.class);
 switch (ci) {
 case TEXT:
-      data.meta.createtext=true;
-    index=IndexType.TEXT;
-  break;
+    data.meta.createtext=true;
+  index=IndexType.TEXT;
+break;
 case ATTRIBUTE:
 data.meta.createattr=true;
 index=IndexType.ATTRIBUTE;
@@ -26,12 +25,16 @@ break;
 default :
 return error(UNKNOWN_CMD_X,this);
 }
+if (!data.startUpdate()) return error(LOCK_X,data.meta.name);
+try {
 create(index,data,this);
-data.flush();
 return info(INDEX_CREATED_X_X,index,perf);
 }
  catch (final IOException ex) {
 Util.debug(ex);
 return error(ex.getMessage());
+}
+ finally {
+data.finishUpdate();
 }
 }

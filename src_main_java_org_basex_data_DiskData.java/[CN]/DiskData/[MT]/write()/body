@@ -1,17 +1,21 @@
 {
-  final DataOutput out=new DataOutput(meta.dbfile(DATAINF));
-  meta.write(out);
-  out.writeToken(token(DBTAGS));
-  tagindex.write(out);
-  out.writeToken(token(DBATTS));
-  atnindex.write(out);
-  out.writeToken(token(DBPATH));
-  paths.write(out);
-  out.writeToken(token(DBNS));
-  nspaces.write(out);
-  out.writeToken(token(DBDOCS));
-  resources.write(out);
-  out.write(0);
-  out.close();
-  if (idmap != null)   idmap.write(meta.dbfile(DATAIDP));
+  if (meta.dirty) {
+    final DataOutput out=new DataOutput(meta.dbfile(DATAINF));
+    meta.write(out);
+    out.writeToken(token(DBTAGS));
+    tagindex.write(out);
+    out.writeToken(token(DBATTS));
+    atnindex.write(out);
+    out.writeToken(token(DBPATH));
+    paths.write(out);
+    out.writeToken(token(DBNS));
+    nspaces.write(out);
+    out.writeToken(token(DBDOCS));
+    resources.write(out);
+    out.write(0);
+    out.close();
+    if (idmap != null)     idmap.write(meta.dbfile(DATAIDP));
+    meta.dirty=false;
+  }
+  updateFile().delete();
 }
