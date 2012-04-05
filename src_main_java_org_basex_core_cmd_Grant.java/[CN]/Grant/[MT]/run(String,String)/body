@@ -1,7 +1,7 @@
 {
   if (user.equals(ADMIN))   return !info(ADMIN_STATIC_X);
   if (db == null) {
-    context.users.get(user).perm=prm;
+    context.users.get(user).perm=perm;
     context.users.write();
     return info(GRANTED_X_X,args[0],user);
   }
@@ -9,7 +9,7 @@
   try {
     data=Open.open(db,context);
   }
- catch (  final Exception ex) {
+ catch (  final IOException ex) {
     Util.debug(ex);
     final String msg=ex.getMessage();
     return !info(msg.isEmpty() ? DB_NOT_OPENED_X : msg,db);
@@ -21,7 +21,7 @@
     u=context.users.get(user).copy();
     data.meta.users.create(u);
   }
-  u.perm=prm;
+  u.perm=perm;
   data.meta.dirty=true;
   data.finishUpdate();
   Close.close(data,context);

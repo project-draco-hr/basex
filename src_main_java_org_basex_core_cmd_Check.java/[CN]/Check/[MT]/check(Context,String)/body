@@ -1,12 +1,12 @@
 {
-  final boolean create=ctx.user.perm(User.CREATE);
+  final boolean create=ctx.user.has(Perm.CREATE);
   final IO io=IO.get(path);
   final String name=io.dbname();
   final Data data=ctx.pin(name);
   if (data != null) {
     final IO in=IO.get(data.meta.original);
     final boolean found=!data.meta.original.isEmpty() && in.eq(io) && io.timeStamp() == in.timeStamp();
-    if (found && ctx.perm(User.READ,data.meta))     return data;
+    if (found && ctx.perm(Perm.READ,data.meta))     return data;
     Close.close(data,ctx);
     if (found)     throw new BaseXException(PERM_NEEDED_X,CmdPerm.READ);
   }
