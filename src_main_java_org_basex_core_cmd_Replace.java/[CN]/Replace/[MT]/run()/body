@@ -9,7 +9,7 @@
   final Data data=context.data();
   final int pre=data.resources.doc(path,false);
   if (pre != -1 && data.resources.docs(path).size() != 1)   return error(NO_DIR_ALLOWED_X,path);
-  if (!data.startUpdate())   return error(LOCK_X,data.meta.name);
+  if (!data.startUpdate())   return error(DB_PINNED_X,data.meta.name);
   try {
     boolean ok=true;
     final IOFile file=data.meta.binary(path);
@@ -21,6 +21,7 @@
  else {
       final Add add=new Add(path);
       add.setInput(in);
+      add.lock=false;
       ok=add.run(context) || error(add.info());
       if (ok && pre != -1)       data.delete(pre);
     }
