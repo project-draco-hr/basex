@@ -2,7 +2,8 @@
   scanner.more();
   while (true) {
     if (scanner.type == Type.TEXT) {
-      builder.text(scanner.token.finish());
+      final byte[] text=scanner.token.finish();
+      builder.text(text);
     }
  else     if (scanner.type == Type.COMMENT) {
       builder.comment(scanner.token.finish());
@@ -14,6 +15,7 @@
       break;
     }
  else     if (scanner.type != Type.DTD) {
+      if (closed)       throw new BuildException(MOREROOTS,det());
       if (!parseTag())       break;
       continue;
     }
@@ -21,4 +23,5 @@
   }
   scanner.close();
   builder.encoding(scanner.encoding);
+  if (!tags.isEmpty())   throw new BuildException(DOCOPEN,det(),tags.pop());
 }
