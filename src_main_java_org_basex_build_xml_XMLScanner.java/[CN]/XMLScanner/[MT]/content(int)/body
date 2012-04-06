@@ -1,11 +1,9 @@
 {
   type=Type.TEXT;
-  boolean ws=true;
   boolean f=true;
   int c=ch;
   while (c != 0) {
     if (c != '<') {
-      if (ws)       ws=ws(c);
       if (c == '&') {
         final byte[] r=ref(true);
         if (r.length == 1)         token.add(r);
@@ -24,15 +22,16 @@
     }
  else {
       if (!f && !isCDATA()) {
-        tag=true;
+        text=false;
         prev(1);
+        if (chop)         token.trim();
         return;
       }
-      ws=false;
       cDATA();
     }
     c=consume();
     f=false;
   }
-  if (ws)   type=Type.EOF;
+  if (!ws(token.finish()))   error(AFTERROOT);
+  type=Type.EOF;
 }

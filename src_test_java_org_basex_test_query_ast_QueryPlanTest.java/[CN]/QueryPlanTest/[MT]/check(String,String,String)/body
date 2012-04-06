@@ -1,19 +1,19 @@
 {
-  final QueryProcessor qp=new QueryProcessor(qu,CTX);
+  final QueryProcessor qp=new QueryProcessor(qu,context);
   try {
     qp.compile();
-    final Data plan=CreateDB.mainMem(new Parser("",CTX.prop){
+    final Data plan=CreateDB.mainMem(new Parser("",context.prop){
       @Override public void parse(      final Builder build) throws IOException {
         build.startDoc(QueryText.PLAN);
         qp.plan(new BuilderSerializer(build));
         build.endDoc();
       }
     }
-,CTX);
+,context);
     if (res != null)     assertEquals("Query result:",res,qp.execute().toString());
-    CTX.openDB(plan);
+    context.openDB(plan);
     for (    final String p : pr) {
-      if (!new XQuery(p).execute(CTX).equals("true"))       fail(p + ':' + NL+ qp.ctx.root+ NL+ new XQuery("/").execute(CTX));
+      if (!new XQuery(p).execute(context).equals("true"))       fail(p + ':' + NL+ qp.ctx.root+ NL+ new XQuery("/").execute(context));
     }
   }
  catch (  final Exception ex) {

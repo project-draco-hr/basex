@@ -1,0 +1,28 @@
+{
+  context.prop.set(Prop.MAINMEM,true);
+  context.prop.set(Prop.CHOP,false);
+  final StringBuilder sb=new StringBuilder();
+  final String[] docs={"<x/>"," <x/> ","<x></x>","<x>A</x>","<x><x>","<x/><x/>","<x></x><x/>","<x>","</x>","<x></x></x>","x<x>","<x>x","<x><![CDATA[ ]]></x>"};
+  for (  final String doc : docs) {
+    context.prop.set(Prop.INTPARSE,false);
+    boolean def=true;
+    try {
+      new CreateDB(NAME,doc).execute(context);
+    }
+ catch (    final BaseXException ex) {
+      def=false;
+    }
+    context.prop.set(Prop.INTPARSE,true);
+    boolean cust=true;
+    try {
+      new CreateDB(NAME,doc).execute(context);
+    }
+ catch (    final BaseXException ex) {
+      cust=false;
+    }
+    if (def != cust) {
+      sb.append("\n").append(def ? "- not accepted: " : "- not rejected: ").append(doc);
+    }
+  }
+  if (sb.length() != 0)   fail(sb.toString());
+}

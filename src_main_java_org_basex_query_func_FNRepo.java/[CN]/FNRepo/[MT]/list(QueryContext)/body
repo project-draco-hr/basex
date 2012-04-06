@@ -5,7 +5,18 @@
     final FElem elem=new FElem(PACKAGE);
     elem.add(new FAttr(NAME,Package.name(p)));
     elem.add(new FAttr(VERSION,Package.version(p)));
+    elem.add(new FAttr(TYPE,token(PkgText.EXPATH)));
     cache.add(elem);
+  }
+  for (  final IOFile dir : ctx.context.repo.path().children()) {
+    if (dir.name().indexOf('-') != -1)     continue;
+    for (    final String s : dir.descendants()) {
+      final FElem elem=new FElem(PACKAGE);
+      final String n=dir.name() + '.' + s.replaceAll("\\..*","").replace('/','.');
+      elem.add(new FAttr(NAME,token(n)));
+      elem.add(new FAttr(TYPE,token(PkgText.INTERNAL)));
+      cache.add(elem);
+    }
   }
   return cache;
 }

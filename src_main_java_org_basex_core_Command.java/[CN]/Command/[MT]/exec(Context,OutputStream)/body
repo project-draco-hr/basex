@@ -1,13 +1,7 @@
 {
-  final Data data=ctx.data();
-  if (data == null && (flags & DATAREF) != 0)   return error(NO_DB_OPENED);
-  if (!ctx.perm(flags & 0xFF,data != null ? data.meta : null)) {
-    final CmdPerm[] perms=CmdPerm.values();
-    int i=perms.length;
-    final int f=flags & 0xFF;
-    while (--i >= 0 && (1 << i & f) == 0)     ;
-    return error(PERM_NEEDED_X,perms[i + 1]);
-  }
+  final Data d=ctx.data();
+  if (d == null && data)   return error(NO_DB_OPENED);
+  if (!ctx.perm(perm,d != null ? d.meta : null))   return error(PERM_NEEDED_X,perm);
   updating=updating(ctx);
   try {
     ctx.register(this);
