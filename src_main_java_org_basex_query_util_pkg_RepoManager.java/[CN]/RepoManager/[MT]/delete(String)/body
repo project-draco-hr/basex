@@ -1,15 +1,14 @@
 {
+  final byte[] pk=token(pkg);
   boolean found=false;
   final TokenMap dict=repo.pkgDict();
   for (  final byte[] nextPkg : dict) {
     if (nextPkg == null)     continue;
-    final byte[] dir=dict.get(nextPkg);
-    if (eq(Package.name(nextPkg),token(pkg)) || eq(dir,token(pkg))) {
+    if (eq(nextPkg,pk) || eq(Package.name(nextPkg),pk)) {
       final byte[] primPkg=primary(nextPkg);
       if (primPkg != null)       PKGDEP.thrw(info,string(primPkg),pkg);
-      final IOFile f=repo.path(string(dir));
-      final IOFile desc=new IOFile(f,DESCRIPTOR);
-      repo.remove(new PkgParser(repo,info).parse(desc));
+      final IOFile f=repo.path(string(dict.get(nextPkg)));
+      repo.delete(new PkgParser(repo,info).parse(new IOFile(f,DESCRIPTOR)));
       if (!f.delete())       PKGDEL.thrw(info,f);
       found=true;
     }
