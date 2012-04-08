@@ -29,16 +29,18 @@
   final String label=data.meta.name + " (/)";
   root=new TreeRootFolder(token(label),token("/"),tree,data);
   ((DefaultTreeModel)tree.getModel()).insertNodeInto(root,rootNode,0);
-  tree.expandPath(new TreePath(root.getPath()));
   filter=new BaseXButton(FILTER,dp);
   clear=new BaseXButton(CLEAR,dp);
+  filter.setEnabled(false);
+  clear.setEnabled(false);
   new BaseXPopup(tree,dp.gui,new DeleteCmd(),new RenameCmd());
   final BaseXBack buttons=new BaseXBack();
   buttons.add(filter);
   buttons.add(clear);
   final BaseXBack btn=new BaseXBack().layout(new BorderLayout());
   btn.add(buttons,BorderLayout.EAST);
-  filterText=new BaseXTextField("/",dp);
+  filterText=new BaseXTextField(PLEASE_WAIT_D,dp);
+  filterText.setEnabled(false);
   BaseXLayout.setWidth(filterText,250);
   final BaseXBack panel=new BaseXBack(new BorderLayout());
   panel.add(filterText,BorderLayout.CENTER);
@@ -47,4 +49,16 @@
   BaseXLayout.setWidth(sp,250);
   add(sp,BorderLayout.CENTER);
   add(panel,BorderLayout.SOUTH);
+  new Thread(){
+    @Override public void run(){
+      tree.setCursor(CURSORWAIT);
+      tree.expandPath(new TreePath(root.getPath()));
+      filterText.setText("/");
+      filterText.setEnabled(true);
+      tree.setCursor(CURSORARROW);
+      filter.setEnabled(true);
+      clear.setEnabled(true);
+    }
+  }
+.start();
 }
