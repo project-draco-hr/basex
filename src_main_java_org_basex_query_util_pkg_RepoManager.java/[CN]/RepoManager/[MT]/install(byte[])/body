@@ -1,0 +1,21 @@
+{
+  final IO io=IO.get(string(path));
+  byte[] cont=null;
+  try {
+    cont=io.read();
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    PKGNOTEXIST.thrw(info,path);
+  }
+  try {
+    if (io.hasSuffix(IO.XQSUFFIXES))     return installXQ(cont);
+    if (io.hasSuffix(IO.JARSUFFIX))     return installJAR(cont);
+    return installXAR(cont);
+  }
+ catch (  final IOException ex) {
+    final Err err=ex instanceof FileNotFoundException ? PKGREADFNF : PKGREADFAIL;
+    Util.debug(ex);
+    throw err.thrw(info,io.name(),ex.getMessage());
+  }
+}

@@ -1,10 +1,19 @@
 {
   final TokenSet pkgs=context.repo.nsDict().get(uri);
   if (pkgs != null) {
+    Version ver=null;
+    byte[] nm=null;
     for (    final byte[] name : pkgs) {
-      if (name != null)       addRepo(name,new TokenSet(),new TokenSet(),ii,qp);
+      final Version v=new Version(Package.version(name));
+      if (ver == null || v.compareTo(ver) > 0) {
+        ver=v;
+        nm=name;
+      }
     }
-    return true;
+    if (nm != null) {
+      addRepo(nm,new TokenSet(),new TokenSet(),ii,qp);
+      return true;
+    }
   }
   final boolean java=startsWith(uri,JAVAPREF);
   final String uriPath=uri2path(string(java ? substring(uri,JAVAPREF.length) : uri));
