@@ -11,18 +11,19 @@
     labels[i]=new BaseXLabel(LABELS[i]).large();
     panels[i]=new BaseXBack(new BorderLayout(0,4));
     infos[i]=new BaseXEditor(false,this);
+    infos[i].setText(Token.token(PLEASE_WAIT_D));
     BaseXLayout.setHeight(infos[i],200);
     if (i != 1) {
       indxs[i]=new BaseXButton(" ",this);
       indxs[i].setEnabled(data instanceof DiskData);
     }
   }
-  final BaseXBack tabNames=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
+  tabNames=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
   add(0,tabNames,null);
   add(1,tabNames,null);
-  final BaseXBack tabPath=new BaseXBack(new GridLayout(1,1)).border(8);
+  tabPath=new BaseXBack(new GridLayout(1,1)).border(8);
   add(2,tabPath,null);
-  final BaseXBack tabValues=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
+  tabValues=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
   add(3,tabValues,null);
   add(4,tabValues,null);
   tabFT=new BaseXBack(new GridLayout(1,1)).border(8);
@@ -40,13 +41,19 @@
   final BaseXEditor text=text(info.finish());
   text.setFont(f);
   tabGeneral.add(text,BorderLayout.CENTER);
-  final BaseXTabs tabs=new BaseXTabs(this);
+  tabs=new BaseXTabs(this);
   tabs.addTab(RESOURCES,tabRes);
   tabs.addTab(NAMES,tabNames);
   tabs.addTab(PATH_INDEX,tabPath);
   tabs.addTab(INDEXES,tabValues);
   tabs.addTab(FULLTEXT,tabFT);
   tabs.addTab(GENERAL,tabGeneral);
+  tabs.addChangeListener(new ChangeListener(){
+    @Override public synchronized void stateChanged(    final ChangeEvent evt){
+      updateInfo();
+    }
+  }
+);
   set(resources,BorderLayout.WEST);
   set(tabs,BorderLayout.CENTER);
   action(this);
