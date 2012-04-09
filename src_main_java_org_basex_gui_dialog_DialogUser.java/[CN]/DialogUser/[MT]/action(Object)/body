@@ -7,14 +7,14 @@
     if (cmp instanceof Object[]) {
       final Object[] o=(Object[])cmp;
       final boolean g=o[0] == Boolean.TRUE;
-      final CmdPerm perm=CmdPerm.values()[(Integer)o[2] - (g ? 0 : 1)];
+      final Perm perm=Perm.values()[(Integer)o[2] - (g ? 0 : 1)];
       final String uname=table.getModel().getValueAt((Integer)o[1],0).toString();
       final boolean confirm=!g && uname.equals(dia.loguser.getText());
       if (confirm && !Dialog.confirm(dia.gui,Util.info(S_DBREVOKE)))       return;
       sess.execute(new Grant(perm,uname,db));
       msg=sess.info();
       if (confirm) {
-        if (perm == CmdPerm.ADMIN) {
+        if (perm == Perm.ADMIN) {
           dia.tabs.setSelectedIndex(0);
           dia.action(dia.disconnect);
         }
@@ -69,7 +69,7 @@
         if (!users.value(r,0).equals(us))         continue;
         int c=3;
         while (--c >= 0 && users.value(r,c).isEmpty())         ;
-        final String perm=CmdPerm.values()[c].toString();
+        final String perm=Perm.values()[c].toString();
         sess.execute(new Grant(perm,us,db));
         msg=sess.info();
         if (!ok)         break;

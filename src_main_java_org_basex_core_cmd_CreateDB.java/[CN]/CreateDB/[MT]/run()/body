@@ -1,7 +1,7 @@
 {
   final String name=args[0];
+  if (!MetaData.validName(name,false))   return error(NAME_INVALID_X,name);
   IO io=null;
-  Parser parser=Parser.emptyParser(context.prop);
   final String format=prop.get(Prop.PARSER);
   if (args.length < 1 || args[1] == null) {
     if (in != null && in.getByteStream() != null) {
@@ -30,5 +30,44 @@
     if (io instanceof IOContent)     io.name(name + '.' + format);
     parser=new DirParser(io,prop,mprop.dbpath(name));
   }
-  return build(parser,name);
+  if (parser == null)   parser=Parser.emptyParser(context.prop);
+  new Close().run(context);
+  try {
+    if (prop.is(Prop.MAINMEM)) {
+      final Data data=progress(new MemBuilder(name,parser)).build();
+      context.openDB(data);
+      context.pin(data);
+    }
+ else {
+      if (context.pinned(name))       return error(DB_PINNED_X,name);
+      progress(new DiskBuilder(name,parser,context)).build().close();
+      final Open open=new Open(name);
+      if (!open.run(context))       return error(open.info());
+      final Data data=context.data();
+      try {
+        if (data.meta.createtext)         create(IndexType.TEXT,data,this);
+        if (data.meta.createattr)         create(IndexType.ATTRIBUTE,data,this);
+        if (data.meta.createftxt)         create(IndexType.FULLTEXT,data,this);
+      }
+  finally {
+        data.finishUpdate();
+      }
+      context.databases().add(name);
+    }
+    return info(parser.info() + DB_CREATED_X_X,name,perf);
+  }
+ catch (  final ProgressException ex) {
+    throw ex;
+  }
+catch (  final IOException ex) {
+    Util.debug(ex);
+    abort();
+    final String msg=ex.getMessage();
+    return error(msg != null && !msg.isEmpty() ? msg : Util.info(NOT_PARSED_X,parser.src));
+  }
+catch (  final Exception ex) {
+    Util.debug(ex);
+    abort();
+    return error(Util.info(NOT_PARSED_X,parser.src));
+  }
 }
