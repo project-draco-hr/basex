@@ -1,13 +1,17 @@
 {
-  new Thread(){
-    @Override public void run(){
-      d.setEnabled(false);
-      final GUI gui=d.gui;
-      for (      final Command cmd : cmds) {
-        final boolean newData=cmd.newData(gui.context);
-        if (newData)         gui.notify.init();
-        final DialogProgress wait=new DialogProgress(gui,t,cmd);
-        wait.setAlwaysOnTop(true);
+  final GUI gui=dialog.gui;
+  for (  final Command cmd : cmds) {
+    final boolean newData=cmd.newData(gui.context);
+    if (newData)     gui.notify.init();
+    final DialogProgress wait;
+    if (dialog.isVisible()) {
+      wait=new DialogProgress(dialog,title,cmd);
+    }
+ else {
+      wait=new DialogProgress(gui,title,cmd);
+    }
+    new Thread(){
+      @Override public void run(){
         final Performance perf=new Performance();
         gui.updating=cmd.updating(gui.context);
         final boolean ok=cmd.run(gui.context);
@@ -19,13 +23,14 @@
         gui.status.setText(Util.info(TIME_NEEDED_X,time));
         wait.dispose();
         if (!ok)         Dialog.error(gui,info.equals(INTERRUPTED) ? CREATION_CANCELED : info);
-        if (newData)         gui.notify.init();
- else         if (cmd.updating(gui.context))         gui.notify.update();
       }
-      d.setEnabled(true);
-      d.action(d);
-      if (post != null)       post.run();
     }
-  }
 .start();
+    wait.setVisible(true);
+    if (newData)     gui.notify.init();
+ else     if (cmd.updating(gui.context))     gui.notify.update();
+  }
+  dialog.setEnabled(true);
+  dialog.action(dialog);
+  if (post != null)   post.run();
 }
