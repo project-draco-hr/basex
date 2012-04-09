@@ -9,15 +9,15 @@
   IOException ex=null;
   Data d=null;
   try {
-    d=Check.check(ctx.context,input);
+    d=Check.check(ctx.context,input,path);
   }
  catch (  final IOException e) {
     ex=e;
     final IO base=ctx.sc.baseIO();
     if (base != null) {
       try {
-        final String path=base.merge(input).path();
-        if (!path.equals(input))         d=Check.check(ctx.context,path);
+        final String p=base.merge(input).path();
+        if (!p.equals(input))         d=Check.check(ctx.context,p,path);
       }
  catch (      final IOException exc) {
       }
@@ -25,7 +25,6 @@
   }
   if (d == null) {
     Util.debug(ex);
-    if (col)     NOCOLL.thrw(ii,ex);
     if (ex instanceof FileNotFoundException)     RESFNF.thrw(ii,input);
     IOERR.thrw(ii,ex);
   }

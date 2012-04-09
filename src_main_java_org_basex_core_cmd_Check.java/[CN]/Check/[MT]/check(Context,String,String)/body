@@ -1,6 +1,6 @@
 {
   final boolean create=ctx.user.has(Perm.CREATE);
-  final IO io=IO.get(path);
+  IO io=IO.get(input);
   final String name=io.dbname();
   final Data data=ctx.pin(name);
   if (data != null) {
@@ -10,8 +10,9 @@
     Close.close(data,ctx);
     if (found)     throw new BaseXException(PERM_NEEDED_X,CmdPerm.READ);
   }
-  if (!create || MetaData.found(path,name,ctx.mprop))   return Open.open(name,ctx);
-  if (!io.exists() || io.isDir())   throw new FileNotFoundException(Util.info(FILE_NOT_FOUND_X,io));
+  if (!create || MetaData.found(input,name,ctx.mprop))   return Open.open(name,ctx);
+  if (path != null)   io=IO.get(io + "/" + path);
+  if (!io.exists() || path == null && io.isDir())   throw new BaseXException(Util.info(RESOURCE_NOT_FOUND_X,io));
   if (!ctx.prop.is(Prop.FORCECREATE))   return CreateDB.mainMem(io,ctx);
   final DirParser dp=new DirParser(io,ctx.prop,ctx.mprop.dbpath(name));
   return CreateDB.create(name,dp,ctx);
