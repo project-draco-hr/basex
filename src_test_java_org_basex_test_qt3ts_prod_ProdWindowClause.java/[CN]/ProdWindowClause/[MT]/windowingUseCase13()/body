@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "<result>{\n" + "  for sliding window $w in ./stream/event\n"+ "    start  $s when true()\n"+ "    end next $e when xs:dateTime($e/@time) - xs:dateTime($s/@time) gt\n"+ "      xs:dayTimeDuration(\"PT1H\")\n"+ "  where count($w[person eq $s/person and direction eq \"in\"]) ge 3\n"+ "  return\n"+ "    <alert time=\"{ $e/@time }\">{fn:data($s/person)} is suspicious</alert>\n"+ "}</result>\n"+ "      ",ctx);
+  query.context(node(file("prod/WindowClause/person_events.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<result><alert time=\"2006-01-02T14:00:00-00:00\">Clara is suspicious</alert></result>",false));
+}

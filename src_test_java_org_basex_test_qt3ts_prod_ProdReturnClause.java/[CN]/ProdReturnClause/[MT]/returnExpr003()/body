@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "        for $folder in /MyComputer/Drive1/Folder[1] \n" + "        return <folder1> {$folder/FolderName} <files> { \n"+ "                    for $file in ($folder/File)[position() < 6] \n"+ "                    return <f>{$file/FileName/substring(.,13)}</f> } </files> \n"+ "               </folder1>\n"+ "      ",ctx);
+  query.context(node(file("prod/ForClause/fsx.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<folder1><FolderName>Folder00000000000</FolderName><files><f>000</f><f>001</f><f>002</f><f>003</f><f>004</f></files></folder1>",false));
+}

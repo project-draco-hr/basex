@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "<result>{\n" + "  for tumbling window $w in ./stream/event[direction eq \"in\"]\n"+ "    start  $s when fn:true()\n"+ "    end next $e when xs:date( xs:dateTime($s/@time) ) ne xs:date( xs:dateTime($e/@time) )\n"+ "  let $date := xs:date(xs:dateTime($s/@time))\n"+ "  where not($w[person eq \"Barbara\"])\n"+ "  return <alert date=\"{ $date }\">Barbara did not come to work</alert>\n"+ "}</result>\n"+ "      ",ctx);
+  query.context(node(file("prod/WindowClause/person_events.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<result><alert date=\"2006-01-02Z\">Barbara did not come to work</alert></result>",false));
+}

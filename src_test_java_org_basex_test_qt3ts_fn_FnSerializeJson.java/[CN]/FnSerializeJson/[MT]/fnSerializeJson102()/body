@@ -1,0 +1,8 @@
+{
+  final XQuery query=new XQuery("let $r := serialize-json(map{\"a\":=doc($uri)}, map{\"fallback\":=function($v){serialize($v)}})\n" + "        return translate($r,' \t\n" + "\r', '')",ctx);
+  query.addDocument("http://www.w3.org/fots/serialize-json/doc001.xml",file("fn/serialize-json/doc001.xml"));
+  query.bind("uri",new XQuery("'http://www.w3.org/fots/serialize-json/doc001.xml'",ctx).value());
+  final QT3Result res=result(query);
+  result=res;
+  test(assertStringValue(false,"{\"a\":\"<?xmlversion=\\\"1.0\\\"encoding=\\\"UTF-8\\\"?><a>text</a>\"}"));
+}
