@@ -1,36 +1,32 @@
 {
-  if (search == null)   return 0;
-  final int hh=h;
-  int lp=0;
-  int ly=0;
-  int sp=text.cursor();
-  h=Integer.MAX_VALUE;
-  final Graphics g=getGraphics();
-  init(g,0);
-  while (more(g)) {
-    if (searched()) {
+  if (keyword.isEmpty())   return 0;
+  while (true) {
+    final int hh=h;
+    int lp=0;
+    int ly=0;
+    int cp=text.cursor();
+    h=Integer.MAX_VALUE;
+    final Graphics g=getGraphics();
+    for (init(g,0); more(g); next()) {
+      if (!found())       continue;
       final int np=text.pos();
       final int ny=y - fontH;
-      if (np >= sp && (np > sp || !s || b)) {
-        if (b && lp == 0 && np >= sp) {
-          sp=Integer.MAX_VALUE;
-        }
- else {
+      if (np >= cp && (np > cp || !same || !forward)) {
+        if (forward || lp != 0) {
           h=hh;
-          text.setCaret(b ? lp : np);
-          return b ? ly : ny;
+          text.setCaret(forward ? np : lp);
+          return forward ? ny : ly;
         }
+        cp=Integer.MAX_VALUE;
       }
       lp=np;
       ly=ny;
     }
-    next();
+    h=hh;
+    if (cp == 0 || cp == Integer.MAX_VALUE) {
+      text.setCaret(lp);
+      return ly;
+    }
+    text.setCaret(0);
   }
-  h=hh;
-  if (sp == 0 || sp == Integer.MAX_VALUE) {
-    text.setCaret(lp);
-    return ly;
-  }
-  text.setCaret(0);
-  return find(b,s);
 }

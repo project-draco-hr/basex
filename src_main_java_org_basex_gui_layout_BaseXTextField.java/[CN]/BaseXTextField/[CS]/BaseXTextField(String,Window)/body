@@ -7,7 +7,10 @@
   }
   addFocusListener(new FocusAdapter(){
     @Override public void focusGained(    final FocusEvent e){
-      if (area != null)       selectAll();
+      if (area != null) {
+        selectAll();
+        find();
+      }
     }
   }
 );
@@ -19,21 +22,25 @@
         last=t;
       }
       if (area == null)       return;
-      final String text=getText();
-      final boolean enter=ENTER.is(e);
-      if (ESCAPE.is(e) || enter && text.isEmpty()) {
+      if (ESCAPE.is(e) || ENTER.is(e) && getText().trim().isEmpty()) {
         area.requestFocusInWindow();
+        setBackground(GUIConstants.WHITE);
       }
- else       if (enter || FINDNEXT.is(e) || FINDPREV.is(e)|| FINDNEXT2.is(e)|| FINDPREV2.is(e)) {
-        area.find(text,FINDPREV.is(e) || FINDPREV2.is(e) || e.isShiftDown());
+ else       if (FINDPREV.is(e) || FINDPREV2.is(e) || ENTER.is(e) && e.isShiftDown()) {
+        area.find(false);
+      }
+ else       if (FINDNEXT.is(e) || FINDNEXT2.is(e) || ENTER.is(e)) {
+        area.find(true);
       }
     }
     @Override public void keyReleased(    final KeyEvent e){
       if (area == null)       return;
-      final String text=getText();
-      final char ch=e.getKeyChar();
-      if (!control(e) && Character.isDefined(ch) && !ENTER.is(e))       area.find(text,false);
-      repaint();
+      if (!control(e) && Character.isDefined(e.getKeyChar()) && !ENTER.is(e)) {
+        final String text=getText().trim().toLowerCase(Locale.ENGLISH);
+        final String old=area.keyword(text);
+        if (text.equals(old))         return;
+        find();
+      }
     }
   }
 );
