@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "        declare function local:summary($emps as element(employee)*) as element(dept)* { \n" + "            for $d in distinct-values($emps/deptno) \n"+ "            let $e := $emps[deptno = $d] \n"+ "            return <dept> \n"+ "                      <deptno>{$d}</deptno> \n"+ "                      <headcount> {count($e)} </headcount> \n"+ "                      <payroll> {sum($e/salary)} </payroll> \n"+ "                   </dept> \n"+ "        };\n"+ "        local:summary(//employee[location = \"Denver\"])\n"+ "      ",ctx);
+  query.context(node(file("op/union/acme_corp.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<dept><deptno>1</deptno><headcount>2</headcount><payroll>130000</payroll></dept><dept><deptno>2</deptno><headcount>1</headcount><payroll>80000</payroll></dept>",false));
+}

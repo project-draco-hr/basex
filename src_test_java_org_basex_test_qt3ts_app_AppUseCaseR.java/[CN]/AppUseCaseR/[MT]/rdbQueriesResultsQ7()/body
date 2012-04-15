@@ -1,0 +1,9 @@
+{
+  final XQuery query=new XQuery("\n" + "        let $allbikes := $items//item_tuple [contains(exactly-one(description), \"Bicycle\") or contains(exactly-one(description), \"Tricycle\")] \n" + "        let $bikebids := $bids//bid_tuple[itemno = $allbikes/itemno] \n"+ "        return <high_bid> { max($bikebids/bid) } </high_bid>\n"+ "      ",ctx);
+  query.bind("$users",node(file("docs/users.xml")));
+  query.bind("$items",node(file("docs/items.xml")));
+  query.bind("$bids",node(file("docs/bids.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<high_bid>225</high_bid>",false));
+}

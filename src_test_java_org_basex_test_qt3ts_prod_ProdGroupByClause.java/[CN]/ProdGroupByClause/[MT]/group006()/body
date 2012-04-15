@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "        <out>{ \n" + "            for $x in //employee \n"+ "            group by $key := $x/status \n"+ "            return <group status=\"{$key}\" count=\"{count($x)}\"/> \n"+ "        }</out>\n"+ "      ",ctx);
+  query.context(node(file("docs/works-mod.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test((assertSerialization("<out><group status=\"\" count=\"12\"/><group status=\"active\" count=\"1\"/></out>",false) || assertSerialization("<out><group status=\"active\" count=\"1\"/><group status=\"\" count=\"12\"/></out>",false)));
+}

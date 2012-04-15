@@ -3,7 +3,8 @@
   final Performance perf=new Performance();
   new Set(Prop.CHOP,false).execute(ctx);
   new Set(Prop.INTPARSE,false).execute(ctx);
-  final XQuery qdoc=new XQuery("doc(' " + PATH + '/'+ CATALOG+ "')",ctx);
+  new Set(Prop.QUERYPATH,qt3tsPath).execute(ctx);
+  final XQuery qdoc=new XQuery("doc(' " + qt3tsPath + '/'+ CATALOG+ "')",ctx);
   final XdmValue doc=qdoc.value();
   final String version=asString("*:catalog/@version",doc);
   Util.outln(NL + "QT3 Test Suite " + version);
@@ -21,8 +22,9 @@
   result.append(" Tested  : ").append(tested).append(NL);
   result.append(" Total   : ").append(total).append(NL);
   result.append(" Ignored : ").append(ignored).append(NL);
-  Util.outln(NL + "Writing log file..." + NL);
-  final PrintOutput po=new PrintOutput(PATH + "qt3ts.log");
+  final String path=new File(qt3tsPath,"qt3ts.log").getCanonicalPath();
+  Util.outln(NL + "Writing log file '" + path+ "'..."+ NL);
+  final PrintOutput po=new PrintOutput(path);
   po.println("QT3TS RESULTS __________________________" + NL);
   po.println(result.toString());
   po.println("WRONG __________________________________" + NL);

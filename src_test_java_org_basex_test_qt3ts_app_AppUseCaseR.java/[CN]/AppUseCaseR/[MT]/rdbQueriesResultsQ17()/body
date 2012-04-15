@@ -1,0 +1,9 @@
+{
+  final XQuery query=new XQuery("\n" + "        <frequent_bidder> { \n" + "            for $u in $users//user_tuple \n"+ "            where every $item in $items//item_tuple \n"+ "                  satisfies some $b in $bids//bid_tuple \n"+ "                            satisfies ($item/itemno = $b/itemno and $u/userid = $b/userid) \n"+ "            return $u/name \n"+ "        } </frequent_bidder>\n"+ "      ",ctx);
+  query.bind("$users",node(file("docs/users.xml")));
+  query.bind("$items",node(file("docs/items.xml")));
+  query.bind("$bids",node(file("docs/bids.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<frequent_bidder/>",false));
+}

@@ -1,0 +1,6 @@
+{
+  final XQuery query=new XQuery("\n" + "        declare function local:splitter($x as xs:string) as (function() as xs:string*)* { \n" + "            for $sep in ('\\s', ',', '!') return function() { \n"+ "                for $i in tokenize($x, $sep) return \n"+ "                    let $f := function(){ concat($sep, ':', upper-case($i)) } \n"+ "                    return $f() } \n"+ "        }; \n"+ "        <out>{ \n"+ "            for $f as function(*) in local:splitter(\"How nice! Thank you, I enjoyed that.\") \n"+ "            return <tokens>{ for $t in $f() \n"+ "                             return <t>{$t}</t> }</tokens> \n"+ "        }</out>\n"+ "     ",ctx);
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<out><tokens><t>\\s:HOW</t><t>\\s:NICE!</t><t>\\s:THANK</t><t>\\s:YOU,</t><t>\\s:I</t><t>\\s:ENJOYED</t><t>\\s:THAT.</t></tokens><tokens><t>,:HOW NICE! THANK YOU</t><t>,: I ENJOYED THAT.</t></tokens><tokens><t>!:HOW NICE</t><t>!: THANK YOU, I ENJOYED THAT.</t></tokens></out>",false));
+}

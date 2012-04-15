@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "        declare function local:toc($book-or-section as element()) as element()* { \n" + "            for $section in $book-or-section/section \n"+ "            return <section> { $section/@* , $section/title , local:toc($section) } </section> };\n"+ "        <toc> { for $s in /book return local:toc($s) } </toc>\n"+ "      ",ctx);
+  query.context(node(file("docs/book.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<toc><section id=\"intro\" difficulty=\"easy\"><title>Introduction</title><section><title>Audience</title></section><section><title>Web Data and the Two Cultures</title></section></section><section id=\"syntax\" difficulty=\"medium\"><title>A Syntax For Data</title><section><title>Base Types</title></section><section><title>Representing Relational Databases</title></section><section><title>Representing Object Databases</title></section></section></toc>",false));
+}

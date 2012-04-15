@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "      \t<results> { \n" + "      \t\tlet $doc := (/) \n"+ "      \t\tfor $t in distinct-values($doc//book/title) \n"+ "      \t\tlet $p := $doc//book[title = $t]/price \n"+ "      \t\treturn <minprice title=\"{ $t }\"> <price>{ min($p) }</price> </minprice> } \n"+ "      \t</results>\n"+ "      ",ctx);
+  query.context(node(file("docs/prices.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<results><minprice title=\"Advanced Programming in the Unix environment\"><price>65.95</price></minprice><minprice title=\"TCP/IP Illustrated\"><price>65.95</price></minprice><minprice title=\"Data on the Web\"><price>34.95</price></minprice></results>",false));
+}

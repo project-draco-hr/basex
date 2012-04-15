@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "<result>{\n" + "  for tumbling window $w in ./rss/channel/item\n"+ "    start  $first when fn:true()\n"+ "    end next $lookAhead when $first/author ne $lookAhead/author\n"+ "  where count($w) ge 3\n"+ "  return <annoying-author>{\n"+ "      $w[1]/author\n"+ "    }</annoying-author>\n"+ "}</result>\n"+ "      ",ctx);
+  query.context(node(file("prod/WindowClause/rss.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<result><annoying-author><author>rokas@e-mail.de</author></annoying-author></result>",false));
+}

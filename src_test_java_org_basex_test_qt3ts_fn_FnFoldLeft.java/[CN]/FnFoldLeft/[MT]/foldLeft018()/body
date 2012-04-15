@@ -1,0 +1,6 @@
+{
+  final XQuery query=new XQuery("\n" + "let $text := \"Peter Piper picked a peck of pickled peppers A peck of pickled peppers Peter Piper picked\"\n" + "let $tokens := tokenize($text, '\\s')\n"+ "let $counter := function($result, $word){\n"+ "  let $word-count := $result[@value = $word]\n"+ "  return\n"+ "    if(empty($word-count)) then\n"+ "      ($result, <word value=\"{$word}\" count=\"1\" />)\n"+ "    else\n"+ "    (\n"+ "      $result except $word-count,\n"+ "      <word value=\"{$word-count/@value}\" count=\"{number($word-count/@count) + 1}\" />\n"+ "    )\n"+ "}\n"+ "let $words := fold-left($counter, (), $tokens)\n"+ "return (\n"+ "  number($words[@value=\"Peter\"]/@count),\n"+ "  number($words[@value=\"Piper\"]/@count),\n"+ "  number($words[@value=\"pickled\"]/@count)\n"+ ")\n"+ "",ctx);
+  final QT3Result res=result(query);
+  result=res;
+  test(assertDeepEq("2, 2, 2"));
+}

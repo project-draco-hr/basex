@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "<result>{\n" + "  for sliding window $w in ./sequence/*\n"+ "    start $s when $s[self::OrderRequest]\n"+ "    end   $e when $e/@orderID eq  $s/@orderID\n"+ "             and ($e[self::ConfirmationRequest] and $e/@status eq \"reject\"\n"+ "                  or $e[self::ShipNotice])\n"+ "  where $e[self::ShipNotice]\n"+ "  return\n"+ "    <timeToShip orderID=\"{ $s/@orderID}\">{xs:dateTime($e/@date) - xs:dateTime($s/@date) }</timeToShip>\n"+ "}</result>\n"+ "      ",ctx);
+  query.context(node(file("prod/WindowClause/cxml.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<result><timeToShip orderID=\"OID01\">P3DT22H</timeToShip><timeToShip orderID=\"OID03\">P2DT19H</timeToShip></result>",false));
+}

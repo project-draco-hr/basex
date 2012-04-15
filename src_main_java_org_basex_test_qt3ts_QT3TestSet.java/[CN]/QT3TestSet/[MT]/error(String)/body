@@ -1,0 +1,13 @@
+{
+  if (result.value != null)   return fail(Util.info("Error: '%'",code));
+  if (code.equals("*"))   return true;
+  final QNm err=new QNm(code,QueryText.ERRORURI);
+  if (result.exc != null) {
+    final QueryException qe=result.exc.getException();
+    final QNm name=qe.err() != null ? qe.err().qname() : qe.qname();
+    if (name != null)     return result(err.eq(name),Util.info("% (found: %)",err,name));
+    return fail(Util.info("% (found: %)",err,"?"));
+  }
+  final String res=result.error.getMessage().replaceAll("\\[|\\].*\r?\n?.*","");
+  return result(code.equals(res),Util.info("% (found: %)",code,res));
+}

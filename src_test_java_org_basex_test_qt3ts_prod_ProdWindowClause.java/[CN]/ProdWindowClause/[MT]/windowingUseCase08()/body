@@ -1,0 +1,7 @@
+{
+  final XQuery query=new XQuery("\n" + "<result>{\n" + "for sliding window $w in ./stream/event\n"+ "  start  $s when $s/direction eq \"in\"\n"+ "  only end  $e when $s/person eq $e/person and\n"+ "    $e/direction eq \"out\"\n"+ "return\n"+ "  <working-time>\n"+ "      {$s/person}\n"+ "      <time>{ xs:dateTime($e/@time) - xs:dateTime($s/@time)}</time>\n"+ "  </working-time>\n"+ "}</result>\n"+ "      ",ctx);
+  query.context(node(file("prod/WindowClause/person_events.xml")));
+  final QT3Result res=result(query);
+  result=res;
+  test(assertSerialization("<result><working-time><person>Anton</person><time>PT4H30M</time></working-time><working-time><person>Barbara</person><time>PT3H</time></working-time><working-time><person>Clara</person><time>PT1H</time></working-time><working-time><person>Anton</person><time>PT5H</time></working-time><working-time><person>Clara</person><time>PT10M</time></working-time><working-time><person>Clara</person><time>PT5M</time></working-time><working-time><person>Clara</person><time>PT15M</time></working-time><working-time><person>Clara</person><time>PT2H15M</time></working-time></result>",false));
+}
