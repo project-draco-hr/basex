@@ -1,0 +1,21 @@
+{
+  HttpURLConnection connection=(HttpURLConnection)uri.toURL().openConnection();
+  connection.setReadTimeout(SOCKET_TIMEOUT);
+  try {
+    while (!stop) {
+      try {
+        final int code=connection.getResponseCode();
+        InputStream input=connection.getInputStream();
+        final ByteList bl=new ByteList();
+        for (int i; (i=input.read()) != -1; )         bl.add(i);
+        return new HTTPResponse(code,bl.toString());
+      }
+ catch (      SocketTimeoutException e) {
+      }
+    }
+    return null;
+  }
+  finally {
+    connection.disconnect();
+  }
+}

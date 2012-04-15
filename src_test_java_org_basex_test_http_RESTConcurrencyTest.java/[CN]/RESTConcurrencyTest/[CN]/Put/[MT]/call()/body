@@ -1,0 +1,22 @@
+{
+  HttpURLConnection connection=(HttpURLConnection)uri.toURL().openConnection();
+  try {
+    connection.setDoOutput(true);
+    connection.setRequestMethod(method.name());
+    connection.setRequestProperty(MimeTypes.CONTENT_TYPE,MimeTypes.APP_XML);
+    connection.getOutputStream().write(content);
+    connection.getOutputStream().close();
+    connection.setReadTimeout(SOCKET_TIMEOUT);
+    while (!stop) {
+      try {
+        return new HTTPResponse(connection.getResponseCode());
+      }
+ catch (      SocketTimeoutException e) {
+      }
+    }
+    return null;
+  }
+  finally {
+    connection.disconnect();
+  }
+}
