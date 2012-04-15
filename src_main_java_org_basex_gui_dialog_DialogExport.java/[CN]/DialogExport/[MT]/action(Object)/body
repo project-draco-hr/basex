@@ -10,16 +10,22 @@
     }
     params.setText(sb.toString());
   }
-  final IOFile io=new IOFile(path());
+  final String pth=path();
+  final IOFile io=new IOFile(pth);
   String inf=io.isDir() && io.children().length > 0 ? DIR_NOT_EMPTY : null;
-  ok=!path().isEmpty();
-  if (ok && comp == params) {
-    try {
-      Serializer.get(new ArrayOutput(),new SerializerProp(params.getText()));
-    }
- catch (    final IOException ex) {
-      ok=false;
-      inf=ex.getLocalizedMessage();
+  ok=!pth.isEmpty();
+  if (ok) {
+    gui.gprop.set(GUIProp.CREATEPATH,pth);
+    if (comp == params) {
+      try {
+        final String par=params.getText();
+        Serializer.get(new ArrayOutput(),new SerializerProp(par));
+        gui.set(Prop.EXPORTER,par);
+      }
+ catch (      final IOException ex) {
+        ok=false;
+        inf=ex.getLocalizedMessage();
+      }
     }
   }
   info.setText(inf,ok ? Msg.WARN : Msg.ERROR);
