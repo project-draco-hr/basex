@@ -17,18 +17,29 @@
     }
   }
   ctx.compInfo(OPTWHERE);
-  for (int t=0; t < tests.length; ++t) {
-    final ForLet f=fl[tar[t]];
-    Expr e=tests[t].remove(f.var);
-    e=Function.BOOLEAN.get(info,e).compEbv(ctx);
-    if (f.expr instanceof AxisPath) {
-      f.expr=((AxisPath)f.expr).addPreds(e);
+  for (int f=0; f < fl.length; ++f) {
+    final ForLet c=fl[f];
+    final ExprList el=new ExprList();
+    for (int t=0; t < tests.length; ++t) {
+      if (tar[t] == f)       el.add(tests[t].remove(c.var));
     }
- else     if (f.expr instanceof Filter) {
-      f.expr=((Filter)f.expr).addPred(e);
+    if (el.isEmpty())     continue;
+    final Expr a;
+    if (el.size() == 1) {
+      final Expr e=el.get(0);
+      a=e.type().mayBeNumber() ? Function.BOOLEAN.get(info,e) : e;
     }
  else {
-      f.expr=new Filter(info,f.expr,e);
+      a=new And(info,el.finish());
+    }
+    if (c.expr instanceof AxisPath) {
+      c.expr=((AxisPath)c.expr).addPreds(a);
+    }
+ else     if (c.expr instanceof Filter) {
+      c.expr=((Filter)c.expr).addPred(a);
+    }
+ else {
+      c.expr=new Filter(info,c.expr,a);
     }
   }
   where=null;

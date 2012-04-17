@@ -10,10 +10,16 @@
       }
     }
 ,context);
-    if (res != null)     assertEquals("Query result:",res,qp.execute().toString());
-    context.openDB(plan);
+    if (res != null) {
+      assertEquals(res,qp.execute().toString());
+    }
+    final Nodes in=new Nodes(0,plan);
     for (    final String p : pr) {
-      if (!new XQuery(p).execute(context).equals("true"))       fail(p + ':' + NL+ qp.ctx.root+ NL+ new XQuery("/").execute(context));
+      QueryProcessor query=new QueryProcessor(p,context).context(in);
+      if (query.value() != Bln.TRUE) {
+        query=new QueryProcessor("/*",context).context(in);
+        fail(NL + "- Query: " + qu+ NL+ "- Check: "+ p+ NL+ "- Plan: "+ query.execute().toString());
+      }
     }
   }
  catch (  final Exception ex) {

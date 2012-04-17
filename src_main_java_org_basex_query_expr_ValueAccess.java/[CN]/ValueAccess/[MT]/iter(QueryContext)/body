@@ -1,0 +1,12 @@
+{
+  NodeIter[] iter={};
+  final Iter ir=ctx.iter(expr);
+  for (Item it; (it=ir.next()) != null; ) {
+    final int s=iter.length;
+    final NodeIter[] tmp=new NodeIter[s + 1];
+    System.arraycopy(iter,0,tmp,0,s);
+    iter=tmp;
+    iter[s]=index(it.string(info));
+  }
+  return iter.length == 0 ? new NodeCache() : iter.length == 1 ? iter[0] : new Union(info,expr).eval(iter);
+}
