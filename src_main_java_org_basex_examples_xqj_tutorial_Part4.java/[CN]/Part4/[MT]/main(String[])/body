@@ -3,13 +3,14 @@
   XQConnection xqc=connect();
   XQExpression xqe=xqc.createExpression();
   info("Iterate through query results");
-  XQSequence xqs=xqe.executeQuery("doc('src/main/resources/xml/employees.xml')//employee");
+  String path=new File("src/main/resources/xml").getAbsolutePath();
+  XQSequence xqs=xqe.executeQuery("doc('" + path + "/employees.xml')//employee");
   while (xqs.next()) {
     Element employee=(Element)xqs.getObject();
     System.out.println(employee);
   }
   info("Iterate through numeric values");
-  xqs=xqe.executeQuery("doc('src/main/resources/xml/orders.xml')" + "/orders/order/xs:decimal(total_price)");
+  xqs=xqe.executeQuery("doc('" + path + "/orders.xml')"+ "/orders/order/xs:decimal(total_price)");
   while (xqs.next()) {
     BigDecimal price=(BigDecimal)xqs.getObject();
     System.out.println(price);
@@ -26,15 +27,15 @@
     }
   }
 ;
-  xqs=xqe.executeQuery("doc('src/main/resources/xml/employees.xml')//employee");
+  xqs=xqe.executeQuery("doc('" + path + "/employees.xml')//employee");
   while (xqs.next()) {
     xqs.writeItemToSAX(ch);
   }
   info("Return sequence via SAX");
-  xqs=xqe.executeQuery("doc('src/main/resources/xml/employees.xml')//employee");
+  xqs=xqe.executeQuery("doc('" + path + "/employees.xml')//employee");
   xqs.writeSequenceToSAX(ch);
   info("Return single items via StAX");
-  xqs=xqe.executeQuery("doc('src/main/resources/xml/employees.xml')//employee");
+  xqs=xqe.executeQuery("doc('" + path + "/employees.xml')//employee");
   XMLStreamReader xmlReader=xqs.getSequenceAsStream();
   while (true) {
     int type=xmlReader.next();

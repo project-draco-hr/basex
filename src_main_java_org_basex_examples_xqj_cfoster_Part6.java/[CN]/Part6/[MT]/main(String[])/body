@@ -3,12 +3,13 @@
   XQConnection conn=connect();
   info("Stream XQuery Result Sequences with StAX");
   XQExpression xqe=conn.createExpression();
-  XQResultSequence rs=xqe.executeQuery("doc('src/main/resources/xml/books.xml')//book");
+  String path=new File("src/main/resources/xml").getAbsolutePath();
+  XQResultSequence rs=xqe.executeQuery("doc('" + path + "/books.xml')//book");
   XMLStreamReader reader=rs.getSequenceAsStream();
   for (; reader.hasNext(); reader.next())   System.out.println(getEventString(reader));
   System.out.println(getEventString(reader));
   info("Stream XQuery Result Sequences with SAX");
-  rs=xqe.executeQuery("doc('src/main/resources/xml/books.xml')//book");
+  rs=xqe.executeQuery("doc('" + path + "/books.xml')//book");
   rs.writeSequenceToSAX(new MySAXHandler());
   close(conn);
 }
