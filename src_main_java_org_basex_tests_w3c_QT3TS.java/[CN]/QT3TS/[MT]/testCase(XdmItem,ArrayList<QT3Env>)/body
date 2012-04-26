@@ -45,7 +45,8 @@
   }
   final XQuery query=new XQuery(string,ctx);
   if (b != null)   query.baseURI(b);
-  final XQuery qmod=new XQuery("for $m in *:module return ($m/@uri, $m/@file)",ctx).context(test);
+  final String qm="for $m in *:module return ($m/@uri, $m/@file)";
+  final XQuery qmod=new XQuery(qm,ctx).context(test);
   while (true) {
     final XdmItem uri=qmod.next();
     if (uri == null)     break;
@@ -63,16 +64,17 @@
         query.bind(par.get(NNAME),new XQuery(par.get(SELECT),ctx).value());
       }
       for (      final HashMap<String,String> src : e.sources) {
-        query.addDocument(src.get(URI),src.get(FILE));
+        final String file=(b != null ? b : "") + src.get(FILE);
+        query.addDocument(src.get(URI),file);
         final String role=src.get(ROLE);
         if (role == null)         continue;
-        final Object call=Function.DOC.get(null,Str.get(src.get(FILE)));
+        final Object call=Function.DOC.get(Str.get(file));
         if (role.equals("."))         query.context(call);
  else         query.bind(role,call);
       }
       query.addCollection(e.collURI,e.collSources.toArray());
       if (e.collContext) {
-        query.context(Function.COLLECTION.get(null,Str.get(e.collURI)));
+        query.context(Function.COLLECTION.get(Str.get(e.collURI)));
       }
       if (e.baseURI != null)       query.baseURI(e.baseURI);
     }
