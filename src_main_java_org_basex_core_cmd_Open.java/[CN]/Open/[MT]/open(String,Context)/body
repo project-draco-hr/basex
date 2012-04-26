@@ -8,7 +8,9 @@ synchronized (ctx.datas) {
       ctx.pin(data);
     }
   }
-  if (ctx.perm(Perm.READ,data.meta))   return data;
-  Close.close(data,ctx);
-  throw new BaseXException(PERM_NEEDED_X,Perm.READ);
+  if (!ctx.perm(Perm.READ,data.meta)) {
+    Close.close(data,ctx);
+    throw new BaseXException(PERM_NEEDED_X,Perm.READ);
+  }
+  return data;
 }

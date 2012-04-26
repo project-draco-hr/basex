@@ -1,4 +1,6 @@
 {
-  final Item it=expr.length != 0 ? expr[0].item(ctx,info) : null;
-  return ctx.resource.collection(it != null ? string(checkEStr(it)) : null,info);
+  if (expr.length == 0)   return ctx.resource.collection(info);
+  final byte[] in=checkEStr(expr[0].item(ctx,info));
+  if (!Uri.uri(in).isValid())   INVCOLL.thrw(info,in);
+  return ctx.resource.collection(string(in),info);
 }

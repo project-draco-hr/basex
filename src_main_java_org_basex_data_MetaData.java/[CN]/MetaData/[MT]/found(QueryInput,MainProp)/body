@@ -1,11 +1,9 @@
 {
-  final IOFile file=mprop.dbpath(db);
-  final boolean exists=file.exists();
-  if (!exists || path.equals(db))   return exists;
-  final IO io=IO.get(path);
+  final IOFile dbdir=mprop.dbpath(input.db);
+  if (!dbdir.exists())   return false;
   DataInput in=null;
   try {
-    in=new DataInput(file(file,DATAINF));
+    in=new DataInput(file(dbdir,DATAINF));
     boolean ok=true;
     int i=3;
     String k;
@@ -16,11 +14,11 @@
         i--;
       }
  else       if (k.equals(DBFNAME)) {
-        ok&=io.eq(IO.get(v));
+        ok&=input.io.eq(IO.get(v));
         i--;
       }
  else       if (k.equals(DBTIME)) {
-        ok&=io.timeStamp() == toLong(v);
+        ok&=input.io.timeStamp() == toLong(v);
         i--;
       }
     }

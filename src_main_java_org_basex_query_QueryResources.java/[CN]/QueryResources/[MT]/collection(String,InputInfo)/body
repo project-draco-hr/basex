@@ -1,31 +1,18 @@
 {
-  int c=0;
-  if (input == null) {
-    if (colls == 0)     NODEFCOLL.thrw(ii);
+  final IO base=ctx.sc.baseIO();
+  final String in=base != null ? base.merge(input).path() : null;
+  for (int c=0; c < colls; c++) {
+    if (in != null && collName[c].equalsIgnoreCase(in) || collName[c].equalsIgnoreCase(input))     return coll[c];
   }
- else {
-    if (input.contains("<") || input.contains("\\"))     INVCOLL.thrw(ii,input);
-    while (c < colls && !collName[c].equals(input))     ++c;
-    if (c == colls) {
-      final IO base=ctx.sc.baseIO();
-      if (base != null) {
-        c=0;
-        final String in=base.merge(input).path();
-        while (c < colls && !collName[c].equals(in))         ++c;
-      }
-    }
-    if (c == colls) {
-      String root=SLASHES.matcher(input).replaceFirst("");
-      String path="";
-      final int s=root.indexOf('/');
-      if (s > 0 && root.indexOf(':') == -1) {
-        path=root.substring(s + 1);
-        root=root.substring(0,s);
-      }
-      final Data d=data(root,path,ii);
-      final IntList docs=d.resources.docs(d.inMemory() ? "" : path);
-      addCollection(DBNodeSeq.get(docs,d,true,path.isEmpty()),d.meta.name);
+  final QueryInput qi=new QueryInput(input);
+  Data dt=null;
+  for (int d=0; d < datas; ++d) {
+    if (qi.db != null && data[d].meta.name.equalsIgnoreCase(qi.db) || IO.get(data[d].meta.original).eq(qi.io)) {
+      dt=data[d];
+      break;
     }
   }
-  return coll[c];
+  if (dt == null)   dt=open(qi);
+  if (dt == null)   dt=create(qi,false,info);
+  return DBNodeSeq.get(dt.resources.docs(qi.path),dt,true,qi.path.isEmpty());
 }
