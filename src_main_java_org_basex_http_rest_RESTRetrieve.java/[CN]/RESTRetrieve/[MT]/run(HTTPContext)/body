@@ -6,10 +6,10 @@
     final SerializerProp sprop=new SerializerProp(http.serialization);
     final Serializer ser=Serializer.get(http.res.getOutputStream(),sprop);
     http.initResponse(sprop);
-    ser.openElement(DATABASES,RESOURCES,token(table.contents.size()));
-    ser.namespace(REST,RESTURI);
-    list(table,ser,DATABASE,1);
-    ser.closeElement();
+    final FElem el=new FElem(DATABASES,new Atts(REST,RESTURI));
+    el.add(new FAttr(RESOURCES,token(table.contents.size())));
+    list(table,el,DATABASE,1);
+    ser.item(el);
     ser.close();
   }
  else   if (!exists(http)) {
@@ -19,10 +19,11 @@
     final SerializerProp sprop=new SerializerProp(serial);
     final Serializer ser=Serializer.get(http.res.getOutputStream(),sprop);
     http.initResponse(sprop);
-    ser.openElement(DATABASE,DataText.T_NAME,token(http.db()),RESOURCES,token(table.contents.size()));
-    ser.namespace(REST,RESTURI);
-    list(table,ser,RESOURCE,0);
-    ser.closeElement();
+    final FElem el=new FElem(DATABASE,new Atts(REST,RESTURI));
+    el.add(new FAttr(DataText.T_NAME,token(http.db())));
+    el.add(new FAttr(RESOURCES,token(table.contents.size())));
+    list(table,el,RESOURCE,0);
+    ser.item(el);
     ser.close();
   }
  else   if (isRaw(http)) {
