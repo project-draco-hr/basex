@@ -2,23 +2,11 @@
   final QueryProcessor qp=new QueryProcessor(qu,context);
   try {
     qp.compile();
-    final Data plan=CreateDB.mainMem(new Parser("",context.prop){
-      @Override public void parse(      final Builder build) throws IOException {
-        build.startDoc(QueryText.PLAN);
-        qp.plan(new BuilderSerializer(build));
-        build.endDoc();
-      }
-    }
-,context);
-    if (res != null) {
-      assertEquals(res,qp.execute().toString());
-    }
-    final Nodes in=new Nodes(0,plan);
+    final FDoc plan=qp.plan();
+    if (res != null)     assertEquals(res,qp.execute().toString());
     for (    final String p : pr) {
-      QueryProcessor query=new QueryProcessor(p,context).context(in);
-      if (query.value() != Bln.TRUE) {
-        query=new QueryProcessor("/*",context).context(in);
-        fail(NL + "- Query: " + qu+ NL+ "- Check: "+ p+ NL+ "- Plan: "+ query.execute().toString());
+      if (new QueryProcessor(p,context).context(plan).value() != Bln.TRUE) {
+        fail(NL + "- Query: " + qu+ NL+ "- Check: "+ p+ NL+ "- Plan: "+ plan.serialize());
       }
     }
   }
