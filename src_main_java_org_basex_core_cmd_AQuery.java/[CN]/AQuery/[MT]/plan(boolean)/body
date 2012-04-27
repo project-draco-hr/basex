@@ -7,15 +7,13 @@
       final String dot=path.isEmpty() ? "plan.dot" : new IOFile(path).name().replaceAll("\\..*?$",".dot");
       bo=new BufferOutput(dot);
       final DOTSerializer d=new DOTSerializer(bo,prop.is(Prop.DOTCOMPACT));
-      qp.plan(d);
+      d.node(qp.plan());
       d.close();
       if (prop.is(Prop.DOTDISPLAY))       new ProcessBuilder(prop.get(Prop.DOTTY),dot).start();
     }
     if (prop.is(Prop.XMLPLAN)) {
-      final ArrayOutput ao=new ArrayOutput();
-      qp.plan(Serializer.get(ao));
       info(NL + QUERY_PLAN_C);
-      info(ao.toString());
+      info(qp.plan().serialize().toString());
     }
   }
  catch (  final Exception ex) {

@@ -1,5 +1,24 @@
 {
-  final byte[] t=str instanceof byte[] ? (byte[])str : token(str instanceof Throwable ? Util.message((Throwable)str) : str == null ? "null" : str.toString());
+  final byte[] t;
+  if (str instanceof byte[]) {
+    t=(byte[])str;
+  }
+ else {
+    final String s;
+    if (str == null) {
+      s="null";
+    }
+ else     if (str instanceof Throwable) {
+      s=Util.message((Throwable)str);
+    }
+ else     if (str instanceof Class<?>) {
+      s=Util.name((Class<?>)str);
+    }
+ else {
+      s=str.toString();
+    }
+    t=token(s);
+  }
   for (int i=0, e=0; i < t.length; ++i) {
     if (t[i] != '%' || e == ext.length) {
       addByte(t[i]);
@@ -10,7 +29,7 @@
       if (d)       ++i;
       final int n=d ? c - '1' : e++;
       final Object o=n < ext.length ? ext[n] : null;
-      addExt(o instanceof byte[] ? (byte[])o : o == null ? null : o.toString());
+      addExt(o);
     }
   }
   return this;
