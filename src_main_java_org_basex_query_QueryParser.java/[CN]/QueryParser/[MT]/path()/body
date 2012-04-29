@@ -1,35 +1,40 @@
 {
   checkInit();
-  final int s=consume('/') ? consume('/') ? 2 : 1 : 0;
-  if (s > 0)   checkAxis(s == 2 ? Axis.DESC : Axis.CHILD);
-  im=ip;
-  final Expr ex=step();
-  if (ex == null) {
-    if (s == 2) {
-      if (more())       checkInit();
-      error(PATHMISS,found());
+  final ExprList el;
+  Expr root=null;
+  if (consume('/')) {
+    root=new Root(info());
+    el=new ExprList();
+    final Expr ex;
+    if (consume('/')) {
+      checkAxis(Axis.DESC);
+      add(el,descOrSelf());
+      mark();
+      ex=step();
+      if (ex == null) {
+        if (more())         checkInit();
+        error(PATHMISS,found());
+      }
     }
-    return s == 1 ? new Root(info()) : null;
-  }
-  final boolean slash=consume('/');
-  final boolean step=ex instanceof AxisStep;
-  if (!slash && s == 0 && !step)   return ex;
-  final ExprList el=new ExprList();
-  if (s == 2)   add(el,descOrSelf());
-  final Expr root=s > 0 ? new Root(info()) : !step ? ex : null;
-  if (root != ex)   add(el,ex);
-  if (slash) {
-    do {
-      final boolean desc=consume('/');
-      im=ip;
-      if (desc)       add(el,descOrSelf());
-      checkAxis(desc ? Axis.DESC : Axis.CHILD);
-      final Expr st=step();
-      if (st == null)       error(PATHMISS,found());
-      if (!(st instanceof Context))       add(el,st);
+ else {
+      checkAxis(Axis.CHILD);
+      mark();
+      ex=step();
+      if (ex == null)       return root;
     }
- while (consume('/'));
+    add(el,ex);
+    relativePath(el);
   }
-  if (el.isEmpty())   add(el,AxisStep.get(info(),Axis.SELF,Test.NOD));
+ else {
+    mark();
+    final Expr ex=step();
+    if (ex == null)     return null;
+    final boolean nostep=curr() != '/' && (curr() != '!' || next() == '=');
+    if (nostep && !(ex instanceof AxisStep))     return ex;
+    el=new ExprList();
+    if (ex instanceof AxisStep)     add(el,ex);
+ else     root=ex;
+    relativePath(el);
+  }
   return Path.get(info(),root,el.finish());
 }
