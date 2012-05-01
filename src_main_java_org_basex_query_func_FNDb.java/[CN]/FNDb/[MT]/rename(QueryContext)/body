@@ -10,9 +10,11 @@
     if (trg.isEmpty())     EMPTYPATH.thrw(info,this);
     ctx.updates.add(new ReplaceValue(pre,data,info,token(trg)),ctx);
   }
-  final IOFile src=data.meta.binary(source);
-  final IOFile trg=data.meta.binary(target);
-  if (src == null || trg == null)   UPDBRENAMEERR.thrw(info,src);
-  ctx.updates.add(new DBRename(data,src.path(),trg.path(),info),ctx);
+  if (!data.inMemory()) {
+    final IOFile src=data.meta.binary(source);
+    final IOFile trg=data.meta.binary(target);
+    if (src == null || trg == null)     UPDBRENAMEERR.thrw(info,src);
+    ctx.updates.add(new DBRename(data,src.path(),trg.path(),info),ctx);
+  }
   return null;
 }

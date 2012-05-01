@@ -9,13 +9,17 @@
     if (res.docs(path).size() != 1)     DOCTRGMULT.thrw(info);
     ctx.updates.add(new DeleteNode(pre,data,info),ctx);
   }
-  final IOFile bin=data.meta.binary(path);
-  if (bin != null)   ctx.updates.add(new DBDelete(data,path,info),ctx);
-  ctx.updates.add(new DBAdd(data,info,doc,path,ctx.context),ctx);
-  final IOFile file=data.meta.binary(path);
-  if (file != null && file.exists() && !file.isDir()) {
-    final Item it=checkItem(doc,ctx);
-    ctx.updates.add(new DBStore(data,token(path),it,info),ctx);
+  if (!data.inMemory()) {
+    final IOFile bin=data.meta.binary(path);
+    if (bin != null) {
+      if (bin.exists() && !bin.isDir()) {
+        ctx.updates.add(new DBDelete(data,path,info),ctx);
+        ctx.updates.add(new DBStore(data,path,doc,info),ctx);
+      }
+ else {
+        ctx.updates.add(new DBAdd(data,info,doc,path,ctx.context),ctx);
+      }
+    }
   }
   return null;
 }

@@ -3,8 +3,12 @@
     final Data data=data(0,ctx);
     if (expr.length == 1)     return Bln.TRUE;
     final String path=path(1,ctx);
-    final IOFile io=data.meta.binary(path);
-    return Bln.get(io.exists() && !io.isDir() || data.resources.doc(path) != -1);
+    boolean raw=false;
+    if (!data.inMemory()) {
+      final IOFile io=data.meta.binary(path);
+      raw=io.exists() && !io.isDir();
+    }
+    return Bln.get(raw || data.resources.doc(path) != -1);
   }
  catch (  final QueryException ex) {
     if (ex.err() == NODB)     return Bln.FALSE;
