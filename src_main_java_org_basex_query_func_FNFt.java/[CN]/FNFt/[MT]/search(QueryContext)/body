@@ -1,3 +1,12 @@
 {
-  return search(data(0,ctx),checkStr(expr[1],ctx),this,ctx);
+  final Data data=data(0,ctx);
+  final Value terms=ctx.value(expr[1]);
+  final Item opt=expr.length > 2 ? expr[2].item(ctx,info) : null;
+  try {
+    final TokenMap tm=new FuncParams(Q_FTOPTIONS,this).parse(opt);
+    return search(data,terms,tm,this,ctx);
+  }
+ catch (  final QueryException ex) {
+    throw ex.err() == Err.GENERR ? FTOPT.thrw(info,ex) : ex;
+  }
 }

@@ -3,11 +3,15 @@
   try {
     final IO in=read(expr[0],ctx);
     final IO xsl=read(expr[1],ctx);
-    final TokenObjMap<Object> map=xsltParams(2,E_PARAM,ctx);
+    final Item opt=expr.length > 2 ? expr[2].item(ctx,info) : null;
+    final TokenMap map=new FuncParams(E_PARAM,this).parse(opt);
     final byte[] result=transform(in,xsl,map);
     return new DBNode(new IOContent(result),ctx.context.prop);
   }
- catch (  final Exception ex) {
+ catch (  final QueryException ex) {
+    throw ex.err() == Err.GENERR ? PARWHICH.thrw(info,ex.getLocalizedMessage()) : ex;
+  }
+catch (  final Exception ex) {
     Util.debug(ex);
     throw IOERR.thrw(info,ex instanceof InvocationTargetException ? ex.getCause() : ex);
   }

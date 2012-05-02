@@ -1,0 +1,17 @@
+{
+  final InputInfo info=expr == null ? null : expr.info;
+  if (it instanceof Map)   return ((Map)it).tokenJavaMap(info);
+  final TokenMap tm=new TokenMap();
+  if (it == null)   return tm;
+  if (!it.type.isNode())   NODFUNTYPE.thrw(info,it,it.type);
+  ANode n=(ANode)it;
+  if (!test.eq(n))   GENERR.thrw(info,n);
+  final AxisIter ai=n.children();
+  while ((n=ai.next()) != null) {
+    final QNm qn=n.qname();
+    if (!eq(qn.uri(),root.uri()))     GENERR.thrw(info,n);
+    final byte[] val=n.attribute(A_VALUE);
+    tm.add(qn.local(),val == null ? n.string() : val);
+  }
+  return tm;
+}

@@ -1,0 +1,34 @@
+{
+  final InputInfo info=fun.info;
+  final IndexContext ic=new IndexContext(ctx,data,null,true);
+  if (!data.meta.ftxtindex)   NOINDEX.thrw(info,data.meta.name,IndexType.FULLTEXT.toString().toLowerCase(Locale.ENGLISH));
+  final FTOpt tmp=ctx.ftOpt();
+  final FTOpt opt=new FTOpt().copy(data.meta);
+  FTMode m=FTMode.ANY;
+  if (map != null) {
+    for (    final byte[] k : map) {
+      final byte[] v=map.get(k);
+      if (eq(k,FUZZY)) {
+        final boolean t=v.length == 0 || Util.yes(string(v));
+        opt.set(FZ,t);
+        if (t && data.meta.wildcards)         INDEXENT.thrw(info);
+      }
+ else       if (eq(k,WILDCARDS)) {
+        final boolean t=v.length == 0 || Util.yes(string(v));
+        opt.set(WC,t);
+        if (t && !data.meta.wildcards)         INDEXENT.thrw(info);
+      }
+ else       if (eq(k,MODE)) {
+        m=FTMode.get(v);
+        if (m == null)         FTMODE.thrw(info,v);
+      }
+ else {
+        FTOPT.thrw(info,k);
+      }
+    }
+  }
+  ctx.ftOpt(opt);
+  final FTWords words=new FTWords(info,ic.data,terms,m,ctx).comp(ctx);
+  ctx.ftOpt(tmp);
+  return new FTIndexAccess(info,words,ic).iter(ctx);
+}
