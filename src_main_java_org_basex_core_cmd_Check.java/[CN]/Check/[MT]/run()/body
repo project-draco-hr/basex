@@ -3,7 +3,7 @@
   final QueryInput input=new QueryInput(args[0]);
   input.db=input.io.dbname();
   final boolean create=context.user.has(Perm.CREATE);
-  final Command cmd=!create || MetaData.found(input,mprop) ? new Open(input.db) : new CreateDB(input.db,input.original);
+  final Command cmd=!create || mprop.dbpath(input.db).exists() ? new Open(input.db) : new CreateDB(input.db,input.original);
   final boolean ok=cmd.run(context);
   final String msg=cmd.info().trim();
   return ok ? info(msg) : error(msg);
