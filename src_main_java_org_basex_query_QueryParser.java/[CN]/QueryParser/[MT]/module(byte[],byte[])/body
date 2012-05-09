@@ -1,11 +1,12 @@
 {
-  final byte[] u=ctx.modParsed.get(path);
+  final IO io=ctx.sc.io(string(path));
+  final byte[] p=token(io.path());
+  final byte[] u=ctx.modParsed.get(p);
   if (u != null) {
-    if (!eq(uri,u))     error(WRONGMODULE,uri,path);
+    if (!eq(uri,u))     error(WRONGMODULE,uri,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
     return;
   }
-  ctx.modParsed.add(path,uri);
-  final IO io=ctx.sc.io(string(path));
+  ctx.modParsed.add(p,uri);
   String qu=null;
   try {
     qu=string(io.read());
