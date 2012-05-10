@@ -38,10 +38,9 @@
   }
   if (SELECTALL.is(e)) {
     selectAll();
-    text.setCaret();
     return;
   }
-  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e)&& !REDOSTEP.is(e);
+  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e);
   final boolean nomark=!text.marked();
   if (marking && nomark)   text.startMark();
   boolean down=true;
@@ -68,7 +67,7 @@
     down=false;
   }
  else   if (LINEEND.is(e)) {
-    text.forward(Integer.MAX_VALUE,marking);
+    text.eol(marking);
   }
  else   if (NEXTPAGE.is(e)) {
     down(getHeight() / fh,marking);
@@ -114,6 +113,9 @@
  else     if (COMMENT.is(e)) {
       text.comment(rend.getSyntax());
     }
+ else     if (DELLINE.is(e)) {
+      text.deleteLine();
+    }
  else     if (DELLINEEND.is(e) || DELNEXTWORD.is(e) || DELNEXT.is(e)) {
       if (nomark) {
         if (text.pos() == text.size())         return;
@@ -122,7 +124,7 @@
           text.nextToken(true);
         }
  else         if (DELLINEEND.is(e)) {
-          text.forward(Integer.MAX_VALUE,true);
+          text.eol(true);
         }
  else {
           text.next(true);
