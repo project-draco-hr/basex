@@ -1,44 +1,49 @@
 {
   if (undo == null || control(e) || DELNEXT.is(e) || DELPREV.is(e) || ESCAPE.is(e))   return;
   text.pos(text.cursor());
-  boolean indent=false;
-  if (text.marked()) {
-    if (TAB.is(e)) {
+  String ch=String.valueOf(e.getKeyChar());
+  boolean del=true;
+  if (TAB.is(e)) {
+    if (text.marked()) {
       final int s=Math.min(text.pos(),text.start());
       final int l=Math.max(text.pos(),text.start()) - 1;
-      for (int p=s; p <= l && p < text.size(); p++) {
-        indent|=text.text[p] == '\n';
+      for (int p=s; p <= l && p < text.size(); p++)       del&=text.text[p] != '\n';
+      if (!del) {
+        text.indent(s,l,e.isShiftDown());
+        ch=null;
       }
-      if (indent)       text.indent(s,l,e.isShiftDown());
     }
-    if (!indent)     text.delete();
+ else {
+      boolean c=true;
+      for (int p=text.pos() - 1; p >= 0 && c; p--) {
+        final byte b=text.text[p];
+        c=ws(b);
+        if (b == '\n')         break;
+      }
+      if (c)       ch="  ";
+    }
   }
+  if (text.marked() && del)   text.delete();
   if (ENTER.is(e)) {
     final StringBuilder sb=new StringBuilder(1).append(e.getKeyChar());
-    int s=0, t=0;
+    int s=0;
     for (int p=text.pos() - 1; p >= 0; p--) {
       final byte b=text.text[p];
-      if (b == '\n') {
-        break;
-      }
- else       if (b == '\t') {
-        t++;
+      if (b == '\n')       break;
+      if (b == '\t') {
+        s+=2;
       }
  else       if (b == ' ') {
         s++;
       }
  else {
-        t=0;
         s=0;
       }
     }
-    for (int p=0; p < t; p++)     sb.append('\t');
     for (int p=0; p < s; p++)     sb.append(' ');
-    text.add(sb.toString());
+    ch=sb.toString();
   }
- else   if (!indent) {
-    text.add(String.valueOf(e.getKeyChar()));
-  }
+  if (ch != null)   text.add(ch);
   text.setCaret();
   rend.calc();
   showCursor(2);
