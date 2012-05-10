@@ -6,19 +6,21 @@
   BucketEntry prev=e;
   while (e != null) {
     final BucketEntry next=e.next;
-    final CacheEntry entry=e.get();
-    if (entry == null) {
+    final IndexEntry ce=e.get();
+    if (ce == null) {
       delete(i,e,prev,next);
     }
- else     if (e.hash == hash && eq(entry.key,key)) {
-      entry.size=s;
-      entry.pointer=p;
-      return;
+ else     if (e.hash == hash && eq(ce.key,key)) {
+      ce.size=s;
+      ce.pointer=p;
+      return ce;
     }
     prev=e;
     e=next;
   }
   e=bucket[i];
-  bucket[i]=new BucketEntry(hash,e,new CacheEntry(key,s,p),queue);
+  final IndexEntry ce=new IndexEntry(key,s,p);
+  bucket[i]=new BucketEntry(hash,e,ce,queue);
   if (++size == bucket.length)   rehash();
+  return ce;
 }

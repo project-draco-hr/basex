@@ -3,4 +3,23 @@
   scm=d.meta.scoring;
   max=Math.log(data.meta.maxscore + 1);
   min=Math.log(data.meta.minscore - 1);
+  inY=new DataAccess(d.meta.dbfile(DATAFTX + 'y'));
+  inZ=new DataAccess(d.meta.dbfile(DATAFTX + 'z'));
+  inX=new DataAccess(d.meta.dbfile(DATAFTX + 'x'));
+  tp=new int[d.meta.maxlen + 3];
+  for (int i=0; i < tp.length; ++i)   tp[i]=-1;
+  int is=inX.readNum();
+  while (--is >= 0) {
+    int p=inX.readNum();
+    final int r;
+    if (p < tp.length) {
+      r=inX.read4();
+    }
+ else {
+      r=p << 24 | (inX.read1() & 0xFF) << 16 | (inX.read1() & 0xFF) << 8 | inX.read1() & 0xFF;
+      p=p >> 8 | 0x40;
+    }
+    tp[p]=r;
+  }
+  tp[tp.length - 1]=(int)inY.length();
 }

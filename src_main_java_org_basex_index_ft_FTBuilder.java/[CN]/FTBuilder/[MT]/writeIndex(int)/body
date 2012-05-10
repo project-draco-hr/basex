@@ -1,0 +1,32 @@
+{
+  final String s=DATAFTX + (merge ? cs : "");
+  final DataOutput outX=new DataOutput(data.meta.dbfile(s + 'x'));
+  final DataOutput outY=new DataOutput(data.meta.dbfile(s + 'y'));
+  final DataOutput outZ=new DataOutput(data.meta.dbfile(s + 'z'));
+  final IntList ind=new IntList();
+  long dr=0;
+  int tr=0;
+  int j=0;
+  tree.init();
+  while (tree.more(cs)) {
+    final FTIndexTree t=tree.nextTree();
+    t.next();
+    final byte[] key=t.nextTok();
+    if (j < key.length) {
+      j=key.length;
+      ind.add(j);
+      ind.add(tr);
+    }
+    for (int i=0; i < j; ++i)     outY.write1(key[i]);
+    outY.write5(dr);
+    outY.write4(t.nextNumPre());
+    writeFTData(outZ,t.nextPres(),t.nextPoss());
+    dr=outZ.size();
+    tr=(int)outY.size();
+  }
+  writeInd(outX,ind,++j,tr);
+  outX.close();
+  outY.close();
+  outZ.close();
+  tree.initFT();
+}
