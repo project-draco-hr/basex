@@ -1,12 +1,13 @@
 {
   final byte[] tok=ind.get();
-  if (((FTLexer)ind).ftOpt().is(FZ)) {
-    int k=data.meta.prop.num(Prop.LSERROR);
-    if (k == 0)     k=tok.length >> 2;
-    return fuzzy(tok,k,false);
+  final FTOpt opt=((FTLexer)ind).ftOpt();
+  if (opt.is(WC))   return wc(tok);
+  if (opt.is(FZ)) {
+    final int k=data.meta.prop.num(Prop.LSERROR);
+    return fuzzy(tok,k == 0 ? tok.length >> 2 : k);
   }
   final CacheEntry e=cache.get(tok);
-  if (e != null)   return iter(e.pointer,e.size,inZ,false);
+  if (e != null)   return iter(e.pointer,e.size,inZ);
   final int p=token(tok);
-  return p > -1 ? iter(pointer(p,tok.length),size(p,tok.length),inZ,false) : FTIndexIterator.FTEMPTY;
+  return p > -1 ? iter(pointer(p,tok.length),size(p,tok.length),inZ) : FTIndexIterator.FTEMPTY;
 }

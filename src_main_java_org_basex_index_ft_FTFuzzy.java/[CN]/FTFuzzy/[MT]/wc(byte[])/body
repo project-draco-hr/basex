@@ -1,0 +1,20 @@
+{
+  FTIndexIterator it=FTIndexIterator.FTEMPTY;
+  final FTWildcard wc=new FTWildcard();
+  if (!wc.parse(tok))   return it;
+  final int e=Math.min(tp.length - 1,wc.max());
+  for (int s=wc.min(); s <= e; s++) {
+    int p=tp[s];
+    if (p == -1)     continue;
+    int i=s + 1;
+    int r=-1;
+    while (i < tp.length && r == -1)     r=tp[i++];
+    while (p < r) {
+      if (wc.match(inY.readBytes(p,s))) {
+        it=FTIndexIterator.union(iter(pointer(p,s),size(p,s),inZ),it);
+      }
+      p+=s + ENTRY;
+    }
+  }
+  return it;
+}
