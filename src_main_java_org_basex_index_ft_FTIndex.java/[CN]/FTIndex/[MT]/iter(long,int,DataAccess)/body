@@ -1,54 +1,11 @@
 {
   da.cursor(off);
-  final IntList vals=new IntList();
-  for (int c=0, lp=0; c < size; ) {
-    if (lp == 0) {
-      if (scm > 0)       vals.add(da.readNum());
-      lp=da.readNum();
-      vals.add(lp);
-    }
-    final int pr=lp;
-    vals.add(da.readNum());
-    while (++c < size) {
-      lp=da.readNum();
-      vals.add(lp);
-      if (lp != pr)       break;
-      vals.add(da.readNum());
-    }
+  final int sc=scm > 0 ? da.readNum() : 0;
+  final IntList pr=new IntList(size);
+  final IntList ps=new IntList(size);
+  for (int c=0; c < size; c++) {
+    pr.add(da.readNum());
+    ps.add(da.readNum());
   }
-  return new FTIndexIterator(){
-    final FTMatches all=new FTMatches(toknum);
-    int c, pre, lpre;
-    double sc=-1;
-    @Override public synchronized boolean more(){
-      if (c == vals.size())       return false;
-      if (lpre == 0) {
-        if (scm > 0)         sc=(Math.log(vals.get(c++)) - min) / (max - min);
-        lpre=vals.get(c++);
-      }
-      pre=lpre;
-      all.reset(toknum);
-      all.or(vals.get(c++));
-      while (c < vals.size() && (lpre=vals.get(c++)) == pre) {
-        all.or(vals.get(c++));
-      }
-      return true;
-    }
-    @Override public synchronized FTMatches matches(){
-      return all;
-    }
-    @Override public synchronized int next(){
-      return pre;
-    }
-    @Override public synchronized int size(){
-      return size;
-    }
-    @Override public synchronized double score(){
-      return sc;
-    }
-    @Override public String toString(){
-      return Integer.toString(size);
-    }
-  }
-;
+  return iter(new FTCache(pr,ps,sc));
 }

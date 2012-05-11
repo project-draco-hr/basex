@@ -1,20 +1,34 @@
 {
-  FTIndexIterator it=FTIndexIterator.FTEMPTY;
-  final FTWildcard wc=new FTWildcard();
-  if (!wc.parse(tok))   return it;
-  final int e=Math.min(tp.length - 1,wc.max());
-  for (int s=wc.min(); s <= e; s++) {
-    int p=tp[s];
-    if (p == -1)     continue;
-    int i=s + 1;
-    int r=-1;
-    while (i < tp.length && r == -1)     r=tp[i++];
-    while (p < r) {
-      if (wc.match(inY.readBytes(p,s))) {
-        it=FTIndexIterator.union(iter(pointer(p,s),size(p,s),inZ),it);
+  final FTIndexIterator it=FTIndexIterator.FTEMPTY;
+  final FTWildcard wc=new FTWildcard(token);
+  if (!wc.parse())   return it;
+  final IntList pr=new IntList();
+  final IntList ps=new IntList();
+  int sc=0, sz=0;
+  final byte[] pref=wc.prefix();
+  final int l=Math.min(tp.length - 1,wc.max());
+  for (int ti=pref.length; ti <= l; ti++) {
+    int i=tp[ti];
+    if (i == -1)     continue;
+    int c=ti + 1;
+    int e=-1;
+    while (c < tp.length && e == -1)     e=tp[c++];
+    i=find(pref,i,e,ti);
+    while (i < e) {
+      final byte[] t=inY.readBytes(i,ti);
+      if (!startsWith(t,pref))       break;
+      if (wc.match(t)) {
+        inZ.cursor(pointer(i,ti));
+        final int s=size(i,ti);
+        if (scm > 0)         sc+=inZ.readNum();
+        for (int d=0; d < s; d++) {
+          pr.add(inZ.readNum());
+          ps.add(inZ.readNum());
+        }
+        sz++;
       }
-      p+=s + ENTRY;
+      i+=ti + ENTRY;
     }
   }
-  return it;
+  return iter(new FTCache(pr,ps,sz == 0 ? 0 : sc / sz));
 }
