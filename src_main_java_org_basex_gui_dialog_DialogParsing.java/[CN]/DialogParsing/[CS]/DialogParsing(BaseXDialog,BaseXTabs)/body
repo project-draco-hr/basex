@@ -20,8 +20,24 @@
   params=new BaseXTextField(prop.get(Prop.HTMLOPT),d);
   lines=new BaseXCheckBox(SPLIT_INPUT_LINES,props.is(ParserProp.LINES),0,d);
   header=new BaseXCheckBox(FIRST_LINE_HEADER,props.is(ParserProp.HEADER),0,d);
-  separator=new BaseXCombo(d,CSVParser.SEPARATORS);
-  separator.setSelectedItem(props.get(ParserProp.SEPARATOR));
+  separator=new BaseXBack().layout(new TableLayout(1,2,6,0));
+  final StringList sl=new StringList();
+  sl.add(CSVParser.SEPARATORS).add("");
+  sepcombo=new BaseXCombo(d,sl.toArray());
+  separator.add(sepcombo);
+  String f="";
+  final String s=props.get(ParserProp.SEPARATOR);
+  if (Token.eq(s,CSVParser.SEPARATORS)) {
+    sepcombo.setSelectedItem(s);
+  }
+ else {
+    sepcombo.setSelectedIndex(CSVParser.SEPARATORS.length);
+    final int ch=Token.toInt(s);
+    f=XMLToken.valid(ch) ? String.valueOf((char)ch) : "";
+  }
+  sepchar=new BaseXTextField(f,d);
+  separator.add(sepchar);
+  BaseXLayout.setWidth(sepchar,35);
   format=new BaseXCombo(d,CSVParser.FORMATS);
   format.setSelectedItem(props.get(ParserProp.FORMAT));
   final String enc=props.get(ParserProp.ENCODING);
