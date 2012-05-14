@@ -5,11 +5,7 @@
   for (pre=0; pre < size; ++pre) {
     if ((pre & 0xFFFF) == 0)     check();
     final int k=data.kind(pre);
-    if (k != Data.TEXT) {
-      if (scm == 1 && k == Data.DOC)       unit.add(pre);
-      continue;
-    }
-    if (scm == 2)     unit.add(pre);
+    if (k != Data.TEXT)     continue;
     pos=-1;
     final StopWords sw=lex.ftOpt().sw;
     lex.init(data.text(pre,true));
@@ -17,7 +13,7 @@
       final byte[] tok=lex.nextToken();
       ++pos;
       if (tok.length <= data.meta.maxlen && (sw.isEmpty() || !sw.contains(tok))) {
-        if ((ntok++ & 0xFFF) == 0 && scm == 0 && memFull()) {
+        if ((ntok++ & 0xFFF) == 0 && memFull()) {
           writeIndex(csize++);
           Performance.gc(2);
         }
@@ -25,18 +21,7 @@
       }
     }
   }
-  if (scm > 0) {
-    maxfreq=new int[unit.size() + 1];
-    ntoken=new int[nrTokens()];
-    token=0;
-    calcFreq();
-  }
-  token=0;
   write();
-  if (scm > 0) {
-    data.meta.maxscore=max;
-    data.meta.minscore=min;
-  }
   data.meta.ftxtindex=true;
   Util.memory(perf);
 }
