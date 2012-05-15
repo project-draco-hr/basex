@@ -1,14 +1,15 @@
 {
-  if (!running)   return;
+  if (!running && authenticated)   return;
+  timer.cancel();
   running=false;
-  if (log != null)   log.write(this,"LOGOUT " + context.user.name,OK);
+  if (log != null)   log.write(this,"LOGOUT " + (null != context.user ? context.user.name : ""),OK);
   if (command != null) {
     command.stop();
     while (command != null)     Performance.sleep(50);
   }
   context.delete(this);
   try {
-    new Close().execute(context);
+    if (null != context.data())     new Close().execute(context);
     socket.close();
     if (events) {
       esocket.close();
