@@ -1,4 +1,15 @@
 {
+  if (context.mprop.num(MainProp.KEEPALIVE) > 0) {
+    timer.schedule(new java.util.TimerTask(){
+      @Override public void run(){
+        if (!authenticated) {
+          if (log != null)           log.write(this,"AUTHENTIFICATION TIMED OUT");
+          quit();
+        }
+      }
+    }
+,context.mprop.num(MainProp.KEEPALIVE) * 1000L);
+  }
   try {
     final String ts=Long.toString(System.nanoTime());
     final byte[] address=socket.getInetAddress().getAddress();
@@ -22,11 +33,14 @@
     }
   }
  catch (  final IOException ex) {
-    Util.stack(ex);
-    log.write(ex.getMessage());
+    if (running) {
+      Util.stack(ex);
+      log.write(ex.getMessage());
+    }
     return;
   }
   if (!running)   return;
+  authenticated=true;
   ServerCmd sc=null;
   String cmd=null;
   try {
