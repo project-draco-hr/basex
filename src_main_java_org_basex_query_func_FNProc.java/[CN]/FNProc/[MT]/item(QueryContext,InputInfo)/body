@@ -1,0 +1,28 @@
+{
+  checkCreate(ctx);
+  final TokenList tl=new TokenList();
+  tl.add(checkStr(expr[0],ctx));
+  if (expr.length > 1) {
+    final Iter ir=ctx.iter(expr[1]);
+    for (Item it; (it=ir.next()) != null; ) {
+      tl.add(checkStr(it,ctx));
+    }
+  }
+  final String c=expr.length > 2 ? string(checkStr(expr[2],ctx)) : Prop.ENCODING;
+  Charset cs=null;
+  try {
+    cs=Charset.forName(c);
+  }
+ catch (  final Exception ex) {
+    PROCENC.thrw(info,c);
+  }
+  final String[] args=tl.toStringArray();
+switch (sig) {
+case _PROC_SYSTEM:
+    return system(args,cs);
+case _PROC_EXECUTE:
+  return execute(args,cs);
+default :
+return super.item(ctx,ii);
+}
+}
