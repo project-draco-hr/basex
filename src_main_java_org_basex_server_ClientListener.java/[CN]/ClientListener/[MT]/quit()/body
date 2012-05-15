@@ -1,6 +1,5 @@
 {
-  if (!running && authenticated)   return;
-  timer.cancel();
+  if (!running)   return;
   running=false;
   if (log != null)   log.write(this,"LOGOUT " + (null != context.user ? context.user.name : ""),OK);
   if (command != null) {
@@ -9,15 +8,15 @@
   }
   context.delete(this);
   try {
-    if (null != context.data())     new Close().execute(context);
+    new Close().execute(context);
     socket.close();
     if (events) {
       esocket.close();
       for (      final Sessions s : context.events.values())       s.remove(this);
     }
   }
- catch (  final Exception ex) {
-    if (log != null)     log.write(ex.getMessage());
+ catch (  final Throwable ex) {
+    if (log != null)     log.write(this,ex.getMessage());
     Util.stack(ex);
   }
 }
