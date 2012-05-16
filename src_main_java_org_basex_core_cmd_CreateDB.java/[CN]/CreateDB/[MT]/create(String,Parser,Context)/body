@@ -3,7 +3,7 @@
   final Prop prop=ctx.prop;
   if (prop.is(Prop.MAINMEM))   return MemBuilder.build(name,parser);
   if (ctx.pinned(name))   throw new BaseXException(DB_PINNED_X,name);
-  final Builder builder=new DiskBuilder(name,parser,ctx);
+  final DiskBuilder builder=new DiskBuilder(name,parser,ctx);
   try {
     final Data data=builder.build();
     if (data.meta.createtext)     data.setIndex(IndexType.TEXT,new ValueBuilder(data,true).build());
@@ -12,12 +12,7 @@
     data.close();
   }
   finally {
-    try {
-      builder.close();
-    }
- catch (    final IOException exx) {
-      Util.debug(exx);
-    }
+    builder.close();
   }
   ctx.databases().add(name);
   return Open.open(name,ctx);
