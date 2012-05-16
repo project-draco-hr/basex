@@ -1,44 +1,5 @@
 {
-  final int to=context.mprop.num(MainProp.AUTHTIMEOUT);
-  if (to > 0) {
-    auth.schedule(new TimerTask(){
-      @Override public void run(){
-        quitAuth();
-      }
-    }
-,to * 1000L);
-  }
-  try {
-    final String ts=Long.toString(System.nanoTime());
-    final byte[] address=socket.getInetAddress().getAddress();
-    out=PrintOutput.get(socket.getOutputStream());
-    out.print(ts);
-    send(true);
-    in=new BufferInput(socket.getInputStream());
-    final String us=in.readString();
-    final String pw=in.readString();
-    context.user=context.users.get(us);
-    running=context.user != null && md5(context.user.password + ts).equals(pw);
-    if (running) {
-      log.write(this,"LOGIN " + context.user.name,OK);
-      send(true);
-      server.unblock(address);
-      context.add(this);
-    }
- else {
-      if (!us.isEmpty())       log.write(this,ACCESS_DENIED + COLS + us);
-      new ClientDelayer(server.block(address),this,server).start();
-    }
-  }
- catch (  final IOException ex) {
-    if (running) {
-      Util.stack(ex);
-      log.write(ex.getMessage());
-      running=false;
-    }
-  }
-  auth.cancel();
-  if (!running)   return;
+  if (!authenticate())   return;
   ServerCmd sc=null;
   String cmd=null;
   try {

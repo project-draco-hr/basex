@@ -15,7 +15,18 @@
             if (ms - cs.last > ka)             cs.quit();
           }
         }
-        new ClientListener(s,context,log,this).start();
+        final ClientListener cl=new ClientListener(s,context,log,this);
+        final long to=context.mprop.num(MainProp.AUTHTIMEOUT) * 1000L;
+        if (to > 0) {
+          cl.auth.schedule(new TimerTask(){
+            @Override public void run(){
+              cl.quitAuth();
+            }
+          }
+,to);
+          auth.add(cl);
+        }
+        cl.start();
       }
     }
  catch (    final SocketException ex) {
