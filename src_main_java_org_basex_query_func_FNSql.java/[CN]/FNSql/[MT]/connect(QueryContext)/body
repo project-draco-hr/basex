@@ -6,7 +6,7 @@
       final String pass=string(checkStr(expr[2],ctx));
       if (expr.length == 4) {
         final Item opt=expr[3].item(ctx,info);
-        final TokenMap options=new FuncParams(E_OPS,this).parse(opt);
+        final TokenMap options=new FuncParams(E_OPS,info).parse(opt);
         boolean ac=true;
         final byte[] commit=options.get(AUTO_COMM);
         if (commit != null) {
@@ -24,10 +24,7 @@
     }
     return Int.get(ctx.jdbc().add(getConnection(url)));
   }
- catch (  final QueryException ex) {
-    throw ex.err() == Err.GENERR ? PARWHICH.thrw(info,ex) : ex;
-  }
-catch (  final SQLException ex) {
+ catch (  final SQLException ex) {
     throw SQLEXC.thrw(info,ex.getMessage());
   }
 }
