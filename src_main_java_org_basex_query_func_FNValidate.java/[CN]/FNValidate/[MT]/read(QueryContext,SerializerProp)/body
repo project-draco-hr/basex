@@ -1,0 +1,19 @@
+{
+  final Item it=checkItem(expr[0],ctx);
+  if (it.isEmpty())   throw STRNODTYPE.thrw(info,this);
+  final Type ip=it.type;
+  final ArrayOutput ao=new ArrayOutput();
+  if (ip.isNode()) {
+    Serializer.get(ao,sp).serialize((ANode)it);
+    return new IOContent(ao.toArray());
+  }
+  if (ip.isString()) {
+    IO io=IO.get(string(it.string(info)));
+    if (sp != null) {
+      Serializer.get(ao,sp).serialize(new DBNode(io,ctx.context.prop));
+      io=IO.get(ao.toString());
+    }
+    return io;
+  }
+  throw STRNODTYPE.thrw(info,this,ip);
+}
