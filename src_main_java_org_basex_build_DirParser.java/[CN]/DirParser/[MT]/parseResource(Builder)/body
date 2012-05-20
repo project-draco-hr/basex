@@ -1,0 +1,56 @@
+{
+  b.checkStop();
+  final long l=src.length();
+  if (l != -1)   b.meta.filesize+=l;
+  String targ=target;
+  String path=src.path();
+  final String name=src.name();
+  if (path.endsWith('/' + name)) {
+    path=path.substring(0,path.length() - name.length());
+    if (path.startsWith(root))     path=path.substring(root.length());
+    targ=(targ + path).replace("//","/");
+  }
+  boolean exclude=false;
+  if (filter != null) {
+    String nm=src.name();
+    if (Prop.WIN)     nm=name.toLowerCase(Locale.ENGLISH);
+    exclude=!filter.matcher(nm).matches();
+  }
+  if (exclude) {
+    if (addRaw && rawPath != null) {
+      Store.store(src.inputSource(),new IOFile(rawPath,targ + name));
+    }
+  }
+ else {
+    if (rawParser) {
+      if (rawPath != null) {
+        Store.store(src.inputSource(),new IOFile(rawPath,targ + name));
+      }
+    }
+ else {
+      boolean ok=true;
+      IO in=src;
+      if (skipCorrupt) {
+        try {
+          if (!(src instanceof IOContent)) {
+            in=new IOContent(src.read());
+            in.name(src.name());
+          }
+          parser=Parser.singleParser(in,prop,targ);
+          MemBuilder.build("",parser);
+        }
+ catch (        final IOException ex) {
+          Util.debug(ex.getMessage());
+          skipped.add(src.path());
+          ok=false;
+        }
+      }
+      if (ok) {
+        parser=Parser.singleParser(in,prop,targ);
+        parser.parse(b);
+      }
+      parser=null;
+      if (Prop.debug && (++c & 0x3FF) == 0)       Util.err(";");
+    }
+  }
+}

@@ -10,17 +10,11 @@
     io=IO.get(in.getSystemId());
   }
  else   if (in.getByteStream() != null) {
-    try {
-      io=cacheRaw();
-    }
- catch (    final IOException ex) {
-      return error(Util.message(ex));
-    }
+    io=new IOStream(in.getByteStream());
+    io.name(name);
   }
-  if (io != null) {
-    if (!io.exists())     return error(RES_NOT_FOUND_X,create ? io : args[1]);
-    if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+='/';
-  }
+  if (!io.exists())   return error(RES_NOT_FOUND_X,create ? io : args[1]);
+  if (!name.endsWith("/") && (io.isDir() || io.isArchive()))   name+='/';
   String target="";
   final int s=name.lastIndexOf('/');
   if (s != -1) {
@@ -29,14 +23,9 @@
   }
   final Data data=context.data();
   final Parser parser;
-  if (io != null) {
-    if (!name.isEmpty())     io.name(name);
- else     if (!(io instanceof IOContent))     name=io.name();
-    parser=new DirParser(io,prop,data.meta.path);
-  }
- else {
-    parser=new SAXWrapper(new SAXSource(in),name,context.prop);
-  }
+  if (!name.isEmpty())   io.name(name);
+ else   if (!(io instanceof IOContent))   name=io.name();
+  parser=new DirParser(io,prop,data.meta.path);
   parser.target(target);
   if (name.isEmpty())   return error(NAME_INVALID_X,name);
   final long fl=parser.src.length();
