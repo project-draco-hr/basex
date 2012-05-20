@@ -1,0 +1,26 @@
+{
+  read("English");
+  final StringBuilder sb=new StringBuilder();
+  final HashSet<String> set=new HashSet<String>();
+  for (  final String s : TEXTS.keySet())   set.add(s);
+  final IOFile[] files=new IOFile("src/main/resources/lang").children();
+  for (  final IOFile f : files) {
+    final String lang=f.name().replace("." + SUFFIX,"");
+    if (lang.equals("English"))     continue;
+    read(lang);
+    for (    final Object o : set.toArray()) {
+      if (TEXTS.remove(o) == null)       sb.append("- " + o + "\n");
+    }
+    if (sb.length() != 0) {
+      Util.err("Missing in %.lang:\n%",lang,sb);
+      sb.setLength(0);
+    }
+    for (    final String s : TEXTS.keySet()) {
+      sb.append("- " + s + "\n");
+    }
+    if (sb.length() != 0) {
+      Util.err("Not defined in %.lang:\n%",lang,sb);
+      sb.setLength(0);
+    }
+  }
+}

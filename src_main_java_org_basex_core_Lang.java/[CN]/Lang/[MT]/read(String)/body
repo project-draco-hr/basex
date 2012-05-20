@@ -1,0 +1,39 @@
+{
+  TEXTS.clear();
+  CHECK.clear();
+  final String path='/' + SUFFIX + '/'+ lang+ '.'+ SUFFIX;
+  final InputStream is=Lang.class.getResourceAsStream(path);
+  if (is == null) {
+    Util.errln(path + " not found.");
+  }
+ else {
+    BufferedReader br=null;
+    try {
+      br=new BufferedReader(new InputStreamReader(is,Token.UTF8));
+      for (String line; (line=br.readLine()) != null; ) {
+        final int i=line.indexOf('=');
+        if (i == -1 || line.startsWith("#"))         continue;
+        final String key=line.substring(0,i).trim();
+        String val=line.substring(i + 1).trim();
+        if (val.contains("\\n"))         val=val.replaceAll("\\\\n",Prop.NL);
+        if (Prop.langkeys)         val='[' + key + ": "+ val+ ']';
+        if (TEXTS.put(key,val) != null) {
+          Util.errln("%." + SUFFIX + ": '%' found twice in language file",lang,key);
+          Util.stack(10);
+          System.exit(0);
+        }
+        CHECK.put(key,true);
+      }
+    }
+ catch (    final IOException ex) {
+      Util.errln(ex);
+    }
+ finally {
+      if (br != null)       try {
+        br.close();
+      }
+ catch (      final IOException ex) {
+      }
+    }
+  }
+}
