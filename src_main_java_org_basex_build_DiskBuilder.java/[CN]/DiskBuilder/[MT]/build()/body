@@ -10,15 +10,19 @@
   bs=Math.max(IO.BLOCKSIZE,bs - bs % IO.BLOCKSIZE);
   DropDB.drop(name,context);
   context.mprop.dbpath(name).md();
-  tout=new DataOutput(new TableOutput(md,DATATBL));
-  xout=new DataOutput(md.dbfile(DATATXT),bs);
-  vout=new DataOutput(md.dbfile(DATAATV),bs);
-  sout=new DataOutput(md.dbfile(DATATMP),bs);
   meta=md;
   tags=new Names(md);
   atts=new Names(md);
-  parse();
-  close();
+  try {
+    tout=new DataOutput(new TableOutput(md,DATATBL));
+    xout=new DataOutput(md.dbfile(DATATXT),bs);
+    vout=new DataOutput(md.dbfile(DATAATV),bs);
+    sout=new DataOutput(md.dbfile(DATATMP),bs);
+    parse();
+  }
+  finally {
+    close();
+  }
   final TableAccess ta=new TableDiskAccess(md,true);
   final DataInput in=new DataInput(md.dbfile(DATATMP));
   for (; spos < ssize; ++spos)   ta.write4(in.readNum(),8,in.readNum());
