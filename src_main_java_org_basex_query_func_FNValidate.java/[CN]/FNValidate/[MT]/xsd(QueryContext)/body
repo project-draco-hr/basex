@@ -8,13 +8,18 @@
     }
  else {
       final IO sc=IO.get(string(checkStr(expr[1],ctx)));
-      if (!sc.exists())       RESFNF.thrw(info,sc);
+      if (!sc.exists())       WHICHRES.thrw(info,sc);
       schema=sf.newSchema(new URL(sc.url()));
     }
-    schema.newValidator().validate(new StreamSource(in.inputStream()));
+    final Validator v=schema.newValidator();
+    v.setErrorHandler(new SchemaHandler());
+    v.validate(new StreamSource(in.inputStream()));
     return null;
   }
  catch (  final Exception ex) {
-    throw DOCVAL.thrw(info,ex.getMessage());
+    if (ex instanceof QueryException)     throw (QueryException)ex;
+    Throwable e=ex;
+    while (e.getCause() != null)     e=e.getCause();
+    throw VALFAIL.thrw(info,e.getMessage());
   }
 }

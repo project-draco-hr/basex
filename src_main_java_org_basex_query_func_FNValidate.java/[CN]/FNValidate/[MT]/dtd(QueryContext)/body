@@ -4,7 +4,7 @@
     if (expr.length == 2) {
       final SerializerProp sp=new SerializerProp();
       final String dtd=string(checkStr(expr[1],ctx));
-      if (!IO.get(dtd).exists())       RESFNF.thrw(info,dtd);
+      if (!IO.get(dtd).exists())       WHICHRES.thrw(info,dtd);
       sp.set(SerializerProp.S_DOCTYPE_SYSTEM,dtd);
       in=read(ctx,sp);
     }
@@ -14,12 +14,12 @@
     final SAXParserFactory sf=SAXParserFactory.newInstance();
     sf.setValidating(true);
     final InputSource is=in.inputSource();
-    sf.newSAXParser().parse(is,new DTDHandler());
+    sf.newSAXParser().parse(is,new SchemaHandler());
     return null;
   }
  catch (  final Exception ex) {
     if (ex instanceof QueryException)     throw (QueryException)ex;
     Util.debug(ex);
-    throw DOCVAL.thrw(info,ex.getMessage());
+    throw VALFAIL.thrw(info,ex.getMessage());
   }
 }
