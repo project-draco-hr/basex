@@ -2,12 +2,19 @@
   try {
     final IO in=read(ctx,null);
     final SchemaFactory sf=SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    final Schema s=expr.length < 2 ? sf.newSchema() : sf.newSchema(new URL(string(checkStr(expr[1],ctx))));
-    s.newValidator().validate(new StreamSource(in.inputStream()));
+    final Schema schema;
+    if (expr.length < 2) {
+      schema=sf.newSchema();
+    }
+ else {
+      final IO sc=IO.get(string(checkStr(expr[1],ctx)));
+      if (!sc.exists())       RESFNF.thrw(info,sc);
+      schema=sf.newSchema(new URL(sc.url()));
+    }
+    schema.newValidator().validate(new StreamSource(in.inputStream()));
     return null;
   }
  catch (  final Exception ex) {
-    System.out.println("? " + ex.getClass());
     throw DOCVAL.thrw(info,ex.getMessage());
   }
 }

@@ -3,7 +3,9 @@
     final IO in;
     if (expr.length == 2) {
       final SerializerProp sp=new SerializerProp();
-      sp.set(SerializerProp.S_DOCTYPE_SYSTEM,string(checkStr(expr[1],ctx)));
+      final String dtd=string(checkStr(expr[1],ctx));
+      if (!IO.get(dtd).exists())       RESFNF.thrw(info,dtd);
+      sp.set(SerializerProp.S_DOCTYPE_SYSTEM,dtd);
       in=read(ctx,sp);
     }
  else {
@@ -11,10 +13,13 @@
     }
     final SAXParserFactory sf=SAXParserFactory.newInstance();
     sf.setValidating(true);
-    sf.newSAXParser().parse(in.inputStream(),new DefaultHandler());
+    final InputSource is=in.inputSource();
+    sf.newSAXParser().parse(is,new DTDHandler());
     return null;
   }
  catch (  final Exception ex) {
+    if (ex instanceof QueryException)     throw (QueryException)ex;
+    Util.debug(ex);
     throw DOCVAL.thrw(info,ex.getMessage());
   }
 }

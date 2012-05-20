@@ -1,6 +1,6 @@
 {
   final Item it=checkItem(expr[0],ctx);
-  if (it.isEmpty())   throw STRNODTYPE.thrw(info,this);
+  if (it.isEmpty())   STRNODTYPE.thrw(info,this);
   final Type ip=it.type;
   final ArrayOutput ao=new ArrayOutput();
   if (ip.isNode()) {
@@ -8,10 +8,13 @@
     return new IOContent(ao.toArray());
   }
   if (ip.isString()) {
-    IO io=IO.get(string(it.string(info)));
+    final String path=string(it.string(info));
+    IO io=IO.get(path);
+    if (!io.exists())     RESFNF.thrw(info,path);
     if (sp != null) {
       Serializer.get(ao,sp).serialize(new DBNode(io,ctx.context.prop));
-      io=IO.get(ao.toString());
+      io=new IOContent(ao.toArray());
+      io.name(path);
     }
     return io;
   }
