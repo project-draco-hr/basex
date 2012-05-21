@@ -17,25 +17,25 @@
   final Nodes root=new Nodes(0,data);
   Util.outln(NL + Util.name(this) + " Test Suite "+ text("/*:test-suite/@version",root));
   Util.outln("Caching Sources...");
-  for (  final int s : nodes("//*:source",root).list) {
+  for (  final int s : nodes("//*:source",root).pres) {
     final Nodes srcRoot=new Nodes(s,data);
     final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
     srcs.put(text("@ID",srcRoot),val);
   }
   Util.outln("Caching Modules...");
-  for (  final int s : nodes("//*:module",root).list) {
+  for (  final int s : nodes("//*:module",root).pres) {
     final Nodes srcRoot=new Nodes(s,data);
     final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
     mods.put(text("@ID",srcRoot),val);
   }
   Util.outln("Caching Collections...");
-  for (  final int c : nodes("//*:collection",root).list) {
+  for (  final int c : nodes("//*:collection",root).pres) {
     final Nodes nodes=new Nodes(c,data);
     final String cname=text("@ID",nodes);
     final StringList dl=new StringList();
     final Nodes doc=nodes("*:input-document",nodes);
     for (int d=0; d < doc.size(); ++d) {
-      dl.add(sources + string(data.atom(doc.list[d])) + IO.XMLSUFFIX);
+      dl.add(sources + string(data.atom(doc.pres[d])) + IO.XMLSUFFIX);
     }
     colls.put(cname,dl.toArray());
   }
@@ -49,7 +49,7 @@
   long total=nodes.size();
   Util.out("Parsing " + total + " Queries");
   for (int t=0; t < total; ++t) {
-    if (!parse(new Nodes(nodes.list[t],data)))     break;
+    if (!parse(new Nodes(nodes.pres[t],data)))     break;
     if (!verbose && t % 500 == 0)     Util.out(".");
   }
   Util.outln();
