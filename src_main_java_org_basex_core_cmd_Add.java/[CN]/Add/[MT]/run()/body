@@ -1,19 +1,16 @@
 {
-  final boolean create=context.user.has(Perm.CREATE);
   String name=MetaData.normPath(args[0]);
   if (name == null || name.endsWith("."))   return error(NAME_INVALID_X,args[0]);
-  IO io=null;
-  if (in == null) {
-    io=IO.get(args[1]);
+  final IO io;
+  try {
+    io=sourceToIO(name);
   }
- else   if (in.getByteStream() != null) {
-    io=new IOStream(in.getByteStream());
-    io.name(name);
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    return error(Util.message(ex));
   }
- else   if (in.getSystemId() != null) {
-    io=IO.get(in.getSystemId());
-  }
-  if (!io.exists())   return error(RES_NOT_FOUND_X,create ? io : args[1]);
+  if (io == null)   return error(RES_NOT_FOUND);
+  if (!io.exists())   return in != null ? error(RES_NOT_FOUND) : error(RES_NOT_FOUND_X,context.user.has(Perm.CREATE) ? io : args[1]);
   if (!name.endsWith("/") && (io.isDir() || io.isArchive()))   name+='/';
   String target="";
   final int s=name.lastIndexOf('/');
@@ -24,7 +21,7 @@
   final Data data=context.data();
   final Parser parser;
   if (!name.isEmpty())   io.name(name);
- else   if (!(io instanceof IOContent))   name=io.name();
+ else   name=io.name();
   parser=new DirParser(io,prop,data.meta.path);
   parser.target(target);
   if (name.isEmpty())   return error(NAME_INVALID_X,name);
@@ -38,23 +35,21 @@
   if (prop.is(Prop.MAINMEM))   large=false;
   final String db=large ? context.mprop.random(data.meta.name) : name;
   build=large ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser);
-  Data tmp=null;
   try {
-    tmp=build.build();
+    final Data tmp=build.build();
+    if (tmp.meta.size > 1) {
+      if (lock && !data.startUpdate())       return error(DB_PINNED_X,data.meta.name);
+      data.insert(data.meta.size,-1,tmp);
+      context.update();
+      if (lock)       data.finishUpdate();
+    }
+    return info(parser.info() + PATH_ADDED_X_X,name,perf);
   }
  catch (  final IOException ex) {
     Util.debug(ex);
     return error(Util.message(ex));
   }
  finally {
-    if (tmp != null)     tmp.close();
     if (large)     DropDB.drop(db,context);
   }
-  if (tmp.meta.size > 1) {
-    if (lock && !data.startUpdate())     return error(DB_PINNED_X,data.meta.name);
-    data.insert(data.meta.size,-1,tmp);
-    context.update();
-    if (lock)     data.finishUpdate();
-  }
-  return info(parser.info() + PATH_ADDED_X_X,name,perf);
 }
