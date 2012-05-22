@@ -1,7 +1,8 @@
 {
-  final IO io=checkIO(expr[0],ctx);
+  final byte[] path=checkStr(expr[0],ctx);
   final String enc=expr.length < 2 ? null : string(checkEStr(expr[1],ctx));
   try {
+    final IO io=checkIO(path,ctx);
     final NewlineInput nli=new NewlineInput(io).encoding(enc);
     try {
       while (nli.read() != -1)       ;
@@ -12,6 +13,9 @@
     return Bln.TRUE;
   }
  catch (  final IOException ex) {
+    return Bln.FALSE;
+  }
+catch (  final QueryException ex) {
     return Bln.FALSE;
   }
 }
