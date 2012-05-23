@@ -1,0 +1,38 @@
+{
+  checkCreate(ctx);
+  final byte[] path=checkStr(expr[0],ctx);
+  final String enc=expr.length < 2 ? null : string(checkStr(expr[1],ctx));
+  final IO base=ctx.sc.baseIO();
+  if (base == null)   throw STBASEURI.thrw(info);
+  try {
+    if (enc != null && !Charset.isSupported(enc))     WHICHENC.thrw(info,enc);
+    final String p=string(path);
+    if (p.indexOf('#') != -1)     FRAGID.thrw(info,p);
+    if (!Uri.uri(token(p)).isValid())     INVURL.thrw(info,p);
+    IO io=base.merge(p);
+    final String rp=ctx.resource.resources.get(io.path());
+    if (rp != null)     io=IO.get(rp);
+    if (!io.exists())     throw RESNF.thrw(info,p);
+    final InputStream is=io.inputStream();
+    try {
+      final TextInput ti=new TextInput(io);
+      if (enc != null)       ti.encoding(enc);
+      if (full)       return Str.get(ti.content());
+      while (ti.read() != -1)       ;
+      return Bln.TRUE;
+    }
+  finally {
+      is.close();
+    }
+  }
+ catch (  final QueryException ex) {
+    if (!full)     return Bln.FALSE;
+    throw ex;
+  }
+catch (  final IOException ex) {
+    if (!full)     return Bln.FALSE;
+    if (ex instanceof MalformedInputException && enc == null)     WHICHCHARS.thrw(info);
+    if (ex instanceof EncodingException)     INVCHARS.thrw(info,ex.getMessage());
+    throw SERANY.thrw(info,ex);
+  }
+}
