@@ -1,0 +1,15 @@
+{
+  final ClientSession cs=session(ctx,false);
+  final String cmd=Token.string(checkStr(expr[1],ctx));
+  try {
+    cs.setOutputStream(new ArrayOutput());
+    cs.execute(cmd);
+    final ArrayOutput ao=(ArrayOutput)cs.getOutputStream();
+    final byte[] result=ao.toArray();
+    cs.setOutputStream(null);
+    return Str.get(result);
+  }
+ catch (  final IOException ex) {
+    throw CLERR.thrw(info,ex.getMessage());
+  }
+}

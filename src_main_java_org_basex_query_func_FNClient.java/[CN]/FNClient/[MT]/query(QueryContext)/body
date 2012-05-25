@@ -1,0 +1,16 @@
+{
+  final ClientSession cs=session(ctx,false);
+  final String query=Token.string(checkStr(expr[1],ctx));
+  try {
+    final ValueBuilder vb=new ValueBuilder();
+    final ClientQuery cq=cs.query(query);
+    while (cq.more()) {
+      final String result=cq.next();
+      vb.add(cq.type().castString(result,info));
+    }
+    return vb.value();
+  }
+ catch (  final IOException ex) {
+    throw CLERR.thrw(info,ex.getMessage());
+  }
+}
