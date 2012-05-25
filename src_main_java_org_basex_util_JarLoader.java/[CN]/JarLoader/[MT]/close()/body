@@ -1,8 +1,22 @@
 {
-  final HashSet<String> files=new HashSet<String>();
-  closeClassLoader(files);
-  finalizeNativeLibs();
-  cleanupJarFileFactory(files);
-  final ClassLoader cl=getParent();
-  if (cl instanceof JarLoader)   ((JarLoader)cl).close();
+  try {
+    final Field ucp=URLClassLoader.class.getDeclaredField("ucp");
+    ucp.setAccessible(true);
+    final Object cp=ucp.get(this);
+    final Field loaders=cp.getClass().getDeclaredField("loaders");
+    loaders.setAccessible(true);
+    for (    final Object jl : (Collection<?>)loaders.get(cp)) {
+      try {
+        final Field jar=jl.getClass().getDeclaredField("jar");
+        jar.setAccessible(true);
+        ((JarFile)jar.get(jl)).close();
+      }
+ catch (      final Throwable th) {
+        Util.errln(th);
+      }
+    }
+  }
+ catch (  final Throwable th) {
+    Util.errln(th);
+  }
 }
