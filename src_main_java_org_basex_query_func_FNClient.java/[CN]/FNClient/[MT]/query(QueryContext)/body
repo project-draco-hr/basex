@@ -10,7 +10,12 @@
     }
     return vb.value();
   }
- catch (  final IOException ex) {
-    throw CLERR.thrw(info,ex.getMessage());
+ catch (  final BaseXException ex) {
+    final Matcher m=QUERYPAT.matcher(ex.getMessage());
+    if (m.find())     throw new QueryException(info,new QNm(m.group(1)),m.group(2));
+    throw BXCL_QUERY.thrw(info,ex.getMessage());
+  }
+catch (  final IOException ex) {
+    throw BXCL_COMM.thrw(info,ex.getMessage());
   }
 }
