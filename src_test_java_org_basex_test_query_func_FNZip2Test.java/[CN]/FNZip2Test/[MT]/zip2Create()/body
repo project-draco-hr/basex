@@ -1,0 +1,15 @@
+{
+  check(_ZIP2_CREATE);
+  query(COUNT.args(_ZIP2_CREATE.args("<entry>X</entry>","")),"1");
+  query(COUNT.args(_ZIP2_CREATE.args("<entry level='9'>X</entry>","")),"1");
+  query(COUNT.args(_ZIP2_CREATE.args("<entry encoding='US-ASCII'>X</entry>","")),"1");
+  query(COUNT.args(_ZIP2_CREATE.args("<entry last-modified='2000-01-01T12:12:12'>X</entry>","")),"1");
+  error(_ZIP2_CREATE.args("<entry>X</entry>","()"),Err.ZIP2_DIFF);
+  error(_ZIP2_CREATE.args("<entry/>",""),Err.ZIP2_NAME);
+  error(_ZIP2_CREATE.args("<entry compression-level='x'>X</entry>",""),Err.ZIP2_LEVEL);
+  error(_ZIP2_CREATE.args("<entry compression-level='10'>X</entry>",""),Err.ZIP2_LEVEL);
+  error(_ZIP2_CREATE.args("<entry last-modified='2020'>X</entry>",""),Err.ZIP2_MODIFIED);
+  error(_ZIP2_CREATE.args("<entry>X</entry>"," 123"),Err.ZIP2_STRB64);
+  error(_ZIP2_CREATE.args("<entry encoding='x'>X</entry>",""),Err.ZIP2_ENCODING);
+  error(_ZIP2_CREATE.args("<entry encoding='US-ASCII'>X</entry>","\u00fc"),Err.ZIP2_ENCODE);
+}

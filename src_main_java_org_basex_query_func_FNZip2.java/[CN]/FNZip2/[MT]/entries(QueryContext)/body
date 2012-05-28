@@ -1,0 +1,26 @@
+{
+  final B64 zip=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
+  final ValueBuilder vb=new ValueBuilder();
+  final ZipInputStream zis=new ZipInputStream(zip.input(info));
+  try {
+    try {
+      for (ZipEntry ze; (ze=zis.getNextEntry()) != null; ) {
+        if (ze.isDirectory())         continue;
+        final FElem e=new FElem(Q_ENTRY);
+        e.add(new FAttr(Q_SIZE,token(ze.getSize())));
+        e.add(new FAttr(Q_LAST_MOD,new Dtm(ze.getTime(),info).string(info)));
+        e.add(new FAttr(Q_COMP_SIZE,token(ze.getCompressedSize())));
+        e.add(new FTxt(token(ze.getName())));
+        vb.add(e);
+      }
+    }
+  finally {
+      zis.close();
+    }
+    return vb;
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    throw ZIP2_FAIL.thrw(info,ex);
+  }
+}

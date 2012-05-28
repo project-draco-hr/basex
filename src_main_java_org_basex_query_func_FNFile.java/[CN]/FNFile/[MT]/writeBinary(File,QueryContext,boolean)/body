@@ -1,8 +1,10 @@
 {
-  if (path.isDirectory())   FL_DIR.thrw(info,path);
+  final IOFile io=new IOFile(path);
+  if (io.isDir())   FL_DIR.thrw(info,io);
+  final IOFile dir=new IOFile(io.dir());
+  if (!dir.exists() && !dir.md())   FL_CREATE.thrw(info,dir);
   try {
-    final FileOutputStream fos=new FileOutputStream(path,append);
-    final BufferOutput out=new BufferOutput(fos);
+    final BufferOutput out=new BufferOutput(new FileOutputStream(path,append));
     try {
       final Iter ir=expr[1].iter(ctx);
       for (Item it; (it=ir.next()) != null; ) {
@@ -20,7 +22,7 @@
     }
   }
  catch (  final IOException ex) {
-    FL_FILE.thrw(info,ex);
+    FL_IO.thrw(info,ex);
   }
   return null;
 }

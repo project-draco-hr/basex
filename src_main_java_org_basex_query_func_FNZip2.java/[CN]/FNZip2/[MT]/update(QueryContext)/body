@@ -1,0 +1,41 @@
+{
+  final B64 zip=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
+  final HashMap<String,Item[]> entries=new HashMap<String,Item[]>();
+  final Iter elem=ctx.iter(expr[1]);
+  final Iter cont=ctx.iter(expr[2]);
+  int e=0;
+  int c=0;
+  Item elm, con;
+  while (true) {
+    elm=elem.next();
+    con=cont.next();
+    if (elm == null || con == null)     break;
+    if (!TEST.eq(elm))     Err.type(this,NodeType.ELM,elm);
+    entries.put(string(elm.string(info)),new Item[]{elm,con});
+    e++;
+    c++;
+  }
+  if (con != null)   do   c++;
+ while (cont.next() != null);
+  if (elm != null)   do   e++;
+ while (elem.next() != null);
+  if (e != c)   throw ZIP2_DIFF.thrw(info,e,c);
+  final ZipInputStream zis=new ZipInputStream(zip.input(info));
+  final ArrayOutput ao=new ArrayOutput();
+  final ZipOutputStream zos=new ZipOutputStream(ao);
+  try {
+    try {
+      delete(entries,zis,zos);
+      for (      final Item[] it : entries.values())       add((ANode)it[0],it[1],zos);
+    }
+  finally {
+      zos.close();
+      zis.close();
+    }
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    ZIP2_FAIL.thrw(info,ex);
+  }
+  return new B64(ao.toArray());
+}

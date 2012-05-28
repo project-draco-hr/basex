@@ -1,28 +1,15 @@
 {
-  ZipInputStream in=null;
+  final ZipInputStream in=new ZipInputStream(archive.inputStream());
   try {
-    in=new ZipInputStream(archive.inputStream());
-    for (ZipEntry ze; (ze=in.getNextEntry()) != null; ) {
-      if (!path.equals(ze.getName()))       continue;
-      final int s=(int)ze.getSize();
-      if (s >= 0) {
-        final byte[] data=new byte[s];
-        int c, o=0;
-        while (s - o != 0 && (c=in.read(data,o,s - o)) != -1)         o+=c;
-        return data;
-      }
-      final byte[] data=new byte[IO.BLOCKSIZE];
-      final ByteList bl=new ByteList();
-      for (int c; (c=in.read(data)) != -1; )       bl.add(data,0,c);
-      return bl.toArray();
-    }
+    final byte[] cont=getEntry(in,path);
+    if (cont == null)     throw new FileNotFoundException(path);
+    return cont;
   }
   finally {
-    if (in != null)     try {
+    try {
       in.close();
     }
  catch (    final IOException e) {
     }
   }
-  throw new FileNotFoundException(path);
 }
