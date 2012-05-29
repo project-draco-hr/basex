@@ -2,7 +2,12 @@
   super(output);
   ehost=host;
   socket=new Socket();
-  socket.connect(new InetSocketAddress(host,port),5000);
+  try {
+    socket.connect(new InetSocketAddress(host,port),5000);
+  }
+ catch (  final IllegalArgumentException ex) {
+    throw new BaseXException(ex);
+  }
   sin=socket.getInputStream();
   final BufferInput bi=new BufferInput(sin);
   final String ts=bi.readString();
