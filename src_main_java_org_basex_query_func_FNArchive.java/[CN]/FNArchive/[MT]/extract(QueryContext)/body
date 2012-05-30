@@ -1,0 +1,32 @@
+{
+  final B64 zip=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
+  HashSet<String> entries=null;
+  if (expr.length > 1) {
+    entries=new HashSet<String>();
+    final Iter names=ctx.iter(expr[1]);
+    for (Item it; (it=names.next()) != null; )     entries.add(string(checkStr(it,ctx)));
+  }
+  final TokenList tl=new TokenList();
+  final byte[] data=new byte[IO.BLOCKSIZE];
+  final ZipInputStream zis=new ZipInputStream(zip.input(info));
+  try {
+    try {
+      for (ZipEntry ze; (ze=zis.getNextEntry()) != null; ) {
+        if (ze.isDirectory())         continue;
+        final String name=ze.getName();
+        if (entries != null && !entries.remove(name))         continue;
+        final ArrayOutput ao=new ArrayOutput();
+        for (int c; (c=zis.read(data)) != -1; )         ao.write(data,0,c);
+        tl.add(ao.toArray());
+      }
+    }
+  finally {
+      zis.close();
+    }
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    ARCH_FAIL.thrw(info,ex);
+  }
+  return tl;
+}

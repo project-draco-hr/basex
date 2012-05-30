@@ -1,0 +1,31 @@
+{
+  final ArrayOutput ao=new ArrayOutput();
+  final ZipOutputStream zos=new ZipOutputStream(ao);
+  final Iter elem=ctx.iter(expr[0]);
+  final Iter cont=ctx.iter(expr[1]);
+  try {
+    int e=0;
+    int c=0;
+    Item elm, con;
+    while (true) {
+      elm=elem.next();
+      con=cont.next();
+      if (elm == null || con == null)       break;
+      if (!TEST.eq(elm))       Err.type(this,NodeType.ELM,elm);
+      add((ANode)elm,con,zos);
+      e++;
+      c++;
+    }
+    if (con != null)     do     c++;
+ while (cont.next() != null);
+    if (elm != null)     do     e++;
+ while (elem.next() != null);
+    if (e != c)     throw ARCH_DIFF.thrw(info,e,c);
+    zos.close();
+    return new B64(ao.toArray());
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    throw ARCH_FAIL.thrw(info,ex);
+  }
+}

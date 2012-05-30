@@ -1,0 +1,15 @@
+{
+  check(_ARCHIVE_CREATE);
+  query(COUNT.args(_ARCHIVE_CREATE.args("<entry>X</entry>","")),"1");
+  query(COUNT.args(_ARCHIVE_CREATE.args("<entry level='9'>X</entry>","")),"1");
+  query(COUNT.args(_ARCHIVE_CREATE.args("<entry encoding='US-ASCII'>X</entry>","")),"1");
+  query(COUNT.args(_ARCHIVE_CREATE.args("<entry last-modified='2000-01-01T12:12:12'>X</entry>","")),"1");
+  error(_ARCHIVE_CREATE.args("<entry>X</entry>","()"),Err.ARCH_DIFF);
+  error(_ARCHIVE_CREATE.args("<entry/>",""),Err.ARCH_NAME);
+  error(_ARCHIVE_CREATE.args("<entry compression-level='x'>X</entry>",""),Err.ARCH_LEVEL);
+  error(_ARCHIVE_CREATE.args("<entry compression-level='10'>X</entry>",""),Err.ARCH_LEVEL);
+  error(_ARCHIVE_CREATE.args("<entry last-modified='2020'>X</entry>",""),Err.ARCH_MODIFIED);
+  error(_ARCHIVE_CREATE.args("<entry>X</entry>"," 123"),Err.ARCH_STRB64);
+  error(_ARCHIVE_CREATE.args("<entry encoding='x'>X</entry>",""),Err.ARCH_ENCODING);
+  error(_ARCHIVE_CREATE.args("<entry encoding='US-ASCII'>X</entry>","\u00fc"),Err.ARCH_ENCODE);
+}
