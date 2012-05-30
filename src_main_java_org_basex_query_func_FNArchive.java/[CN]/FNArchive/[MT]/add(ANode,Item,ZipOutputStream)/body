@@ -1,0 +1,39 @@
+{
+  final String name=string(el.string());
+  if (name.isEmpty())   ARCH_NAME.thrw(info);
+  final ZipEntry ze=new ZipEntry(name);
+  int lvl=Deflater.DEFAULT_COMPRESSION;
+  final byte[] level=el.attribute(Q_LEVEL);
+  if (level != null) {
+    lvl=toInt(level);
+    if (lvl < 0 || lvl > 9)     ARCH_LEVEL.thrw(info,level);
+  }
+  zos.setLevel(lvl);
+  final byte[] mod=el.attribute(Q_LAST_MOD);
+  if (mod != null) {
+    try {
+      ze.setTime(new Int(new Dtm(mod,info)).itr());
+    }
+ catch (    final QueryException qe) {
+      ARCH_MODIFIED.thrw(info,mod);
+    }
+  }
+  byte[] val=null;
+  if (con.type.isString()) {
+    val=con.string(info);
+    final byte[] enc=el.attribute(Q_ENCODING);
+    if (enc != null) {
+      final String en=string(enc);
+      if (!Charset.isSupported(en))       ARCH_ENCODING.thrw(info,enc);
+      if (en != Token.UTF8)       val=encode(val,en);
+    }
+  }
+ else   if (con.type == AtomType.B64) {
+    val=((Bin)con).binary(info);
+  }
+ else {
+    ARCH_STRB64.thrw(info,con.type);
+  }
+  zos.putNextEntry(ze);
+  zos.write(val);
+}

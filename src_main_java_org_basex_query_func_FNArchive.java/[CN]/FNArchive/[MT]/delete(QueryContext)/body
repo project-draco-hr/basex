@@ -1,0 +1,25 @@
+{
+  final B64 archive=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
+  final HashMap<String,Item[]> entries=new HashMap<String,Item[]>();
+  final Iter names=ctx.iter(expr[1]);
+  for (Item it; (it=names.next()) != null; ) {
+    entries.put(string(checkStr(it,ctx)),null);
+  }
+  final ZipInputStream zis=new ZipInputStream(archive.input(info));
+  final ArrayOutput ao=new ArrayOutput();
+  final ZipOutputStream zos=new ZipOutputStream(ao);
+  try {
+    try {
+      delete(entries,zis,zos);
+    }
+  finally {
+      zos.close();
+      zis.close();
+    }
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    ARCH_FAIL.thrw(info,ex);
+  }
+  return new B64(ao.toArray());
+}
