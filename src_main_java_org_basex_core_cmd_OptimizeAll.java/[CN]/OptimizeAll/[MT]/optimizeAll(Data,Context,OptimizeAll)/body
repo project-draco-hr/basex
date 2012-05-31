@@ -6,12 +6,23 @@
   if (ctx.datas.pins(m.name) > 1)   throw new BaseXException(DB_PINNED_X,m.name);
   final String tname=ctx.mprop.random(m.name);
   ctx.databases().add(tname);
+  ctx.prop.set(Prop.CHOP,m.chop);
+  ctx.prop.set(Prop.UPDINDEX,m.updindex);
+  ctx.prop.set(Prop.STEMMING,m.stemming);
+  ctx.prop.set(Prop.CASESENS,m.casesens);
+  ctx.prop.set(Prop.DIACRITICS,m.diacritics);
+  ctx.prop.set(Prop.MAXCATS,m.maxcats);
+  ctx.prop.set(Prop.MAXLEN,m.maxlen);
+  ctx.prop.set(Prop.LANGUAGE,m.language.toString());
   final DiskBuilder builder=new DiskBuilder(tname,new DBParser(old,cmd),ctx);
   try {
     final DiskData d=builder.build();
     if (m.createtext)     create(IndexType.TEXT,d,cmd);
     if (m.createattr)     create(IndexType.ATTRIBUTE,d,cmd);
     if (m.createftxt)     create(IndexType.FULLTEXT,d,cmd);
+    d.meta.createtext=m.createtext;
+    d.meta.createattr=m.createattr;
+    d.meta.createftxt=m.createftxt;
     d.meta.filesize=m.filesize;
     d.meta.users=m.users;
     d.meta.dirty=true;
