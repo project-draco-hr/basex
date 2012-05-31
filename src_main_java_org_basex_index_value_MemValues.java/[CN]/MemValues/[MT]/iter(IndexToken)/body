@@ -1,19 +1,18 @@
 {
+  final byte k=tok.type() == IndexType.TEXT ? Data.TEXT : Data.ATTR;
   final int i=id(tok.get());
   if (i > 0) {
-    final int cnt=len[i];
-    if (cnt > 0) {
-      final int[] pres=ids[i];
+    final int[] pres=ids[i];
+    final int s=len[i];
+    if (s > 0) {
       return new IndexIterator(){
-        private int p;
+        int p;
         @Override public boolean more(){
-          return p < cnt;
+          return p < s;
         }
         @Override public int next(){
-          return pres[p++];
-        }
-        @Override public int size(){
-          return cnt;
+          while (more() && data.kind(pres[p++]) != k)           ;
+          return pres[p - 1];
         }
       }
 ;
