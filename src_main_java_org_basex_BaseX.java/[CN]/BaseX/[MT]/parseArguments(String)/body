@@ -1,0 +1,46 @@
+{
+  ops=new IntList();
+  vals=new StringList();
+  final Args arg=new Args(args,this,sa() ? LOCALINFO : CLIENTINFO,Util.info(CONSOLE,sa() ? LOCALMODE : CLIENTMODE));
+  while (arg.more()) {
+    final char c;
+    String v=null;
+    if (arg.dash()) {
+      c=arg.next();
+      if (c == 'b' || c == 'c' || c == 'C' || c == 'i' || c == 'o' || c == 'q' || c == 'r' || c == 's') {
+        v=arg.string();
+      }
+ else       if (c == 'd' || c == 'D' && sa() || c == 'L' || c == 'u' || c == 'v' || c == 'V' || c == 'w' || c == 'W' || c == 'x' || c == 'X' || c == 'z') {
+        v="";
+      }
+ else       if (!sa()) {
+        if (c == 'n') {
+          context.mprop.set(MainProp.HOST,arg.string());
+        }
+ else         if (c == 'p') {
+          context.mprop.set(MainProp.PORT,arg.number());
+        }
+ else         if (c == 'P') {
+          pass=arg.string();
+        }
+ else         if (c == 'U') {
+          user=arg.string();
+        }
+ else {
+          arg.usage();
+        }
+      }
+ else {
+        arg.usage();
+      }
+    }
+ else {
+      c='f';
+      v=arg.string();
+    }
+    if (v != null) {
+      ops.add(c);
+      vals.add(v);
+    }
+  }
+}

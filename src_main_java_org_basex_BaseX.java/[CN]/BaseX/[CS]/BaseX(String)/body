@@ -1,14 +1,25 @@
 {
   super(args);
   session();
+  final StringBuilder serial=new StringBuilder();
+  final StringBuilder bind=new StringBuilder();
+  boolean v=false, qi=false, qp=false;
+  console=true;
   try {
-    for (int i=0; i < ops.size(); i+=2) {
-      final String key=ops.get(i);
-      final String val=ops.get(i + 1);
-      if (key.equals("c")) {
-        execute(val);
+    for (int i=0; i < ops.size(); i++) {
+      final int c=ops.get(i);
+      String val=vals.get(i);
+      Object[] prop=null;
+      if (c == 'b') {
+        if (bind.length() != 0)         bind.append(',');
+        val=bind.append(val.replaceAll(",",",,")).toString();
+        prop=Prop.BINDINGS;
       }
- else       if (key.equals("C")) {
+ else       if (c == 'c') {
+        execute(val);
+        console=false;
+      }
+ else       if (c == 'C') {
         final IO io=IO.get(val);
         if (!io.exists())         throw new BaseXException(RES_NOT_FOUND_X,val);
         final NewlineInput nli=new NewlineInput(io);
@@ -21,23 +32,74 @@
   finally {
           nli.close();
         }
+        console=false;
       }
- else       if (key.equals("f")) {
+ else       if (c == 'd') {
+        context.mprop.set(MainProp.DEBUG,!context.mprop.is(MainProp.DEBUG));
+      }
+ else       if (c == 'D') {
+        prop=Prop.DOTPLAN;
+      }
+ else       if (c == 'f') {
         final IO io=IO.get(val);
         if (!io.exists() || io.isDir())         throw new BaseXException(RES_NOT_FOUND_X,val);
         final String query=Token.string(new TextInput(io).content());
         execute(new Set(Prop.QUERYPATH,io.path()),false);
         execute(new XQuery(query),verbose);
+        console=false;
       }
- else       if (key.equals("i")) {
-        final boolean mem=IO.get(val) instanceof IOContent;
-        execute(new Set(Prop.MAINMEM,mem),false);
+ else       if (c == 'i') {
+        execute(new Set(Prop.MAINMEM,true),false);
         execute(new Check(val),verbose);
         execute(new Set(Prop.MAINMEM,false),false);
       }
- else       if (key.equals("q")) {
-        execute(new XQuery(val),verbose);
+ else       if (c == 'L') {
+        newline=true;
       }
+ else       if (c == 'o') {
+        if (out != System.out)         out.close();
+        out=new PrintOutput(val);
+      }
+ else       if (c == 'q') {
+        execute(new XQuery(val),verbose);
+        console=false;
+      }
+ else       if (c == 'r') {
+        prop=Prop.RUNS;
+      }
+ else       if (c == 's') {
+        if (serial.length() != 0)         serial.append(',');
+        val=serial.append(val).toString();
+        prop=Prop.SERIALIZER;
+      }
+ else       if (c == 'u') {
+        prop=Prop.WRITEBACK;
+      }
+ else       if (c == 'v') {
+        v^=true;
+      }
+ else       if (c == 'V') {
+        qi^=true;
+        prop=Prop.QUERYINFO;
+      }
+ else       if (c == 'w') {
+        prop=Prop.CHOP;
+      }
+ else       if (c == 'W') {
+        writeProps^=true;
+      }
+ else       if (c == 'x') {
+        prop=Prop.XMLPLAN;
+        qp^=true;
+      }
+ else       if (c == 'X') {
+        prop=Prop.COMPPLAN;
+      }
+ else       if (c == 'z') {
+        prop=Prop.SERIALIZE;
+      }
+      if (prop != null)       execute(new Set(prop,val),false);
+      verbose=qi || qp || v;
     }
     if (console) {
       Util.outln(CONSOLE + TRY_MORE_X,sa() ? LOCALMODE : CLIENTMODE);
