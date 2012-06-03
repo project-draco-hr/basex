@@ -1,16 +1,15 @@
 {
-  for (  final Expr s : steps)   checkUp(s,ctx);
   final AxisStep v=voidStep(steps);
   if (v != null)   COMPSELF.thrw(info,v);
   for (int s=0; s != steps.length; ++s) {
-    steps[s]=steps[s].comp(ctx);
+    steps[s]=steps[s].compile(ctx);
     if (steps[s].isEmpty())     return Empty.SEQ;
   }
   optSteps(ctx);
   final Data data=ctx.data();
   if (data != null && ctx.value.type == NodeType.DOC) {
     final Expr e=children(ctx,data);
-    if (e != this)     return e.comp(ctx);
+    if (e != this)     return e.compile(ctx);
   }
   size=size(ctx);
   type=SeqType.get(steps[steps.length - 1].type().type,size);

@@ -1,0 +1,68 @@
+{
+  compHoist(ctx);
+  compWhere(ctx);
+  final boolean grp=ctx.grouping;
+  ctx.grouping=group != null;
+  final int vs=ctx.vars.size();
+  for (int f=0; f < fl.length; ++f) {
+    final ForLet flt=fl[f].compile(ctx);
+    if (flt.expr.isValue() || count(flt.var,f) == 1)     flt.bind(ctx);
+  }
+  boolean empty=false;
+  if (where != null) {
+    where=where.compile(ctx).compEbv(ctx);
+    if (where.isValue()) {
+      empty=!where.ebv(ctx,info).bool(info);
+      if (!empty) {
+        ctx.compInfo(OPTREMOVE,description(),where);
+        where=null;
+      }
+    }
+  }
+  if (group != null)   group.compile(ctx);
+  if (order != null)   order.compile(ctx);
+  ret=ret.compile(ctx);
+  ctx.vars.size(vs);
+  ctx.grouping=grp;
+  if (empty) {
+    ctx.compInfo(OPTREMOVE,description(),where);
+    return Empty.SEQ;
+  }
+  if (ret == Empty.SEQ) {
+    ctx.compInfo(OPTFLWOR);
+    return ret;
+  }
+  for (int f=0; f < fl.length; ++f) {
+    final ForLet l=fl[f];
+    if (l.var.expr() != null || l.simple(true) && count(l.var,f) == 0 && !l.expr.uses(Use.NDT)) {
+      ctx.compInfo(OPTVAR,l.var);
+      fl=Array.delete(fl,f--);
+    }
+  }
+  if (fl.length == 0) {
+    ctx.compInfo(OPTFLWOR);
+    return where != null ? new If(info,where,ret,Empty.SEQ) : ret;
+  }
+  for (  final ForLet f : fl) {
+    if (f instanceof For && f.size() == 0) {
+      ctx.compInfo(OPTFLWOR);
+      return Empty.SEQ;
+    }
+  }
+  if (where == null && group == null) {
+    size=ret.size();
+    if (size != -1) {
+      for (      final ForLet f : fl) {
+        final long s=f.size();
+        if (s == -1) {
+          size=s;
+          break;
+        }
+        size*=s;
+      }
+    }
+  }
+  type=SeqType.get(ret.type().type,size);
+  compHoist(ctx);
+  return this;
+}

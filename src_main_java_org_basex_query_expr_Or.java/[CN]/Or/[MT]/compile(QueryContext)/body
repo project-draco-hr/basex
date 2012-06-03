@@ -1,0 +1,19 @@
+{
+  final Expr c=super.compile(ctx);
+  if (c != this)   return c;
+  CmpG cmpg=null;
+  Expr[] ex={};
+  for (  final Expr e : expr) {
+    Expr tmp=null;
+    if (e instanceof CmpG) {
+      final CmpG g=(CmpG)e;
+      if (cmpg == null)       cmpg=g;
+ else       if (cmpg.union(g,ctx))       tmp=g;
+    }
+    if (tmp == null)     ex=Array.add(ex,e);
+  }
+  if (ex.length != expr.length)   ctx.compInfo(OPTWRITE,this);
+  expr=ex;
+  compFlatten(ctx);
+  return expr.length == 1 ? compBln(expr[0]) : this;
+}
