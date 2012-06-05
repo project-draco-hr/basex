@@ -1,25 +1,21 @@
 {
-  md(path);
+  check(path);
   final Iter ir=expr[1].iter(ctx);
+  final BufferOutput out=new BufferOutput(new FileOutputStream(path,append));
   try {
-    final BufferOutput out=new BufferOutput(new FileOutputStream(path,append));
-    try {
-      for (Item it; (it=ir.next()) != null; ) {
-        final InputStream is=it.input(info);
-        try {
-          for (int i; (i=is.read()) != -1; )           out.write(i);
-        }
+    for (Item it; (it=ir.next()) != null; ) {
+      if (!(it instanceof Bin))       BINARYTYPE.thrw(info,it.type);
+      final InputStream is=it.input(info);
+      try {
+        for (int i; (i=is.read()) != -1; )         out.write(i);
+      }
   finally {
-          is.close();
-        }
+        is.close();
       }
     }
-  finally {
-      out.close();
-    }
   }
- catch (  final IOException ex) {
-    FILE_IO.thrw(info,ex);
+  finally {
+    out.close();
   }
   return null;
 }
