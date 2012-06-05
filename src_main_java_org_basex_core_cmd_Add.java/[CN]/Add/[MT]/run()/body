@@ -33,10 +33,12 @@
     large=fl > rt.freeMemory() / 3;
   }
   if (prop.is(Prop.MAINMEM))   large=false;
+  large=true;
   final String db=large ? context.mprop.random(data.meta.name) : name;
   build=large ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser);
+  Data tmp=null;
   try {
-    final Data tmp=build.build();
+    tmp=build.build();
     if (tmp.meta.size > 1) {
       if (lock && !data.startUpdate())       return error(DB_PINNED_X,data.meta.name);
       data.insert(data.meta.size,-1,tmp);
@@ -50,6 +52,7 @@
     return error(Util.message(ex));
   }
  finally {
+    if (tmp != null)     tmp.close();
     if (large)     DropDB.drop(db,context);
   }
 }
