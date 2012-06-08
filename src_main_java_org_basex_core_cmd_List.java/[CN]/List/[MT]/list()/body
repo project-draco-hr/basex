@@ -1,0 +1,46 @@
+{
+  final Table table=new Table();
+  table.description=DATABASES;
+  final boolean create=context.user.has(Perm.CREATE);
+  table.header.add(T_NAME);
+  table.header.add(RESOURCES);
+  table.header.add(SIZE);
+  if (create)   table.header.add(INPUT_PATH);
+  for (  final String name : context.databases().listDBs()) {
+    DataInput di=null;
+    String file=null;
+    long size=0;
+    int docs=0;
+    final MetaData meta=new MetaData(name,context);
+    try {
+      di=new DataInput(meta.dbfile(DATAINF));
+      meta.read(di);
+      size=meta.dbsize();
+      docs=meta.ndocs;
+      if (context.perm(Perm.READ,meta))       file=meta.original;
+    }
+ catch (    final IOException ex) {
+      file=ERROR;
+    }
+ finally {
+      if (di != null)       try {
+        di.close();
+      }
+ catch (      final IOException ex) {
+      }
+    }
+    final IOFile dir=new IOFile(mprop.dbpath(name),M_RAW);
+    final int bin=dir.descendants().size();
+    if (file != null) {
+      final TokenList tl=new TokenList(4);
+      tl.add(name);
+      tl.add(docs + bin);
+      tl.add(size);
+      if (create)       tl.add(file);
+      table.contents.add(tl);
+    }
+  }
+  table.sort();
+  out.println(table.finish());
+  return true;
+}
