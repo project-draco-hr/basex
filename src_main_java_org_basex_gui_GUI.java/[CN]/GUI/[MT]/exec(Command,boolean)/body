@@ -12,9 +12,9 @@
     final Data data=context.data();
     if (gprop.is(GUIProp.FILTERRT) && context.current() != null && !context.root())     context.update();
     final Nodes current=context.current();
-    command=c;
+    command=cmd;
     final ArrayOutput ao=new ArrayOutput().max(gprop.num(GUIProp.MAXTEXT));
-    updating=c.updating(context);
+    updating=cmd.updating(context);
     if (edit) {
       editor.start();
     }
@@ -23,8 +23,8 @@
     }
     String inf=null;
     try {
-      c.execute(context,ao);
-      inf=c.info();
+      cmd.execute(context,ao);
+      inf=cmd.info();
     }
  catch (    final BaseXException ex) {
       ok=false;
@@ -34,7 +34,7 @@
       updating=false;
     }
     final String time=perf.getTime();
-    info.setInfo(inf,c,time,ok);
+    if (info.visible())     info.setInfo(inf,cmd,time,ok);
     info.reset();
     final boolean interrupted=inf.startsWith(INTERRUPTED);
     if (edit) {
@@ -46,14 +46,14 @@
       }
     }
  else {
-      final Result result=c.result();
+      final Result result=cmd.result();
       final Nodes nodes=result instanceof Nodes && result.size() != 0 ? (Nodes)result : null;
       final Data ndata=context.data();
       Nodes marked=context.marked;
       if (ndata != data) {
         notify.init();
       }
- else       if (c.updated()) {
+ else       if (cmd.updated()) {
         notify.update();
       }
  else       if (result != null) {
@@ -75,7 +75,7 @@
       if (thread == threadID && !interrupted) {
         if (nodes == null) {
           if (!text.visible())           GUICommands.C_SHOWTEXT.execute(this);
-          text.setText(ao,c);
+          text.setText(ao,cmd);
         }
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
@@ -84,7 +84,7 @@
   }
  catch (  final Exception ex) {
     Util.stack(ex);
-    BaseXDialog.error(this,Util.info(EXEC_ERROR,c,!ex.toString().isEmpty() ? ex.toString() : ex.getMessage()));
+    BaseXDialog.error(this,Util.info(EXEC_ERROR,cmd,!ex.toString().isEmpty() ? ex.toString() : ex.getMessage()));
     updating=false;
   }
   cursor(CURSORARROW,true);

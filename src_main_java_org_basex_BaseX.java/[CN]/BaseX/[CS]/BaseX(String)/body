@@ -20,21 +20,7 @@
         console=false;
       }
  else       if (c == 'C') {
-        final IO io=IO.get(val);
-        if (!io.exists())         throw new BaseXException(RES_NOT_FOUND_X,val);
-        final NewlineInput nli=new NewlineInput(io);
-        try {
-          for (TokenBuilder line; (line=nli.readLine()) != null; ) {
-            final String l=line.toString().trim();
-            if (!l.isEmpty() && !l.startsWith("#"))             execute(l);
-          }
-        }
- catch (        final InputException ex) {
-          throw new BaseXException(val + ": " + ex.getMessage()+ '.');
-        }
- finally {
-          nli.close();
-        }
+        script(val);
         console=false;
       }
  else       if (c == 'd') {
@@ -44,17 +30,7 @@
         prop=Prop.DOTPLAN;
       }
  else       if (c == 'f') {
-        final IO io=IO.get(val);
-        if (!io.exists() || io.isDir())         throw new BaseXException(RES_NOT_FOUND_X,val);
-        final String query;
-        try {
-          query=Token.string(new TextInput(io).content());
-        }
- catch (        final InputException ex) {
-          throw new BaseXException(val + ": " + ex.getMessage()+ '.');
-        }
-        execute(new Set(Prop.QUERYPATH,io.path()),false);
-        execute(new XQuery(query),verbose);
+        query(val);
         console=false;
       }
  else       if (c == 'i') {
