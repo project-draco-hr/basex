@@ -1,0 +1,26 @@
+{
+  final MetaData md=data.meta;
+  final Check invKind=new Check();
+  final Check parRef=new Check();
+  final Check parChild=new Check();
+  for (int pre=0; pre < md.size; pre++) {
+    final int kind=data.kind(pre);
+    if (kind > 6)     invKind.add(pre);
+    final int par=data.parent(pre,kind);
+    if (par >= pre || (kind == Data.DOC ? par != -1 : par < 0))     parRef.add(pre);
+    if (par >= 0 && par < 100)     if (par >= 0 && par + data.size(par,data.kind(par)) < pre)     parChild.add(pre);
+  }
+  final TokenBuilder info=new TokenBuilder();
+  info.addExt("Checking main table (% nodes):",md.size).add(Prop.NL);
+  info.add(invKind.info("invalid node kinds"));
+  info.add(parRef.info("invalid parent references"));
+  info.add(parChild.info("wrong parent/child relationships"));
+  info.add(Prop.NL);
+  if (invKind.invalid + parRef.invalid + parChild.invalid == 0) {
+    info.add("Good News: No inconsistencies found.").add(Prop.NL);
+  }
+ else {
+    info.add("Warning: Database is inconsistent.").add(Prop.NL);
+  }
+  return info.toString();
+}
