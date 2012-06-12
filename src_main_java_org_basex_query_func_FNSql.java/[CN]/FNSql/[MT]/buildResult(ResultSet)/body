@@ -1,20 +1,18 @@
 {
   try {
     final ResultSetMetaData metadata=rs.getMetaData();
-    final int columnCount=metadata.getColumnCount();
+    final int cc=metadata.getColumnCount();
     final NodeSeqBuilder rows=new NodeSeqBuilder();
     while (rs.next()) {
-      final NodeSeqBuilder columns=new NodeSeqBuilder();
-      for (int k=1; k <= columnCount; k++) {
+      final ANodeList columns=new ANodeList(cc);
+      for (int k=1; k <= cc; k++) {
         final String label=metadata.getColumnLabel(k);
         final Object value=rs.getObject(label);
         if (value != null) {
           final FAttr columnName=new FAttr(Q_NAME,token(label));
-          final NodeSeqBuilder attr=new NodeSeqBuilder();
-          attr.add(columnName);
+          final ANodeList attr=new ANodeList(columnName);
           final FTxt columnValue=new FTxt(token(value.toString()));
-          final NodeSeqBuilder ch=new NodeSeqBuilder();
-          ch.add(columnValue);
+          final ANodeList ch=new ANodeList(columnValue);
           columns.add(new FElem(Q_COLUMN,ch,attr,NS_SQL));
         }
       }
