@@ -45,7 +45,7 @@
   if (marking && nomark)   text.startMark();
   boolean down=true;
   boolean consumed=true;
-  final byte[] txt=text.text;
+  final byte[] txt=text.text();
   if (NEXTWORD.is(e)) {
     text.nextToken(marking);
   }
@@ -89,6 +89,10 @@
   }
  else   if (NEXTLINE.is(e)) {
     down(1,marking);
+  }
+ else   if (FINDERROR.is(e)) {
+    final int p=text.error();
+    if (p != -1)     setCaret(p);
   }
  else {
     consumed=false;
@@ -159,6 +163,6 @@
   }
   if (consumed)   e.consume();
   text.setCaret();
-  if (txt != text.text)   rend.calc();
+  if (txt != text.text())   rend.calc();
   showCursor(down ? 2 : 0);
 }

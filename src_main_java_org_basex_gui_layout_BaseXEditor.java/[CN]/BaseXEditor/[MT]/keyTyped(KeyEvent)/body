@@ -3,11 +3,12 @@
   text.pos(text.cursor());
   String ch=String.valueOf(e.getKeyChar());
   boolean del=true;
+  final byte[] txt=text.text();
   if (TAB.is(e)) {
     if (text.marked()) {
       final int s=Math.min(text.pos(),text.start());
       final int l=Math.max(text.pos(),text.start()) - 1;
-      for (int p=s; p <= l && p < text.size(); p++)       del&=text.text[p] != '\n';
+      for (int p=s; p <= l && p < txt.length; p++)       del&=txt[p] != '\n';
       if (!del) {
         text.indent(s,l,e.isShiftDown());
         ch=null;
@@ -16,7 +17,7 @@
  else {
       boolean c=true;
       for (int p=text.pos() - 1; p >= 0 && c; p--) {
-        final byte b=text.text[p];
+        final byte b=txt[p];
         c=ws(b);
         if (b == '\n')         break;
       }
@@ -28,7 +29,7 @@
     final StringBuilder sb=new StringBuilder(1).append(e.getKeyChar());
     int s=0;
     for (int p=text.pos() - 1; p >= 0; p--) {
-      final byte b=text.text[p];
+      final byte b=txt[p];
       if (b == '\n')       break;
       if (b == '\t') {
         s+=2;
