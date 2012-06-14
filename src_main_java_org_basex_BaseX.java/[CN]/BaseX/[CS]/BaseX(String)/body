@@ -15,12 +15,14 @@
         val=bind.append(val.replaceAll(",",",,")).toString();
         prop=Prop.BINDINGS;
       }
- else       if (c == 'c') {
-        execute(val);
-        console=false;
-      }
- else       if (c == 'C') {
-        script(val);
+ else       if (c == 'c' || c == 'C') {
+        final IO io=IO.get(val);
+        if (io.exists() && !io.isDir()) {
+          script(io);
+        }
+ else {
+          execute(val);
+        }
         console=false;
       }
  else       if (c == 'd') {
@@ -28,10 +30,6 @@
       }
  else       if (c == 'D') {
         prop=Prop.DOTPLAN;
-      }
- else       if (c == 'f') {
-        query(val);
-        console=false;
       }
  else       if (c == 'i') {
         execute(new Set(Prop.MAINMEM,true),false);
@@ -45,8 +43,14 @@
         if (out != System.out)         out.close();
         out=new PrintOutput(val);
       }
- else       if (c == 'q') {
-        execute(new XQuery(val),verbose);
+ else       if (c == 'q' || c == 'Q') {
+        final IO io=IO.get(val);
+        if (io.exists() && !io.isDir()) {
+          query(io);
+        }
+ else {
+          execute(new XQuery(val),verbose);
+        }
         console=false;
       }
  else       if (c == 'r') {

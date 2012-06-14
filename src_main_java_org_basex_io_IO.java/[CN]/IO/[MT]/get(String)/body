@@ -1,8 +1,5 @@
 {
   if (source == null)   return new IOContent(Token.EMPTY);
   final String s=source.trim();
-  if (s.startsWith("<"))   return new IOContent(s);
-  if (s.startsWith(FILEPREF))   return new IOFile(IOUrl.file(s));
-  if (IO.isFile(s))   return new IOFile(s);
-  return new IOUrl(s);
+  return s.indexOf('<') == 0 ? new IOContent(s) : s.startsWith(FILEPREF) ? new IOFile(IOUrl.file(s)) : IOFile.isValid(s) ? new IOFile(s) : IOUrl.isValid(s) ? new IOUrl(s) : new IOContent(s);
 }
