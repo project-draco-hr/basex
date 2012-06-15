@@ -46,8 +46,13 @@
  else         if (name.equals("private-key-password"))         pkPW=cn.getTextContent();
  else         if (name.equals("keystore-uri"))         ksURI=cn.getTextContent();
       }
-      final KeyStore ks=KeyStore.getInstance(ksTY);
-      if (ks == null)       CX_KSNULL.thrw(info,ks);
+      KeyStore ks=null;
+      try {
+        ks=KeyStore.getInstance(ksTY);
+      }
+ catch (      final KeyStoreException ex) {
+        CX_KSNULL.thrw(info,ex);
+      }
       ks.load(new FileInputStream(ksURI),ksPW.toCharArray());
       pk=(PrivateKey)ks.getKey(kAlias,pkPW.toCharArray());
       final X509Certificate x509ce=(X509Certificate)ks.getCertificate(kAlias);
@@ -105,7 +110,7 @@
       xmlSig=fac.newXMLSignature(si,ki,Collections.singletonList(obj),null,null);
       signContext=new DOMSignContext(pk,inputNode);
     }
-    if (ns.length > 0)     signContext.setDefaultNamespacePrefix(new String(ns));
+    if (ns.length > 0)     signContext.setDefaultNamespacePrefix(string(ns));
     xmlSig.sign(signContext);
     signedNode=NodeType.DOC.cast(inputNode,ii);
   }
