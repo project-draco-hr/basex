@@ -1,6 +1,34 @@
 {
   final QueryContext qc=new QueryContext(ctx.context);
-  qc.parse(string(qu));
-  qc.compile();
-  return qc.value();
+  final Value bind=expr.length > 1 ? expr[1].item(ctx,info) : null;
+  if (bind instanceof Map) {
+    final Map map=(Map)bind;
+    for (    final Item it : map.keys()) {
+      byte[] key;
+      if (it.type.isString()) {
+        key=it.string(null);
+      }
+ else {
+        final QNm qnm=(QNm)checkType(it,AtomType.QNM);
+        final TokenBuilder tb=new TokenBuilder();
+        if (qnm.uri() != null)         tb.add('{').add(qnm.uri()).add('}');
+        key=tb.add(qnm.local()).finish();
+      }
+      if (key.length == 0) {
+        qc.context(map.get(it,info),null);
+      }
+ else {
+        qc.bind(string(key),map.get(it,info),null);
+      }
+    }
+  }
+  try {
+    qc.parse(string(qu));
+    if (qc.updating)     BXXQ_UPDATING.thrw(info);
+    qc.compile();
+    return qc.value();
+  }
+  finally {
+    qc.close();
+  }
 }
