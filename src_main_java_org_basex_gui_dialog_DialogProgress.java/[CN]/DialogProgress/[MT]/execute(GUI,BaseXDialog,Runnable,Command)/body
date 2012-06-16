@@ -1,22 +1,25 @@
 {
-  final GUI gui=dialog.gui;
   for (  final Command cmd : cmds) {
     final boolean newData=cmd.newData(gui.context);
     if (newData)     gui.notify.init();
-    final DialogProgress wait;
-    if (dialog.isVisible()) {
-      wait=new DialogProgress(dialog,title,cmd);
-    }
- else {
-      wait=new DialogProgress(gui,title,cmd);
-    }
+    final DialogProgress wait=dialog != null ? new DialogProgress(dialog,cmd) : new DialogProgress(gui,cmd);
     new Thread(){
       @Override public void run(){
         final Performance perf=new Performance();
         gui.updating=cmd.updating(gui.context);
-        final boolean ok=cmd.run(gui.context);
-        gui.updating=false;
-        final String info=cmd.info();
+        boolean ok=true;
+        String info;
+        try {
+          cmd.execute(gui.context);
+          info=cmd.info();
+        }
+ catch (        final BaseXException ex) {
+          ok=false;
+          info=ex.getMessage();
+        }
+ finally {
+          gui.updating=false;
+        }
         final String time=perf.toString();
         gui.info.setInfo(info,cmd,time,ok);
         gui.info.reset();
@@ -30,7 +33,6 @@
     if (newData)     gui.notify.init();
  else     if (cmd.updating(gui.context))     gui.notify.update();
   }
-  dialog.setEnabled(true);
-  dialog.action(dialog);
+  if (dialog != null)   dialog.action(dialog);
   if (post != null)   post.run();
 }
