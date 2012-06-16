@@ -1,26 +1,10 @@
 {
   final QueryContext qc=new QueryContext(ctx.context);
-  final Value bind=expr.length > 1 ? expr[1].item(ctx,info) : null;
-  if (bind instanceof Map) {
-    final Map map=(Map)bind;
-    for (    final Item it : map.keys()) {
-      byte[] key;
-      if (it.type.isString()) {
-        key=it.string(null);
-      }
- else {
-        final QNm qnm=(QNm)checkType(it,AtomType.QNM);
-        final TokenBuilder tb=new TokenBuilder();
-        if (qnm.uri() != null)         tb.add('{').add(qnm.uri()).add('}');
-        key=tb.add(qnm.local()).finish();
-      }
-      if (key.length == 0) {
-        qc.context(map.get(it,info),null);
-      }
- else {
-        qc.bind(string(key),map.get(it,info),null);
-      }
-    }
+  for (  final Map.Entry<String,Value> it : bindings(1,ctx).entrySet()) {
+    final String k=it.getKey();
+    final Value v=it.getValue();
+    if (k.isEmpty())     qc.context(v,null);
+ else     qc.bind(k,v,null);
   }
   try {
     qc.parse(string(qu));

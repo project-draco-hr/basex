@@ -4,6 +4,15 @@
   try {
     final ValueBuilder vb=new ValueBuilder();
     final ClientQuery cq=cs.query(query);
+    for (    final Map.Entry<String,Value> it : bindings(2,ctx).entrySet()) {
+      final String k=it.getKey();
+      final Value v=it.getValue();
+      final ArrayOutput val=v.serialize();
+      if (!v.isItem())       BXCL_ITEM.thrw(info,v);
+      final String t=v.type().toString();
+      if (k.isEmpty())       cq.context(val,t);
+ else       cq.bind(k,val,t);
+    }
     while (cq.more()) {
       final String result=cq.next();
       vb.add(cq.type().castString(result,info));

@@ -1,0 +1,20 @@
+{
+  final HashMap<String,Value> hm=new HashMap<String,Value>();
+  if (i < expr.length) {
+    final Map map=checkMap(expr[i].item(ctx,info));
+    for (    final Item it : map.keys()) {
+      byte[] key;
+      if (it.type.isString()) {
+        key=it.string(null);
+      }
+ else {
+        final QNm qnm=(QNm)checkType(it,AtomType.QNM);
+        final TokenBuilder tb=new TokenBuilder();
+        if (qnm.uri() != null)         tb.add('{').add(qnm.uri()).add('}');
+        key=tb.add(qnm.local()).finish();
+      }
+      hm.put(string(key),map.get(it,info));
+    }
+  }
+  return hm;
+}
