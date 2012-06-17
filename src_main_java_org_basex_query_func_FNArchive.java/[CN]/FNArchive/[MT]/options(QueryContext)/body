@@ -1,0 +1,39 @@
+{
+  final B64 archive=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
+  final Atts ns=new Atts(ARCHIVE,ARCHIVEURI);
+  LookupInput li=null;
+  byte[] format=null, alg=null;
+  try {
+    li=new LookupInput(archive.input(info));
+    if (li.lookup() == 0x50) {
+      format=ZIP;
+      final ZipInputStream zis=new ZipInputStream(li);
+      for (ZipEntry ze; (ze=zis.getNextEntry()) != null; ) {
+        if (ze.isDirectory())         continue;
+        if (ze.getMethod() == ZipEntry.DEFLATED)         alg=DEFLATE;
+ else         if (ze.getMethod() == ZipEntry.STORED)         alg=STORED;
+        break;
+      }
+    }
+ else     if (li.lookup() == 0x1F) {
+      format=GZIP;
+      alg=DEFLATE;
+    }
+ else {
+      ARCH_UNKNOWN.thrw(info);
+    }
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    if (li != null)     try {
+      li.close();
+    }
+ catch (    final IOException e) {
+    }
+    throw ARCH_FAIL.thrw(info,ex);
+  }
+  final FElem e=new FElem(Q_OPTIONS,ns);
+  if (format != null)   e.add(new FElem(Q_FORMAT).add(new FAttr(VALUE,format)));
+  if (alg != null)   e.add(new FElem(Q_ALGORITHM).add(new FAttr(VALUE,alg)));
+  return e;
+}
