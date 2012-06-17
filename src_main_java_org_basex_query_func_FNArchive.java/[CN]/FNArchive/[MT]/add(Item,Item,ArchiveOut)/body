@@ -1,0 +1,41 @@
+{
+  final String name=string(entry.string(info));
+  if (name.isEmpty())   ARCH_EMPTY.thrw(info);
+  final ZipEntry ze=new ZipEntry(name);
+  String en=null;
+  if (entry instanceof ANode) {
+    final ANode el=(ANode)entry;
+    final byte[] level=el.attribute(Q_LEVEL);
+    if (level != null) {
+      int l=toInt(level);
+      if (l < 0 || l > 9)       ARCH_LEVEL.thrw(info,level);
+      ze.setMethod(l);
+    }
+    final byte[] mod=el.attribute(Q_LAST_MOD);
+    if (mod != null) {
+      try {
+        ze.setTime(new Int(new Dtm(mod,info)).itr());
+      }
+ catch (      final QueryException qe) {
+        ARCH_DATETIME.thrw(info,mod);
+      }
+    }
+    final byte[] enc=el.attribute(Q_ENCODING);
+    if (enc != null) {
+      en=string(enc);
+      if (!Charset.isSupported(en))       ARCH_ENCODING.thrw(info,enc);
+    }
+  }
+  byte[] val=null;
+  if (con.type.isString()) {
+    val=con.string(info);
+    if (en != null && en != Token.UTF8)     val=encode(val,en);
+  }
+ else   if (con.type == AtomType.B64) {
+    val=((Bin)con).binary(info);
+  }
+ else {
+    STRB64TYPE.thrw(info,con.type);
+  }
+  out.write(ze,val);
+}

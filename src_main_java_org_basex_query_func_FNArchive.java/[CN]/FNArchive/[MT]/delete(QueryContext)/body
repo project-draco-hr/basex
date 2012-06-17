@@ -1,25 +1,23 @@
 {
   final B64 archive=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
-  final HashMap<String,Item[]> entries=new HashMap<String,Item[]>();
+  final TokenObjMap<Item[]> hm=new TokenObjMap<Item[]>();
   final Iter names=ctx.iter(expr[1]);
-  for (Item it; (it=names.next()) != null; ) {
-    entries.put(string(checkStr(it,ctx)),null);
+  for (Item en; (en=names.next()) != null; ) {
+    hm.add(checkElmStr(en).string(info),null);
   }
-  final ZipInputStream zis=new ZipInputStream(archive.input(info));
-  final ArrayOutput ao=new ArrayOutput();
-  final ZipOutputStream zos=new ZipOutputStream(ao);
+  ArchiveIn in=ArchiveIn.get(archive.input(info),info);
+  ArchiveOut out=ArchiveOut.get(in.format(),info);
   try {
-    try {
-      delete(entries,zis,zos);
-    }
-  finally {
-      zos.close();
-      zis.close();
-    }
+    if (in instanceof GZIPIn)     ARCH_MODIFY.thrw(info,in.format().toUpperCase(Locale.ENGLISH));
+    while (in.more())     if (!hm.contains(token(in.entry().getName())))     out.write(in);
   }
  catch (  final IOException ex) {
     Util.debug(ex);
     ARCH_FAIL.thrw(info,ex);
   }
-  return new B64(ao.toArray());
+ finally {
+    in.close();
+    out.close();
+  }
+  return new B64(out.toArray());
 }

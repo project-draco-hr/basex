@@ -3,17 +3,17 @@
   return new Iter(){
     int pos;
     @Override public ANode get(    final long i) throws QueryException {
-      final FElem res=new FElem(DATABASE);
+      final FElem res=new FElem(Q_DATABASE);
       final String name=sl.get((int)i);
       final MetaData meta=new MetaData(name,ctx.context);
       DataInput di=null;
       try {
         di=new DataInput(meta.dbfile(DATAINF));
         meta.read(di);
-        res.add(new FAttr(RESOURCES,token(meta.ndocs)));
+        res.add(Q_RESOURCES,token(meta.ndocs));
         final String tstamp=formatDate(new Date(meta.dbtime()),Dtm.FORMAT);
-        res.add(new FAttr(MDATE,token(tstamp)));
-        if (ctx.context.perm(Perm.CREATE,meta))         res.add(new FAttr(PATH,token(meta.original)));
+        res.add(Q_MDATE,token(tstamp));
+        if (ctx.context.perm(Perm.CREATE,meta))         res.add(Q_PATH,token(meta.original));
         res.add(token(name));
       }
  catch (      final IOException ex) {

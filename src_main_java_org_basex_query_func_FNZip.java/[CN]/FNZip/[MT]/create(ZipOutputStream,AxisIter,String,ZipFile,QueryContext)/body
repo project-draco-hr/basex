@@ -2,13 +2,13 @@
   final byte[] data=new byte[IO.BLOCKSIZE];
   for (ANode node; (node=ai.next()) != null; ) {
     final QNm mode=node.qname();
-    final boolean dir=mode.eq(E_DIR);
-    if (!dir && !mode.eq(E_ENTRY))     ZIP_UNKNOWN.thrw(info,mode);
-    String name=attribute(node,A_NAME,false);
-    String src=attribute(node,A_SRC,false);
+    final boolean dir=mode.eq(Q_DIR);
+    if (!dir && !mode.eq(Q_ENTRY))     ZIP_UNKNOWN.thrw(info,mode);
+    String name=attribute(node,Q_NAME,false);
+    String src=attribute(node,Q_SRC,false);
     if (src != null)     src=src.replaceAll("\\\\","/");
     if (name == null) {
-      if (src == null)       throw ZIP_INVALID.thrw(info,node.qname(),A_SRC);
+      if (src == null)       throw ZIP_INVALID.thrw(info,node.qname(),Q_SRC);
       name=src;
     }
     name=name.replaceAll(".*/","");
@@ -35,7 +35,7 @@
       }
  else {
         final AxisIter ch=node.children();
-        final String m=attribute(node,A_METHOD,false);
+        final String m=attribute(node,Q_METHOD,false);
         ANode n=ch.next();
         ZipEntry ze=null;
         if (zf != null && n == null)         ze=zf.getEntry(root + name);

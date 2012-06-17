@@ -1,39 +1,29 @@
 {
   final B64 archive=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
-  final Atts ns=new Atts(ARCHIVE,ARCHIVEURI);
-  LookupInput li=null;
-  byte[] format=null, alg=null;
+  String format=null;
+  int level=-1;
+  final ArchiveIn arch=ArchiveIn.get(archive.input(info),info);
   try {
-    li=new LookupInput(archive.input(info));
-    if (li.lookup() == 0x50) {
-      format=ZIP;
-      final ZipInputStream zis=new ZipInputStream(li);
-      for (ZipEntry ze; (ze=zis.getNextEntry()) != null; ) {
-        if (ze.isDirectory())         continue;
-        if (ze.getMethod() == ZipEntry.DEFLATED)         alg=DEFLATE;
- else         if (ze.getMethod() == ZipEntry.STORED)         alg=STORED;
-        break;
-      }
-    }
- else     if (li.lookup() == 0x1F) {
-      format=GZIP;
-      alg=DEFLATE;
-    }
- else {
-      ARCH_UNKNOWN.thrw(info);
+    format=arch.format();
+    while (arch.more()) {
+      final ZipEntry ze=arch.entry();
+      if (ze.isDirectory())       continue;
+      level=ze.getMethod();
+      break;
     }
   }
  catch (  final IOException ex) {
     Util.debug(ex);
-    if (li != null)     try {
-      li.close();
-    }
- catch (    final IOException e) {
-    }
-    throw ARCH_FAIL.thrw(info,ex);
+    ARCH_FAIL.thrw(info,ex);
   }
-  final FElem e=new FElem(Q_OPTIONS,ns);
-  if (format != null)   e.add(new FElem(Q_FORMAT).add(new FAttr(VALUE,format)));
-  if (alg != null)   e.add(new FElem(Q_ALGORITHM).add(new FAttr(VALUE,alg)));
+ finally {
+    arch.close();
+  }
+  final FElem e=new FElem(Q_OPTIONS,NS);
+  if (format != null)   e.add(new FElem(Q_FORMAT).add(Q_VALUE,token(format)));
+  if (level >= 0) {
+    final byte[] lvl=level == 8 ? DEFLATE : level == 0 ? STORED : UNKNOWN;
+    e.add(new FElem(Q_ALGORITHM).add(Q_VALUE,lvl));
+  }
   return e;
 }

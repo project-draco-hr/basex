@@ -1,26 +1,28 @@
 {
   final B64 archive=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
   final ValueBuilder vb=new ValueBuilder();
-  final ZipInputStream zis=new ZipInputStream(archive.input(info));
+  final ArchiveIn in=ArchiveIn.get(archive.input(info),info);
   try {
-    try {
-      for (ZipEntry ze; (ze=zis.getNextEntry()) != null; ) {
-        if (ze.isDirectory())         continue;
-        final FElem e=new FElem(Q_ENTRY);
-        e.add(new FAttr(Q_SIZE,token(ze.getSize())));
-        e.add(new FAttr(Q_LAST_MOD,new Dtm(ze.getTime(),info).string(info)));
-        e.add(new FAttr(Q_COMP_SIZE,token(ze.getCompressedSize())));
-        e.add(new FTxt(token(ze.getName())));
-        vb.add(e);
-      }
-    }
-  finally {
-      zis.close();
+    while (in.more()) {
+      final ZipEntry ze=in.entry();
+      if (ze.isDirectory())       continue;
+      final FElem e=new FElem(Q_ENTRY,NS);
+      long s=ze.getSize();
+      if (s != -1)       e.add(Q_SIZE,token(s));
+      s=ze.getTime();
+      if (s != -1)       e.add(Q_LAST_MOD,new Dtm(s,info).string(info));
+      s=ze.getCompressedSize();
+      if (s != -1)       e.add(Q_COMP_SIZE,token(s));
+      e.add(token(ze.getName()));
+      vb.add(e);
     }
     return vb;
   }
  catch (  final IOException ex) {
     Util.debug(ex);
     throw ARCH_FAIL.thrw(info,ex);
+  }
+ finally {
+    in.close();
   }
 }

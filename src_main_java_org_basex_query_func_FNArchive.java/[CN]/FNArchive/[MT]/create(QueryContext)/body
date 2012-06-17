@@ -1,37 +1,44 @@
 {
-  final Iter elem=ctx.iter(expr[0]);
+  final Iter entr=ctx.iter(expr[0]);
   final Iter cont=ctx.iter(expr[1]);
   final Item opt=expr.length > 2 ? expr[2].item(ctx,info) : null;
   final TokenMap map=new FuncParams(Q_OPTIONS,info).parse(opt);
-  final byte[] format=map.get(FORMAT);
-  if (format != null && !eq(format,ZIP))   ARCH_SUPP.thrw(info,FORMAT,format);
+  final byte[] f=map.get(FORMAT);
+  final String format=f != null ? string(lc(f)) : "zip";
+  final ArchiveOut out=ArchiveOut.get(format,info);
   final byte[] alg=map.get(ALGORITHM);
-  if (alg != null && !eq(alg,DEFLATE))   ARCH_SUPP.thrw(info,ALGORITHM,alg);
-  final ArrayOutput ao=new ArrayOutput();
-  final ZipOutputStream zos=new ZipOutputStream(ao);
+  if (alg != null) {
+    if (format.equals("zip") && !eq(alg,STORED,DEFLATE) || format.equals("gzip") && !eq(alg,DEFLATE)) {
+      ARCH_SUPP.thrw(info,ALGORITHM,alg);
+    }
+    if (alg.equals(STORED))     out.level(ZipEntry.STORED);
+ else     if (alg.equals(DEFLATE))     out.level(ZipEntry.DEFLATED);
+  }
   try {
     int e=0;
     int c=0;
-    Item elm, con;
+    Item en, cn;
     while (true) {
-      elm=elem.next();
-      con=cont.next();
-      if (elm == null || con == null)       break;
-      if (!TEST.eq(elm))       Err.type(this,NodeType.ELM,elm);
-      add((ANode)elm,con,zos);
+      en=entr.next();
+      cn=cont.next();
+      if (en == null || cn == null)       break;
+      if (out instanceof GZIPOut && c > 0)       ARCH_ONE.thrw(info,format.toUpperCase(Locale.ENGLISH));
+      add(checkElmStr(en),cn,out);
       e++;
       c++;
     }
-    if (con != null)     do     c++;
+    if (cn != null)     do     c++;
  while (cont.next() != null);
-    if (elm != null)     do     e++;
- while (elem.next() != null);
+    if (en != null)     do     e++;
+ while (entr.next() != null);
     if (e != c)     throw ARCH_DIFF.thrw(info,e,c);
-    zos.close();
-    return new B64(ao.toArray());
   }
  catch (  final IOException ex) {
     Util.debug(ex);
     throw ARCH_FAIL.thrw(info,ex);
   }
+ finally {
+    out.close();
+  }
+  return new B64(out.toArray());
 }
