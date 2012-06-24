@@ -46,18 +46,18 @@
       }
     }
  else {
-      final Result result=cmd.result();
+      Result result=cmd.result();
       final Nodes nodes=result instanceof Nodes && result.size() != 0 ? (Nodes)result : null;
-      final Data ndata=context.data();
-      Nodes marked=context.marked;
-      if (ndata != data) {
+      if (context.data() != data) {
         notify.init();
       }
  else       if (cmd.updated()) {
         notify.update();
+        if (result == null)         result=context.current();
       }
  else       if (result != null) {
         final Nodes nd=context.current();
+        Nodes marked=context.marked;
         final boolean flt=gprop.is(GUIProp.FILTERRT);
         if (flt || nd != null && !nd.sameAs(current)) {
           if (nodes != null)           notify.context((Nodes)result,flt,null);
