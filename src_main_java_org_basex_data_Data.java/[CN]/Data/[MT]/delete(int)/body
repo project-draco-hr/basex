@@ -2,8 +2,7 @@
   meta.update();
   int k=kind(pre);
   int s=size(pre,k);
-  final boolean empty=pre == 0 && s == meta.size;
-  if (!empty)   resources.delete(pre,s);
+  resources.delete(pre,s);
   if (meta.updindex) {
     indexDelete(pre,s);
   }
@@ -22,22 +21,11 @@
     size(par,k,size(par,k) - s);
   }
   int p=pre;
-  if (empty) {
-    ++p;
-    --s;
-  }
- else   if (kind(p) == DOC) {
-    --meta.ndocs;
-  }
+  if (kind(p) == DOC)   --meta.ndocs;
   if (meta.updindex) {
     idmap.delete(pre,id(pre),-s);
   }
   table.delete(pre,s);
   updateDist(p,-s);
   nspaces.update(pre,s,false,null);
-  if (empty) {
-    doc(pre,1,EMPTY);
-    table.set(0,buffer());
-    if (meta.updindex)     idmap.insert(0,id(0),1);
-  }
 }

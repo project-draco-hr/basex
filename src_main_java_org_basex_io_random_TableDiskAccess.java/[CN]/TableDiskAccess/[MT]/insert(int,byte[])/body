@@ -1,32 +1,42 @@
 {
-  if (entries.length == 0)   return;
+  final int nnew=entries.length;
+  if (nnew == 0)   return;
   dirty=true;
-  final int split=cursor(pre - 1) + IO.NODESIZE;
-  final int nr=entries.length >>> IO.NODEPOWER;
+  final int nr=nnew >>> IO.NODEPOWER;
+  final int split;
+  if (pre == 0) {
+    readIndex(0);
+    used++;
+    split=0;
+  }
+ else {
+    split=cursor(pre - 1) + IO.NODESIZE;
+  }
   final int nold=npre - fpre << IO.NODEPOWER;
   final int moved=nold - split;
   Buffer bf=bm.current();
-  if (nold + entries.length <= IO.BLOCKSIZE) {
-    System.arraycopy(bf.data,split,bf.data,split + entries.length,moved);
-    System.arraycopy(entries,0,bf.data,split,entries.length);
+  if (nold + nnew <= IO.BLOCKSIZE) {
+    Array.move(bf.data,split,nnew,moved);
+    System.arraycopy(entries,0,bf.data,split,nnew);
     bf.dirty=true;
-    for (int i=index + 1; i < blocks; ++i)     fpres[i]+=nr;
+    for (int i=index + 1; i < used; ++i)     fpres[i]+=nr;
     npre+=nr;
     meta.size+=nr;
     return;
   }
-  final byte[] all=new byte[entries.length + moved];
-  System.arraycopy(entries,0,all,0,entries.length);
-  System.arraycopy(bf.data,split,all,entries.length,moved);
-  int n=bf.data.length - split;
-  if (n > 0) {
-    System.arraycopy(all,0,bf.data,split,n);
+  final byte[] all=new byte[nnew + moved];
+  System.arraycopy(entries,0,all,0,nnew);
+  System.arraycopy(bf.data,split,all,nnew,moved);
+  int nrem=IO.BLOCKSIZE - split;
+  if (nrem > 0) {
+    System.arraycopy(all,0,bf.data,split,nrem);
     bf.dirty=true;
   }
-  int neededBlocks=(all.length - n) / IO.BLOCKSIZE;
-  final int remain=(all.length - n) % IO.BLOCKSIZE;
+  final int req=all.length - nrem;
+  int needed=req / IO.BLOCKSIZE;
+  final int remain=req % IO.BLOCKSIZE;
   if (remain > 0) {
-    if (index + 1 < blocks) {
+    if (index + 1 < used) {
       final int o=occSpace(index + 1) << IO.NODEPOWER;
       if (remain <= IO.BLOCKSIZE - o) {
         readIndex(index + 1);
@@ -38,29 +48,29 @@
         readIndex(index - 1);
       }
  else {
-        ++neededBlocks;
+        ++needed;
       }
     }
  else {
-      ++neededBlocks;
+      ++needed;
     }
   }
-  final int expBlocks=allBlocks + neededBlocks - (allBlocks - blocks);
-  if (expBlocks > fpres.length) {
-    final int ns=Math.max(fpres.length << 1,expBlocks);
+  final int exp=blocks + needed - (blocks - used);
+  if (exp > fpres.length) {
+    final int ns=Math.max(fpres.length << 1,exp);
     fpres=Arrays.copyOf(fpres,ns);
     pages=Arrays.copyOf(pages,ns);
   }
-  Array.move(fpres,index + 1,neededBlocks,blocks - index - 1);
-  Array.move(pages,index + 1,neededBlocks,blocks - index - 1);
-  while (neededBlocks-- > 0) {
+  Array.move(fpres,index + 1,needed,used - index - 1);
+  Array.move(pages,index + 1,needed,used - index - 1);
+  while (needed-- > 0) {
     freeBlock();
-    n+=write(all,n);
+    nrem+=write(all,nrem);
     fpres[index]=fpres[index - 1] + IO.ENTRIES;
     pages[index]=(int)bm.current().pos;
   }
-  for (int i=index + 1; i < blocks; ++i)   fpres[i]+=nr;
+  for (int i=index + 1; i < used; ++i)   fpres[i]+=nr;
   meta.size+=nr;
   fpre=fpres[index];
-  npre=index + 1 < blocks && fpres[index + 1] < meta.size ? fpres[index + 1] : meta.size;
+  npre=index + 1 < used && fpres[index + 1] < meta.size ? fpres[index + 1] : meta.size;
 }

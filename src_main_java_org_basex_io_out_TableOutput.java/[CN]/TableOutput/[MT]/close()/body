@@ -1,19 +1,16 @@
 {
+  final boolean empty=fpre + pos == 0;
+  if (empty)   pos++;
   flush();
   os.close();
-  DataOutput dt=null;
+  final DataOutput out=new DataOutput(meta.dbfile(file + 'i'));
   try {
-    dt=new DataOutput(meta.dbfile(file + 'i'));
-    dt.writeNum(bcount);
-    dt.writeNum(bcount);
-    dt.writeNums(firstPres.toArray());
-    dt.writeNums(blocks.toArray());
+    out.writeNum(pages.size());
+    out.writeNum(empty ? 0 : pages.size());
+    out.writeNums(fpres.toArray());
+    out.writeNums(pages.toArray());
   }
   finally {
-    if (dt != null)     try {
-      dt.close();
-    }
- catch (    final IOException ex) {
-    }
+    out.close();
   }
 }
