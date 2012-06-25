@@ -46,14 +46,14 @@
       }
     }
  else {
-      Result result=cmd.result();
-      final Nodes nodes=result instanceof Nodes && result.size() != 0 ? (Nodes)result : null;
+      final Result result=cmd.result();
+      Nodes nodes=result instanceof Nodes && result.size() != 0 ? (Nodes)result : null;
       if (context.data() != data) {
         notify.init();
       }
  else       if (cmd.updated()) {
         notify.update();
-        if (result == null)         result=context.current();
+        if (nodes == null)         nodes=context.current();
       }
  else       if (result != null) {
         final Nodes nd=context.current();
@@ -75,8 +75,11 @@
       if (thread == threadID && !interrupted) {
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
-        if (!text.visible() && nodes == null && ao.size() != 0)         GUICommands.C_SHOWTEXT.execute(this);
-        text.setText(ao,cmd,result);
+        if (nodes == null) {
+          if (!text.visible() && ao.size() != 0)           GUICommands.C_SHOWTEXT.execute(this);
+          text.setText(ao);
+        }
+        text.cacheText(ao,cmd,result);
       }
     }
   }
