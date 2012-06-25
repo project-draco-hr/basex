@@ -4,13 +4,16 @@
   dirty=true;
   final int nr=nnew >>> IO.NODEPOWER;
   int split=0;
-  if (pre == 0) {
-    readIndex(0);
-    pagemap.set(0);
+  if (used == 0) {
+    readPage(0);
+    freePages.set(0);
     ++used;
   }
- else {
+ else   if (pre > 0) {
     split=cursor(pre - 1) + IO.NODESIZE;
+  }
+ else {
+    Util.notexpected("Insertion at beginning of populated table.");
   }
   final int nold=npre - fpre << IO.NODEPOWER;
   final int moved=nold - split;
@@ -19,7 +22,7 @@
     Array.move(bf.data,split,nnew,moved);
     System.arraycopy(entries,0,bf.data,split,nnew);
     bf.dirty=true;
-    for (int i=index + 1; i < used; ++i)     fpres[i]+=nr;
+    for (int i=page + 1; i < used; ++i)     fpres[i]+=nr;
     npre+=nr;
     meta.size+=nr;
     return;
@@ -36,16 +39,16 @@
   int needed=req / IO.BLOCKSIZE;
   final int remain=req % IO.BLOCKSIZE;
   if (remain > 0) {
-    if (index + 1 < used) {
-      final int o=occSpace(index + 1) << IO.NODEPOWER;
+    if (page + 1 < used) {
+      final int o=occSpace(page + 1) << IO.NODEPOWER;
       if (remain <= IO.BLOCKSIZE - o) {
-        readIndex(index + 1);
+        readPage(page + 1);
         bf=bm.current();
         System.arraycopy(bf.data,0,bf.data,remain,o);
         System.arraycopy(all,all.length - remain,bf.data,0,remain);
         bf.dirty=true;
-        fpres[index]-=remain >>> IO.NODEPOWER;
-        readIndex(index - 1);
+        fpres[page]-=remain >>> IO.NODEPOWER;
+        readPage(page - 1);
       }
  else {
         ++needed;
@@ -61,16 +64,16 @@
     fpres=Arrays.copyOf(fpres,ns);
     pages=Arrays.copyOf(pages,ns);
   }
-  Array.move(fpres,index + 1,needed,used - index - 1);
-  Array.move(pages,index + 1,needed,used - index - 1);
+  Array.move(fpres,page + 1,needed,used - page - 1);
+  Array.move(pages,page + 1,needed,used - page - 1);
   while (needed-- > 0) {
     freeBlock();
     nrem+=write(all,nrem);
-    fpres[index]=fpres[index - 1] + IO.ENTRIES;
-    pages[index]=(int)bm.current().pos;
+    fpres[page]=fpres[page - 1] + IO.ENTRIES;
+    pages[page]=(int)bm.current().pos;
   }
-  for (int i=index + 1; i < used; ++i)   fpres[i]+=nr;
+  for (int i=page + 1; i < used; ++i)   fpres[i]+=nr;
   meta.size+=nr;
-  fpre=fpres[index];
-  npre=index + 1 < used && fpres[index + 1] < meta.size ? fpres[index + 1] : meta.size;
+  fpre=fpres[page];
+  npre=page + 1 < used && fpres[page + 1] < meta.size ? fpres[page + 1] : meta.size;
 }

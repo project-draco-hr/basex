@@ -9,11 +9,11 @@
     copy(bf.data,from + nr,bf.data,from,npre - last);
     updatePre(nr);
     if (npre == fpre) {
-      pagemap.clear(pages[index]);
-      Array.move(fpres,index + 1,-1,used - index - 1);
-      Array.move(pages,index + 1,-1,used - index - 1);
+      freePages.clear(pages[page]);
+      Array.move(fpres,page + 1,-1,used - page - 1);
+      Array.move(pages,page + 1,-1,used - page - 1);
       --used;
-      readIndex(index);
+      readPage(page);
     }
     return;
   }
@@ -21,29 +21,29 @@
   while (npre < last) {
     if (from == 0) {
       ++unused;
-      pagemap.clear(pages[index]);
+      freePages.clear(pages[page]);
     }
-    setIndex(index + 1);
+    setPage(page + 1);
     from=0;
   }
-  readBlock(pages[index]);
+  readBlock(pages[page]);
   final Buffer bf=bm.current();
   if (npre == last) {
-    pagemap.clear((int)bf.pos);
+    freePages.clear((int)bf.pos);
     ++unused;
-    if (index < used - 1)     readIndex(index + 1);
- else     ++index;
+    if (page < used - 1)     readPage(page + 1);
+ else     ++page;
   }
  else {
     copy(bf.data,last - fpre,bf.data,0,npre - last);
   }
   if (unused > 0) {
-    Array.move(fpres,index,-unused,used - index);
-    Array.move(pages,index,-unused,used - index);
+    Array.move(fpres,page,-unused,used - page);
+    Array.move(pages,page,-unused,used - page);
     used-=unused;
-    index-=unused;
+    page-=unused;
   }
-  fpres[index]=pre;
+  fpres[page]=pre;
   fpre=pre;
   updatePre(nr);
 }
