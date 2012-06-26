@@ -1,24 +1,21 @@
 {
-  for (  final Uri u : uri) {
-    PrintOutput po=null;
+  for (  final String u : paths) {
     final DBNode node=new DBNode(data,pre);
     try {
-      po=new PrintOutput(path(u));
-      final SerializerProp pr=new SerializerProp();
-      pr.set(SerializerProp.S_INDENT,node.data.meta.chop ? YES : NO);
-      final Serializer ser=Serializer.get(po,pr);
-      ser.serialize(node);
-      ser.close();
-    }
- catch (    final IOException ex) {
-      UPPUTERR.thrw(info,path(u));
-    }
- finally {
-      if (po != null)       try {
+      final PrintOutput po=new PrintOutput(u);
+      try {
+        final SerializerProp pr=new SerializerProp();
+        pr.set(SerializerProp.S_INDENT,node.data.meta.chop ? YES : NO);
+        final Serializer ser=Serializer.get(po,pr);
+        ser.serialize(node);
+        ser.close();
+      }
+  finally {
         po.close();
       }
- catch (      final IOException ex) {
-      }
+    }
+ catch (    final IOException ex) {
+      UPPUTERR.thrw(info,u);
     }
   }
 }
