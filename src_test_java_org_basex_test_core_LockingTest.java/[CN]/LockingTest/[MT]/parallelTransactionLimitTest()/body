@@ -1,13 +1,13 @@
 {
   final CountDownLatch latch=new CountDownLatch(Math.max(mprop.num(MainProp.PARALLEL),1));
-  @SuppressWarnings("unchecked") final LockTester<Integer>[] testers=(LockTester<Integer>[])Array.newInstance(LockTester.class,(int)(latch.getCount() + 1));
+  final LockTester[] testers=(LockTester[])Array.newInstance(LockTester.class,(int)(latch.getCount() + 1));
   for (int i=0; i < testers.length - 1; i++) {
-    testers[i]=new LockTester<Integer>(null,false,objects,latch);
+    testers[i]=new LockTester(null,false,objects,latch);
     testers[i].start();
   }
   assertTrue("Couldn't start maximum allowed number of parallel transactions!",latch.await(WAIT,TimeUnit.MILLISECONDS));
   final CountDownLatch latch2=new CountDownLatch(1);
-  testers[testers.length - 1]=new LockTester<Integer>(null,false,objects,latch2);
+  testers[testers.length - 1]=new LockTester(null,false,objects,latch2);
   testers[testers.length - 1].start();
   assertFalse("Shouldn't be able to start another parallel transaction yet!",latch2.await(WAIT,TimeUnit.MILLISECONDS));
   testers[0].release();

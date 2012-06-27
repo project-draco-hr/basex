@@ -1,4 +1,13 @@
 {
   if (!user.has(Perm.ADMIN))   pr.startTimeout(mprop.num(MainProp.TIMEOUT));
-  locks.acquire(pr,new String[]{"".intern()});
+  StringList sl=new StringList();
+  if (!pr.databases(sl)) {
+    sl=databases.listDBs();
+  }
+ else {
+    for (int d=0; d < sl.size(); d++) {
+      if (data != null && sl.get(d).isEmpty())       sl.set(d,data.meta.name);
+    }
+  }
+  locks.acquire(pr,sl);
 }
