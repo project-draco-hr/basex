@@ -1,11 +1,11 @@
 {
   final CountDownLatch sync=new CountDownLatch(1), test=new CountDownLatch(1);
-  LockTester<Integer> thread1=new LockTester<Integer>(null,false,objects,sync);
-  LockTester<Integer> thread2=new LockTester<Integer>(sync,true,objects,test);
-  thread1.start();
-  thread2.start();
+  final LockTester<Integer> th1=new LockTester<Integer>(null,false,objects,sync);
+  final LockTester<Integer> th2=new LockTester<Integer>(sync,true,objects,test);
+  th1.start();
+  th2.start();
   assertFalse("Thread 2 shouldn't be able to acquire lock yet.",test.await(WAIT,TimeUnit.MILLISECONDS));
-  thread1.release();
+  th1.release();
   assertTrue("Thread 2 should be able to acquire lock now.",test.await(WAIT,TimeUnit.MILLISECONDS));
-  thread2.release();
+  th2.release();
 }
