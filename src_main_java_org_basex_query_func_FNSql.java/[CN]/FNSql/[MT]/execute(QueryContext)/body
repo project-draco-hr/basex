@@ -1,6 +1,22 @@
 {
   final int id=(int)checkItr(expr[0].item(ctx,info));
   final Object obj=ctx.jdbc().get(id);
-  if (obj == null)   throw BXSQ_CONN.thrw(info,id);
-  return obj instanceof Connection ? executeQuery((Connection)obj,ctx) : executePrepStmt((PreparedStatement)obj,ctx);
+  if (!(obj instanceof Connection))   BXSQ_CONN.thrw(info,id);
+  final String query=string(checkStr(ctx.iter(expr[1]).next(),ctx));
+  Statement stmt=null;
+  try {
+    stmt=((Connection)obj).createStatement();
+    final boolean result=stmt.execute(query);
+    return result ? buildResult(stmt.getResultSet()) : new NodeSeqBuilder();
+  }
+ catch (  final SQLException ex) {
+    throw BXSQ_ERROR.thrw(info,ex);
+  }
+ finally {
+    if (stmt != null)     try {
+      stmt.close();
+    }
+ catch (    final SQLException ex) {
+    }
+  }
 }

@@ -1,0 +1,10 @@
+{
+  final CountDownLatch sync=new CountDownLatch(1), test=new CountDownLatch(1);
+  final LockTester th1=new LockTester(null,false,objects,sync);
+  final LockTester th2=new LockTester(sync,false,objects,test);
+  th1.start();
+  th2.start();
+  assertTrue("Thread 2 should be able to acquire lock.",test.await(WAIT,TimeUnit.MILLISECONDS));
+  th1.release();
+  th2.release();
+}
