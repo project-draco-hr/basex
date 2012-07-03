@@ -3,10 +3,15 @@
   for (  final byte[] p : repo.pkgDict()) {
     if (p != null)     sl.add(Token.string(p));
   }
-  for (  final IOFile dir : repo.path().children()) {
-    if (dir.name().indexOf('-') != -1)     continue;
-    for (    final String s : dir.descendants()) {
-      sl.add(dir.name() + '.' + s.replaceAll("\\..*","").replace('/','.'));
+  for (  final IOFile ch : repo.path().children()) {
+    final String n=ch.name();
+    if (!ch.isDir()) {
+      sl.add(n.replaceAll("\\..*","").replace('/','.'));
+    }
+ else     if (n.indexOf('-') == -1) {
+      for (      final String s : ch.descendants()) {
+        sl.add(n + '.' + s.replaceAll("\\..*","").replace('/','.'));
+      }
     }
   }
   return sl.sort(false,true);
