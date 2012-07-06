@@ -33,12 +33,20 @@
  else {
           sb.append("error");
         }
+        final TokenBuilder types=new TokenBuilder();
+        if (val instanceof ValueBuilder) {
+          final ValueBuilder vb=(ValueBuilder)val;
+          for (          final Item i : vb)           types.add(i.type.toString()).add(" ");
+        }
+ else {
+          types.add(Util.name(val));
+        }
         s=val.size() != 1 ? "#" + val.size() : "";
-        sb.append("\n[F" + s + "] '"+ val+ "' "+ details()+ '\n');
+        sb.append("\n[F" + s + "] '"+ val+ "', "+ types+ details()+ '\n');
         ++fail;
       }
     }
- catch (    final BaseXException ex) {
+ catch (    final Exception ex) {
       final String msg=ex.getMessage();
       if (correct || msg.contains("mailman")) {
         final String cp=correct && (!(cmp instanceof Nodes) || ((Nodes)cmp).data != null) ? cmp.toString() : "()";
