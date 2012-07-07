@@ -17,7 +17,7 @@
   final IntList preStack=new IntList();
   int dpre=-1;
   final NSNode t=nspaces.current;
-  final Set<NSNode> newNodes=new HashSet<NSNode>();
+  final HashSet<NSNode> newNodes=new HashSet<NSNode>();
   final IntList flagPres=new IntList();
   while (++dpre != dsize) {
     if (dpre != 0 && dpre % buf == 0)     insert(ipre + dpre - buf);
@@ -93,9 +93,13 @@ break;
 }
 while (!preStack.isEmpty()) nspaces.close(preStack.pop());
 nspaces.setRoot(t);
+if (ipar != -1) nspaces.insert(ipre,dsize,newNodes);
 if (bp != 0) insert(ipre + dpre - 1 - (dpre - 1) % buf);
 buffer(1);
-for (final int toFlag : flagPres.toArray()) table.write2(toFlag,1,name(toFlag) | 1 << 15);
+for (int f=0; f < flagPres.size(); f++) {
+final int fl=flagPres.get(f);
+table.write2(fl,1,name(fl) | 1 << 15);
+}
 int p=ipar;
 while (p >= 0) {
 final int k=kind(p);
@@ -103,7 +107,6 @@ size(p,k,size(p,k) + dsize);
 p=parent(p,k);
 }
 updateDist(ipre + dsize,dsize);
-nspaces.update(ipre,dsize,true,newNodes);
 if (meta.updindex) {
 idmap.insert(ipre,id(ipre),dsize);
 indexEnd();
