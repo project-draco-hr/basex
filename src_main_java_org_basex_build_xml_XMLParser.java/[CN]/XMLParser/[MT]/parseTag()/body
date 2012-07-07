@@ -11,39 +11,40 @@
   }
   consume(Type.L_BR);
   atts.reset();
-  final byte[] tag=consumeToken(Type.TAGNAME);
+  byte[] en=consumeToken(Type.TAGNAME);
+  if (stripNS)   en=local(en);
   skipSpace();
   while (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
-    final byte[] attName=consumeToken(Type.ATTNAME);
+    final byte[] an=consumeToken(Type.ATTNAME);
     skipSpace();
     consume(Type.EQ);
     skipSpace();
     consume(Type.QUOTE);
-    byte[] attValue=EMPTY;
+    byte[] av=EMPTY;
     if (scanner.type == Type.ATTVALUE) {
-      attValue=scanner.token.finish();
+      av=scanner.token.finish();
       scanner.more();
     }
     consume(Type.QUOTE);
-    if (startsWith(attName,XMLNSC)) {
-      builder.startNS(local(attName),attValue);
+    if (startsWith(an,XMLNSC)) {
+      if (!stripNS)       builder.startNS(local(an),av);
     }
- else     if (eq(attName,XMLNS)) {
-      builder.startNS(EMPTY,attValue);
+ else     if (eq(an,XMLNS)) {
+      if (!stripNS)       builder.startNS(EMPTY,av);
     }
  else {
-      atts.add(attName,attValue);
+      atts.add(stripNS ? local(an) : an,av);
     }
     if (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
       consume(Type.WS);
     }
   }
   if (scanner.type == Type.CLOSE_R_BR) {
-    builder.emptyElem(tag,atts);
+    builder.emptyElem(en,atts);
     if (tags.isEmpty())     closed=true;
     return scanner.more();
   }
-  builder.startElem(tag,atts);
-  tags.add(tag);
+  builder.startElem(en,atts);
+  tags.add(en);
   return consume(Type.R_BR);
 }
