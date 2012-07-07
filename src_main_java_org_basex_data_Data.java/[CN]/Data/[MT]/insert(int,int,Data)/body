@@ -17,8 +17,8 @@
   final IntList preStack=new IntList();
   int dpre=-1;
   final NSNode t=nspaces.current;
-  final Set<NSNode> newNodes=new HashSet<NSNode>();
   final IntList flagPres=new IntList();
+  Set<NSNode> newNodes=null;
   while (++dpre != dsize) {
     if (dpre != 0 && dpre % buf == 0)     insert(ipre + dpre - buf);
     final int pre=ipre + dpre;
@@ -65,7 +65,9 @@ final Atts at=data.ns(dpre);
 for (int a=0; a < at.size(); ++a) {
 final byte[] old=nsScope.get(at.name(a));
 if (old == null || !eq(old,at.string(a))) {
-newNodes.add(nspaces.add(at.name(a),at.string(a),pre));
+final NSNode ns=nspaces.add(at.name(a),at.string(a),pre);
+if (newNodes == null) newNodes=new HashSet<NSNode>();
+newNodes.add(ns);
 ne=true;
 }
 }
@@ -93,6 +95,7 @@ break;
 }
 while (!preStack.isEmpty()) nspaces.close(preStack.pop());
 nspaces.setRoot(t);
+nspaces.insert(ipre,dsize,newNodes);
 if (bp != 0) insert(ipre + dpre - 1 - (dpre - 1) % buf);
 buffer(1);
 for (final int toFlag : flagPres.toArray()) table.write2(toFlag,1,name(toFlag) | 1 << 15);
@@ -103,7 +106,6 @@ size(p,k,size(p,k) + dsize);
 p=parent(p,k);
 }
 updateDist(ipre + dsize,dsize);
-nspaces.update(ipre,dsize,true,newNodes);
 if (meta.updindex) {
 idmap.insert(ipre,id(ipre),dsize);
 indexEnd();
