@@ -3,18 +3,10 @@
   if (name.isEmpty())   ARCH_EMPTY.thrw(info);
   final ZipEntry ze=new ZipEntry(name);
   String en=null;
+  byte[] lvl=null;
   if (entry instanceof ANode) {
     final ANode el=(ANode)entry;
-    final byte[] level=el.attribute(Q_LEVEL);
-    if (level != null) {
-      final int l=toInt(level);
-      try {
-        ze.setMethod(l);
-      }
- catch (      final IllegalArgumentException ex) {
-        ARCH_LEVEL.thrw(info,level);
-      }
-    }
+    lvl=el.attribute(Q_LEVEL);
     final byte[] mod=el.attribute(Q_LAST_MOD);
     if (mod != null) {
       try {
@@ -40,6 +32,12 @@
   }
  else {
     STRB64TYPE.thrw(info,con.type);
+  }
+  try {
+    out.level(lvl == null ? level : toInt(lvl));
+  }
+ catch (  final IllegalArgumentException ex) {
+    ARCH_LEVEL.thrw(info,lvl);
   }
   out.write(ze,val);
 }

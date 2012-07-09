@@ -7,13 +7,15 @@
   final String format=f != null ? string(lc(f)) : "zip";
   final ArchiveOut out=ArchiveOut.get(format,info);
   final byte[] alg=map.get(ALGORITHM);
+  int level=ZipEntry.DEFLATED;
   if (alg != null) {
     if (format.equals("zip") && !eq(alg,STORED,DEFLATE) || format.equals("gzip") && !eq(alg,DEFLATE)) {
       ARCH_SUPP.thrw(info,ALGORITHM,alg);
     }
-    if (alg.equals(STORED))     out.level(ZipEntry.STORED);
- else     if (alg.equals(DEFLATE))     out.level(ZipEntry.DEFLATED);
+    if (alg.equals(STORED))     level=ZipEntry.STORED;
+ else     if (alg.equals(DEFLATE))     level=ZipEntry.DEFLATED;
   }
+  out.level(level);
   try {
     int e=0;
     int c=0;
@@ -23,7 +25,7 @@
       cn=cont.next();
       if (en == null || cn == null)       break;
       if (out instanceof GZIPOut && c > 0)       ARCH_ONE.thrw(info,format.toUpperCase(Locale.ENGLISH));
-      add(checkElmStr(en),cn,out);
+      add(checkElmStr(en),cn,out,level);
       e++;
       c++;
     }
