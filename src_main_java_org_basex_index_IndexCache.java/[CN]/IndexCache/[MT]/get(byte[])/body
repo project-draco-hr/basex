@@ -1,20 +1,17 @@
 {
-  purge();
   final int hash=hash(key);
-  final int i=indexFor(hash,bucket.length);
-  BucketEntry e=bucket[i];
-  BucketEntry prev=e;
-  while (e != null) {
-    final BucketEntry next=e.next;
-    final IndexEntry entry=e.get();
-    if (entry == null) {
-      delete(i,e,prev,next);
+  readLock.lock();
+  try {
+    final int i=indexFor(hash,buckets.length);
+    BucketEntry e=buckets[i];
+    while (e != null) {
+      final IndexEntry entry=e.get();
+      if (entry != null && e.hash == hash && eq(entry.key,key))       return entry;
+      e=e.next;
     }
- else     if (e.hash == hash && eq(entry.key,key)) {
-      return entry;
-    }
-    prev=e;
-    e=next;
+  }
+  finally {
+    readLock.unlock();
   }
   return null;
 }
