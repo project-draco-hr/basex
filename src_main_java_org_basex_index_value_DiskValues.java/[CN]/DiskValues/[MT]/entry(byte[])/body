@@ -3,6 +3,12 @@
   if (e != null)   return e;
   final long p=get(tok);
   if (p < 0)   return new IndexEntry(tok,0,0);
-  final long pos=idxr.read5(p * 5L);
-  return cache.add(tok,idxl.readNum(pos),idxl.cursor());
+  final int count;
+  final long pointer;
+synchronized (monitor) {
+    final long pos=idxr.read5(p * 5L);
+    count=idxl.readNum(pos);
+    pointer=idxl.cursor();
+  }
+  return cache.add(tok,count,pointer);
 }

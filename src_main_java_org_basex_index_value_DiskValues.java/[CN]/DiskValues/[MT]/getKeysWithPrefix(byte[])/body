@@ -1,0 +1,24 @@
+{
+  final int i=get(prefix);
+  return new EntryIterator(){
+    int ix=(i < 0 ? -i - 1 : i) - 1;
+    int count=-1;
+    @Override public byte[] next(){
+      if (++ix < size) {
+synchronized (monitor) {
+          final IndexEntry entry=readKeyAt(ix);
+          if (startsWith(entry.key,prefix)) {
+            count=entry.size;
+            return entry.key;
+          }
+        }
+      }
+      count=-1;
+      return null;
+    }
+    @Override public int count(){
+      return count;
+    }
+  }
+;
+}
