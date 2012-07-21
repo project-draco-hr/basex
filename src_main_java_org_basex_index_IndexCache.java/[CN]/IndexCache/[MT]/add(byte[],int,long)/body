@@ -1,26 +1,29 @@
 {
-  purge();
   final int hash=hash(key);
-  final int i=indexFor(hash,bucket.length);
-  BucketEntry e=bucket[i];
-  BucketEntry prev=e;
-  while (e != null) {
-    final BucketEntry next=e.next;
-    final IndexEntry ce=e.get();
-    if (ce == null) {
-      delete(i,e,prev,next);
+  writeLock.lock();
+  try {
+    purge();
+    final int i=indexFor(hash,buckets.length);
+    BucketEntry current=buckets[i];
+    BucketEntry prev=current;
+    while (current != null) {
+      final BucketEntry next=current.next;
+      final IndexEntry entry=current.get();
+      if (entry == null) {
+        delete(i,current,prev,next);
+      }
+ else       if (current.hash == hash && eq(entry.key,key)) {
+        update(entry,s,p);
+        return entry;
+      }
+      prev=current;
+      current=next;
     }
- else     if (e.hash == hash && eq(ce.key,key)) {
-      ce.size=s;
-      ce.pointer=p;
-      return ce;
-    }
-    prev=e;
-    e=next;
+    final IndexEntry entry=new IndexEntry(key,s,p);
+    add(i,hash,entry);
+    return entry;
   }
-  e=bucket[i];
-  final IndexEntry ce=new IndexEntry(key,s,p);
-  bucket[i]=new BucketEntry(hash,e,ce,queue);
-  if (++size == bucket.length)   rehash();
-  return ce;
+  finally {
+    writeLock.unlock();
+  }
 }

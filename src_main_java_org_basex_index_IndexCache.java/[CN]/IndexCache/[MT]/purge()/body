@@ -1,22 +1,17 @@
 {
   for (Object x; (x=queue.poll()) != null; ) {
-synchronized (queue) {
-      final BucketEntry e=(BucketEntry)x;
-      final int i=indexFor(e.hash,bucket.length);
-      BucketEntry prev=bucket[i];
-      BucketEntry p=prev;
-      while (p != null) {
-        final BucketEntry next=p.next;
-        if (p == e) {
-          if (prev == e)           bucket[i]=next;
- else           prev.next=next;
-          e.next=null;
-          --size;
-          break;
-        }
-        prev=p;
-        p=next;
+    final BucketEntry e=(BucketEntry)x;
+    final int i=indexFor(e.hash,buckets.length);
+    BucketEntry prev=buckets[i];
+    BucketEntry p=prev;
+    while (p != null) {
+      final BucketEntry next=p.next;
+      if (p == e) {
+        delete(i,e,prev,next);
+        break;
       }
+      prev=p;
+      p=next;
     }
   }
 }

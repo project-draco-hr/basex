@@ -1,24 +1,6 @@
 {
-  final byte[] prefix=entries.get();
-  final int i=get(prefix);
-  return new EntryIterator(){
-    int ix=(i >= 0 ? i : entries.prefix ? -i - 1 : entries.descending ? -i - 2 : -i - 1) + (entries.descending ? 1 : -1);
-    int nr;
-    @Override public synchronized byte[] next(){
-      while (true) {
-        if (entries.descending ? --ix < 0 : ++ix == size)         break;
-        final long pos=idxr.read5(ix * 5l);
-        nr=idxl.readNum(pos);
-        final byte[] key=data.text(pre(idxl.readNum()),text);
-        if (entries.prefix && !startsWith(key,prefix))         break;
-        if (prefix.length != 0)         cache.add(key,nr,pos + Num.length(nr));
-        return key;
-      }
-      return null;
-    }
-    @Override public int count(){
-      return nr;
-    }
-  }
-;
+  final byte[] key=input.get();
+  if (key.length == 0)   return getAllKeys(input.descending);
+  if (input.prefix)   return getKeysWithPrefix(key);
+  return getKeysFrom(key,input.descending);
 }

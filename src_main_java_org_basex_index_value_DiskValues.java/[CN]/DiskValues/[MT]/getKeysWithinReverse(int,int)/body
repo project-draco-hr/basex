@@ -1,0 +1,21 @@
+{
+  return new EntryIterator(){
+    int ix=last + 1;
+    int count=-1;
+    @Override public byte[] next(){
+      if (--ix >= first) {
+synchronized (monitor) {
+          final IndexEntry entry=readKeyAt(ix);
+          count=entry.size;
+          return entry.key;
+        }
+      }
+      count=-1;
+      return null;
+    }
+    @Override public int count(){
+      return count;
+    }
+  }
+;
+}
