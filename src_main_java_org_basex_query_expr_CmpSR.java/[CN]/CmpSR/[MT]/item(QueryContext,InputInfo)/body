@@ -1,18 +1,11 @@
 {
   if (atomic) {
     final Item it=expr.item(ctx,info);
-    if (it == null)     return Bln.FALSE;
-    final byte[] s=it.string(info);
-    final int mn=min == null ? 1 : Token.diff(s,min);
-    final int mx=max == null ? -1 : Token.diff(s,max);
-    return Bln.get((mni ? mn >= 0 : mn > 0) && (mxi ? mx <= 0 : mx < 0));
+    return Bln.get(it != null && eval(it));
   }
   final Iter ir=ctx.iter(expr);
   for (Item it; (it=ir.next()) != null; ) {
-    final byte[] s=it.string(info);
-    final int mn=min == null ? 1 : Token.diff(s,min);
-    final int mx=max == null ? -1 : Token.diff(s,max);
-    if ((mni ? mn >= 0 : mn > 0) && (mxi ? mx <= 0 : mx < 0))     return Bln.TRUE;
+    if (eval(it))     return Bln.TRUE;
   }
   return Bln.FALSE;
 }

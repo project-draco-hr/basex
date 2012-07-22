@@ -1,14 +1,18 @@
 {
-  final Type ta=a.type, tb=b.type;
-  if (tb.isUntyped()) {
-    if (!ta.isNumber())     FUNCMP.thrw(info,this,ta,tb);
-    return DBL;
+  final boolean nr=r instanceof ANum;
+  final Type tr=r.type, ti=i.type;
+  if (ti.isUntyped()) {
+    if (nr)     return DBL;
+    FUNCMP.thrw(info,this,tr,ti);
   }
-  if (ta.isNumber() && !tb.isUntyped() && tb.isString())   FUNCMP.thrw(info,this,ta,tb);
-  if (ta == tb)   return ta;
-  if (ta == DBL || tb == DBL)   return DBL;
-  if (ta == FLT || tb == FLT)   return FLT;
-  if (ta == DEC || tb == DEC)   return DEC;
-  if (ta == BLN || ta.isNumber() && !tb.isNumber() || tb.isNumber() && !ta.isNumber())   FUNCMP.thrw(info,this,ta,tb);
-  return ta.isNumber() || tb.isNumber() ? ITR : ta;
+ else {
+    if (nr && i instanceof AStr)     FUNCMP.thrw(info,this,tr,ti);
+  }
+  if (tr == ti)   return tr;
+  if (tr == DBL || ti == DBL)   return DBL;
+  if (tr == FLT || ti == FLT)   return FLT;
+  if (tr == DEC || ti == DEC)   return DEC;
+  final boolean ni=i instanceof ANum;
+  if (tr == BLN || nr ^ ni)   FUNCMP.thrw(info,this,tr,ti);
+  return nr || ni ? ITR : tr;
 }

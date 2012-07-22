@@ -3,8 +3,7 @@
   String name=string(pth);
   if (name.endsWith("."))   RESINV.thrw(info,pth);
   IO io=null;
-  final Type dt=doc.type;
-  if (dt.isString()) {
+  if (doc instanceof AStr) {
     io=IO.get(string(doc.string(info)));
     if (!io.exists())     WHICHRES.thrw(info,pth);
     if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+="/";
@@ -15,19 +14,12 @@
     target=name.substring(0,s);
     name=name.substring(s + 1);
   }
-  if (dt.isString()) {
+  if (doc instanceof AStr) {
     if (!name.isEmpty())     io.name(name);
  else     if (!(io instanceof IOContent))     name=io.name();
   }
   if (name.isEmpty())   RESINV.thrw(info,pth);
-  if (dt.isNode()) {
-    final ANode nd=(ANode)doc;
-    if (nd.type != NodeType.DOC)     UPDOCTYPE.thrw(info,nd);
-    mdata=new MemData(data);
-    new DataBuilder(mdata).build(nd);
-    mdata.update(0,Data.DOC,pth);
-  }
- else   if (dt.isString()) {
+  if (doc instanceof AStr) {
     final Parser p=new DirParser(io,ctx.prop,data.meta.path).target(target);
     final MemBuilder b=new MemBuilder(data.meta.name,p);
     try {
@@ -36,6 +28,13 @@
  catch (    final IOException ex) {
       throw IOERR.thrw(info,ex);
     }
+  }
+ else   if (doc instanceof ANode) {
+    final ANode nd=(ANode)doc;
+    if (nd.type != NodeType.DOC)     UPDOCTYPE.thrw(info,nd);
+    mdata=new MemData(data);
+    new DataBuilder(mdata).build(nd);
+    mdata.update(0,Data.DOC,pth);
   }
  else {
     throw STRNODTYPE.thrw(info,this,doc.type);

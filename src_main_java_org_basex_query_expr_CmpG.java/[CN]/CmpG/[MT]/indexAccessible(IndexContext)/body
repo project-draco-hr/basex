@@ -9,7 +9,7 @@
   final Expr arg=expr[1];
   if (!arg.isValue()) {
     final SeqType t=arg.type();
-    if (!t.type.isString() && !t.type.isNode() || arg.uses(Use.CTX) || arg.uses(Use.NDT))     return false;
+    if (!t.type.isStringOrUntyped() || arg.uses(Use.CTX) || arg.uses(Use.NDT))     return false;
     ic.addCosts(ic.data.meta.size / 10);
     va=Array.add(va,new ValueAccess(info,arg,ind,ic));
     return true;
@@ -18,8 +18,7 @@
   Item it;
   ic.costs(0);
   while ((it=ir.next()) != null) {
-    final SeqType t=it.type();
-    if (!(t.type.isString() || t.type.isNode()))     return false;
+    if (!it.type.isStringOrUntyped())     return false;
     final int is=ic.data.count(new StringToken(ind,it.string(info)));
     if (is != 0) {
       va=Array.add(va,new ValueAccess(info,it,ind,ic));

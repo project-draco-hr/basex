@@ -1,23 +1,28 @@
 {
   if (expr.length == 2)   checkColl(expr[1],ctx);
-  Item res=iter.next();
-  if (res == null)   return null;
-  cmp.eval(info,res,res);
-  if (!res.type.isUntyped() && res.type.isString() || res.type.isDate()) {
+  Item rs=iter.next();
+  if (rs == null)   return null;
+  cmp.eval(info,rs,rs);
+  if (rs instanceof AStr) {
     for (Item it; (it=iter.next()) != null; ) {
-      if (it.type != res.type) {
-        FUNCMP.thrw(info,description(),res.type,it.type);
-      }
-      if (cmp.eval(info,res,it))       res=it;
+      if (!(it instanceof AStr))       FUNCMP.thrw(info,description(),rs.type,it.type);
+      if (cmp.eval(info,rs,it))       rs=it;
     }
-    return res;
+    return rs;
   }
-  Type t=res.type.isUntyped() ? DBL : res.type;
-  if (res.type != t)   res=t.cast(res,ctx,info);
+  if (rs instanceof ADate) {
+    for (Item it; (it=iter.next()) != null; ) {
+      if (!(it instanceof ADate))       FUNCMP.thrw(info,description(),rs.type,it.type);
+      if (cmp.eval(info,rs,it))       rs=it;
+    }
+    return rs;
+  }
+  Type t=rs.type.isUntyped() ? DBL : rs.type;
+  if (rs.type != t)   rs=t.cast(rs,ctx,info);
   for (Item it; (it=iter.next()) != null; ) {
-    t=type(res,it);
-    if (!it.type.isDuration() && Double.isNaN(it.dbl(info)) || cmp.eval(info,res,it))     res=it;
-    if (res.type != t)     res=t.cast(res,ctx,info);
+    t=type(rs,it);
+    if (!(it instanceof Dur) && Double.isNaN(it.dbl(info)) || cmp.eval(info,rs,it))     rs=it;
+    if (rs.type != t)     rs=t.cast(rs,ctx,info);
   }
-  return res;
+  return rs;
 }
