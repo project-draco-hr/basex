@@ -5,23 +5,22 @@
   cmp.eval(info,rs,rs);
   if (rs instanceof AStr) {
     for (Item it; (it=iter.next()) != null; ) {
-      if (!(it instanceof AStr))       FUNCMP.thrw(info,description(),rs.type,it.type);
+      if (!(it instanceof AStr))       FUNCMP.thrw(info,this,rs.type,it.type);
       if (cmp.eval(info,rs,it))       rs=it;
     }
     return rs;
   }
-  if (rs instanceof ADate) {
+  if (rs instanceof ADate || rs instanceof Dur || rs.type == AtomType.BLN) {
     for (Item it; (it=iter.next()) != null; ) {
-      if (!(it instanceof ADate))       FUNCMP.thrw(info,description(),rs.type,it.type);
+      if (rs.type != it.type)       FUNCMP.thrw(info,this,rs.type,it.type);
       if (cmp.eval(info,rs,it))       rs=it;
     }
     return rs;
   }
-  Type t=rs.type.isUntyped() ? DBL : rs.type;
-  if (rs.type != t)   rs=t.cast(rs,ctx,info);
+  if (rs.type.isUntyped())   rs=DBL.cast(rs,ctx,info);
   for (Item it; (it=iter.next()) != null; ) {
-    t=type(rs,it);
-    if (!(it instanceof Dur) && Double.isNaN(it.dbl(info)) || cmp.eval(info,rs,it))     rs=it;
+    final Type t=numType(rs,it);
+    if (cmp.eval(info,rs,it) || Double.isNaN(it.dbl(info)))     rs=it;
     if (rs.type != t)     rs=t.cast(rs,ctx,info);
   }
   return rs;
