@@ -11,7 +11,13 @@
       tok.add(consume());
       c=curr();
     }
-    el.add(new Pragma(name,tok.trim().finish()));
+    final byte[] v=tok.trim().finish();
+    if (eq(name.prefix(),DB)) {
+      final String key=string(uc(name.local()));
+      final Object obj=ctx.context.prop.get(key);
+      if (obj == null)       error(BASX_OPTIONS,key);
+      el.add(new DBPragma(name,v));
+    }
     ip+=2;
   }
  while (wsConsumeWs(PRAGMA));
