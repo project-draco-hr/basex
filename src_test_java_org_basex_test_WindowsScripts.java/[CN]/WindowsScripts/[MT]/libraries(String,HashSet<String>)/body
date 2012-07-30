@@ -11,11 +11,15 @@
   finally {
     nli.close();
   }
+  final StringList mis=new StringList();
   for (  final String l : libs) {
-    if (l.contains("basex"))     continue;
-    if (!sl.remove(l))     missing.add(l);
+    if (!l.contains("basex") && !sl.remove(l))     mis.add(l);
   }
+  final StringList obs=new StringList();
   for (  final String l : sl) {
-    if (l.endsWith(".jar"))     obsolete.add(l);
+    if (l.endsWith(".jar"))     obs.add(l);
   }
+  if (!mis.isEmpty())   Util.errln("Missing: " + Arrays.toString(mis.toArray()));
+  if (!obs.isEmpty())   Util.errln("Obsolete: " + Arrays.toString(obs.toArray()));
+  return mis.isEmpty() && obs.isEmpty();
 }
