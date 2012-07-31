@@ -1,20 +1,26 @@
 {
   final ANodeList attrs=extractAttrs(conn);
   final ANodeList hdrs=extractHdrs(conn);
-  final String cType=mediaTypeOvr == null ? extractContentType(conn.getContentType()) : string(mediaTypeOvr);
+  final String type=conn.getContentType();
+  final String cType=mediaTypeOvr == null ? extractContentType(type) : string(mediaTypeOvr);
   final ValueBuilder payloads=new ValueBuilder();
-  final FNode body;
   final boolean s=status != null && Bln.parse(status,info);
+  final FNode body;
+  InputStream is=conn.getErrorStream();
+  if (is == null)   is=conn.getInputStream();
   if (cType.startsWith(MULTIPART)) {
-    final byte[] boundary=extractBoundary(conn.getContentType());
+    final byte[] boundary=extractBoundary(type);
     final ANodeList a=new ANodeList(new FAttr(Q_MEDIA_TYPE,token(cType)),new FAttr(Q_BOUNDARY,boundary));
-    body=new FElem(HTTP_MULTIPART,extractParts(conn.getInputStream(),s,payloads,concat(token("--"),boundary)),a,new Atts(HTTP,HTTPURI));
+    body=new FElem(Q_HTTP_MULTIPART,extractParts(is,s,payloads,concat(token("--"),boundary)),a,new Atts(HTTP,HTTPURI));
   }
  else {
     body=createBody(cType);
-    if (!s)     payloads.add(interpretPayload(extractPayload(conn.getInputStream(),cType,extractCharset(conn.getContentType())),cType));
+    if (!s) {
+      final byte[] payload=extractPayload(is,cType,extractCharset(type));
+      payloads.add(interpretPayload(payload,cType));
+    }
   }
-  final FElem responseEl=new FElem(HTTP_RESPONSE,hdrs,attrs,new Atts(HTTP,HTTPURI));
+  final FElem responseEl=new FElem(Q_HTTP_RESPONSE,hdrs,attrs,new Atts(HTTP,HTTPURI));
   responseEl.add(body);
   final ValueBuilder result=new ValueBuilder();
   result.add(responseEl);
