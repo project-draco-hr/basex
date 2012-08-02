@@ -1,7 +1,12 @@
 {
-  checkHeight(ctx);
+  final int calls=checkHeight(ctx);
   final VarStack cs=addArgs(ctx,args(ctx));
-  final Value v=ctx.value(func);
-  ctx.vars.reset(cs);
-  return v;
+  try {
+    final Value v=ctx.value(func);
+    return v;
+  }
+  finally {
+    ctx.vars.reset(cs);
+    ctx.tailCalls=calls;
+  }
 }
