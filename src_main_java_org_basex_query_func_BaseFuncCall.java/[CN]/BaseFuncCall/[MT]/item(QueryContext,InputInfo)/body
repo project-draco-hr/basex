@@ -1,19 +1,25 @@
 {
   Expr fun=func;
   Var[] args=args(ctx);
-  do {
-    final VarStack cs=addArgs(ctx,args);
-    ctx.tailCalls=0;
-    try {
-      return fun.item(ctx,ii);
-    }
- catch (    final Continuation c) {
-      fun=c.getFunc();
-      args=c.getArgs();
-    }
+  final int calls=ctx.tailCalls;
+  try {
+    do {
+      final VarStack cs=addArgs(ctx,args);
+      ctx.tailCalls=0;
+      try {
+        return fun.item(ctx,ii);
+      }
+ catch (      final Continuation c) {
+        fun=c.getFunc();
+        args=c.getArgs();
+      }
  finally {
-      ctx.vars.reset(cs);
+        ctx.vars.reset(cs);
+      }
     }
-  }
  while (true);
+  }
+  finally {
+    ctx.tailCalls=calls;
+  }
 }
