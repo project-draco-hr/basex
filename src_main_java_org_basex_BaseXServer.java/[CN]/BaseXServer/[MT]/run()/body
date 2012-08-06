@@ -4,7 +4,7 @@
     try {
       final Socket s=socket.accept();
       if (stop.exists()) {
-        if (!stop.delete())         log.write(Util.info(FILE_NOT_DELETED_X,stop));
+        if (!stop.delete())         context.log.write(Util.info(FILE_NOT_DELETED_X,stop));
         quit();
       }
  else {
@@ -15,7 +15,7 @@
             if (ms - cs.last > ka)             cs.quit();
           }
         }
-        final ClientListener cl=new ClientListener(s,context,log,this);
+        final ClientListener cl=new ClientListener(s,context,context.log,this);
         final long to=context.mprop.num(MainProp.KEEPALIVE) * 1000L;
         if (to > 0) {
           cl.auth.schedule(new TimerTask(){
@@ -33,7 +33,7 @@
       break;
     }
 catch (    final Throwable ex) {
-      if (log != null)       log.error(ex);
+      context.log.error(ex);
       break;
     }
   }

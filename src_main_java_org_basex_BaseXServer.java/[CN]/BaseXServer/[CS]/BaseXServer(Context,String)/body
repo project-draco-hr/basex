@@ -18,10 +18,9 @@
     Performance.sleep(1000);
     return;
   }
+  context.log=new Log(context,quiet);
   try {
     for (    final String c : commands)     execute(c);
-    log=new Log(context,quiet);
-    log.write(SRV_STARTED);
     socket=new ServerSocket();
     socket.setReuseAddress(true);
     socket.bind(new InetSocketAddress(addr,port));
@@ -29,10 +28,10 @@
     esocket.setReuseAddress(true);
     esocket.bind(new InetSocketAddress(addr,eport));
     stop=stopFile(port);
+    context.log.write(SRV_STARTED);
     Runtime.getRuntime().addShutdownHook(new Thread(){
       @Override public void run(){
-        log.write(SRV_STOPPED);
-        log=null;
+        context.log.write(SRV_STOPPED);
         Util.outln(SRV_STOPPED);
       }
     }
@@ -46,7 +45,7 @@
     }
   }
  catch (  final IOException ex) {
-    if (log != null)     log.error(ex);
+    context.log.error(ex);
     throw ex;
   }
 }
