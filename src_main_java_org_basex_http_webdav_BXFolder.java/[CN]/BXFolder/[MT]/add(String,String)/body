@@ -1,5 +1,6 @@
 {
-  final LocalQuery q=http.session().query("for $d in " + _DB_LIST.args("$db","$path") + "let $t := $tpath ||'/'|| substring($d, string-length($path) + 1) "+ "return if ("+ _DB_IS_RAW.args("$db","$d")+ ") then "+ _DB_STORE.args("$tdb","$t",_DB_RETRIEVE.args("$db","$d"))+ " else "+ _DB_ADD.args("$tdb",_DB_OPEN.args("$db","$d"),"$t"));
+  System.out.println("ADD FOLDER");
+  final LocalQuery q=http.session().query("declare option db:chop 'false'; " + "for $d in " + _DB_LIST.args("$db","$path") + "let $t := $tpath ||'/'|| substring($d, string-length($path) + 1) return "+ "if("+ _DB_IS_RAW.args("$db","$d")+ ") "+ " then "+ _DB_STORE.args("$tdb","$t",_DB_RETRIEVE.args("$db","$d"))+ " else "+ _DB_ADD.args("$tdb",_DB_OPEN.args("$db","$d"),"$t"));
   q.bind("db",db);
   q.bind("path",path);
   q.bind("tdb",tdb);
