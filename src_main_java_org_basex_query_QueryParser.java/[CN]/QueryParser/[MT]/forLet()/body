@@ -8,20 +8,18 @@
  else     if (!fr && !wsConsumeWs(LET,DOLLAR,NOLET))     return fl;
     do {
       if (comma && !fr)       score=wsConsumeWs(SCORE);
-      final QNm name=varName();
-      final SeqType type=score ? SeqType.DBL : optAsType();
-      final Var var=Var.create(ctx,info(),name,type,null);
-      final Var ps=fr && wsConsumeWs(AT) ? Var.create(ctx,info(),varName(),SeqType.ITR,null) : null;
-      final Var sc=fr && wsConsumeWs(SCORE) ? Var.create(ctx,info(),varName(),SeqType.DBL,null) : null;
+      final Var var=score ? typedVar(SeqType.DBL) : typedVar(false,null);
+      final Var ps=fr && wsConsumeWs(AT) ? typedVar(SeqType.ITR) : null;
+      final Var sc=fr && wsConsumeWs(SCORE) ? typedVar(SeqType.DBL) : null;
       wsCheck(fr ? IN : ASSIGN);
       final Expr e=check(single(),NOVARDECL);
       ctx.vars.add(var);
       if (ps != null) {
-        if (name.eq(ps.name))         error(DUPLVAR,var);
+        if (var.name.eq(ps.name))         error(DUPLVAR,var);
         ctx.vars.add(ps);
       }
       if (sc != null) {
-        if (name.eq(sc.name))         error(DUPLVAR,var);
+        if (var.name.eq(sc.name))         error(DUPLVAR,var);
         if (ps != null && ps.name.eq(sc.name))         error(DUPLVAR,ps);
         ctx.vars.add(sc);
       }

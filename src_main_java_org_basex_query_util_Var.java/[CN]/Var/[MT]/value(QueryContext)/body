@@ -1,7 +1,14 @@
 {
   if (value == null) {
     if (expr == null)     VAREMPTY.thrw(info,this);
-    value=cast(ctx.value(expr.compile(ctx)),ctx);
+    final StaticContext s=ctx.sc;
+    ctx.sc=sc;
+    try {
+      value=cast(ctx.value(expr.compile(ctx)),ctx);
+    }
+  finally {
+      ctx.sc=s;
+    }
   }
   return value;
 }
