@@ -1,19 +1,17 @@
 {
-  for (int s=0; s < segments.size(); s++) {
-    final String seg=segments.get(s);
-    final Matcher m=TEMPLATE.matcher(seg);
+  for (int s=0; s < path.size; s++) {
+    final Matcher m=TEMPLATE.matcher(path.segment[s]);
     if (!m.find())     continue;
     final QNm qnm=new QNm(token(m.group(1)),context);
     bind(qnm,new Atm(http.segment(s)));
   }
-  final Prop prop=context.context.prop;
   final String ct=http.contentType();
   IOContent body=null;
   if (requestBody != null) {
     body=cache(http,null);
     try {
       body.name(http.method + IO.XMLSUFFIX);
-      bind(requestBody,Parser.item(body,prop,ct));
+      bind(requestBody,Parser.item(body,context.context.prop,ct));
     }
  catch (    final IOException ex) {
       error(INPUT_CONV,ex);
