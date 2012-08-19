@@ -1,7 +1,15 @@
 {
   analyze(http);
-  for (  final RestXqModule mod : modules.values()) {
-    if (mod.find(http) != null)     return mod;
+  final ArrayList<RestXqFunction> list=new ArrayList<RestXqFunction>();
+  for (  final RestXqModule mod : modules.values())   mod.add(http,list);
+  if (list.isEmpty())   return null;
+  RestXqFunction first=list.get(0);
+  if (list.size() > 1) {
+    Collections.sort(list);
+    first=list.get(0);
+    if (first.compareTo(list.get(1)) == 0) {
+      first.error(PATH_CONFLICT,first.segments);
+    }
   }
-  return null;
+  return first;
 }
