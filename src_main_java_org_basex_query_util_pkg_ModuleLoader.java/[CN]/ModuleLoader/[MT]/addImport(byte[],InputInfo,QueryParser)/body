@@ -16,22 +16,25 @@
     }
   }
   final boolean java=startsWith(uri,JAVAPREF);
-  final String uriPath=uri2path(string(java ? substring(uri,JAVAPREF.length) : uri));
+  String uriPath=uri2path(string(java ? substring(uri,JAVAPREF.length) : uri));
   if (uriPath == null)   return false;
-  final String path=context.mprop.get(MainProp.REPOPATH) + uriPath;
-  if (IO.suffix(path).isEmpty()) {
-    if (!java) {
+  final boolean suffix=IO.suffix(uriPath).isEmpty();
+  if (!java) {
+    final String path=context.mprop.get(MainProp.REPOPATH) + uriPath;
+    if (suffix) {
+      final IOFile f=new IOFile(path);
+      if (f.hasSuffix(IO.XQSUFFIXES))       return addModule(f,uri,qp);
+    }
+ else {
       for (      final String suf : IO.XQSUFFIXES) {
         if (addModule(new IOFile(path + suf),uri,qp))         return true;
       }
     }
-    addJar(new IOFile(path + IO.JARSUFFIX));
   }
- else {
-    final IOFile file=new IOFile(path);
-    if (!java && file.hasSuffix(IO.XQSUFFIXES))     return addModule(file,uri,qp);
-    if (file.hasSuffix(IO.JARSUFFIX))     addJar(file);
-  }
+  uriPath=capitalize(uriPath);
+  final String path=context.mprop.get(MainProp.REPOPATH) + uriPath;
+  final IOFile file=new IOFile(path + (suffix ? "" : IO.JARSUFFIX));
+  if (file.exists())   addURL(file);
   addJava(uriPath,uri,ii);
   return true;
 }
