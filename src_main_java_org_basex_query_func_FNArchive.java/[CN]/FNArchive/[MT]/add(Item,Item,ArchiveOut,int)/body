@@ -22,17 +22,8 @@
       if (!Charset.isSupported(en))       ARCH_ENCODING.thrw(info,enc);
     }
   }
-  byte[] val=null;
-  if (con instanceof AStr) {
-    val=con.string(info);
-    if (en != null && en != Token.UTF8)     val=encode(val,en);
-  }
- else   if (con.type == AtomType.B64) {
-    val=((Bin)con).binary(info);
-  }
- else {
-    STRB64TYPE.thrw(info,con.type);
-  }
+  byte[] val=checkStrBin(con);
+  if (con instanceof AStr && en != null && en != Token.UTF8)   val=encode(val,en);
   try {
     out.level(lvl == null ? level : toInt(lvl));
   }

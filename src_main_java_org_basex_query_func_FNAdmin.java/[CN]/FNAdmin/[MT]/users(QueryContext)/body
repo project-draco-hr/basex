@@ -1,10 +1,7 @@
 {
-  final User[] users=expr.length == 0 ? ctx.context.users.users(null) : data(0,ctx).meta.users.users(ctx.context.users);
-  return new Iter(){
-    int p=-1;
-    @Override public Item next() throws QueryException {
-      return ++p >= users.length ? null : new FElem(Q_USER).add(Token.token(users[p].name)).add(Q_PERMISSION,Token.token(users[p].perm.toString()));
-    }
+  final ValueBuilder vb=new ValueBuilder();
+  for (  final User u : expr.length == 0 ? ctx.context.users.users(null) : data(0,ctx).meta.users.users(ctx.context.users)) {
+    vb.add(new FElem(Q_USER).add(u.name).add(Q_PERMISSION,u.perm.toString().toLowerCase(Locale.ENGLISH)));
   }
-;
+  return vb;
 }
