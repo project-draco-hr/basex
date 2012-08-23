@@ -1,12 +1,15 @@
 {
   final int s=ctx.vars.size();
   try {
-    if (qe != null)     return err(ctx,qe);
     try {
       return ctx.value(expr);
     }
  catch (    final QueryException ex) {
-      return err(ctx,ex);
+      for (      final Catch c : ctch) {
+        final Value val=c.value(ctx,ex);
+        if (val != null)         return val;
+      }
+      throw ex;
     }
   }
   finally {
