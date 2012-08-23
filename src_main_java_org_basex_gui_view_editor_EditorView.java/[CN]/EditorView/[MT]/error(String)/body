@@ -1,11 +1,20 @@
 {
-  final Matcher m=FILEPATTERN.matcher(msg.replaceAll("[\\r\\n].*",""));
-  if (!m.matches())   return true;
-  errFile=m.group(3);
+  final String line=msg.replaceAll("[\\r\\n].*","");
+  Matcher m=XQERROR.matcher(line);
+  int el=0, ec=2;
+  if (!m.matches()) {
+    m=XMLERROR.matcher(line);
+    if (!m.matches())     return true;
+    el=Integer.parseInt(m.group(1));
+    errFile=getEditor().file.path();
+  }
+ else {
+    el=Integer.parseInt(m.group(1));
+    ec=Integer.parseInt(m.group(2));
+    errFile=m.group(3);
+  }
   final EditorArea edit=find(IO.get(errFile),false);
   if (edit == null)   return true;
-  final int el=Integer.parseInt(m.group(1));
-  final int ec=Integer.parseInt(m.group(2));
   final int ll=edit.last.length;
   errPos=ll;
   for (int e=0, l=1, c=1; e < ll; ++c, e+=cl(edit.last,e)) {

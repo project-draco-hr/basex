@@ -7,26 +7,38 @@
   threadID++;
   view.pos.setText(pos());
   gui.context.prop.set(Prop.QUERYPATH,file.path());
-  if (opened() && !file.hasSuffix(IO.XQSUFFIXES)) {
-    view.info(OK,true);
-    executable=false;
-  }
- else {
-    final String qu=in.length == 0 ? "()" : string(in);
-    executable=!module(in);
-    if (executable && (force || gui.gprop.is(GUIProp.EXECRT))) {
-      gui.execute(true,new XQuery(qu));
+  script=file.hasSuffix(IO.BXSSUFFIX);
+  xquery=!script && !opened() || file.hasSuffix(IO.XQSUFFIXES);
+  String input=string(in);
+  if (xquery) {
+    if (input.isEmpty())     input="()";
+    xquery=!module(in);
+    if (xquery && (force || gui.gprop.is(GUIProp.EXECRT))) {
+      gui.execute(true,new XQuery(input));
     }
  else {
       final QueryContext ctx=new QueryContext(gui.context);
       try {
-        if (!executable)         ctx.module(qu);
- else         ctx.parse(qu);
+        if (!xquery)         ctx.module(input);
+ else         ctx.parse(input);
         view.info(OK,true);
       }
  catch (      final QueryException ex) {
         view.info(ex.getMessage(),false);
       }
+    }
+  }
+ else   if (force && script) {
+    gui.execute(true,new Execute(input));
+  }
+ else   if (script || file.hasSuffix(IO.XMLSUFFIXES)) {
+    try {
+      new EmptyBuilder(new IOContent(in),gui.context).build();
+      if (script)       new CommandParser(input,gui.context).parse();
+      view.info(OK,true);
+    }
+ catch (    final Exception ex) {
+      view.info(ex.getMessage(),false);
     }
   }
 }

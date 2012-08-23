@@ -1,0 +1,20 @@
+{
+  if (file == null) {
+    file=IO.get(args[0]);
+    if (!file.exists() || file.isDir()) {
+      error=Util.info(RES_NOT_FOUND_X,ctx.user.has(Perm.CREATE) ? file : args[0]);
+    }
+ else {
+      try {
+        args[0]=Token.string(new TextInput(file).content());
+        if (file.hasSuffix(IO.BXSSUFFIX))         return super.init(ctx);
+        list.add(new XQuery(args[0]));
+      }
+ catch (      final IOException ex) {
+        error=ex.getMessage();
+      }
+    }
+  }
+  ctx.prop.set(Prop.QUERYPATH,file.path());
+  return error == null;
+}

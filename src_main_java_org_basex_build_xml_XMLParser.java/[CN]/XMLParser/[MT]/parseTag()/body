@@ -1,17 +1,17 @@
 {
   if (scanner.type == Type.L_BR_CLOSE) {
     scanner.more();
-    final byte[] tag=consumeToken(Type.TAGNAME);
+    final byte[] tag=consumeToken(Type.ELEMNAME);
     skipSpace();
     final byte[] open=tags.pop();
-    if (!eq(open,tag))     throw new BuildException(CLOSINGTAG,det(),tag,open);
+    if (!eq(open,tag))     throw new BuildException(CLOSINGELEM,det(),tag,open);
     builder.endElem();
     if (tags.isEmpty())     closed=true;
     return consume(Type.R_BR);
   }
   consume(Type.L_BR);
   atts.reset();
-  byte[] en=consumeToken(Type.TAGNAME);
+  byte[] en=consumeToken(Type.ELEMNAME);
   if (stripNS)   en=local(en);
   skipSpace();
   while (scanner.type != Type.R_BR && scanner.type != Type.CLOSE_R_BR) {
