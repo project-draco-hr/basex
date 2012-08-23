@@ -2,9 +2,10 @@
   final byte[] rep=checkStr(expr[2],ctx);
   for (int i=0; i < rep.length; ++i) {
     if (rep[i] == '\\') {
-      if (i + 1 == rep.length || rep[i + 1] != '\\' && rep[i + 1] != '$')       FUNREGREP.thrw(info);
+      if (i + 1 == rep.length || rep[i + 1] != '\\' && rep[i + 1] != '$')       FUNREPBS.thrw(info);
       ++i;
     }
+    if (rep[i] == '$' && (i == 0 || rep[i - 1] != '\\') && (i + 1 == rep.length || !digit(rep[i + 1])))     FUNREPDOL.thrw(info);
   }
   final Pattern p=pattern(expr[1],expr.length == 4 ? expr[3] : null,ctx);
   String r=string(rep);
@@ -17,6 +18,6 @@
  catch (  final Exception ex) {
     final String m=ex.getMessage();
     if (m.contains("No group"))     REGROUP.thrw(info);
-    throw REGERR.thrw(info,m);
+    throw REGPAT.thrw(info,m);
   }
 }
