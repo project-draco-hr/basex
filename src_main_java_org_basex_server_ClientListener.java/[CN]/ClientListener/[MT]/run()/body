@@ -47,16 +47,17 @@
       if (sc != ServerCmd.COMMAND)       continue;
       try {
         command=new CommandParser(cmd,context).parseSingle();
+        log(command,null);
       }
  catch (      final QueryException ex) {
         final String msg=ex.getMessage();
-        log.write(this,cmd,ERROR_C + msg);
+        log(cmd,null);
+        log(msg,false);
         out.write(0);
         out.writeString(msg);
         send(false);
         continue;
       }
-      log.write(this,command.toString().replace('\r',' ').replace('\n',' '));
       boolean ok=true;
       String info;
       try {
@@ -77,7 +78,7 @@
     }
   }
  catch (  final IOException ex) {
-    log.write(this,sc == ServerCmd.COMMAND ? cmd : sc,ERROR_C + ex.getMessage());
+    log(ex,false);
     Util.debug(ex);
     command=null;
     quit();

@@ -11,20 +11,19 @@
     context.user=context.users.get(us);
     running=context.user != null && md5(context.user.password + ts).equals(pw);
     if (running) {
-      log.write(this,"LOGIN " + context.user.name,OK);
       send(true);
       server.unblock(address);
       context.add(this);
     }
  else {
-      if (!us.isEmpty())       log.write(this,ACCESS_DENIED + COLS + us);
+      if (!us.isEmpty())       log(ACCESS_DENIED,false);
       new ClientDelayer(server.block(address),this,server).start();
     }
   }
  catch (  final IOException ex) {
     if (running) {
       Util.stack(ex);
-      log.write(ex.getMessage());
+      log(ex,false);
       running=false;
     }
   }

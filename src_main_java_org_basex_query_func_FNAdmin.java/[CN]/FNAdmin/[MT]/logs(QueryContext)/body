@@ -1,0 +1,41 @@
+{
+  final ValueBuilder vb=new ValueBuilder();
+  if (expr.length == 0) {
+    for (    final IOFile f : ctx.context.log.files()) {
+      final String date=f.name().replace(IO.LOGSUFFIX,"");
+      vb.add(new FElem(Q_FILE).add(Q_DATE,date).add(Q_SIZE,Token.token(f.length())));
+    }
+  }
+ else {
+    final String name=Token.string(checkStr(expr[0],ctx)) + IO.LOGSUFFIX;
+    final IOFile file=new IOFile(ctx.context.log.dir(),name);
+    if (file.exists()) {
+      try {
+        final NewlineInput nli=new NewlineInput(file);
+        try {
+          for (String l; (l=nli.readLine()) != null; ) {
+            final FElem elem=new FElem(Q_ENTRY);
+            final String[] cols=l.split("\t");
+            if (cols.length > 2 && (cols[1].matches(".*:\\d+") || cols[1].equals(Log.SERVER))) {
+              elem.add(Q_TIME,cols[0]).add(Q_ADDRESS,cols[1]).add(Q_USER,cols[2]);
+              if (cols.length > 3)               elem.add(Q_TYPE,cols[3].toLowerCase(Locale.ENGLISH));
+              if (cols.length > 4)               elem.add(cols[4]);
+              if (cols.length > 5)               elem.add(Q_MS,cols[5].replace(" ms",""));
+            }
+ else {
+              elem.add(l);
+            }
+            vb.add(elem);
+          }
+        }
+  finally {
+          nli.close();
+        }
+      }
+ catch (      final IOException ex) {
+        IOERR.thrw(info,ex);
+      }
+    }
+  }
+  return vb;
+}

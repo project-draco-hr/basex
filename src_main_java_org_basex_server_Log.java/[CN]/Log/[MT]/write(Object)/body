@@ -2,20 +2,27 @@
   if (!mprop.is(MainProp.LOG))   return;
   final Date date=new Date();
   try {
-    if (fos != null && !start.equals(DateTime.format(date,DateTime.DATE))) {
+    final String nstart=DateTime.format(date,DateTime.DATE);
+    if (fos != null && !start.equals(nstart)) {
       fos.close();
       fos=null;
     }
     if (fos == null) {
-      final IOFile dir=mprop.dbpath(".logs");
+      final IOFile dir=dir();
       dir.md();
-      start=DateTime.format(date,DateTime.DATE);
-      fos=new FileOutputStream(new IOFile(dir,start + ".log").file(),true);
+      fos=new FileOutputStream(new IOFile(dir,nstart + IO.LOGSUFFIX).file(),true);
+      start=nstart;
     }
     final int ml=mprop.num(MainProp.LOGMSGMAXLEN);
     final TokenBuilder tb=new TokenBuilder(DateTime.format(date,DateTime.TIME));
     for (    final Object s : str) {
-      tb.add('\t').add(chop(token(s.toString().replaceAll("[\\r\\n ]+"," ")),ml));
+      tb.add('\t');
+      String st;
+      if (s == null)       st=REQUEST;
+ else       if (s instanceof Boolean)       st=((Boolean)s) ? OK : ERROR;
+ else       if (s instanceof Throwable)       st=Util.message((Throwable)s);
+ else       st=s.toString();
+      tb.add(chop(token(st.replaceAll("\\s+"," ").trim()),ml));
     }
     tb.add(Prop.NL);
     fos.write(tb.finish());
