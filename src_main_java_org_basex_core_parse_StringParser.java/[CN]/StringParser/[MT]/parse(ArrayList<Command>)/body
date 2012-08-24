@@ -1,10 +1,13 @@
 {
-  while (true) {
-    final Cmd cmd=consume(Cmd.class,null);
-    list.add(parse(cmd));
-    consumeWS();
-    if (!parser.more())     break;
-    if (single)     throw help(null,cmd);
-    if (!parser.consume(';'))     throw help(null,cmd);
+  for (  final String line : lines) {
+    if (line.isEmpty() || line.startsWith("#"))     continue;
+    parser=new InputParser(line);
+    while (true) {
+      final Cmd cmd=consume(Cmd.class,null);
+      list.add(parse(cmd));
+      if (!parser.more())       break;
+      if (!eoc())       throw help(null,cmd);
+      parser.consume();
+    }
   }
 }
