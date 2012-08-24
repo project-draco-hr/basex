@@ -1,0 +1,33 @@
+{
+  final String path=http.context().mprop.get(MainProp.HTTPPATH);
+  final String input=http.req.getRequestURI();
+  final IOFile root=new IOFile(path);
+  final IOFile io=new IOFile(path,input);
+  if (!io.exists() || io.isDir() || !io.path().startsWith(root.path()))   HTTPErr.NOT_FOUND_X.thrw(RES_NOT_FOUND_X,input);
+  final LocalSession session=http.session();
+  final OutputStream os=http.res.getOutputStream();
+  session.setOutputStream(os);
+  if (io.hasSuffix(IO.BXSSUFFIX)) {
+    session.execute(new Run(io.path()));
+  }
+ else   if (io.hasSuffix(IO.XQSUFFIXES)) {
+    session.execute(new Set(Prop.QUERYPATH,io.path()));
+    final Query qu=session.query(io.string());
+    for (    final Entry<String,String[]> param : http.params().entrySet()) {
+      final String[] val=param.getValue();
+      qu.bind(param.getKey(),val[0],val.length == 1 ? "" : val[1]);
+    }
+    http.initResponse(new SerializerProp(qu.options()));
+    qu.execute();
+  }
+ else {
+    http.res.setContentType(MimeTypes.get(io.path()));
+    final BufferInput bi=new BufferInput(io);
+    try {
+      for (int b; (b=bi.read()) != -1; )       os.write(b);
+    }
+  finally {
+      bi.close();
+    }
+  }
+}
