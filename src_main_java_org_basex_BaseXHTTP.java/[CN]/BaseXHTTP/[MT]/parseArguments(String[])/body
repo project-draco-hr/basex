@@ -1,4 +1,5 @@
 {
+  final HTTPProp hprop=HTTPContext.hprop(context);
   final Args arg=new Args(args,this,HTTPINFO,Util.info(CONSOLE,HTTP));
   boolean daemon=false;
   while (arg.more()) {
@@ -14,41 +15,33 @@ case 'e':
 context.mprop.set(MainProp.EVENTPORT,arg.number());
 break;
 case 'h':
-context.mprop.set(MainProp.HTTPPORT,arg.number());
+httpPort=arg.number();
 break;
 case 'l':
-System.setProperty(DBMODE,LOCAL);
+hprop.set(HTTPProp.SERVER,false);
 break;
 case 'n':
 context.mprop.set(MainProp.HOST,arg.string());
 break;
 case 'p':
-context.mprop.set(MainProp.PORT,arg.number());
-context.mprop.set(MainProp.SERVERPORT,context.mprop.num(MainProp.PORT));
-break;
-case 'R':
-rest=false;
+final int p=arg.number();
+context.mprop.set(MainProp.PORT,p);
+context.mprop.set(MainProp.SERVERPORT,p);
 break;
 case 'P':
-System.setProperty(DBPASS,arg.string());
+hprop.set(HTTPProp.PASSWORD,arg.string());
 break;
 case 's':
-context.mprop.set(MainProp.STOPPORT,arg.number());
+stopPort=arg.number();
 break;
 case 'S':
 service=!daemon;
 break;
 case 'U':
-System.setProperty(DBUSER,arg.string());
+hprop.set(HTTPProp.USER,arg.string());
 break;
 case 'v':
-System.setProperty(DBVERBOSE,Boolean.TRUE.toString());
-break;
-case 'W':
-webdav=false;
-break;
-case 'X':
-restxq=false;
+System.setProperty(HTTPINFO,Boolean.TRUE.toString());
 break;
 case 'z':
 context.mprop.set(MainProp.LOG,false);

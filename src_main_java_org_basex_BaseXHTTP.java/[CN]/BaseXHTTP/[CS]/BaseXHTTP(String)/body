@@ -1,19 +1,26 @@
 {
   parseArguments(args);
-  server=!LOCAL.equals(System.getProperty(DBMODE));
+  final String webapp=context.mprop.get(MainProp.WEBPATH);
+  jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
+  jetty.setHandler(new WebAppContext(webapp,"/"));
+  for (  final Connector c : jetty.getConnectors()) {
+    if (c instanceof SelectChannelConnector) {
+      if (httpPort == 0)       httpPort=c.getPort();
+ else       c.setPort(httpPort);
+    }
+  }
+  if (stopPort == 0)   stopPort=httpPort - 1;
   final MainProp mprop=context.mprop;
   final int port=mprop.num(MainProp.SERVERPORT);
   final int eport=mprop.num(MainProp.EVENTPORT);
-  final int hport=mprop.num(MainProp.HTTPPORT);
-  final int sport=mprop.num(MainProp.STOPPORT);
   int same=-1;
-  if (port == eport || port == hport || port == sport)   same=port;
- else   if (eport == hport || eport == sport)   same=eport;
- else   if (hport == sport)   same=hport;
+  if (port == eport || port == httpPort || port == stopPort)   same=port;
+ else   if (eport == httpPort || eport == stopPort)   same=eport;
   if (same != -1)   throw new BaseXException(PORT_TWICE_X,same);
-  final String shost=mprop.get(MainProp.SERVERHOST);
+  final HTTPProp hprop=HTTPContext.hprop(context);
+  final boolean server=hprop.is(HTTPProp.SERVER);
   if (service) {
-    start(hport,args);
+    start(httpPort,args);
     Util.outln(HTTP + ' ' + SRV_STARTED);
     if (server)     Util.outln(SRV_STARTED);
     Performance.sleep(1000);
@@ -26,10 +33,10 @@
     Performance.sleep(1000);
     return;
   }
-  if (System.getProperty(DBUSER) != null) {
-    while (System.getProperty(DBPASS) == null) {
+  if (!hprop.get(HTTPProp.USER).isEmpty()) {
+    while (hprop.get(HTTPProp.PASSWORD).isEmpty()) {
       Util.out(PASSWORD + COLS);
-      System.setProperty(DBPASS,Util.password());
+      hprop.set(HTTPProp.PASSWORD,Util.password());
     }
   }
   if (server) {
@@ -40,30 +47,8 @@
     Util.outln(CONSOLE + HTTP + ' '+ SRV_STARTED,SERVERMODE);
   }
   context.log.writeServer(OK,HTTP + ' ' + SRV_STARTED);
-  jetty=new Server();
-  final Connector conn=new SelectChannelConnector();
-  if (!shost.isEmpty())   conn.setHost(shost);
-  conn.setPort(hport);
-  jetty.addConnector(conn);
-  final ServletContextHandler jctx=new ServletContextHandler(jetty,"/",ServletContextHandler.SESSIONS);
-  if (rest) {
-    jctx.addServlet(RESTServlet.class,"/rest/*");
-  }
-  if (restxq) {
-    jctx.addServlet(RestXqServlet.class,"/restxq/*");
-  }
-  if (webdav) {
-    jctx.addServlet(WebDAVServlet.class,"/webdav/*");
-  }
-  final ResourceHandler rh=new ResourceHandler();
-  rh.setWelcomeFiles(new String[]{"index.xml","index.xhtml","index.html"});
-  rh.setResourceBase(context.mprop.get(MainProp.HTTPPATH));
-  final HandlerList hl=new HandlerList();
-  hl.addHandler(rh);
-  hl.addHandler(jctx);
-  jetty.setHandler(hl);
   jetty.start();
-  new StopServer(sport,shost).start();
+  new StopServer(mprop.get(MainProp.SERVERHOST)).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       Util.outln(HTTP + ' ' + SRV_STOPPED);

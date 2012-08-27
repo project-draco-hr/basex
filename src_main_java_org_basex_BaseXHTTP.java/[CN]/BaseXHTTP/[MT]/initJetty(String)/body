@@ -1,0 +1,16 @@
+{
+  final IOFile trg=new IOFile(root + '/' + JETTYCONF);
+  if (!trg.exists()) {
+    final IOFile src=new IOFile("src/main/webapp/" + JETTYCONF);
+    if (!src.exists())     throw new BaseXException(trg + " not found.");
+    final IOFile trgDir=trg.dir();
+    for (    final IOFile s : src.dir().children()) {
+      final IOFile t=new IOFile(trgDir,s.name());
+      if (!s.isDir() && !t.exists()) {
+        Util.errln("Copy " + s + " to "+ trgDir);
+        s.copyTo(t);
+      }
+    }
+  }
+  return trg;
+}
