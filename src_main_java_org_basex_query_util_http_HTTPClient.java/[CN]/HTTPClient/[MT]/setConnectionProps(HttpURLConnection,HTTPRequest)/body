@@ -1,6 +1,14 @@
 {
   if (r.bodyContent != null || r.parts.size() != 0)   conn.setDoOutput(true);
-  conn.setRequestMethod(string(r.attrs.get(METHOD)).toUpperCase(Locale.ENGLISH));
+  final String method=string(r.attrs.get(METHOD)).toUpperCase(Locale.ENGLISH);
+  try {
+    final Field f=conn.getClass().getSuperclass().getDeclaredField("method");
+    f.setAccessible(true);
+    f.set(conn,method);
+  }
+ catch (  final Throwable th) {
+    conn.setRequestMethod(method);
+  }
   final byte[] timeout=r.attrs.get(TIMEOUT);
   if (timeout != null)   conn.setConnectTimeout(parseInt(string(timeout)));
   final byte[] redirect=r.attrs.get(FOLLOW_REDIRECT);
