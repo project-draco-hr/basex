@@ -1,24 +1,32 @@
 {
   if (context != null)   return;
-  final String path=sc.getRealPath("/");
-  System.setProperty(Prop.PATH,path);
-  final HashMap<String,String> map=new HashMap<String,String>();
-  map.put(MainProp.HTTPPATH[0].toString(),path);
-  final Enumeration<?> en=sc.getInitParameterNames();
+  final String webapp=sc.getRealPath("/");
+  set(Prop.PATH,webapp);
+  set(MainProp.WEBPATH[0].toString(),webapp);
+  final Enumeration<String> en=sc.getInitParameterNames();
   while (en.hasMoreElements()) {
-    final String key=en.nextElement().toString();
+    String key=en.nextElement();
     if (!key.startsWith(Prop.DBPREFIX))     continue;
     String val=sc.getInitParameter(key);
-    if (eq(key,DBUSER,DBPASS,DBMODE,DBVERBOSE)) {
-      System.setProperty(key,val);
+    String k=key;
+    String v=val;
+    if (key.equals(Prop.DBPREFIX + "httppath")) {
+      k=Prop.DBPREFIX + HTTPProp.RESTXQPATH[0];
     }
- else {
-      if (key.endsWith("path") && !new File(val).isAbsolute()) {
-        val=path + File.separator + val;
-      }
-      map.put(key.substring(Prop.DBPREFIX.length()).toUpperCase(Locale.ENGLISH),val);
+ else     if (key.equals(Prop.DBPREFIX + "mode")) {
+      k=Prop.DBPREFIX + HTTPProp.SERVER[0];
+      v=Boolean.toString(!v.equals("local"));
     }
+    k=k.toLowerCase(Locale.ENGLISH);
+    if (!k.equals(key) || !v.equals(val)) {
+      Util.errln("Warning! Outdated property: " + key + "="+ val+ " => "+ k+ "="+ v);
+    }
+    if (k.endsWith("path") && !new File(v).isAbsolute()) {
+      Util.debug(k.toUpperCase(Locale.ENGLISH) + ": " + v);
+      v=new IOFile(Prop.HOME,v).path();
+    }
+    set(k,v);
   }
-  context=new Context(map);
-  if (SERVER.equals(System.getProperty(DBMODE)))   new BaseXServer(context);
+  context=new Context(false);
+  if (hprop(context).is(HTTPProp.SERVER))   new BaseXServer(context);
 }
