@@ -1,6 +1,7 @@
 {
+  final QueryProcessor qp=new QueryProcessor(query,coll.ctx).context(nodes);
   try {
-    final QueryProcessor qp=new QueryProcessor(query,coll.ctx).context(nodes);
+    coll.ctx.register(qp);
     for (    final String n : ns.keySet()) {
       qp.ctx.sc.ns.add(token(n),token(ns.get(n)),null);
     }
@@ -8,5 +9,8 @@
   }
  catch (  final QueryException ex) {
     throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ex.getMessage());
+  }
+ finally {
+    coll.ctx.unregister(qp);
   }
 }
