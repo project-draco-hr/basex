@@ -1,0 +1,47 @@
+{
+  if (fd != null) {
+    if (mode == Mode.FDOPEN)     fd.setFile(" ");
+    fd.setMode(mode == Mode.FSAVE || mode == Mode.DSAVE ? FileDialog.SAVE : FileDialog.LOAD);
+    fd.setVisible(true);
+    final String f=fd.getFile();
+    if (f == null)     return new IOFile[0];
+    final String dir=fd.getDirectory();
+    return new IOFile[]{new IOFile(mode == Mode.DOPEN || mode == Mode.DSAVE ? dir : dir + '/' + fd.getFile())};
+  }
+  int state=0;
+switch (mode) {
+case FOPEN:
+    state=fc.showOpenDialog(gui);
+  break;
+case FDOPEN:
+fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+state=fc.showOpenDialog(gui);
+break;
+case FSAVE:
+state=fc.showSaveDialog(gui);
+break;
+case DOPEN:
+case DSAVE:
+fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+state=fc.showDialog(gui,null);
+break;
+}
+if (state != JFileChooser.APPROVE_OPTION) return new IOFile[0];
+final File[] fl=fc.getSelectedFiles();
+final IOFile[] files=new IOFile[fl.length];
+for (int f=0; f < fl.length; f++) files[f]=new IOFile(fl[f].getPath());
+if (mode == Mode.FSAVE) {
+if (suffix != null) {
+for (int f=0; f < fl.length; f++) {
+final String path=files[f].path();
+if (path.contains(".")) files[f]=new IOFile(path + suffix);
+}
+}
+for (final IOFile io : files) {
+if (io.exists() && !BaseXDialog.confirm(gui,Util.info(FILE_EXISTS_X,io))) {
+return new IOFile[0];
+}
+}
+}
+return files;
+}
