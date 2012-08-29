@@ -12,12 +12,13 @@
     running=context.user != null && md5(context.user.password + ts).equals(pw);
     if (running) {
       send(true);
-      server.unblock(address);
+      context.blocker.remove(address);
       context.add(this);
     }
  else {
       if (!us.isEmpty())       log(ACCESS_DENIED,false);
-      new ClientDelayer(server.block(address),this,server).start();
+      for (int d=context.blocker.delay(address); d > 0; d--)       Performance.sleep(1000);
+      send(false);
     }
   }
  catch (  final IOException ex) {
