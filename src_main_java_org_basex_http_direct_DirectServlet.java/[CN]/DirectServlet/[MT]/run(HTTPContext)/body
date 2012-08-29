@@ -37,44 +37,39 @@
     }
   }
   final TokenBuilder info=new TokenBuilder();
+  BaseXException bxe=null;
   for (  final Command c : list) {
-    String inf;
+    String inf=null;
     if (c instanceof XQuery) {
       final Query qu=session.query(c.args[0]);
       http.initResponse(new SerializerProp(qu.options()));
-      qu.execute();
-      inf=qu.info();
+      try {
+        qu.execute();
+        inf=qu.info();
+      }
+ catch (      final BaseXException ex) {
+        bxe=ex;
+      }
     }
  else {
-      session.execute(c);
-      inf=session.info();
+      try {
+        session.execute(c);
+        inf=session.info();
+      }
+ catch (      final BaseXException ex) {
+        bxe=ex;
+      }
     }
+    if (bxe != null)     break;
     info.add(inf.trim().replaceAll("\r\n?","\n")).add('\n');
   }
   if (redirect) {
-    final String ovar=http.req.getParameter("@output");
-    final String ivar=http.req.getParameter("@info");
-    String uri=http.req.getParameter("@redirect");
-    final TokenBuilder tb=new TokenBuilder();
+    final String err=bxe == null ? "" : bxe.getMessage().replaceAll("\r\n?","\n");
     if (http.method == HTTPMethod.POST) {
-      tb.add("<html><body onload='document.forms[\"form\"].submit()'>");
-      tb.add("<form name='form' action='" + uri + "' method='post'>");
-      if (ovar != null) {
-        tb.add("<input type='hidden' name='" + ovar + "' value='");
-        tb.add(os.toString().replace("'","&apos;")).add("'/>");
-      }
-      if (ivar != null) {
-        tb.add("<input type='hidden' name='" + ivar + "' value='");
-        tb.add(info.toString().replace("'","&apos;")).add("'/>");
-      }
-      tb.add("</form></body></html>");
-      http.res.getOutputStream().write(tb.finish());
+      redirectPOST(http,os,info,err);
     }
  else {
-      if (ovar != null)       uri+=(uri.indexOf('?') != -1 ? '&' : '?') + ovar + '='+ Token.string(Token.uri(Token.token(os.toString()),false));
-      if (ivar != null)       uri+=(uri.indexOf('?') != -1 ? '&' : '?') + ivar + '='+ Token.string(Token.uri(info.finish(),false));
-      http.status(HttpServletResponse.SC_MOVED_TEMPORARILY,null);
-      http.res.setHeader("location",uri);
+      redirect(http,os,info,err);
     }
   }
 }
