@@ -1,23 +1,30 @@
 {
-  final IOFile root=new IOFile(http.context().mprop.get(MainProp.WEBPATH));
+  final Context ctx=http.context();
+  final IOFile root=new IOFile(ctx.mprop.get(MainProp.WEBPATH));
   final String input=http.req.getRequestURI();
   final IOFile io=new IOFile(root,input);
   if (!io.exists() || io.isDir() || !io.path().startsWith(root.path()))   HTTPErr.NOT_FOUND_X.thrw(Util.info(RES_NOT_FOUND_X,input));
+  final boolean redirect=http.req.getParameter("@redirect") != null;
   final LocalSession session=http.session();
-  final OutputStream os=http.res.getOutputStream();
+  final OutputStream os=redirect ? new ArrayOutput() : http.res.getOutputStream();
   session.setOutputStream(os);
+  session.execute(new Set(Prop.QUERYPATH,io.path()));
+  final TokenBuilder vars=new TokenBuilder();
+  for (  final Entry<String,String[]> param : http.params().entrySet()) {
+    final String key=param.getKey().trim();
+    final String[] val=param.getValue();
+    if (!key.startsWith("@")) {
+      vars.add(key).add('=').add(val[0].replace(",",",,")).add(',');
+    }
+  }
+  session.execute(new Set(Prop.BINDINGS,vars.toString()));
+  ctx.prop.set(Prop.BINDINGS,vars.toString());
+  final ArrayList<Command> list=new ArrayList<Command>();
   if (io.hasSuffix(IO.BXSSUFFIX)) {
-    session.execute(new Run(io.path()));
+    for (    final Command c : new CommandParser(io.string(),ctx).parse())     list.add(c);
   }
  else   if (io.hasSuffix(IO.XQSUFFIXES)) {
-    session.execute(new Set(Prop.QUERYPATH,io.path()));
-    final Query qu=session.query(io.string());
-    for (    final Entry<String,String[]> param : http.params().entrySet()) {
-      final String[] val=param.getValue();
-      qu.bind(param.getKey(),val[0],val.length == 1 ? "" : val[1]);
-    }
-    http.initResponse(new SerializerProp(qu.options()));
-    qu.execute();
+    list.add(new XQuery(io.string()));
   }
  else {
     http.res.setContentType(MimeTypes.get(io.path()));
@@ -27,6 +34,47 @@
     }
   finally {
       bi.close();
+    }
+  }
+  final TokenBuilder info=new TokenBuilder();
+  for (  final Command c : list) {
+    String inf;
+    if (c instanceof XQuery) {
+      final Query qu=session.query(c.args[0]);
+      http.initResponse(new SerializerProp(qu.options()));
+      qu.execute();
+      inf=qu.info();
+    }
+ else {
+      session.execute(c);
+      inf=session.info();
+    }
+    info.add(inf.trim().replaceAll("\r\n?","\n")).add('\n');
+  }
+  if (redirect) {
+    final String ovar=http.req.getParameter("@output");
+    final String ivar=http.req.getParameter("@info");
+    String uri=http.req.getParameter("@redirect");
+    final TokenBuilder tb=new TokenBuilder();
+    if (http.method == HTTPMethod.POST) {
+      tb.add("<html><body onload='document.forms[\"form\"].submit()'>");
+      tb.add("<form name='form' action='" + uri + "' method='post'>");
+      if (ovar != null) {
+        tb.add("<input type='hidden' name='" + ovar + "' value='");
+        tb.add(os.toString().replace("'","&apos;")).add("'/>");
+      }
+      if (ivar != null) {
+        tb.add("<input type='hidden' name='" + ivar + "' value='");
+        tb.add(info.toString().replace("'","&apos;")).add("'/>");
+      }
+      tb.add("</form></body></html>");
+      http.res.getOutputStream().write(tb.finish());
+    }
+ else {
+      if (ovar != null)       uri+=(uri.indexOf('?') != -1 ? '&' : '?') + ovar + '='+ Token.string(Token.uri(Token.token(os.toString()),false));
+      if (ivar != null)       uri+=(uri.indexOf('?') != -1 ? '&' : '?') + ivar + '='+ Token.string(Token.uri(info.finish(),false));
+      http.status(HttpServletResponse.SC_MOVED_TEMPORARILY,null);
+      http.res.setHeader("location",uri);
     }
   }
 }
