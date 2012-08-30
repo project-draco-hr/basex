@@ -1,5 +1,6 @@
 {
-  final int last=size - 1;
+  final int s=size.get();
+  final int last=s - 1;
   final TokenList allkeys=new TokenList(m.keys()).sort(true);
   final TokenList nkeys=new TokenList(m.size());
   int p=0;
@@ -13,7 +14,7 @@
       appendIds(p,key,diffs(m.get(key)));
     }
   }
-  for (int j=nkeys.size() - 1, i=last, pos=size + j; j >= 0; --j) {
+  for (int j=nkeys.size() - 1, i=last, pos=s + j; j >= 0; --j) {
     final byte[] key=nkeys.get(j);
     final int ins=-(1 + get(key,0,i));
     if (ins < 0)     throw new IllegalStateException("Key should not exist");
@@ -24,5 +25,5 @@
     idxr.write5(pos * 5L,idxl.appendNums(diffs(m.get(key))));
     ctext.add(pos--,key);
   }
-  size+=nkeys.size();
+  size.set(s + nkeys.size());
 }

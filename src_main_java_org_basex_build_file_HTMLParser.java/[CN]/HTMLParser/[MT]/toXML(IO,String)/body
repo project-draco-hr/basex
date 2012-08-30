@@ -1,10 +1,9 @@
 {
   if (READER == null)   return io;
   try {
-    byte[] content=io.read();
-    final TextInput ti=new TextInput(new IOContent(content));
+    final TextInput ti=new TextInput(io);
     String enc=ti.encoding();
-    content=ti.readBytes();
+    final byte[] content=ti.content();
     final byte[] encoding=token("charset=");
     int cs=indexOf(content,encoding);
     if (cs > 0) {
@@ -31,7 +30,7 @@
     if (props.is(HTMLProp.OMITXML)) {
       opt("omit-xml-declaration","yes");
     }
-    if ((p=props.get(HTMLProp.METHOD)) != null) {
+    if (!(p=props.get(HTMLProp.METHOD)).isEmpty()) {
       opt("method",p);
     }
     if (props.is(HTMLProp.NOBOGONS)) {
@@ -64,13 +63,13 @@
     if (props.is(HTMLProp.LEXICAL)) {
       reader.setProperty("http://xml.org/sax/properties/lexical-handler",writer);
     }
-    if ((p=props.get(HTMLProp.DOCTYPESYS)) != null) {
+    if (!(p=props.get(HTMLProp.DOCTYPESYS)).isEmpty()) {
       opt("doctype-system",p);
     }
-    if ((p=props.get(HTMLProp.DOCTYPEPUB)) != null) {
+    if (!(p=props.get(HTMLProp.DOCTYPEPUB)).isEmpty()) {
       opt("doctype-public",p);
     }
-    if ((p=props.get(HTMLProp.ENCODING)) != null) {
+    if (!(p=props.get(HTMLProp.ENCODING)).isEmpty()) {
       is.setEncoding(p);
     }
     reader.setContentHandler((ContentHandler)writer);
