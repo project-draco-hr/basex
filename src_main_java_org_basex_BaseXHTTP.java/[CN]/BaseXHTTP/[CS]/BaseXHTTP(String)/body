@@ -1,8 +1,9 @@
 {
   parseArguments(args);
   final String webapp=context.mprop.get(MainProp.WEBPATH);
+  final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
-  jetty.setHandler(new WebAppContext(webapp,"/"));
+  jetty.setHandler(wac);
   for (  final Connector c : jetty.getConnectors()) {
     if (c instanceof SelectChannelConnector) {
       if (httpPort == 0)       httpPort=c.getPort();
@@ -10,45 +11,28 @@
     }
   }
   if (stopPort == 0)   stopPort=httpPort - 1;
-  final MainProp mprop=context.mprop;
-  final int port=mprop.num(MainProp.SERVERPORT);
-  final int eport=mprop.num(MainProp.EVENTPORT);
-  int same=-1;
-  if (port == eport || port == httpPort || port == stopPort)   same=port;
- else   if (eport == httpPort || eport == stopPort)   same=eport;
-  if (same != -1)   throw new BaseXException(PORT_TWICE_X,same);
-  final HTTPProp hprop=HTTPContext.hprop(context);
-  final boolean server=hprop.is(HTTPProp.SERVER);
-  if (service) {
-    start(httpPort,args);
-    Util.outln(HTTP + ' ' + SRV_STARTED);
-    if (server)     Util.outln(SRV_STARTED);
-    Performance.sleep(1000);
-    return;
-  }
   if (stopped) {
     stop();
     Util.outln(HTTP + ' ' + SRV_STOPPED);
-    if (server)     Util.outln(SRV_STOPPED);
     Performance.sleep(1000);
     return;
   }
-  if (!hprop.get(HTTPProp.USER).isEmpty()) {
-    while (hprop.get(HTTPProp.PASSWORD).isEmpty()) {
+  if (service) {
+    start(httpPort,args);
+    Util.outln(HTTP + ' ' + SRV_STARTED);
+    Performance.sleep(1000);
+    return;
+  }
+  if (!Prop.getSystem(HTTPProp.USER).isEmpty()) {
+    while (Prop.getSystem(HTTPProp.PASSWORD).isEmpty()) {
       Util.out(PASSWORD + COLS);
-      hprop.set(HTTPProp.PASSWORD,Util.password());
+      Prop.setSystem(HTTPProp.PASSWORD,Util.password());
     }
   }
-  if (server) {
-    new BaseXServer(context);
-    Util.outln(HTTP + ' ' + SRV_STARTED);
-  }
- else {
-    Util.outln(CONSOLE + HTTP + ' '+ SRV_STARTED,SERVERMODE);
-  }
-  context.log.writeServer(OK,HTTP + ' ' + SRV_STARTED);
   jetty.start();
-  new StopServer(mprop.get(MainProp.SERVERHOST)).start();
+  Util.outln(HTTP + ' ' + SRV_STARTED,SERVERMODE);
+  HTTPContext.init(wac.getServletContext());
+  new StopServer(context.mprop.get(MainProp.SERVERHOST)).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       Util.outln(HTTP + ' ' + SRV_STOPPED);
@@ -58,4 +42,5 @@
     }
   }
 );
+  context.log.writeServer(OK,HTTP + ' ' + SRV_STARTED);
 }

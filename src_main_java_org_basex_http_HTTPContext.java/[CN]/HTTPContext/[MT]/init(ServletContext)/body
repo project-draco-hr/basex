@@ -1,8 +1,9 @@
 {
-  if (context != null)   return;
+  if (init)   return;
+  init=true;
   final String webapp=sc.getRealPath("/");
-  set(Prop.PATH,webapp);
-  set(MainProp.WEBPATH[0].toString(),webapp);
+  Prop.setSystem(Prop.PATH,webapp);
+  Prop.setSystem(MainProp.WEBPATH,webapp);
   final Enumeration<String> en=sc.getInitParameterNames();
   while (en.hasMoreElements()) {
     String key=en.nextElement();
@@ -23,10 +24,13 @@
     }
     if (k.endsWith("path") && !new File(v).isAbsolute()) {
       Util.debug(k.toUpperCase(Locale.ENGLISH) + ": " + v);
-      v=new IOFile(Prop.HOME,v).path();
+      v=new IOFile(webapp,v).path();
     }
-    set(k,v);
+    Prop.setSystem(k,v);
   }
-  context=new Context(false);
+  if (context == null)   context=new Context(false);
+  hprop(context).setSystem();
+  context.mprop.setSystem();
+  context.prop.setSystem();
   if (hprop(context).is(HTTPProp.SERVER))   new BaseXServer(context);
 }
