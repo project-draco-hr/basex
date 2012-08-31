@@ -1,11 +1,17 @@
 {
   if (preds.length == 0)   return true;
   Item i=null;
-  for (  final Expr p : preds) {
-    ctx.value=it;
-    i=p.test(ctx,info);
-    if (i == null)     return false;
+  final Value cv=ctx.value;
+  try {
+    for (    final Expr p : preds) {
+      ctx.value=it;
+      i=p.test(ctx,info);
+      if (i == null)       return false;
+    }
+    it.score(i.score());
+    return true;
   }
-  it.score(i.score());
-  return true;
+  finally {
+    ctx.value=cv;
+  }
 }
