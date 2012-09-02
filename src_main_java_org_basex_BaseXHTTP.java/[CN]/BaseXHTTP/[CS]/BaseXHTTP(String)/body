@@ -1,6 +1,7 @@
 {
   parseArguments(args);
-  final String webapp=context.mprop.get(MainProp.WEBPATH);
+  final MainProp mprop=context.mprop;
+  final String webapp=mprop.get(MainProp.WEBPATH);
   final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
   jetty.setHandler(wac);
@@ -10,7 +11,6 @@
  else       c.setPort(httpPort);
     }
   }
-  if (stopPort == 0)   stopPort=httpPort - 1;
   if (stopped) {
     stop();
     Util.outln(HTTP + ' ' + SRV_STOPPED);
@@ -23,16 +23,17 @@
     Performance.sleep(1000);
     return;
   }
-  if (!Prop.getSystem(HTTPProp.USER).isEmpty()) {
-    while (Prop.getSystem(HTTPProp.PASSWORD).isEmpty()) {
+  if (!Prop.getSystem(MainProp.USER).isEmpty()) {
+    while (Prop.getSystem(MainProp.PASSWORD).isEmpty()) {
       Util.out(PASSWORD + COLS);
-      Prop.setSystem(HTTPProp.PASSWORD,Util.password());
+      Prop.setSystem(MainProp.PASSWORD,Util.password());
     }
   }
   jetty.start();
   Util.outln(HTTP + ' ' + SRV_STARTED,SERVERMODE);
   HTTPContext.init(wac.getServletContext());
-  new StopServer(context.mprop.get(MainProp.SERVERHOST)).start();
+  final int stop=mprop.num(MainProp.STOPPORT);
+  if (stop >= 0)   new StopServer(mprop.get(MainProp.SERVERHOST),stop).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       Util.outln(HTTP + ' ' + SRV_STOPPED);

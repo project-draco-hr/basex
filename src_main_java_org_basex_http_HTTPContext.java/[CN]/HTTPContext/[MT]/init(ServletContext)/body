@@ -6,17 +6,21 @@
   Prop.setSystem(MainProp.WEBPATH,webapp);
   final Enumeration<String> en=sc.getInitParameterNames();
   while (en.hasMoreElements()) {
-    String key=en.nextElement();
+    final String key=en.nextElement();
     if (!key.startsWith(Prop.DBPREFIX))     continue;
-    String val=sc.getInitParameter(key);
+    final String val=sc.getInitParameter(key);
     String k=key;
     String v=val;
     if (key.equals(Prop.DBPREFIX + "httppath")) {
-      k=Prop.DBPREFIX + HTTPProp.RESTXQPATH[0];
+      k=Prop.DBPREFIX + MainProp.RESTXQPATH[0];
     }
  else     if (key.equals(Prop.DBPREFIX + "mode")) {
-      k=Prop.DBPREFIX + HTTPProp.SERVER[0];
-      v=Boolean.toString(!v.equals("local"));
+      k=Prop.DBPREFIX + MainProp.HTTPLOCAL[0];
+      v=Boolean.toString(v.equals("local"));
+    }
+ else     if (key.equals(Prop.DBPREFIX + "server")) {
+      k=Prop.DBPREFIX + MainProp.HTTPLOCAL[0];
+      v=Boolean.toString(!Boolean.parseBoolean(v));
     }
     k=k.toLowerCase(Locale.ENGLISH);
     if (!k.equals(key) || !v.equals(val)) {
@@ -28,9 +32,12 @@
     }
     Prop.setSystem(k,v);
   }
-  if (context == null)   context=new Context(false);
-  hprop(context).setSystem();
-  context.mprop.setSystem();
-  context.prop.setSystem();
-  if (hprop(context).is(HTTPProp.SERVER))   new BaseXServer(context);
+  if (context == null) {
+    context=new Context(false);
+  }
+ else {
+    context.mprop.setSystem();
+    context.prop.setSystem();
+  }
+  if (!context.mprop.is(MainProp.HTTPLOCAL))   new BaseXServer(context);
 }
