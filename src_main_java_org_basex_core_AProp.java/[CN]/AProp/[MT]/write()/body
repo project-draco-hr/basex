@@ -1,35 +1,17 @@
 {
-  final StringBuilder user=new StringBuilder();
-  BufferedReader br=null;
-  try {
-    if (file.exists()) {
-      br=new BufferedReader(new FileReader(file.file()));
-      for (String line; (line=br.readLine()) != null; ) {
-        if (line.equals(PROPUSER))         break;
-      }
-      for (String line; (line=br.readLine()) != null; ) {
-        user.append(line).append(NL);
-      }
-    }
-  }
- catch (  final Exception ex) {
-    Util.debug(ex);
-  }
- finally {
-    if (br != null)     try {
-      br.close();
-    }
- catch (    final IOException e) {
-    }
-  }
   BufferedWriter bw=null;
   try {
     bw=new BufferedWriter(new FileWriter(file.file()));
-    bw.write(PROPHEADER + NL);
+    bw.write(PROPHEADER);
     for (    final Field f : getClass().getFields()) {
       final Object obj=f.get(null);
       if (!(obj instanceof Object[]))       continue;
-      final String key=((Object[])obj)[0].toString();
+      final Object[] o=(Object[])obj;
+      final String key=o[0].toString();
+      if (o.length == 1) {
+        bw.write(NL + "# " + key+ NL);
+        continue;
+      }
       final Object val=props.get(key);
       if (val instanceof String[]) {
         final String[] str=(String[])val;
@@ -50,8 +32,6 @@
         bw.write(key + " = " + val+ NL);
       }
     }
-    bw.write(NL + PROPUSER + NL);
-    bw.write(user.toString());
   }
  catch (  final Exception ex) {
     Util.errln("% could not be written.",file);
