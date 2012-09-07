@@ -3,14 +3,11 @@
   final BaseFuncCall bfc=new BaseFuncCall(null,uf.name,uf.args);
   bfc.init(uf);
   function.bind(http);
-  if (!qc.dbOptions.isEmpty()) {
-    for (    final Entry<String,String> e : qc.dbOptions.entrySet()) {
-      qc.context.prop.set(e.getKey(),e.getValue());
-    }
-  }
   try {
     qc.updating=bfc.uses(Use.UPD);
     qc.context.register(qc);
+    final StringList o=qc.dbOptions;
+    for (int s=0; s < o.size(); s+=2)     qc.context.prop.set(o.get(s),o.get(s + 1));
     Value result=qc.value(bfc.compile(qc));
     final Value update=qc.update();
     if (update != null)     result=update;
