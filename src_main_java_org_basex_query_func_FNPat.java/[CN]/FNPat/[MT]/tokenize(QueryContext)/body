@@ -1,0 +1,17 @@
+{
+  final byte[] val=checkEStr(expr[0],ctx);
+  final Pattern p=pattern(expr[1],expr.length == 3 ? expr[2] : null,ctx);
+  if (p.matcher("").matches())   REGROUP.thrw(info);
+  final TokenList tl=new TokenList();
+  final String str=string(val);
+  if (!str.isEmpty()) {
+    final Matcher m=p.matcher(str);
+    int s=0;
+    while (m.find()) {
+      tl.add(str.substring(s,m.start()));
+      s=m.end();
+    }
+    tl.add(str.substring(s,str.length()));
+  }
+  return StrSeq.get(tl);
+}

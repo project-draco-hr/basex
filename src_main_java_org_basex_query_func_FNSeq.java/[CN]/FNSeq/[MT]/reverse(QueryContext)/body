@@ -1,13 +1,18 @@
 {
-  final Value val=ctx.value(expr[0]);
-  final ValueIter iter=val.iter();
-  return val.size() == 1 ? iter : new ValueIter(){
-    final long s=iter.size();
+  final Iter iter=ctx.iter(expr[0]);
+  final long s=iter.size();
+  if (s == -1) {
+    final ValueBuilder vb=new ValueBuilder(Math.max((int)expr[0].size(),1));
+    for (Item it; (it=iter.next()) != null; )     vb.add(it);
+    Array.reverse(vb.item,0,(int)vb.size());
+    return vb;
+  }
+  return s == 0 ? Empty.ITER : s == 1 ? iter : new Iter(){
     long c=s;
-    @Override public Item next(){
+    @Override public Item next() throws QueryException {
       return --c >= 0 ? iter.get(c) : null;
     }
-    @Override public Item get(    final long i){
+    @Override public Item get(    final long i) throws QueryException {
       return iter.get(s - i - 1);
     }
     @Override public long size(){
@@ -15,13 +20,7 @@
     }
     @Override public boolean reset(){
       c=s;
-      return true;
-    }
-    @Override public Value value(){
-      final Item[] arr=new Item[(int)val.size()];
-      final int written=val.writeTo(arr,0);
-      Array.reverse(arr,0,written);
-      return Seq.get(arr,written);
+      return iter.reset();
     }
   }
 ;
