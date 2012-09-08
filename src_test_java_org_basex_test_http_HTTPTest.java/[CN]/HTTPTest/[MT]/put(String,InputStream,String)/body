@@ -1,0 +1,23 @@
+{
+  final URL url=new URL(u);
+  final HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+  conn.setDoOutput(true);
+  conn.setRequestMethod(PUT.name());
+  if (ctype != null)   conn.setRequestProperty(MimeTypes.CONTENT_TYPE,ctype);
+  final OutputStream bos=new BufferedOutputStream(conn.getOutputStream());
+  if (is != null) {
+    final BufferedInputStream bis=new BufferedInputStream(is);
+    for (int i; (i=bis.read()) != -1; )     bos.write(i);
+    bis.close();
+    bos.close();
+  }
+  try {
+    read(conn.getInputStream());
+  }
+ catch (  final IOException ex) {
+    throw error(conn,ex);
+  }
+ finally {
+    conn.disconnect();
+  }
+}
