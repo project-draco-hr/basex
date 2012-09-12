@@ -8,7 +8,13 @@
     Collections.sort(list);
     first=list.get(0);
     if (first.compareTo(list.get(1)) == 0) {
-      first.error(PATH_CONFLICT,first.path);
+      final TokenBuilder tb=new TokenBuilder();
+      for (      final RestXqFunction rxf : list) {
+        if (first.compareTo(rxf) != 0)         break;
+        tb.add(Prop.NL).add(rxf.function.info.toString());
+        tb.add(" (module: ").add(Text.LI + rxf.module.file.name()).add(")");
+      }
+      first.error(PATH_CONFLICT,first.path,tb);
     }
   }
   return first;
