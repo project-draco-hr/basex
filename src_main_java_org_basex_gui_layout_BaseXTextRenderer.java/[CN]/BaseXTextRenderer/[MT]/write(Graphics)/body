@@ -11,18 +11,14 @@
       color=GUIConstants.GREEN;
       high=true;
     }
-    if (text.erroneous()) {
-      g.setColor(GUIConstants.LRED);
-      g.fillRect(x,y - fontH + 4,wordW,fontH);
-    }
     int xx=x;
     if (text.markStart()) {
       final int p=text.pos();
       while (text.more()) {
         final int cw=charW(g,text.curr());
         if (text.inMark()) {
-          g.setColor(GUIConstants.color(3));
-          g.fillRect(xx,y - fontH + 4,cw,fontH);
+          g.setColor(GUIConstants.color(2));
+          g.fillRect(xx,y - fontH * 4 / 5,cw,fontH);
         }
         xx+=cw;
         text.next();
@@ -31,11 +27,18 @@
     }
     if (found()) {
       int cw=0;
-      for (int c=0; c < keyword.length(); ++c) {
-        cw+=charW(g,keyword.charAt(c));
+      for (int c=0; c < keyword.length(); ++c)       cw+=charW(g,keyword.charAt(c));
+      g.setColor(GUIConstants.color(text.cursor() == text.pos() ? 4 : 2));
+      g.fillRect(x,y - fontH * 4 / 5,cw,fontH);
+    }
+    if (text.erroneous()) {
+      final int s=Math.max(1,fontH / 8);
+      g.setColor(GUIConstants.LRED);
+      g.fillRect(x,y + 2,wordW,s);
+      g.setColor(GUIConstants.RED);
+      for (int xp=x; xp < x + wordW; xp++) {
+        if ((xp & 1) == 0)         g.drawLine(xp,y + 2,xp,y + s + 1);
       }
-      g.setColor(GUIConstants.color(text.cursor() == text.pos() ? 5 : 2));
-      g.fillRect(x,y - fontH + 4,cw,fontH);
     }
     if (ch > ' ') {
       g.setColor(color);
