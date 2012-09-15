@@ -1,0 +1,22 @@
+{
+  for (  final IOFile file : root.children()) {
+    if (file.isDir()) {
+      analyze(http,file,cache);
+    }
+ else     if (file.path().endsWith(IO.XQMSUFFIX)) {
+      final String path=file.path();
+      RestXqModule module=modules.get(path);
+      boolean parsed=false;
+      if (module != null) {
+        parsed=module.uptodate();
+      }
+ else {
+        module=new RestXqModule(file);
+      }
+      if (parsed || module.analyze(http)) {
+        module.touch();
+        cache.put(path,module);
+      }
+    }
+  }
+}

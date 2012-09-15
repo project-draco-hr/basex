@@ -3,22 +3,7 @@
     final File fl=new File(http.context().mprop.get(MainProp.RESTXQPATH));
     restxq=fl.isAbsolute() ? new IOFile(fl) : new IOFile(http.context().mprop.get(MainProp.WEBPATH),fl.getPath());
   }
-  final HashMap<String,RestXqModule> tmp=new HashMap<String,RestXqModule>();
-  for (  final IOFile file : restxq.children()) {
-    if (!file.path().endsWith(IO.XQMSUFFIX))     continue;
-    final String path=file.path();
-    RestXqModule module=modules.get(path);
-    boolean parsed=false;
-    if (module != null) {
-      parsed=module.uptodate();
-    }
- else {
-      module=new RestXqModule(file);
-    }
-    if (parsed || module.analyze(http)) {
-      module.touch();
-      tmp.put(path,module);
-    }
-  }
-  modules=tmp;
+  final HashMap<String,RestXqModule> cache=new HashMap<String,RestXqModule>();
+  analyze(http,restxq,cache);
+  modules=cache;
 }
