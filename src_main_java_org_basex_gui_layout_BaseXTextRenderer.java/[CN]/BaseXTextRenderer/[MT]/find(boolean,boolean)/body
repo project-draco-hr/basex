@@ -1,18 +1,16 @@
 {
-  if (search.length == 0)   return 0;
+  if (search.length == 0)   return -1;
   while (true) {
     final int hh=h;
-    int lp=0;
-    int ly=0;
-    int cp=text.cursor();
+    int lp=-1, ly=-1, cp=text.cursor();
     h=Integer.MAX_VALUE;
     final Graphics g=getGraphics();
-    for (init(g,0); more(g); next()) {
+    for (init(g); more(g); next()) {
       if (!found())       continue;
       final int np=text.pos();
       final int ny=y - fontH;
       if (np >= cp && (np > cp || !same || !forward)) {
-        if (forward || lp != 0) {
+        if (forward || lp != -1) {
           h=hh;
           text.setCursor(forward ? np : lp);
           text.startMark();
@@ -26,10 +24,10 @@
       ly=ny;
     }
     h=hh;
-    if (cp == 0 || cp == Integer.MAX_VALUE) {
-      text.setCursor(lp);
+    if (cp == -1 || cp == Integer.MAX_VALUE) {
+      text.setCursor(Math.max(0,lp));
       return ly;
     }
-    text.setCursor(0);
+    text.setCursor(-1);
   }
 }
