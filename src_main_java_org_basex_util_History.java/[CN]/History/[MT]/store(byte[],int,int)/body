@@ -1,12 +1,18 @@
 {
-  if (str == hist[pos] || Token.eq(str,hist[pos]) || str.length >= MAXSIZE)   return;
-  cur[pos]=Math.min(hist[pos].length,oc);
-  if (pos + 1 == MAX) {
-    Array.move(hist,1,-1,pos);
-    Array.move(cur,1,-1,pos--);
-    saved--;
+  if (!active || str == hist[pos] || Token.eq(str,hist[pos]))   return;
+  int off=pos + 1;
+  int size=str.length;
+  for (; off > 0 && size < MAXBYTES; off--)   size+=hist[off - 1].length;
+  if (off == 0 && pos + 1 == MAX)   off=1;
+  if (off > 0) {
+    Array.move(hist,off,-off,MAX - off);
+    Array.move(cur,off,-off,MAX - off);
+    saved-=off;
+    pos-=off;
   }
+  if (pos >= 0)   cur[pos]=oc;
   hist[++pos]=str;
   cur[pos]=nc;
   max=pos;
+  for (int p=pos + 1; p < MAX; p++)   hist[p]=null;
 }

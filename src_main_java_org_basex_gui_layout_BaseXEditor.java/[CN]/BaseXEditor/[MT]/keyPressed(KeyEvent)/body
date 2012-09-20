@@ -102,7 +102,7 @@
     text.endMark();
     text.checkMark();
   }
- else   if (hist != null) {
+ else   if (hist.active()) {
     if (CUT1.is(e) || CUT2.is(e)) {
       if (copy())       text.delete();
     }
@@ -176,7 +176,10 @@
   }
   if (consumed)   e.consume();
   text.setCursor();
-  if (txt != text.text())   rend.calc();
-  hist.store(text.text(),pc,text.cursor());
+  final byte[] tmp=text.text();
+  if (txt != tmp) {
+    rend.calc();
+    hist.store(tmp,pc,text.cursor());
+  }
   showCursor(down ? 2 : 0);
 }

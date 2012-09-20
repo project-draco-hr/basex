@@ -11,24 +11,21 @@
       color=GUIConstants.GREEN;
       high=true;
     }
-    int xx=x;
     if (text.markStart()) {
       final int p=text.pos();
-      while (text.more()) {
-        final int cw=charW(g,text.curr());
-        if (text.inMark()) {
-          g.setColor(GUIConstants.color(2));
-          g.fillRect(xx,y - fontH * 4 / 5,cw,fontH);
-        }
-        xx+=cw;
-        text.next();
-      }
+      int xx=x, cw=0;
+      for (; !text.inMark() && text.more(); text.next())       xx+=charW(g,text.curr());
+      for (; text.inMark() && text.more(); text.next())       cw+=charW(g,text.curr());
+      g.setColor(GUIConstants.color(2));
+      g.fillRect(xx,y - fontH * 4 / 5,cw,fontH);
       text.pos(p);
     }
     if (found()) {
       int cw=0;
-      for (int c=0; c < keyword.length(); ++c)       cw+=charW(g,keyword.charAt(c));
-      g.setColor(GUIConstants.color(text.cursor() == text.pos() ? 4 : 1));
+      for (int c=0; c < search.length; c+=Token.cl(search,c)) {
+        cw+=charW(g,Token.cp(search,c));
+      }
+      g.setColor(GUIConstants.color(text.cursor() == text.pos() ? 4 : 2));
       g.fillRect(x,y - fontH * 4 / 5,cw,fontH);
     }
     if (text.erroneous()) {
@@ -57,7 +54,7 @@
       g.setFont(font);
     }
     if (cursor && text.edited()) {
-      xx=x;
+      int xx=x;
       final int p=text.pos();
       while (text.more()) {
         if (text.cursor() == text.pos()) {
