@@ -1,9 +1,10 @@
 {
-  if (undo == null || control(e) || DELNEXT.is(e) || DELPREV.is(e) || ESCAPE.is(e))   return;
-  text.pos(text.cursor());
+  if (hist == null || control(e) || DELNEXT.is(e) || DELPREV.is(e) || ESCAPE.is(e))   return;
+  final byte[] txt=text.text();
+  final int pc=text.cursor();
+  text.pos(pc);
   String ch=String.valueOf(e.getKeyChar());
   boolean del=true;
-  final byte[] txt=text.text();
   if (TAB.is(e)) {
     if (text.marked()) {
       final int s=Math.min(text.pos(),text.start());
@@ -44,12 +45,10 @@
     for (int p=0; p < s; p++)     sb.append(' ');
     ch=sb.toString();
   }
-  if (ch != null) {
-    undo.cursor(text.cursor());
-    text.add(ch);
-  }
-  text.setCaret();
+  if (ch != null)   text.add(ch);
+  text.setCursor();
   rend.calc();
   showCursor(2);
   e.consume();
+  hist.store(text.text(),pc,text.cursor());
 }

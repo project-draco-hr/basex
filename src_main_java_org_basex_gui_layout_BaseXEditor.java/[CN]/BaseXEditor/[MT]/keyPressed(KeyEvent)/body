@@ -26,7 +26,8 @@
     copy();
     return;
   }
-  text.pos(text.cursor());
+  final int pc=text.cursor();
+  text.pos(pc);
   if (!PREVLINE.is(e) && !NEXTLINE.is(e))   lastCol=-1;
   if (FINDNEXT.is(e) || FINDNEXT2.is(e)) {
     scroll(rend.find(true,true));
@@ -41,7 +42,7 @@
     return;
   }
   final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e);
-  final boolean nomark=!text.marked();
+  final boolean nomark=!text.marking();
   if (marking && nomark)   text.startMark();
   boolean down=true;
   boolean consumed=true;
@@ -101,18 +102,32 @@
     text.endMark();
     text.checkMark();
   }
- else   if (undo != null) {
+ else   if (hist != null) {
     if (CUT1.is(e) || CUT2.is(e)) {
-      cut();
+      if (copy())       text.delete();
     }
  else     if (PASTE1.is(e) || PASTE2.is(e)) {
-      paste();
+      final String clip=clip();
+      if (clip != null) {
+        if (text.marked())         text.delete();
+        text.add(clip);
+      }
     }
  else     if (UNDOSTEP.is(e)) {
-      undo();
+      final byte[] t=hist.prev();
+      if (t != null) {
+        text=new BaseXTextTokens(t);
+        text.pos(hist.cursor());
+        rend.setText(text);
+      }
     }
  else     if (REDOSTEP.is(e)) {
-      redo();
+      final byte[] t=hist.next();
+      if (t != null) {
+        text=new BaseXTextTokens(t);
+        text.pos(hist.cursor());
+        rend.setText(text);
+      }
     }
  else     if (COMMENT.is(e)) {
       text.comment(rend.getSyntax());
@@ -135,7 +150,6 @@
         }
         text.endMark();
       }
-      undo.cursor(text.cursor());
       text.delete();
     }
  else     if (DELLINESTART.is(e) || DELPREVWORD.is(e) || DELPREV.is(e)) {
@@ -153,7 +167,6 @@
         }
         text.endMark();
       }
-      undo.cursor(text.cursor());
       text.delete();
       down=false;
     }
@@ -162,7 +175,8 @@
     }
   }
   if (consumed)   e.consume();
-  text.setCaret();
+  text.setCursor();
   if (txt != text.text())   rend.calc();
+  hist.store(text.text(),pc,text.cursor());
   showCursor(down ? 2 : 0);
 }
