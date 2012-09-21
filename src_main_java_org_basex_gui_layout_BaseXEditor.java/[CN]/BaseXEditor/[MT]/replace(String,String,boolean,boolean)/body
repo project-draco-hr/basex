@@ -1,0 +1,35 @@
+{
+  if (regex) {
+    final Pattern p=Pattern.compile(search,casee ? 0 : Pattern.CASE_INSENSITIVE);
+    final String rplc=p.matcher(Token.string(text.text())).replaceAll(replace);
+    setText(Token.token(rplc));
+    return -1;
+  }
+  int c=0;
+  final byte[] srch=casee ? Token.token(search) : Token.lc(Token.token(search));
+  final byte[] rplc=Token.token(replace);
+  final ByteList bl=new ByteList();
+  final byte[] old=text.text();
+  final int ss=srch.length, os=old.length;
+  for (int o=0; o < os; ) {
+    int s=0;
+    if (o + ss <= os) {
+      if (casee) {
+        for (; s < ss && old[o + s] == srch[s]; s++)         ;
+      }
+ else {
+        for (; s < ss && Token.lc(Token.cp(old,o + s)) == Token.cp(srch,s); s+=Token.cl(srch,s))         ;
+      }
+    }
+    if (s == ss) {
+      bl.add(rplc);
+      o+=s;
+      c++;
+    }
+ else {
+      bl.add(old[o++]);
+    }
+  }
+  setText(bl.toArray());
+  return c;
+}
