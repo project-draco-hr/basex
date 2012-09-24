@@ -1,0 +1,80 @@
+{
+  start.reset();
+  end.reset();
+  nr=0;
+  final byte[] text=txt;
+  if (regex) {
+    int flags=Pattern.DOTALL;
+    if (!mcase)     flags|=Pattern.CASE_INSENSITIVE;
+    final Pattern pattern=Pattern.compile(search,flags);
+    if (multi) {
+      int c=0, p=0;
+      final Matcher m=pattern.matcher(Token.string(text));
+      while (m.find()) {
+        final int s=m.start(), e=m.end();
+        while (c < s) {
+          p+=Token.cl(text,p);
+          c++;
+        }
+        start.add(p);
+        while (c < e) {
+          p+=Token.cl(text,p);
+          c++;
+        }
+        end.add(p);
+        nr++;
+      }
+    }
+ else {
+      final int os=text.length;
+      final TokenBuilder tb=new TokenBuilder(os);
+      for (int t=0, o=0; o <= os; o++) {
+        if (o < os ? text[o] == '\n' : o != t) {
+          int c=0, p=t;
+          final Matcher m=pattern.matcher(Token.string(text,t,o - t));
+          while (m.find()) {
+            final int s=m.start(), e=m.end();
+            while (c < s) {
+              p+=Token.cl(text,p);
+              c++;
+            }
+            start.add(p);
+            while (c < e) {
+              p+=Token.cl(text,p);
+              c++;
+            }
+            end.add(p);
+            nr++;
+          }
+          if (o < os)           tb.add('\n');
+          t=o + 1;
+        }
+      }
+    }
+  }
+ else {
+    final byte[] srch=Token.token(search);
+    final int ss=srch.length, ts=text.length;
+    if (ss == 0)     return;
+    for (int t=0; t < ts; ) {
+      int s=0;
+      if (t + ss <= ts) {
+        if (mcase) {
+          for (; s < ss && text[t + s] == srch[s]; s++)           ;
+        }
+ else {
+          for (; s < ss && Token.lc(Token.cp(text,t + s)) == Token.cp(srch,s); s+=Token.cl(srch,s))           ;
+        }
+      }
+      if (s == ss) {
+        start.add(t);
+        end.add(t + ss);
+        nr++;
+        t+=ss;
+      }
+ else {
+        t++;
+      }
+    }
+  }
+}
