@@ -2,10 +2,10 @@
   super(EDITORVIEW,man);
   border(6,6,6,6).layout(new BorderLayout(0,2)).setFocusable(false);
   header=new BaseXLabel(EDITOR,true,false);
+  final BaseXButton srch=new BaseXButton(gui,"search",H_REPLACE);
   final BaseXButton openB=BaseXButton.command(GUICommands.C_EDITOPEN,gui);
   final BaseXButton saveB=new BaseXButton(gui,"save",H_SAVE);
-  final BaseXButton hist=new BaseXButton(gui,"hist",H_RECENTLY_OPEN);
-  final BaseXButton srch=new BaseXButton(gui,"search",H_REPLACE);
+  hist=new BaseXButton(gui,"hist",H_RECENTLY_OPEN);
   final BaseXBack buttons=new BaseXBack(Fill.NONE);
   buttons.layout(new TableLayout(1,4,1,0));
   buttons.add(srch);
@@ -19,7 +19,7 @@
   final BaseXBack center=new BaseXBack(Fill.NONE).layout(new BorderLayout(0,2));
   tabs=new BaseXTabs(gui);
   tabs.setFocusable(false);
-  search=new SearchPanel(gui,this,true);
+  search=new SearchPanel(gui,this,srch,true);
   addCreateTab();
   final EditorArea edit=addTab();
   center.add(tabs,BorderLayout.CENTER);
@@ -49,12 +49,6 @@
   south.add(query,BorderLayout.EAST);
   add(south,BorderLayout.SOUTH);
   refreshLayout();
-  srch.addActionListener(new ActionListener(){
-    @Override public void actionPerformed(    final ActionEvent e){
-      search.activate(true);
-    }
-  }
-);
   saveB.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       final JPopupMenu pop=new JPopupMenu();
@@ -71,25 +65,20 @@
 );
   hist.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      final JPopupMenu popup=new JPopupMenu();
+      final JPopupMenu pm=new JPopupMenu();
       final ActionListener al=new ActionListener(){
         @Override public void actionPerformed(        final ActionEvent ac){
           open(new IOFile(ac.getActionCommand()));
         }
       }
 ;
-      if (gui.gprop.strings(GUIProp.EDITOR).length == 0) {
-        popup.add(new JMenuItem("- No recently opened files -"));
-      }
-      for (      final String en : gui.gprop.strings(GUIProp.EDITOR)) {
-        final JMenuItem jmi=new JMenuItem(en);
-        jmi.addActionListener(al);
-        popup.add(jmi);
-      }
-      popup.show(hist,0,hist.getHeight());
+      final String[] files=gui.gprop.strings(GUIProp.EDITOR);
+      for (      final String en : files)       pm.add(new JMenuItem(en)).addActionListener(al);
+      pm.show(hist,0,hist.getHeight());
     }
   }
 );
+  refreshHistory(null);
   info.addMouseListener(new MouseAdapter(){
     @Override public void mouseClicked(    final MouseEvent e){
       EditorArea ea=getEditor();

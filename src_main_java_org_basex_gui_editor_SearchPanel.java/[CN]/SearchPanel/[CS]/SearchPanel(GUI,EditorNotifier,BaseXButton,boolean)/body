@@ -3,9 +3,12 @@
   mode(Fill.NONE);
   gui=main;
   view=ev;
+  button=act;
   search=new BaseXTextField(main);
+  search.history(gui,GUIProp.SEARCHED);
   search.setToolTipText(SEARCH);
   replace=new BaseXTextField(main);
+  replace.history(gui,GUIProp.REPLACED);
   replace.setToolTipText(REPLACE_WITH);
   regex=onOffButton("s_regex",REGULAR_EXPR,GUIProp.SR_REGEX);
   mcase=onOffButton("s_case",MATCH_CASE,GUIProp.SR_CASE);
@@ -26,7 +29,12 @@
   add(west,BorderLayout.WEST);
   add(center,BorderLayout.CENTER);
   add(east,BorderLayout.EAST);
-  refreshLayout();
+  button.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      activate(true);
+    }
+  }
+);
   search.addFocusListener(new FocusAdapter(){
     @Override public void focusGained(    final FocusEvent e){
       search.selectAll();
@@ -78,6 +86,8 @@
 );
   rplc.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
+      search.store();
+      replace.store();
       view.getEditor().replace(new ReplaceContext(replace.getText()));
     }
   }
