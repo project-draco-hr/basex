@@ -1,4 +1,26 @@
 {
+  if (search != null) {
+    if (ESCAPE.is(e)) {
+      search.deactivate();
+      return;
+    }
+    if (FIND.is(e)) {
+      search.activate(true);
+      return;
+    }
+    if (FINDNEXT.is(e) || FINDNEXT2.is(e)) {
+      final boolean vis=search.isVisible();
+      search.activate(false);
+      jump(vis ? SearchDir.FORWARD : SearchDir.SAME);
+      return;
+    }
+    if (FINDPREV.is(e) || FINDPREV2.is(e)) {
+      final boolean vis=search.isVisible();
+      search.activate(false);
+      jump(vis ? SearchDir.BACKWARD : SearchDir.SAME);
+      return;
+    }
+  }
   if (modifier(e))   return;
   if (PREVTAB.is(e)) {
     transferFocusBackward();
@@ -6,10 +28,6 @@
   }
   if (NEXTTAB.is(e)) {
     transferFocus();
-    return;
-  }
-  if (FIND.is(e)) {
-    if (find != null)     find.requestFocusInWindow();
     return;
   }
   cursor(true);
@@ -29,21 +47,13 @@
   final int pc=text.cursor();
   text.pos(pc);
   if (!PREVLINE.is(e) && !NEXTLINE.is(e))   lastCol=-1;
-  if (FINDNEXT.is(e) || FINDNEXT2.is(e)) {
-    scroll(rend.find(true,true));
-    return;
-  }
-  if (FINDPREV.is(e) || FINDPREV2.is(e)) {
-    scroll(rend.find(false,true));
-    return;
-  }
   if (SELECTALL.is(e)) {
     selectAll();
     return;
   }
   final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e);
-  final boolean nomark=!text.marking();
-  if (marking && nomark)   text.startMark();
+  final boolean nomark=!text.selecting();
+  if (marking && nomark)   text.startSelect();
   boolean down=true;
   boolean consumed=true;
   final byte[] txt=text.text();
@@ -55,12 +65,12 @@
     down=false;
   }
  else   if (TEXTSTART.is(e)) {
-    if (!marking)     text.noMark();
+    if (!marking)     text.noSelect();
     text.pos(0);
     down=false;
   }
  else   if (TEXTEND.is(e)) {
-    if (!marking)     text.noMark();
+    if (!marking)     text.noSelect();
     text.pos(text.size());
   }
  else   if (LINESTART.is(e)) {
@@ -99,8 +109,8 @@
     consumed=false;
   }
   if (marking) {
-    text.endMark();
-    text.checkMark();
+    text.endSelect();
+    text.checkSelect();
   }
  else   if (hist.active()) {
     if (CUT1.is(e) || CUT2.is(e)) {
@@ -109,21 +119,21 @@
  else     if (PASTE1.is(e) || PASTE2.is(e)) {
       final String clip=clip();
       if (clip != null) {
-        if (text.marked())         text.delete();
+        if (text.selected())         text.delete();
         text.add(clip);
       }
     }
  else     if (UNDOSTEP.is(e)) {
       final byte[] t=hist.prev();
       if (t != null) {
-        text.text(t);
+        text.text(t,true);
         text.pos(hist.cursor());
       }
     }
  else     if (REDOSTEP.is(e)) {
       final byte[] t=hist.next();
       if (t != null) {
-        text.text(t);
+        text.text(t,true);
         text.pos(hist.cursor());
       }
     }
@@ -136,7 +146,7 @@
  else     if (DELLINEEND.is(e) || DELNEXTWORD.is(e) || DELNEXT.is(e)) {
       if (nomark) {
         if (text.pos() == text.size())         return;
-        text.startMark();
+        text.startSelect();
         if (DELNEXTWORD.is(e)) {
           text.nextToken(true);
         }
@@ -146,14 +156,14 @@
  else {
           text.next(true);
         }
-        text.endMark();
+        text.endSelect();
       }
       text.delete();
     }
  else     if (DELLINESTART.is(e) || DELPREVWORD.is(e) || DELPREV.is(e)) {
       if (nomark) {
         if (text.pos() == 0)         return;
-        text.startMark();
+        text.startSelect();
         if (DELPREVWORD.is(e)) {
           text.prevToken(true);
         }
@@ -163,7 +173,7 @@
  else {
           text.prev();
         }
-        text.endMark();
+        text.endSelect();
       }
       text.delete();
       down=false;

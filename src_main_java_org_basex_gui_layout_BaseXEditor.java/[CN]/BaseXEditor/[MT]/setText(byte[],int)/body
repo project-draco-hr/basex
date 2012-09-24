@@ -2,19 +2,15 @@
   int ns=0;
   final int pc=text.cursor();
   final int ts=text.size();
-  final byte[] tt=text.text();
+  final byte[] old=text.text();
   boolean eq=true;
   for (int r=0; r < s; ++r) {
     final byte b=t[r];
     if (b >= ' ' || b <= TokenBuilder.MARK || b == 0x09 || b == 0x0A)     t[ns++]=t[r];
-    eq&=ns < ts && ns < s && t[ns] == tt[ns];
+    eq&=ns < ts && ns < s && t[ns] == old[ns];
   }
   eq&=ns == ts;
-  if (!eq) {
-    text.text(Arrays.copyOf(t,ns));
-    text.setCursor(0);
-    scroll.pos(0);
-  }
+  if (!eq)   text.text(Arrays.copyOf(t,ns));
   if (hist != null)   hist.store(t.length != ns ? Arrays.copyOf(t,ns) : t,pc,0);
   SwingUtilities.invokeLater(calc);
 }

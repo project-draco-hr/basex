@@ -1,0 +1,26 @@
+{
+  start.reset();
+  end.reset();
+  final byte[] srch=search;
+  final int ss=srch.length, ts=text.length;
+  if (ss == 0)   return;
+  for (int t=0; t < ts; ) {
+    int s=0;
+    if (t + ss <= ts) {
+      if (mcase) {
+        for (; s < ss && text[t + s] == srch[s]; s++)         ;
+      }
+ else {
+        for (; s < ss && Token.lc(Token.cp(text,t + s)) == Token.cp(srch,s); s+=Token.cl(srch,s))         ;
+      }
+    }
+    if (s == ss) {
+      start.add(t);
+      end.add(t + ss);
+      t+=ss;
+    }
+ else {
+      t++;
+    }
+  }
+}

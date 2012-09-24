@@ -11,24 +11,25 @@
       color=GUIConstants.GREEN;
       high=true;
     }
-    boolean mark=text.markStart();
-    if (mark) {
-      final int p=text.pos();
+    final int cp=text.pos();
+    if (text.selectStart()) {
       int xx=x, cw=0;
-      for (; !text.inMark() && text.more(); text.next())       xx+=charW(g,text.curr());
-      for (; text.inMark() && text.more(); text.next())       cw+=charW(g,text.curr());
+      while (!text.inSelect() && text.more())       xx+=charW(g,text.next());
+      while (text.inSelect() && text.more())       cw+=charW(g,text.next());
       g.setColor(GUIConstants.color(2));
       g.fillRect(xx,y - fontH * 4 / 5,cw,fontH);
-      text.pos(p);
+      text.pos(cp);
     }
-    if (found()) {
+    int xx=x;
+    while (text.more() && text.searchStart()) {
       int cw=0;
-      for (int c=0; c < search.length; c+=Token.cl(search,c)) {
-        cw+=charW(g,Token.cp(search,c));
-      }
-      g.setColor(GUIConstants.color(mark ? 5 : 2));
-      g.fillRect(x,y - fontH * 4 / 5,cw,fontH);
+      while (!text.inSearch() && text.more())       xx+=charW(g,text.next());
+      while (text.inSearch() && text.more())       cw+=charW(g,text.next());
+      g.setColor(GUIConstants.color2A);
+      g.fillRect(xx,y - fontH * 4 / 5,cw,fontH);
+      xx+=cw;
     }
+    text.pos(cp);
     if (text.erroneous()) {
       final int s=Math.max(1,fontH / 8);
       g.setColor(GUIConstants.LRED);
@@ -40,7 +41,7 @@
     }
     if (ch > ' ') {
       g.setColor(color);
-      String n=text.nextWord();
+      String n=text.nextString();
       int ww=w - x;
       if (x + wordW > ww) {
         int c=0;
@@ -55,8 +56,7 @@
       g.setFont(font);
     }
     if (cursor && text.edited()) {
-      int xx=x;
-      final int p=text.pos();
+      xx=x;
       while (text.more()) {
         if (text.cursor() == text.pos()) {
           cursor(g,xx);
@@ -64,7 +64,7 @@
         }
         xx+=charW(g,text.next());
       }
-      text.pos(p);
+      text.pos(cp);
     }
   }
   next();

@@ -1,11 +1,12 @@
 {
-  if (text.length == 0)   return;
-  final TokenBuilder tb=new TokenBuilder();
-  final int s=marked() ? Math.min(ms,me) : ps;
-  final int e=marked() ? Math.max(ms,me) : ps + cl(text,ps);
-  tb.add(text,0,s);
-  if (e < text.length)   tb.add(text,e,text.length);
-  text=tb.finish();
+  final int tl=text.length;
+  if (tl == 0)   return;
+  final int s=selected() ? Math.min(ms,me) : ps;
+  final int e=selected() ? Math.max(ms,me) : ps + cl(text,ps);
+  final byte[] tmp=new byte[tl - e + s];
+  System.arraycopy(text,0,tmp,0,s);
+  System.arraycopy(text,e,tmp,s,tl - e);
+  text(tmp);
   ps=s;
-  noMark();
+  noSelect();
 }

@@ -1,22 +1,22 @@
 {
   int c=0;
+  final byte[] old=text.text();
   byte[] txt=null;
   if (regex) {
     int flags=Pattern.DOTALL;
-    if (!casee)     flags|=Pattern.CASE_INSENSITIVE;
-    final Pattern p=Pattern.compile(search,flags);
+    if (!mcase)     flags|=Pattern.CASE_INSENSITIVE;
+    final Pattern p=Pattern.compile(src,flags);
     if (multi) {
-      txt=Token.token(p.matcher(Token.string(text.text())).replaceAll(replace));
+      txt=Token.token(p.matcher(Token.string(old)).replaceAll(replace));
       c++;
     }
  else {
-      final byte[] old=text.text();
       final int os=old.length;
       final TokenBuilder tb=new TokenBuilder(os);
-      int s=0, o=0;
-      for (; o <= os; o++) {
-        if (o == os ? o != s : old[o] == '\n') {
-          tb.add(p.matcher(Token.string(old,s,o - s)).replaceAll(replace)).add('\n');
+      for (int s=0, o=0; o <= os; o++) {
+        if (o < os ? old[o] == '\n' : o != s) {
+          tb.add(p.matcher(Token.string(old,s,o - s)).replaceAll(replace));
+          if (o < os)           tb.add('\n');
           c++;
           s=o + 1;
         }
@@ -25,15 +25,14 @@
     }
   }
  else {
-    final byte[] srch=casee ? Token.token(search) : Token.lc(Token.token(search));
+    final byte[] srch=mcase ? Token.token(src) : Token.lc(Token.token(src));
     final byte[] rplc=Token.token(replace);
     final ByteList bl=new ByteList();
-    final byte[] old=text.text();
     final int ss=srch.length, os=old.length;
     for (int o=0; o < os; ) {
       int s=0;
       if (o + ss <= os) {
-        if (casee) {
+        if (mcase) {
           for (; s < ss && old[o + s] == srch[s]; s++)           ;
         }
  else {
