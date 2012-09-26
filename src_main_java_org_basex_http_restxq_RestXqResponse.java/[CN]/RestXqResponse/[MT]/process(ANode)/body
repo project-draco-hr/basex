@@ -1,34 +1,39 @@
 {
-  SerializerProp sp=null;
-  String cType=null;
-  for (  final ANode n : response.children()) {
-    if (HTTP_RESPONSE.eq(n)) {
-      final byte[] sta=n.attribute(new QNm(STATUS));
-      if (sta != null) {
-        final byte[] msg=n.attribute(new QNm(REASON));
-        http.status(toInt(sta),msg != null ? string(msg) : null);
-      }
-      for (      final ANode c : n.children()) {
-        if (HTTP_HEADER.eq(c)) {
-          final byte[] nam=c.attribute(new QNm(NAME));
-          final byte[] val=c.attribute(new QNm(VALUE));
-          if (nam != null && val != null) {
-            final String key=string(nam);
-            if (key.equals(MimeTypes.CONTENT_TYPE)) {
-              cType=string(val);
-            }
+  SerializerProp sp=function.output;
+  if (response != null) {
+    String cType=null;
+    for (    final ANode n : response.children()) {
+      if (HTTP_RESPONSE.eq(n)) {
+        final byte[] sta=n.attribute(new QNm(STATUS));
+        if (sta != null) {
+          final byte[] msg=n.attribute(new QNm(REASON));
+          http.status(toInt(sta),msg != null ? string(msg) : null);
+        }
+        for (        final ANode c : n.children()) {
+          if (HTTP_HEADER.eq(c)) {
+            final byte[] nam=c.attribute(new QNm(NAME));
+            final byte[] val=c.attribute(new QNm(VALUE));
+            if (nam != null && val != null) {
+              final String key=string(nam);
+              final String value=string(val);
+              if (key.equals(MimeTypes.CONTENT_TYPE)) {
+                cType=value;
+              }
  else {
-              http.res.setHeader(key,string(val));
+                http.res.setHeader(key,value);
+              }
             }
           }
         }
       }
+ else       if (OUTPUT_SERIAL.eq(n)) {
+        sp=FuncParams.serializerProp(n);
+      }
     }
-    if (OUTPUT_SERIAL.eq(n))     sp=FuncParams.serializerProp(n);
-  }
-  if (cType != null) {
-    if (sp == null)     sp=new SerializerProp(function.output.toString());
-    sp.set(SerializerProp.S_MEDIA_TYPE,cType);
+    if (cType != null) {
+      if (sp == null)       sp=new SerializerProp(function.output.toString());
+      sp.set(SerializerProp.S_MEDIA_TYPE,cType);
+    }
   }
   return sp;
 }
