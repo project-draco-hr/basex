@@ -4,13 +4,15 @@
   final int pc=text.cursor();
   text.pos(pc);
   String ch=String.valueOf(e.getKeyChar());
-  boolean del=true;
+  boolean indent=false;
   if (TAB.is(e)) {
     if (text.selected()) {
       final int s=Math.min(text.pos(),text.start());
       final int l=Math.max(text.pos(),text.start()) - 1;
-      for (int p=s; p <= l && p < txt.length; p++)       del&=txt[p] != '\n';
-      if (!del) {
+      int p=s;
+      for (; p <= l && p < txt.length; p++)       indent|=txt[p] != '\n';
+      indent|=p == txt.length;
+      if (indent) {
         text.indent(s,l,e.isShiftDown());
         ch=null;
       }
@@ -25,7 +27,7 @@
       if (c)       ch="  ";
     }
   }
-  if (text.selected() && del)   text.delete();
+  if (text.selected() && !indent)   text.delete();
   if (ENTER.is(e)) {
     final StringBuilder sb=new StringBuilder(1).append(e.getKeyChar());
     int s=0;
