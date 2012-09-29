@@ -1,14 +1,18 @@
 {
   try {
-    rend.replace(rc);
+    final int[] select=rend.replace(rc);
     if (rc.text != null) {
+      final boolean sel=text.selected();
       setText(rc.text);
+      if (sel)       text.select(select[0],select[1]);
+      text.setCursor(select[0]);
       release(Action.CHECK);
     }
-    gui.status.setText(Util.info(STRINGS_REPLACED_X,rc.nr()));
+    gui.status.setText(Util.info(STRINGS_REPLACED));
   }
  catch (  final Exception ex) {
-    final String msg=ex.getMessage().replaceAll(Prop.NL + ".*","");
+    ex.printStackTrace();
+    final String msg=Util.message(ex).replaceAll(Prop.NL + ".*","");
     gui.status.setError(REGULAR_EXPR + COLS + msg);
   }
 }

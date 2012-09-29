@@ -15,7 +15,7 @@
   mcase=onOffButton("s_case",MATCH_CASE,GUIProp.SR_CASE);
   multi=onOffButton("s_multi",MULTI_LINE,GUIProp.SR_MULTI);
   rplc=new BaseXButton(main,"s_replace",REPLACE_ALL);
-  close=new BaseXButton(main,"s_close",CLOSE);
+  cls=new BaseXButton(main,"s_close",CLOSE);
   multi.setEnabled(regex.isEnabled());
   search.addFocusListener(new FocusAdapter(){
     @Override public void focusGained(    final FocusEvent e){
@@ -26,16 +26,14 @@
   search.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
       if (FINDPREV.is(e) || FINDPREV2.is(e) || FINDNEXT.is(e)|| FINDNEXT2.is(e)) {
-        editor.requestFocusInWindow();
-      }
- else       if (ENTER.is(e) && e.isShiftDown()) {
-        editor.jump(SearchDir.BACKWARD);
-      }
- else       if (ENTER.is(e)) {
-        editor.jump(SearchDir.FORWARD);
+        editor.text.noSelect();
+        deactivate(false);
       }
  else       if (ESCAPE.is(e)) {
-        deactivate();
+        deactivate(search.getText().isEmpty());
+      }
+ else       if (ENTER.is(e)) {
+        editor.jump(e.isShiftDown() ? SearchDir.BACKWARD : SearchDir.FORWARD,true);
       }
     }
     @Override public void keyReleased(    final KeyEvent e){
@@ -53,16 +51,16 @@
 );
   replace.addKeyListener(new KeyAdapter(){
     @Override public void keyPressed(    final KeyEvent e){
-      if (ESCAPE.is(e))       deactivate();
+      if (ESCAPE.is(e))       deactivate(true);
     }
     @Override public void keyReleased(    final KeyEvent e){
       main.gprop.set(GUIProp.SR_REPLACE,replace.getText());
     }
   }
 );
-  close.addActionListener(new ActionListener(){
+  cls.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      deactivate();
+      deactivate(true);
     }
   }
 );

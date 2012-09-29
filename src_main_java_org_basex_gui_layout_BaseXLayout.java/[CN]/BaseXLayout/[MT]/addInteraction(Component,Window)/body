@@ -11,11 +11,16 @@
       @Override public void keyPressed(      final KeyEvent e){
         final Object s=e.getSource();
         if (s instanceof BaseXCombo && ((BaseXCombo)s).isPopupVisible())         return;
-        if (ENTER.is(e) && !(s instanceof BaseXButton) && !(s instanceof Editor)) {
+        if (ENTER.is(e) && !(s instanceof BaseXButton || s instanceof Editor)) {
           d.close();
         }
  else         if (ESCAPE.is(e)) {
-          d.cancel();
+          boolean close=true;
+          if (s instanceof Editor) {
+            final SearchPanel sp=((Editor)s).getSearch();
+            close=sp == null || !sp.deactivate(true);
+          }
+          if (close)           d.cancel();
         }
       }
     }

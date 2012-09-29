@@ -1,23 +1,17 @@
 {
   if (search != null) {
     if (ESCAPE.is(e)) {
-      search.deactivate();
+      search.deactivate(true);
       return;
     }
     if (FIND.is(e)) {
-      search.activate(true);
+      search.activate(null);
       return;
     }
-    if (FINDNEXT.is(e) || FINDNEXT2.is(e)) {
+    if (FINDNEXT.is(e) || FINDNEXT2.is(e) || FINDPREV.is(e)|| FINDPREV2.is(e)) {
       final boolean vis=search.isVisible();
-      search.activate(false);
-      jump(vis ? SearchDir.FORWARD : SearchDir.SAME);
-      return;
-    }
-    if (FINDPREV.is(e) || FINDPREV2.is(e)) {
-      final boolean vis=search.isVisible();
-      search.activate(false);
-      jump(vis ? SearchDir.BACKWARD : SearchDir.SAME);
+      search.activate(text.copy());
+      jump(vis ? FINDNEXT.is(e) || FINDNEXT2.is(e) ? SearchDir.FORWARD : SearchDir.BACKWARD : SearchDir.CURRENT,true);
       return;
     }
   }
@@ -110,7 +104,6 @@
   }
   if (marking) {
     text.endSelect();
-    text.checkSelect();
   }
  else   if (hist.active()) {
     if (CUT1.is(e) || CUT2.is(e)) {
@@ -186,8 +179,10 @@
   text.setCursor();
   final byte[] tmp=text.text();
   if (txt != tmp) {
-    rend.calc();
     hist.store(tmp,pc,text.cursor());
+    calcCode.invokeLater(down);
   }
-  showCursor(down ? 2 : 0);
+ else {
+    showCursor(down ? 2 : 0);
+  }
 }

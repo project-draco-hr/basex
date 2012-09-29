@@ -1,0 +1,57 @@
+{
+  final int os=txt.length;
+  search=sc;
+  if (sc.search.isEmpty()) {
+    text=txt;
+  }
+ else {
+    final TokenBuilder tb=new TokenBuilder(os);
+    tb.add(txt,0,start);
+    if (sc.regex) {
+      int flags=Pattern.DOTALL;
+      if (!sc.mcase)       flags|=Pattern.CASE_INSENSITIVE;
+      final Pattern p=Pattern.compile(sc.search,flags);
+      if (sc.multi) {
+        tb.add(p.matcher(string(txt,start,end)).replaceAll(replace));
+      }
+ else {
+        for (int e=start, s=start; e <= end; e++) {
+          if (e < end ? txt[e] == '\n' : e != s) {
+            tb.add(p.matcher(string(txt,s,e - s)).replaceAll(replace));
+            if (e < end)             tb.add('\n');
+            s=e + 1;
+          }
+        }
+      }
+    }
+ else {
+      final byte[] srch=token(sc.search);
+      final byte[] rplc=token(replace);
+      final int ss=srch.length;
+      int s1=start;
+      for (int s=start; s < end; ) {
+        int sp=0;
+        if (s + ss <= end) {
+          if (sc.mcase) {
+            while (sp < ss && txt[s + sp] == srch[sp])             sp++;
+          }
+ else {
+            while (sp < ss && lc(cp(txt,s + sp)) == cp(srch,sp))             sp+=cl(srch,sp);
+          }
+        }
+        if (sp == ss) {
+          tb.add(txt,s1,s).add(rplc);
+          s+=ss;
+          s1=s;
+        }
+ else {
+          s++;
+        }
+      }
+      tb.add(txt,s1,end);
+    }
+    tb.add(txt,end,os);
+    text=tb.finish();
+  }
+  return new int[]{start,end - os + text.length};
+}

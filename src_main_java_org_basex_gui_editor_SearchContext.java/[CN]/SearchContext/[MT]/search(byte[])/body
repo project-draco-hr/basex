@@ -1,6 +1,7 @@
 {
-  start.reset();
-  end.reset();
+  final IntList start=new IntList();
+  final IntList end=new IntList();
+  if (search.isEmpty())   return new IntList[]{start,end};
   final byte[] text=txt;
   if (regex) {
     int flags=Pattern.DOTALL;
@@ -51,26 +52,27 @@
   }
  else {
     final byte[] srch=Token.token(search);
-    final int ss=srch.length, ts=text.length;
-    if (ss == 0)     return;
-    for (int t=0; t < ts; ) {
-      int s=0;
-      if (t + ss <= ts) {
+    final int ss=srch.length, os=text.length;
+    for (int o=0; o < os; ) {
+      int sp=0;
+      if (o + ss <= os) {
         if (mcase) {
-          for (; s < ss && text[t + s] == srch[s]; s++)           ;
+          for (; sp < ss && text[o + sp] == srch[sp]; sp++)           ;
         }
  else {
-          for (; s < ss && Token.lc(Token.cp(text,t + s)) == Token.cp(srch,s); s+=Token.cl(srch,s))           ;
+          for (; sp < ss && Token.lc(Token.cp(text,o + sp)) == Token.cp(srch,sp); sp+=Token.cl(srch,sp))           ;
         }
       }
-      if (s == ss) {
-        start.add(t);
-        end.add(t + ss);
-        t+=ss;
+      if (sp == ss) {
+        start.add(o);
+        end.add(o + ss);
+        o+=ss;
       }
  else {
-        t++;
+        o++;
       }
     }
   }
+  nr=start.size();
+  return new IntList[]{start,end};
 }
