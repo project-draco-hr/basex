@@ -1,0 +1,25 @@
+{
+  final int k=data.kind(targetPre);
+  if (rec) {
+    final List<UpdatePrimitive> l=new LinkedList<UpdatePrimitive>();
+    l.add(this);
+    final int firstChild=targetPre + data.attSize(targetPre,k);
+    final int followingNode=targetPre + data.size(targetPre,k);
+    int runner=firstChild;
+    while (runner < followingNode) {
+      l.add(new DeleteNode(runner,data,info,true));
+      runner+=data.size(runner,data.kind(runner));
+    }
+    if (value.length > 0) {
+      final MemData m=new MemData(data);
+      m.text(0,1,value,Data.TEXT);
+      m.insert(0);
+      l.add(new InsertInto(targetPre,data,info,new ANodeList(new DBNode(m,0)),false,true));
+    }
+    return l.toArray(new UpdatePrimitive[l.size()]);
+  }
+  if (deleteText()) {
+    return new UpdatePrimitive[]{this,new DeleteNode(targetPre,data,info,false)};
+  }
+  return new UpdatePrimitive[]{this};
+}

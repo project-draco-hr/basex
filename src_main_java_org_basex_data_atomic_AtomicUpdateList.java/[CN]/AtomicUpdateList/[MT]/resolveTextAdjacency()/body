@@ -1,0 +1,28 @@
+{
+  final AtomicUpdateList allMerges=new AtomicUpdateList(data);
+  final IntSet s=new IntSet();
+  for (int i=0; i < updStructural.size(); i++) {
+    final BasicUpdate u=updStructural.get(i);
+    final Data insseq=u.getInsertionData();
+    final int newLocation=u.location + u.accumulatedShifts - u.shifts;
+    final int beforeNewLocation=newLocation - 1;
+    if (insseq != null) {
+      final int followingNode=newLocation + insseq.meta.size;
+      final int beforeFollowingNode=followingNode - 1;
+      if (!s.contains(beforeFollowingNode)) {
+        final AtomicUpdateList merges=necessaryMerges(beforeFollowingNode,allMerges.data);
+        mergeNodes(merges);
+        allMerges.merge(merges);
+        s.add(beforeFollowingNode);
+      }
+    }
+    if (!s.contains(beforeNewLocation)) {
+      final AtomicUpdateList merges=necessaryMerges(beforeNewLocation,allMerges.data);
+      mergeNodes(merges);
+      allMerges.merge(merges);
+      s.add(beforeNewLocation);
+    }
+  }
+  allMerges.updateDistances();
+  allMerges.clear();
+}

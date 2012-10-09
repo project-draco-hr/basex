@@ -1,0 +1,25 @@
+{
+  final DeleteNode del=(DeleteNode)find(DELETENODE);
+  if (del != null && del.rec) {
+    prim=new UpdatePrimitive[]{del};
+    return;
+  }
+  final ReplaceNode replace=(ReplaceNode)find(REPLACENODE);
+  if (replace != null) {
+    final ArrayList<UpdatePrimitive> primnew=new ArrayList<UpdatePrimitive>();
+    for (    final UpdatePrimitive p : prim) {
+      if (p.type == REPLACENODE || p.type == INSERTBEFORE || p.type == INSERTAFTER)       primnew.add(p);
+    }
+    prim=primnew.toArray(new UpdatePrimitive[primnew.size()]);
+    return;
+  }
+  final ReplaceValue rec=(ReplaceValue)find(REPLACEVALUE);
+  if (rec != null && rec.rec) {
+    final ArrayList<UpdatePrimitive> primnew=new ArrayList<UpdatePrimitive>();
+    for (    final UpdatePrimitive p : prim) {
+      if ((p.type != INSERTINTOFIRST && p.type != INSERTINTO) || (p.type == INSERTINTO && ((InsertInto)p).rec))       primnew.add(p);
+    }
+    prim=primnew.toArray(new UpdatePrimitive[primnew.size()]);
+    return;
+  }
+}

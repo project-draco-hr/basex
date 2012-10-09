@@ -1,0 +1,26 @@
+{
+  if (opt)   return;
+  check();
+  int i=updStructural.size() - 1;
+  while (i >= 0) {
+    BasicUpdate u=updStructural.get(i);
+    if (u.destructive()) {
+      final int pre=u.location;
+      final int fol=pre + data.size(pre,data.kind(pre));
+      i--;
+      while (i >= 0) {
+        final BasicUpdate desc=updStructural.get(i);
+        final int descpre=desc.location;
+        if (descpre <= fol && (desc instanceof Insert || desc instanceof InsertAttr) && desc.parent() >= pre && desc.parent() < fol) {
+          updStructural.remove(i--);
+        }
+ else         if (descpre < fol) {
+          updStructural.remove(i--);
+        }
+ else         break;
+      }
+    }
+ else     i--;
+  }
+  opt=true;
+}

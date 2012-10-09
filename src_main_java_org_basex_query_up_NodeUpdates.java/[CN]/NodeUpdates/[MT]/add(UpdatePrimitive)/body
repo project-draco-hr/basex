@@ -1,14 +1,19 @@
 {
-  if (prim[0] == null) {
-    prim[0]=p;
+  if (prim == null) {
+    prim=new UpdatePrimitive[]{p};
     return;
   }
-  final PrimitiveType pt=p.type;
-  for (  final UpdatePrimitive up : prim) {
-    if (up.type == pt) {
-      up.merge(p);
-      return;
+  final int typeIndex=index(p.type);
+  if (typeIndex != -1) {
+    final UpdatePrimitive up=prim[typeIndex];
+    if (up instanceof InsertInto) {
+      final InsertInto oldprim=(InsertInto)up;
+      final InsertInto newprim=(InsertInto)p;
+      if (newprim.rec)       prim[typeIndex]=newprim;
+      if (!oldprim.rec && !newprim.rec)       up.merge(p);
     }
+ else     up.merge(p);
+    return;
   }
   addToPrimitives(p);
 }
