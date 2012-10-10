@@ -23,7 +23,9 @@
       add.lock=false;
       ok=add.run(context) || error(add.info());
       if (ok) {
-        for (int p=pre.size() - 1; p >= 0; p--)         data.delete(pre.get(p));
+        final AtomicUpdateList atomics=new AtomicUpdateList(data);
+        for (int p=pre.size() - 1; p >= 0; p--)         atomics.addDelete(pre.get(p));
+        atomics.execute(false);
       }
     }
     return ok && info(RES_REPLACED_X_X,1,perf);
