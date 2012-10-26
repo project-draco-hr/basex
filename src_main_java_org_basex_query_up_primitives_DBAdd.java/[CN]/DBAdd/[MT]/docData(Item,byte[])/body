@@ -1,46 +1,5 @@
 {
-  final MemData mdata;
-  String name=string(pth);
-  if (name.endsWith("."))   RESINV.thrw(info,pth);
-  IO io=null;
-  if (doc instanceof AStr) {
-    final byte[] cont=doc.string(info);
-    io=IO.get(string(cont));
-    if (!io.exists())     WHICHRES.thrw(info,cont);
-    if (!name.endsWith("/") && (io.isDir() || io.isArchive()))     name+="/";
-  }
-  String target="";
-  final int s=name.lastIndexOf('/');
-  if (s != -1) {
-    target=name.substring(0,s);
-    name=name.substring(s + 1);
-  }
-  if (doc instanceof AStr) {
-    if (!name.isEmpty())     io.name(name);
- else     if (!(io instanceof IOContent))     name=io.name();
-  }
-  if (name.isEmpty())   RESINV.thrw(info,pth);
-  if (doc instanceof AStr) {
-    final Parser p=new DirParser(io,ctx.prop,data.meta.path).target(target);
-    final MemBuilder b=new MemBuilder(data.meta.name,p);
-    try {
-      mdata=b.build();
-    }
- catch (    final IOException ex) {
-      throw IOERR.thrw(info,ex);
-    }
-  }
- else   if (doc instanceof ANode) {
-    ANode nd=(ANode)doc;
-    if (nd.type != NodeType.DOC) {
-      if (nd.type == NodeType.ATT)       UPDOCTYPE.thrw(info,nd);
-      nd=new FDoc().add(nd);
-    }
-    mdata=(MemData)nd.dbCopy(data.meta.prop).data;
-    mdata.update(0,Data.DOC,pth);
-  }
- else {
-    throw STRNODTYPE.thrw(info,this,doc.type);
-  }
-  return mdata;
+  if (doc instanceof AStr)   return docData((AStr)doc,pth);
+  if (doc instanceof ANode)   return docData((ANode)doc,pth);
+  throw STRNODTYPE.thrw(info,this,doc.type);
 }
