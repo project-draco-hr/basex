@@ -1,18 +1,23 @@
 {
   SerializerProp sp=function.output;
   if (response != null) {
+    for (    final ANode a : response.attributes())     function.error(UNEXP_NODE,a);
     String cType=null;
     for (    final ANode n : response.children()) {
       if (HTTP_RESPONSE.eq(n)) {
-        final byte[] sta=n.attribute(new QNm(STATUS));
-        if (sta != null) {
-          final byte[] msg=n.attribute(new QNm(REASON));
-          http.status(toInt(sta),msg != null ? string(msg) : null);
+        byte[] sta=null;
+        byte[] msg=null;
+        for (        final ANode a : n.attributes()) {
+          final QNm qnm=a.qname();
+          if (qnm.eq(Q_STATUS))           sta=a.string();
+ else           if (qnm.eq(Q_REASON) || qnm.eq(Q_MESSAGE))           msg=a.string();
+ else           function.error(UNEXP_NODE,a);
         }
+        if (sta != null)         http.status(toInt(sta),msg != null ? string(msg) : null);
         for (        final ANode c : n.children()) {
           if (HTTP_HEADER.eq(c)) {
-            final byte[] nam=c.attribute(new QNm(NAME));
-            final byte[] val=c.attribute(new QNm(VALUE));
+            final byte[] nam=c.attribute(Q_NAME);
+            final byte[] val=c.attribute(Q_VALUE);
             if (nam != null && val != null) {
               final String key=string(nam);
               final String value=string(val);
@@ -24,10 +29,16 @@
               }
             }
           }
+ else {
+            function.error(UNEXP_NODE,c);
+          }
         }
       }
  else       if (OUTPUT_SERIAL.eq(n)) {
         sp=FuncParams.serializerProp(n);
+      }
+ else {
+        function.error(UNEXP_NODE,n);
       }
     }
     if (cType != null) {
