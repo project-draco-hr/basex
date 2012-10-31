@@ -2,9 +2,16 @@
   ++threadID;
   errPos=-1;
   errFile=null;
-  info.setCursor(!ok && error(msg) ? GUIConstants.CURSORHAND : GUIConstants.CURSORARROW);
+  getEditor().resetError();
   final String m=msg.replaceAll("^.*\r?\n\\[.*?\\]","").replaceAll(".*" + LINE_X.replaceAll("%",".*?") + COL,"");
-  info.setText(m,ok ? Msg.SUCCESS : Msg.ERROR).setToolTipText(ok ? null : msg);
+  if (ok) {
+    info.setCursor(GUIConstants.CURSORARROW);
+    info.setText(m,Msg.SUCCESS).setToolTipText(null);
+  }
+ else {
+    info.setCursor(error(msg) ? GUIConstants.CURSORHAND : GUIConstants.CURSORARROW);
+    info.setText(m,Msg.ERROR).setToolTipText(msg);
+  }
   if (up) {
     stop.setEnabled(false);
     refreshMark();
