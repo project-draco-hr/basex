@@ -16,10 +16,10 @@
   final EditorArea edit=find(IO.get(errFile),false);
   if (edit == null)   return true;
   final int ll=edit.last.length;
-  errPos=ll;
+  int ep=ll;
   for (int e=1, l=1, c=1; e < ll; ++c, e+=cl(edit.last,e)) {
     if (l > el || l == el && c == ec) {
-      errPos=e;
+      ep=e;
       break;
     }
     if (edit.last[e] == '\n') {
@@ -27,9 +27,10 @@
       c=0;
     }
   }
-  if (errPos < ll && Character.isLetterOrDigit(cp(edit.last,errPos))) {
-    while (errPos > 0 && Character.isLetterOrDigit(cp(edit.last,errPos - 1)))     errPos--;
+  if (ep < ll && Character.isLetterOrDigit(cp(edit.last,ep))) {
+    while (ep > 0 && Character.isLetterOrDigit(cp(edit.last,ep - 1)))     ep--;
   }
-  edit.error(errPos);
+  edit.error(ep);
+  errPos=ep;
   return true;
 }
