@@ -2,8 +2,7 @@
   String partCType=MimeTypes.TEXT_PLAIN;
   String charset=null;
   final byte[] firstLine=readLine(io);
-  if (firstLine == null || eq(firstLine,end))   return null;
-  final FElem root=new FElem(Q_PART,new Atts(HTTP,HTTPURI));
+  if (firstLine == null || eq(firstLine,end))   return false;
   if (firstLine.length == 0) {
     final byte[] p=extractPartPayload(io,sep,end,null);
     if (!status)     payloads.add(interpretPayload(p,partCType));
@@ -20,17 +19,15 @@
           final FElem hdr=new FElem(Q_HTTP_HEADER);
           hdr.add(Q_NAME,name);
           hdr.add(Q_VALUE,value);
-          root.add(hdr);
+          nl.add(hdr);
           if (eq(lc(name),CONTENT_TYPE_LC))           partCType=string(value);
         }
       }
       nextHdr=readLine(io);
     }
     final byte[] p=extractPartPayload(io,sep,end,charset);
-    if (!status) {
-      payloads.add(interpretPayload(p,partCType));
-    }
+    if (!status)     payloads.add(interpretPayload(p,partCType));
   }
-  root.add(createBody(partCType));
-  return root;
+  nl.add(createBody(partCType));
+  return true;
 }

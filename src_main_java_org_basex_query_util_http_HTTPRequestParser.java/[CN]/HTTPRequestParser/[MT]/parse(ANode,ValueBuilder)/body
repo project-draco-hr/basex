@@ -8,19 +8,11 @@
   if (payload != null) {
     final QNm pl=payload.qname();
     if (pl.eq(Q_HTTP_BODY)) {
-      Item it=null;
-      if (bodies != null) {
-        if (bodies.size() != 1)         HC_REQ.thrw(info,"Number of items with request body content differs " + "from number of body descriptors.");
-        it=bodies.next();
-      }
+      final Item it=bodies != null ? bodies.next() : null;
       parseBody(payload,it,r.payloadAttrs,r.bodyContent);
       r.isMultipart=false;
     }
  else     if (pl.eq(Q_HTTP_MULTIPART)) {
-      int i=0;
-      final AxisMoreIter ch=payload.children();
-      while (ch.next() != null)       i++;
-      if (bodies != null && bodies.size() != i)       HC_REQ.thrw(info,"Number of items with request body content differs " + "from number of body descriptors.");
       parseMultipart(payload,bodies,r.payloadAttrs,r.parts);
       r.isMultipart=true;
     }
