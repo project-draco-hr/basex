@@ -12,14 +12,13 @@
   query(_DB_CREATE.args(dbname,"<dummy/>","t1.xml"));
   query(_DB_CREATE.args(dbname,"<dummy/>","t1.xml"));
   query("doc('" + dbname + "')/root()","<dummy/>");
-  query(_DB_CREATE.args(dbname,"<dummy/>","t1.xml") + "," + _DB_CREATE.args(dbname,"<dummy/>","t1.xml"));
-  query("doc('" + dbname + "')/root()","<dummy/>");
+  error(_DB_CREATE.args(dbname) + "," + _DB_CREATE.args(dbname),Err.BXDB_CREATE);
   query(_DB_CREATE.args(dbname,FILE,"in/"));
   query(COUNT.args(COLLECTION.args(dbname + "/in/input.xml") + "/html"),"1");
   query(_DB_CREATE.args(dbname,FLDR,"test/dir"));
   query(COUNT.args(COLLECTION.args(dbname + "/test/dir")),NFLDR);
-  query(_DB_CREATE.args(dbname,""));
-  query(_DB_EXISTS.args(dbname),true);
-  query(_DB_LIST_DETAILS.args(dbname),"");
-  error(_DB_CREATE.args(""));
+  query("for $i in 1 to 5 return " + _DB_CREATE.args(" '" + dbname + "' || $i"));
+  query("for $i in 1 to 5 return " + _DB_DROP.args(" '" + dbname + "' || $i"));
+  error(_DB_CREATE.args(dbname,""),Err.WHICHRES);
+  error(_DB_CREATE.args(""),Err.BXDB_NAME);
 }

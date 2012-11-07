@@ -1,3 +1,9 @@
 {
-  if (!DropDB.drop(data.meta.name,ctx.context))   Util.err(Text.DB_NOT_DROPPED_X,data.meta.name);
+  data.finishUpdate();
+  Close.close(data,ctx.context);
+  ctx.resource.removeData(data);
+  final String name=data.meta.name;
+  data=null;
+  if (ctx.context.pinned(name))   BXDB_OPENED.thrw(info,name);
+  if (!DropDB.drop(name,ctx.context))   UPDBDROP.thrw(info,name);
 }
