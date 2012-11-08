@@ -1,0 +1,9 @@
+{
+  final ClientSession check=createClient();
+  final String dbname=NAME + "DBCreate";
+  runTwoClients(new XQuery(_DB_CREATE.args(dbname)).toString());
+  Assert.assertEquals("true",check.execute(new XQuery(_DB_EXISTS.args(dbname))));
+  runTwoClients(new XQuery(_DB_CREATE.args(dbname,FILE,"in/")).toString());
+  Assert.assertEquals("true",check.execute(new XQuery(_DB_EXISTS.args(dbname))));
+  runTwoClients(new XQuery(_DB_CREATE.args(dbname,FILE,"in/") + ",insert node <dummy/> into doc('" + dbname+ "'),"+ _DB_DROP.args(dbname)).toString());
+}
