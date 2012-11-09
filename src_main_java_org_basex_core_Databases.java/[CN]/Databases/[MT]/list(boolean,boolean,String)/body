@@ -1,8 +1,20 @@
 {
-  final Pattern pattern=Pattern.compile(null == name ? ".*" : name.matches(".*[*?,].*") ? IOFile.regex(name) : name,Prop.WIN ? Pattern.CASE_INSENSITIVE : 0);
-  final StringList dbs=new StringList();
-  if (db)   listAll(databases,dbs,pattern);
-  if (backup)   listAll(backups,dbs,pattern);
-  dbs.sort(false,true);
-  return db && backup ? dbs.unique() : dbs;
+  final Pattern pt=name == null ? null : Pattern.compile(REGEX.matcher(name).matches() ? IOFile.regex(name) : name,Prop.WIN ? Pattern.CASE_INSENSITIVE : 0);
+  final IOFile[] children=mprop.dbpath().children();
+  final StringList list=new StringList(children.length);
+  final HashSet<String> map=new HashSet<String>(children.length);
+  for (  final IOFile f : children) {
+    final String fn=f.name();
+    String add=null;
+    if (backup && fn.endsWith(IO.ZIPSUFFIX)) {
+      add=ZIPPATTERN.split(fn)[0];
+    }
+ else     if (db && f.isDir() && fn.indexOf('.') == -1) {
+      add=fn;
+    }
+    if (add != null && (pt == null || pt.matcher(add).matches()) && map.add(add)) {
+      list.add(add);
+    }
+  }
+  return list.sort(false,true);
 }

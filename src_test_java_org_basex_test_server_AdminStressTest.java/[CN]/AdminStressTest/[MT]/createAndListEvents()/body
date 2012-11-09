@@ -1,9 +1,11 @@
 {
   final CountDownLatch start=new CountDownLatch(1);
   final CountDownLatch stop=new CountDownLatch(NUM);
+  final Client[] c1=new Client[NUM];
+  final Client[] c2=new Client[NUM];
   for (int i=0; i < NUM; ++i) {
-    new Client(new CreateEvent(NAME + i),start,stop);
-    new Client(new ShowEvents(),start,stop);
+    c1[i]=new Client(new CreateEvent(NAME + i),start,stop);
+    c2[i]=new Client(new ShowEvents(),start,stop);
   }
   start.countDown();
   stop.await();
@@ -11,4 +13,6 @@
   final ClientSession cs=createClient();
   for (int i=0; i < NUM; ++i)   cs.execute("drop event " + NAME + i);
   cs.close();
+  for (  final Client c : c1)   if (c.error != null)   fail(c.error);
+  for (  final Client c : c2)   if (c.error != null)   fail(c.error);
 }
