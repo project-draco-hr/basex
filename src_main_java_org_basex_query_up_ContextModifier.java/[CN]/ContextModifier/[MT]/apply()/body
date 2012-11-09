@@ -1,6 +1,8 @@
 {
   final Collection<DatabaseUpdates> updates=pendingUpdates.values();
+  final Collection<DBCreate> creates=dbCreates.values();
   for (  final DatabaseUpdates c : updates)   c.check();
+  for (  final DBCreate c : creates)   c.prepare();
   int i=0;
   try {
     for (    final DatabaseUpdates c : updates) {
@@ -9,13 +11,11 @@
     }
     for (    final DatabaseUpdates c : updates)     c.apply();
   }
- catch (  final QueryException ex) {
-    throw ex;
-  }
- finally {
+  finally {
     for (    final DatabaseUpdates c : updates) {
       if (i-- == 0)       break;
       c.finishUpdate();
     }
   }
+  for (  final DBCreate c : creates)   c.apply();
 }

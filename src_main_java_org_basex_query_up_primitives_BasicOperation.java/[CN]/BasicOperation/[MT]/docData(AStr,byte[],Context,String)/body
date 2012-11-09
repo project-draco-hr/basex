@@ -1,0 +1,25 @@
+{
+  final QueryInput qi=new QueryInput(string(doc.string(info)));
+  if (!qi.io.exists())   WHICHRES.thrw(info,qi.original);
+  String name=string(docPath);
+  if (name.endsWith("."))   RESINV.thrw(info,docPath);
+  if (!name.endsWith("/") && (qi.io.isDir() || qi.io.isArchive()))   name+="/";
+  String target="";
+  final int s=name.lastIndexOf('/');
+  if (s != -1) {
+    target=name.substring(0,s);
+    name=name.substring(s + 1);
+  }
+  if (!name.isEmpty())   qi.io.name(name);
+ else   if (!(qi.io instanceof IOContent))   name=qi.io.name();
+  if (name.isEmpty())   RESINV.thrw(info,docPath);
+  final IOFile dbpath=ctx.mprop.dbpath(name);
+  final Parser p=new DirParser(qi.io,ctx.prop,dbpath).target(target);
+  final MemBuilder b=new MemBuilder(dbname,p);
+  try {
+    return b.build();
+  }
+ catch (  final IOException ex) {
+    throw IOERR.thrw(info,ex);
+  }
+}

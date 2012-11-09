@@ -1,0 +1,16 @@
+{
+  ctx.resource.removeData(name);
+  if (ctx.context.pinned(name))   BXDB_OPENED.thrw(info,name);
+  try {
+    data=CreateDB.create(name,Parser.emptyParser(ctx.context.prop),ctx.context);
+  }
+ catch (  final IOException ex) {
+    UPDBOPTERR.thrw(info,ex);
+  }
+  ctx.resource.addData(data);
+  if (md != null) {
+    if (!data.startUpdate())     BXDB_OPENED.thrw(null,data.meta.name);
+    data.insert(data.meta.size,-1,md);
+    data.finishUpdate();
+  }
+}

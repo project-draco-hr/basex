@@ -3,7 +3,6 @@
   final IOFile trg=mprop.dbpath(target);
   final StringList files=src.descendants();
   tf=files.size();
-  boolean ok=true;
   try {
     for (    final String file : files) {
       if (Databases.FILES.matcher(file).matches()) {
@@ -11,12 +10,11 @@
       }
       of++;
     }
+    return true;
   }
  catch (  final IOException ex) {
     Util.debug(ex);
-    ok=false;
+    DropDB.drop(target,context);
+    return false;
   }
-  if (!ok)   DropDB.drop(target,context);
- else   context.databases().add(target);
-  return ok;
 }
