@@ -6,7 +6,8 @@
   if (slimToTextChanged() && paintType == Refresh.VOID)   paintType=Refresh.RESIZE;
   super.paintComponent(g);
   gui.painting=true;
-  roots=gui.context.current().pres;
+  final Nodes nodes=gui.context.current();
+  roots=nodes.pres;
   if (roots.length == 0)   return;
   for (int i=0; !showAtts && i < roots.length; ++i) {
     if (roots[i] >= data.meta.size)     break;
@@ -20,12 +21,15 @@
   fontHeight=g.getFontMetrics().getHeight();
   if (paintType == Refresh.INIT) {
     sub=new TreeSubtree(data,showAtts);
-    tr=new TreeRects();
+    tr=new TreeRects(this);
   }
-  if (paintType == Refresh.INIT || paintType == Refresh.CONTEXT)   sub.generateBorders(c);
+  tr.nodes=nodes;
+  if (paintType == Refresh.INIT || paintType == Refresh.CONTEXT) {
+    sub.generateBorders(data,roots);
+  }
   final boolean winChange=windowSizeChanged();
   if (winChange && paintType == Refresh.VOID || paintType == Refresh.INIT || paintType == Refresh.CONTEXT || paintType == Refresh.RESIZE) {
-    treedist=tr.generateRects(sub,g,c,wstart,wwidth,slimToText);
+    treedist=tr.generateRects(sub,g,wstart,wwidth,slimToText);
     nes=treedist == -1;
     if (!nes) {
       markedImage=null;

@@ -7,6 +7,7 @@
   final int ww=view.getWidth();
   final int hh=view.getWidth();
   final Data data=view.gui.context.data();
+  final int fsz=prop.num(GUIProp.FONTSIZE);
   final int off=prop.num(GUIProp.MAPOFFSETS);
   final int rs=rects.size;
   for (int ri=0; ri < rs; ++ri) {
@@ -36,6 +37,28 @@
       g.drawLine(r.x + r.w,r.y,r.x + r.w,r.y + r.h);
       g.drawLine(r.x,r.y + r.h,r.x + r.w,r.y + r.h);
     }
-    if (r.w > 3 && r.h >= prop.num(GUIProp.FONTSIZE))     drawRectangle(g,r);
+    if (r.w <= 3 || r.h < prop.num(GUIProp.FONTSIZE))     continue;
+    r.x+=3;
+    r.w-=3;
+    final int kind=data.kind(pre);
+    if (kind == Data.ELEM || kind == Data.DOC) {
+      g.setColor(Color.black);
+      g.setFont(GUIConstants.font);
+      BaseXLayout.chopString(g,ViewData.name(prop,data,pre),r.x,r.y,r.w,fsz);
+    }
+ else {
+      g.setColor(GUIConstants.color(r.level * 2 + 8));
+      g.setFont(GUIConstants.mfont);
+      final byte[] text=ViewData.content(data,pre,false);
+      r.thumb=MapRenderer.calcHeight(g,r,text,fsz) >= r.h;
+      if (r.thumb) {
+        MapRenderer.drawThumbnails(g,r,text,fsz);
+      }
+ else {
+        MapRenderer.drawText(g,r,text,fsz);
+      }
+    }
+    r.x-=3;
+    r.w+=3;
   }
 }
