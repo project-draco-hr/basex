@@ -4,7 +4,12 @@
   for (int c=0; c < cl; ++c) {
     int ch=str.charAt(c);
     if (ch == '\r')     continue;
-    if (ch < ' ' && !ws(ch))     ch='\n';
+    if (ch < ' ' && !ws(ch)) {
+      ch='\n';
+    }
+ else     if (Character.isHighSurrogate((char)ch) && c + 1 < cl) {
+      ch=Character.toCodePoint((char)ch,str.charAt(++c));
+    }
     tb.add(ch);
   }
   final int tl=text.length;
