@@ -1,9 +1,11 @@
 {
   check();
+  boolean init=false;
   try {
     init();
     try {
       ctx.register(qp);
+      init=true;
       final Iter ir=qp.iter();
       final boolean wrap=!options.get(S_WRAP_PREFIX).isEmpty();
       final PrintOutput po=PrintOutput.get(enc ? new EncodingOutput(out) : out);
@@ -42,12 +44,10 @@
 catch (    final ProgressException ex) {
       throw new BaseXException(TIMEOUT_EXCEEDED);
     }
- finally {
-      ctx.unregister(qp);
-    }
   }
   finally {
     qp.close();
     closed=true;
+    if (init)     ctx.unregister(qp);
   }
 }
