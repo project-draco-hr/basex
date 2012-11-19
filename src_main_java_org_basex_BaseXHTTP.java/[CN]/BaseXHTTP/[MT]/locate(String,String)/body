@@ -1,0 +1,29 @@
+{
+  final IOFile trg=new IOFile(root + '/' + file);
+  final boolean create=!trg.exists();
+  IO in=new IOFile("src/main/webapp/" + file);
+  final byte[] data;
+  if (in.exists()) {
+    data=in.read();
+    IOFile res=new IOFile("src/main/resources/");
+    if (res.exists()) {
+      res=new IOFile(res,file);
+      if (!res.exists() || !Token.eq(data,res.read())) {
+        Util.errln("Updating " + res);
+        res.dir().md();
+        res.write(in.read());
+      }
+    }
+  }
+ else {
+    InputStream is=BaseXHTTP.class.getResourceAsStream('/' + file);
+    if (is == null && create)     throw new BaseXException(in + " not found.");
+    data=new IOStream(is).read();
+  }
+  if (create) {
+    Util.errln("Creating " + trg);
+    trg.dir().md();
+    trg.write(data);
+  }
+  return trg;
+}
