@@ -9,9 +9,8 @@
     for (int ex=0; ex < el; ex++) {
       final Expr e=steps[ex];
       final boolean path=!(e instanceof Bang);
-      final boolean last=ex + 1 == el;
       final ValueBuilder vb=new ValueBuilder();
-      boolean nodes=false;
+      int nodes=0;
       ctx.size=res.size();
       ctx.pos=1;
       for (Item it; (it=res.next()) != null; ) {
@@ -19,15 +18,13 @@
         ctx.value=it;
         final Iter ir=ctx.iter(e);
         for (Item i; (i=ir.next()) != null; ) {
-          if (path) {
-            if (vb.size() == 0)             nodes=i instanceof ANode;
- else             if (last && nodes != i instanceof ANode)             EVALNODESVALS.thrw(info);
-          }
+          if (path && i instanceof ANode)           nodes++;
           vb.add(i);
         }
         ctx.pos++;
       }
-      if (nodes && path) {
+      if (nodes > 0 && nodes < vb.size())       EVALNODESVALS.thrw(info);
+      if (nodes == vb.size() && path) {
         final NodeSeqBuilder nc=new NodeSeqBuilder().check();
         for (Item it; (it=vb.next()) != null; )         nc.add((ANode)it);
         res=nc.value().cache();
