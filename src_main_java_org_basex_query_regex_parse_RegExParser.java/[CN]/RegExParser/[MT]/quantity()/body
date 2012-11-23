@@ -1,15 +1,29 @@
 {
   final int[] qty=new int[2];
   jj_consume_token(NUMBER);
-  qty[0]=qty[1]=(Integer)token.getValue();
-switch (jj_ntk == -1 ? jj_ntk() : jj_ntk) {
+  try {
+    qty[0]=qty[1]=Integer.parseInt((String)token.getValue());
+  }
+ catch (  final NumberFormatException ex) {
+{
+      if (true)       throw new ParseException("Number in quantifier is too large");
+    }
+  }
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
 case COMMA:
     jj_consume_token(COMMA);
   qty[1]=-1;
-switch (jj_ntk == -1 ? jj_ntk() : jj_ntk) {
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
 case NUMBER:
   jj_consume_token(NUMBER);
-qty[1]=(Integer)token.getValue();
+try {
+  qty[1]=Integer.parseInt((String)token.getValue());
+}
+ catch (final NumberFormatException ex) {
+{
+    if (true)     throw new ParseException("Number in quantifier is too large");
+  }
+}
 if (qty[0] > qty[1]) {
 if (true) throw new ParseException("Illegal quantifier, " + "lower > upper bound: {" + qty[0] + ","+ qty[1]+ "}");
 }
