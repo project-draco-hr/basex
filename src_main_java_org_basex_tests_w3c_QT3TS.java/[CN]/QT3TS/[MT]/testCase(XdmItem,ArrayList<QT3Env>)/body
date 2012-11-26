@@ -43,6 +43,7 @@
  else {
     string=string(new IOFile(base,qfile).read());
   }
+  if (verbose)   Util.outln(name);
   final XQuery query=new XQuery(string,ctx);
   if (b != null)   query.baseURI(b);
   final String qm="for $m in *:module return ($m/@uri, $m/@file)";
@@ -92,8 +93,10 @@ catch (  final Throwable ex) {
     Util.errln("Query: " + name);
     ex.printStackTrace();
   }
-  final long time=perf.time() / 1000000;
-  if (verbose && time > 100)   Util.outln(name + ": " + time+ " ms");
+  if (slow) {
+    final long time=perf.time() / 1000000;
+    if (time > 100)     Util.outln(name + ": " + time+ " ms");
+  }
   ctx.prop.set(Prop.XQUERY3,true);
   final String msg=test(result,expected);
   final TokenBuilder tmp=new TokenBuilder();
