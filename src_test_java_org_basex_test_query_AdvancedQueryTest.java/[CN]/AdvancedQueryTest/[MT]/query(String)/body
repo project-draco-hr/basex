@@ -2,9 +2,13 @@
   final QueryProcessor qp=new QueryProcessor(query,context);
   qp.ctx.sc.baseURI(".");
   try {
-    return qp.execute().toString().replaceAll("(\\r|\\n)+ *","");
+    final ArrayOutput ao=new ArrayOutput();
+    final Serializer ser=qp.getSerializer(ao);
+    qp.execute().serialize(ser);
+    ser.close();
+    return ao.toString().replaceAll("(\\r|\\n)+ *","");
   }
- catch (  final QueryException ex) {
+ catch (  final Exception ex) {
     fail("Query failed:\n" + query + "\nMessage: "+ ex.getMessage());
     return null;
   }
