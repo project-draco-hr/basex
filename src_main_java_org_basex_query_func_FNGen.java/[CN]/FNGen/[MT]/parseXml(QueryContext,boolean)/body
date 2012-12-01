@@ -1,4 +1,6 @@
 {
+  final Item item=expr[0].item(ctx,info);
+  if (item == null)   return null;
   final byte[] cont=checkEStr(expr[0],ctx);
   Uri base=ctx.sc.baseURI();
   if (expr.length == 2) {
@@ -6,10 +8,16 @@
     if (!base.isValid())     BASEINV.thrw(info,base);
   }
   final IO io=new IOContent(cont,string(base.string()));
+  final Prop prop=ctx.context.prop;
+  final boolean chop=prop.is(Prop.CHOP);
   try {
-    return new DBNode(io,ctx.context.prop);
+    prop.set(Prop.CHOP,false);
+    return new DBNode(new XMLParser(io,ctx.context.prop,frag));
   }
  catch (  final IOException ex) {
     throw SAXERR.thrw(info,ex);
+  }
+ finally {
+    prop.set(Prop.CHOP,chop);
   }
 }
