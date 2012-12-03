@@ -1,7 +1,23 @@
 {
-  String str=xc.toXMLFormat();
-  if (fixMonth && str.endsWith("--"))   str=str.substring(0,str.length() - 2);
-  str=TOSTRING1.matcher(str).replaceAll("$1");
-  str=TOSTRING2.matcher(str).replaceAll("$1$2");
-  return Token.token(str);
+  final TokenBuilder tb=new TokenBuilder();
+  final boolean ymd=yea != Long.MAX_VALUE;
+  if (ymd) {
+    if (yea <= 0)     tb.add('-');
+    prefix(tb,Math.abs(yea()),4);
+    tb.add('-');
+    prefix(tb,mon(),2);
+    tb.add('-');
+    prefix(tb,day(),2);
+  }
+  if (hou >= 0) {
+    if (ymd)     tb.add('T');
+    prefix(tb,hou(),2);
+    tb.add(':');
+    prefix(tb,min(),2);
+    tb.add(':');
+    if (sec.intValue() < 10)     tb.add('0');
+    tb.addExt(Token.chopNumber(Token.token(sec().abs().toPlainString())));
+  }
+  zone(tb);
+  return tb.finish();
 }

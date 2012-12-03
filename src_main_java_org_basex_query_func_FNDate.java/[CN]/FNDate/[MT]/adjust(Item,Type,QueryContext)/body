@@ -1,0 +1,14 @@
+{
+  final ADate ad;
+  if (it.type.isUntyped()) {
+    ad=(ADate)t.cast(it,ctx,info);
+  }
+ else {
+    final ADate a=(ADate)checkType(it,t);
+    ad=t == AtomType.TIM ? new Tim(a) : t == AtomType.DAT ? new Dat(a) : new Dtm(a);
+  }
+  final boolean spec=expr.length == 2;
+  final Item zon=spec ? expr[1].item(ctx,info) : null;
+  ad.timeZone(zon == null ? null : (DTDur)checkType(zon,AtomType.DTD),spec,info);
+  return ad;
+}
