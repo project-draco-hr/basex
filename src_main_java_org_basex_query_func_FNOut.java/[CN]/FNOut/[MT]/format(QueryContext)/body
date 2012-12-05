@@ -2,7 +2,8 @@
   final String form=string(checkStr(expr[0],ctx));
   final Object[] args=new Object[expr.length - 1];
   for (int e=1; e < expr.length; e++) {
-    args[e - 1]=expr[e].item(ctx,info).toJava();
+    final Item it=expr[e].item(ctx,info);
+    args[e - 1]=it.type.isUntyped() ? string(it.string(info)) : it.toJava();
   }
   try {
     return Str.get(String.format(form,args));
