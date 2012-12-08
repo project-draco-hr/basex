@@ -45,7 +45,7 @@
     selectAll();
     return;
   }
-  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e);
+  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e)&& !PREVPAGE_RO.is(e);
   final boolean nomark=!text.selecting();
   if (marking && nomark)   text.startSelect();
   boolean down=true;
@@ -74,12 +74,12 @@
  else   if (LINEEND.is(e)) {
     text.eol(marking);
   }
- else   if (NEXTPAGE.is(e)) {
-    down(getHeight() / fh,marking);
-  }
- else   if (PREVPAGE.is(e)) {
+ else   if (PREVPAGE.is(e) || !hist.active() && PREVPAGE_RO.is(e)) {
     up(getHeight() / fh,marking);
     down=false;
+  }
+ else   if (NEXTPAGE.is(e) || !hist.active() && NEXTPAGE_RO.is(e)) {
+    down(getHeight() / fh,marking);
   }
  else   if (NEXT.is(e)) {
     text.next(marking);
