@@ -1,0 +1,26 @@
+{
+  if (o instanceof UpdatePrimitive) {
+    for (    final UpdatePrimitive subp : ((UpdatePrimitive)o).substitute(tmp)) {
+      final int pre=subp.targetPre;
+      NodeUpdates pc=updatePrimitives.get(pre);
+      if (pc == null) {
+        pc=new NodeUpdates();
+        updatePrimitives.add(pre,pc);
+      }
+      pc.add(subp);
+    }
+  }
+ else   if (o instanceof Put) {
+    final Put p=(Put)o;
+    final int id=p.nodeid;
+    final Put old=puts.get(id);
+    if (old == null)     puts.put(id,p);
+ else     old.merge(p);
+  }
+ else {
+    final BasicOperation oo=(BasicOperation)o;
+    final BasicOperation d=find(oo);
+    if (d == null)     dbops.add(oo);
+ else     d.merge(oo);
+  }
+}
