@@ -7,10 +7,14 @@
     wsCheck(ELEMENT);
     wsCheck(NSPACE);
   }
-  final byte[] ns=stringLiteral();
+  byte[] ns=stringLiteral();
   if (ns.length == 0)   error(NSEMPTY);
+  if (!Uri.uri(ns).isValid())   error(INVURI,ns);
   if (wsConsumeWs(AT)) {
-    do     stringLiteral();
+    do {
+      ns=stringLiteral();
+      if (!Uri.uri(ns).isValid())       error(INVURI,ns);
+    }
  while (wsConsumeWs(COMMA));
   }
   error(IMPLSCHEMA);
