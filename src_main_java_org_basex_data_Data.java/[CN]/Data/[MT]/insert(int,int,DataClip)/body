@@ -1,0 +1,115 @@
+{
+  meta.update();
+  if (meta.updindex)   indexBegin();
+  resources.insert(ipre,clip);
+  final int dsize=clip.size();
+  final int buf=Math.min(dsize,IO.BLOCKSIZE >> IO.NODEPOWER);
+  buffer(buf);
+  final TokenMap nsScope=new TokenMap();
+  NSNode n=nspaces.current;
+  do {
+    for (int i=0; i < n.vals.length; i+=2)     nsScope.add(nspaces.prefix(n.vals[i]),nspaces.uri(n.vals[i + 1]));
+    final int pos=n.fnd(ipar);
+    if (pos < 0)     break;
+    n=n.ch[pos];
+  }
+ while (n.pre <= ipar && ipar < n.pre + size(n.pre,ELEM));
+  final IntList preStack=new IntList();
+  final NSNode t=nspaces.current;
+  final HashSet<NSNode> newNodes=new HashSet<NSNode>();
+  final IntList flagPres=new IntList();
+  final Data data=clip.data;
+  int c=0;
+  for (int dpre=clip.start; dpre < clip.end; ++dpre, ++c) {
+    if (c != 0 && c % buf == 0)     insert(ipre + c - buf);
+    final int pre=ipre + c;
+    final int dkind=data.kind(dpre);
+    final int dpar=data.parent(dpre,dkind);
+    final int dis=dpar >= clip.start ? dpre - dpar : ipar >= 0 ? pre - ipar : 0;
+    final int par=dis == 0 ? -1 : pre - dis;
+    if (c == 0) {
+      final List<NSNode> cand=new LinkedList<NSNode>();
+      NSNode cn=nspaces.root;
+      cand.add(cn);
+      for (int cI; (cI=cn.fnd(par)) > -1; ) {
+        cn=cn.ch[cI];
+        cand.add(0,cn);
+      }
+      cn=nspaces.root;
+      if (cand.size() > 1) {
+        int ancPre=par;
+        NSNode curr=cand.remove(0);
+        while (ancPre > -1 && cn == nspaces.root) {
+          if (curr.pre == ancPre)           cn=curr;
+ else           if (curr.pre < ancPre) {
+            while ((ancPre=parent(ancPre,kind(ancPre))) > curr.pre)             ;
+            if (curr.pre == ancPre)             cn=curr;
+          }
+          if (!cand.isEmpty())           curr=cand.remove(0);
+        }
+      }
+      nspaces.setNearestRoot(cn,par);
+    }
+    while (!preStack.isEmpty() && preStack.peek() > par)     nspaces.close(preStack.pop());
+switch (dkind) {
+case DOC:
+      final int s=data.size(dpre,dkind);
+    doc(pre,s,data.text(dpre,true));
+  meta.ndocs++;
+nspaces.open();
+preStack.push(pre);
+break;
+case ELEM:
+boolean ne=false;
+if (data.nsFlag(dpre)) {
+final Atts at=data.ns(dpre);
+for (int a=0; a < at.size(); ++a) {
+final byte[] old=nsScope.get(at.name(a));
+if (old == null || !eq(old,at.string(a))) {
+newNodes.add(nspaces.add(at.name(a),at.string(a),pre));
+ne=true;
+}
+}
+}
+nspaces.open();
+byte[] nm=data.name(dpre,dkind);
+elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),nspaces.uri(nm,true),ne);
+preStack.push(pre);
+break;
+case TEXT:
+case COMM:
+case PI:
+text(pre,dis,data.text(dpre,true),dkind);
+break;
+case ATTR:
+nm=data.name(dpre,dkind);
+final byte[] attPref=prefix(nm);
+if (data.nsFlag(dpre) && nsScope.get(attPref) == null) {
+nspaces.add(par,preStack.size() == 0 ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(dpre,dkind)));
+flagPres.add(par);
+}
+attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),nspaces.uri(nm,false),false);
+break;
+}
+}
+while (!preStack.isEmpty()) nspaces.close(preStack.pop());
+nspaces.setRoot(t);
+if (bp != 0) insert(ipre + c - 1 - (c - 1) % buf);
+buffer(1);
+for (int f=0; f < flagPres.size(); f++) {
+final int fl=flagPres.get(f);
+table.write2(fl,1,name(fl) | 1 << 15);
+}
+int p=ipar;
+while (p >= 0) {
+final int k=kind(p);
+size(p,k,size(p,k) + dsize);
+p=parent(p,k);
+}
+if (meta.updindex) {
+idmap.insert(ipre,id(ipre),dsize);
+indexEnd();
+}
+if (!cache) updateDist(ipre + dsize,dsize);
+if (ipar != -1) nspaces.insert(ipre,dsize,newNodes);
+}
