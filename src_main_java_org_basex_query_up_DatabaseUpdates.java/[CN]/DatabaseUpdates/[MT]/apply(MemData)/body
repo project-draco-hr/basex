@@ -1,14 +1,12 @@
 {
   createAtomicUpdates(preparePrimitives()).execute(true);
-  final BasicOperation[] dbo=new BasicOperation[dbops.size()];
-  dbops.toArray(dbo);
-  Arrays.sort(dbo);
-  for (  final BasicOperation d : dbo) {
+  Collections.sort(dbops);
+  for (  final BasicOperation d : dbops) {
     d.prepare(tmp);
     d.apply();
   }
-  final Put[] o=puts.values().toArray(new Put[puts.values().size()]);
-  for (  final Put p : o)   p.apply();
+  final int s=puts.size();
+  for (int i=1; i <= s; i++)   puts.value(i).apply();
   if (data.meta.prop.is(Prop.WRITEBACK) && !data.meta.original.isEmpty()) {
     try {
       Export.export(data,data.meta.original,null);

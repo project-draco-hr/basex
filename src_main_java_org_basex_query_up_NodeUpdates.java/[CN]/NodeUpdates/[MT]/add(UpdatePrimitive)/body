@@ -1,19 +1,22 @@
 {
-  if (prim == null) {
-    prim=new UpdatePrimitive[]{p};
-    return;
-  }
   final int typeIndex=index(p.type);
-  if (typeIndex != -1) {
-    final UpdatePrimitive up=prim[typeIndex];
-    if (up instanceof InsertInto) {
-      final InsertInto oldprim=(InsertInto)up;
-      final InsertInto newprim=(InsertInto)p;
-      if (newprim.rec)       prim[typeIndex]=newprim;
-      if (!oldprim.rec && !newprim.rec)       up.merge(p);
-    }
- else     up.merge(p);
-    return;
+  if (typeIndex == -1) {
+    prim.add(p);
   }
-  addToPrimitives(p);
+ else {
+    final UpdatePrimitive up=prim.get(typeIndex);
+    if (up instanceof InsertInto) {
+      final InsertInto oprim=(InsertInto)up;
+      final InsertInto nprim=(InsertInto)p;
+      if (nprim instanceof ReplaceContent) {
+        prim.set(typeIndex,nprim);
+      }
+ else       if (!(oprim instanceof ReplaceContent || nprim instanceof ReplaceContent)) {
+        up.merge(p);
+      }
+    }
+ else {
+      up.merge(p);
+    }
+  }
 }
