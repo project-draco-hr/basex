@@ -1,0 +1,28 @@
+{
+  List<UpdatePrimitive> primnew=new ArrayList<UpdatePrimitive>();
+  final DeleteNode del=(DeleteNode)find(DELETENODE);
+  if (del != null && del.rec) {
+    primnew.add(del);
+    prim=null;
+    return primnew;
+  }
+  final ReplaceNode replace=(ReplaceNode)find(REPLACENODE);
+  if (replace != null) {
+    for (    final UpdatePrimitive p : prim) {
+      if (p.type == REPLACENODE || p.type == INSERTBEFORE || p.type == INSERTAFTER)       primnew.add(p);
+    }
+    prim=null;
+    return primnew;
+  }
+  final ReplaceValue rec=(ReplaceValue)find(REPLACEVALUE);
+  if (rec != null && rec.rec) {
+    for (    final UpdatePrimitive p : prim) {
+      if (p.type != INSERTINTOFIRST && p.type != INSERTINTO && p.type != INSERTINTOLAST || p.type == INSERTINTO && p instanceof ReplaceContent)       primnew.add(p);
+    }
+    prim=null;
+    return primnew;
+  }
+  primnew=prim;
+  prim=null;
+  return primnew;
+}
