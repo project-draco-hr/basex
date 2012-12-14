@@ -6,16 +6,20 @@
   int a=0;
   for (  final Class<?> par : params) {
     final Value arg=args[s + a];
-    final Object next;
     if (par.isInstance(arg)) {
-      next=arg;
+      val[a++]=arg;
+      continue;
     }
- else {
-      final Type jtype=type(par);
-      if (jtype == null || !arg.type.instanceOf(jtype) && !jtype.instanceOf(arg.type))       return null;
-      next=arg.toJava();
+    if (arg instanceof Jav) {
+      final Object jav=((Jav)arg).toJava();
+      if (par.isInstance(jav)) {
+        val[a++]=jav;
+        continue;
+      }
     }
-    val[a++]=next;
+    final Type jtype=type(par);
+    if (jtype == null || !arg.type.instanceOf(jtype) && !jtype.instanceOf(arg.type))     return null;
+    val[a++]=arg.toJava();
   }
   return val;
 }
