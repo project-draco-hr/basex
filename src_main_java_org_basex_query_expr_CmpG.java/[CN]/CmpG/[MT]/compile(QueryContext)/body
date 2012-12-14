@@ -4,7 +4,18 @@
     op=op.swap();
     ctx.compInfo(OPTSWAP,this);
   }
-  for (int e=0; e != expr.length; ++e)   expr[e]=expr[e].addText(ctx);
+  if (op == OpG.EQ) {
+    boolean add=true;
+    if (expr[1].isValue()) {
+      final Value v=(Value)expr[1];
+      add=v.type.isStringOrUntyped();
+      final ValueIter ir=v.iter(ctx);
+      for (Item it; add && (it=ir.next()) != null; ) {
+        add=it.string(info).length != 0;
+      }
+    }
+    if (add)     for (int e=0; e != expr.length; ++e)     expr[e]=expr[e].addText(ctx);
+  }
   final Expr e1=expr[0];
   final Expr e2=expr[1];
   Expr e=this;
