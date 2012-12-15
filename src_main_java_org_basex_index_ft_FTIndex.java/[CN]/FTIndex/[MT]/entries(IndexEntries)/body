@@ -4,16 +4,14 @@
     int ti=prefix.length - 1, i, e, nr;
     boolean inner;
     @Override public synchronized byte[] next(){
-      if (inner) {
-        if (i < e) {
-          final byte[] entry=inY.readBytes(i,ti);
-          if (startsWith(entry,prefix)) {
-            final long poi=inY.read5();
-            nr=inY.read4();
-            if (prefix.length != 0)             cache.add(entry,nr,poi);
-            i+=ti + ENTRY;
-            return entry;
-          }
+      if (inner && i < e) {
+        final byte[] entry=inY.readBytes(i,ti);
+        if (startsWith(entry,prefix)) {
+          final long poi=inY.read5();
+          nr=inY.read4();
+          if (prefix.length != 0)           cache.add(entry,nr,poi);
+          i+=ti + ENTRY;
+          return entry;
         }
       }
       while (++ti < tp.length - 1) {
