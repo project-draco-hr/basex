@@ -1,25 +1,22 @@
 {
   if (module instanceof QueryModule)   ((QueryModule)module).context=ctx;
-  try {
+  final Object[] args=JavaFunc.args(mth.getParameterTypes(),vals,true);
+  if (args != null) {
     try {
-      return mth.invoke(module,(Object[])args);
+      return mth.invoke(module,args);
     }
- catch (    final IllegalArgumentException iae) {
-      final Object[] ar=new Object[args.length];
-      for (int a=0; a < args.length; a++)       ar[a]=args[a].toJava();
-      return mth.invoke(module,ar);
+ catch (    final InvocationTargetException ex) {
+      final Throwable cause=ex.getCause();
+      throw cause instanceof QueryException ? ((QueryException)cause).info(info) : JAVAERR.thrw(info,cause);
+    }
+catch (    final IllegalAccessException ex) {
+      Util.debug(ex);
     }
   }
- catch (  final InvocationTargetException ex) {
-    final Throwable cause=ex.getCause();
-    throw cause instanceof QueryException ? ((QueryException)cause).info(info) : JAVAERR.thrw(info,cause);
+  final TokenBuilder expect=new TokenBuilder();
+  for (  final Class<?> c : mth.getParameterTypes()) {
+    if (!expect.isEmpty())     expect.add(", ");
+    expect.add(c.getSimpleName());
   }
-catch (  final Throwable ex) {
-    final TokenBuilder expect=new TokenBuilder();
-    for (    final Class<?> c : mth.getParameterTypes()) {
-      if (!expect.isEmpty())       expect.add(", ");
-      expect.add(c.getSimpleName());
-    }
-    throw JAVAMOD.thrw(info,mth.getName() + '(' + expect+ ')',mth.getName() + '(' + foundArgs(args)+ ')');
-  }
+  throw JAVAMOD.thrw(info,mth.getName() + '(' + expect+ ')',mth.getName() + '(' + foundArgs(vals)+ ')');
 }
