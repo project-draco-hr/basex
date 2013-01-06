@@ -1,63 +1,69 @@
 {
-  final int s=ctx.vars.size();
-  final ForLet[] fl=forLet();
-  if (fl == null)   return null;
-  Expr where=null;
-  if (wsConsumeWs(WHERE)) {
-    ap=ip;
-    where=check(single(),NOWHERE);
-    alter=NOWHERE;
-  }
-  Group group=null;
-  if (ctx.sc.xquery3() && wsConsumeWs(GROUP)) {
-    wsCheck(BY);
-    ap=ip;
-    GroupSpec[] grp=null;
-    do     grp=groupSpec(fl,grp);
- while (wsConsume(COMMA));
-    final ArrayList<Var> ng=new ArrayList<Var>();
-    final TokenSet set=new TokenSet();
-    for (    final GroupSpec spec : grp) {
-      if (!spec.assign)       set.add(spec.var.name.id());
+  final int s=scope.open();
+  ArrayList<Clause> clauses=initialClause(null);
+  if (clauses == null)   return null;
+  TokenObjMap<Var> curr=new TokenObjMap<Var>();
+  for (  final Clause fl : clauses)   for (  final Var v : fl.vars())   curr.add(v.name.id(),v);
+  int size;
+  do {
+    do {
+      size=clauses.size();
+      initialClause(clauses);
+      for (int i=size; i < clauses.size(); i++)       for (      final Var v : clauses.get(i).vars())       curr.add(v.name.id(),v);
     }
-    for (int i=fl.length; --i >= 0; ) {
-      for (      final Var v : fl[i].vars()) {
-        final byte[] eqn=v.name.id();
-        if (!set.contains(eqn)) {
-          ng.add(v);
-          set.add(eqn);
-        }
+ while (size < clauses.size());
+    if (wsConsumeWs(WHERE)) {
+      ap=ip;
+      clauses.add(new Where(check(single(),NOWHERE),info()));
+      alter=NOWHERE;
+    }
+    if (ctx.sc.xquery3() && wsConsumeWs(GROUP)) {
+      wsCheck(BY);
+      ap=ip;
+      GroupBy.Spec[] grp=null;
+      do       grp=groupSpec(clauses,grp);
+ while (wsConsume(COMMA));
+      final ArrayList<LocalVarRef> ng=new ArrayList<LocalVarRef>();
+      for (      final GroupBy.Spec spec : grp)       curr.add(spec.var.name.id(),spec.var);
+      vars:       for (int i=0; i < curr.size(); i++) {
+        final Var v=curr.value(i + 1);
+        for (        final GroupBy.Spec spec : grp)         if (spec.var.is(v))         continue vars;
+        ng.add(new LocalVarRef(grp[0].info,v));
       }
+      final Var[] ngrp=new Var[ng.size()];
+      for (int i=ng.size(); --i >= 0; ) {
+        final LocalVarRef v=ng.get(i);
+        final Var nv=addLocal(v.var.name,null,false);
+        if (v.type().one())         nv.refineType(SeqType.get(v.type().type,Occ.ONE_MORE),grp[0].info);
+        ngrp[i]=nv;
+        curr.add(nv.name.id(),nv);
+      }
+      final LocalVarRef[] pre=new LocalVarRef[ng.size()];
+      clauses.add(new GroupBy(grp,ng.toArray(pre),ngrp,grp[0].info));
+      alter=GRPBY;
     }
-    final Var[] ngrp=new Var[ng.size()];
-    for (int i=ng.size(); --i >= 0; ) {
-      final Var v=ng.get(i);
-      ngrp[i]=Var.create(ctx,info(),v.name,v.type != null && v.type.one() ? SeqType.get(v.type.type,Occ.ONE_MORE) : null,null);
-      ctx.vars.add(ngrp[i]);
-    }
-    group=new Group(grp[0].info,grp,new Var[][]{ng.toArray(new Var[ng.size()]),ngrp});
-    alter=GRPBY;
-  }
-  Order order=null;
-  final boolean stable=wsConsumeWs(STABLE);
-  if (stable)   wsCheck(ORDER);
-  if (stable || wsConsumeWs(ORDER)) {
-    wsCheck(BY);
-    ap=ip;
-    OrderBy[] ob=null;
-    do     ob=orderSpec(ob);
+    final boolean stable=wsConsumeWs(STABLE);
+    if (stable)     wsCheck(ORDER);
+    if (stable || wsConsumeWs(ORDER)) {
+      wsCheck(BY);
+      ap=ip;
+      OrderBy.Key[] ob=null;
+      do       ob=orderSpec(ob);
  while (wsConsume(COMMA));
-    if (ob != null) {
-      ob=Array.add(ob,new OrderByStable(info()));
-      order=new Order(ob[0].info,ob);
+      final LocalVarRef[] vs=new LocalVarRef[curr.size()];
+      for (int i=0; i < vs.length; i++)       vs[i]=new LocalVarRef(ob[0].info,curr.value(i + 1));
+      clauses.add(new OrderBy(vs,ob,stable,ob[0].info));
+      alter=ORDERBY;
     }
-    alter=ORDERBY;
+    if (ctx.sc.xquery3() && wsConsumeWs(COUNT,DOLLAR,NOCOUNT)) {
+      final Var v=addLocal(varName(),SeqType.ITR,false);
+      curr.add(v.name.id(),v);
+      clauses.add(new Count(v,info()));
+    }
   }
-  if (!wsConsumeWs(RETURN)) {
-    if (alter != null)     error();
-    error(FLWORRETURN);
-  }
+ while (ctx.sc.xquery3() && size < clauses.size());
+  if (!wsConsumeWs(RETURN))   throw alter != null ? error() : error(FLWORRETURN);
   final Expr ret=check(single(),NORETURN);
-  ctx.vars.size(s);
-  return GFLWOR.get(fl,where,order,group,ret,info());
+  scope.close(s);
+  return new GFLWOR(clauses.get(0).info,clauses,ret);
 }

@@ -1,0 +1,17 @@
+{
+  super.compile(ctx,scp);
+  func.compile(ctx,scp);
+  if (func.expr.isValue() && allAreValues() && !func.uses(Use.NDT)) {
+    final Value[] sf=func.scope.enter(ctx);
+    try {
+      for (int a=0; a < expr.length; ++a)       ctx.set(func.args[a],(Value)expr[a],info);
+    }
+  finally {
+      func.scope.exit(ctx,sf);
+    }
+    ctx.compInfo(OPTINLINE,func.name.string());
+    return func.value(ctx);
+  }
+  type=func.type();
+  return this;
+}

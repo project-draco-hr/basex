@@ -1,0 +1,18 @@
+{
+  final BitArray used=new BitArray();
+  final VarVisitor marker=new VarVisitor(){
+    @Override public boolean used(    final LocalVarRef ref){
+      used.set(ref.var.id);
+      return true;
+    }
+  }
+;
+  ret.visitVars(marker);
+  boolean change=false;
+  for (int i=clauses.size(); --i >= 0; ) {
+    final Clause curr=clauses.get(i);
+    change|=curr.clean(ctx,used);
+    curr.visitVars(marker);
+  }
+  return change;
+}

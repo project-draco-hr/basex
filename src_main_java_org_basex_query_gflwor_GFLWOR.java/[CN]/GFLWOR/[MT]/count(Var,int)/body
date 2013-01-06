@@ -1,0 +1,17 @@
+{
+  final int[] count=new int[1];
+  final VarVisitor uses=new VarVisitor(){
+    @Override public boolean used(    final LocalVarRef ref){
+      return !ref.var.is(v) || ++count[0] == 1;
+    }
+  }
+;
+  final int sz=clauses.size();
+  int n=sz;
+  for (int i=p + 1; i < sz; i++) {
+    if (!clauses.get(i).visitVars(uses))     return -1;
+    if (count[0] == 1 && n == sz)     n=i;
+  }
+  if (!ret.visitVars(uses))   return -1;
+  return n * count[0];
+}

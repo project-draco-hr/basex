@@ -1,14 +1,15 @@
 {
-  final VarStack cs=ctx.vars.cache(args.length);
+  final Value[] sf=ctx.stackFrame;
+  ctx.stackFrame=stackSize == 0 ? null : new Value[stackSize];
   final Value cv=ctx.value;
   try {
-    bindVars(ctx,args);
+    bindVars(ctx,ii,args);
     ctx.value=null;
     final Item it=expr.item(ctx,ii);
     return cast != null ? cast.cast(it,false,ctx,ii,expr) : it;
   }
   finally {
     ctx.value=cv;
-    ctx.vars.reset(cs);
+    ctx.stackFrame=sf;
   }
 }

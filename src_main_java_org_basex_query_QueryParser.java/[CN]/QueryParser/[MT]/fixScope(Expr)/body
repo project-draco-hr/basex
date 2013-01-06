@@ -1,0 +1,21 @@
+{
+  try {
+    e.visitVars(new VarVisitor(){
+      @Override public boolean used(      final LocalVarRef ref){
+        try {
+          final VarRef lc=scope.resolve(ref.var.name,QueryParser.this,ctx,ref.info,VARUNDEF);
+          ref.var=((LocalVarRef)lc).var;
+          return true;
+        }
+ catch (        QueryException ex) {
+          throw new QueryRTException(ex);
+        }
+      }
+    }
+);
+  }
+ catch (  final QueryRTException qe) {
+    throw qe.wrapped();
+  }
+  return e;
+}

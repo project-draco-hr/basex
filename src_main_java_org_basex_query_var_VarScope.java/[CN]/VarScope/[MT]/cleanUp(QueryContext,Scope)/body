@@ -1,0 +1,21 @@
+{
+  final BitSet declared=new BitSet();
+  final AtomicInteger counter=new AtomicInteger();
+  expr.visit(new VarVisitor(){
+    @Override public boolean declared(    final Var var){
+      declared.set(var.id);
+      var.slot=counter.getAndIncrement();
+      return true;
+    }
+  }
+);
+  final Iterator<Var> iter=vars.iterator();
+  while (iter.hasNext()) {
+    final Var v=iter.next();
+    if (!declared.get(v.id)) {
+      ctx.compInfo(QueryText.OPTVAR,v);
+      v.slot=-1;
+      iter.remove();
+    }
+  }
+}

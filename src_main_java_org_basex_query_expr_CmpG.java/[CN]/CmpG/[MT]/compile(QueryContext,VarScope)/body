@@ -1,0 +1,52 @@
+{
+  super.compile(ctx,scp);
+  if (swap()) {
+    op=op.swap();
+    ctx.compInfo(OPTSWAP,this);
+  }
+  boolean add=true;
+  if (expr[1].isValue() && ((Value)expr[1]).type.isStringOrUntyped()) {
+    final Iter ir=expr[1].iter(ctx);
+    for (Item it; add && (it=ir.next()) != null; ) {
+      add=it.string(info).length != 0;
+    }
+  }
+  if (add)   for (int e=0; e != expr.length; ++e)   expr[e]=expr[e].addText(ctx);
+  final Expr e1=expr[0];
+  final Expr e2=expr[1];
+  Expr e=this;
+  if (oneIsEmpty()) {
+    e=optPre(Bln.FALSE,ctx);
+  }
+ else   if (allAreValues()) {
+    e=preEval(ctx);
+  }
+ else   if (e1.isFunction(Function.COUNT)) {
+    e=compCount(op.op);
+    if (e != this)     ctx.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
+  }
+ else   if (e1.isFunction(Function.POSITION)) {
+    if (e2 instanceof RangeSeq && op.op == OpV.EQ) {
+      final long p1=((RangeSeq)e2).itemAt(0).itr(info);
+      final long p2=p1 + e2.size() - 1;
+      e=Pos.get(p1,p2,info);
+    }
+ else {
+      e=Pos.get(op.op,e2,e,info);
+    }
+    if (e != this)     ctx.compInfo(OPTWRITE,this);
+  }
+ else   if (e1.type().eq(SeqType.BLN) && (op == OpG.EQ && e2 == Bln.FALSE || op == OpG.NE && e2 == Bln.TRUE)) {
+    e=Function.NOT.get(info,e1);
+    ctx.compInfo(OPTWRITE,this);
+  }
+ else {
+    e=CmpR.get(this);
+    if (e == this)     e=CmpSR.get(this);
+    if (e != this)     ctx.compInfo(OPTWRITE,this);
+  }
+  if (e != this)   return e;
+  atomic=e1.type().zeroOrOne() && e2.type().zeroOrOne();
+  if (atomic)   ctx.compInfo(OPTATOMIC,this);
+  return this;
+}

@@ -1,0 +1,38 @@
+{
+  final InputInfo ii=info();
+  final QNm name=varName();
+  final SeqType type=optAsType();
+  final Expr by;
+  if (type != null || wsConsume(ASSIGN)) {
+    if (type != null)     wsCheck(ASSIGN);
+    by=check(single(),NOVARDECL);
+  }
+ else {
+    final VarRef vr=checkVar(name,GVARNOTDEFINED);
+    boolean dec=false;
+    if (vr instanceof LocalVarRef) {
+      final Var v=((LocalVarRef)vr).var;
+      for (      final Clause f : cl) {
+        if (f.declares(v)) {
+          dec=true;
+          break;
+        }
+      }
+    }
+    if (!dec)     throw error(GVARNOTDEFINED,vr);
+    by=vr;
+  }
+  if (wsConsumeWs(COLLATION)) {
+    final byte[] coll=stringLiteral();
+    if (!eq(URLCOLL,coll))     throw error(WHICHCOLL,coll);
+  }
+  final GroupBy.Spec grp=new GroupBy.Spec(ii,addLocal(name,type,false),by);
+  if (group == null)   return new GroupBy.Spec[]{grp};
+  for (int i=group.length; --i >= 0; ) {
+    if (group[i].var.name.eq(name)) {
+      group[i].occluded=true;
+      break;
+    }
+  }
+  return Array.add(group,grp);
+}

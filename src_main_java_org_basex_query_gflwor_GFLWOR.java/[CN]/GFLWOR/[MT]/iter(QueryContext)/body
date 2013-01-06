@@ -1,0 +1,39 @@
+{
+  Eval e=new Eval(){
+    /** 
+ * First-evaluation flag. 
+ */
+    private boolean first=true;
+    @Override public boolean next(    final QueryContext c){
+      if (!first)       return false;
+      first=false;
+      return true;
+    }
+  }
+;
+  for (  final Clause cls : clauses)   e=cls.eval(e);
+  final Eval ev=e;
+  return new Iter(){
+    /** 
+ * Return iterator. 
+ */
+    private Iter sub=Empty.ITER;
+    /** 
+ * If the iterator has been emptied. 
+ */
+    private boolean drained;
+    @Override public Item next() throws QueryException {
+      if (drained)       return null;
+      while (true) {
+        final Item it=sub.next();
+        if (it != null)         return it;
+        if (!ev.next(ctx)) {
+          drained=true;
+          return null;
+        }
+        sub=ret.iter(ctx);
+      }
+    }
+  }
+;
+}

@@ -1,10 +1,10 @@
 {
-  Expr fun=func;
-  Var[] args=args(ctx);
+  UserFunc fun=func;
+  Value[] args=args(ctx);
   final int calls=ctx.tailCalls;
   try {
     do {
-      final VarStack cs=addArgs(ctx,args);
+      final Value[] sf=addArgs(ctx,ii,fun.scope,fun.args,args);
       ctx.tailCalls=0;
       try {
         return fun.item(ctx,ii);
@@ -14,7 +14,7 @@
         args=c.getArgs();
       }
  finally {
-        ctx.vars.reset(cs);
+        fun.scope.exit(ctx,sf);
       }
     }
  while (true);

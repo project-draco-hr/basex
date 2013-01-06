@@ -2,18 +2,16 @@
   final int i=ip;
   final QNm name=eQName(null,ctx.sc.nsFunc);
   if (name != null && !keyword(name)) {
-    final InputInfo ii=info();
     final Expr[] args=argumentList(name.string());
     if (args != null) {
       alter=FUNCUNKNOWN;
       alterFunc=name;
       ap=ip;
-      final Var[] vars=new Var[args.length];
-      final boolean part=partial(args,vars);
-      final TypedFunc f=Functions.get(name,args,false,ctx,ii);
+      final PartFunc.Env env=partial(args);
+      final TypedFunc f=Functions.get(name,args,false,ctx,info());
       if (f != null) {
         alter=null;
-        return part ? new PartFunc(ii,f,vars,ctx) : f.fun;
+        return env != null ? new PartFunc(name,info(),f,env,ctx.sc) : f.fun;
       }
     }
   }

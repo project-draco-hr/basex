@@ -3,14 +3,14 @@
   final int pos=ip;
   final Ann ann=ctx.sc.xquery3() && curr('%') ? annotations() : null;
   if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
-    final int s=ctx.vars.size();
+    final VarScope inner=scope=scope.child();
     final Var[] args=paramList();
     wsCheck(PAR2);
     final SeqType type=optAsType();
     if (ann != null && (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC)))     error(INVISIBLE);
     final Expr body=enclosed(NOFUNBODY);
-    ctx.vars.size(s);
-    return new InlineFunc(info(),type,args,body,ann,ctx);
+    scope=scope.parent();
+    return new InlineFunc(info(),type,args,body,ann,ctx.sc,inner);
   }
   if (ann != null)   error(NOANN);
   ip=pos;

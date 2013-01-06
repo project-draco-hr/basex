@@ -1,0 +1,21 @@
+{
+  final Iterator<Clause> iter=clauses.iterator();
+  while (iter.hasNext()) {
+    final Clause c=iter.next();
+    c.compile(ctx,scp);
+    if (c instanceof Let)     ((Let)c).bindConst(ctx);
+  }
+  ret=ret.compile(ctx,scp);
+  boolean changed;
+  do {
+    if (clauses.isEmpty()) {
+      ctx.compInfo(QueryText.OPTFLWOR,this);
+      return ret;
+    }
+    changed=inlineLets(ctx);
+    changed|=cleanDeadVars(ctx);
+    changed|=slideLetsOut(ctx);
+  }
+ while (changed);
+  return this;
+}
