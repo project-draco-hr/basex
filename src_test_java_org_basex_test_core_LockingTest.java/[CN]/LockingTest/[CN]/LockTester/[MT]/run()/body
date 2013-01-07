@@ -11,7 +11,13 @@
   locks.acquire(cmd,null != readObjects ? new StringList().add(readObjects) : null,null != writeObjects ? new StringList().add(writeObjects) : null);
   if (null != countDown)   countDown.countDown();
   try {
-    while (!requestRelease)     wait();
+    while (!requestRelease || null != downgrade) {
+      if (null != downgrade) {
+        locks.downgrade(new StringList().add(downgrade));
+        downgrade=null;
+      }
+      if (!requestRelease)       wait();
+    }
   }
  catch (  final InterruptedException e) {
     throw new RuntimeException("Unexpectedly interrupted.");
