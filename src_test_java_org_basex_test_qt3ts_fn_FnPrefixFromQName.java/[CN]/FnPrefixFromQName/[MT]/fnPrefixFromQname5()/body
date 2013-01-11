@@ -1,7 +1,14 @@
 {
   final XQuery query=new XQuery("xs:string(fn:prefix-from-QName(xs:QName(\"foo:name\")))",ctx);
-  query.namespace("foo","http://example.org");
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    query.namespace("foo","http://example.org");
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertStringValue(false,"foo"));
 }

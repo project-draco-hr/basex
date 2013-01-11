@@ -1,6 +1,14 @@
 {
   final XQuery query=new XQuery("math:exp(1)",ctx);
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    query.namespace("math","http://www.w3.org/2005/xpath-functions/math");
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertQuery("abs($result - 2.7182818284590456e0) lt 1e-15"));
 }

@@ -1,6 +1,13 @@
 {
   final XQuery query=new XQuery("\"a&#xD;aa&#xD;&#xA;a&#xD;&#xA;\"",ctx);
-  final QT3Result res=result(query);
-  result=res;
-  test(assertSerialization("a&#xD;aa&#xD;\na&#xD;\n",false));
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
+  test(((serializationMatches("a&#xD;aa&#xD;","i") || serializationMatches("a&#13;aa&#13;","")) && serializationMatches("\\r?\\n.*\\r?\\n","")));
 }

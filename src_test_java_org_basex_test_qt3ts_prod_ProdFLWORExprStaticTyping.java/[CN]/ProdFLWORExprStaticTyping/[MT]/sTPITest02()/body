@@ -1,7 +1,14 @@
 {
   final XQuery query=new XQuery("\n" + "        for $pi in //processing-instruction(nonexistent) \n" + "        let $pi2 as processing-instruction(filesystem) := $pi \n"+ "        return $pi2",ctx);
-  query.context(node(file("prod/ForClause/fsx_NS.xml")));
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    query.context(node(file("prod/ForClause/fsx_NS.xml")));
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(error("XPTY0004"));
 }

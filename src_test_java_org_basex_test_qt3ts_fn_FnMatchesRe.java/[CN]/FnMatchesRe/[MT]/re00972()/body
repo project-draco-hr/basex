@@ -1,6 +1,13 @@
 {
-  final XQuery query=new XQuery("(every $s in tokenize('', ',') satisfies matches($s, '^(?:(\\d*){0,2}a\\1)$')) and (every $s in tokenize('33a34', ',') satisfies not(matches($s, '^(?:(\\d){0,2}a\\1)$')))",ctx);
-  final QT3Result res=result(query);
-  result=res;
-  test(assertBoolean(true));
+  final XQuery query=new XQuery("matches('33a34', '^(\\d){0,2}a\\1$')",ctx);
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
+  test(assertBoolean(false));
 }

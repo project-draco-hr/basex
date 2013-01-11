@@ -1,7 +1,14 @@
 {
   final XQuery query=new XQuery("<a>50000</a> is (/staff[1]/employee[1]/empnum[1])",ctx);
-  query.context(node(file("docs/staff.xml")));
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    query.context(node(file("docs/staff.xml")));
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertBoolean(false));
 }

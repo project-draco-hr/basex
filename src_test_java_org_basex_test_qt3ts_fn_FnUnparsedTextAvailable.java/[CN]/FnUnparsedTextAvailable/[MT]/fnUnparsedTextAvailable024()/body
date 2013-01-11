@@ -1,7 +1,14 @@
 {
   final XQuery query=new XQuery("fn:unparsed-text-available(\"unparsed-text/text-plain-utf-8.txt\", \"utf-8\")",ctx);
-  query.baseURI("#UNDEFINED");
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    query.baseURI("#UNDEFINED");
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(error("XPST0001"));
 }
