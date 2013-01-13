@@ -5,16 +5,12 @@
   curr=0;
   try {
     out.setLevel(1);
-    out.putNextEntry(new ZipEntry(source.name() + '/'));
-    out.closeEntry();
-    final StringList files=source.descendants();
     total=files.size();
-    for (    final String io : files) {
+    for (    final String file : files) {
       curr++;
-      if (pattern != null && !pattern.matcher(io).matches())       continue;
-      final FileInputStream in=new FileInputStream(new File(source.file(),io));
+      final FileInputStream in=new FileInputStream(new File(root.file(),file));
       try {
-        out.putNextEntry(new ZipEntry(source.name() + '/' + io));
+        out.putNextEntry(new ZipEntry(root.name() + '/' + file));
         for (int c; (c=in.read(data)) != -1; )         out.write(data,0,c);
         out.closeEntry();
       }
