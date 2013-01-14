@@ -11,12 +11,14 @@
  else   if (src.isDirectory()) {
     FILE_DIR.thrw(info,src);
   }
-  if (!src.equals(trg)) {
+  final String spath=src.getAbsolutePath();
+  final String tpath=trg.getAbsolutePath();
+  if (!spath.equals(tpath)) {
     if (copy) {
       copy(src,trg);
     }
  else {
-      if (trg.exists() && !trg.delete())       FILE_DEL.thrw(info,src,trg);
+      if (trg.exists() && (Prop.CASE || !spath.equalsIgnoreCase(tpath)) && !trg.delete())       FILE_DEL.thrw(info,src,trg);
       if (!src.renameTo(trg))       FILE_MOVE.thrw(info,src,trg);
     }
   }
