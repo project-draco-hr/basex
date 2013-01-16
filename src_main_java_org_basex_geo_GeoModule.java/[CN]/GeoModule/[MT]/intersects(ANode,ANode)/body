@@ -1,0 +1,15 @@
+{
+  if (node1.type != NodeType.ELM)   Err.FUNCMP.thrw(null,this,NodeType.ELM,node2.type);
+  if (node2.type != NodeType.ELM)   Err.FUNCMP.thrw(null,this,NodeType.ELM,node2.type);
+  QNm qname1=node1.qname();
+  QNm qname2=node2.qname();
+  if (qname1.eq(Q_GML_POINT) || qname1.eq(Q_GML_LINESTRING) || qname1.eq(Q_GML_POLYGON)|| qname1.eq(Q_GML_MULTIPOINT)|| qname1.eq(Q_GML_MULTILINESTRING)|| qname1.eq(Q_GML_MULTIPOLYGON)|| qname1.eq(Q_GML_LINEARRING)) {
+    if (qname2.eq(Q_GML_POINT) || qname2.eq(Q_GML_LINESTRING) || qname2.eq(Q_GML_POLYGON)|| qname2.eq(Q_GML_MULTIPOINT)|| qname2.eq(Q_GML_MULTILINESTRING)|| qname2.eq(Q_GML_MULTIPOLYGON)|| qname2.eq(Q_GML_LINEARRING)) {
+      Geometry geom1=gmlReader(node1);
+      Geometry geom2=gmlReader(node2);
+      return Bln.get(geom1.intersects(geom2));
+    }
+    throw GeoErrors.unrecognizedGeo(qname2.local());
+  }
+  throw GeoErrors.unrecognizedGeo(qname1.local());
+}
