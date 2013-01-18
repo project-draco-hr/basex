@@ -1,7 +1,6 @@
 {
   final Performance p=new Performance();
   String err;
-  String inf="";
   if (qe != null) {
     err=qe.getMessage();
   }
@@ -63,10 +62,9 @@ catch (    final IOException ex) {
     }
 catch (    final ProgressException ex) {
       err=INTERRUPTED;
-      inf=info();
     }
 catch (    final RuntimeException ex) {
-      Util.debug(qp.info());
+      Util.debug(info() + NL + qp.info());
       throw ex;
     }
 catch (    final StackOverflowError ex) {
@@ -77,12 +75,14 @@ catch (    final StackOverflowError ex) {
       if (qp != null)       qp.close();
     }
   }
-  error(err);
-  if (Prop.debug || err.startsWith(INTERRUPTED)) {
-    info(NL);
-    info(QUERY_CC + query);
-    info(qp.info());
-    info(inf);
+  if (prop.is(Prop.QUERYINFO)) {
+    final StringBuilder sb=new StringBuilder();
+    final String info=info();
+    if (!info.isEmpty())     sb.append(info);
+    sb.append(NL + QUERY_CC + query);
+    final String i=qp.info();
+    if (!i.isEmpty())     sb.append(i);
+    err=sb.append(NL + ERROR_C + NL+ err).toString();
   }
-  return false;
+  return error(err);
 }
