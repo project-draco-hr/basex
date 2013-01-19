@@ -1,11 +1,10 @@
 {
-  if (node.type != NodeType.ELM)   Err.FUNCMP.thrw(null,this,NodeType.ELM,node.type);
-  QNm qname=node.qname();
-  if (qname.eq(Q_GML_POLYGON)) {
+  QNm[] polygon={Q_GML_POLYGON};
+  QNm[] other={Q_GML_POINT,Q_GML_LINEARRING,Q_GML_LINESTRING,Q_GML_MULTILINESTRING,Q_GML_MULTIPOINT,Q_GML_MULTIPOLYGON};
+  if (checkNode(node,polygon)) {
     Geometry geom=gmlReader(node);
-    LineString ring=((Polygon)geom).getExteriorRing();
-    return gmlWriter(ring);
+    return gmlWriter(((Polygon)geom).getExteriorRing());
   }
-  if (qname.eq(Q_GML_POINT) || qname.eq(Q_GML_LINESTRING) || qname.eq(Q_GML_MULTIPOINT)|| qname.eq(Q_GML_MULTILINESTRING)|| qname.eq(Q_GML_LINEARRING)|| qname.eq(Q_GML_MULTIPOLYGON))   throw GeoErrors.polygonNeeded(qname.local());
-  throw GeoErrors.unrecognizedGeo(node.qname().local());
+  if (checkNode(node,other))   throw GeoErrors.polygonNeeded(node);
+  return null;
 }
