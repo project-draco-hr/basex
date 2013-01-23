@@ -1,0 +1,17 @@
+{
+  if (geometry.isEmpty())   return null;
+  String geom;
+  try {
+    geom=new GMLWriter().write(geometry);
+  }
+ catch (  final IOException ex) {
+    throw GeoErrors.gmlWriterErr(ex);
+  }
+  try {
+    final IO io=new IOContent(geom);
+    return new DBNode(MemBuilder.build(new XMLParser(io,context.context.prop)));
+  }
+ catch (  final IOException ex) {
+    throw Err.IOERR.thrw(null,ex);
+  }
+}
