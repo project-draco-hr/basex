@@ -1,0 +1,17 @@
+{
+  if (node.type != NodeType.ELM)   Err.FUNCMP.thrw(null,this,NodeType.ELM,node.type);
+  final QNm qname=node.qname();
+  for (  final QNm geo : names) {
+    if (!qname.eq(geo))     continue;
+    try {
+      final String input=node.serialize().toString();
+      final GMLReader gmlReader=new GMLReader();
+      final GeometryFactory geoFactory=new GeometryFactory();
+      return gmlReader.read(input,geoFactory);
+    }
+ catch (    final Throwable e) {
+      throw GeoErrors.gmlReaderErr(e);
+    }
+  }
+  return null;
+}
