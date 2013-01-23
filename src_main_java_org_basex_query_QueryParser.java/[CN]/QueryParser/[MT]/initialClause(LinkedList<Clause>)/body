@@ -1,0 +1,17 @@
+{
+  LinkedList<Clause> cls=clauses;
+  final boolean let=wsConsumeWs(LET,SCORE,NOLET) || wsConsumeWs(LET,DOLLAR,NOLET);
+  if (let || wsConsumeWs(FOR,DOLLAR,NOFOR)) {
+    if (cls == null)     cls=new LinkedList<Clause>();
+    if (let)     letClause(cls);
+ else     forClause(cls);
+  }
+ else   if (ctx.sc.xquery3()) {
+    final boolean slide=wsConsumeWs(FOR,SLIDING,NOWINDOW);
+    if (slide || wsConsumeWs(FOR,TUMBLING,NOWINDOW)) {
+      if (cls == null)       cls=new LinkedList<Clause>();
+      cls.add(windowClause(slide));
+    }
+  }
+  return cls;
+}

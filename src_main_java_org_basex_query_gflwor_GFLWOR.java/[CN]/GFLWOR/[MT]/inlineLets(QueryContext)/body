@@ -1,9 +1,12 @@
 {
   boolean change=false;
   for (int i=0; i < clauses.size(); i++) {
-    final Clause c=clauses.get(i);
+    Clause c=clauses.get(i);
     if (c instanceof Let) {
       final Let lt=(Let)c;
+      if (!lt.score && !lt.var.checksType() && lt.expr instanceof LocalVarRef) {
+        replaceVar(lt.var,((LocalVarRef)lt.expr).var,i + 1);
+      }
       if (lt.expr.uses(Use.NDT))       continue;
       final int uses=count(lt.var,i);
       if (uses == 0) {

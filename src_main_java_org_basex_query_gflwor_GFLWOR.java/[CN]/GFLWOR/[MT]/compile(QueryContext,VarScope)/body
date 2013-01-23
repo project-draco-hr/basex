@@ -1,21 +1,70 @@
 {
-  final Iterator<Clause> iter=clauses.iterator();
+  forToLet(ctx);
+  final ListIterator<Clause> iter=clauses.listIterator();
   while (iter.hasNext()) {
     final Clause c=iter.next();
     c.compile(ctx,scp);
-    if (c instanceof Let)     ((Let)c).bindConst(ctx);
+    if (c instanceof Let) {
+      ((Let)c).bindConst(ctx);
+    }
+ else     if (c instanceof Where) {
+      final Where wh=(Where)c;
+      if (wh.pred instanceof And) {
+        iter.remove();
+        for (        final Expr e : ((And)wh.pred).expr)         iter.add(new Where(e,wh.info));
+      }
+    }
   }
   ret=ret.compile(ctx,scp);
   boolean changed;
   do {
+    changed=forToLet(ctx);
+    changed|=inlineLets(ctx);
+    changed|=cleanDeadVars(ctx);
+    changed|=slideLetsOut(ctx);
+    changed|=optimizeWhere(ctx);
     if (clauses.isEmpty()) {
       ctx.compInfo(QueryText.OPTFLWOR,this);
       return ret;
     }
-    changed=inlineLets(ctx);
-    changed|=cleanDeadVars(ctx);
-    changed|=slideLetsOut(ctx);
+    if (ret instanceof LocalVarRef && clauses.getLast() instanceof For) {
+      final For last=(For)clauses.getLast();
+      if (!last.var.checksType() && last.var.is(((LocalVarRef)ret).var)) {
+        clauses.removeLast();
+        ret=last.expr;
+        changed=true;
+      }
+    }
+ else     if (ret instanceof GFLWOR) {
+      ctx.compInfo(QueryText.OPTFLAT,this);
+      final GFLWOR sub=(GFLWOR)ret;
+      clauses.addAll(sub.clauses);
+      ret=sub.ret;
+      changed=true;
+    }
+ else     if (clauses.getFirst() instanceof For) {
+      final For fst=(For)clauses.getFirst();
+      if (!fst.empty && fst.expr instanceof GFLWOR) {
+        ctx.compInfo(QueryText.OPTFLAT,fst);
+        final GFLWOR sub=(GFLWOR)fst.expr;
+        clauses.set(0,new For(fst.var,null,fst.score,sub.ret,false,fst.info));
+        if (fst.pos != null)         clauses.add(1,new Count(fst.pos,fst.info));
+        clauses.addAll(0,sub.clauses);
+        changed=true;
+      }
+    }
   }
  while (changed);
+  mergeWheres();
+  size=calcSize();
+  if (size == 0 && !(uses(Use.NDT) || uses(Use.UPD))) {
+    ctx.compInfo(QueryText.OPTWRITE,this);
+    return Empty.SEQ;
+  }
+  type=SeqType.get(ret.type().type,size);
+  if (clauses.getFirst() instanceof Where) {
+    final Where wh=(Where)clauses.removeFirst();
+    return new If(info,wh.pred,clauses.isEmpty() ? ret : this,Empty.SEQ);
+  }
   return this;
 }
