@@ -6,7 +6,10 @@
     try {
       ctx.register(qp);
       init=true;
+      qp.compile();
+      qi.cmpl=perf.time();
       final Iter ir=qp.iter();
+      qi.evlt=perf.time();
       final boolean wrap=!options.get(S_WRAP_PREFIX).isEmpty();
       final PrintOutput po=PrintOutput.get(enc ? new EncodingOutput(out) : out);
       if (iter && wrap)       po.write(1);
@@ -31,15 +34,15 @@
       }
       ser.close();
       if (iter && wrap)       out.write(0);
-      final int up=qp.updates();
-      final TokenBuilder tb=new TokenBuilder();
-      tb.addExt(HITS_X_CC + "% %" + NL,c,c == 1 ? ITEM : ITEMS);
-      tb.addExt(UPDATED_CC + "% %" + NL,up,up == 1 ? ITEM : ITEMS);
-      tb.addExt(TOTAL_TIME_CC + '%',perf);
-      info=tb.toString();
+      qi.srlz=perf.time();
+      info=qi.toString(qp,po,c,ctx.prop.is(Prop.QUERYINFO));
     }
  catch (    final QueryException ex) {
       throw new BaseXException(ex);
+    }
+catch (    final StackOverflowError ex) {
+      Util.debug(ex);
+      throw new BaseXException(CIRCLDECL.desc);
     }
 catch (    final ProgressException ex) {
       throw new BaseXException(TIMEOUT_EXCEEDED);

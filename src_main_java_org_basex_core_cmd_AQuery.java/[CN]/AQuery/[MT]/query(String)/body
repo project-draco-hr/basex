@@ -7,32 +7,30 @@
  else {
     try {
       final boolean serial=prop.is(Prop.SERIALIZE);
+      qi.runs=Math.max(1,prop.num(Prop.RUNS));
       long hits=0;
-      int updates=0;
-      final int runs=Math.max(1,prop.num(Prop.RUNS));
-      for (int r=0; r < runs; ++r) {
+      for (int r=0; r < qi.runs; ++r) {
         if (r != 0)         qp=null;
         qp=queryProcessor(query,context);
         qp.parse();
-        pars+=init + p.time();
-        init=0;
+        qi.pars+=p.time();
         if (r == 0)         plan(false);
         qp.compile();
-        comp+=p.time();
+        qi.cmpl+=p.time();
         if (r == 0)         plan(true);
         final PrintOutput po=r == 0 && serial ? out : new NullOutput();
         final Serializer ser;
         if (prop.is(Prop.CACHEQUERY)) {
           result=qp.execute();
-          eval+=p.time();
+          qi.evlt+=p.time();
           ser=qp.getSerializer(po);
           result.serialize(ser);
           hits=result.size();
         }
  else {
-          final Iter ir=qp.iter();
-          eval+=p.time();
           hits=0;
+          final Iter ir=qp.iter();
+          qi.evlt+=p.time();
           Item it=ir.next();
           ser=qp.getSerializer(po);
           while (it != null) {
@@ -42,15 +40,13 @@
             ++hits;
           }
         }
-        updates=qp.updates();
         ser.close();
         qp.close();
-        prnt+=p.time();
+        qi.srlz+=p.time();
       }
-      if (prop.is(Prop.QUERYINFO))       evalInfo(query,hits,updates,runs);
       out.flush();
-      final long time=pars + comp + eval+ prnt;
-      return info(NL + QUERY_EXECUTED_X,Performance.getTime(time,runs));
+      if (!mprop.is(MainProp.DBLOCKING) && qp.updating)       qi.locked=null;
+      return info(qi.toString(qp,out,hits,prop.is(Prop.QUERYINFO)));
     }
  catch (    final QueryException ex) {
       err=Util.message(ex);
