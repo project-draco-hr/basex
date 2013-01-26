@@ -1,0 +1,32 @@
+{
+  final int xx=p.x;
+  final int yy=p.y - fontH / 5;
+  final Graphics g=getGraphics();
+  init(g,pos);
+  if (yy > y - fontH) {
+    int s=text.pos();
+    while (true) {
+      if (xx > x && yy < y - fontH) {
+        text.pos(s);
+        break;
+      }
+      if (!more(g)) {
+        while (text.more())         text.next();
+        break;
+      }
+      if (xx <= x && yy < y)       break;
+      if (xx > x && xx <= x + wordW && yy > y - fontH && yy <= y) {
+        while (text.more()) {
+          final int ww=charW(g,text.curr());
+          if (xx < x + ww)           break;
+          x+=ww;
+          text.next();
+        }
+        break;
+      }
+      s=text.pos();
+      next();
+    }
+  }
+  return link;
+}

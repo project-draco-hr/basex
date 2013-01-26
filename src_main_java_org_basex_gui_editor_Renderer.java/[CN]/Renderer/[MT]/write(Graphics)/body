@@ -1,18 +1,11 @@
 {
-  if (high) {
-    high=false;
-  }
- else {
-    color=isEnabled() ? syntax.getColor(text) : Color.gray;
-  }
+  color=isEnabled() ? high ? GUIConstants.GREEN : link ? GUIConstants.color4 : syntax.getColor(text) : Color.gray;
+  high=false;
   final int ch=text.curr();
+  if (ch == TokenBuilder.MARK)   high=true;
   final int cp=text.pos();
   final int cc=text.getCaret();
   if (y > 0 && y < h) {
-    if (ch == TokenBuilder.MARK) {
-      color=GUIConstants.GREEN;
-      high=true;
-    }
     if (text.selectStart()) {
       int xx=x, cw=0;
       while (!text.inSelect() && text.more())       xx+=charW(g,text.next());
@@ -32,7 +25,7 @@
     }
     text.pos(cp);
     if (text.erroneous())     drawError(g);
-    if (ch > ' ') {
+    if (ch >= ' ') {
       g.setColor(color);
       String n=text.nextString();
       int ww=w - x;
@@ -43,9 +36,10 @@
         }
         n=n.substring(0,c);
       }
-      g.drawString(n,x,y);
+      if (ch != ' ')       g.drawString(n,x,y);
+      if (link)       g.drawLine(x,y + 1,x + wordW,y + 1);
     }
- else     if (ch <= TokenBuilder.MARK) {
+ else     if (ch <= TokenBuilder.ULINE) {
       g.setFont(font);
     }
     if (cursor && text.edited()) {
