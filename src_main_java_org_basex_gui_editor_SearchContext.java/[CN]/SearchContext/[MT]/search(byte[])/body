@@ -1,84 +1,11 @@
 {
   final IntList start=new IntList();
   final IntList end=new IntList();
-  if (search.isEmpty())   return new IntList[]{start,end};
-  final byte[] text=txt;
-  if (regex) {
-    int flags=Pattern.DOTALL;
-    if (!mcase)     flags|=Pattern.CASE_INSENSITIVE;
-    final Pattern pattern=Pattern.compile(search,flags);
-    if (multi) {
-      int c=0, p=0;
-      final Matcher m=pattern.matcher(string(text));
-      while (m.find()) {
-        final int s=m.start(), e=m.end();
-        while (c < s) {
-          p+=cl(text,p);
-          c++;
-        }
-        start.add(p);
-        while (c < e) {
-          p+=cl(text,p);
-          c++;
-        }
-        end.add(p);
-      }
-    }
- else {
-      final int os=text.length;
-      final TokenBuilder tb=new TokenBuilder(os);
-      for (int t=0, o=0; o <= os; o++) {
-        if (o < os ? text[o] == '\n' : o != t) {
-          int c=0, p=t;
-          final Matcher m=pattern.matcher(string(text,t,o - t));
-          while (m.find()) {
-            final int s=m.start(), e=m.end();
-            while (c < s) {
-              p+=cl(text,p);
-              c++;
-            }
-            start.add(p);
-            while (c < e) {
-              p+=cl(text,p);
-              c++;
-            }
-            end.add(p);
-          }
-          if (o < os)           tb.add('\n');
-          t=o + 1;
-        }
-      }
-    }
-  }
- else {
-    final byte[] srch=token(search);
-    final int ss=srch.length, os=text.length;
-    boolean s=true;
-    for (int o=0; o < os; ) {
-      int sp=0;
-      if (o + ss <= os && s) {
-        if (mcase) {
-          while (sp < ss && txt[o + sp] == srch[sp])           sp++;
-        }
- else {
-          while (sp < ss && lc(cp(txt,o + sp)) == cp(srch,sp))           sp+=cl(srch,sp);
-        }
-      }
-      if (sp == ss && (!word || o + ss == os || !Character.isLetterOrDigit(cp(txt,o + ss)))) {
-        start.add(o);
-        end.add(o + ss);
-        o+=ss;
-        s=!word;
-      }
- else       if (word) {
-        s=!Character.isLetterOrDigit(cp(txt,o));
-        o+=cl(txt,o);
-      }
- else {
-        o++;
-      }
-    }
+  if (!search.isEmpty()) {
+    if (regex)     searchRegEx(start,end,txt);
+ else     searchSimple(start,end,txt);
   }
   nr=start.size();
+  panel.refresh(this);
   return new IntList[]{start,end};
 }

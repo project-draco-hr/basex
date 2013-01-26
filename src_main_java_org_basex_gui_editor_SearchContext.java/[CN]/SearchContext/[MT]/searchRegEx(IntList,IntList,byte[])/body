@@ -1,0 +1,47 @@
+{
+  int flags=Pattern.DOTALL;
+  if (!mcase)   flags|=Pattern.CASE_INSENSITIVE;
+  final Pattern pattern=Pattern.compile(search,flags);
+  if (multi) {
+    int c=0, p=0;
+    final Matcher m=pattern.matcher(string(text));
+    while (m.find()) {
+      final int s=m.start(), e=m.end();
+      while (c < s) {
+        p+=cl(text,p);
+        c++;
+      }
+      start.add(p);
+      while (c < e) {
+        p+=cl(text,p);
+        c++;
+      }
+      end.add(p);
+    }
+  }
+ else {
+    final int os=text.length;
+    final TokenBuilder tb=new TokenBuilder(os);
+    for (int t=0, o=0; o <= os; o++) {
+      if (o < os ? text[o] == '\n' : o != t) {
+        int c=0, p=t;
+        final Matcher m=pattern.matcher(string(text,t,o - t));
+        while (m.find()) {
+          final int s=m.start(), e=m.end();
+          while (c < s) {
+            p+=cl(text,p);
+            c++;
+          }
+          start.add(p);
+          while (c < e) {
+            p+=cl(text,p);
+            c++;
+          }
+          end.add(p);
+        }
+        if (o < os)         tb.add('\n');
+        t=o + 1;
+      }
+    }
+  }
+}

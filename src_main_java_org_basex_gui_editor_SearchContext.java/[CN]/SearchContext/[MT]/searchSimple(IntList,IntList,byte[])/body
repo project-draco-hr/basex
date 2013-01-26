@@ -1,0 +1,29 @@
+{
+  final byte[] srch=token(search);
+  final int ss=srch.length, os=text.length;
+  boolean s=true;
+  for (int o=0; o < os; ) {
+    int sp=0;
+    if (o + ss <= os && s) {
+      if (mcase) {
+        while (sp < ss && text[o + sp] == srch[sp])         sp++;
+      }
+ else {
+        while (sp < ss && lc(cp(text,o + sp)) == cp(srch,sp))         sp+=cl(srch,sp);
+      }
+    }
+    if (sp == ss && (!word || o + ss == os || !Character.isLetterOrDigit(cp(text,o + ss)))) {
+      start.add(o);
+      end.add(o + ss);
+      o+=ss;
+      s=!word;
+    }
+ else     if (word) {
+      s=!Character.isLetterOrDigit(cp(text,o));
+      o+=cl(text,o);
+    }
+ else {
+      o++;
+    }
+  }
+}
