@@ -1,14 +1,18 @@
 {
-  if (!opened())   return;
-  final long ts=file.timeStamp();
-  if ((tstamp != ts || enforce) && (!modified || BaseXDialog.confirm(gui,Util.info(REOPEN_FILE_X,file.name())))) {
-    try {
-      setText(file.read());
-      file(file);
+  if (opened()) {
+    final long ts=file.timeStamp();
+    if ((tstamp != ts || enforce) && (!modified || BaseXDialog.confirm(gui,Util.info(REOPEN_FILE_X,file.name())))) {
+      try {
+        setText(file.read());
+        file(file);
+        release(Action.PARSE);
+        return true;
+      }
+ catch (      final IOException ex) {
+        BaseXDialog.error(gui,FILE_NOT_OPENED);
+      }
     }
- catch (    final IOException ex) {
-      BaseXDialog.error(gui,FILE_NOT_OPENED);
-    }
+    tstamp=ts;
   }
-  tstamp=ts;
+  return false;
 }
