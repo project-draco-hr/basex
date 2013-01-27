@@ -17,6 +17,7 @@
     updating=cmd.updating(context);
     if (edit)     editor.start();
     if (cmd.newData(context))     notify.init();
+    cmd.listen(infoListener);
     String inf=null;
     try {
       cmd.execute(context,ao);
@@ -30,8 +31,7 @@
       updating=false;
     }
     final String time=perf.getTime();
-    if (info.visible())     info.setInfo(inf,cmd,time,ok);
-    info.reset();
+    if (info.visible())     info.setInfo(inf,cmd,time,ok,true);
     final boolean interrupted=inf.endsWith(INTERRUPTED);
     if (edit) {
       editor.info(interrupted ? INTERRUPTED : ok ? OK : inf,ok || interrupted,true);
@@ -80,8 +80,7 @@
     }
   }
  catch (  final Exception ex) {
-    Util.bug(ex);
-    BaseXDialog.error(this,Util.info(EXEC_ERROR,cmd,Util.message(ex)));
+    BaseXDialog.error(this,Util.info(EXEC_ERROR,cmd,Util.bug(ex)));
     updating=false;
   }
   cursor(CURSORARROW,true);

@@ -5,7 +5,9 @@
   final StringList result=new StringList(1);
   final StringList stack=new StringList(1);
   final StringList err=new StringList(1);
-  final StringList query=new StringList(1);
+  final StringList origqu=new StringList(1);
+  final StringList optqu=new StringList(1);
+  final StringList command=new StringList(1);
   final StringList timings=new StringList(5);
   final IntList times=new IntList(5);
   final int runs=Math.max(1,gui.context.prop.num(Prop.RUNS));
@@ -27,8 +29,11 @@
  else     if (line.startsWith(COMPILING_C)) {
       while (++i < split.length && !split[i].isEmpty())       comp.add(split[i]);
     }
+ else     if (line.startsWith(QUERY_C)) {
+      origqu.add(line.substring(s + 1).trim());
+    }
  else     if (line.startsWith(RESULT_C)) {
-      query.add(line.substring(s + 1).trim());
+      optqu.add(line.substring(s + 1).trim());
     }
  else     if (line.startsWith(EVALUATING_C)) {
       while (i + 1 < split.length && split[++i].startsWith(LI))       eval.add(split[i]);
@@ -51,7 +56,12 @@
  else     if (line.startsWith(STACK_TRACE_C)) {
       while (i + 1 < split.length && !split[++i].isEmpty()) {
         final TokenBuilder tb=new TokenBuilder();
-        tb.add(LI).uline().add(split[i].substring(2)).uline();
+        if (split[i].startsWith(LI)) {
+          tb.add(LI).uline().add(split[i].substring(2)).uline();
+        }
+ else {
+          tb.add(split[i]);
+        }
         stack.add(tb.toString());
       }
     }
@@ -61,33 +71,27 @@
   }
   stat=times;
   strings=timings;
+  if (!times.isEmpty() || !ok)   text.reset();
+  if (!(cmd instanceof AQuery)) {
+    if (cmd != null)     command.add(cmd.toString());
+    if (ok && !info.isEmpty())     result.add(info.trim());
+  }
+  add(COMMAND + COL,command);
+  add(ERROR_C,err);
+  add(STACK_TRACE_C,stack);
+  add(EVALUATING_C,eval);
+  add(QUERY_C + ' ',origqu);
+  add(COMPILING_C,comp);
+  if (!comp.isEmpty())   add(QUERY_C + ' ',optqu);
+  add(RESULT_C,result);
+  add(TIMING_C,timings);
+  add(QUERY_PLAN_C,plan);
+  area.setText(text.finish());
+  if (reset)   text.reset();
   String total=time;
   if (!times.isEmpty()) {
-    text.reset();
-    add(EVALUATING_C,eval);
-    add(COMPILING_C,comp);
-    add(QUERY_C + ' ',query);
-    add(RESULT_C,result);
-    add(TIMING_C,timings);
-    add(QUERY_PLAN_C,plan);
     total=Performance.getTime(times.get(times.size() - 1) * 10000L * runs,runs);
   }
- else {
-    if (ok) {
-      add(cmd);
-      text.add(info).nline();
-    }
- else {
-      add(ERROR_C,err);
-      add(STACK_TRACE_C,stack);
-      add(EVALUATING_C,eval);
-      add(cmd);
-      add(COMPILING_C,comp);
-      if (!comp.isEmpty())       add(RESULT_C,query);
-      add(QUERY_PLAN_C,plan);
-    }
-  }
-  area.setText(text.finish());
   if (total != null)   timer.setText(TOTAL_TIME_CC + total);
   repaint();
 }
