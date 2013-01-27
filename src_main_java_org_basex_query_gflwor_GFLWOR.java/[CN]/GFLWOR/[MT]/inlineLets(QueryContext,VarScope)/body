@@ -1,0 +1,29 @@
+{
+  boolean change=false;
+  final ListIterator<Clause> iter=clauses.listIterator();
+  while (iter.hasNext()) {
+    final Clause c=iter.next();
+    final int next=iter.nextIndex();
+    if (c instanceof Let) {
+      final Let lt=(Let)c;
+      if (!lt.score && !lt.var.checksType() && lt.expr instanceof LocalVarRef) {
+        ctx.compInfo(QueryText.OPTINLINE,lt);
+        inline(ctx,scp,lt.var,lt.expr,next);
+        change=true;
+      }
+      if (lt.expr.uses(Use.NDT))       continue;
+      final VarUsage uses=count(lt.var,next);
+      if (uses == VarUsage.NEVER) {
+        ctx.compInfo(QueryText.OPTVAR,lt.var);
+        iter.remove();
+        change=true;
+      }
+ else       if (uses == VarUsage.ONCE && !lt.var.checksType() && !lt.expr.uses(Use.CTX) && !lt.score) {
+        ctx.compInfo(QueryText.OPTINLINE,lt);
+        inline(ctx,scp,lt.var,lt.expr,next);
+        change=true;
+      }
+    }
+  }
+  return change;
+}

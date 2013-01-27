@@ -1,0 +1,18 @@
+{
+  super.optimize(ctx,scp);
+  final Value v=ctx.value;
+  try {
+    ctx.value=root(ctx);
+    final Data data=ctx.data();
+    if (data != null && ctx.value.type == NodeType.DOC) {
+      Expr e=index(ctx,data);
+      if (e == this)       e=children(ctx,data);
+      if (e != this)       return e.compile(ctx,scp);
+    }
+    cache=root != null && !uses(Use.VAR);
+    return finish(ctx);
+  }
+  finally {
+    ctx.value=v;
+  }
+}

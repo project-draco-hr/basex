@@ -1,5 +1,4 @@
 {
-  forToLet(ctx);
   final ListIterator<Clause> iter=clauses.listIterator();
   while (iter.hasNext()) {
     final Clause c=iter.next();
@@ -19,10 +18,10 @@
   boolean changed;
   do {
     changed=forToLet(ctx);
-    changed|=inlineLets(ctx);
+    changed|=inlineLets(ctx,scp);
     changed|=cleanDeadVars(ctx);
     changed|=slideLetsOut(ctx);
-    changed|=optimizeWhere(ctx);
+    changed|=optimizeWhere(ctx,scp);
     if (clauses.isEmpty()) {
       ctx.compInfo(QueryText.OPTFLWOR,this);
       return ret;
@@ -35,13 +34,6 @@
         changed=true;
       }
     }
- else     if (ret instanceof GFLWOR) {
-      ctx.compInfo(QueryText.OPTFLAT,this);
-      final GFLWOR sub=(GFLWOR)ret;
-      clauses.addAll(sub.clauses);
-      ret=sub.ret;
-      changed=true;
-    }
  else     if (clauses.getFirst() instanceof For) {
       final For fst=(For)clauses.getFirst();
       if (!fst.empty && fst.expr instanceof GFLWOR) {
@@ -50,6 +42,15 @@
         clauses.set(0,new For(fst.var,null,fst.score,sub.ret,false,fst.info));
         if (fst.pos != null)         clauses.add(1,new Count(fst.pos,fst.info));
         clauses.addAll(0,sub.clauses);
+        changed=true;
+      }
+    }
+ else     if (ret instanceof GFLWOR) {
+      final GFLWOR sub=(GFLWOR)ret;
+      if (sub.isFLWR()) {
+        ctx.compInfo(QueryText.OPTFLAT,this);
+        clauses.addAll(sub.clauses);
+        ret=sub.ret;
         changed=true;
       }
     }

@@ -1,0 +1,16 @@
+{
+  final Value oldVal=ctx.value;
+  try {
+    ctx.value=root(ctx);
+    final Expr rt=root == null ? null : root.inline(ctx,scp,v,e);
+    if (rt != null) {
+      setRoot(ctx,rt);
+      ctx.value=oldVal;
+      ctx.value=root(ctx);
+    }
+    return inlineAll(ctx,scp,steps,v,e) || rt != null ? optimize(ctx,scp) : null;
+  }
+  finally {
+    ctx.value=oldVal;
+  }
+}

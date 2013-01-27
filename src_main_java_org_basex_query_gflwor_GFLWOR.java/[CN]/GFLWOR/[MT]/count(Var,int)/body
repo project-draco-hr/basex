@@ -1,17 +1,11 @@
 {
-  final int[] count=new int[1];
-  final VarVisitor uses=new VarVisitor(){
-    @Override public boolean used(    final LocalVarRef ref){
-      return !ref.var.is(v) || ++count[0] == 1;
-    }
+  long c=1;
+  VarUsage uses=VarUsage.NEVER;
+  final ListIterator<Clause> iter=clauses.listIterator(p);
+  while (iter.hasNext()) {
+    final Clause cl=iter.next();
+    uses=uses.plus(cl.count(v).times(c));
+    c=cl.calcSize(c);
   }
-;
-  final int sz=clauses.size();
-  int n=sz;
-  for (int i=p + 1; i < sz; i++) {
-    if (!clauses.get(i).visitVars(uses))     return -1;
-    if (count[0] == 1 && n == sz)     n=i;
-  }
-  if (!ret.visitVars(uses))   return -1;
-  return n * count[0];
+  return uses.plus(ret.count(v).times(c));
 }

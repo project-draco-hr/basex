@@ -1,0 +1,15 @@
+{
+  if (empty || vars.length > 1 || !p.removable(var))   return false;
+  final Expr r=p.inline(ctx,scp,var,new Context(info)), e=r == null ? p : r;
+  final Expr a=e.type().mayBeNumber() ? Function.BOOLEAN.get(info,e) : e;
+  if (expr instanceof AxisPath) {
+    expr=((AxisPath)expr).addPreds(ctx,scp,a);
+  }
+ else   if (expr instanceof Filter) {
+    expr=((Filter)expr).addPred(ctx,scp,a);
+  }
+ else {
+    expr=new Filter(info,expr,a);
+  }
+  return true;
+}
