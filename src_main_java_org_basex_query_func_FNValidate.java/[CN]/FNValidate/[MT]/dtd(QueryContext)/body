@@ -1,33 +1,5 @@
 {
-  IOFile tmp=null;
-  try {
-    final IO in;
-    if (expr.length < 2) {
-      in=read(0,ctx,null);
-    }
- else {
-      final SerializerProp sp=new SerializerProp();
-      final String dtd=string(checkStr(expr[1],ctx));
-      IO sc=IO.get(dtd);
-      if (!sc.exists())       WHICHRES.thrw(info,dtd);
-      tmp=createTmp(sc);
-      if (tmp != null)       sc=tmp;
-      sp.set(SerializerProp.S_DOCTYPE_SYSTEM,sc.url());
-      in=read(0,ctx,sp);
-    }
-    final SAXParserFactory sf=SAXParserFactory.newInstance();
-    sf.setValidating(true);
-    final InputSource is=in.inputSource();
-    sf.newSAXParser().parse(is,new SchemaHandler());
-    return null;
-  }
- catch (  final QueryException ex) {
-    throw ex;
-  }
-catch (  final Exception ex) {
-    throw BXVA_FAIL.thrw(info,ex);
-  }
- finally {
-    if (tmp != null)     tmp.delete();
-  }
+  final Value seq=dtdInfo(ctx);
+  if (seq == Empty.SEQ)   return null;
+  throw BXVA_FAIL.thrw(info,seq.iter().next());
 }

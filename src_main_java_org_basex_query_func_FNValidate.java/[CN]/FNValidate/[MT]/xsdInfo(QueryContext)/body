@@ -1,0 +1,23 @@
+{
+  return process(new Validate(){
+    @Override void process(    final ErrorHandler handler) throws IOException, SAXException, QueryException {
+      final IO in=read(0,ctx,null);
+      final SchemaFactory sf=SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      final Schema schema;
+      if (expr.length < 2) {
+        schema=sf.newSchema();
+      }
+ else {
+        IO sc=read(1,ctx,null);
+        if (!sc.exists())         WHICHRES.thrw(info,sc);
+        tmp=createTmp(sc);
+        if (tmp != null)         sc=tmp;
+        schema=sf.newSchema(new URL(sc.url()));
+      }
+      final Validator v=schema.newValidator();
+      v.setErrorHandler(handler);
+      v.validate(new StreamSource(in.inputStream()));
+    }
+  }
+);
+}

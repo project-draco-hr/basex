@@ -1,34 +1,5 @@
 {
-  IOFile tmp=null;
-  try {
-    final IO in=read(0,ctx,null);
-    final SchemaFactory sf=SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    final Schema schema;
-    if (expr.length < 2) {
-      schema=sf.newSchema();
-    }
- else {
-      IO sc=read(1,ctx,null);
-      if (!sc.exists())       WHICHRES.thrw(info,sc);
-      tmp=createTmp(sc);
-      if (tmp != null)       sc=tmp;
-      schema=sf.newSchema(new URL(sc.url()));
-    }
-    final Validator v=schema.newValidator();
-    v.setErrorHandler(new SchemaHandler());
-    v.validate(new StreamSource(in.inputStream()));
-    return null;
-  }
- catch (  final Exception ex) {
-    if (ex instanceof QueryException)     throw (QueryException)ex;
-    Throwable e=ex;
-    while (e.getCause() != null) {
-      Util.debug(e);
-      e=e.getCause();
-    }
-    throw BXVA_FAIL.thrw(info,e);
-  }
- finally {
-    if (tmp != null)     tmp.delete();
-  }
+  final Value seq=xsdInfo(ctx);
+  if (seq == Empty.SEQ)   return null;
+  throw BXVA_FAIL.thrw(info,seq.iter().next());
 }
