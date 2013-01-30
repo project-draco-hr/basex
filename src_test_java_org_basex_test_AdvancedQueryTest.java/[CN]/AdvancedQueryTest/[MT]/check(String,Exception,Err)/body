@@ -1,0 +1,17 @@
+{
+  if (error.length == 0)   Util.notexpected("No error code specified");
+  final byte[] msg=Token.token(ex.getMessage());
+  boolean found=false;
+  for (  final Err e : error)   found|=Token.contains(msg,e.qname().local());
+  if (!found) {
+    final TokenBuilder tb=new TokenBuilder("\n");
+    if (query != null)     tb.add("Query: ").add(query).add("\n");
+    tb.add("Error(s): ");
+    int c=0;
+    for (    final Err er : error) {
+      if (c++ != 0)       tb.add('/');
+      tb.add(er.qname().string());
+    }
+    fail(tb.add("\nResult: ").add(msg).toString());
+  }
+}

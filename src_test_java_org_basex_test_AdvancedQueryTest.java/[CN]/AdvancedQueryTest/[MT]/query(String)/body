@@ -1,0 +1,19 @@
+{
+  final QueryProcessor qp=new QueryProcessor(query,context);
+  qp.ctx.sc.baseURI(".");
+  try {
+    final ArrayOutput ao=new ArrayOutput();
+    final Serializer ser=qp.getSerializer(ao);
+    qp.execute().serialize(ser);
+    ser.close();
+    return ao.toString().replaceAll("(\\r|\\n)+ *","");
+  }
+ catch (  final Exception ex) {
+    ex.printStackTrace();
+    fail("Query failed:\n" + query + "\nMessage: "+ ex);
+    return null;
+  }
+ finally {
+    qp.close();
+  }
+}
