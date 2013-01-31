@@ -9,21 +9,11 @@
       }
  else {
         final Item it=checkItem(expr[1],ctx);
-        if (it.type.isNode()) {
-          schema=sf.newSchema(new DOMSource((Node)it.toJava()));
-        }
- else {
-          IO sc=read(it,ctx,null);
-          if (!sc.exists())           WHICHRES.thrw(info,sc);
-          tmp=createTmp(sc);
-          if (tmp != null)           sc=tmp;
-          if (sc instanceof IOFile) {
-            schema=sf.newSchema(((IOFile)sc).file());
-          }
- else {
-            schema=sf.newSchema(new URL(sc.url()));
-          }
-        }
+        IO sc=read(it,ctx,null);
+        if (!sc.exists())         WHICHRES.thrw(info,sc);
+        tmp=createTmp(sc);
+        if (tmp != null)         sc=tmp;
+        schema=sf.newSchema(new URL(sc.url()));
       }
       final Validator v=schema.newValidator();
       v.setErrorHandler(handler);
