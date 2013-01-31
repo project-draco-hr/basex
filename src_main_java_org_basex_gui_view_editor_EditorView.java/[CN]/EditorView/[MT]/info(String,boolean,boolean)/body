@@ -1,9 +1,14 @@
 {
+  if (!refresh && stop.isEnabled())   return;
   ++threadID;
   errPos=-1;
   errFile=null;
   errMsg=null;
   getEditor().resetError();
+  if (refresh) {
+    stop.setEnabled(false);
+    refreshMark();
+  }
   if (ok) {
     info.setCursor(GUIConstants.CURSORARROW);
     info.setText(msg,Msg.SUCCESS).setToolTipText(null);
@@ -14,9 +19,5 @@
     info.setText(ERRORINFO.matcher(msg).replaceAll(""),Msg.ERROR);
     final String tt=ERRORTT.matcher(msg).replaceAll("").replaceAll("\r?\n","<br/>").replaceAll("(<br/>.*?)<br/>.*","$1");
     info.setToolTipText("<html>" + STOPPED_AT + ' '+ tt+ "</html>");
-  }
-  if (up) {
-    stop.setEnabled(false);
-    refreshMark();
   }
 }
