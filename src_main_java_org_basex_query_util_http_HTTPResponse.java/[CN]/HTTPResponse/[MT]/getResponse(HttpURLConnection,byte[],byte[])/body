@@ -2,12 +2,18 @@
   final ANodeList attrs=extractAttrs(conn);
   final ANodeList hdrs=extractHdrs(conn);
   final String type=conn.getContentType();
-  final String cType=ctype == null ? extractContentType(type) : string(ctype);
   final ValueBuilder payloads=new ValueBuilder();
   final boolean s=status != null && Bln.parse(status,info);
   final FNode body;
   InputStream is=conn.getErrorStream();
-  if (is == null)   is=conn.getInputStream();
+  final String cType;
+  if (is == null) {
+    cType=ctype == null ? extractContentType(type) : string(ctype);
+    is=conn.getInputStream();
+  }
+ else {
+    cType=MimeTypes.TEXT_PLAIN;
+  }
   if (cType.startsWith(MULTIPART)) {
     final byte[] boundary=extractBoundary(type);
     final ANodeList a=new ANodeList(new FAttr(Q_MEDIA_TYPE,token(cType)),new FAttr(Q_BOUNDARY,boundary));
