@@ -1,6 +1,13 @@
 {
   final XQuery query=new XQuery("xs:string(xs:base64Binary(xs:hexBinary(\"F43D1234ce8f\"))) eq \"9D0SNM6P\"",ctx);
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertBoolean(true));
 }

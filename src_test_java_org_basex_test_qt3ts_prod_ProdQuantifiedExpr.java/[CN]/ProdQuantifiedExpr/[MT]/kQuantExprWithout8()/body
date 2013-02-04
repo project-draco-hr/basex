@@ -1,6 +1,13 @@
 {
   final XQuery query=new XQuery("every $i in subsequence((1, 2, 3, current-time()), 1, 3) satisfies boolean($i treat as xs:integer)",ctx);
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertBoolean(true));
 }

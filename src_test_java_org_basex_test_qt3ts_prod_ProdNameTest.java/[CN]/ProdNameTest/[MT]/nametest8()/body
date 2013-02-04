@@ -1,6 +1,13 @@
 {
   final XQuery query=new XQuery("let $var := <a attr1 = \"abc1\"><b attr2 = \"abc2\">context2</b></a> return fn:node-name(exactly-one($var/b))",ctx);
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertStringValue(false,"b"));
 }

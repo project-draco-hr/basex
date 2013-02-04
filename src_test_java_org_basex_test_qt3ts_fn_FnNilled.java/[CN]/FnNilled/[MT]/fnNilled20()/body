@@ -1,6 +1,13 @@
 {
-  final XQuery query=new XQuery(" fn:count(fn:nilled(attribute size {1}))",ctx);
-  final QT3Result res=result(query);
-  result=res;
-  test(assertStringValue(false,"0"));
+  final XQuery query=new XQuery(" fn:nilled(attribute size {1})",ctx);
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
+  test(assertEmpty());
 }

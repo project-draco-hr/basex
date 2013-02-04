@@ -1,7 +1,14 @@
 {
   final XQuery query=new XQuery("count(fn:collection())",ctx);
-  query.addCollection("",new String[]{"docs/bib.xml","docs/reviews.xml"});
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    query.addCollection("",new String[]{file("docs/bib.xml"),file("docs/reviews.xml")});
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertEq("2"));
 }

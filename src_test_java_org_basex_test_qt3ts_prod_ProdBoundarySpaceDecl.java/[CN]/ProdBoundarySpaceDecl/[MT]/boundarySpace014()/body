@@ -1,6 +1,13 @@
 {
   final XQuery query=new XQuery("\n" + "declare boundary-space preserve;\n" + "<res>\n"+ "  a\n"+ "  b\n"+ "  c\n"+ "</res>",ctx);
-  final QT3Result res=result(query);
-  result=res;
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertSerialization("<res>\n  a\n  b\n  c\n</res>",false));
 }

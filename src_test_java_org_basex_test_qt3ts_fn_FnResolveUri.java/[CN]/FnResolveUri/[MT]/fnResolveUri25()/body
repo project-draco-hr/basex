@@ -1,6 +1,13 @@
 {
-  final XQuery query=new XQuery("(: Description: Evaluation of resolve-uri function with an absolute URI for the first argument and a relative URI reference for second argument.:) string(resolve-uri(\"http://www.example.com/a.html\",\"b.html\"))",ctx);
-  final QT3Result res=result(query);
-  result=res;
+  final XQuery query=new XQuery("string(resolve-uri(\"http://www.example.com/a.html\",\"b.html\"))",ctx);
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertStringValue(false,"http://www.example.com/a.html"));
 }

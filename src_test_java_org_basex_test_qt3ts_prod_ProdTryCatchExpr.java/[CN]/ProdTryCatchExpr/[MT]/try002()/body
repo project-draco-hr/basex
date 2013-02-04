@@ -1,7 +1,13 @@
 {
-  final XQuery query=new XQuery("try { doc('rubbish.xml') } catch err:FODC0001 | err:FODC0002 | err:FODC0005 {\"ok\"}",ctx);
-  query.namespace("err","http://www.w3.org/2005/xqt-errors");
-  final QT3Result res=result(query);
-  result=res;
+  final XQuery query=new XQuery("\n" + "        declare namespace err = \"http://www.w3.org/2005/xqt-errors\";\n" + "        try { doc('rubbish.xml') } catch err:FODC0001 | err:FODC0002 | err:FODC0005 {\"ok\"}\n"+ "      ",ctx);
+  try {
+    result=new QT3Result(query.value());
+  }
+ catch (  final Throwable trw) {
+    result=new QT3Result(trw);
+  }
+ finally {
+    query.close();
+  }
   test(assertStringValue(false,"ok"));
 }
