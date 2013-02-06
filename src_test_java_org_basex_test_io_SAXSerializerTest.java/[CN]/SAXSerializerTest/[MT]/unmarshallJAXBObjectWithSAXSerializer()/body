@@ -1,0 +1,13 @@
+{
+  JAXBContext jaxbContext=JAXBContext.newInstance(SAXSerializerObject.class);
+  final ArrayOutput marshalled=new ArrayOutput();
+  jaxbContext.createMarshaller().marshal(new SAXSerializerObject("Object1",42),marshalled);
+  new CreateDB("test1",marshalled.toString()).execute(context);
+  QueryProcessor queryProcessor=new QueryProcessor("//domain-object[@name='Object1']",context);
+  Item item1=queryProcessor.iter().next();
+  SAXSerializer saxSerializer=new SAXSerializer(item1);
+  SAXSource saxSource=new SAXSource(saxSerializer,null);
+  SAXSerializerObject dom=jaxbContext.createUnmarshaller().unmarshal(saxSource,SAXSerializerObject.class).getValue();
+  queryProcessor.close();
+  Assert.assertEquals(42,dom.getValue());
+}
