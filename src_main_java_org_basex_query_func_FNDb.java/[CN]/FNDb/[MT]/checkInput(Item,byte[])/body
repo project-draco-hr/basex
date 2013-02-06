@@ -1,0 +1,41 @@
+{
+  final NewInput ni=new NewInput();
+  if (in.type.isNode()) {
+    if (endsWith(path,'.') || endsWith(path,'/'))     RESINV.thrw(info,path);
+    ANode nd=(ANode)in;
+    byte[] name=path;
+    if (name.length == 0) {
+      name=nd.baseURI();
+      final Data d=nd.data();
+      final int i=d == null || d.inMemory() ? lastIndexOf(name,'/') : indexOf(name,'/');
+      if (i != -1)       name=substring(name,i + 1);
+      if (name.length == 0)       RESINV.thrw(info,name);
+    }
+    if (nd.type != NodeType.DOC) {
+      if (nd.type == NodeType.ATT)       UPDOCTYPE.thrw(info,nd);
+      nd=new FDoc(name).add(nd);
+    }
+    ni.node=nd;
+    ni.path=name;
+    return ni;
+  }
+  if (!in.type.isStringOrUntyped())   throw STRNODTYPE.thrw(info,this,in.type);
+  final QueryInput qi=new QueryInput(Token.string(in.string(info)));
+  if (!qi.io.exists())   WHICHRES.thrw(info,qi.original);
+  String name=string(path);
+  if (name.endsWith("."))   RESINV.thrw(info,path);
+  if (!name.endsWith("/") && (qi.io.isDir() || qi.io.isArchive()))   name+="/";
+  String target="";
+  final int s=name.lastIndexOf('/');
+  if (s != -1) {
+    target=name.substring(0,s);
+    name=name.substring(s + 1);
+  }
+  if (!name.isEmpty())   qi.io.name(name);
+ else   if (!(qi.io instanceof IOContent))   name=qi.io.name();
+  if (name.isEmpty())   RESINV.thrw(info,path);
+  ni.io=qi.io;
+  ni.dbname=token(name);
+  ni.path=token(target);
+  return ni;
+}

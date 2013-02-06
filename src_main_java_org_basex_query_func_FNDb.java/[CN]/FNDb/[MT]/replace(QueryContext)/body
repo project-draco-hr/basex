@@ -1,7 +1,7 @@
 {
   final Data data=checkWrite(data(0,ctx),ctx);
   final String path=path(1,ctx);
-  final Item doc=checkItem(expr[2],ctx);
+  final NewInput input=checkInput(checkItem(expr[2],ctx),token(path));
   final Resources res=data.resources;
   final IntList pre=res.docs(path,true);
   for (int p=0; p < pre.size(); p++) {
@@ -11,10 +11,10 @@
   if (bin != null) {
     if (bin.exists()) {
       if (bin.isDir())       BXDB_SINGLE.thrw(info);
-      ctx.updates.add(new DBStore(data,path,doc,info),ctx);
+      ctx.updates.add(new DBStore(data,path,input,info),ctx);
     }
  else {
-      ctx.updates.add(new DBAdd(data,doc,path,ctx.context,info),ctx);
+      ctx.updates.add(new DBAdd(data,input,ctx,info),ctx);
     }
   }
   return null;
