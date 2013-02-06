@@ -1,5 +1,9 @@
 {
-  final Type tp=type == t.type ? type : AtomType.ITEM;
-  final Occ oc=occ == t.occ ? occ : zeroOrOne() && t.zeroOrOne() ? Occ.ZERO_ONE : Occ.ZERO_MORE;
-  return new SeqType(tp,oc);
+  final Occ o=occ.intersect(t.occ);
+  if (o == null)   return null;
+  final Type tp=type.intersect(t.type);
+  if (tp == null)   return null;
+  if (kind == null || t.kind == null || kind.sameAs(t.kind))   return get(tp,o,kind != null ? kind : t.kind);
+  final Test k=kind.intersect(t.kind);
+  return k == null ? null : get(tp,o,k);
 }

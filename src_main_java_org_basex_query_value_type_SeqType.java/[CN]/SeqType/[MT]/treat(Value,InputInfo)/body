@@ -1,14 +1,10 @@
 {
+  if (val.type().instanceOf(this))   return val;
   final int size=(int)val.size();
   if (!occ.check(size))   Err.treat(ii,this,val);
-  if (size == 0)   return;
-  Item n=val.itemAt(0);
-  boolean ins=n.type.instanceOf(type) && checkKind(n);
-  if (!val.homogeneous()) {
-    for (int i=1; ins && i < size; i++) {
-      n=val.itemAt(i);
-      ins=n.type.instanceOf(type) && checkKind(n);
-    }
-  }
+  if (size == 0)   return Empty.SEQ;
+  boolean ins=instance(val.itemAt(0),true);
+  if (!val.homogeneous())   for (int i=1; ins && i < size; i++)   ins=instance(val.itemAt(i),true);
   if (!ins)   Err.treat(ii,this,val);
+  return val;
 }

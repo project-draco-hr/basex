@@ -1,0 +1,17 @@
+{
+  if (instanceOf(t))   return this;
+  if (t instanceof MapType) {
+    final MapType mt=(MapType)t;
+    if (mt.instanceOf(this))     return mt;
+    final SeqType rt=ret.intersect(mt.ret);
+    return rt == null ? null : get((AtomType)keyType.union(mt.keyType),rt);
+  }
+ else   if (t instanceof FuncType) {
+    final FuncType ft=(FuncType)t;
+    if (ft.args.length == 1 && ft.args[0].instanceOf(SeqType.AAT)) {
+      final SeqType rt=ret.intersect(ft.ret);
+      return rt == null ? null : get((AtomType)keyType.union(ft.args[0].type),rt);
+    }
+  }
+  return null;
+}

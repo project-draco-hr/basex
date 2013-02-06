@@ -23,22 +23,22 @@
       GroupBy.Spec[] grp=null;
       do       grp=groupSpec(clauses,grp);
  while (wsConsume(COMMA));
-      final ArrayList<LocalVarRef> ng=new ArrayList<LocalVarRef>();
+      final ArrayList<VarRef> ng=new ArrayList<VarRef>();
       for (      final GroupBy.Spec spec : grp)       curr.add(spec.var.name.id(),spec.var);
       vars:       for (int i=0; i < curr.size(); i++) {
         final Var v=curr.value(i + 1);
         for (        final GroupBy.Spec spec : grp)         if (spec.var.is(v))         continue vars;
-        ng.add(new LocalVarRef(grp[0].info,v));
+        ng.add(new VarRef(grp[0].info,v));
       }
       final Var[] ngrp=new Var[ng.size()];
       for (int i=ng.size(); --i >= 0; ) {
-        final LocalVarRef v=ng.get(i);
+        final VarRef v=ng.get(i);
         final Var nv=addLocal(v.var.name,null,false);
-        if (v.type().one())         nv.refineType(SeqType.get(v.type().type,Occ.ONE_MORE),grp[0].info);
+        if (v.type().one())         nv.refineType(SeqType.get(v.type().type,Occ.ONE_MORE),ctx,info());
         ngrp[i]=nv;
         curr.add(nv.name.id(),nv);
       }
-      final LocalVarRef[] pre=new LocalVarRef[ng.size()];
+      final VarRef[] pre=new VarRef[ng.size()];
       clauses.add(new GroupBy(grp,ng.toArray(pre),ngrp,grp[0].info));
       alter=GRPBY;
     }
@@ -50,8 +50,8 @@
       OrderBy.Key[] ob=null;
       do       ob=orderSpec(ob);
  while (wsConsume(COMMA));
-      final LocalVarRef[] vs=new LocalVarRef[curr.size()];
-      for (int i=0; i < vs.length; i++)       vs[i]=new LocalVarRef(ob[0].info,curr.value(i + 1));
+      final VarRef[] vs=new VarRef[curr.size()];
+      for (int i=0; i < vs.length; i++)       vs[i]=new VarRef(ob[0].info,curr.value(i + 1));
       clauses.add(new OrderBy(vs,ob,stable,ob[0].info));
       alter=ORDERBY;
     }
