@@ -1,18 +1,18 @@
 {
   final BitArray used=new BitArray();
-  final VarVisitor marker=new VarVisitor(){
+  final ASTVisitor marker=new ASTVisitor(){
     @Override public boolean used(    final VarRef ref){
       used.set(ref.var.id);
       return true;
     }
   }
 ;
-  ret.visitVars(marker);
+  ret.accept(marker);
   boolean change=false;
   for (int i=clauses.size(); --i >= 0; ) {
     final Clause curr=clauses.get(i);
     change|=curr.clean(ctx,used);
-    curr.visitVars(marker);
+    curr.accept(marker);
   }
   return change;
 }
