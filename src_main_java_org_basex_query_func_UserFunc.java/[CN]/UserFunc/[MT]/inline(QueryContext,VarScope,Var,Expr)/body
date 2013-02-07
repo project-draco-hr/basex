@@ -1,10 +1,24 @@
 {
-  boolean change=false;
+  boolean change=false, val=false;
   for (  final Entry<Var,Expr> entry : scope.closure().entrySet()) {
-    final Expr val=entry.getValue().inline(ctx,scp,v,e);
-    if (val != null) {
+    final Expr ex=entry.getValue().inline(ctx,scp,v,e);
+    if (ex != null) {
       change=true;
-      entry.setValue(val);
+      val|=ex.isValue();
+      entry.setValue(ex);
+    }
+  }
+  if (val) {
+    final Value[] sf=scope.enter(ctx);
+    try {
+      for (      final Entry<Var,Expr> entry : staticBindings()) {
+        final Expr inl=expr.inline(ctx,scope,entry.getKey(),entry.getValue());
+        if (inl != null)         expr=inl;
+      }
+      scope.cleanUp(this);
+    }
+  finally {
+      scope.exit(ctx,sf);
     }
   }
   return change ? optimize(ctx,scp) : null;

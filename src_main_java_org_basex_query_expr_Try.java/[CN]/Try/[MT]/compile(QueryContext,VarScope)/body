@@ -4,10 +4,15 @@
     if (expr.isValue())     return optPre(expr,ctx);
   }
  catch (  final QueryException ex) {
-    expr=FNInfo.error(ex,info);
+    for (    final Catch c : ctch) {
+      if (c.matches(ex)) {
+        return optPre(c.compile(ctx,scp).asExpr(ex,ctx,scp),ctx);
+      }
+    }
+    throw ex;
   }
   for (  final Catch c : ctch)   c.compile(ctx,scp);
   type=expr.type();
-  for (  final Catch c : ctch)   type=type.union(c.type());
+  for (  final Catch c : ctch)   if (!c.expr.isFunction(Function.ERROR))   type=type.union(c.type());
   return this;
 }

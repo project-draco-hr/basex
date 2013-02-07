@@ -1,6 +1,21 @@
 {
-  final boolean ct=inlineAll(ctx,scp,ctch,v,e);
-  final Expr sub=expr.inline(ctx,scp,v,e);
-  if (sub != null)   expr=sub;
-  return ct || sub != null ? optimize(ctx,scp) : null;
+  boolean change=false;
+  try {
+    final Expr sub=expr.inline(ctx,scp,v,e);
+    if (sub != null) {
+      if (sub.isValue())       return optPre(sub,ctx);
+      expr=sub;
+      change=true;
+    }
+  }
+ catch (  final QueryException qe) {
+    for (    final Catch c : ctch) {
+      if (c.matches(qe)) {
+        return optPre(c.inline(ctx,scp,v,e).asExpr(qe,ctx,scp),ctx);
+      }
+    }
+    throw qe;
+  }
+  for (  final Catch c : ctch)   change|=c.inline(ctx,scp,v,e) != null;
+  return change ? this : null;
 }
