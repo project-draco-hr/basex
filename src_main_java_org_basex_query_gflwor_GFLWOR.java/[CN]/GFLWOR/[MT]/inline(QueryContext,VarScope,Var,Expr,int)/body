@@ -2,16 +2,27 @@
   boolean change=false;
   final ListIterator<Clause> iter=clauses.listIterator(p);
   while (iter.hasNext()) {
-    final Clause c=iter.next().inline(ctx,scp,v,e);
-    if (c != null) {
-      change=true;
-      iter.set(c);
+    final Clause cl=iter.next();
+    try {
+      final Clause c=cl.inline(ctx,scp,v,e);
+      if (c != null) {
+        change=true;
+        iter.set(c);
+      }
+    }
+ catch (    final QueryException qe) {
+      return clauseError(qe,iter.previousIndex() + 1,cl.info);
     }
   }
-  final Expr rt=ret.inline(ctx,scp,v,e);
-  if (rt != null) {
-    change=true;
-    ret=rt;
+  try {
+    final Expr rt=ret.inline(ctx,scp,v,e);
+    if (rt != null) {
+      change=true;
+      ret=rt;
+    }
+  }
+ catch (  final QueryException qe) {
+    return clauseError(qe,clauses.size(),info);
   }
   return change;
 }
