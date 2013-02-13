@@ -9,16 +9,19 @@
     }
   }
   if (val) {
-    final Value[] sf=scope.enter(ctx);
+    final int fp=scope.enter(ctx);
     try {
       for (      final Entry<Var,Expr> entry : staticBindings()) {
         final Expr inl=expr.inline(ctx,scope,entry.getKey(),entry.getValue());
         if (inl != null)         expr=inl;
       }
-      scope.cleanUp(this);
     }
-  finally {
-      scope.exit(ctx,sf);
+ catch (    final QueryException qe) {
+      expr=FNInfo.error(qe,info);
+    }
+ finally {
+      scope.cleanUp(this);
+      scope.exit(ctx,fp);
     }
   }
   return change ? optimize(ctx,scp) : null;

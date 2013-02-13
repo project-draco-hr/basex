@@ -1,16 +1,27 @@
 {
   if (expr == null)   throw VAREMPTY.thrw(info,this);
   if (!compiled) {
-    final Value[] sf=scope.enter(ctx);
+    final int fp=scope.enter(ctx);
     try {
       expr=expr.compile(ctx,scope);
+    }
+ catch (    final QueryException qe) {
+      compiled=true;
+      if (lazy) {
+        expr=FNInfo.error(qe,info);
+        return this;
+      }
+      throw qe.notCatchable();
+    }
+ finally {
       scope.cleanUp(this);
+      scope.exit(ctx,fp);
     }
-  finally {
-      scope.exit(ctx,sf);
-    }
-    if (expr.isValue())     bind((Value)expr);
     compiled=true;
+    if (!lazy || expr.isValue()) {
+      final Value val=bind(value(ctx));
+      return val;
+    }
   }
   return value != null ? value : this;
 }

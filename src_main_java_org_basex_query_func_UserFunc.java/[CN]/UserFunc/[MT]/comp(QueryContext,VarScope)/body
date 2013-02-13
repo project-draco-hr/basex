@@ -2,14 +2,17 @@
   if (compiled)   return;
   compiled=true;
   for (  Entry<Var,Expr> e : scope.closure().entrySet())   e.setValue(e.getValue().compile(ctx,outer));
-  final Value[] sf=scope.enter(ctx);
+  final int fp=scope.enter(ctx);
   try {
     for (    final Entry<Var,Expr> e : staticBindings())     ctx.set(e.getKey(),e.getValue().value(ctx),info);
     expr=expr.compile(ctx,scope);
-    scope.cleanUp(this);
   }
-  finally {
-    scope.exit(ctx,sf);
+ catch (  final QueryException qe) {
+    expr=FNInfo.error(qe,info);
+  }
+ finally {
+    scope.cleanUp(this);
+    scope.exit(ctx,fp);
   }
   if (tco())   expr=expr.markTailCalls();
   if (ret == null)   return;
