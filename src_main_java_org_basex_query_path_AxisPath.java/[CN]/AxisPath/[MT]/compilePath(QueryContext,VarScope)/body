@@ -1,0 +1,20 @@
+{
+  if (root instanceof AxisPath) {
+    Expr[] st=((AxisPath)root).steps;
+    root=((AxisPath)root).root;
+    for (    final Expr s : steps)     st=Array.add(st,s);
+    steps=st;
+    ctx.compInfo(OPTMERGE);
+    ctx.value=root(ctx);
+  }
+  final AxisStep s=voidStep(steps);
+  if (s != null)   COMPSELF.thrw(info,s);
+  for (int i=0; i != steps.length; ++i) {
+    final Expr e=steps[i].compile(ctx,scp);
+    if (!(e instanceof AxisStep))     return e;
+    steps[i]=e;
+  }
+  optSteps(ctx);
+  final Expr path=optimize(ctx,scp);
+  return size() != 1 ? path : new Filter(info,this,Pos.get(1,size(),info)).comp2(ctx);
+}

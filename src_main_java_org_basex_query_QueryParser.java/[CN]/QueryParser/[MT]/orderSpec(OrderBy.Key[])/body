@@ -1,0 +1,16 @@
+{
+  final Expr e=check(single(),ORDERBY);
+  boolean desc=false;
+  if (!wsConsumeWs(ASCENDING))   desc=wsConsumeWs(DESCENDING);
+  boolean least=!ctx.sc.orderGreatest;
+  if (wsConsumeWs(EMPTYORD)) {
+    least=!wsConsumeWs(GREATEST);
+    if (least)     wsCheck(LEAST);
+  }
+  if (wsConsumeWs(COLLATION)) {
+    final Uri coll=uriLiteral();
+    if (!eq(URLCOLL,coll.string()))     error(coll.isValid() ? WHICHCOLL : INVURI,coll);
+  }
+  final OrderBy.Key ord=new OrderBy.Key(info(),e,desc,least);
+  return order == null ? new OrderBy.Key[]{ord} : Array.add(order,ord);
+}

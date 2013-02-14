@@ -1,18 +1,18 @@
 {
   final boolean some=wsConsumeWs(SOME,DOLLAR,NOSOME);
   if (!some && !wsConsumeWs(EVERY,DOLLAR,NOSOME))   return null;
-  final int s=ctx.vars.size();
+  final int s=scope.open();
   For[] fl={};
   do {
-    final Var var=typedVar(false,null);
+    final QNm nm=varName();
+    final SeqType tp=optAsType();
     wsCheck(IN);
     final Expr e=check(single(),NOSOME);
-    ctx.vars.add(var);
-    fl=Array.add(fl,new For(info(),e,var));
+    fl=Array.add(fl,new For(addLocal(nm,tp,false),null,null,e,false,info()));
   }
  while (wsConsume(COMMA));
   wsCheck(SATISFIES);
   final Expr e=check(single(),NOSOME);
-  ctx.vars.size(s);
+  scope.close(s);
   return new Quantifier(info(),fl,e,!some);
 }

@@ -1,0 +1,15 @@
+{
+  final Value cv=ctx.value;
+  try {
+    root=root.compile(ctx,scp);
+    if (root.isEmpty())     return optPre(null,ctx);
+    if (root instanceof AxisPath && !super.uses(Use.POS))     return ((AxisPath)root.copy(ctx,scp)).addPreds(ctx,scp,preds).compile(ctx,scp);
+    ctx.value=null;
+    final Expr e=super.compile(ctx,scp);
+    if (e != this)     return e;
+    return preds.length == 0 ? root : comp2(ctx);
+  }
+  finally {
+    ctx.value=cv;
+  }
+}

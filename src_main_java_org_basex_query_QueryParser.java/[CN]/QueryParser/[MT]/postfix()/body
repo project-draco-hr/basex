@@ -15,10 +15,13 @@
  else     if (e != null) {
       final Expr[] args=argumentList(e);
       if (args == null)       break;
-      final Var[] part=new Var[args.length];
-      final boolean pt=partial(args,part);
+      final PartFunc.Env env=partial(args);
       e=new DynamicFunc(info(),e,args);
-      if (pt)       e=new PartFunc(info(),e,part,ctx);
+      if (env != null) {
+        scope=env.scope;
+        e=new PartFunc(info(),fixScope(e),env,ctx.sc);
+        scope=scope.parent();
+      }
     }
   }
  while (e != old);

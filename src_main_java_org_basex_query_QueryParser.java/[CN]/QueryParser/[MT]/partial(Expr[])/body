@@ -1,0 +1,25 @@
+{
+  PartFunc.Env env=null;
+  for (  final Expr e : args) {
+    if (e == null) {
+      scope=scope.child();
+      env=new PartFunc.Env(scope);
+      break;
+    }
+  }
+  if (env != null) {
+    final InputInfo ii=info();
+    for (int i=0; i < args.length; i++) {
+      if (args[i] == null) {
+        final Var arg=scope.uniqueVar(ctx,null,true);
+        env.add(i,arg);
+        args[i]=new VarRef(ii,arg);
+      }
+ else {
+        fixScope(args[i]);
+      }
+    }
+    scope=scope.parent();
+  }
+  return env;
+}

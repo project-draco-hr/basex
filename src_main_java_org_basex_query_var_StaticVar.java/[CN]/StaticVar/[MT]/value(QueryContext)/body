@@ -1,0 +1,25 @@
+{
+  if (lazy) {
+    if (!compiled)     throw Util.notexpected(this + " was not compiled.");
+    if (value != null)     return value;
+    final int fp=scope.enter(ctx);
+    try {
+      return bind(expr.value(ctx));
+    }
+ catch (    final QueryException qe) {
+      throw qe.notCatchable();
+    }
+ finally {
+      scope.exit(ctx,fp);
+    }
+  }
+  if (value != null)   return value;
+  if (expr == null)   throw VAREMPTY.thrw(info,this);
+  final int fp=scope.enter(ctx);
+  try {
+    return bind(expr.value(ctx));
+  }
+  finally {
+    scope.exit(ctx,fp);
+  }
+}

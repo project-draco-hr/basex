@@ -1,22 +1,21 @@
 {
   if (!wsConsumeWs(COPY,DOLLAR,INCOMPLETE))   return null;
-  final int s=ctx.vars.size();
+  final int s=scope.open();
   final boolean u=ctx.updating;
   ctx.updating(false);
   Let[] fl={};
   do {
-    final Var v=typedVar(SeqType.NOD);
+    final Var v=addLocal(varName(),SeqType.NOD,false);
     wsCheck(ASSIGN);
     final Expr e=check(single(),INCOMPLETE);
-    ctx.vars.add(v);
-    fl=Array.add(fl,new Let(info(),e,v));
+    fl=Array.add(fl,new Let(v,e,false,info()));
   }
  while (wsConsumeWs(COMMA));
   wsCheck(MODIFY);
   final Expr m=check(single(),INCOMPLETE);
   wsCheck(RETURN);
   final Expr r=check(single(),INCOMPLETE);
-  ctx.vars.size(s);
+  scope.close(s);
   ctx.updating=u;
   return new Transform(info(),fl,m,r);
 }

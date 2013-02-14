@@ -1,0 +1,131 @@
+{
+  return new Eval(){
+    /** 
+ * Sorted output tuples. 
+ */
+    private Value[][] tpls;
+    /** 
+ * Permutation of the values. 
+ */
+    private int[] perm;
+    /** 
+ * Current position. 
+ */
+    int pos;
+    @Override public boolean next(    final QueryContext ctx) throws QueryException {
+      if (tpls == null)       init(ctx);
+      if (pos == tpls.length)       return false;
+      final int p=perm[pos++];
+      final Value[] tuple=tpls[p];
+      tpls[p]=null;
+      for (int i=0; i < tvars.length; i++)       ctx.set(tvars[i],tuple[i],info);
+      return true;
+    }
+    /** 
+ * Caches and sorts all incoming tuples.
+ * @param ctx query context
+ * @throws QueryException evaluation exception
+ */
+    private void init(    final QueryContext ctx) throws QueryException {
+      List<Value[]> tuples=new ArrayList<Value[]>();
+      while (sub.next(ctx)) {
+        final Item[] key=new Item[keys.length];
+        for (int i=0; i < keys.length; i++)         key[i]=keys[i].expr.item(ctx,keys[i].info);
+        tuples.add(key);
+        final Value[] vals=new Value[tvars.length];
+        for (int i=0; i < tvars.length; i++)         vals[i]=texpr[i].value(ctx);
+        tuples.add(vals);
+      }
+      final int len=tuples.size() >>> 1;
+      final Item[][] ks=new Item[len][];
+      perm=new int[len];
+      tpls=new Value[len][];
+      for (int i=0; i < len; i++) {
+        perm[i]=i;
+        tpls[i]=tuples.get((i << 1) | 1);
+        ks[i]=(Item[])tuples.get(i << 1);
+      }
+      tuples=null;
+      sort(ks,0,len);
+    }
+    /** 
+ * Recursively sorts the specified items.
+ * The algorithm is derived from {@link Arrays#sort(int[])}.
+ * @param start start position
+ * @param len end position
+ * @throws QueryException query exception
+ */
+    private void sort(    final Item[][] ks,    final int start,    final int len) throws QueryException {
+      if (len < 7) {
+        for (int i=start; i < len + start; i++)         for (int j=i; j > start && cmp(ks,perm[j - 1],perm[j]) > 0; j--)         swap(perm,j,j - 1);
+        return;
+      }
+      int mid=start + (len >> 1);
+      if (len > 7) {
+        int left=start, right=start + len - 1;
+        if (len > 40) {
+          final int k=len >>> 3;
+          left=median(ks,left,left + k,left + (k << 1));
+          mid=median(ks,mid - k,mid,mid + k);
+          right=median(ks,right - (k << 1),right - k,right);
+        }
+        mid=median(ks,left,mid,right);
+      }
+      final int pivot=perm[mid];
+      int a=start, b=a, c=start + len - 1, d=c;
+      while (true) {
+        while (b <= c) {
+          final int h=cmp(ks,perm[b],pivot);
+          if (h > 0)           break;
+          if (h == 0)           swap(perm,a++,b);
+          ++b;
+        }
+        while (c >= b) {
+          final int h=cmp(ks,perm[c],pivot);
+          if (h < 0)           break;
+          if (h == 0)           swap(perm,c,d--);
+          --c;
+        }
+        if (b > c)         break;
+        swap(perm,b++,c--);
+      }
+      int k;
+      final int n=start + len;
+      k=Math.min(a - start,b - a);
+      swap(perm,start,b - k,k);
+      k=Math.min(d - c,n - d - 1);
+      swap(perm,b,n - k,k);
+      if ((k=b - a) > 1)       sort(ks,start,k);
+      if ((k=d - c) > 1)       sort(ks,n - k,k);
+    }
+    /** 
+ * Returns the difference of two entries (part of QuickSort).
+ * @return result
+ * @throws QueryException query exception
+ */
+    private int cmp(    final Item[][] ks,    final int x,    final int y) throws QueryException {
+      final Item[] a=ks[x], b=ks[y];
+      for (int k=0; k < keys.length; k++) {
+        final Key or=keys[k];
+        final Item m=a[k] == Dbl.NAN || a[k] == Flt.NAN ? null : a[k], n=b[k] == Dbl.NAN || b[k] == Flt.NAN ? null : b[k];
+        final int c=m == null ? n == null ? 0 : or.least ? -1 : 1 : n == null ? or.least ? 1 : -1 : m.diff(or.info,n);
+        if (c != 0)         return or.desc ? -c : c;
+      }
+      return stable ? x - y : 0;
+    }
+    /** 
+ * Returns the index of the median of the three indexed integers.
+ * @param ks key array
+ * @param a first offset
+ * @param b second offset
+ * @param c thirst offset
+ * @return median
+ * @throws QueryException query exception
+ */
+    private int median(    final Item[][] ks,    final int a,    final int b,    final int c) throws QueryException {
+      final int ka=perm[a], kb=perm[b], kc=perm[c];
+      return cmp(ks,ka,kb) < 0 ? cmp(ks,kb,kc) < 0 ? b : cmp(ks,ka,kc) < 0 ? c : a : cmp(ks,kb,kc) > 0 ? b : cmp(ks,ka,kc) > 0 ? c : a;
+    }
+  }
+;
+}

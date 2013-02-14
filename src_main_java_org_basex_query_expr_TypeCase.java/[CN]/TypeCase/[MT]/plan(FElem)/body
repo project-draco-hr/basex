@@ -1,3 +1,18 @@
 {
-  addPlan(plan,planElem(VAR,var.name != null ? var.name.string() : ""),expr);
+  final FElem e=planElem();
+  if (types.length == 0) {
+    e.add(planAttr(Token.token(DEFAULT),Token.TRUE));
+  }
+ else {
+    final byte[] or=new byte[]{' ','|',' '};
+    final ByteList bl=new ByteList();
+    for (    final SeqType t : types) {
+      if (bl.size() > 0)       bl.add(or);
+      bl.add(Token.token(t.toString()));
+    }
+    e.add(planAttr(Token.token(TYPE),bl.toArray()));
+  }
+  if (var != null)   e.add(planAttr(VAR,Token.token(var.toString())));
+  expr.plan(e);
+  plan.add(e);
 }
