@@ -3,16 +3,16 @@
   for (int p=0; p < path.length; p++) {
     Expr e=path[p];
     if (e instanceof Context) {
-      e=AxisStep.get(((Context)e).info,Axis.SELF,Test.NOD);
+      e=Step.get(((Context)e).info,Axis.SELF,Test.NOD);
     }
  else     if (e instanceof Filter) {
       final Filter f=(Filter)e;
       if (f.root instanceof Context) {
-        e=AxisStep.get(f.info,Axis.SELF,Test.NOD,f.preds);
+        e=Step.get(f.info,Axis.SELF,Test.NOD,f.preds);
       }
     }
-    axes&=e instanceof AxisStep;
+    axes&=e instanceof Step;
     path[p]=e;
   }
-  return axes ? new AxisPath(ii,r,path).finish(null) : new MixedPath(ii,r,path);
+  return axes ? new CachedPath(ii,r,path).finish(null) : new MixedPath(ii,r,path);
 }
