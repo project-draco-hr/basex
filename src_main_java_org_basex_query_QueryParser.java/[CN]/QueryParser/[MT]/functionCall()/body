@@ -2,16 +2,26 @@
   final int i=ip;
   final QNm name=eQName(null,ctx.sc.nsFunc);
   if (name != null && !keyword(name)) {
-    final Expr[] args=argumentList(name.string());
-    if (args != null) {
+    if (wsConsume(PAR1)) {
+      final InputInfo ii=info();
+      final ArrayList<Expr> argList=new ArrayList<Expr>();
+      final int[] holes=argumentList(argList,name.string());
+      final Expr[] args=argList.toArray(new Expr[argList.size()]);
       alter=FUNCUNKNOWN;
       alterFunc=name;
       ap=ip;
-      final PartFunc.Env env=partial(args);
-      final TypedFunc f=Functions.get(name,args,false,ctx,info());
-      if (f != null) {
+      final Expr ret;
+      if (holes != null) {
+        final FItem f=Functions.get(name,args.length + holes.length,false,ctx,ii);
+        ret=f == null ? null : new PartFunc(ii,f,args,holes);
+      }
+ else {
+        final TypedFunc f=Functions.get(name,args,false,ctx,ii);
+        ret=f == null ? null : f.fun;
+      }
+      if (ret != null) {
         alter=null;
-        return env != null ? new PartFunc(name,info(),f,env,ctx.sc) : f.fun;
+        return ret;
       }
     }
   }
