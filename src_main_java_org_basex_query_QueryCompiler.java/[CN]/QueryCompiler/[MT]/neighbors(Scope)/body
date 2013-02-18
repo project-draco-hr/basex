@@ -1,0 +1,27 @@
+{
+  final IntList adj=new IntList();
+  final boolean ok=curr.visit(new ASTVisitor(){
+    @Override public boolean staticVar(    final StaticVar var){
+      return var != curr && neighbor(var);
+    }
+    @Override public boolean funcCall(    final UserFuncCall call){
+      return neighbor(call.func());
+    }
+    @Override public boolean inlineFunc(    final Scope sub){
+      return sub.visit(this);
+    }
+    /** 
+ * Adds a neighbor of the currently inspected scope.
+ * @param scp the neighbor
+ * @return {@code true} for convenience
+ */
+    private boolean neighbor(    final Scope scp){
+      final int old=id(scp), id=old == -1 ? add(scp) : old;
+      if (old == -1 || !adj.contains(id))       adj.add(id);
+      return true;
+    }
+  }
+);
+  if (!ok)   throw Err.VARUNDEF.thrw(((StaticVar)curr).info,curr);
+  return adj.toArray();
+}
