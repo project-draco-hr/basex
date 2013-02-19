@@ -1,14 +1,7 @@
 {
   final int ch=text.curr();
-  if (comm > 0) {
-    if (ch == '<') {
-      comm++;
-    }
- else     if (ch == '>') {
-      comm--;
-    }
-    return comm > 0 ? COMMENT : KEYWORD;
-  }
+  if (comment > 0)   return comment(ch);
+  if (pi > 0)   return pi(ch);
   if (tag) {
     if (quote != 0) {
       if (quote == ch)       quote=0;
@@ -26,7 +19,12 @@
       return KEYWORD;
     }
     if (ch == '!') {
-      comm++;
+      comment=1;
+      tag=false;
+      return COMMENT;
+    }
+    if (ch == '?') {
+      pi=1;
       tag=false;
       return COMMENT;
     }
