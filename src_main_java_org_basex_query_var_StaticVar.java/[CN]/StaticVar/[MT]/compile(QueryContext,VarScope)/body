@@ -1,8 +1,10 @@
 {
   if (expr == null)   throw (declared ? VAREMPTY : VARUNDEF).thrw(info,this);
+  if (dontEnter)   throw Err.circVar(ctx,this);
   if (!compiled) {
     final StaticContext tmp=ctx.sc;
     ctx.sc=sc;
+    dontEnter=true;
     final int fp=scope.enter(ctx);
     try {
       expr=expr.compile(ctx,scope);
@@ -19,6 +21,7 @@
       scope.cleanUp(this);
       scope.exit(ctx,fp);
       ctx.sc=tmp;
+      dontEnter=false;
     }
     compiled=true;
     if (!lazy || expr.isValue()) {
