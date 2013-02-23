@@ -1,8 +1,18 @@
 {
-  final String key=args[0].toUpperCase(Locale.ENGLISH);
-  Object type=prop.get(key);
-  if (type == null && context.user.has(Perm.ADMIN))   type=mprop.get(key);
-  if (type == null)   return error(prop.unknown(key));
-  out.println(key + COLS + type);
+  if (args[0] == null) {
+    if (context.user.has(Perm.ADMIN)) {
+      out.println(MAIN_OPTIONS + COL);
+      for (      final String s : mprop)       out.println(s + COLS + mprop.get(s));
+    }
+    out.println(NL + OPTIONS + COL);
+    for (    final String s : prop)     out.println(s + COLS + prop.get(s));
+  }
+ else {
+    final String key=args[0].toUpperCase(Locale.ENGLISH);
+    Object type=prop.get(key);
+    if (type == null && context.user.has(Perm.ADMIN))     type=mprop.get(key);
+    if (type == null)     return error(prop.unknown(key));
+    out.println(key + COLS + type);
+  }
   return true;
 }
