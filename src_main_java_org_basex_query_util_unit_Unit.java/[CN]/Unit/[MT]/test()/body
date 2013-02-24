@@ -21,25 +21,20 @@
     if (indexOf(uf,AFTER_MODULE) != -1)     afterModule.add(uf);
   }
   try {
-    for (    final UserFunc uf : beforeModule)     eval(uf,0);
+    for (    final UserFunc uf : beforeModule)     eval(uf);
     for (    final UserFunc uf : ctx.funcs.funcs()) {
       if (!file.eq(new IOFile(uf.info.file())))       continue;
       final int pos=indexOf(uf,TEST);
       if (pos == -1)       continue;
       final Value values=uf.ann.values[pos];
       final long vs=values.size();
-      if (vs % 2 != 0)       BXUN_ANN.thrw(info,'%',uf.ann.names[0]);
       byte[] code=null;
-      long time=0;
-      for (int v=0; v < vs; v+=2) {
-        final byte[] key=values.itemAt(v).string(info);
-        final byte[] val=values.itemAt(v + 1).string(info);
-        if (eq(key,EXPECTED)) {
-          code=val;
+      if (vs != 0) {
+        if (vs == 2 && eq(EXPECTED,values.itemAt(0).string(info))) {
+          code=values.itemAt(1).string(info);
         }
- else         if (eq(key,TIMEOUT)) {
-          time=toInt(val);
-          if (time < 0)           BXUN_ANN.thrw(info,'%',uf.ann.names[0]);
+ else {
+          BXUN_ANN.thrw(info,'%',uf.ann.names[0]);
         }
       }
       final FElem test=new FElem(Q_TESTCASE).add(Q_NAME,uf.name.local());
@@ -55,9 +50,9 @@
       }
  else {
         try {
-          for (          final UserFunc fn : before)           eval(fn,0);
-          eval(uf,time);
-          for (          final UserFunc fn : after)           eval(fn,0);
+          for (          final UserFunc fn : before)           eval(fn);
+          eval(uf);
+          for (          final UserFunc fn : after)           eval(fn);
           if (code != null) {
             f++;
             final FElem error=new FElem(Q_FAILURE);
@@ -66,13 +61,7 @@
             test.add(error);
           }
         }
- catch (        final ProgressException ex) {
-          final FElem error=new FElem(Q_ERROR);
-          error.add(Q_MESSAGE,"Timed out (" + time + " ms)");
-          error.add(Q_TYPE,QueryText.XQUNIT);
-          test.add(error);
-        }
-catch (        final QueryException ex) {
+ catch (        final QueryException ex) {
           final QNm name=ex.qname();
           if (code == null || !eq(code,name.local())) {
             final boolean failure=eq(name.uri(),QueryText.XQUNITURI);
@@ -89,7 +78,7 @@ catch (        final QueryException ex) {
       test.add(Q_TIME,time(pt));
       tests.add(test);
     }
-    for (    final UserFunc uf : afterModule)     eval(uf,0);
+    for (    final UserFunc uf : afterModule)     eval(uf);
   }
  catch (  final QueryException ex) {
     final FElem test=new FElem(Q_TESTCASE).add(Q_NAME,current.name.local());
