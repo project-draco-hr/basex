@@ -1,0 +1,20 @@
+{
+  final JsonCGHandler handler=new JsonCGHandler();
+  JsonParser.parse(string(in),Spec.RFC_4627,handler,null);
+  final ByteList[] types=new ByteList[TYPES.length];
+  for (int n=0; n < handler.names.size(); n++) {
+    final TypedArray arr=handler.names.value(n + 1);
+    if (arr != null) {
+      for (int i=0; i < NAMES.length; i++) {
+        if (arr.type == NAMES[i] && arr.type != T_STRING) {
+          if (types[i] == null)           types[i]=new ByteList();
+ else           types[i].add(' ');
+          types[i].add(arr.vals[0].qname().string());
+          break;
+        }
+      }
+    }
+  }
+  for (int i=0; i < types.length; i++)   if (types[i] != null)   handler.elem.add(TYPES[i],types[i].toArray());
+  return handler.elem;
+}
