@@ -18,22 +18,15 @@
   final boolean java=startsWith(uri,JAVAPREF);
   String uriPath=uri2path(string(java ? substring(uri,JAVAPREF.length) : uri));
   if (uriPath == null)   return false;
-  final boolean suffix=!IO.suffix(uriPath).isEmpty();
   if (!java) {
     final String path=context.mprop.get(MainProp.REPOPATH) + uriPath;
-    if (suffix) {
-      final IOFile f=new IOFile(path);
-      if (f.hasSuffix(IO.XQSUFFIXES))       return addModule(f,uri,qp);
-    }
- else {
-      for (      final String suf : IO.XQSUFFIXES) {
-        if (addModule(new IOFile(path + suf),uri,qp))         return true;
-      }
+    for (    final String suf : IO.XQSUFFIXES) {
+      if (addModule(new IOFile(path + suf),uri,qp))       return true;
     }
   }
   uriPath=capitalize(uriPath);
   final String path=context.mprop.get(MainProp.REPOPATH) + uriPath;
-  final IOFile file=new IOFile(path + (suffix ? "" : IO.JARSUFFIX));
+  final IOFile file=new IOFile(path + IO.JARSUFFIX);
   if (file.exists())   addURL(file);
   addJava(uriPath,uri,ii);
   return true;
