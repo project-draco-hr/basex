@@ -1,0 +1,101 @@
+{
+  final FElem tests=new FElem(Q_TESTSUITE);
+  tests.add(Q_NAME,ctx.sc.baseURI().string());
+  int t=0, e=0, f=0, s=0;
+  final IO file=ctx.sc.baseIO();
+  final Performance p=new Performance();
+  for (  final UserFunc uf : ctx.funcs.funcs()) {
+    if (!file.eq(new IOFile(uf.info.file())))     continue;
+    final Ann ann=uf.ann;
+    final int as=ann.size();
+    boolean xq=false;
+    for (int a=0; !xq && a < as; a++) {
+      xq|=eq(ann.names[a].uri(),QueryText.XQUNITURI);
+    }
+    if (!xq)     continue;
+    if (uf.updating)     BXUN_UPDATE.thrw(info,uf.name.local());
+    if (uf.args.length > 0)     BXUN_ARGS.thrw(info,uf.name.local());
+    if (indexOf(uf,BEFORE) != -1)     before.add(uf);
+    if (indexOf(uf,AFTER) != -1)     after.add(uf);
+    if (indexOf(uf,BEFORE_MODULE) != -1)     beforeModule.add(uf);
+    if (indexOf(uf,AFTER_MODULE) != -1)     afterModule.add(uf);
+  }
+  try {
+    for (    final UserFunc uf : beforeModule)     eval(uf,0);
+    for (    final UserFunc uf : ctx.funcs.funcs()) {
+      if (!file.eq(new IOFile(uf.info.file())))       continue;
+      final int pos=indexOf(uf,TEST);
+      if (pos == -1)       continue;
+      final Value values=uf.ann.values[pos];
+      final long vs=values.size();
+      if (values.size() % 2 != 0)       BXUN_ANN.thrw(info,'%',uf.ann.names[0]);
+      byte[] code=null;
+      long time=0;
+      for (int v=0; v < vs; v+=2) {
+        final byte[] key=values.itemAt(v).string(info);
+        final byte[] val=values.itemAt(v + 1).string(info);
+        if (eq(key,EXPECTED)) {
+          code=val;
+        }
+ else         if (eq(key,TIMEOUT)) {
+          time=toInt(val);
+          if (time < 0)           BXUN_ANN.thrw(info,'%',uf.ann.names[0]);
+        }
+      }
+      final FElem test=new FElem(Q_TESTCASE).add(Q_NAME,uf.name.local());
+      t++;
+      final Performance pt=new Performance();
+      if (indexOf(uf,IGNORE) != -1) {
+        test.add(new FElem(Q_SKIPPED));
+        s++;
+      }
+ else {
+        try {
+          for (          final UserFunc fn : before)           eval(fn,0);
+          eval(uf,time);
+          for (          final UserFunc fn : after)           eval(fn,0);
+          if (code != null) {
+            f++;
+            final FElem error=new FElem(Q_FAILURE);
+            error.add(Q_MESSAGE,"Error expected.");
+            error.add(Q_TYPE,code);
+            test.add(error);
+          }
+        }
+ catch (        final ProgressException ex) {
+          final FElem error=new FElem(Q_ERROR);
+          error.add(Q_MESSAGE,"Timed out (" + time + " ms)");
+          error.add(Q_TYPE,QueryText.XQUNIT);
+          test.add(error);
+        }
+catch (        final QueryException ex) {
+          final QNm name=ex.qname();
+          if (code == null || !eq(code,name.local())) {
+            final boolean failure=eq(name.uri(),QueryText.XQUNITURI);
+            if (failure)             f++;
+ else             e++;
+            final QNm nm=failure ? Q_FAILURE : Q_ERROR;
+            final FElem error=new FElem(nm);
+            error.add(Q_MESSAGE,ex.getLocalizedMessage());
+            error.add(Q_TYPE,ex.qname().local());
+            test.add(error);
+          }
+        }
+      }
+      test.add(Q_TIME,time(pt));
+      tests.add(test);
+    }
+    for (    final UserFunc uf : afterModule)     eval(uf,0);
+  }
+ catch (  final QueryException ex) {
+    final FElem test=new FElem(Q_TESTCASE).add(Q_NAME,current.name.local());
+    test.add(Q_TIME,time(p));
+    tests.add(test);
+  }
+  tests.add(Q_TIME,time(p));
+  tests.add(Q_TESTS,token(t));
+  tests.add(Q_FAILURES,token(f));
+  tests.add(Q_ERRORS,token(e));
+  tests.add(Q_SKIPPED,token(s));
+  return tests;
+}

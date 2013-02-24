@@ -1,0 +1,23 @@
+{
+  final FElem suites=new FElem(Q_TESTSUITES);
+  for (  final byte[] path : libs) {
+    final IO io=IO.get(string(path));
+    if (!io.exists())     WHICHRES.thrw(info,path);
+    try {
+      final QueryContext qc=new QueryContext(ctx.context);
+      qc.sc.baseURI(io.path());
+      try {
+        qc.module(string(io.read()));
+        qc.compile();
+        suites.add(new Unit(qc,info).test());
+      }
+  finally {
+        qc.close();
+      }
+    }
+ catch (    final IOException ex) {
+      throw IOERR.thrw(info,ex);
+    }
+  }
+  return suites;
+}
