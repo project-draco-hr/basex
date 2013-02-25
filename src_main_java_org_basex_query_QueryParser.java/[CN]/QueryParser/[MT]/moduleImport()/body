@@ -9,7 +9,10 @@
   if (!Uri.uri(uri).isValid())   error(INVURI,uri);
   if (modules.contains(uri))   error(DUPLMODULE,uri);
   modules.add(uri);
-  if (ns != EMPTY)   ctx.sc.ns.add(ns,uri,info());
+  if (ns != EMPTY) {
+    if (ctx.sc.ns.staticURI(ns) != null)     error(DUPLNSDECL,ns);
+    ctx.sc.ns.add(ns,uri,info());
+  }
   try {
     if (wsConsumeWs(AT)) {
       do {

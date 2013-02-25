@@ -1,0 +1,19 @@
+{
+  final IO io=IO.get(path);
+  byte[] cont=null;
+  try {
+    cont=io.read();
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    BXRE_WHICH.thrw(info,path);
+  }
+  try {
+    if (io.hasSuffix(IO.XQSUFFIXES))     return installXQ(cont,path);
+    if (io.hasSuffix(IO.JARSUFFIX))     return installJAR(cont);
+    return installXAR(cont);
+  }
+ catch (  final IOException ex) {
+    throw BXRE_PARSE.thrw(info,io.name(),ex);
+  }
+}

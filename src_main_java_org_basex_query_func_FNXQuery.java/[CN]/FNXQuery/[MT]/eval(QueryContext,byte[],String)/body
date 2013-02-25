@@ -1,0 +1,18 @@
+{
+  final QueryContext qc=new QueryContext(ctx.context);
+  for (  final Map.Entry<String,Value> it : bindings(1,ctx).entrySet()) {
+    final String k=it.getKey();
+    final Value v=it.getValue();
+    if (k.isEmpty())     qc.context(v,null);
+ else     qc.bind(k,v,null);
+  }
+  try {
+    qc.parse(string(qu),path);
+    if (qc.updating)     BXXQ_UPDATING.thrw(info);
+    qc.compile();
+    return qc.value();
+  }
+  finally {
+    qc.close();
+  }
+}
