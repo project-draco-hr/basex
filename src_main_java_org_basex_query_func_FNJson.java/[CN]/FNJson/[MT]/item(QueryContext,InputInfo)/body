@@ -1,9 +1,11 @@
 {
 switch (sig) {
 case _JSON_PARSE:
-    return new JsonCGConverter(info).parse(checkStr(expr[0],ctx));
+    final Map cfg=expr.length < 2 ? Map.EMPTY : checkMap(checkItem(expr[1],ctx));
+  final JsonConverter conv=getConverter(cfg,ctx);
+return conv.convert(string(checkStr(expr[0],ctx))).item(ctx,ii);
 case _JSON_PARSE_ML:
-  return new JsonMLConverter(info).parse(checkStr(expr[0],ctx));
+return new JsonMLConverter(info).convert(string(checkStr(expr[0],ctx)));
 case _JSON_SERIALIZE:
 return serialize(false,ctx);
 case _JSON_SERIALIZE_ML:
