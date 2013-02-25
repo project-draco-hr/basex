@@ -1,9 +1,11 @@
 {
+  if (dontEnter)   throw Err.circVar(ctx,this);
   if (lazy) {
     if (!compiled)     throw Util.notexpected(this + " was not compiled.");
     if (value != null)     return value;
     final StaticContext tmp=ctx.sc;
     ctx.sc=sc;
+    dontEnter=true;
     final int fp=scope.enter(ctx);
     try {
       return bind(expr.value(ctx));
@@ -14,10 +16,12 @@
  finally {
       scope.exit(ctx,fp);
       ctx.sc=tmp;
+      dontEnter=false;
     }
   }
   if (value != null)   return value;
   if (expr == null)   throw VAREMPTY.thrw(info,this);
+  dontEnter=true;
   final int fp=scope.enter(ctx);
   final StaticContext tmp=ctx.sc;
   ctx.sc=sc;
@@ -27,5 +31,6 @@
   finally {
     scope.exit(ctx,fp);
     ctx.sc=tmp;
+    dontEnter=false;
   }
 }
