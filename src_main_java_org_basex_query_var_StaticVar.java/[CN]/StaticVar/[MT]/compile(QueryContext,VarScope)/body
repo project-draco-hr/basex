@@ -1,6 +1,8 @@
 {
   if (expr == null)   throw (declared ? VAREMPTY : VARUNDEF).thrw(info,this);
   if (!compiled) {
+    final StaticContext tmp=ctx.sc;
+    ctx.sc=sc;
     final int fp=scope.enter(ctx);
     try {
       expr=expr.compile(ctx,scope);
@@ -16,6 +18,7 @@
  finally {
       scope.cleanUp(this);
       scope.exit(ctx,fp);
+      ctx.sc=tmp;
     }
     compiled=true;
     if (!lazy || expr.isValue()) {

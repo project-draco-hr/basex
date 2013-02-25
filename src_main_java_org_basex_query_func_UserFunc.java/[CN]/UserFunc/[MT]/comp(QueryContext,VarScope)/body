@@ -2,6 +2,8 @@
   if (compiled)   return;
   compiled=true;
   for (  Entry<Var,Expr> e : scope.closure().entrySet())   e.setValue(e.getValue().compile(ctx,outer));
+  final StaticContext tmp=ctx.sc;
+  ctx.sc=sc;
   final int fp=scope.enter(ctx);
   try {
     for (    final Entry<Var,Expr> e : staticBindings())     ctx.set(e.getKey(),e.getValue().value(ctx),info);
@@ -13,6 +15,7 @@
  finally {
     scope.cleanUp(this);
     scope.exit(ctx,fp);
+    ctx.sc=tmp;
   }
   if (tco())   expr=expr.markTailCalls();
   if (ret == null)   return;
