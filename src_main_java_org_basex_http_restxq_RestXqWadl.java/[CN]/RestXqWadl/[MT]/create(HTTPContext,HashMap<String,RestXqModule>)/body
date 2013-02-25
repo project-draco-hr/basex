@@ -1,0 +1,27 @@
+{
+  final Atts ns=new Atts(Token.EMPTY,WADL);
+  final FElem appl=new FElem(new QNm("application",WADL),ns);
+  final FElem ress=new FElem(new QNm("resources",WADL));
+  final String base=http.req.getRequestURL().toString().replaceAll(HTTPText.WADL,"");
+  appl.add(ress.add(new QNm("base"),base));
+  for (  final RestXqModule mod : modules.values()) {
+    for (    final RestXqFunction func : mod.functions) {
+      final FElem res=new FElem(new QNm("resource",WADL));
+      ress.add(res.add(new QNm("path"),func.path.toString()));
+      final FElem method=new FElem(new QNm("method",WADL));
+      final String mths=func.methods.toString().replaceAll("[^A-Z ]","");
+      res.add(method.add(new QNm("name"),mths));
+      final FElem request=new FElem(new QNm("request",WADL));
+      method.add(request);
+      addParams(func.queryParams,"query",request);
+      addParams(func.formParams,"form",request);
+      final FElem response=new FElem(new QNm("response",WADL));
+      method.add(response);
+      final FElem representation=new FElem(new QNm("representation",WADL));
+      response.add(representation.add(new QNm("mediaType"),HTTPContext.mediaType(func.output)));
+    }
+  }
+  final Serializer ser=Serializer.get(http.res.getOutputStream());
+  ser.serialize(appl);
+  ser.close();
+}
