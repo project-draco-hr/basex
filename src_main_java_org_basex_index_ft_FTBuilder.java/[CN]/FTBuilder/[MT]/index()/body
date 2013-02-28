@@ -2,6 +2,7 @@
   abort();
   final Performance perf=Prop.debug ? new Performance() : null;
   Util.debug(det());
+  currentSliceSize=0;
   for (pre=0; pre < size; ++pre) {
     if ((pre & 0xFFFF) == 0)     check();
     final int k=data.kind(pre);
@@ -13,9 +14,9 @@
       final byte[] tok=lex.nextToken();
       ++pos;
       if (tok.length <= data.meta.maxlen && (sw.isEmpty() || !sw.contains(tok))) {
-        if ((ntok++ & 0xFFF) == 0 && memFull()) {
+        if ((ntok++ & 0xFFF) == 0 && temporaryFlushToDiskNeeded()) {
           writeIndex(csize++);
-          Performance.gc(singlegc ? 1 : 2);
+          memoryCleanupAfterFlushToDisk();
         }
         index(tok);
       }
