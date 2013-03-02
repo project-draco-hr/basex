@@ -4,17 +4,22 @@
   Util.debug(det());
   final String f=text ? DATATXT : DATAATV;
   final int k=text ? Data.TEXT : Data.ATTR;
+  currentSliceSize=0;
   for (pre=0; pre < size; ++pre) {
     if ((pre & 0x0FFF) == 0) {
       check();
-      if (memFull()) {
+      if (temporaryFlushToDiskNeeded()) {
         write(f + csize++,false);
         index=new IndexTree();
-        Performance.gc(singlegc ? 1 : 2);
+        memoryCleanupAfterFlushToDisk();
       }
     }
-    if (data.kind(pre) == k && data.textLen(pre,text) <= data.meta.maxlen)     index.index(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre);
+    if (data.kind(pre) == k && data.textLen(pre,text) <= data.meta.maxlen) {
+      index.index(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre);
+      currentSliceSize++;
+    }
   }
+  Util.debug("Finalizing Index " + data.meta.name + " with "+ (csize + 1)+ " slices, current slice size = "+ currentSliceSize);
   if (merge) {
     write(f + csize++,false);
     index=null;
