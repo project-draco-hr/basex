@@ -1,0 +1,20 @@
+{
+  final boolean split;
+  if (splitSize > 0) {
+    split=count >= (splits + 1L) * splitSize;
+  }
+ else {
+    split=rt.totalMemory() - rt.freeMemory() >= maxMem;
+    int gc=gcCount;
+    if (split) {
+      if (gc >= 0)       throw new BaseXException(OUT_OF_MEM + H_OUT_OF_MEM);
+      gc=30;
+    }
+ else {
+      gc=Math.max(-1,gc);
+    }
+    gcCount=gc;
+  }
+  if (split && Prop.debug)   Util.err("|");
+  return split;
+}
