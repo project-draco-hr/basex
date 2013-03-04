@@ -1,0 +1,14 @@
+{
+  StringList result=new StringList();
+  boolean updating=cmd.updating(DUMMY_CONTEXT);
+  boolean all=!cmd.databases(result);
+  StringList required=req, allowed=allow;
+  if (null != required)   required=required.sort(false,true).unique();
+  if (null != allowed)   allowed=allowed.sort(false,true).unique();
+  result=result.sort(false,true).unique();
+  if (up != updating)   fail("Updating flag wrong.");
+  if (null == required && !all)   fail("Should lock all databases, didn't.");
+  if (null != required && !result.containsAll(required))   fail("Didn't lock all necessary databases.");
+  if (null != allowed && all)   fail("Locked all databases, may not.");
+  if (null != allowed && !allowed.containsAll(result))   fail("Locked more databases than I should.");
+}
