@@ -3,7 +3,7 @@
     final Matcher m=TEMPLATE.matcher(path.segment[s]);
     if (!m.find())     continue;
     final QNm qnm=new QNm(token(m.group(1)),context);
-    bind(qnm,new Atm(http.segment(s)));
+    bind(qnm,arg,new Atm(http.segment(s)));
   }
   final String ct=http.contentType();
   IOContent body=null;
@@ -11,20 +11,20 @@
     body=cache(http,null);
     try {
       body.name(http.method + IO.XMLSUFFIX);
-      bind(requestBody,Parser.item(body,context.context.prop,ct));
+      bind(requestBody,arg,Parser.item(body,context.context.prop,ct));
     }
  catch (    final IOException ex) {
       error(INPUT_CONV,ex);
     }
   }
   final Map<String,String[]> params=http.params();
-  for (  final RestXqParam rxp : queryParams)   bind(rxp,params.get(rxp.key));
+  for (  final RestXqParam rxp : queryParams)   bind(rxp,arg,params.get(rxp.key));
   if (!formParams.isEmpty()) {
     if (MimeTypes.APP_FORM.equals(ct)) {
       body=cache(http,body);
       addParams(body.toString(),params);
     }
-    for (    final RestXqParam rxp : formParams)     bind(rxp,params.get(rxp.key));
+    for (    final RestXqParam rxp : formParams)     bind(rxp,arg,params.get(rxp.key));
   }
   for (  final RestXqParam rxp : headerParams) {
     final StringList sl=new StringList();
@@ -32,7 +32,7 @@
     while (en.hasMoreElements()) {
       for (      final String s : en.nextElement().toString().split(", *"))       sl.add(s);
     }
-    bind(rxp,sl.toArray());
+    bind(rxp,arg,sl.toArray());
   }
   final Cookie[] ck=http.req.getCookies();
   for (  final RestXqParam rxp : cookieParams) {
@@ -42,7 +42,7 @@
         if (rxp.key.equals(c.getName()))         v=c.getValue();
       }
     }
-    if (v == null)     bind(rxp);
- else     bind(rxp,v);
+    if (v == null)     bind(rxp,arg);
+ else     bind(rxp,arg,v);
   }
 }

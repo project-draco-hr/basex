@@ -8,9 +8,9 @@
   int r=-1;
   while (++r < args.length && !args[r].name.eq(qnm))   ;
   if (r == args.length)   error(UNKNOWN_VAR,vn);
-  if (args[r].declared)   error(VAR_ASSIGNED,vn);
-  final SeqType st=args[r].type;
-  if (st != null && !st.type.instanceOf(type))   error(INV_VARTYPE,vn,type);
-  args[r].declared=true;
+  if (declared[r])   error(VAR_ASSIGNED,vn);
+  final SeqType st=args[r].declaredType();
+  if (args[r].checksType() && !st.type.instanceOf(type))   error(INV_VARTYPE,vn,type);
+  declared[r]=true;
   return qnm;
 }

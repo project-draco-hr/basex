@@ -1,5 +1,6 @@
 {
   final EnumSet<HTTPMethod> mth=EnumSet.noneOf(HTTPMethod.class);
+  final boolean[] declared=new boolean[function.args.length];
   boolean found=false;
   final int as=function.ann.size();
   for (int a=0; a < as; a++) {
@@ -13,7 +14,7 @@
         if (path != null)         error(ANN_TWICE,"%",name.string());
         path=new RestXqPath(toString(value,name));
         for (        final String s : path) {
-          if (s.trim().startsWith("{"))           checkVariable(s,AtomType.AAT);
+          if (s.trim().startsWith("{"))           checkVariable(s,AtomType.AAT,declared);
         }
       }
  else       if (eq(CONSUMES,local)) {
@@ -23,16 +24,16 @@
         strings(value,name,produces);
       }
  else       if (eq(QUERY_PARAM,local)) {
-        queryParams.add(param(value,name));
+        queryParams.add(param(value,name,declared));
       }
  else       if (eq(FORM_PARAM,local)) {
-        formParams.add(param(value,name));
+        formParams.add(param(value,name,declared));
       }
  else       if (eq(HEADER_PARAM,local)) {
-        headerParams.add(param(value,name));
+        headerParams.add(param(value,name,declared));
       }
  else       if (eq(COOKIE_PARAM,local)) {
-        cookieParams.add(param(value,name));
+        cookieParams.add(param(value,name,declared));
       }
  else {
         final HTTPMethod m=HTTPMethod.get(string(local));
@@ -40,7 +41,7 @@
         if (!value.isEmpty()) {
           if (requestBody != null)           error(ANN_TWICE,"%",name.string());
           if (m != POST && m != PUT)           error(METHOD_VALUE,m);
-          requestBody=checkVariable(toString(value,name));
+          requestBody=checkVariable(toString(value,name),declared);
         }
         if (mth.contains(m))         error(ANN_TWICE,"%",name.string());
         mth.add(m);
@@ -57,9 +58,7 @@
   if (!mth.isEmpty())   methods=mth;
   if (found) {
     if (path == null)     error(ANN_MISSING,PATH);
-    for (    final Var v : function.args) {
-      if (!v.declared)       error(VAR_UNDEFINED,v.name.string());
-    }
+    for (int i=0; i < declared.length; i++)     if (!declared[i])     error(VAR_UNDEFINED,function.args[i]);
   }
   return found;
 }
