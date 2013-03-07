@@ -4,7 +4,7 @@
   int pmin=0;
   int smin=0;
   for (int s=0; s < steps.length; ++s) {
-    final AxisStep stp=step(s);
+    final Step stp=step(s);
     if (!stp.axis.down)     break;
     final boolean i=pathNodes(data,s) != null;
     for (int p=0; p < stp.preds.length; ++p) {
@@ -26,13 +26,13 @@
     }
   }
   if (ics == null || ics.costs() > data.meta.size)   return this;
-  final AxisStep stp=step(smin);
+  final Step stp=step(smin);
   final Expr ie=stp.preds[pmin].indexEquivalent(ics);
   if (ics.seq) {
     stp.preds[pmin]=ie;
   }
  else {
-    AxisStep[] invSteps={};
+    Step[] invSteps={};
     final Expr[] newPreds=new Expr[stp.preds.length - 1];
     int c=0;
     for (int p=0; p != stp.preds.length; ++p) {
@@ -43,7 +43,7 @@
     if (test == Test.DOC && data.meta.uptodate) {
       int j=0;
       for (; j <= smin; ++j) {
-        final AxisStep s=axisStep(j);
+        final Step s=axisStep(j);
         if (s == null || s.test.mode != Mode.NAME || s.axis != Axis.CHILD || j != smin && s.preds.length > 0)         break;
         final int name=data.tagindex.id(s.test.name.local());
         final ArrayList<PathNode> pn=data.paths.desc(name,Data.ELEM);
@@ -56,11 +56,11 @@
         final Axis ax=step(j).axis.invert();
         if (ax == null)         break;
         if (j != 0) {
-          final AxisStep prev=step(j - 1);
-          invSteps=Array.add(invSteps,AxisStep.get(info,ax,prev.test,prev.preds));
+          final Step prev=step(j - 1);
+          invSteps=Array.add(invSteps,Step.get(info,ax,prev.test,prev.preds));
         }
  else {
-          if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)           invSteps=Array.add(invSteps,AxisStep.get(info,ax,test));
+          if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)           invSteps=Array.add(invSteps,Step.get(info,ax,test));
         }
       }
     }
@@ -70,7 +70,7 @@
       result=(AxisPath)ie;
     }
  else     if (smin + 1 < steps.length || !simple) {
-      result=simple ? new AxisPath(info,ie) : new AxisPath(info,ie,AxisStep.get(info,Axis.SELF,Test.NOD));
+      result=simple ? new CachedPath(info,ie) : new CachedPath(info,ie,Step.get(info,Axis.SELF,Test.NOD));
     }
  else {
       return ie;

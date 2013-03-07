@@ -1,0 +1,13 @@
+{
+  if (expr.isValue())   return optPre(value(ctx),ctx);
+  final SeqType argType=expr.type();
+  if (argType.instanceOf(type)) {
+    ctx.compInfo(QueryText.OPTCAST,type);
+    return expr;
+  }
+  if (argType.type.instanceOf(type.type)) {
+    final SeqType.Occ occ=argType.occ.intersect(type.occ);
+    if (occ == null)     throw Err.XPTYPE.thrw(info,expr,type,argType);
+  }
+  return this;
+}

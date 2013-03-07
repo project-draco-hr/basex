@@ -3,7 +3,7 @@
   for (int s=0; s < o.size(); s+=2)   context.prop.set(o.get(s),o.get(s + 1));
   if (ctxItem != null) {
     try {
-      value=ctxItem.value(this);
+      value=ctxItem.compile(this,new VarScope()).value(this);
     }
  catch (    final QueryException ex) {
       if (ex.err() != XPNOCTX)       throw ex;
@@ -15,7 +15,7 @@
     resource.compile(nodes);
   }
   if (value != null && sc.initType != null) {
-    value=SeqType.get(sc.initType,Occ.ONE).promote(value,this,null);
+    value=SeqType.get(sc.initType,Occ.ONE).funcConvert(this,null,value);
   }
   analyze();
   if (inf && compInfo)   info.add(NL + OPTIMIZED_QUERY_C + NL+ funcs+ root+ NL);

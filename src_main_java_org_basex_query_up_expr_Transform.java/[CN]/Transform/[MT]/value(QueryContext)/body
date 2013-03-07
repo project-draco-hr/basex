@@ -1,5 +1,4 @@
 {
-  final int s=ctx.vars.size();
   final int o=(int)ctx.output.size();
   final ContextModifier tmp=ctx.updates.mod;
   final TransformModifier pu=new TransformModifier();
@@ -10,7 +9,7 @@
       Item i=ir.next();
       if (!(i instanceof ANode) || ir.next() != null)       UPCOPYMULT.thrw(info);
       i=((ANode)i).dbCopy(ctx.context.prop);
-      ctx.vars.add(fo.var.bind(i,ctx).copy());
+      ctx.set(fo.var,i,info);
       pu.addData(i.data());
     }
     ctx.value(expr[0]);
@@ -18,7 +17,6 @@
     return ctx.value(expr[1]);
   }
   finally {
-    ctx.vars.size(s);
     ctx.output.size(o);
     ctx.updates.mod=tmp;
   }

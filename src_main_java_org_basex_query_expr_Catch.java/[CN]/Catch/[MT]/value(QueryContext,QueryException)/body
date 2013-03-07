@@ -1,16 +1,9 @@
 {
-  if (!find(ex.err(),ex.qname()))   return null;
-  final int s=prepare(ctx);
-  try {
-    int i=0;
-    final byte[] io=ex.file() == null ? EMPTY : token(ex.file());
-    final Value val=ex.value();
-    for (    final Value v : new Value[]{ex.qname(),Str.get(ex.getLocalizedMessage()),val == null ? Empty.SEQ : val,Str.get(io),Int.get(ex.line()),Int.get(ex.col()),Str.get(ex.getMessage().replaceAll("\r\n?","\n"))}) {
-      vars[i++].bind(v,ctx);
-    }
-    return ctx.value(expr);
+  int i=0;
+  final byte[] io=ex.file() == null ? EMPTY : token(ex.file());
+  final Value val=ex.value();
+  for (  final Value v : new Value[]{ex.qname(),Str.get(ex.getLocalizedMessage()),val == null ? Empty.SEQ : val,Str.get(io),Int.get(ex.line()),Int.get(ex.col()),Str.get(ex.getMessage().replaceAll("\r\n?","\n"))}) {
+    ctx.set(vars[i++],v,info);
   }
-  finally {
-    ctx.vars.size(s);
-  }
+  return ctx.value(expr);
 }

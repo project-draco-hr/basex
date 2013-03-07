@@ -1,0 +1,17 @@
+{
+  if (t == null)   return;
+  if (declared != null) {
+    if (declared.occ.intersect(t.occ) == null)     throw Err.XPTYPE.thrw(ii,this,declared,t);
+    if (!t.convertibleTo(declared))     return;
+  }
+  if (!inType.eq(t) && !inType.instanceOf(t)) {
+    final SeqType is=inType.intersect(t);
+    if (is != null) {
+      inType=is;
+      if (declared != null && inType.instanceOf(declared)) {
+        ctx.compInfo(QueryText.OPTCAST,this);
+        declared=null;
+      }
+    }
+  }
+}

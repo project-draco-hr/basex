@@ -9,14 +9,7 @@
     nm=m.group(6);
   }
   final byte[] ln=token(nm);
-  if (nm.isEmpty() || !XMLToken.isNCName(ln))   return;
+  if (nm.isEmpty() || !XMLToken.isNCName(ln))   return null;
   final QNm qnm=uri.length == 0 ? new QNm(ln,this) : new QNm(ln,uri);
-  final Var gl=vars.globals().get(qnm);
-  if (gl == null) {
-    vars.updateGlobal(Var.create(this,null,qnm,null,null).bind(val,this));
-  }
- else {
-    gl.declared=false;
-    gl.bind(gl.type == null ? val : gl.type.type.cast(val.item(this,null),this,null),this);
-  }
+  return vars.bind(qnm,val,this,null);
 }

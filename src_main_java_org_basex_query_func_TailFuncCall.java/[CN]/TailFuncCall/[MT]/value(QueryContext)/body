@@ -1,6 +1,6 @@
 {
-  final int calls=checkHeight(ctx);
-  final VarStack cs=addArgs(ctx,args(ctx));
+  checkHeight(ctx);
+  final int fp=addArgs(ctx,info,func.scope,func.args,args(ctx));
   try {
     return ctx.value(func);
   }
@@ -9,7 +9,6 @@
     throw ex;
   }
  finally {
-    ctx.vars.reset(cs);
-    ctx.tailCalls=calls;
+    func.scope.exit(ctx,fp);
   }
 }

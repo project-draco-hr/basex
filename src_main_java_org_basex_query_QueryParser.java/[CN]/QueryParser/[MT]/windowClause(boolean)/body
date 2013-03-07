@@ -1,0 +1,17 @@
+{
+  wsCheck(slide ? SLIDING : TUMBLING);
+  wsCheck(WINDOW);
+  final QNm nm=varName();
+  final SeqType tp=optAsType();
+  wsCheck(IN);
+  final Expr e=check(single(),NOVARDECL);
+  wsCheck(START);
+  final Condition start=windowCond(true);
+  Condition end=null;
+  final boolean only=wsConsume(ONLY), check=slide || only;
+  if (check || wsConsume(END)) {
+    if (check)     wsCheck(END);
+    end=windowCond(false);
+  }
+  return new Window(info(),slide,addLocal(nm,tp,false),e,start,only,end);
+}

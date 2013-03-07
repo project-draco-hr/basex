@@ -1,6 +1,6 @@
 {
   if (op != OpG.EQ)   return false;
-  final AxisStep s=expr[0] instanceof Context ? ic.step : indexStep(expr[0]);
+  final Step s=expr[0] instanceof Context ? ic.step : indexStep(expr[0]);
   if (s == null)   return false;
   final boolean text=s.test.type == NodeType.TXT && ic.data.meta.textindex;
   final boolean attr=s.test.type == NodeType.ATT && ic.data.meta.attrindex;
@@ -11,7 +11,7 @@
     final SeqType t=arg.type();
     if (!t.type.isStringOrUntyped() || arg.uses(Use.CTX) || arg.uses(Use.NDT))     return false;
     ic.addCosts(ic.data.meta.size / 10);
-    va=Array.add(va,new ValueAccess(info,arg,ind,ic));
+    va=Array.add(va,new ValueAccess(info,arg,ind,ic.data,ic.iterable));
     return true;
   }
   final Iter ir=arg.iter(ic.ctx);
@@ -21,7 +21,7 @@
     if (!it.type.isStringOrUntyped())     return false;
     final int is=ic.data.count(new StringToken(ind,it.string(info)));
     if (is != 0) {
-      va=Array.add(va,new ValueAccess(info,it,ind,ic));
+      va=Array.add(va,new ValueAccess(info,it,ind,ic.data,ic.iterable));
       ic.addCosts(is);
     }
   }

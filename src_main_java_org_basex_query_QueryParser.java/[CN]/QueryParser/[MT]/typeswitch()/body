@@ -4,23 +4,27 @@
   final Expr ts=check(expr(),NOTYPESWITCH);
   wsCheck(PAR2);
   TypeCase[] cases={};
-  final int s=ctx.vars.size();
+  final ArrayList<SeqType> types=new ArrayList<SeqType>();
+  final int s=scope.open();
   boolean cs;
   do {
+    types.clear();
     cs=wsConsumeWs(CASE);
     if (!cs)     wsCheck(DEFAULT);
     skipWS();
-    QNm name=null;
+    Var var=null;
     if (curr('$')) {
-      name=varName();
+      var=addLocal(varName(),null,false);
       if (cs)       wsCheck(AS);
     }
-    final Var v=Var.create(ctx,info(),name,cs ? sequenceType() : null,null);
-    if (name != null)     ctx.vars.add(v);
+    if (cs) {
+      do       types.add(sequenceType());
+ while (ctx.sc.xquery3() && wsConsume(PIPE));
+    }
     wsCheck(RETURN);
     final Expr ret=check(single(),NOTYPESWITCH);
-    cases=Array.add(cases,new TypeCase(info(),v,ret));
-    ctx.vars.size(s);
+    cases=Array.add(cases,new TypeCase(info(),var,types.toArray(new SeqType[types.size()]),ret));
+    scope.close(s);
   }
  while (cs);
   if (cases.length == 1)   error(NOTYPESWITCH);

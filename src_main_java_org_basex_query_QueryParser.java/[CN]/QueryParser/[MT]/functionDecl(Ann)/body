@@ -3,16 +3,16 @@
   if (keyword(name))   error(RESERVED,name);
   if (module != null && !eq(name.uri(),module.uri()))   error(MODNS,name);
   wsCheck(PAR1);
-  final VarStack vl=ctx.vars.cache(4);
+  scope=scope.child();
   final Var[] args=paramList();
   wsCheck(PAR2);
-  final UserFunc func=new UserFunc(info(),name,args,optAsType(),ann,true,ctx);
+  final StaticUserFunc func=new StaticUserFunc(info(),name,args,optAsType(),ann,true,ctx.sc,scope);
   if (func.updating)   ctx.updating(false);
   if (!wsConsumeWs(EXTERNAL)) {
     ctx.funcs.add(func,info());
     func.expr=enclosed(NOFUNBODY);
-    ctx.vars.reset(vl);
   }
  else {
   }
+  scope=scope.parent();
 }

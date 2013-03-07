@@ -1,0 +1,20 @@
+{
+  do {
+    final QNm nm=varName();
+    final SeqType tp=optAsType();
+    final boolean emp=ctx.sc.xquery3() && wsConsume(ALLOWING);
+    if (emp)     wsCheck(EMPTYORD);
+    final Var ps=wsConsumeWs(AT) ? addLocal(varName(),SeqType.ITR,false) : null;
+    final Var sc=wsConsumeWs(SCORE) ? addLocal(varName(),SeqType.DBL,false) : null;
+    wsCheck(IN);
+    final Expr e=check(single(),NOVARDECL);
+    final Var var=addLocal(nm,tp,false);
+    if (ps != null && nm.eq(ps.name))     error(DUPLVAR,var);
+    if (sc != null) {
+      if (nm.eq(sc.name))       error(DUPLVAR,var);
+      if (ps != null && ps.name.eq(sc.name))       error(DUPLVAR,ps);
+    }
+    cls.add(new For(var,ps,sc,e,emp,info()));
+  }
+ while (wsConsume(COMMA));
+}

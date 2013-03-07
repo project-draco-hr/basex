@@ -10,15 +10,15 @@
         wsCheck(BR2);
       }
  while (wsConsume(BR1));
-      e=new Filter(info(),e,el.finish());
+      e=Filter.get(info(),e,el.finish());
     }
  else     if (e != null) {
-      final Expr[] args=argumentList(e);
-      if (args == null)       break;
-      final Var[] part=new Var[args.length];
-      final boolean pt=partial(args,part);
-      e=new DynamicFunc(info(),e,args);
-      if (pt)       e=new PartFunc(info(),e,part,ctx);
+      if (!wsConsume(PAR1))       break;
+      final InputInfo ii=info();
+      final ArrayList<Expr> argList=new ArrayList<Expr>();
+      final int[] holes=argumentList(argList,e);
+      final Expr[] args=argList.toArray(new Expr[argList.size()]);
+      e=holes == null ? new DynFuncCall(ii,e,args) : new PartFunc(ii,e,args,holes);
     }
   }
  while (e != old);

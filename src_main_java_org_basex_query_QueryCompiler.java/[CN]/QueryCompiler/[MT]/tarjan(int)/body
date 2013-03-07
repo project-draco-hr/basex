@@ -1,0 +1,28 @@
+{
+  final int ixv=2 * v, llv=ixv + 1, idx=next++;
+  while (list.size() <= llv)   list.add(-1);
+  list.set(ixv,idx);
+  list.set(llv,idx);
+  stack.push(v);
+  for (  int w : adjacentTo(v)) {
+    final int ixw=2 * w, llw=ixw + 1;
+    if (list.size() <= ixw || list.get(ixw) < 0) {
+      tarjan(w);
+      list.set(llv,Math.min(list.get(llv),list.get(llw)));
+    }
+ else     if (stack.contains(w)) {
+      list.set(llv,Math.min(list.get(llv),list.get(ixw)));
+    }
+  }
+  if (list.get(llv) == list.get(ixv)) {
+    int w;
+    Scope[] out=null;
+    do {
+      w=stack.pop();
+      final Scope scp=scopes.get(w);
+      out=out == null ? new Scope[]{scp} : Array.add(out,scp);
+    }
+ while (w != v);
+    result.add(out);
+  }
+}
