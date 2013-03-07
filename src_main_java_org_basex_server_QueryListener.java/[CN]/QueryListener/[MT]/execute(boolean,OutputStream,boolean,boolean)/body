@@ -1,15 +1,12 @@
 {
-  check();
-  boolean init=false;
   try {
-    init();
     try {
-      ctx.register(qp);
-      init=true;
+      ctx.register(parse());
       qp.compile();
       qi.cmpl=perf.time();
       final Iter ir=qp.iter();
       qi.evlt=perf.time();
+      options();
       final boolean wrap=!options.get(S_WRAP_PREFIX).isEmpty();
       final PrintOutput po=PrintOutput.get(enc ? new EncodingOutput(out) : out);
       if (iter && wrap)       po.write(1);
@@ -49,8 +46,11 @@ catch (    final ProgressException ex) {
     }
   }
   finally {
-    qp.close();
-    closed=true;
-    if (init)     ctx.unregister(qp);
+    if (qp != null) {
+      qp.close();
+      ctx.unregister(qp);
+      parsed=false;
+      qp=null;
+    }
   }
 }

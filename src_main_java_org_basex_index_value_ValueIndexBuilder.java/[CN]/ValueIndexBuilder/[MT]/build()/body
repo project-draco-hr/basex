@@ -2,30 +2,29 @@
   abort();
   final Performance perf=Prop.debug ? new Performance() : null;
   Util.debug(det());
-  final String f=text ? DATATXT : DATAATV;
   final int k=text ? Data.TEXT : Data.ATTR;
   for (pre=0; pre < size; ++pre) {
     if ((pre & 0x0FFF) == 0) {
       check();
-      if (memFull()) {
-        write(f + csize++,false);
+      if (split()) {
+        writeIndex(true);
         index=new IndexTree();
-        Performance.gc(singlegc ? 1 : 2);
+        finishSplit();
       }
     }
-    if (data.kind(pre) == k && data.textLen(pre,text) <= data.meta.maxlen)     index.index(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre);
+    if (data.kind(pre) == k && data.textLen(pre,text) <= data.meta.maxlen) {
+      index.index(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre);
+      count++;
+    }
   }
-  if (merge) {
-    write(f + csize++,false);
+  writeIndex(splits > 0);
+  if (splits > 1) {
     index=null;
-    if (!singlegc)     Performance.gc(1);
+    Performance.gc(1);
     merge();
-  }
- else {
-    write(f,true);
   }
   if (text)   data.meta.textindex=true;
  else   data.meta.attrindex=true;
-  Util.memory(perf);
+  finishIndex(perf);
   return data.meta.updindex ? new UpdatableDiskValues(data,text) : new DiskValues(data,text);
 }
