@@ -20,10 +20,14 @@
     ctx.dbOptions.add(string(val));
   }
  else   if (eq(name.uri(),QUERYURI)) {
-    if (eq(name.local(),READ_LOCK))     for (    String lock : string(val).split("\\s*,\\s*"))     ctx.userReadLocks.add(DBLocking.USER_PREFIX + lock);
- else     if (eq(name.local(),WRITE_LOCK)) {
-      for (      String lock : string(val).split("\\s*,\\s*"))       ctx.userWriteLocks.add(DBLocking.USER_PREFIX + lock);
+    if (eq(name.local(),READ_LOCK)) {
+      for (      final byte[] lock : split(val,','))       ctx.userReadLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
     }
- else     error(BASX_OPTIONS,string(name.local()));
+ else     if (eq(name.local(),WRITE_LOCK)) {
+      for (      final byte[] lock : split(val,','))       ctx.userWriteLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
+    }
+ else {
+      error(BASX_OPTIONS,string(name.local()));
+    }
   }
 }
