@@ -1,0 +1,40 @@
+{
+  final int cl=pic.length;
+  if (cl == 0)   PICEMPTY.thrw(info,pic);
+  final TokenParser tp=new TokenParser(pic);
+  int ch=tp.next();
+  if (!tp.more()) {
+    if (sequence(ch) != null || ch == 'i' || ch == 'I' || ch == 'w' || ch == 'W' || ch == '\u2460' || ch == '\u2474' || ch == '\u2488' || ch == KANJI[1])     return pic;
+  }
+ else {
+    if (ch == 'W' && tp.consume('w'))     return pic;
+  }
+  tp.reset();
+  digit=-1;
+  while (digit == -1 && tp.more())   digit=zeroes(tp.next());
+  if (digit == -1)   return ONE;
+  boolean mds=false, gss=true;
+  tp.reset();
+  while (tp.more()) {
+    ch=tp.next();
+    final int d=zeroes(ch);
+    if (d != -1) {
+      if (digit != d)       DIFFMAND.thrw(info,pic);
+      mds=true;
+      gss=false;
+    }
+ else     if (ch == '#') {
+      if (mds)       OPTAFTER.thrw(info,pic);
+      gss=false;
+    }
+ else     if (!Character.isLetter(ch)) {
+      if (gss)       INVGROUP.thrw(info,pic);
+      gss=true;
+    }
+ else {
+      return ONE;
+    }
+  }
+  if (gss)   INVGROUP.thrw(info,pic);
+  return pic;
+}
