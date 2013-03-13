@@ -1,0 +1,10 @@
+{
+  final String tokenId=UUID.randomUUID().toString();
+  final FailureReason failureReason=new BXCode<FailureReason>(this){
+    @Override public FailureReason get() throws IOException {
+      return lock(tokenId,timeout,lockInfo);
+    }
+  }
+.evalNoEx();
+  return failureReason == null ? success(new LockToken(tokenId,lockInfo,timeout)) : failed(failureReason);
+}
