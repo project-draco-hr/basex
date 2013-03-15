@@ -1,0 +1,11 @@
+{
+  final String queryStr="import module namespace w = 'http://basex.org/webdav';" + "w:get-locks($resource)";
+  LocalQuery q=http.session().query(queryStr);
+  q.bind("resource",db + SEP + path);
+  LockToken result=null;
+  if (q.more()) {
+    String lockTokenStr=q.next();
+    result=parseLockInfo(lockTokenStr);
+  }
+  return result;
+}
