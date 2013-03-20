@@ -1,20 +1,16 @@
 {
-  UserFunc fun=func;
+  StaticUserFunc fun=func;
   Value[] args=args(ctx);
   final int calls=ctx.tailCalls;
   try {
     do {
-      final int fp=addArgs(ctx,ii,fun.scope,fun.args,args);
       ctx.tailCalls=0;
       try {
-        return fun.item(ctx,ii);
+        return fun.invItem(ctx,ii,args);
       }
  catch (      final Continuation c) {
         fun=c.getFunc();
         args=c.getArgs();
-      }
- finally {
-        fun.scope.exit(ctx,fp);
       }
     }
  while (true);
