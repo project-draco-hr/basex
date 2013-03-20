@@ -1,0 +1,44 @@
+{
+  Matcher m=XQERROR.matcher(errMsg);
+  int el, ec=2;
+  if (m.matches()) {
+    errFile=m.group(1);
+    el=Token.toInt(m.group(2));
+    ec=Token.toInt(m.group(3));
+  }
+ else {
+    m=XMLERROR.matcher(errMsg);
+    if (!m.matches())     return;
+    el=Token.toInt(m.group(1));
+    errFile=getEditor().file.path();
+  }
+  EditorArea edit=find(IO.get(errFile),false);
+  if (open) {
+    if (edit == null)     edit=open(new IOFile(errFile),false);
+    tabs.setSelectedComponent(edit);
+  }
+ else {
+    if (edit == null)     return;
+  }
+  final int ll=edit.last.length;
+  int ep=ll;
+  for (int e=1, l=1, c=1; e < ll; ++c, e+=cl(edit.last,e)) {
+    if (l > el || l == el && c == ec) {
+      ep=e;
+      break;
+    }
+    if (edit.last[e] == '\n') {
+      ++l;
+      c=0;
+    }
+  }
+  if (ep < ll && Character.isLetterOrDigit(cp(edit.last,ep))) {
+    while (ep > 0 && Character.isLetterOrDigit(cp(edit.last,ep - 1)))     ep--;
+  }
+  edit.error(ep);
+  errPos=ep;
+  if (open) {
+    edit.jumpError(errPos);
+    posCode.invokeLater();
+  }
+}
