@@ -1,0 +1,27 @@
+{
+  if (compiled)   return;
+  compiling=compiled=true;
+  final StaticContext tmp=ctx.sc;
+  ctx.sc=sc;
+  final int fp=scope.enter(ctx);
+  try {
+    expr=expr.compile(ctx,scope);
+  }
+ catch (  final QueryException qe) {
+    expr=FNInfo.error(qe,info);
+  }
+ finally {
+    scope.cleanUp(this);
+    scope.exit(ctx,fp);
+    ctx.sc=tmp;
+  }
+  ctx.compInfo(OPTTCE,name);
+  expr=expr.markTailCalls();
+  if (ret != null) {
+    if ((ret.type == AtomType.BLN || ret.type == AtomType.FLT || ret.type == AtomType.DBL || ret.type == AtomType.QNM || ret.type == AtomType.URI) && ret.eq(expr.type())) {
+      ctx.compInfo(OPTCAST,ret);
+      cast=false;
+    }
+  }
+  compiling=false;
+}

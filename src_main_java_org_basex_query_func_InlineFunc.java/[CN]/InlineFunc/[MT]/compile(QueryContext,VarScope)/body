@@ -1,4 +1,21 @@
 {
-  comp(ctx,scp);
+  if (compiled)   return this;
+  compiled=true;
+  for (  final Entry<Var,Expr> e : scope.closure().entrySet())   e.setValue(e.getValue().compile(ctx,scp));
+  final StaticContext tmp=ctx.sc;
+  ctx.sc=sc;
+  final int fp=scope.enter(ctx);
+  try {
+    for (    final Entry<Var,Expr> e : staticBindings())     ctx.set(e.getKey(),e.getValue().value(ctx),info);
+    expr=expr.compile(ctx,scope);
+  }
+ catch (  final QueryException qe) {
+    expr=FNInfo.error(qe,info);
+  }
+ finally {
+    scope.cleanUp(this);
+    scope.exit(ctx,fp);
+    ctx.sc=tmp;
+  }
   return optimize(ctx,scp);
 }

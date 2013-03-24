@@ -1,0 +1,17 @@
+{
+  final Value cv=ctx.value;
+  final StaticContext tmp=ctx.sc;
+  ctx.sc=sc;
+  ctx.value=null;
+  final int fp=addArgs(ctx,ii,arg);
+  try {
+    final Item it=expr.item(ctx,ii);
+    final Value v=it == null ? Empty.SEQ : it;
+    return cast ? ret.funcConvert(ctx,ii,v).item(ctx,ii) : it;
+  }
+  finally {
+    scope.exit(ctx,fp);
+    ctx.value=cv;
+    ctx.sc=tmp;
+  }
+}
