@@ -15,10 +15,10 @@
       final Ann ann=new Ann();
       while (true) {
         if (wsConsumeWs(UPDATING)) {
-          addAnnotation(ann,Ann.Q_UPDATING,Empty.SEQ,false);
+          ann.add(Ann.Q_UPDATING,Empty.SEQ);
         }
  else         if (ctx.sc.xquery3() && consume('%')) {
-          annotation(ann,true);
+          annotation(ann);
         }
  else {
           break;
@@ -26,9 +26,11 @@
       }
       if (wsConsumeWs(VARIABLE)) {
         if (ann.contains(Ann.Q_UPDATING))         error(UPDATINGVAR);
+        checkAnnotations(ann,true);
         varDecl(ann);
       }
  else       if (wsConsumeWs(FUNCTION)) {
+        checkAnnotations(ann,false);
         functionDecl(ann);
       }
  else       if (!ann.isEmpty()) {
