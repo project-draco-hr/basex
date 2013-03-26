@@ -1,0 +1,19 @@
+{
+  final TokenBoolMap tbm=data.resources.children(subfolder(),false);
+  final List<byte[]> keys=new ArrayList<byte[]>();
+  for (  final byte[] b : tbm.keys())   if (filter.length == 0 || eq(b,filter))   keys.add(b);
+  Collections.sort(keys,new Comparator<byte[]>(){
+    @Override public int compare(    final byte[] o1,    final byte[] o2){
+      return Prop.CASE ? diff(o1,o2) : diff(lc(o1),lc(o2));
+    }
+  }
+);
+  final byte[] sub=subfolder();
+  int i=0;
+  int m=cmax;
+  while (i < keys.size() && m-- > 0) {
+    final byte[] nm=keys.get(i++);
+    target.add(new TreeLeaf(nm,sub,tbm.value(tbm.id(nm)),false,tree,data));
+  }
+  return m;
+}

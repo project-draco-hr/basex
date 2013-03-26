@@ -1,19 +1,20 @@
 {
-  final byte[] path=TreeNode.preparePath(token(filterText.getText()));
-  if (eq(path,SLASH)) {
+  final byte[] filterPath=TreeNode.preparePath(token(filterText.getText()));
+  if (eq(filterPath,SLASH)) {
     refreshFolder(root);
     return;
   }
   final Data data=dialog.gui.context.data();
   root.removeAllChildren();
-  if (data.resources.isDir(path)) {
-    root.add(new TreeFolder(TreeFolder.name(path),TreeFolder.path(path),tree,data));
+  int cmax=TreeFolder.MAXC;
+  if (data.resources.isDir(filterPath)) {
+    root.add(new TreeFolder(TreeFolder.name(filterPath),TreeFolder.path(filterPath),tree,data));
+    cmax--;
   }
-  final byte[] name=TreeFolder.name(path);
-  final byte[] sub=TreeFolder.path(path);
-  final TreeLeaf[] leaves=TreeFolder.leaves(new TreeFolder(TreeFolder.name(sub),TreeFolder.path(sub),tree,data));
-  for (  final TreeLeaf l : leaves) {
-    if (name.length == 0 || eq(l.name,name))     root.add(l);
-  }
+  final byte[] name=TreeFolder.name(filterPath);
+  final byte[] sub=TreeFolder.path(filterPath);
+  final TreeFolder f=new TreeFolder(TreeFolder.name(sub),TreeFolder.path(sub),tree,data);
+  cmax=f.addLeaves(name,cmax,root);
+  if (cmax <= 0)   root.add(new TreeLeaf(token("..."),sub,false,true,tree,data));
   ((DefaultTreeModel)tree.getModel()).nodeStructureChanged(root);
 }

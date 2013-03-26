@@ -1,7 +1,12 @@
 {
   if (loaded)   return;
-  for (  final byte[] b : folders(this))   add(new TreeFolder(b,subfolder(),tree,data));
-  for (  final TreeLeaf l : leaves(this))   add(l);
+  int cmax=MAXC;
+  final byte[] sub=subfolder();
+  final byte[][] folders=new TokenList(data.resources.children(subfolder(),true).keys()).sort(Prop.CASE).toArray();
+  int i=0;
+  while (i < folders.length && cmax-- > 0)   add(new TreeFolder(folders[i++],sub,tree,data));
+  cmax=addLeaves(EMPTY,cmax,this);
+  if (cmax <= 0)   add(new TreeLeaf(token("..."),sub,false,true,tree,data));
   loaded=true;
   ((DefaultTreeModel)tree.getModel()).nodeStructureChanged(this);
 }
