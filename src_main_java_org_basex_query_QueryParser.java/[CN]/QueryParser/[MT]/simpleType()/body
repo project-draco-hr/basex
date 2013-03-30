@@ -1,22 +1,25 @@
 {
   skipWS();
   final QNm name=eQName(TYPEINVALID,ctx.sc.nsElem);
-  Type t=AtomType.find(name,false);
+  Type t=ListType.find(name);
   if (t == null) {
-    if (wsConsume("("))     error(SIMPLETYPE,name);
-    if (ctx.sc.xquery3) {
-      if (AtomType.AST.name.eq(name)) {
-        t=AtomType.AST;
+    t=AtomType.find(name,false);
+    if (t == null) {
+      if (wsConsume(PAR1))       error(SIMPLETYPE,name);
+      if (ctx.sc.xquery3) {
+        if (AtomType.AST.name.eq(name)) {
+          t=AtomType.AST;
+        }
+ else {
+          error(XQTYPEUNKNOWN,name);
+        }
       }
  else {
-        error(XQTYPEUNKNOWN,name);
+        error(TYPEUNKNOWN,name);
       }
     }
- else {
-      error(TYPEUNKNOWN,name);
-    }
+    if (t == AtomType.AST || t == AtomType.AAT || t == AtomType.NOT)     error(CASTUNKNOWN,name);
   }
-  if (t == AtomType.AST || t == AtomType.AAT || t == AtomType.NOT)   error(CASTUNKNOWN,name);
   skipWS();
   return SeqType.get(t,consume('?') ? Occ.ZERO_ONE : Occ.ONE);
 }
