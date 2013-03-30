@@ -1,11 +1,10 @@
 {
   if (!user.has(Perm.ADMIN))   pr.startTimeout(mprop.num(MainProp.TIMEOUT) * 1000L);
-  StringList sl=new StringList(1);
-  if (!pr.databases(sl)) {
-    sl=null;
-  }
- else {
-    prepareLock(sl);
-  }
-  locks.acquire(pr,pr.updating ? new StringList(0) : sl,pr.updating ? sl : new StringList(0));
+  LockResult lr=new LockResult();
+  pr.databases(lr);
+  if (lr.readAll)   lr.read=null;
+ else   prepareLock(lr.read);
+  if (lr.writeAll)   lr.write=null;
+ else   prepareLock(lr.write);
+  locks.acquire(pr,lr.read,lr.write);
 }

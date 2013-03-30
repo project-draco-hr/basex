@@ -1,0 +1,13 @@
+{
+  final LockResult lr=new LockResult();
+  cmd.databases(lr);
+  for (  StringList list : new StringList[]{reqRd,allowRd,reqWt,allowWt,lr.read,lr.write})   if (null != list)   list.sort(false,true).unique();
+  if (null == reqRd && !lr.readAll)   fail("Should read lock all databases, didn't.");
+  if (null != reqRd && !lr.read.containsAll(reqRd))   fail("Didn't read lock all necessary databases.");
+  if (null != allowRd && lr.readAll)   fail("Read locked all databases, may not.");
+  if (null != allowRd && !allowRd.containsAll(lr.read))   fail("Read locked more databases than I should.");
+  if (null == reqWt && !lr.writeAll)   fail("Should write lock all databases, didn't.");
+  if (null != reqWt && !lr.write.containsAll(reqWt))   fail("Didn't write lock all necessary databases.");
+  if (null != allowWt && lr.writeAll)   fail("write locked all databases, may not.");
+  if (null != allowWt && !allowWt.containsAll(lr.write))   fail("write locked more databases than I should.");
+}
