@@ -1,23 +1,23 @@
 {
-  final int ms=data.meta.size;
-  data.nspaces.open();
+  final int size=data.meta.size;
+  data.nspaces.prepare();
   final Atts ns=nd.nsScope();
   final int as=ns.size();
-  final boolean ne=as > 0;
-  for (int a=0; a < as; a++)   data.nspaces.add(ns.name(a),ns.string(a),ms);
+  for (int a=0; a < as; a++)   data.nspaces.add(ns.name(a),ns.string(a),size);
   final QNm q=nd.qname();
   final byte[] uri=q.uri();
   final int u=uri.length != 0 ? data.nspaces.addURI(uri) : 0;
   final int tn=data.tagindex.index(q.string(),null,false);
   final int s=size(nd,false);
+  final boolean ne=data.nspaces.finish();
   data.elem(pre - par,tn,size(nd,true),s,u,ne);
-  data.insert(ms);
+  data.insert(size);
   int p=pre + 1;
   AxisIter ai=nd.attributes();
   for (ANode ch; (ch=ai.next()) != null; )   p=addNode(ch,p,pre,nd);
   ai=nd.children();
   for (ANode ch; (ch=ai.next()) != null; )   p=addNode(ch,p,pre,nd);
-  data.nspaces.close(ms);
-  if (s != p - pre)   data.size(ms,Data.ELEM,p - pre);
+  data.nspaces.close(size);
+  if (s != p - pre)   data.size(size,Data.ELEM,p - pre);
   return p;
 }
