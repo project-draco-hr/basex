@@ -1,0 +1,14 @@
+{
+  final String token=UUID.randomUUID().toString();
+  final String queryStr="import module namespace w = 'http://basex.org/webdav';" + "w:create-lock(" + "$resource,"+ "$lock-token,"+ "$lock-scope,"+ "$lock-type,"+ "$lock-depth,"+ "$lock-owner,"+ "$lock-timeout)";
+  final Query q=http.session().query(queryStr);
+  q.bind("resource",db + SEP + p);
+  q.bind("lock-token",token);
+  q.bind("lock-scope",scope);
+  q.bind("lock-type",type);
+  q.bind("lock-depth",depth);
+  q.bind("lock-owner",user);
+  q.bind("lock-timeout",timeout == null ? Long.MAX_VALUE : timeout);
+  q.execute();
+  return token;
+}

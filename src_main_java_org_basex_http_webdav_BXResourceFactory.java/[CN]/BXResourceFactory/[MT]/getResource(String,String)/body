@@ -6,9 +6,9 @@
     Path p=Path.path(dbpath);
     if (!r.getContextPath().isEmpty())     p=p.getStripFirst();
     if (!r.getServletPath().isEmpty())     p=p.getStripFirst();
-    if (p.isRoot())     return new BXRoot(http);
+    if (p.isRoot())     return new BXRoot(service);
     final String db=p.getFirst();
-    return p.getLength() == 1 ? dbExists(db,http) ? database(db,http) : null : resource(db,p.getStripFirst().toString(),http);
+    return p.getLength() == 1 ? service.dbExists(db) ? new BXDatabase(new ResourceMetaData(db,service.timestamp(db)),service) : null : service.resource(db,p.getStripFirst().toString());
   }
  catch (  final LoginException ex) {
     return NOAUTH;
