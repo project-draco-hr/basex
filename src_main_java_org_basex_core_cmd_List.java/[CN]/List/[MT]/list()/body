@@ -7,27 +7,18 @@
   table.header.add(SIZE);
   if (create)   table.header.add(INPUT_PATH);
   for (  final String name : context.databases.listDBs()) {
-    DataInput di=null;
     String file=null;
     long size=0;
     int docs=0;
     final MetaData meta=new MetaData(name,context);
     try {
-      di=new DataInput(meta.dbfile(DATAINF));
-      meta.read(di);
+      meta.read();
       size=meta.dbsize();
       docs=meta.ndocs;
       if (context.perm(Perm.READ,meta))       file=meta.original;
     }
  catch (    final IOException ex) {
       file=ERROR;
-    }
- finally {
-      if (di != null)       try {
-        di.close();
-      }
- catch (      final IOException ignored) {
-      }
     }
     final IOFile dir=new IOFile(mprop.dbpath(name),M_RAW);
     final int bin=dir.descendants().size();

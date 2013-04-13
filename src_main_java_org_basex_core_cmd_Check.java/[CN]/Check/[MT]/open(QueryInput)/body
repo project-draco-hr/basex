@@ -1,21 +1,12 @@
 {
   if (!context.user.has(Perm.CREATE))   return true;
   if (!mprop.dbpath(qi.db).exists())   return false;
-  DataInput di=null;
+  final MetaData meta=new MetaData(qi.db,context);
   try {
-    final MetaData meta=new MetaData(qi.db,context);
-    di=new DataInput(meta.dbfile(DATAINF));
-    meta.read(di);
+    meta.read();
     return meta.time == qi.input.timeStamp();
   }
- catch (  final IOException ignored) {
+ catch (  final IOException ex) {
+    return false;
   }
- finally {
-    if (di != null)     try {
-      di.close();
-    }
- catch (    final IOException ignored) {
-    }
-  }
-  return false;
 }
