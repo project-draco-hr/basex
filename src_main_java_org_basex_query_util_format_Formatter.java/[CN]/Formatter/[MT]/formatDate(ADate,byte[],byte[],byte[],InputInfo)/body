@@ -76,12 +76,13 @@ err=dat;
 break;
 case 'f':
 frac=date.sec().remainder(BigDecimal.ONE);
+num=frac.movePointRight(3).intValue();
 err=dat;
 break;
 case 'Z':
 case 'z':
 num=date.zon();
-pres=num == Short.MAX_VALUE ? null : token("01:01");
+pres=token("01:01");
 break;
 case 'C':
 pres=new byte[]{'n'};
@@ -102,8 +103,11 @@ int mx=0;
 for (int s=0; s < fp.primary.length; s+=cl(fp.primary,s)) mx++;
 if (mx > 1) fp.max=mx;
 }
-if (fp.first == 'n') {
-byte[] in=EMPTY;
+if (compSpec == 'z' || compSpec == 'Z') {
+tb.add(formatTZ((int)num,fp,marker));
+}
+ else if (fp.first == 'n') {
+byte[] in=null;
 if (compSpec == 'M') {
 in=month((int)num - 1,fp.min,fp.max);
 }
@@ -119,9 +123,16 @@ in=calendar();
  else if (compSpec == 'E') {
 in=era((int)num);
 }
+if (in != null) {
 if (fp.cs == Case.LOWER) in=lc(in);
 if (fp.cs == Case.UPPER) in=uc(in);
 tb.add(in);
+}
+ else {
+fp.first='0';
+fp.primary=ONE;
+tb.add(formatInt(num,fp));
+}
 }
  else {
 if (frac != null && !frac.equals(BigDecimal.ZERO)) {
