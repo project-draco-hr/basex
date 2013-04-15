@@ -1,0 +1,16 @@
+{
+  if (prop.is(Prop.MAINMEM))   return false;
+  if (prop.is(Prop.ADDCACHE))   return true;
+  long fl=parser.src.length();
+  if (parser.src instanceof IOFile) {
+    final IOFile f=(IOFile)parser.src;
+    if (f.isDir()) {
+      for (      final String d : f.descendants())       fl+=new IOFile(f,d).length();
+    }
+  }
+  final Runtime rt=Runtime.getRuntime();
+  final long max=rt.maxMemory();
+  if (fl < (max - rt.freeMemory()) / 2)   return false;
+  Performance.gc(2);
+  return fl > (max - rt.freeMemory()) / 2;
+}
