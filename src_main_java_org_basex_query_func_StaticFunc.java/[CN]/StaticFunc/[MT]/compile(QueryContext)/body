@@ -1,8 +1,10 @@
 {
   if (compiled)   return;
   compiling=compiled=true;
-  final StaticContext tmp=ctx.sc;
+  final Value cv=ctx.value;
+  final StaticContext cs=ctx.sc;
   ctx.sc=sc;
+  ctx.value=null;
   final int fp=scope.enter(ctx);
   try {
     expr=expr.compile(ctx,scope);
@@ -13,7 +15,8 @@
  finally {
     scope.cleanUp(this);
     scope.exit(ctx,fp);
-    ctx.sc=tmp;
+    ctx.value=cv;
+    ctx.sc=cs;
   }
   ctx.compInfo(OPTTCE,name);
   expr=expr.markTailCalls();
