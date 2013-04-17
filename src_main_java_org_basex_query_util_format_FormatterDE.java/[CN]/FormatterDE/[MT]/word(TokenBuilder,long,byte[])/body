@@ -1,0 +1,52 @@
+{
+  if (n == 0) {
+    if (ord != null)     tb.add("st").add(ord.length == 0 ? E : ord);
+  }
+ else   if (n < 20) {
+    if (ord == null)     tb.add(WORDS[(int)n]);
+ else     tb.add(ORDINALS[(int)n]).add(ord.length == 0 ? E : ord);
+  }
+ else   if (n < 100) {
+    final int r=(int)(n % 10);
+    if (r != 0)     tb.add(r == 1 ? EIN : WORDS[r]).add(UND);
+    tb.add(WORDS20[(int)n / 10]);
+    if (ord != null)     tb.add("st").add(ord.length == 0 ? E : ord);
+  }
+ else   if (n < 1000) {
+    if (n < 200)     tb.add("ein");
+ else     word(tb,n / 100,null);
+    tb.add(HUNDERT);
+    word(tb,n % 100,ord);
+  }
+ else   if (n < 1000000) {
+    if (n < 2000)     tb.add("ein");
+    if (n >= 2000)     word(tb,n / 1000,null);
+    tb.add(TAUSEND);
+    word(tb,n % 1000,ord);
+  }
+ else {
+    int w=WORDS1000000.length;
+    while (--w > 0 && n < UNITS100[w])     ;
+    final long f=UNITS100[w];
+    final long i=n / f;
+    if (ord == null) {
+      if (i == 1)       tb.add(EINE);
+ else       word(tb,i,null);
+      tb.add(' ');
+    }
+ else {
+      if (i != 1)       word(tb,i,null);
+    }
+    tb.add(WORDS1000000[w]);
+    if (ord != null) {
+      tb.add("st").add(ord.length == 0 ? E : ord);
+    }
+ else {
+      if (i > 1)       tb.add("en");
+ else       if (endsWith(WORDS1000000[w],'f'))       tb.add("e");
+    }
+    tb.add(' ');
+    final long r=n % f;
+    if (r != 0)     word(tb,r,ord);
+  }
+}
