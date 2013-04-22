@@ -1,5 +1,6 @@
 {
-  final XQuery q=new XQuery("*:environment/*:collation |" + "*:dependency[" + "@type='feature' and"+ " @value=('schemaImport','schemaValidation','namespace-axis','staticTyping') or "+ "@type=('xml-version','xsd-version') and @value='1.1' or"+ "@type='spec' and not(contains(@value, 'XQ'))]",ctx).context(node);
+  final String notsupp="('schema-location-hint','schemaAware','schemaImport'," + "'schemaValidation','staticTyping')";
+  final XQuery q=new XQuery("*:environment/*:collation |" + "*:dependency[" + "@type = 'feature' and ("+ " @value = " + notsupp + " and (@satisfied = 'true' or empty(@satisfied)) or"+ " @value != "+ notsupp+ "and @satisfied = 'false'"+ ") or "+ "@type=('xml-version','xsd-version') and @value='1.1' or"+ "@type='spec' and not(contains(@value, 'XQ'))]",ctx).context(node);
   try {
     return q.next() == null;
   }
