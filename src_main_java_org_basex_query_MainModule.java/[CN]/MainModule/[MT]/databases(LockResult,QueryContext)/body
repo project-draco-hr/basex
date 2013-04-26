@@ -1,4 +1,6 @@
 {
+  lr.read.add(ctx.userReadLocks);
+  lr.write.add(ctx.userWriteLocks);
   final StringList sl=ctx.updating ? lr.write : lr.read;
   final ASTVisitor visitor=new ASTVisitor(){
     /** 
@@ -52,5 +54,6 @@
     }
   }
 ;
-  return expr.accept(visitor);
+  if (!expr.accept(visitor))   if (ctx.updating)   lr.writeAll=true;
+ else   lr.readAll=true;
 }
