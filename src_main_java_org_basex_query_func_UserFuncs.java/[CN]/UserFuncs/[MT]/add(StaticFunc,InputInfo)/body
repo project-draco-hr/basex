@@ -6,20 +6,17 @@
     if (fun.declared)     NAMERES.thrw(ii,name.string());
     funError(name,ii);
   }
-  final byte[] ln=name.local();
-  for (int l=0; l < funcs.length; ++l) {
-    final QNm qn=funcs[l].name;
-    final byte[] u=qn.uri();
-    final byte[] nm=qn.local();
-    if (eq(ln,nm) && eq(uri,u) && fun.args.length == funcs[l].args.length) {
-      if (!funcs[l].declared) {
-        funcs[l]=fun;
+  for (int l=0; l < funcs.size(); ++l) {
+    final StaticFunc sf=funcs.get(l);
+    if (fun.args.length == sf.args.length && name.eq(sf.name)) {
+      if (!sf.declared) {
+        funcs.set(l,fun);
         return l;
       }
       FUNCDEFINED.thrw(ii,fun.name.string());
     }
   }
-  funcs=Array.add(funcs,fun);
-  calls=Array.add(calls,new StaticFuncCall[0]);
-  return funcs.length - 1;
+  funcs.add(fun);
+  calls.add(new ArrayList<StaticFuncCall>(1));
+  return funcs.size() - 1;
 }
