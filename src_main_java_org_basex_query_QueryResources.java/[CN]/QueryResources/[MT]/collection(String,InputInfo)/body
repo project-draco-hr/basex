@@ -1,14 +1,20 @@
 {
   final IO base=ctx.sc.baseIO();
   final String in=base != null ? base.merge(input).path() : null;
-  for (int c=0; c < colls; c++) {
-    if (in != null && collName[c].equalsIgnoreCase(in) || collName[c].equalsIgnoreCase(input))     return coll[c];
+  if (in != null) {
+    final String[] names={in,input};
+    for (int c=0; c < colls; c++) {
+      final String n=collName[c];
+      if (Prop.CASE ? Token.eq(n,names) : Token.eqic(n,names))       return coll[c];
+    }
   }
   final QueryInput qi=new QueryInput(input);
   Data dt=null;
-  for (int d=0; d < datas; ++d) {
-    if (qi.db != null && data[d].meta.name.equalsIgnoreCase(qi.db) || IO.get(data[d].meta.original).eq(qi.input)) {
-      dt=data[d];
+  for (int i=0; i < datas; ++i) {
+    final Data d=data[i];
+    final String n=d.meta.name;
+    if (Prop.CASE ? n.equals(qi.db) : n.equalsIgnoreCase(qi.db) || IO.get(d.meta.original).eq(qi.input)) {
+      dt=d;
       break;
     }
   }
