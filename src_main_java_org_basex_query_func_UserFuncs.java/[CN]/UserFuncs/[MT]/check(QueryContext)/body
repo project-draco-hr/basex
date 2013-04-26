@@ -1,19 +1,18 @@
 {
   final int fs=funcs.size();
   for (int id=1; id <= fs; ++id) {
-    final StaticFunc sf=funcs.value(id);
-    final ArrayList<StaticFuncCall> sfc=calls.value(id);
-    qc.updating|=sf.updating && !sfc.isEmpty();
-    for (    final StaticFuncCall c : sfc)     c.init(sf);
+    final FuncCache fc=funcs.value(id);
+    final ArrayList<StaticFuncCall> sfc=fc.calls;
+    qc.updating|=fc.func.updating && !sfc.isEmpty();
+    for (    final StaticFuncCall c : sfc)     c.init(fc.func);
   }
   for (int id=1; id <= fs; ++id) {
-    final StaticFunc sf=funcs.value(id);
-    if (!sf.declared || sf.expr == null) {
-      for (int i=1; i <= fs; ++i) {
-        final StaticFunc uf=funcs.value(i);
-        if (sf != uf && sf.name.eq(uf.name))         FUNCTYPE.thrw(sf.info,uf.name.string());
-      }
-      FUNCUNKNOWN.thrw(sf.info,sf.name.string());
+    final StaticFunc sf=funcs.value(id).func;
+    if (sf.declared && sf.expr != null)     continue;
+    for (int i=1; i <= fs; ++i) {
+      final StaticFunc uf=funcs.value(i).func;
+      if (sf != uf && sf.name.eq(uf.name))       FUNCTYPE.thrw(sf.info,sf.name.string());
     }
+    FUNCUNKNOWN.thrw(sf.info,sf.name.string());
   }
 }

@@ -7,15 +7,15 @@
     funError(name,ii);
   }
   final byte[] sig=sig(name,fun.args.length);
-  final StaticFunc sf=funcs.get(sig);
-  if (sf != null) {
-    if (!sf.declared) {
-      funcs.add(sig,fun);
-      return sig;
+  FuncCache fc=funcs.get(sig);
+  if (fc != null) {
+    if (!fc.func.declared) {
+      fc.func=fun;
+      return fc;
     }
     FUNCDEFINED.thrw(ii,fun.name.string());
   }
-  funcs.add(sig,fun);
-  calls.add(sig,new ArrayList<StaticFuncCall>(0));
-  return sig;
+  fc=new FuncCache(fun);
+  funcs.add(sig,fc);
+  return fc;
 }
