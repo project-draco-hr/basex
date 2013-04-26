@@ -6,17 +6,16 @@
     if (fun.declared)     NAMERES.thrw(ii,name.string());
     funError(name,ii);
   }
-  for (int l=0; l < funcs.size(); ++l) {
-    final StaticFunc sf=funcs.get(l);
-    if (fun.args.length == sf.args.length && name.eq(sf.name)) {
-      if (!sf.declared) {
-        funcs.set(l,fun);
-        return l;
-      }
-      FUNCDEFINED.thrw(ii,fun.name.string());
+  final byte[] sig=sig(name,fun.args.length);
+  final StaticFunc sf=funcs.get(sig);
+  if (sf != null) {
+    if (!sf.declared) {
+      funcs.add(sig,fun);
+      return sig;
     }
+    FUNCDEFINED.thrw(ii,fun.name.string());
   }
-  funcs.add(fun);
-  calls.add(new ArrayList<StaticFuncCall>(1));
-  return funcs.size() - 1;
+  funcs.add(sig,fun);
+  calls.add(sig,new ArrayList<StaticFuncCall>(0));
+  return sig;
 }
