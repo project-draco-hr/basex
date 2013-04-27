@@ -10,10 +10,7 @@
     return new VarRef(ii,local);
   }
   final StaticVar global=ctx.vars.get(name);
-  if (global != null) {
-    if (!global.declared() && (mod != null ? xq10 || !eq(mod.uri(),name.uri()) : name.uri().length != 0))     throw err.thrw(ii,'$' + string(name.string()));
-    return global;
-  }
-  if (mod != null ? xq10 || !eq(mod.uri(),name.uri()) : name.uri().length != 0)   throw err.thrw(ii,'$' + string(name.string()));
-  return ctx.vars.bind(name,null,ctx,ii);
+  final boolean unknown=mod != null ? xq10 || !eq(mod.uri(),name.uri()) : name.uri().length != 0;
+  if (unknown && (global == null || !global.declared()))   throw err.thrw(ii,'$' + string(name.string()));
+  return global != null ? global : ctx.vars.bind(name,null,ctx,ii);
 }
