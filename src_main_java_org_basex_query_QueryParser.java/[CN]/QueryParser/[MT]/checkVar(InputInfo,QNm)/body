@@ -1,0 +1,11 @@
+{
+  final VarRef local=scope.resolve(name,ctx,ii);
+  if (local != null)   return local;
+  final byte[] uri=name.uri();
+  final boolean main=module == null, implicit=main && uri.length == 0;
+  if (!(ctx.sc.xquery3() || ctx.vars.declared(name) || implicit)) {
+    throw error(VARUNDEF,'$' + string(name.string()));
+  }
+  if (!(main || eq(module.uri(),uri) || modules.contains(uri)))   throw error(VARUNDEF,'$' + string(name.string()));
+  return ctx.vars.newRef(name,ctx.sc,ii);
+}

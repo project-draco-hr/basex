@@ -8,18 +8,17 @@
     by=check(single(),NOVARDECL);
   }
  else {
-    final Expr vr=checkVar(name,GVARNOTDEFINED);
+    final VarRef vr=scope.resolve(name,ctx,ii);
     boolean dec=false;
-    if (vr instanceof VarRef) {
-      final Var v=((VarRef)vr).var;
+    if (vr != null) {
       for (      final Clause f : cl) {
-        if (f.declares(v)) {
+        if (f.declares(vr.var)) {
           dec=true;
           break;
         }
       }
     }
-    if (!dec)     error(GVARNOTDEFINED,vr);
+    if (!dec)     error(GVARNOTDEFINED,'$' + string(name.string()));
     by=vr;
   }
   if (wsConsumeWs(COLLATION)) {

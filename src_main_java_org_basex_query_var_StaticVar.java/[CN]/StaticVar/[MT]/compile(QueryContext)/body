@@ -1,3 +1,29 @@
 {
-  compile(ctx,null);
+  if (expr == null)   throw (implicit ? VARUNDEF : VAREMPTY).thrw(info,this);
+  if (dontEnter)   throw circVar(ctx,this);
+  if (!compiled) {
+    final StaticContext cs=ctx.sc;
+    ctx.sc=sc;
+    dontEnter=true;
+    final int fp=scope.enter(ctx);
+    try {
+      expr=expr.compile(ctx,scope);
+    }
+ catch (    final QueryException qe) {
+      compiled=true;
+      if (lazy) {
+        expr=FNInfo.error(qe,info);
+        return;
+      }
+      throw qe.notCatchable();
+    }
+ finally {
+      scope.cleanUp(this);
+      scope.exit(ctx,fp);
+      ctx.sc=cs;
+      dontEnter=false;
+    }
+    compiled=true;
+    if (!lazy || expr.isValue())     bind(value(ctx));
+  }
 }

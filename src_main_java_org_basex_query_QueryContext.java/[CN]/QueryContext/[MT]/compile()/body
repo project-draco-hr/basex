@@ -1,13 +1,15 @@
 {
   final StringList o=dbOptions;
   for (int s=0; s < o.size(); s+=2)   context.prop.set(o.get(s),o.get(s + 1));
+  vars.bindExternal(this,bindings);
   if (ctxItem != null) {
     try {
-      value=ctxItem.compile(this,new VarScope()).value(this);
+      ctxItem.compile(this);
+      value=ctxItem.value(this);
     }
  catch (    final QueryException ex) {
       if (ex.err() != XPNOCTX)       throw ex;
-      CIRCCTX.thrw(((ParseExpr)ctxItem).info);
+      CIRCCTX.thrw(ctxItem.info);
     }
   }
  else   if (nodes != null) {
@@ -15,7 +17,7 @@
     resource.compile(nodes);
   }
   if (value != null && sc.initType != null) {
-    value=SeqType.get(sc.initType,Occ.ONE).funcConvert(this,null,value);
+    value=sc.initType.funcConvert(this,null,value);
   }
   analyze();
   if (inf && compInfo)   info.add(NL + OPTIMIZED_QUERY_C + NL+ funcs+ root+ NL);

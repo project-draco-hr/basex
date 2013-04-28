@@ -27,10 +27,12 @@
     }
     return new TypedFunc(fun,new Ann(),fun.sig.type(args.length));
   }
-  final TypedFunc tf=ctx.funcs.get(name,args,ii);
+  final TypedFunc tf=ctx.funcs.getRef(name,args,ctx.sc,ii);
   if (tf != null)   return tf;
   final JavaMapping jf=JavaMapping.get(name,args,ctx,ii);
   if (jf != null)   return TypedFunc.java(jf);
-  if (!dyn && FuncType.find(name) == null)   return ctx.funcs.add(name,args,ii,ctx);
+  if (!dyn && FuncType.find(name) == null) {
+    return ctx.funcs.getFuncRef(name,args,ctx.sc,ii);
+  }
   return null;
 }
