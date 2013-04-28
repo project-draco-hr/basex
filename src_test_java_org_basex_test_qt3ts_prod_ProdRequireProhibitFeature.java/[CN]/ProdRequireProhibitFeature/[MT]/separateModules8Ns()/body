@@ -1,5 +1,5 @@
 {
-  final XQuery query=new XQuery("\n" + "      import module namespace module = \"http://www.w3.org/XQueryTest/RequireProhibitFeature\";\n" + "      let $f := () return $f()\n"+ "    ",ctx);
+  final XQuery query=new XQuery("\n" + "      import module namespace module = \"http://www.w3.org/XQueryTest/RequireProhibitFeature\";\n" + "      let $f := function() { () } return $f()\n"+ "    ",ctx);
   try {
     query.addModule("http://www.w3.org/XQueryTest/RequireProhibitFeature",file("prod/RequireProhibitFeature/prohibits.xquery"));
     result=new QT3Result(query.value());
@@ -10,5 +10,5 @@
  finally {
     query.close();
   }
-  test(assertEmpty());
+  test(error("XQST0129"));
 }
