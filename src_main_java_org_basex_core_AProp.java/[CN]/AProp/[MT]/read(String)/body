@@ -80,13 +80,8 @@
   try {
     if (err.isEmpty()) {
       boolean ok=true;
-      for (      final Field f : getClass().getFields()) {
-        final Object obj=f.get(null);
-        if (!(obj instanceof Object[]))         continue;
-        final Object[] arr=(Object[])obj;
-        if (arr.length < 2)         continue;
-        final String key=arr[0].toString();
-        ok&=read.contains(key);
+      for (      final Object[] arr : props(getClass())) {
+        if (arr.length > 1)         ok&=read.contains(arr[0].toString());
       }
       if (!ok)       err.addExt("Saving properties in \"%\"..." + NL,file);
     }
