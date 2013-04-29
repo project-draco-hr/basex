@@ -1,13 +1,8 @@
 {
   try {
     final Value v=root.value(this);
-    if (updating) {
-      context.downgrade(this,updates.databases());
-      updates.apply();
-      if (updates.size() != 0 && context.data() != null)       context.update();
-      if (output.size() != 0)       return output.value();
-    }
-    return v;
+    final Value u=update();
+    return u != null ? u : v;
   }
  catch (  final StackOverflowError ex) {
     Util.debug(ex);
