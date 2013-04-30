@@ -98,7 +98,7 @@ catch (  final Throwable ex) {
     if (l > 100000000)     slow.put(-l,name);
   }
   ctx.prop.set(Prop.XQUERY3,true);
-  final String msg=test(result,expected);
+  final String exp=test(result,expected);
   final TokenBuilder tmp=new TokenBuilder();
   tmp.add(name).add(NL);
   tmp.add(noComments(string)).add(NL);
@@ -112,15 +112,16 @@ catch (  final Throwable ex) {
     err=true;
   }
   tmp.add(err ? "Error : " : "Result: ").add(noComments(res)).add(NL);
-  if (msg == null) {
+  if (exp == null) {
     tmp.add(NL);
     right.add(tmp.finish());
     correct++;
   }
  else {
-    tmp.add("Expect: " + noComments(msg)).add(NL).add(NL);
+    tmp.add("Expect: " + noComments(exp)).add(NL).add(NL);
     wrong.add(tmp.finish());
   }
+  if (report != null)   report.addTest(name,exp == null);
   query.close();
   qexp.close();
 }
