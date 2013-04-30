@@ -22,14 +22,14 @@
   final XdmValue ienv=qenv.next();
   if (ienv != null)   e=new QT3Env(ctx,ienv);
   qenv.close();
-  String b=base;
+  boolean base=true;
   if (e == null) {
     final String env=asString("*:environment/@ref",test);
     if (!env.isEmpty()) {
       e=envs(envs,env);
       if (e == null) {
         e=envs(genvs,env);
-        b=null;
+        base=false;
       }
       if (e == null)       Util.errln("%: environment '%' not found.",name,env);
     }
@@ -41,11 +41,11 @@
     string=asString("*:test",test);
   }
  else {
-    string=string(new IOFile(base,qfile).read());
+    string=string(new IOFile(baseDir,qfile).read());
   }
   if (verbose)   Util.outln(name);
   final XQuery query=new XQuery(string,ctx);
-  if (b != null)   query.baseURI(b);
+  if (base)   query.baseURI(baseURI);
   final String qm="for $m in *:module return ($m/@uri, $m/@file)";
   final XQuery qmod=new XQuery(qm,ctx).context(test);
   while (true) {
@@ -53,7 +53,7 @@
     if (uri == null)     break;
     final XdmItem file=qmod.next();
     if (file == null)     break;
-    query.addModule(uri.getString(),base + file.getString());
+    query.addModule(uri.getString(),baseDir + file.getString());
   }
   final QT3Result result=new QT3Result();
   try {
@@ -65,7 +65,7 @@
         query.bind(par.get(NNAME),new XQuery(par.get(SELECT),ctx).value());
       }
       for (      final HashMap<String,String> src : e.sources) {
-        final String file=file(b,src.get(FILE));
+        final String file=file(base,src.get(FILE));
         query.addDocument(src.get(URI),file);
         final String role=src.get(ROLE);
         if (role == null)         continue;
@@ -74,7 +74,7 @@
  else         query.bind(role,call);
       }
       for (      final HashMap<String,String> src : e.resources) {
-        query.addResource(src.get(URI),file(b,src.get(FILE)),src.get(ENCODING));
+        query.addResource(src.get(URI),file(base,src.get(FILE)),src.get(ENCODING));
       }
       query.addCollection(e.collURI,e.collSources.toArray());
       if (e.collContext) {
