@@ -31,17 +31,15 @@
       if (!XMLToken.isQName(vl))       error(DECLQNAME,val);
       final QNm qn=new QNm(vl,ctx);
       if (!qn.hasURI()) {
-        if (qn.hasPrefix())         error(NSDECL,qn.prefix());
+        if (qn.hasPrefix())         error(NOURI,qn.prefix());
         qn.uri(XQURI);
       }
       final String k=string(qn.local());
       if (eq(qn.uri(),XQURI) && eq(k,F_SCHEMA_AWARE,F_STATIC_TYPING,F_MODULE,F_HIGHER_ORDER_FUNCTION,F_ALL_EXTENSIONS,F_ALL_OPTIONAL_FEATURES)) {
-        if (eq(k,F_STATIC_TYPING,F_SCHEMA_AWARE,F_ALL_OPTIONAL_FEATURES))         error(pf ? FEATPROH : FEATNOTSUPP,k);
-        if (rf && eq(k,F_ALL_EXTENSIONS))         error(FEATREQUALL,k);
         if (module != null && eq(k,F_MODULE))         error(FEATMODULE,k);
-        if (decl.contains(k + (pf ? 'R' : 'P')))         error(FEATREQPRO,k);
-        if (pf && eq(k,F_MODULE,F_HIGHER_ORDER_FUNCTION,F_ALL_EXTENSIONS,F_ALL_OPTIONAL_FEATURES))         error(FEATPROH,k);
-        decl.add(k + (pf ? 'P' : 'R'));
+        if (rf && eq(k,F_ALL_EXTENSIONS))         error(FEATREQUALL,k);
+        if (decl.contains(k + (pf ? "_R" : "_P")))         error(FEATREQPRO,k);
+        decl.add(k + (pf ? "_P" : "_R"));
       }
  else {
         error(DECLFEAT,vl);
