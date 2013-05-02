@@ -1,0 +1,37 @@
+{
+  final int ar=(int)arity;
+  final Type cst=getCast(name,arity,ii);
+  if (cst != null) {
+    final VarScope scp=new VarScope();
+    final Var arg=scp.uniqueVar(ctx,SeqType.AAT_ZO,true);
+    final Expr e=new Cast(ii,new VarRef(ii,arg),cst.seqType());
+    final FuncType tp=FuncType.get(e.type(),SeqType.AAT_ZO);
+    return new FuncItem(name,new Var[]{arg},e,tp,false,null,0,0,null,scp,ctx.sc);
+  }
+  final Function fn=get().getBuiltIn(name,arity,ii);
+  if (fn != null) {
+    final VarScope scp=new VarScope();
+    final FuncType ft=fn.type(ar);
+    final Var[] args=new Var[ar];
+    final Expr[] calls=ft.args(args,ctx,scp,ii);
+    final StandardFunc f=fn.get(calls);
+    if (!f.uses(Use.CTX) && !f.uses(Use.POS))     return new FuncItem(name,args,f,ft,false,null,0,0,null,scp,ctx.sc);
+    return new FuncLit(name,args,f,ft,scp,ctx.sc,ii);
+  }
+  final StaticFunc sf=ctx.funcs.get(name,arity,ii);
+  if (sf != null) {
+    final FuncType ft=sf.funcType();
+    final VarScope scp=new VarScope();
+    final Var[] args=new Var[ar];
+    final Expr[] calls=ft.args(args,ctx,scp,ii);
+    final TypedFunc tf=ctx.funcs.getFuncRef(name,calls,ctx.sc,ii);
+    return new FuncItem(name,args,tf.fun,ft,false,null,0,0,null,scp,ctx.sc);
+  }
+  final VarScope scp=new VarScope();
+  final FuncType jt=FuncType.arity(ar);
+  final Var[] vs=new Var[ar];
+  final Expr[] refs=jt.args(vs,ctx,scp,ii);
+  final Expr jm=JavaMapping.get(name,refs,ctx,ii);
+  if (jm != null)   return new FuncLit(name,vs,jm,jt,scp,ctx.sc,ii);
+  return null;
+}
