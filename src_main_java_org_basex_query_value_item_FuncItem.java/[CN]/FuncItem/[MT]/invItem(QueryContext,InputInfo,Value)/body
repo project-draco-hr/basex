@@ -3,15 +3,20 @@
   ctx.sc=sc;
   final int fp=ctx.stack.enterFrame(stackSize);
   final Value cv=ctx.value;
+  final long ps=ctx.pos, sz=ctx.size;
   try {
     bindVars(ctx,ii,args);
-    ctx.value=null;
+    ctx.value=ctxVal;
+    ctx.pos=pos;
+    ctx.size=size;
     final Item it=expr.item(ctx,ii);
     final Value v=it == null ? Empty.SEQ : it;
     return cast != null ? cast.funcConvert(ctx,ii,v).item(ctx,ii) : it;
   }
   finally {
     ctx.value=cv;
+    ctx.pos=ps;
+    ctx.size=sz;
     ctx.stack.exitFrame(fp);
     ctx.sc=cs;
   }
