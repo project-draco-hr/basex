@@ -24,19 +24,9 @@
   if (name.isEmpty())   return error(NAME_INVALID_X,name);
   parser=new DirParser(io,prop,data.meta.path);
   parser.target(target);
-  final long fl=parser.src.length();
-  boolean large=prop.is(Prop.ADDCACHE);
-  if (!large) {
-    final Runtime rt=Runtime.getRuntime();
-    final long max=rt.maxMemory();
-    if (fl > (max - rt.freeMemory()) / 2) {
-      Performance.gc(2);
-      large=fl > (max - rt.freeMemory()) / 2;
-    }
-  }
-  if (prop.is(Prop.MAINMEM))   large=false;
-  final String db=large ? context.mprop.random(data.meta.name) : name;
-  build=large ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser);
+  final boolean cache=cache(parser);
+  final String db=cache ? context.mprop.random(data.meta.name) : name;
+  build=cache ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser);
   Data tmp=null;
   try {
     tmp=build.build();
@@ -53,6 +43,6 @@
   }
  finally {
     if (tmp != null)     tmp.close();
-    if (large)     DropDB.drop(db,context);
+    if (cache)     DropDB.drop(db,context);
   }
 }

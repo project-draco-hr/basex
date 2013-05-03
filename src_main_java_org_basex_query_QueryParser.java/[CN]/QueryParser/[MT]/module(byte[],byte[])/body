@@ -1,21 +1,3 @@
 {
-  final IO io=ctx.sc.io(string(path));
-  final byte[] p=token(io.path());
-  final byte[] u=ctx.modParsed.get(p);
-  if (u != null) {
-    if (!eq(uri,u))     error(WRONGMODULE,uri,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
-    return;
-  }
-  ctx.modParsed.add(p,uri);
-  String qu=null;
-  try {
-    qu=string(io.read());
-  }
- catch (  final IOException ex) {
-    error(NOMODULEFILE,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
-  }
-  final StaticContext sc=ctx.sc;
-  ctx.sc=new StaticContext(sc.xquery3());
-  new QueryParser(qu,io.path(),ctx).parse(uri);
-  ctx.sc=sc;
+  module(path,uri,false);
 }

@@ -1,33 +1,68 @@
 {
   skipWS();
-  final QNm name=eQName(QNAMEINV,URICHECK);
+  final QNm name=eQName(QNAMEINV,ctx.sc.xquery3() ? XQURI : URICHECK);
   final byte[] val=stringLiteral();
+  final String key=string(name.local());
   if (ctx.sc.xquery3() && eq(name.uri(),OUTPUTURI)) {
-    final String key=string(name.local());
     if (module != null)     error(MODOUT);
     if (ctx.serProp == null)     ctx.serProp=new SerializerProp();
     if (ctx.serProp.get(key) == null)     error(OUTWHICH,key);
-    if (serial.contains(key))     error(OUTDUPL,key);
+    if (!decl.add("S " + key))     error(OUTDUPL,key);
+    if (key.equals(SerializerProp.S_PARAMETER_DOCUMENT[0].toString())) {
+      final IO io=IO.get(string(resolvedUri(val).string()));
+      try {
+        final ANode node=new DBNode(io,ctx.context.prop).children().next();
+        final InputInfo info=info();
+        final TokenMap tm=FuncParams.serializerMap(node,info);
+        FuncParams.serializerProp(tm,info);
+        for (        final byte[] sk : tm)         ctx.serProp.set(string(sk),string(tm.get(sk)));
+      }
+ catch (      final IOException ex) {
+        OUTDOC.thrw(info(),val);
+      }
+    }
     ctx.serProp.set(key,string(val));
-    serial.add(key);
+  }
+ else   if (ctx.sc.xquery3() && eq(name.uri(),XQURI)) {
+    final boolean pf=key.equals(PROHIBIT_FEATURE);
+    final boolean rf=!pf && key.equals(REQUIRE_FEATURE);
+    if (!pf && !rf)     error(DECLOPTION,name);
+    for (    final byte[] vl : split(val,' ')) {
+      if (!XMLToken.isQName(vl))       error(DECLQNAME,val);
+      final QNm qn=new QNm(vl,ctx);
+      if (!qn.hasURI()) {
+        if (qn.hasPrefix())         error(NOURI,qn.prefix());
+        qn.uri(XQURI);
+      }
+      final String k=string(qn.local());
+      if (eq(qn.uri(),XQURI) && eq(k,F_SCHEMA_AWARE,F_STATIC_TYPING,F_MODULE,F_HIGHER_ORDER_FUNCTION,F_ALL_EXTENSIONS,F_ALL_OPTIONAL_FEATURES)) {
+        if (module != null && eq(k,F_MODULE))         error(FEATMODULE,k);
+        if (rf && eq(k,F_ALL_EXTENSIONS))         error(FEATREQUALL,k);
+        if (decl.contains(k + (pf ? "_R" : "_P")))         error(FEATREQPRO,k);
+        decl.add(k + (pf ? "_P" : "_R"));
+      }
+ else {
+        error(DECLFEAT,vl);
+      }
+    }
   }
  else   if (eq(name.uri(),DBURI)) {
-    final String key=string(uc(name.local()));
-    final Object obj=ctx.context.prop.get(key);
-    if (obj == null)     error(BASX_OPTIONS,key);
-    ctx.globalOpt.put(key,obj);
-    ctx.dbOptions.add(key);
+    final String ukey=key.toUpperCase(Locale.ENGLISH);
+    final Object obj=ctx.context.prop.get(ukey);
+    if (obj == null)     error(BASX_OPTIONS,ukey);
+    ctx.globalOpt.put(ukey,obj);
+    ctx.dbOptions.add(ukey);
     ctx.dbOptions.add(string(val));
   }
  else   if (eq(name.uri(),QUERYURI)) {
-    if (eq(name.local(),READ_LOCK)) {
-      for (      final byte[] lock : split(val,','))       ctx.userReadLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
+    if (key.equals(READ_LOCK)) {
+      for (      final byte[] lock : split(val,','))       ctx.readLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
     }
- else     if (eq(name.local(),WRITE_LOCK)) {
-      for (      final byte[] lock : split(val,','))       ctx.userWriteLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
+ else     if (key.equals(WRITE_LOCK)) {
+      for (      final byte[] lock : split(val,','))       ctx.writeLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
     }
  else {
-      error(BASX_OPTIONS,string(name.local()));
+      error(BASX_OPTIONS,key);
     }
   }
 }

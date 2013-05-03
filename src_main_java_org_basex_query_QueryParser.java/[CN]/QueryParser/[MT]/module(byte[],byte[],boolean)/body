@@ -1,0 +1,25 @@
+{
+  final IO io=ctx.sc.io(string(path));
+  final byte[] p=token(io.path());
+  final byte[] u=ctx.modParsed.get(p);
+  if (u != null) {
+    if (!eq(uri,u))     error(WRONGMODULE,uri,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
+    if (!ctx.sc.xquery3() && ctx.modStack.contains(p))     error(CIRCMODULE);
+    return;
+  }
+  ctx.modParsed.add(p,uri);
+  String qu=null;
+  try {
+    qu=string(io.read());
+  }
+ catch (  final IOException ex) {
+    error(NOMODULEFILE,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
+  }
+  ctx.modStack.push(p);
+  final StaticContext sc=ctx.sc;
+  ctx.sc=new StaticContext(sc.xquery3());
+  final byte[] muri=new QueryParser(qu,io.path(),ctx).parseModule(!imprt).uri();
+  if (!eq(uri,muri))   error(WRONGMODULE,muri,file);
+  ctx.sc=sc;
+  ctx.modStack.pop();
+}

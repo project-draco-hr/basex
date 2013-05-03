@@ -1,6 +1,7 @@
 {
+  byte[] pref=null;
   if (wsConsumeWs(NSPACE)) {
-    final byte[] pref=ncName(XPNAME);
+    pref=ncName(XPNAME);
     if (eq(pref,XML,XMLNS))     error(BINDXML,pref);
     wsCheck(IS);
   }
@@ -9,7 +10,7 @@
     wsCheck(NSPACE);
   }
   byte[] ns=stringLiteral();
-  if (ns.length == 0)   error(NSEMPTY);
+  if (pref != null && ns.length == 0)   error(NSEMPTY);
   if (!Uri.uri(ns).isValid())   error(INVURI,ns);
   if (wsConsumeWs(AT)) {
     do {

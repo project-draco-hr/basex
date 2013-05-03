@@ -1,11 +1,13 @@
 {
   wsCheck(ITEMM);
-  if (declItem)   error(DUPLITEM);
-  declItem=true;
-  ctx.sc.initType=wsConsumeWs(AS) ? itemType().type : null;
+  if (!decl.add(ITEMM))   error(DUPLITEM);
+  ctx.sc.initType=wsConsumeWs(AS) ? itemType() : null;
   if (!wsConsumeWs(EXTERNAL))   wsCheck(ASSIGN);
  else   if (!wsConsumeWs(ASSIGN))   return;
-  ctx.ctxItem=check(single(),NOVARDECL);
+  scope=new VarScope();
+  final Expr e=check(single(),NOVARDECL);
+  ctx.ctxItem=new MainModule(e,scope);
+  scope=null;
   if (module != null)   error(DECITEM);
-  if (ctx.ctxItem.uses(Use.UPD))   error(UPCTX,ctx.ctxItem);
+  if (e.uses(Use.UPD))   error(UPCTX,e);
 }

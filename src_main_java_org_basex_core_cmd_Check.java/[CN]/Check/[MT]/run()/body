@@ -1,9 +1,15 @@
 {
   new Close().run(context);
   final QueryInput qi=new QueryInput(args[0]);
-  qi.db=qi.io.dbname();
-  final boolean create=context.user.has(Perm.CREATE);
-  final Command cmd=progress(!create || mprop.dbpath(qi.db).exists() ? new Open(qi.db) : new CreateDB(qi.db,qi.io.exists() ? qi.original : null));
+  qi.db=qi.input.dbname();
+  final Command cmd;
+  if (open(qi)) {
+    cmd=new Open(qi.db);
+  }
+ else {
+    cmd=new CreateDB(qi.db,qi.input.exists() ? qi.original : null);
+  }
+  proc(cmd);
   final boolean ok=cmd.run(context);
   final String msg=cmd.info().trim();
   return ok ? info(msg) : error(msg);

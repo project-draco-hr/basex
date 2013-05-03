@@ -13,25 +13,19 @@
     if (ctx.sc.ns.staticURI(ns) != null)     error(DUPLNSDECL,ns);
     ctx.sc.ns.add(ns,uri,info());
   }
-  try {
-    if (wsConsumeWs(AT)) {
-      do {
-        module(stringLiteral(),uri);
-      }
+  if (wsConsumeWs(AT)) {
+    do {
+      module(stringLiteral(),uri,true);
+    }
  while (wsConsumeWs(COMMA));
-      return;
-    }
-    final byte[] path=ctx.modDeclared.get(uri);
-    if (path != null) {
-      module(path,uri);
-      return;
-    }
-    for (    final byte[] u : Function.URIS.values())     if (eq(uri,u))     return;
-    if (ctx.modules.addImport(uri,info(),this))     return;
-    error(NOMODULE,uri);
+    return;
   }
- catch (  final StackOverflowError ex) {
-    Util.debug(ex);
-    error(CIRCMODULE);
+  final byte[] path=ctx.modDeclared.get(uri);
+  if (path != null) {
+    module(path,uri,true);
+    return;
   }
+  for (  final byte[] u : Function.URIS.values())   if (eq(uri,u))   return;
+  if (ctx.modules.addImport(uri,info(),this))   return;
+  error(NOMODULE,uri);
 }
