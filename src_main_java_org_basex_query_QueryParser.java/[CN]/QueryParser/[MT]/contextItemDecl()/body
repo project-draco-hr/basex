@@ -1,7 +1,15 @@
 {
   wsCheck(ITEMM);
   if (!decl.add(ITEMM))   error(DUPLITEM);
-  ctx.sc.initType=wsConsumeWs(AS) ? itemType() : null;
+  if (wsConsumeWs(AS)) {
+    final SeqType type=itemType();
+    if (ctx.sc.initType == null) {
+      ctx.sc.initType=type;
+    }
+ else     if (!ctx.sc.initType.eq(type)) {
+      error(CITYPES,ctx.sc.initType,type);
+    }
+  }
   if (!wsConsumeWs(EXTERNAL))   wsCheck(ASSIGN);
  else   if (!wsConsumeWs(ASSIGN))   return;
   scope=new VarScope();
