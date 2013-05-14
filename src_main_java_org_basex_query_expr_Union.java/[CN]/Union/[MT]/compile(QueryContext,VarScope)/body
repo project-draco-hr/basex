@@ -1,10 +1,17 @@
 {
   super.compile(ctx,scp);
-  for (int e=0; e != expr.length; ++e) {
-    if (expr[e].isEmpty()) {
-      ctx.compInfo(OPTREMOVE,this,expr[e]);
-      expr=Array.delete(expr,e--);
+  final int es=expr.length;
+  final ExprList el=new ExprList(es);
+  for (  final Expr ex : expr) {
+    if (ex.isEmpty()) {
+      ctx.compInfo(OPTREMOVE,this,ex);
+    }
+ else {
+      el.add(ex);
     }
   }
-  return expr.length == 0 ? Empty.SEQ : expr.length == 1 && iterable ? expr[0] : this;
+  if (el.isEmpty())   return Empty.SEQ;
+  if (el.size() == 1 && iterable)   return el.get(0);
+  if (el.size() != es)   expr=el.finish();
+  return this;
 }
