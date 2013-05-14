@@ -2,8 +2,10 @@
   final String file=asString("@file",expect);
   final boolean norm=asBoolean("@normalize-space=('true','1')",expect);
   final boolean pref=asBoolean("@ignore-prefixes=('true','1')",expect);
+  String exp=expect.getString();
   try {
-    String exp=normNL(file.isEmpty() ? expect.getString() : string(new IOFile(baseDir,file).read()));
+    if (!file.isEmpty())     exp=string(new IOFile(baseDir,file).read());
+    exp=normNL(exp);
     if (norm)     exp=string(norm(token(exp)));
     final String res=normNL(asString("serialize(., map{ 'indent':='no' })",value));
     if (exp.equals(res))     return null;
@@ -15,6 +17,6 @@
     return asBoolean(query,expect) ? null : exp;
   }
  catch (  final IOException ex) {
-    return Util.message(ex);
+    return Util.info("% (found: %)",exp,ex);
   }
 }

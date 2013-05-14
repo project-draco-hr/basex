@@ -86,6 +86,7 @@
       }
     }
     result.value=query.value();
+    result.sprop=query.serializer();
   }
  catch (  final XQueryException ex) {
     result.err=ex;
@@ -108,10 +109,23 @@ catch (  final Throwable ex) {
   boolean err=result.value == null;
   String res;
   try {
-    res=result.error != null ? result.error.toString() : result.err != null ? result.err.getCode() + ": " + result.err.getLocalizedMessage() : asString("serialize(., map { 'indent' := 'no' })",result.value);
+    if (result.error != null) {
+      res=result.error.toString();
+    }
+ else     if (result.err != null) {
+      res=result.err.getCode() + ": " + result.err.getLocalizedMessage();
+    }
+ else {
+      result.sprop.set(SerializerProp.S_OMIT_XML_DECLARATION,"yes");
+      res=serialize(result.value,result.sprop);
+    }
   }
  catch (  final XQueryException ex) {
     res=ex.getCode() + ": " + ex.getLocalizedMessage();
+    err=true;
+  }
+catch (  final Throwable ex) {
+    res="Unexpected: " + ex.toString();
     err=true;
   }
   tmp.add(err ? "Error : " : "Result: ").add(noComments(res)).add(NL);
