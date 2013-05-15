@@ -1,17 +1,17 @@
 {
-  int zero='0';
+  int z='0';
   if (map != null) {
-    for (    final Entry<String,String> e : map.entrySet()) {
-      final String key=e.getKey(), val=e.getValue();
-      int cp=val.isEmpty() ? 0 : val.codePointAt(0);
-      if (Character.charCount(cp) != val.length())       cp=0;
+    for (int m=1; m <= map.size(); m++) {
+      final String key=string(map.key(m));
+      final byte[] val=map.value(m);
       if (key.equals(DF_INF)) {
         inf=val;
       }
  else       if (key.equals(DF_NAN)) {
         nan=val;
       }
- else       if (cp != 0) {
+ else       if (val.length != 0 && cl(val,0) == val.length) {
+        final int cp=cp(val,0);
         if (key.equals(DF_DEC))         decimal=cp;
  else         if (key.equals(DF_GRP))         grouping=cp;
  else         if (key.equals(DF_PAT))         pattern=cp;
@@ -20,21 +20,22 @@
  else         if (key.equals(DF_PC))         percent=cp;
  else         if (key.equals(DF_PM))         permille=cp;
  else         if (key.equals(DF_ZG)) {
-          zero=zeroes(cp);
-          if (zero == -1)           INVDECFORM.thrw(ii,key,val);
+          z=zeroes(cp);
+          if (z == -1)           INVDECFORM.thrw(ii,key,val);
+          if (z != cp)           INVDECZERO.thrw(ii,(char)cp);
         }
       }
  else {
-        INVDECFORM.thrw(ii,key,val);
+        INVDECSINGLE.thrw(ii,key,val);
       }
     }
   }
+  zero=z;
   final IntSet is=new IntSet();
-  for (  final int i : new int[]{decimal,grouping,percent,permille,zero,optional,pattern}) {
-    if (is.add(i) < 0)     DUPLDECFORM.thrw(ii,(char)i);
-  }
+  final int[] ss={decimal,grouping,percent,permille,zero,optional,pattern};
+  for (  final int s : ss)   if (is.add(s) < 0)   DUPLDECFORM.thrw(ii,(char)s);
   final TokenBuilder tb=new TokenBuilder();
   for (int i=0; i < 10; i++)   tb.add(zero + i);
-  digits=tb.toString();
-  active=tb.add(decimal).add(grouping).add(optional).toString();
+  digits=tb.finish();
+  active=tb.add(decimal).add(grouping).add(optional).finish();
 }
