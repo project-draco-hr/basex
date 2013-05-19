@@ -1,20 +1,14 @@
 {
-  final XQuery qdoc=new XQuery("doc(' " + file(false,name) + "')",ctx);
-  final XdmValue doc=qdoc.value();
-  final XQuery qset=new XQuery("*:test-set",ctx).context(doc);
-  final XdmValue set=qset.value();
+  final XdmValue doc=new XQuery("doc(' " + file(false,name) + "')",ctx).value();
+  final XdmValue set=new XQuery("*:test-set",ctx).context(doc).value();
   final IO base=IO.get(doc.getBaseURI());
   baseURI=base.path();
   baseDir=base.dirPath();
-  qdoc.close();
   if (supported(set)) {
-    final XQuery qenv=new XQuery("*:environment",ctx).context(set);
     final ArrayList<QT3Env> envs=new ArrayList<QT3Env>();
-    for (    final XdmItem ienv : qenv)     envs.add(new QT3Env(ctx,ienv));
-    qenv.close();
+    for (    final XdmItem ienv : new XQuery("*:environment",ctx).context(set))     envs.add(new QT3Env(ctx,ienv));
     if (report != null)     report.addSet(asString("@name",set));
-    final XQuery qts=new XQuery("*:test-case",ctx).context(set);
-    for (    final XdmItem its : qts) {
+    for (    final XdmItem its : new XQuery("*:test-case",ctx).context(set)) {
       try {
         testCase(its,envs);
       }
@@ -22,7 +16,5 @@
         Util.debug(ex);
       }
     }
-    qts.close();
   }
-  qset.close();
 }

@@ -12,16 +12,11 @@
     return;
   }
   tested++;
-  final XQuery qexp=new XQuery("*:result/*[1]",ctx).context(test);
-  final XdmValue expected=qexp.value();
-  final XQuery q=new XQuery("*:dependency[@type='spec']" + "[matches(@value,'(XQ10)([^+]|$)')]",ctx);
-  if (q.context(test).next() != null)   ctx.prop.set(Prop.XQUERY3,false);
-  q.close();
+  final XdmValue expected=new XQuery("*:result/*[1]",ctx).context(test).value();
+  if (new XQuery("*:dependency[@type='spec'][matches(@value,'(XQ10)([^+]|$)')]",ctx).context(test).next() != null)   ctx.prop.set(Prop.XQUERY3,false);
   QT3Env e=null;
-  final XQuery qenv=new XQuery("*:environment[*]",ctx).context(test);
-  final XdmValue ienv=qenv.next();
-  if (ienv != null)   e=new QT3Env(ctx,ienv);
-  qenv.close();
+  final XdmValue ienv=new XQuery("*:environment[*]",ctx).context(test).value();
+  if (ienv.size() != 0)   e=new QT3Env(ctx,ienv);
   boolean base=true;
   if (e == null) {
     final String env=asString("*:environment/@ref",test);
@@ -139,6 +134,4 @@ catch (  final Throwable ex) {
     wrong.add(tmp.finish());
   }
   if (report != null)   report.addTest(name,exp == null);
-  query.close();
-  qexp.close();
 }
