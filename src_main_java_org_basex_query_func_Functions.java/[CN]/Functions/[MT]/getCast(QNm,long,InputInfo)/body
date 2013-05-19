@@ -2,13 +2,15 @@
   final byte[] ln=name.local();
   Type type=ListType.find(name);
   if (type == null)   type=AtomType.find(name,false);
-  if (type == null) {
-    final Levenshtein ls=new Levenshtein();
-    for (    final AtomType t : AtomType.values()) {
-      if (t.par != null && t != AtomType.NOT && t != AtomType.AAT && t != AtomType.BIN && t != AtomType.JAVA && ls.similar(lc(ln),lc(t.string())))       FUNSIMILAR.thrw(ii,name.string(),t.string());
-    }
+  if (type != null && type != AtomType.NOT && type != AtomType.AAT) {
+    if (arity != 1)     FUNCTYPE.thrw(ii,name.string());
+    return type;
   }
-  if (type == null || type == AtomType.NOT || type == AtomType.AAT)   FUNCUNKNOWN.thrw(ii,name.string());
-  if (arity != 1)   FUNCTYPE.thrw(ii,name.string());
-  return type;
+  final Levenshtein ls=new Levenshtein();
+  for (  final AtomType t : AtomType.VALUES) {
+    if (t.par == null)     continue;
+    final byte[] u=t.name.uri();
+    if (eq(u,XSURI) && t != AtomType.NOT && t != AtomType.AAT && ls.similar(lc(ln),lc(t.string())))     FUNCSIMILAR.thrw(ii,name.string(),t.string());
+  }
+  throw FUNCUNKNOWN.thrw(ii,name.string());
 }
