@@ -1,0 +1,47 @@
+{
+  final IOFile root=new IOFile(path);
+  root.md();
+  final HashSet<String> exported=new HashSet<String>();
+  final IntList il=data.resources.docs();
+  final IOFile bin;
+  final StringList desc;
+  if (data.inMemory()) {
+    bin=null;
+    desc=new StringList();
+  }
+ else {
+    bin=data.meta.binaries();
+    desc=bin.descendants();
+  }
+  if (e != null) {
+    e.progPos=0;
+    e.progSize=il.size() + desc.size();
+  }
+  final int is=il.size();
+  for (int i=0; i < is; i++) {
+    final int pre=il.get(i);
+    final IO f=root.merge(Token.string(data.text(pre,true)));
+    if (e != null) {
+      e.checkStop();
+      e.progFile=f;
+      e.progPos++;
+    }
+    final IOFile dir=new IOFile(f.dirPath());
+    if (!dir.exists())     dir.md();
+    final PrintOutput po=new PrintOutput(unique(exported,f.path()));
+    final Serializer ser=Serializer.get(po,sp);
+    ser.serialize(new DBNode(data,pre));
+    ser.close();
+    po.close();
+  }
+  for (  final String s : desc) {
+    final IOFile f=new IOFile(root.path(),s);
+    if (e != null) {
+      e.checkStop();
+      e.progFile=f;
+      e.progPos++;
+    }
+    final String u=unique(exported,f.path());
+    new IOFile(bin,s).copyTo(new IOFile(u));
+  }
+}

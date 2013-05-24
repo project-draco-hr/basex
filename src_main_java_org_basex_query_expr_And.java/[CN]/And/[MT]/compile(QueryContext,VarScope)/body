@@ -1,7 +1,8 @@
 {
   final Expr c=super.compile(ctx,scp);
   if (c != this)   return c;
-  Expr[] ex={};
+  final int es=expr.length;
+  final ExprList el=new ExprList(es);
   Pos ps=null;
   CmpR cr=null;
   CmpSR cs=null;
@@ -22,13 +23,13 @@
       if (tmp instanceof CmpSR)       cs=(CmpSR)tmp;
  else       if (tmp != null)       return tmp;
     }
-    if (tmp == null)     ex=Array.add(ex,e);
+    if (tmp == null)     el.add(e);
   }
-  expr=ex;
-  if (ps != null)   expr=Array.add(expr,ps);
-  if (cr != null)   expr=Array.add(expr,cr);
-  if (cs != null)   expr=Array.add(expr,cs);
-  if (ex.length != expr.length)   ctx.compInfo(OPTWRITE,this);
+  if (ps != null)   el.add(ps);
+  if (cr != null)   el.add(cr);
+  if (cs != null)   el.add(cs);
+  if (es != el.size())   ctx.compInfo(OPTWRITE,this);
+  expr=el.finish();
   compFlatten(ctx);
   return expr.length == 1 ? compBln(expr[0],info) : this;
 }

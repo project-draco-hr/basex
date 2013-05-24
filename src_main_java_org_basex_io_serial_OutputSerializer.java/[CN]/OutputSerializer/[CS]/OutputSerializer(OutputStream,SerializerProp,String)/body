@@ -6,6 +6,7 @@
   final boolean decl=!p.yes(S_OMIT_XML_DECLARATION);
   final boolean bom=p.yes(S_BYTE_ORDER_MARK);
   final String sa=p.check(S_STANDALONE,YES,NO,OMIT);
+  saomit=sa.equals(OMIT);
   p.check(S_NORMALIZATION_FORM,NFC,DataText.NONE);
   final String maps=p.get(S_USE_CHARACTER_MAPS);
   final String enc=normEncoding(p.get(S_ENCODING));
@@ -34,13 +35,8 @@
   undecl=p.yes(S_UNDECLARE_PREFIXES);
   indent=p.yes(S_INDENT) && format;
   if (!maps.isEmpty())   SERMAP.thrwSerial(maps);
-  if (docsys.isEmpty()) {
-    docsys=null;
-    docpub=null;
-  }
- else   if (docpub.isEmpty()) {
-    docpub=null;
-  }
+  if (docsys.isEmpty())   docsys=null;
+  if (docpub.isEmpty())   docpub=null;
   out=PrintOutput.get(os);
   if (bom) {
     if (enc == UTF8) {
@@ -77,7 +73,7 @@
       print(ver);
       print(DOCDECL2);
       print(p.get(S_ENCODING));
-      if (!sa.equals(OMIT)) {
+      if (!saomit) {
         print(DOCDECL3);
         print(sa);
       }
@@ -85,7 +81,7 @@
       print(PI_C);
       sep=true;
     }
- else     if (!sa.equals(OMIT) || !ver.equals(V10) && docsys != null) {
+ else     if (!saomit || !ver.equals(V10) && docsys != null) {
       SERSTAND.thrwSerial();
     }
   }
