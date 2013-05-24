@@ -13,13 +13,13 @@
   }
   if (stopped) {
     stop();
-    Util.outln(HTTP + ' ' + SRV_STOPPED);
+    Util.outln(HTTP + ' ' + SRV_STOPPED_PORT_X,httpPort);
     Performance.sleep(1000);
     return;
   }
   if (service) {
     start(httpPort,args);
-    Util.outln(HTTP + ' ' + SRV_STARTED);
+    Util.outln(HTTP + ' ' + SRV_STARTED_PORT_X,httpPort);
     Performance.sleep(1000);
     return;
   }
@@ -30,18 +30,18 @@
     }
   }
   jetty.start();
-  Util.outln(HTTP + ' ' + SRV_STARTED,SERVERMODE);
+  Util.outln(HTTP + ' ' + SRV_STARTED_PORT_X,httpPort);
   HTTPContext.init(wac.getServletContext());
   final int stop=mprop.num(MainProp.STOPPORT);
   if (stop >= 0)   new StopServer(mprop.get(MainProp.SERVERHOST),stop).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      Util.outln(HTTP + ' ' + SRV_STOPPED);
+      Util.outln(HTTP + ' ' + SRV_STOPPED_PORT_X,httpPort);
       final Log l=context.log;
-      if (l != null)       l.writeServer(OK,HTTP + ' ' + SRV_STOPPED);
+      if (l != null)       l.writeServer(OK,HTTP + ' ' + SRV_STOPPED_PORT_X,httpPort);
       context.close();
     }
   }
 );
-  context.log.writeServer(OK,HTTP + ' ' + SRV_STARTED);
+  context.log.writeServer(OK,HTTP + ' ' + SRV_STARTED_PORT_X,httpPort);
 }
