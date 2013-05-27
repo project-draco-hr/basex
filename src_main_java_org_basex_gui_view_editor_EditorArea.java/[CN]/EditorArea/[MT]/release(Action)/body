@@ -7,7 +7,10 @@
   script=file.hasSuffix(IO.BXSSUFFIX);
   xquery=!script && !opened() || file.hasSuffix(IO.XQSUFFIXES);
   String input=string(in);
-  if (xquery) {
+  if (action == Action.EXECUTE && script) {
+    gui.execute(true,new Execute(input));
+  }
+ else   if (xquery || action == Action.EXECUTE) {
     if (input.isEmpty())     input="()";
     xquery=!module(in);
     if (xquery && (action == Action.EXECUTE || gui.gprop.is(GUIProp.EXECRT))) {
@@ -28,9 +31,6 @@
         qc.close();
       }
     }
-  }
- else   if (action == Action.EXECUTE && script) {
-    gui.execute(true,new Execute(input));
   }
  else   if (script || file.hasSuffix(IO.XMLSUFFIXES) || file.hasSuffix(IO.XSLSUFFIXES)|| file.hasSuffix(IO.HTMLSUFFIXES)) {
     try {
