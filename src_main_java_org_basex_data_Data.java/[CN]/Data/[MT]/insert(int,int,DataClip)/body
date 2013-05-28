@@ -48,7 +48,7 @@
           if (!cand.isEmpty())           curr=cand.remove(0);
         }
       }
-      nspaces.setNearestRoot(cn,par);
+      nspaces.nearestRoot(cn,par);
     }
     while (!preStack.isEmpty() && preStack.peek() > par)     nspaces.close(preStack.pop());
 switch (dkind) {
@@ -61,17 +61,19 @@ preStack.push(pre);
 break;
 case ELEM:
 nspaces.prepare();
+boolean ne=false;
 if (data.nsFlag(dpre)) {
 final Atts at=data.ns(dpre);
 for (int a=0; a < at.size(); ++a) {
 final byte[] old=nsScope.get(at.name(a));
 if (old == null || !eq(old,at.string(a))) {
 newNodes.add(nspaces.add(at.name(a),at.string(a),pre));
+ne=true;
 }
 }
 }
 byte[] nm=data.name(dpre,dkind);
-elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),nspaces.uri(nm,true),nspaces.finish());
+elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),nspaces.uri(nm,true),ne);
 preStack.push(pre);
 break;
 case TEXT:
