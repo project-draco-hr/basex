@@ -2,8 +2,8 @@
   final int fs=funcs.size();
   for (int id=1; id <= fs; ++id) {
     final FuncCache fc=funcs.value(id);
+    final StaticFuncCall call=fc.calls.isEmpty() ? null : fc.calls.get(0);
     if (fc.func == null) {
-      final StaticFuncCall call=fc.calls.get(0);
       for (int i=1; i <= fs; ++i) {
         if (i == id)         continue;
         final FuncCache ofc=funcs.value(i);
@@ -11,6 +11,9 @@
       }
       FUNCUNKNOWN.thrw(call.info,call.name.string());
     }
-    if (!fc.calls.isEmpty())     qc.updating|=fc.func.updating;
+    if (call != null) {
+      if (fc.func.expr == null)       FUNCNOIMPL.thrw(call.info,call.name.string());
+      qc.updating|=fc.func.updating;
+    }
   }
 }

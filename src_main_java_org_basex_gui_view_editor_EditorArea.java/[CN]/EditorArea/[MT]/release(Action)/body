@@ -5,23 +5,23 @@
   if (eq && action == Action.CHECK)   return;
   last=in;
   script=file.hasSuffix(IO.BXSSUFFIX);
-  xquery=!script && !opened() || file.hasSuffix(IO.XQSUFFIXES);
+  main=!script && !opened() || file.hasSuffix(IO.XQSUFFIXES);
   String input=string(in);
   if (action == Action.EXECUTE && script) {
     gui.execute(true,new Execute(input));
   }
- else   if (xquery || action == Action.EXECUTE) {
+ else   if (main || action == Action.EXECUTE) {
     if (input.isEmpty())     input="()";
-    xquery=!module(in);
-    if (xquery && (action == Action.EXECUTE || gui.gprop.is(GUIProp.EXECRT))) {
+    main=!QueryProcessor.isLibrary(string(in));
+    if (main && (action == Action.EXECUTE || gui.gprop.is(GUIProp.EXECRT))) {
       gui.execute(true,new XQuery(input));
     }
  else {
       gui.context.prop.set(Prop.QUERYPATH,file.path());
       final QueryContext qc=new QueryContext(gui.context);
       try {
-        if (!xquery)         qc.module(input,null);
- else         qc.parse(input,null);
+        if (!main)         qc.parseLibrary(input,null);
+ else         qc.parseMain(input,null);
         view.info(OK,true,false);
       }
  catch (      final QueryException ex) {
