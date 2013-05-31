@@ -1,0 +1,75 @@
+{
+  String query;
+  try {
+    query=string(input.read());
+  }
+ catch (  final IOException ex) {
+    throw IOERR.thrw(info,ex);
+  }
+  final QueryContext qc=new QueryContext(ctx.context);
+  final QueryParser qp=new QueryParser(query,input.path(),qc);
+  try {
+    final boolean library=QueryProcessor.isLibrary(query);
+    final QNm mod=library ? qp.parseLibrary(true) : null;
+    final MainModule main=library ? null : qp.parseMain();
+    final FElem xqdoc=elem("xqdoc");
+    final FElem control=elem("control",xqdoc);
+    elem("date",control).add(ctx.initDateTime(info).dtm.string(info));
+    elem("version",control).add("1.1");
+    final String type=library ? "library" : "main";
+    final FElem module=elem("module",xqdoc).add("type",type);
+    if (mod != null) {
+      elem("uri",module).add(mod.uri());
+      elem("name",module).add(input.name());
+    }
+ else {
+      elem("uri",module).add(input.name());
+    }
+    if (main != null)     comment(main,module);
+    final FElem imports=elem("imports",xqdoc);
+    for (    final byte[] imp : qp.modules) {
+      elem("uri",elem("import",imports).add("type","library")).add(imp);
+    }
+    if (!qp.namespaces.isEmpty()) {
+      final FElem namespaces=elem("namespaces",xqdoc);
+      for (      final byte[] pref : qp.namespaces) {
+        final FElem namespace=elem("namespace",namespaces).add("prefix",pref);
+        namespace.add("uri",qp.namespaces.get(pref));
+      }
+    }
+    final FElem variables=elem("variables",xqdoc);
+    for (    final StaticVar sv : qp.vars) {
+      final FElem variable=elem("variable",variables);
+      elem("name",variable).add(sv.name.string());
+      comment(sv,variable);
+      annotations(sv.ann,variable);
+      type(sv.declType,variable);
+    }
+    final FElem functions=elem("functions",xqdoc);
+    for (    final StaticFunc sf : qp.funcs) {
+      final int al=sf.args.length;
+      final FElem function=elem("function",functions).add("arity",token(al));
+      comment(sf,function);
+      elem("name",function).add(sf.name.string());
+      annotations(sf.ann,function);
+      elem("signature",function).add(sf.toString().replaceAll(" \\{.*| \\w+;.*",""));
+      if (al != 0) {
+        final FElem fparameters=elem("parameters",function);
+        for (int a=0; a < al; a++) {
+          final FElem fparameter=elem("parameter",fparameters);
+          final Var v=sf.args[a];
+          elem("name",fparameter).add(v.name.string());
+          type(v.declType,fparameter);
+        }
+      }
+      if (sf.declType != null)       type(sf.declType,elem("return",function));
+    }
+    return xqdoc;
+  }
+ catch (  final QueryException ex) {
+    throw IOERR.thrw(info,ex);
+  }
+ finally {
+    qc.close();
+  }
+}

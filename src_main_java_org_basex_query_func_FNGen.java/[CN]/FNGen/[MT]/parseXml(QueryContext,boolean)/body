@@ -1,19 +1,11 @@
 {
   final Item item=expr[0].item(ctx,info);
   if (item == null)   return null;
-  final byte[] cont=checkEStr(expr[0],ctx);
-  final IO io=new IOContent(cont,string(ctx.sc.baseURI().string()));
-  final Prop prop=ctx.context.prop;
-  final boolean chop=prop.is(Prop.CHOP);
   try {
-    prop.set(Prop.CHOP,false);
-    final Parser p=frag || prop.is(Prop.INTPARSE) ? new XMLParser(io,ctx.context.prop,frag) : new SAXWrapper(io,ctx.context.prop);
-    return new DBNode(p);
+    final IO io=new IOContent(checkStr(item),string(ctx.sc.baseURI().string()));
+    return parseXml(io,ctx,frag);
   }
  catch (  final IOException ex) {
     throw SAXERR.thrw(info,ex);
-  }
- finally {
-    prop.set(Prop.CHOP,chop);
   }
 }

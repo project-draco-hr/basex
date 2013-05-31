@@ -1,5 +1,5 @@
 {
-  String partCType=MimeTypes.TEXT_PLAIN;
+  byte[] partCType=token(MimeTypes.TEXT_PLAIN);
   String charset=null;
   final byte[] firstLine=readLine(io);
   if (firstLine == null || eq(firstLine,end))   return false;
@@ -16,11 +16,8 @@
         final byte[] name=substring(nextHdr,0,pos);
         if (pos + 1 < nextHdr.length) {
           final byte[] value=trim(substring(nextHdr,pos + 1,nextHdr.length));
-          final FElem hdr=new FElem(Q_HTTP_HEADER);
-          hdr.add(Q_NAME,name);
-          hdr.add(Q_VALUE,value);
-          nl.add(hdr);
-          if (eq(lc(name),CONTENT_TYPE_LC))           partCType=string(value);
+          nl.add(new FElem(Q_HEADER).add(NAME,name).add(VALUE,value));
+          if (eq(lc(name),CONTENT_TYPE_LC))           partCType=value;
         }
       }
       nextHdr=readLine(io);

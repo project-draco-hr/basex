@@ -1,0 +1,68 @@
+{
+  final FTPosData ft=node instanceof FTPosNode ? ((FTPosNode)node).ft : null;
+  final Data data=node.data;
+  int p=node.pre;
+  int k=data.kind(p);
+  if (k == Data.ATTR)   SERATTR.thrwSerial(node);
+  boolean doc=false;
+  final TokenSet nsp=data.nspaces.size() != 0 ? new TokenSet() : null;
+  final IntList pars=new IntList();
+  int l=0;
+  final int s=p + data.size(p,k);
+  while (p < s && !finished()) {
+    k=data.kind(p);
+    final int r=data.parent(p,k);
+    while (l > 0 && pars.get(l - 1) >= r) {
+      closeElement();
+      --l;
+    }
+    if (k == Data.DOC) {
+      if (doc)       closeDoc();
+      openDoc(data.text(p++,true));
+      doc=true;
+    }
+ else     if (k == Data.TEXT) {
+      final FTPos ftd=ft != null ? ft.get(data,p) : null;
+      if (ftd != null)       text(data.text(p++,true),ftd);
+ else       text(data.text(p++,true));
+    }
+ else     if (k == Data.COMM) {
+      comment(data.text(p++,true));
+    }
+ else     if (k == Data.ATTR) {
+      attribute(data.name(p,k),data.text(p++,false));
+    }
+ else     if (k == Data.PI) {
+      pi(data.name(p,k),data.atom(p++));
+    }
+ else {
+      final byte[] name=data.name(p,k);
+      startElement(name);
+      if (nsp != null) {
+        nsp.reset();
+        int pp=p;
+        byte[] key=prefix(name);
+        byte[] val=data.nspaces.uri(data.uri(p,k));
+        if (val == null)         val=EMPTY;
+        final byte[] old=ns(key);
+        if (old == null || !eq(old,val))         namespace(key,val);
+        do {
+          final Atts atn=data.ns(pp);
+          for (int n=0; n < atn.size(); ++n) {
+            key=atn.name(n);
+            val=atn.string(n);
+            if (nsp.add(key) > 0)             namespace(key,val);
+          }
+          if (level != 0 || l != 0)           break;
+          pp=data.parent(pp,data.kind(pp));
+        }
+ while (pp >= 0 && data.kind(pp) == Data.ELEM);
+      }
+      final int as=p + data.attSize(p,k);
+      while (++p != as)       attribute(data.name(p,Data.ATTR),data.text(p,false));
+      pars.set(l++,r);
+    }
+  }
+  while (--l >= 0)   closeElement();
+  if (doc)   closeDoc();
+}
