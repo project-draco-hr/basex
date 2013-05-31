@@ -1,0 +1,24 @@
+{
+  if (!io.exists())   WHICHRES.thrw(info,io);
+  final QueryContext qc=new QueryContext(ctx.context);
+  try {
+    final String input=string(io.read());
+    final QueryParser qp=new QueryParser(input,io.path(),qc);
+    if (QueryProcessor.isLibrary(input)) {
+      mod=qp.parseLibrary(true);
+    }
+ else {
+      main=qp.parseMain();
+    }
+    return qp;
+  }
+ catch (  final IOException ex) {
+    throw IOERR.thrw(info,ex);
+  }
+catch (  final QueryException ex) {
+    throw IOERR.thrw(info,ex);
+  }
+ finally {
+    qc.close();
+  }
+}
