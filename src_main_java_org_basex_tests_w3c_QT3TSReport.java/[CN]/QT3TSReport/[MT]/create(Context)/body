@@ -1,41 +1,41 @@
 {
   final String dquery="replace(string(current-date()),'\\+.*','')";
   final String date=new XQuery(dquery).execute(ctx);
-  final FElem root=element("test-suite-result",null);
+  final FElem root=element("test-suite-result");
   final FElem submission=element("submission",root);
-  submission.add(new QNm("anonymous"),"false");
+  submission.add("anonymous","false");
   final FElem created=element("created",submission);
-  add(created,"by",Prop.AUTHOR);
-  add(created,"email","cg@basex.org");
-  add(created,"organization",Prop.ENTITY);
-  add(created,"on",date);
+  created.add("by",Prop.AUTHOR);
+  created.add("email","cg@basex.org");
+  created.add("organization",Prop.ENTITY);
+  created.add("on",date);
   final FElem testRun=element("test-run",submission);
-  add(testRun,"test-suite-version","CVS");
-  add(testRun,"date-run",date);
+  testRun.add("test-suite-version","CVS");
+  testRun.add("date-run",date);
   element("notes",submission);
   final FElem product=element("product",root);
-  add(product,"vendor",Prop.ENTITY);
-  add(product,"name",Prop.NAME);
-  add(product,"version",Prop.VERSION);
-  add(product,"released","true");
-  add(product,"open-source","true");
-  add(product,"language","XQ30");
+  product.add("vendor",Prop.ENTITY);
+  product.add("name",Prop.NAME);
+  product.add("version",Prop.VERSION);
+  product.add("released","true");
+  product.add("open-source","true");
+  product.add("language","XQ30");
   for (  final String[] deps : DEPENDENCIES) {
     final FElem dependency=element("dependency",product);
-    add(dependency,"type",deps[0]);
-    add(dependency,"value",deps[1]);
-    add(dependency,"satisfied",deps[2]);
+    dependency.add("type",deps[0]);
+    dependency.add("value",deps[1]);
+    dependency.add("satisfied",deps[2]);
   }
   FElem ts=null;
   for (  final String[] test : tests) {
     if (test.length == 1) {
       ts=element("test-set",root);
-      add(ts,"name",test[0]);
+      ts.add("name",test[0]);
     }
  else {
       final FElem tc=element("test-case",ts);
-      add(tc,"name",test[0]);
-      add(tc,"result",test[1]);
+      tc.add("name",test[0]);
+      tc.add("result",test[1]);
     }
   }
   return root.serialize();
