@@ -2,11 +2,13 @@
   file(ctx.sc.baseIO(),ctx.context);
   checkValidChars();
   try {
+    String doc=moduleDoc("");
     versionDecl();
-    final String doc=xqdoc.toString();
+    doc=moduleDoc(doc);
     final int i=ip;
     if (wsConsumeWs(MODULE,NSPACE,null))     error(MAINMOD);
     ip=i;
+    doc=moduleDoc(doc);
     prolog1();
     prolog2();
     scope=new VarScope();
@@ -15,8 +17,8 @@
       if (alter != null)       error();
  else       error(EXPREMPTY);
     }
-    final StringBuilder sb=doc.equals(xqdoc.toString()) ? null : new StringBuilder(doc);
-    final MainModule mm=new MainModule(e,scope,sb);
+    if (doc.equals(xqdoc.toString()))     doc=null;
+    final MainModule mm=new MainModule(e,scope,doc);
     scope=null;
     finish(mm,true);
     return mm;

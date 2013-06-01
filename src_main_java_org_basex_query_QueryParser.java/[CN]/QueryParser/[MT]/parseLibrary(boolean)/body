@@ -2,8 +2,9 @@
   file(ctx.sc.baseIO(),ctx.context);
   checkValidChars();
   try {
+    String doc=moduleDoc("");
     versionDecl();
-    final String doc=xqdoc.toString();
+    doc=moduleDoc(doc);
     wsCheck(MODULE);
     wsCheck(NSPACE);
     skipWS();
@@ -14,12 +15,13 @@
     module=new QNm(pref,uri);
     ctx.sc.ns.add(pref,uri,info());
     namespaces.add(pref,uri);
-    skipWS();
-    check(';');
+    wsCheck(";");
+    doc=moduleDoc(doc);
     prolog1();
     prolog2();
     finish(null,check);
-    return new LibraryModule(module,doc.equals(xqdoc.toString()) ? null : new StringBuilder(doc));
+    if (doc.equals(xqdoc.toString()))     doc=null;
+    return new LibraryModule(module,doc);
   }
  catch (  final QueryException ex) {
     mark();

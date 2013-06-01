@@ -1,0 +1,20 @@
+{
+  final QueryParser qp=parseQuery(io);
+  final FElem mod=elem("module",null);
+  if (module instanceof LibraryModule) {
+    final QNm name=((LibraryModule)module).name;
+    mod.add("prefix",name.string());
+    mod.add("uri",name.uri());
+  }
+  final TokenObjMap<TokenList> doc=module.doc();
+  if (doc != null)   comment(doc,mod);
+  for (  final StaticVar sv : qp.vars) {
+    variable(sv,mod);
+  }
+  for (  final StaticFunc sf : qp.funcs) {
+    final SeqType[] types=new SeqType[sf.args.length];
+    for (int t=0; t < types.length; t++)     types[t]=sf.args[t].declType;
+    function(sf.name,types,sf.declType,sf,mod);
+  }
+  return mod;
+}
