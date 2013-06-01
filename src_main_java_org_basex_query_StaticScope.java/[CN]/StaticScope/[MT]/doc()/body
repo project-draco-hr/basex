@@ -1,6 +1,6 @@
 {
   if (doc == null)   return null;
-  final TokenMap map=new TokenMap();
+  final TokenObjMap<TokenList> map=new TokenObjMap<TokenList>();
   byte[] key=null;
   final TokenBuilder val=new TokenBuilder();
   final TokenBuilder line=new TokenBuilder();
@@ -9,7 +9,7 @@
     while (nli.readLine(line)) {
       String l=line.toString().replaceAll("^\\s+: *","");
       if (l.startsWith("@")) {
-        map.add(key == null ? DOC_TAGS[0] : key,val.trim().finish());
+        add(key,val,map);
         key=Token.token(l.replaceAll("^@(\\w*).*","$1"));
         l=l.replaceAll("^@\\w+ *","");
         val.reset();
@@ -20,6 +20,6 @@
  catch (  final IOException ex) {
     Util.notexpected(ex);
   }
-  map.add(key == null ? DOC_TAGS[0] : key,val.trim().finish());
+  add(key,val,map);
   return map;
 }

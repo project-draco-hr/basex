@@ -1,25 +1,27 @@
 {
   final QueryParser qp=parseQuery(io);
-  final FElem modulee=elem("module",null);
+  final FElem mod=elem("module",null);
   if (module instanceof LibraryModule) {
     final QNm name=((LibraryModule)module).name;
-    modulee.add("prefix",name.string());
-    modulee.add("uri",name.uri());
+    mod.add("prefix",name.string());
+    mod.add("uri",name.uri());
   }
-  final TokenMap doc=module.doc();
+  final TokenObjMap<TokenList> doc=module.doc();
   if (doc != null) {
     for (    final byte[] key : doc) {
-      final FElem elem=eq(key,DOC_TAGS) ? elem(string(key),modulee) : elem("tag",modulee).add("name",key);
-      add(elem,doc.get(key),ctx);
+      for (      final byte[] value : doc.get(key)) {
+        final FElem elem=eq(key,DOC_TAGS) ? elem(string(key),mod) : elem("tag",mod).add("name",key);
+        add(value,ctx,elem);
+      }
     }
   }
   for (  final StaticVar sv : qp.vars) {
-    variable(sv,modulee);
+    variable(sv,mod);
   }
   for (  final StaticFunc sf : qp.funcs) {
     final SeqType[] types=new SeqType[sf.args.length];
     for (int t=0; t < types.length; t++)     types[t]=sf.args[t].declType;
-    function(sf.name,types,sf.declType,sf,modulee);
+    function(sf.name,types,sf.declType,sf,mod);
   }
-  return modulee;
+  return mod;
 }

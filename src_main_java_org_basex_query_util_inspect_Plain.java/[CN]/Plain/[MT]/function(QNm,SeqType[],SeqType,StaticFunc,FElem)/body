@@ -4,7 +4,7 @@
     function.add("name",fname.string());
     if (fname.uri().length != 0)     function.add("uri",fname.uri());
   }
-  final TokenMap doc=sf != null ? sf.doc() : null;
+  final TokenObjMap<TokenList> doc=sf != null ? sf.doc() : null;
   QNm[] names=null;
   if (sf != null) {
     names=new QNm[sf.args.length];
@@ -20,14 +20,15 @@
       if (doc != null) {
         for (        final byte[] key : doc) {
           if (!eq(key,DOC_PARAM))           continue;
-          final byte[] val=doc.get(key);
-          final int vl=val.length;
-          for (int v=0; v < vl; v++) {
-            if (!ws(val[v]))             continue;
-            if (eq(replaceAll(substring(val,0,v),"^\\$",""),name)) {
-              add(parameter,trim(substring(val,v + 1,vl)),ctx);
+          for (          final byte[] val : doc.get(key)) {
+            final int vl=val.length;
+            for (int v=0; v < vl; v++) {
+              if (!ws(val[v]))               continue;
+              if (eq(replaceAll(substring(val,0,v),"^\\$",""),name)) {
+                add(trim(substring(val,v + 1,vl)),ctx,parameter);
+              }
+              break;
             }
-            break;
           }
         }
       }
@@ -35,24 +36,22 @@
     type(types[a],parameter);
   }
   if (sf != null) {
-    for (int a=0; a < sf.ann.size(); a++) {
-      final FElem annotation=elem("annotation",function);
-      annotation.add("name",sf.ann.names[a].string());
-      annotation.add("uri",sf.ann.names[a].uri());
-    }
+    annotations(sf.ann,function);
   }
   if (doc != null) {
     for (    final byte[] key : doc) {
       if (eq(key,DOC_PARAM,DOC_RETURN))       continue;
-      final FElem elem=eq(key,DOC_TAGS) ? elem(string(key),function) : elem("tag",function).add("name",key);
-      add(elem,doc.get(key),ctx);
+      for (      final byte[] value : doc.get(key)) {
+        final FElem elem=eq(key,DOC_TAGS) ? elem(string(key),function) : elem("tag",function).add("name",key);
+        add(value,ctx,elem);
+      }
     }
   }
-  final FElem returnn=type(ret,elem("return",function));
+  final FElem ret=type(type,elem("return",function));
   if (doc != null) {
     for (    final byte[] key : doc) {
       if (!eq(key,DOC_RETURN))       continue;
-      returnn.add(doc.get(key));
+      for (      final byte[] value : doc.get(key))       ret.add(value);
       break;
     }
   }
