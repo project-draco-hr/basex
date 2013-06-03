@@ -1,6 +1,6 @@
 {
   final Item it=checkItem(expr[1],ctx);
-  if (expr.length == 3)   checkColl(expr[2],ctx);
+  final Collation coll=checkColl(expr.length == 3 ? expr[2] : null,ctx);
   return new Iter(){
     final Iter ir=expr[0].iter(ctx);
     int c;
@@ -9,7 +9,7 @@
         final Item i=ir.next();
         if (i == null)         return null;
         ++c;
-        if (i.comparable(it) && OpV.EQ.eval(info,i,it))         return Int.get(c);
+        if (i.comparable(it) && OpV.EQ.eval(i,it,coll,info))         return Int.get(c);
       }
     }
   }

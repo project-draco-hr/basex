@@ -13,7 +13,7 @@
  */
     int pos;
     @Override public boolean next(    final QueryContext ctx) throws QueryException {
-      if (tpls == null)       init(ctx);
+      if (tpls == null)       sort(ctx);
       if (pos == tpls.length)       return false;
       final int p=perm[pos++];
       final Value[] tuple=tpls[p];
@@ -26,7 +26,7 @@
  * @param ctx query context
  * @throws QueryException evaluation exception
  */
-    private void init(    final QueryContext ctx) throws QueryException {
+    private void sort(    final QueryContext ctx) throws QueryException {
       List<Value[]> tuples=new ArrayList<Value[]>();
       while (sub.next(ctx)) {
         final Item[] key=new Item[keys.length];
@@ -51,13 +51,18 @@
     /** 
  * Recursively sorts the specified items.
  * The algorithm is derived from {@link Arrays#sort(int[])}.
+ * @param ks sort keys
  * @param start start position
  * @param len end position
  * @throws QueryException query exception
  */
     private void sort(    final Item[][] ks,    final int start,    final int len) throws QueryException {
       if (len < 7) {
-        for (int i=start; i < len + start; i++)         for (int j=i; j > start && cmp(ks,perm[j - 1],perm[j]) > 0; j--)         swap(perm,j,j - 1);
+        for (int i=start; i < len + start; i++) {
+          for (int j=i; j > start && cmp(ks,perm[j - 1],perm[j]) > 0; j--) {
+            swap(perm,j,j - 1);
+          }
+        }
         return;
       }
       int mid=start + (len >> 1);
@@ -100,6 +105,9 @@
     }
     /** 
  * Returns the difference of two entries (part of QuickSort).
+ * @param ks sort keys
+ * @param x first position
+ * @param y second position
  * @return result
  * @throws QueryException query exception
  */
@@ -107,9 +115,11 @@
       final Item[] a=ks[x], b=ks[y];
       for (int k=0; k < keys.length; k++) {
         final Key or=keys[k];
-        final Item m=a[k] == Dbl.NAN || a[k] == Flt.NAN ? null : a[k], n=b[k] == Dbl.NAN || b[k] == Flt.NAN ? null : b[k];
+        Item m=a[k], n=b[k];
+        if (m == Dbl.NAN || m == Flt.NAN)         m=null;
+        if (n == Dbl.NAN || n == Flt.NAN)         n=null;
         if (m != null && n != null && !m.comparable(n))         Err.cast(or.info,m.type,n);
-        final int c=m == null ? n == null ? 0 : or.least ? -1 : 1 : n == null ? or.least ? 1 : -1 : m.diff(or.info,n);
+        final int c=m == null ? n == null ? 0 : or.least ? -1 : 1 : n == null ? or.least ? 1 : -1 : m.diff(n,or.coll,or.info);
         if (c != 0)         return or.desc ? -c : c;
       }
       return stable ? x - y : 0;

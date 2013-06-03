@@ -20,15 +20,30 @@
     if (ctx.sc.xquery3() && wsConsumeWs(GROUP)) {
       wsCheck(BY);
       ap=ip;
-      GroupBy.Spec[] grp=null;
-      do       grp=groupSpec(clauses,grp);
+      GroupBy.Spec[] specs=null;
+      do {
+        final GroupBy.Spec spec=groupSpec(clauses);
+        if (specs == null) {
+          specs=new GroupBy.Spec[]{spec};
+        }
+ else {
+          for (int i=specs.length; --i >= 0; ) {
+            if (specs[i].var.name.eq(spec.var.name)) {
+              specs[i].occluded=true;
+              break;
+            }
+          }
+          specs=Array.add(specs,spec);
+          ;
+        }
+      }
  while (wsConsume(COMMA));
       final ArrayList<VarRef> ng=new ArrayList<VarRef>();
-      for (      final GroupBy.Spec spec : grp)       curr.add(spec.var.name.id(),spec.var);
+      for (      final GroupBy.Spec spec : specs)       curr.add(spec.var.name.id(),spec.var);
       vars:       for (int i=0; i < curr.size(); i++) {
         final Var v=curr.value(i + 1);
-        for (        final GroupBy.Spec spec : grp)         if (spec.var.is(v))         continue vars;
-        ng.add(new VarRef(grp[0].info,v));
+        for (        final GroupBy.Spec spec : specs)         if (spec.var.is(v))         continue vars;
+        ng.add(new VarRef(specs[0].info,v));
       }
       final Var[] ngrp=new Var[ng.size()];
       for (int i=ng.size(); --i >= 0; ) {
@@ -39,7 +54,7 @@
         curr.add(nv.name.id(),nv);
       }
       final VarRef[] pre=new VarRef[ng.size()];
-      clauses.add(new GroupBy(grp,ng.toArray(pre),ngrp,grp[0].info));
+      clauses.add(new GroupBy(specs,ng.toArray(pre),ngrp,specs[0].info));
       alter=GRPBY;
     }
     final boolean stable=wsConsumeWs(STABLE);
@@ -48,7 +63,10 @@
       wsCheck(BY);
       ap=ip;
       OrderBy.Key[] ob=null;
-      do       ob=orderSpec(ob);
+      do {
+        final OrderBy.Key key=orderSpec();
+        ob=ob == null ? new OrderBy.Key[]{key} : Array.add(ob,key);
+      }
  while (wsConsume(COMMA));
       final VarRef[] vs=new VarRef[curr.size()];
       for (int i=0; i < vs.length; i++)       vs[i]=new VarRef(ob[0].info,curr.value(i + 1));
