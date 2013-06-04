@@ -3,13 +3,13 @@
   final LinkedList<Clause> clauses=initialClause(null);
   if (clauses == null)   return null;
   final TokenObjMap<Var> curr=new TokenObjMap<Var>();
-  for (  final Clause fl : clauses)   for (  final Var v : fl.vars())   curr.add(v.name.id(),v);
+  for (  final Clause fl : clauses)   for (  final Var v : fl.vars())   curr.put(v.name.id(),v);
   int size;
   do {
     do {
       size=clauses.size();
       initialClause(clauses);
-      for (int i=size; i < clauses.size(); i++)       for (      final Var v : clauses.get(i).vars())       curr.add(v.name.id(),v);
+      for (int i=size; i < clauses.size(); i++)       for (      final Var v : clauses.get(i).vars())       curr.put(v.name.id(),v);
     }
  while (size < clauses.size());
     if (wsConsumeWs(WHERE)) {
@@ -39,7 +39,7 @@
       }
  while (wsConsume(COMMA));
       final ArrayList<VarRef> ng=new ArrayList<VarRef>();
-      for (      final GroupBy.Spec spec : specs)       curr.add(spec.var.name.id(),spec.var);
+      for (      final GroupBy.Spec spec : specs)       curr.put(spec.var.name.id(),spec.var);
       vars:       for (int i=0; i < curr.size(); i++) {
         final Var v=curr.value(i + 1);
         for (        final GroupBy.Spec spec : specs)         if (spec.var.is(v))         continue vars;
@@ -51,7 +51,7 @@
         final Var nv=addLocal(v.var.name,null,false);
         if (v.type().one())         nv.refineType(SeqType.get(v.type().type,Occ.ONE_MORE),ctx,info());
         ngrp[i]=nv;
-        curr.add(nv.name.id(),nv);
+        curr.put(nv.name.id(),nv);
       }
       final VarRef[] pre=new VarRef[ng.size()];
       clauses.add(new GroupBy(specs,ng.toArray(pre),ngrp,specs[0].info));
@@ -75,7 +75,7 @@
     }
     if (ctx.sc.xquery3() && wsConsumeWs(COUNT,DOLLAR,NOCOUNT)) {
       final Var v=addLocal(varName(),SeqType.ITR,false);
-      curr.add(v.name.id(),v);
+      curr.put(v.name.id(),v);
       clauses.add(new Count(v,info()));
     }
   }
