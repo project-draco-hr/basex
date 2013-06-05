@@ -7,7 +7,7 @@
   buffer(buf);
   final TokenMap nsScope=nspaces.scope(ipar,this);
   final IntList preStack=new IntList();
-  final NSNode nsRoot=nspaces.current;
+  final NSNode nsRoot=nspaces.current();
   final HashSet<NSNode> newNodes=new HashSet<NSNode>();
   final IntList flagPres=new IntList();
   final Data data=clip.data;
@@ -36,8 +36,8 @@ if (data.nsFlag(dpre)) {
 final Atts at=data.ns(dpre);
 for (int a=0; a < at.size(); ++a) {
 final byte[] old=nsScope.get(at.name(a));
-if (old == null || !eq(old,at.string(a))) {
-newNodes.add(nspaces.add(at.name(a),at.string(a),pre));
+if (old == null || !eq(old,at.value(a))) {
+newNodes.add(nspaces.add(at.name(a),at.value(a),pre));
 ne=true;
 }
 }
@@ -63,7 +63,7 @@ break;
 }
 }
 while (!preStack.isEmpty()) nspaces.close(preStack.pop());
-nspaces.setRoot(nsRoot);
+nspaces.root(nsRoot);
 if (bp != 0) insert(ipre + c - 1 - (c - 1) % buf);
 buffer(1);
 for (int f=0; f < flagPres.size(); f++) {

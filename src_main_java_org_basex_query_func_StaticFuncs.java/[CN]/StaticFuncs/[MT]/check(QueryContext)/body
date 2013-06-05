@@ -1,12 +1,11 @@
 {
-  final int fs=funcs.size();
-  for (int id=1; id <= fs; ++id) {
-    final FuncCache fc=funcs.value(id);
+  int id=0;
+  for (  final FuncCache fc : funcs.values()) {
     final StaticFuncCall call=fc.calls.isEmpty() ? null : fc.calls.get(0);
     if (fc.func == null) {
-      for (int i=1; i <= fs; ++i) {
-        if (i == id)         continue;
-        final FuncCache ofc=funcs.value(i);
+      int oid=0;
+      for (      final FuncCache ofc : funcs.values()) {
+        if (oid++ == id)         continue;
         if (call.name.eq(ofc.name()))         FUNCTYPE.thrw(call.info,call.name.string(),call.expr.length);
       }
       FUNCUNKNOWN.thrw(call.info,call.name.string());
@@ -15,5 +14,6 @@
       if (fc.func.expr == null)       FUNCNOIMPL.thrw(call.info,call.name.string());
       qc.updating|=fc.func.updating;
     }
+    id++;
   }
 }

@@ -3,11 +3,13 @@
   updating=true;
   int cmax=MAXC;
   final byte[] sub=subfolder();
-  final byte[][] folders=new TokenList(data.resources.children(subfolder(),true).keys()).sort(Prop.CASE).toArray();
-  int i=0;
-  while (i < folders.length && cmax-- > 0)   add(new TreeFolder(folders[i++],sub,tree,data));
+  final TokenSet set=data.resources.children(subfolder(),true);
+  for (  final byte[] f : new TokenList(set).sort(Prop.CASE)) {
+    add(new TreeFolder(f,sub,tree,data));
+    if (--cmax == 0)     break;
+  }
   cmax=addLeaves(EMPTY,cmax,this);
-  if (cmax <= 0)   add(new TreeLeaf(token("..."),sub,false,true,tree,data));
+  if (cmax <= 0)   add(new TreeLeaf(token(Text.DOTS),sub,false,true,tree,data));
   loaded=true;
   ((DefaultTreeModel)tree.getModel()).nodeStructureChanged(this);
   updating=false;

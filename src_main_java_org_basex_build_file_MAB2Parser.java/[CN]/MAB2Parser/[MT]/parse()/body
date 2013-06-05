@@ -7,14 +7,14 @@
   index(status,"status");
   index(posters,"posters");
   index(genres,"genres");
-  for (int i=1; i <= mvids.size(); ++i) {
-    final int id=toInt(mvids.value(i));
+  for (  final byte[] key : mvids) {
+    final int id=toInt(mvids.get(key));
     if (maxid < id)     maxid=id;
   }
   if (input.read1() != '#' || input.read1() != '#' || input.read1() != '#') {
     throw new BuildException("Invalid MAB2 input (doesn't start with ###)");
   }
-  builder.openElem(LIBRARY,atts.reset(),nsp);
+  builder.openElem(LIBRARY,atts.clear(),nsp);
   final Performance p=new Performance();
   final TokenObjMap<MAB2Entry> ids=new TokenObjMap<MAB2Entry>();
   int i=0;
@@ -37,8 +37,8 @@
     }
   }
   if (Prop.debug)   Util.err("\nParse Offsets (%): %/%\n",ids.size(),p,Performance.getMemory());
-  for (i=1; i <= ids.size(); ++i) {
-    final MAB2Entry entry=ids.value(i);
+  for (  final byte[] id : ids) {
+    final MAB2Entry entry=ids.get(id);
     final long pos=entry.pos;
     final byte[] l=pos != 0 ? addEntry(input,pos,entry.size,null) : null;
     for (int j=0; j < entry.size; ++j) {
@@ -49,10 +49,10 @@
   if (Prop.debug)   Util.err("\nCreate Titles: %/%\n",p,Performance.getMemory());
   builder.closeElem();
   final PrintOutput out=new PrintOutput("mvids.dat");
-  for (i=1; i <= mvids.size(); ++i) {
-    out.print(mvids.key(i));
+  for (  final byte[] id : mvids) {
+    out.print(id);
     out.write('\t');
-    out.println(mvids.value(i));
+    out.println(mvids.get(id));
   }
   out.close();
 }
