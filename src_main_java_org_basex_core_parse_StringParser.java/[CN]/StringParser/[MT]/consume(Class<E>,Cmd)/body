@@ -1,22 +1,26 @@
 {
-  final String token=name(null);
-  if (!(suggest && token != null && token.length() <= 1)) {
+  final String token=command(null);
+  if (!suggest || token == null || !token.isEmpty()) {
     try {
       final String t=token == null ? "NULL" : token.toUpperCase(Locale.ENGLISH);
       return Enum.valueOf(cmp,t);
     }
- catch (    final IllegalArgumentException ex) {
+ catch (    final IllegalArgumentException ignore) {
     }
   }
-  final Enum<?>[] alt=list(cmp,token);
+  final Enum<?>[] alt=startWith(cmp,token);
   if (token == null) {
-    throw par == null ? error(list(alt),EXPECTING_CMD) : help(list(alt),par);
+    if (par != null)     throw help(alt,par);
+    if (suggest)     throw error(alt,EXPECTING_CMD);
+    return null;
   }
   final byte[] name=uc(token(token));
   final Levenshtein ls=new Levenshtein();
-  for (  final Enum<?> s : list(cmp,null)) {
+  for (  final Enum<?> s : startWith(cmp,null)) {
     final byte[] sm=uc(token(s.name()));
-    if (ls.similar(name,sm) && Cmd.class.isInstance(s))     throw error(list(alt),UNKNOWN_SIMILAR_X,name,sm);
+    if (ls.similar(name,sm) && Cmd.class.isInstance(s)) {
+      throw error(alt,UNKNOWN_SIMILAR_X,name,sm);
+    }
   }
-  throw par == null ? error(list(alt),UNKNOWN_TRY_X,token) : help(list(alt),par);
+  throw par == null ? error(alt,UNKNOWN_TRY_X,token) : help(alt,par);
 }
