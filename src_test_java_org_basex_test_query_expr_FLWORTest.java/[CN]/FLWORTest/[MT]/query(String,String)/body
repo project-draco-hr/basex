@@ -1,9 +1,13 @@
 {
+  final QueryProcessor proc=new QueryProcessor(query,context);
   try {
-    final String result=new XQuery(query).execute(context);
+    final String result=proc.value().serialize().toString();
     assertEquals(expected.replaceAll("\"","'"),result.replaceAll("\"","'"));
   }
- catch (  final BaseXException ex) {
-    fail(Util.message(ex));
+ catch (  final QueryException ex) {
+    throw (Error)new AssertionError(Util.message(ex)).initCause(ex);
+  }
+ finally {
+    proc.close();
   }
 }
