@@ -1,17 +1,17 @@
 {
-  final StringList sl=new StringList();
+  final StringList paths=new StringList();
   String path=null;
   if (file != null) {
     path=file.path();
     gui.gprop.set(GUIProp.WORKPATH,file.dirPath());
-    sl.add(path);
+    paths.add(path);
     tabs.setToolTipTextAt(tabs.getSelectedIndex(),path);
   }
-  final String[] qu=gui.gprop.strings(GUIProp.EDITOR);
-  for (int q=0; q < qu.length && q < 19; q++) {
-    final String f=qu[q];
-    if (!f.equalsIgnoreCase(path) && IO.get(f).exists())     sl.add(f);
+  final String[] old=gui.gprop.strings(GUIProp.EDITOR);
+  for (int p=0; paths.size() < HISTORY && p < old.length; p++) {
+    final IO fl=IO.get(old[p]);
+    if (fl.exists() && !fl.eq(file))     paths.add(fl.path());
   }
-  gui.gprop.set(GUIProp.EDITOR,sl.toArray());
-  hist.setEnabled(!sl.isEmpty());
+  gui.gprop.set(GUIProp.EDITOR,paths.toArray());
+  hist.setEnabled(!paths.isEmpty());
 }

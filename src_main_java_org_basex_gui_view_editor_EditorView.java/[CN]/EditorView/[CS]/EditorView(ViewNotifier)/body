@@ -64,7 +64,7 @@
   hist.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       final JPopupMenu pm=new JPopupMenu();
-      final ActionListener al=new ActionListener(){
+      ActionListener al=new ActionListener(){
         @Override public void actionPerformed(        final ActionEvent ac){
           final String s=ac.getActionCommand().replaceAll("(.*) \\[(.*)\\]","$2/$1");
           open(new IOFile(s),true);
@@ -73,11 +73,27 @@
 ;
       final StringList opened=new StringList();
       for (      final EditorArea ea : editors())       opened.add(ea.file.path());
-      final StringList files=new StringList(gui.gprop.strings(GUIProp.EDITOR));
-      for (      final String en : files.sort(Prop.CASE,true)) {
+      final StringList files=new StringList(HISTORY);
+      final StringList all=new StringList(gui.gprop.strings(GUIProp.EDITOR));
+      final int fl=Math.min(all.size(),e == null ? HISTORY : HISTCOMP);
+      for (int f=0; f < fl; f++)       files.add(all.get(f));
+      Font f=null;
+      for (      final String en : files.sort(Prop.CASE)) {
         final JMenuItem it=new JMenuItem(en.replaceAll("(.*)[/\\\\](.*)","$2 [$1]"));
-        it.setEnabled(!opened.contains(en));
+        if (opened.contains(en)) {
+          if (f == null)           f=it.getFont().deriveFont(Font.BOLD);
+          it.setFont(f);
+        }
         pm.add(it).addActionListener(al);
+      }
+      al=new ActionListener(){
+        @Override public void actionPerformed(        final ActionEvent ac){
+          hist.getActionListeners()[0].actionPerformed(null);
+        }
+      }
+;
+      if (e != null && pm.getComponentCount() == HISTCOMP) {
+        pm.add(new JMenuItem("...")).addActionListener(al);
       }
       pm.show(hist,0,hist.getHeight());
     }
