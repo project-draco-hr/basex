@@ -1,0 +1,27 @@
+{
+  final File src=checkFile(0,ctx).getCanonicalFile();
+  File trg=checkFile(1,ctx).getCanonicalFile();
+  if (!src.exists())   FILE_WHICH.thrw(info,src.getAbsolutePath());
+  if (trg.isDirectory()) {
+    trg=new File(trg,src.getName());
+    if (trg.isDirectory())     FILE_DIR.thrw(info,trg);
+  }
+ else   if (!trg.isFile()) {
+    if (!trg.getParentFile().isDirectory())     FILE_NODIR.thrw(info,trg);
+  }
+ else   if (src.isDirectory()) {
+    FILE_DIR.thrw(info,src);
+  }
+  final String spath=src.getPath();
+  final String tpath=trg.getPath();
+  if (!spath.equals(tpath)) {
+    if (copy) {
+      copy(src,trg);
+    }
+ else {
+      if (trg.exists() && (Prop.CASE || !spath.equalsIgnoreCase(tpath)) && !trg.delete())       FILE_DEL.thrw(info,src,trg);
+      if (!src.renameTo(trg))       FILE_MOVE.thrw(info,src,trg);
+    }
+  }
+  return null;
+}
