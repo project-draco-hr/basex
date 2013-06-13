@@ -6,21 +6,24 @@
   final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
   jetty.setHandler(wac);
-  for (  final Connector c : jetty.getConnectors()) {
-    if (c instanceof SelectChannelConnector) {
-      if (httpPort == 0)       httpPort=c.getPort();
- else       c.setPort(httpPort);
+  if (httpPort != 0) {
+    for (    final Connector c : jetty.getConnectors()) {
+      if (c instanceof SelectChannelConnector) {
+        c.setPort(httpPort);
+        break;
+      }
     }
   }
   if (stopped) {
     stop();
-    Util.outln(HTTP + ' ' + SRV_STOPPED_PORT_X,httpPort);
+    for (    final Connector c : jetty.getConnectors())     Util.outln(HTTP + ' ' + SRV_STOPPED_PORT_X,c.getPort());
     Performance.sleep(1000);
     return;
   }
   if (service) {
-    start(httpPort,args);
-    Util.outln(HTTP + ' ' + SRV_STARTED_PORT_X,httpPort);
+    Connector connector=jetty.getConnectors()[0];
+    start(connector.getPort(),connector instanceof SslSelectChannelConnector ? true : false,args);
+    for (    final Connector c : jetty.getConnectors())     Util.outln(HTTP + ' ' + SRV_STARTED_PORT_X,c.getPort());
     Performance.sleep(1000);
     return;
   }
@@ -31,18 +34,20 @@
     }
   }
   jetty.start();
-  Util.outln(HTTP + ' ' + SRV_STARTED_PORT_X,httpPort);
+  for (  final Connector c : jetty.getConnectors())   Util.outln(HTTP + ' ' + SRV_STARTED_PORT_X,c.getPort());
   HTTPContext.init(wac.getServletContext());
   final int stop=mprop.num(MainProp.STOPPORT);
   if (stop >= 0)   new StopServer(mprop.get(MainProp.SERVERHOST),stop).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      Util.outln(HTTP + ' ' + SRV_STOPPED_PORT_X,httpPort);
+      for (      final Connector c : jetty.getConnectors())       Util.outln(HTTP + ' ' + SRV_STOPPED_PORT_X,c.getPort());
       final Log l=context.log;
-      if (l != null)       l.writeServer(OK,HTTP + ' ' + SRV_STOPPED_PORT_X,httpPort);
+      if (l != null) {
+        for (        final Connector c : jetty.getConnectors())         l.writeServer(OK,HTTP + ' ' + SRV_STOPPED_PORT_X,c.getPort());
+      }
       context.close();
     }
   }
 );
-  context.log.writeServer(OK,HTTP + ' ' + SRV_STARTED_PORT_X,httpPort);
+  for (  final Connector c : jetty.getConnectors())   context.log.writeServer(OK,HTTP + ' ' + SRV_STARTED_PORT_X,c.getPort());
 }
