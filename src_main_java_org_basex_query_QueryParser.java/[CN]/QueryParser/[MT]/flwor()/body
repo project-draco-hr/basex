@@ -13,13 +13,14 @@
     }
  while (size < clauses.size());
     if (wsConsumeWs(WHERE)) {
-      ap=ip;
+      alterPos=pos;
       clauses.add(new Where(check(single(),NOWHERE),info()));
       alter=NOWHERE;
     }
     if (ctx.sc.xquery3() && wsConsumeWs(GROUP)) {
       wsCheck(BY);
-      ap=ip;
+      skipWS();
+      alterPos=pos;
       GroupBy.Spec[] specs=groupSpecs(clauses);
       final ArrayList<VarRef> ng=new ArrayList<VarRef>();
       for (      final GroupBy.Spec spec : specs)       curr.put(spec.var.name.id(),spec.var);
@@ -43,7 +44,7 @@
     if (stable)     wsCheck(ORDER);
     if (stable || wsConsumeWs(ORDER)) {
       wsCheck(BY);
-      ap=ip;
+      alterPos=pos;
       OrderBy.Key[] ob=null;
       do {
         final OrderBy.Key key=orderSpec();
