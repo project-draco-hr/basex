@@ -32,7 +32,13 @@ final IOFile[] files=new IOFile[fl.length];
 for (int f=0; f < fl.length; f++) files[f]=new IOFile(fl[f].getPath());
 if (mode == Mode.FSAVE) {
 final FileFilter ff=fc.getFileFilter();
-if (ff instanceof Filter) {
+if (suffix != null) {
+for (int f=0; f < files.length; f++) {
+final String path=files[f].path();
+if (!path.contains(".")) files[f]=new IOFile(path + suffix);
+}
+}
+ else if (ff instanceof Filter) {
 final String[] sufs=((Filter)ff).sufs;
 for (int f=0; f < files.length && sufs.length != 0; f++) {
 final String path=files[f].path();
