@@ -2,7 +2,7 @@
   ++pos;
   final boolean doc=next() == '~';
   if (doc) {
-    xqdoc.setLength(0);
+    currDoc.setLength(0);
     ++pos;
   }
   while (++pos < length) {
@@ -13,9 +13,13 @@
     }
     if (curr == ':' && next() == ')') {
       pos+=2;
+      if (moduleDoc.isEmpty()) {
+        moduleDoc=currDoc.toString().trim();
+        currDoc.setLength(0);
+      }
       return;
     }
-    if (doc)     xqdoc.append(curr);
+    if (doc)     currDoc.append(curr);
   }
   error(COMCLOSE);
 }
