@@ -1,19 +1,18 @@
 {
   String redirect=null, forward=null;
+  RestXqRespBuilder resp=null;
   try {
     final StaticFunc uf=function.function;
     final Expr[] args=new Expr[uf.args.length];
     function.bind(http,args);
-    final StaticFuncCall call=new BaseFuncCall(uf.name,args,uf.sc,uf.info);
-    call.init(uf);
-    final MainModule mod=new MainModule(call,new VarScope(),null);
+    final StaticFuncCall sfc=new BaseFuncCall(uf.name,args,uf.sc,uf.info).init(uf);
+    final MainModule mod=new MainModule(sfc,new VarScope(),null);
     qc.mainModule(mod);
     qc.context(http,null);
     qc.context.register(qc);
     qc.compile();
     final Iter iter=qc.iter();
     Item item=iter.next();
-    ANode resp=null;
     if (item != null && item.type.isNode()) {
       final ANode node=(ANode)item;
       if (REST_REDIRECT.eq(node)) {
@@ -29,14 +28,13 @@
         return;
       }
       if (REST_RESPONSE.eq(node)) {
-        resp=node;
-        item=iter.next();
+        resp=new RestXqRespBuilder();
+        resp.build(node,function,iter,http);
+        return;
       }
     }
-    if (function.methods.size() == 1 && function.methods.contains(HTTPMethod.HEAD)) {
-      if (resp == null || item != null)       function.error(HEAD_METHOD);
-    }
-    final SerializerProp sp=process(resp);
+    if (function.methods.size() == 1 && function.methods.contains(HTTPMethod.HEAD))     function.error(HEAD_METHOD);
+    final SerializerProp sp=function.output;
     http.initResponse(sp);
     final Serializer ser=Serializer.get(http.res.getOutputStream(),sp);
     for (; item != null; item=iter.next())     ser.serialize(item);
@@ -50,6 +48,10 @@
     }
  else     if (forward != null) {
       http.req.getRequestDispatcher(forward).forward(http.req,http.res);
+    }
+ else     if (resp != null) {
+      if (resp.status != 0)       http.status(resp.status,resp.message,resp.error);
+      http.res.getOutputStream().write(resp.cache.toArray());
     }
   }
 }

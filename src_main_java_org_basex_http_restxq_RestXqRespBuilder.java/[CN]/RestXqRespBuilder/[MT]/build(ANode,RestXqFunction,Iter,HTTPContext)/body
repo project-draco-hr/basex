@@ -1,0 +1,57 @@
+{
+  for (  final ANode a : response.attributes())   func.error(UNEXP_NODE,a);
+  SerializerProp sp=func.output;
+  String cType=null;
+  for (  final ANode n : response.children()) {
+    if (HTTP_RESPONSE.eq(n)) {
+      byte[] sta=null, msg=null;
+      for (      final ANode a : n.attributes()) {
+        final QNm qnm=a.qname();
+        if (qnm.eq(Q_STATUS))         sta=a.string();
+ else         if (qnm.eq(Q_REASON) || qnm.eq(Q_MESSAGE))         msg=a.string();
+ else         func.error(UNEXP_NODE,a);
+      }
+      if (sta != null) {
+        status=toInt(sta);
+        message=msg != null ? string(msg) : null;
+      }
+      for (      final ANode c : n.children()) {
+        if (HTTP_HEADER.eq(c)) {
+          final byte[] nam=c.attribute(Q_NAME);
+          final byte[] val=c.attribute(Q_VALUE);
+          if (nam != null && val != null) {
+            final String key=string(nam);
+            final String value=string(val);
+            if (key.equals(MimeTypes.CONTENT_TYPE)) {
+              cType=value;
+            }
+ else {
+              http.res.setHeader(key,value);
+            }
+          }
+        }
+ else {
+          func.error(UNEXP_NODE,c);
+        }
+      }
+    }
+ else     if (OUTPUT_SERIAL.eq(n)) {
+      sp=FuncParams.serializerProp(n,null);
+    }
+ else {
+      func.error(UNEXP_NODE,n);
+    }
+  }
+  if (cType != null)   sp.set(SerializerProp.S_MEDIA_TYPE,cType);
+  Item item=iter.next();
+  if (item == null) {
+    error=true;
+  }
+ else   if (func.methods.size() == 1 && func.methods.contains(HTTPMethod.HEAD)) {
+    func.error(HEAD_METHOD);
+  }
+  http.initResponse(sp);
+  final Serializer ser=Serializer.get(cache,sp);
+  for (; item != null; item=iter.next())   ser.serialize(item);
+  ser.close();
+}
