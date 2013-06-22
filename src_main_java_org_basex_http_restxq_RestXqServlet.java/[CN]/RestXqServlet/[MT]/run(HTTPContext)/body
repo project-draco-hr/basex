@@ -1,7 +1,14 @@
 {
   http.session();
   final RestXqModules rxm=RestXqModules.get();
-  final RestXqFunction func=rxm.find(http);
+  RestXqFunction func=rxm.find(http,null);
   if (func == null)   HTTPErr.NO_XQUERY.thrw();
-  func.process(http);
+  try {
+    func.process(http,null);
+  }
+ catch (  final QueryException ex) {
+    func=rxm.find(http,ex.qname());
+    if (func == null)     throw ex;
+    func.process(http,ex);
+  }
 }

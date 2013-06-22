@@ -4,14 +4,14 @@
   try {
     final StaticFunc uf=function.function;
     final Expr[] args=new Expr[uf.args.length];
-    function.bind(http,args);
+    function.bind(http,args,error);
     final StaticFuncCall sfc=new BaseFuncCall(uf.name,args,uf.sc,uf.info).init(uf);
     final MainModule mod=new MainModule(sfc,new VarScope(),null);
-    qc.mainModule(mod);
-    qc.context(http,null);
-    qc.context.register(qc);
-    qc.compile();
-    final Iter iter=qc.iter();
+    query.mainModule(mod);
+    query.context(http,null);
+    query.context.register(query);
+    query.compile();
+    final Iter iter=query.iter();
     Item item=iter.next();
     if (item != null && item.type.isNode()) {
       final ANode node=(ANode)item;
@@ -41,8 +41,8 @@
     ser.close();
   }
   finally {
-    qc.close();
-    qc.context.unregister(qc);
+    query.close();
+    query.context.unregister(query);
     if (redirect != null) {
       http.res.sendRedirect(redirect);
     }
