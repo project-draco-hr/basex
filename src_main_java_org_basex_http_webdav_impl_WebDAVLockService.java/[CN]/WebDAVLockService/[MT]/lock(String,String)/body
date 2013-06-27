@@ -1,5 +1,4 @@
 {
-  final Query q=http.session().query("import module namespace w = 'http://basex.org/webdav';" + "w:get-locks-on($resource)");
-  q.bind("resource",db + SEP + p);
-  return q.next();
+  final StringList locks=new LockQuery(http,"w:get-locks-on($resource)").bind("resource",db + SEP + p).execute();
+  return locks.isEmpty() ? null : locks.get(0);
 }
