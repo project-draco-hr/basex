@@ -3,19 +3,22 @@
     if (file.isDir()) {
       cache(http,file,cache);
     }
- else     if (file.path().endsWith(IO.XQMSUFFIX)) {
-      final String path=file.path();
-      RestXqModule module=modules.get(path);
-      boolean parsed=false;
-      if (module != null) {
-        parsed=module.uptodate();
-      }
  else {
-        module=new RestXqModule(file);
-      }
-      if (parsed || module.parse(http)) {
-        module.touch();
-        cache.put(path,module);
+      final String path=file.path();
+      final boolean main=path.endsWith(IO.XQSUFFIX);
+      if (main || path.endsWith(IO.XQMSUFFIX)) {
+        RestXqModule module=modules.get(path);
+        boolean parsed=false;
+        if (module != null) {
+          parsed=module.uptodate();
+        }
+ else {
+          module=new RestXqModule(file,main);
+        }
+        if (parsed || module.parse(http)) {
+          module.touch();
+          cache.put(path,module);
+        }
       }
     }
   }
