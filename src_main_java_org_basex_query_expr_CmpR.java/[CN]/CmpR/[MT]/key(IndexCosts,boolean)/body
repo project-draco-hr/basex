@@ -1,0 +1,18 @@
+{
+  final Data data=ic.ictx.data;
+  if (!data.meta.uptodate || data.nspaces.size() != 0)   return null;
+  final AxisPath path=(AxisPath)expr;
+  final int st=path.steps.length;
+  final Step step;
+  if (text) {
+    step=st == 1 ? ic.step : path.step(st - 2);
+    if (!(step.test.mode == Mode.NAME))     return null;
+  }
+ else {
+    step=path.step(st - 1);
+    if (!step.simple(Axis.ATTR,true))     return null;
+  }
+  final Names names=text ? data.tagindex : data.atnindex;
+  final Stats key=names.stat(names.id(((NameTest)step.test).ln));
+  return key == null || key.type == StatsType.INTEGER || key.type == StatsType.DOUBLE ? key : null;
+}
