@@ -1,0 +1,24 @@
+{
+  registerModule();
+  try {
+    final Result r=p.execute();
+    final int n=(int)r.size();
+    final StringList items=new StringList(n);
+    for (int i=0; i < n; i++) {
+      final ArrayOutput o=new ArrayOutput();
+      r.serialize(Serializer.get(o),0);
+      items.add(o.toString());
+    }
+    return items;
+  }
+ catch (  QueryException e) {
+    throw new BaseXException(e);
+  }
+catch (  Exception e) {
+    Util.debug(e);
+    throw new BaseXException(e);
+  }
+ finally {
+    p.close();
+  }
+}

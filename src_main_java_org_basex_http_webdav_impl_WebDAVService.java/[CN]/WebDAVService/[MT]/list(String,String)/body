@@ -1,0 +1,24 @@
+{
+  final List<T> ch=new ArrayList<T>();
+  final HashSet<String> paths=new HashSet<String>();
+  final Query q=http.session().query("for $a in " + _DB_LIST_DETAILS.args("$d","$p") + "return ($a/@raw/data(),"+ "$a/@content-type/data(),"+ "$a/@modified-date/data(),"+ "$a/@size/data(),"+ SUBSTRING_AFTER.args("$a/text()","$p")+ ')');
+  q.bind("d",db);
+  q.bind("p",path);
+  while (q.more()) {
+    final boolean raw=Boolean.parseBoolean(q.next());
+    final String ctype=q.next();
+    final long mod=DateTime.parse(q.next());
+    final Long size=raw ? Long.valueOf(q.next()) : null;
+    final String p=stripLeadingSlash(q.next());
+    final int ix=p.indexOf(SEP);
+    if (ix < 0) {
+      if (!p.equals(DUMMY))       ch.add(factory.file(this,new ResourceMetaData(db,path + SEP + p,mod,raw,ctype,size)));
+    }
+ else {
+      final String dir=path + SEP + p.substring(0,ix);
+      if (paths.add(dir))       ch.add(factory.folder(this,new ResourceMetaData(db,dir,mod)));
+    }
+  }
+  q.close();
+  return ch;
+}

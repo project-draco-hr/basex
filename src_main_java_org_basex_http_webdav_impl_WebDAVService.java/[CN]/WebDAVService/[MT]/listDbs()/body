@@ -1,0 +1,18 @@
+{
+  final List<T> dbs=new ArrayList<T>();
+  final Query q=http.session().query("for $d in " + _DB_LIST_DETAILS.args() + "where not($d/text() eq '"+ WEBDAV_LOCKS_DB+ "') "+ "return ($d/text(), $d/@modified-date/data())");
+  try {
+    while (q.more()) {
+      final String name=q.next();
+      final long mod=DateTime.parse(q.next());
+      dbs.add(factory.database(this,new ResourceMetaData(name,mod)));
+    }
+  }
+ catch (  final Exception ex) {
+    Util.errln(ex);
+  }
+ finally {
+    q.close();
+  }
+  return dbs;
+}
