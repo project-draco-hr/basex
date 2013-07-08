@@ -1,10 +1,10 @@
 {
-  if (single) {
-    parse(cmds,input);
-  }
- else {
-    for (    final String line : lines) {
-      if (!line.isEmpty() && line.charAt(0) != '#')       parse(cmds,line);
+  for (  final String line : lines) {
+    parser=new InputParser(line);
+    while (parser.more()) {
+      final Cmd cmd=consume(Cmd.class,null);
+      if (cmd != null)       cmds.add(parse(cmd));
+      if (parser.more() && !parser.consume(';'))       throw help(null,cmd);
     }
   }
 }

@@ -1,19 +1,19 @@
 {
   super.compile(ctx,scp);
-  if (func.ann.contains(Ann.Q_PRIVATE) && !func.sc.baseURI().eq(info,ctx.sc.baseURI()))   FUNCPRIV.thrw(info,name);
+  if (func.ann.contains(Ann.Q_PRIVATE) && !Token.eq(func.sc.baseURI().string(),ctx.sc.baseURI().string()))   throw Err.FUNCPRIV.thrw(info,name.string());
   func.compile(ctx);
   if (func.inline(ctx)) {
     ctx.compInfo(OPTINLINEFN,func.name);
     final LinkedList<GFLWOR.Clause> cls=expr.length == 0 ? null : new LinkedList<GFLWOR.Clause>();
-    final IntMap<Var> vs=new IntMap<Var>();
+    final IntObjMap<Var> vs=new IntObjMap<Var>();
     for (int i=0; i < func.args.length; i++) {
       final Var old=func.args[i], v=scp.newCopyOf(ctx,old);
-      vs.add(old.id,v);
+      vs.put(old.id,v);
       cls.add(new Let(v,expr[i],false,func.info).optimize(ctx,scp));
     }
     final Expr cpy=func.expr.copy(ctx,scp,vs), rt=!func.cast ? cpy : new TypeCheck(func.info,cpy,func.declType,true).optimize(ctx,scp);
     return cls == null ? rt : new GFLWOR(func.info,cls,rt).optimize(ctx,scp);
   }
-  type=func.retType();
+  type=func.type();
   return this;
 }

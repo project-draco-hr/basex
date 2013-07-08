@@ -1,7 +1,9 @@
 {
   final int thread=++threadID;
-  while (command != null) {
-    command.stop();
+  while (true) {
+    final Command c=command;
+    if (c == null)     break;
+    c.stop();
     Thread.yield();
     if (threadID != thread)     return true;
   }
@@ -72,7 +74,7 @@
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
         if (nodes == null) {
-          if (!text.visible() && ao.size() != 0)           GUICommands.C_SHOWTEXT.execute(this);
+          if (!text.visible() && ao.size() != 0)           GUICommands.C_SHOWRESULT.execute(this);
           text.setText(ao);
         }
         text.cacheText(ao,cmd,result);

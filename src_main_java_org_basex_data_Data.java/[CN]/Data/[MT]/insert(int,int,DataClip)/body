@@ -5,17 +5,9 @@
   final int dsize=clip.size();
   final int buf=Math.min(dsize,IO.BLOCKSIZE >> IO.NODEPOWER);
   buffer(buf);
-  final TokenMap nsScope=new TokenMap();
-  NSNode n=nspaces.current;
-  do {
-    for (int i=0; i < n.values.length; i+=2)     nsScope.add(nspaces.prefix(n.values[i]),nspaces.uri(n.values[i + 1]));
-    final int pos=n.fnd(ipar);
-    if (pos < 0)     break;
-    n=n.children[pos];
-  }
- while (n.pre <= ipar && ipar < n.pre + size(n.pre,ELEM));
+  final TokenMap nsScope=nspaces.scope(ipar,this);
   final IntList preStack=new IntList();
-  final NSNode t=nspaces.current;
+  final NSNode nsRoot=nspaces.current();
   final HashSet<NSNode> newNodes=new HashSet<NSNode>();
   final IntList flagPres=new IntList();
   final Data data=clip.data;
@@ -27,29 +19,7 @@
     final int dpar=data.parent(dpre,dkind);
     final int dis=dpar >= 0 ? dpre - dpar : ipar >= 0 ? pre - ipar : 0;
     final int par=dis == 0 ? -1 : pre - dis;
-    if (c == 0) {
-      final List<NSNode> cand=new LinkedList<NSNode>();
-      NSNode cn=nspaces.root;
-      cand.add(cn);
-      for (int cI; (cI=cn.fnd(par)) > -1; ) {
-        cn=cn.children[cI];
-        cand.add(0,cn);
-      }
-      cn=nspaces.root;
-      if (cand.size() > 1) {
-        int ancPre=par;
-        NSNode curr=cand.remove(0);
-        while (ancPre > -1 && cn == nspaces.root) {
-          if (curr.pre == ancPre)           cn=curr;
- else           if (curr.pre < ancPre) {
-            while ((ancPre=parent(ancPre,kind(ancPre))) > curr.pre)             ;
-            if (curr.pre == ancPre)             cn=curr;
-          }
-          if (!cand.isEmpty())           curr=cand.remove(0);
-        }
-      }
-      nspaces.setNearestRoot(cn,par);
-    }
+    if (c == 0)     nspaces.root(par,this);
     while (!preStack.isEmpty() && preStack.peek() > par)     nspaces.close(preStack.pop());
 switch (dkind) {
 case DOC:
@@ -61,17 +31,19 @@ preStack.push(pre);
 break;
 case ELEM:
 nspaces.prepare();
+boolean ne=false;
 if (data.nsFlag(dpre)) {
 final Atts at=data.ns(dpre);
 for (int a=0; a < at.size(); ++a) {
 final byte[] old=nsScope.get(at.name(a));
-if (old == null || !eq(old,at.string(a))) {
-newNodes.add(nspaces.add(at.name(a),at.string(a),pre));
+if (old == null || !eq(old,at.value(a))) {
+newNodes.add(nspaces.add(at.name(a),at.value(a),pre));
+ne=true;
 }
 }
 }
 byte[] nm=data.name(dpre,dkind);
-elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),nspaces.uri(nm,true),nspaces.finish());
+elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),nspaces.uri(nm,true),ne);
 preStack.push(pre);
 break;
 case TEXT:
@@ -83,7 +55,7 @@ case ATTR:
 nm=data.name(dpre,dkind);
 final byte[] attPref=prefix(nm);
 if (data.nsFlag(dpre) && nsScope.get(attPref) == null) {
-nspaces.add(par,preStack.size() == 0 ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(dpre,dkind)));
+nspaces.add(par,preStack.isEmpty() ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(dpre,dkind)),this);
 flagPres.add(par);
 }
 attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),nspaces.uri(nm,false),false);
@@ -91,7 +63,7 @@ break;
 }
 }
 while (!preStack.isEmpty()) nspaces.close(preStack.pop());
-nspaces.setRoot(t);
+nspaces.root(nsRoot);
 if (bp != 0) insert(ipre + c - 1 - (c - 1) % buf);
 buffer(1);
 for (int f=0; f < flagPres.size(); f++) {

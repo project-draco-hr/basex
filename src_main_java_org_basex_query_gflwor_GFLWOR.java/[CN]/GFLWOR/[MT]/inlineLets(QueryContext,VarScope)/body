@@ -8,14 +8,14 @@
       final int next=iter.nextIndex();
       if (c instanceof Let) {
         final Let lt=(Let)c;
-        if (lt.expr.uses(Use.NDT))         continue;
+        if (lt.expr.has(Flag.NDT))         continue;
         final VarUsage uses=count(lt.var,next);
         if (uses == VarUsage.NEVER) {
           ctx.compInfo(QueryText.OPTVAR,lt.var);
           iter.remove();
           change=true;
         }
- else         if (lt.expr.isValue() || lt.expr instanceof VarRef && !lt.var.checksType() || uses == VarUsage.ONCE && !lt.expr.uses(Use.CTX) || lt.expr instanceof AxisPath && ((AxisPath)lt.expr).cheap()) {
+ else         if (lt.expr.isValue() || lt.expr instanceof VarRef && !lt.var.checksType() || uses == VarUsage.ONCE && !lt.expr.has(Flag.CTX) || lt.expr instanceof AxisPath && ((AxisPath)lt.expr).cheap()) {
           ctx.compInfo(QueryText.OPTINLINE,lt);
           inline(ctx,scp,lt.var,lt.inlineExpr(ctx,scp),next);
           thisRound=change=true;

@@ -12,7 +12,7 @@
       text.add(node.string());
     }
  else     if (ip == NodeType.ATT) {
-      if (!text.isEmpty() || children.size() != 0) {
+      if (!text.isEmpty() || !children.isEmpty()) {
         errAtt=true;
         return false;
       }
@@ -24,18 +24,16 @@
         }
       }
       atts.add(new FAttr(name,node.string()));
-      if (name.hasURI()) {
-        ctx.sc.ns.add(name.prefix(),name.uri());
-      }
+      if (name.hasURI())       ctx.sc.ns.add(name.prefix(),name.uri());
     }
  else     if (ip == NodeType.NSP) {
-      if (!text.isEmpty() || children.size() != 0) {
+      if (!text.isEmpty() || !children.isEmpty()) {
         errNS=true;
         return false;
       }
       final byte[] name=node.name();
       final byte[] uri=node.string();
-      final byte[] u=nspaces.string(name);
+      final byte[] u=nspaces.value(name);
       if (u == null) {
         nspaces.add(name,uri);
       }

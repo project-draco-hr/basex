@@ -1,0 +1,17 @@
+{
+  final File path=checkFile(0,ctx);
+  File f;
+  try {
+    f=path.getCanonicalFile();
+  }
+ catch (  final IOException ex) {
+    throw FILE_PATH.thrw(info,path);
+  }
+  while (!f.exists()) {
+    f=f.getParentFile();
+    if (f == null)     throw FILE_PATH.thrw(info,path);
+  }
+  if (f.isFile())   FILE_EXISTS.thrw(info,path);
+  if (!path.exists() && !path.mkdirs())   FILE_CREATE.thrw(info,path);
+  return null;
+}

@@ -13,21 +13,19 @@
     errFile=getEditor().file;
   }
   EditorArea edit=find(errFile,false);
-  if (open) {
+  if (jump) {
     if (edit == null)     edit=open(errFile,false);
-    tabs.setSelectedComponent(edit);
+    if (edit != null)     tabs.setSelectedComponent(edit);
   }
- else {
-    if (edit == null)     return;
-  }
+  if (edit == null)   return;
   final int ll=edit.last.length;
   int ep=ll;
-  for (int e=1, l=1, c=1; e < ll; ++c, e+=cl(edit.last,e)) {
+  for (int p=0, l=1, c=1; p < ll; ++c, p+=cl(edit.last,p)) {
     if (l > el || l == el && c == ec) {
-      ep=e;
+      ep=p;
       break;
     }
-    if (edit.last[e] == '\n') {
+    if (edit.last[p] == '\n') {
       ++l;
       c=0;
     }
@@ -37,7 +35,7 @@
   }
   edit.error(ep);
   errPos=ep;
-  if (open) {
+  if (jump) {
     edit.jumpError(errPos);
     posCode.invokeLater();
   }

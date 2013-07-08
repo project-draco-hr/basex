@@ -1,0 +1,27 @@
+{
+  final String pref=string(checkStr(expr[0],ctx));
+  final String suf=string(checkStr(expr[1],ctx));
+  final File root;
+  if (expr.length > 2) {
+    root=checkFile(2,ctx);
+    if (root.isFile())     FILE_NODIR.thrw(info,root);
+  }
+ else {
+    root=new File(Prop.TMP);
+  }
+  final Random rnd=new Random();
+  File file;
+  do {
+    file=new File(root,pref + rnd.nextLong() + suf);
+  }
+ while (file.exists());
+  String path=file.getPath();
+  if (dir) {
+    if (!file.mkdirs())     FILE_CREATE.thrw(info,file);
+    path=dir(path);
+  }
+ else {
+    new IOFile(file).write(Token.EMPTY);
+  }
+  return Str.get(path);
+}

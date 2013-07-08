@@ -1,20 +1,12 @@
 {
   final B64 archive=(B64)checkType(checkItem(expr[0],ctx),AtomType.B64);
-  TokenSet hs=null;
-  if (expr.length > 1) {
-    hs=new TokenSet();
-    final Iter names=ctx.iter(expr[1]);
-    for (Item en; (en=names.next()) != null; ) {
-      hs.add(checkElmStr(en).string(info));
-    }
-  }
+  final TokenSet hs=entries(1,ctx);
   final TokenList tl=new TokenList();
   final ArchiveIn in=ArchiveIn.get(archive.input(info),info);
   try {
     while (in.more()) {
       final ZipEntry ze=in.entry();
-      if (ze.isDirectory())       continue;
-      if (hs == null || hs.delete(token(ze.getName())) != 0)       tl.add(in.read());
+      if (!ze.isDirectory() && (hs == null || hs.delete(token(ze.getName())) != 0))       tl.add(in.read());
     }
   }
  catch (  final IOException ex) {

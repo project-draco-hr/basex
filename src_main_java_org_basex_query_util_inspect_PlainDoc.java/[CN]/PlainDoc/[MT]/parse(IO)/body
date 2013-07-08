@@ -1,0 +1,18 @@
+{
+  final QueryParser qp=parseQuery(io);
+  final FElem mod=elem("module",null);
+  if (module instanceof LibraryModule) {
+    final QNm name=((LibraryModule)module).name;
+    mod.add("prefix",name.string());
+    mod.add("uri",name.uri());
+  }
+  final TokenObjMap<TokenList> doc=module.doc();
+  if (doc != null)   comment(doc,mod);
+  for (  final StaticVar sv : qp.vars) {
+    variable(sv,mod);
+  }
+  for (  final StaticFunc sf : qp.funcs) {
+    function(sf.name,sf,sf.funcType(),mod);
+  }
+  return mod;
+}

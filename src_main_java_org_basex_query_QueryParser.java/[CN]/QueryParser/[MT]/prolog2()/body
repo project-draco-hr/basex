@@ -1,6 +1,6 @@
 {
   while (true) {
-    final int i=ip;
+    final int i=pos;
     if (!wsConsumeWs(DECLARE))     break;
     if (ctx.sc.xquery3() && wsConsumeWs(CONTEXT)) {
       contextItemDecl();
@@ -15,7 +15,7 @@
       final Ann ann=new Ann();
       while (true) {
         if (wsConsumeWs(UPDATING)) {
-          ann.add(Ann.Q_UPDATING,Empty.SEQ);
+          ann.add(Ann.Q_UPDATING,Empty.SEQ,info());
         }
  else         if (ctx.sc.xquery3() && consume('%')) {
           annotation(ann);
@@ -26,29 +26,23 @@
       }
       if (wsConsumeWs(VARIABLE)) {
         if (ann.contains(Ann.Q_UPDATING))         error(UPDATINGVAR);
-        checkAnnotations(ann,true);
+        ann.check(true);
         varDecl(ann);
       }
  else       if (wsConsumeWs(FUNCTION)) {
-        checkAnnotations(ann,false);
+        ann.check(false);
         functionDecl(ann);
       }
  else       if (!ann.isEmpty()) {
         error(VARFUNC);
       }
  else {
-        ip=i;
+        pos=i;
         break;
       }
     }
+    currDoc.setLength(0);
     skipWS();
     check(';');
-  }
-  for (  final String d : decl) {
-    if (!d.endsWith("_R") && !d.endsWith("_P"))     continue;
-    final boolean pf=d.charAt(d.length() - 1) == 'P';
-    final String k=d.substring(0,d.length() - 2);
-    if (eq(k,F_STATIC_TYPING,F_SCHEMA_AWARE,F_ALL_OPTIONAL_FEATURES))     error(pf ? FEATPROH : FEATNOTSUPP,k);
-    if (pf && eq(k,F_MODULE,F_HIGHER_ORDER_FUNCTION,F_ALL_EXTENSIONS,F_ALL_OPTIONAL_FEATURES))     error(FEATPROH,k);
   }
 }

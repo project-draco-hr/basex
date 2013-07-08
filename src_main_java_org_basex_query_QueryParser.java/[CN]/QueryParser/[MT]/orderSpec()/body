@@ -1,0 +1,12 @@
+{
+  final Expr e=check(single(),ORDERBY);
+  boolean desc=false;
+  if (!wsConsumeWs(ASCENDING))   desc=wsConsumeWs(DESCENDING);
+  boolean least=!ctx.sc.orderGreatest;
+  if (wsConsumeWs(EMPTYORD)) {
+    least=!wsConsumeWs(GREATEST);
+    if (least)     wsCheck(LEAST);
+  }
+  final Collation coll=!wsConsumeWs(COLLATION) ? ctx.sc.collation : Collation.get(stringLiteral(),ctx,info(),FLWORCOLL);
+  return new OrderBy.Key(info(),e,desc,least,coll);
+}

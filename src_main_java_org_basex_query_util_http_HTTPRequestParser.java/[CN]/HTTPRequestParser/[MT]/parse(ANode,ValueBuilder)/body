@@ -7,17 +7,17 @@
   if (eq(method,TRACE,DELETE) && (payload != null || bodies != null))   HC_REQ.thrw(info,"Body not expected for method " + string(method));
   if (payload != null) {
     final QNm pl=payload.qname();
-    if (pl.eq(Q_HTTP_BODY)) {
+    if (pl.eq(Q_BODY)) {
       final Item it=bodies != null ? bodies.next() : null;
       parseBody(payload,it,r.payloadAttrs,r.bodyContent);
       r.isMultipart=false;
     }
- else     if (pl.eq(Q_HTTP_MULTIPART)) {
+ else     if (pl.eq(Q_MULTIPART)) {
       parseMultipart(payload,bodies,r.payloadAttrs,r.parts);
       r.isMultipart=true;
     }
  else {
-      HC_REQ.thrw(info,"Unknown payload element " + pl);
+      HC_REQ.thrw(info,"Unknown payload element " + payload.qname());
     }
   }
   return r;

@@ -1,15 +1,18 @@
 {
-  String path=System.getProperty(PATH);
-  if (path != null)   return path + File.separator;
-  path=System.getProperty("user.dir");
-  File config=new File(path,IO.BASEXSUFFIX);
-  if (config.exists())   return config.getParent() + File.separator;
-  path=applicationPath();
-  if (path != null) {
-    final File app=new File(path);
-    final String dir=app.isFile() ? app.getParent() : app.getPath();
-    config=new File(dir,IO.BASEXSUFFIX);
-    if (config.exists())     return config.getParent() + File.separator;
+  String dir=System.getProperty(PATH);
+  if (dir != null)   return dir;
+  final String home=IO.BASEXSUFFIX + "home";
+  dir=System.getProperty("user.dir");
+  File file=new File(dir,home);
+  if (!file.exists())   file=new File(dir,IO.BASEXSUFFIX);
+  if (file.exists())   return file.getParent();
+  dir=applicationPath();
+  if (dir != null) {
+    file=new File(dir);
+    dir=file.isFile() ? file.getParent() : file.getPath();
+    file=new File(dir,home);
+    if (!file.exists())     file=new File(dir,IO.BASEXSUFFIX);
+    if (file.exists())     return file.getParent();
   }
   return USERHOME;
 }

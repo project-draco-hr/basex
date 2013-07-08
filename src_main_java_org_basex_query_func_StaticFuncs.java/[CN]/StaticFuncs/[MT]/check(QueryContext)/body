@@ -1,16 +1,30 @@
 {
-  final int fs=funcs.size();
-  for (int id=1; id <= fs; ++id) {
-    final FuncCache fc=funcs.value(id);
+  int id=0;
+  for (  final FuncCache fc : funcs.values()) {
+    final StaticFuncCall call=fc.calls.isEmpty() ? null : fc.calls.get(0);
     if (fc.func == null) {
-      final StaticFuncCall call=fc.calls.get(0);
-      for (int i=1; i <= fs; ++i) {
-        if (i == id)         continue;
-        final FuncCache ofc=funcs.value(i);
-        if (call.name.eq(ofc.name()))         FUNCTYPE.thrw(call.info,call.name.string());
+      int oid=0;
+      final IntList al=new IntList();
+      for (      final FuncCache ofc : funcs.values()) {
+        if (oid++ == id)         continue;
+        if (call.name.eq(ofc.name()))         al.add(ofc.func.arity());
+      }
+      if (!al.isEmpty()) {
+        final StringBuilder exp=new StringBuilder();
+        final int as=al.size();
+        for (int a=0; a < as; a++) {
+          if (a != 0)           exp.append(a + 1 < as ? "," : " or ");
+          exp.append(al.get(a));
+        }
+        final int a=call.expr.length;
+        (a == 1 ? FUNCTYPESG : FUNCTYPEPL).thrw(call.info,call.name.string(),a,exp);
       }
       FUNCUNKNOWN.thrw(call.info,call.name.string());
     }
-    if (!fc.calls.isEmpty())     qc.updating|=fc.func.updating;
+    if (call != null) {
+      if (fc.func.expr == null)       FUNCNOIMPL.thrw(call.info,call.name.string());
+      qc.updating|=fc.func.updating;
+    }
+    id++;
   }
 }

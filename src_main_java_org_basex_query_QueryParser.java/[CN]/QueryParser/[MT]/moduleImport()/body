@@ -1,7 +1,7 @@
 {
-  byte[] ns=EMPTY;
+  byte[] pref=EMPTY;
   if (wsConsumeWs(NSPACE)) {
-    ns=ncName(NONAME);
+    pref=ncName(NONAME);
     wsCheck(IS);
   }
   final byte[] uri=trim(stringLiteral());
@@ -9,9 +9,10 @@
   if (!Uri.uri(uri).isValid())   error(INVURI,uri);
   if (modules.contains(uri))   error(DUPLMODULE,uri);
   modules.add(uri);
-  if (ns != EMPTY) {
-    if (ctx.sc.ns.staticURI(ns) != null)     error(DUPLNSDECL,ns);
-    ctx.sc.ns.add(ns,uri,info());
+  if (pref != EMPTY) {
+    if (ctx.sc.ns.staticURI(pref) != null)     error(DUPLNSDECL,pref);
+    ctx.sc.ns.add(pref,uri,info());
+    namespaces.put(pref,uri);
   }
   if (wsConsumeWs(AT)) {
     do {

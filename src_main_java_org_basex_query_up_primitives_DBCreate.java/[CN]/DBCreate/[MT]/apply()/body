@@ -1,18 +1,22 @@
 {
   qc.resource.removeData(name);
   if (qc.context.pinned(name))   BXDB_OPENED.thrw(info,name);
+  assignOptions();
   try {
     data=CreateDB.create(name,Parser.emptyParser(qc.context.prop),qc.context);
   }
  catch (  final IOException ex) {
     UPDBOPTERR.thrw(info,ex);
   }
+ finally {
+    resetOptions();
+  }
   qc.resource.addData(data);
   if (md != null) {
     if (!data.startUpdate())     BXDB_OPENED.thrw(null,data.meta.name);
     data.insert(data.meta.size,-1,new DataClip(md));
     try {
-      Optimize.optimize(data,null);
+      Optimize.optimize(data,false,null);
     }
  catch (    final IOException ex) {
       data.finishUpdate();
