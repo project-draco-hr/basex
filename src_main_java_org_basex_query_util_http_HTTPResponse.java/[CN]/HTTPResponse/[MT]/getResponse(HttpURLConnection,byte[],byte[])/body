@@ -6,22 +6,23 @@
   InputStream is=conn.getErrorStream();
   final byte[] cType;
   if (is == null) {
-    cType=ctype == null ? token(extractContentType(type)) : ctype;
+    cType=ctype == null ? token(HTTPPayload.contentType(type)) : ctype;
     is=conn.getInputStream();
   }
  else {
     cType=token(MimeTypes.TEXT_PLAIN);
   }
   if (startsWith(cType,MULTIPART)) {
-    final byte[] boundary=extractBoundary(type);
+    final byte[] boundary=HTTPPayload.boundary(type);
+    if (boundary == null)     HC_REQ.thrw(info,"No separation boundary specified");
     body=new FElem(Q_MULTIPART).add(MEDIA_TYPE,cType).add(BOUNDARY,boundary);
-    final ANodeList list=extractParts(is,s,payloads,concat(token("--"),boundary));
+    final ANodeList list=extractParts(is,s,payloads,concat(DASHES,boundary));
     for (    final ANode node : list)     body.add(node);
   }
  else {
     body=createBody(cType);
     if (!s) {
-      final byte[] payload=extractPayload(is,cType,extractCharset(type));
+      final byte[] payload=extractPayload(is,cType,HTTPPayload.charset(type));
       payloads.add(interpretPayload(payload,cType));
     }
   }
