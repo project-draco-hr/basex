@@ -30,13 +30,9 @@
  */
     private Group[] init(    final QueryContext ctx) throws QueryException {
       final ArrayList<Group> grps=new ArrayList<Group>();
-      final IntObjMap<Group> map=usesColl ? null : new IntObjMap<Group>();
+      final IntObjMap<Group> map=new IntObjMap<Group>();
       final Collation[] colls=new Collation[nonOcc];
-      if (usesColl) {
-        for (int i=0; i < specs.length; i++) {
-          if (!specs[i].occluded)           colls[i]=specs[i].coll;
-        }
-      }
+      for (int i=0, p=0; i < specs.length; i++)       if (!specs[i].occluded)       colls[p++]=specs[i].coll;
       while (sub.next(ctx)) {
         final Item[] key=new Item[nonOcc];
         int p=0, hash=1;
@@ -44,25 +40,15 @@
           final Item ki=spec.item(ctx,info), atom=ki == null ? null : StandardFunc.atom(ki,info);
           if (!spec.occluded) {
             key[p++]=atom;
-            hash=31 * hash + (atom == null ? 0 : atom.hash(info));
+            hash=31 * hash + (atom == null || spec.coll != null ? 0 : atom.hash(info));
           }
           ctx.set(spec.var,atom == null ? Empty.SEQ : atom,info);
         }
         Group fst=null, grp=null;
-        if (usesColl) {
-          for (          final Group g : grps) {
-            if (eq(key,g.key,colls)) {
-              grp=g;
-              break;
-            }
-          }
-        }
- else {
-          for (Group g=fst=map.get(hash); g != null; g=g.next) {
-            if (eq(key,g.key,colls)) {
-              grp=g;
-              break;
-            }
+        for (Group g=fst=map.get(hash); g != null; g=g.next) {
+          if (eq(key,g.key,colls)) {
+            grp=g;
+            break;
           }
         }
         if (grp == null) {
@@ -70,15 +56,13 @@
           for (int i=0; i < ngs.length; i++)           ngs[i]=new ValueBuilder();
           grp=new Group(key,ngs);
           grps.add(grp);
-          if (!usesColl) {
-            if (fst == null) {
-              map.put(hash,grp);
-            }
+          if (fst == null) {
+            map.put(hash,grp);
+          }
  else {
-              final Group nxt=fst.next;
-              fst.next=grp;
-              grp.next=nxt;
-            }
+            final Group nxt=fst.next;
+            fst.next=grp;
+            grp.next=nxt;
           }
         }
         for (int j=0; j < preExpr.length; j++)         grp.ngv[j].add(preExpr[j].value(ctx));

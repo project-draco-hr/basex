@@ -1,0 +1,31 @@
+{
+  byte[] b=boundary(ext);
+  if (b == null)   throw new IOException("No boundary specified.");
+  final byte[] boundary=concat(DASHES,b);
+  final byte[] end=concat(CRLF,boundary), last=concat(boundary,DASHES);
+  Map map=Map.EMPTY;
+  final byte[] cont=in.read();
+  final int cl=cont.length;
+  String fn=null;
+  for (int s=0, i; s < cl; s=i + 2) {
+    i=indexOf(cont,CRLF,s);
+    if (i == -1)     throw new IOException("CRLF expected.");
+    final byte[] line=substring(cont,s,i);
+    if (startsWith(line,boundary)) {
+      if (eq(line,last))       break;
+    }
+ else     if (startsWith(line,CONTENT_DISPOSITION)) {
+      fn=string(line).replaceAll("^.*filename=\"?|\"?$","");
+    }
+ else     if (line.length == 0) {
+      s=i + 2;
+      i=indexOf(cont,end,s);
+      if (i == -1)       throw new IOException("multipart/form-data: no closing boundary.");
+      map=map.insert(Str.get(fn),new B64(substring(cont,s,i)),null);
+    }
+ else {
+      Util.debug("multipart/form-data: ignored: " + string(line));
+    }
+  }
+  return map;
+}

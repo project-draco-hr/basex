@@ -1,21 +1,19 @@
 {
   first=true;
-  final FTLexer intok=ftt.copy(ctx.fttoken);
+  final FTLexer lexer=ftt.lexer(ctx.fttoken);
   int num=0;
   if (fast) {
     for (    final byte[] t : txt) {
       final FTTokens qtok=ftt.cache(t);
-      num=Math.max(num,ftt.contains(qtok,intok) * qtok.length());
+      num=Math.max(num,ftt.contains(qtok,lexer) * qtok.length());
     }
     return num;
   }
-  final TokenList tl=tokens(ctx);
-  final TokenSet ts=tokens(tl,intok.ftOpt());
   final boolean all=mode == FTMode.ALL || mode == FTMode.ALL_WORDS;
   int oc=0;
-  for (  final byte[] k : ts) {
-    final FTTokens qtok=ftt.cache(k);
-    final int o=ftt.contains(qtok,intok);
+  for (  final byte[] w : unique(tokens(ctx))) {
+    final FTTokens qtok=ftt.cache(w);
+    final int o=ftt.contains(qtok,lexer);
     if (all && o == 0)     return 0;
     num=Math.max(num,o * qtok.length());
     oc+=o;
