@@ -1,63 +1,70 @@
 {
   meta.update();
-  final int dsize=clip.size();
-  final Data data=clip.data;
-  final int rkind=kind(rpre);
-  final int rsize=size(rpre,rkind);
-  final int rpar=parent(rpre,rkind);
-  final int diff=dsize - rsize;
-  buffer(dsize);
-  resources.replace(rpre,rsize,clip);
+  final int size=source.size();
+  final Data data=source.data;
+  final int tkind=kind(tpre);
+  final int tsize=size(tpre,tkind);
+  final int tpar=parent(tpre,tkind);
+  final int diff=size - tsize;
+  buffer(size);
+  resources.replace(tpre,tsize,source);
   if (meta.updindex) {
-    indexDelete(rpre,rsize);
+    indexDelete(tpre,tsize);
     indexBegin();
   }
-  int clipTopLevel=clip.start;
-  for (int dpre=clipTopLevel; dpre < clip.end; ++dpre) {
-    final int dkind=data.kind(dpre);
-    final int dpar=data.parent(dpre,dkind);
-    final int pre=rpre + dpre - clip.start;
-    final int dis=dpre != clipTopLevel ? dpre - dpar : pre - rpar;
-    if (dpre == clipTopLevel)     clipTopLevel+=data.size(clipTopLevel,data.kind(clipTopLevel));
-switch (dkind) {
+  int sTopPre=source.start;
+  for (int spre=sTopPre; spre < source.end; ++spre) {
+    final int kind=data.kind(spre);
+    final int ssize=data.size(spre,kind);
+    final int spar=data.parent(spre,kind);
+    final int pre=tpre + spre - source.start;
+    final int dist;
+    if (spre == sTopPre) {
+      dist=pre - tpar;
+      sTopPre+=ssize;
+    }
+ else {
+      dist=spre - spar;
+    }
+switch (kind) {
 case DOC:
-      doc(pre,data.size(dpre,dkind),data.text(dpre,true));
+      doc(pre,ssize,data.text(spre,true));
     meta.ndocs++;
   break;
 case ELEM:
-byte[] nm=data.name(dpre,dkind);
-elem(dis,tagindex.index(nm,null,false),data.attSize(dpre,dkind),data.size(dpre,dkind),nspaces.uri(nm,true),false);
+byte[] nm=data.name(spre,kind);
+elem(dist,tagindex.index(nm,null,false),data.attSize(spre,kind),ssize,nspaces.uri(nm,true),false);
 break;
 case TEXT:
 case COMM:
 case PI:
-text(pre,dis,data.text(dpre,true),dkind);
+text(pre,dist,data.text(spre,true),kind);
 break;
 case ATTR:
-nm=data.name(dpre,dkind);
-attr(pre,dis,atnindex.index(nm,null,false),data.text(dpre,false),nspaces.uri(nm,false),false);
+nm=data.name(spre,kind);
+attr(pre,dist,atnindex.index(nm,null,false),data.text(spre,false),nspaces.uri(nm,false),false);
 break;
 }
 }
 if (meta.updindex) {
 indexEnd();
-idmap.delete(rpre,id(rpre),-rsize);
-idmap.insert(rpre,meta.lastid - dsize + 1,dsize);
+idmap.delete(tpre,id(tpre),-tsize);
+idmap.insert(tpre,meta.lastid - size + 1,size);
 }
-table.replace(rpre,buffer(),rsize);
+table.replace(tpre,buffer(),tsize);
 buffer(1);
 if (diff == 0) return;
-int p=rpar;
+int p=tpar;
 while (p >= 0) {
 final int k=kind(p);
 size(p,k,size(p,k) + diff);
 p=parent(p,k);
 }
-if (!cache) updateDist(rpre + dsize,diff);
-int dpre=clip.start;
-if (data.kind(dpre) == ATTR) {
+if (!cache) updateDist(tpre + size,diff);
+int spre=source.start;
+if (data.kind(spre) == ATTR) {
 int d=0;
-while (dpre < clip.end && data.kind(dpre++) == ATTR) d++;
-if (d > 1) attSize(rpar,kind(rpar),d + 1);
+while (spre < source.end && data.kind(spre++) == ATTR) d++;
+if (d > 1) attSize(tpar,kind(tpar),d + 1);
 }
 }
