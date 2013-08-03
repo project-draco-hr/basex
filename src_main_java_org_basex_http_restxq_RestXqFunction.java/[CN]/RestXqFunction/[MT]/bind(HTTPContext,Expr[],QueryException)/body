@@ -14,30 +14,28 @@
     try {
       body.name(http.method + IO.XMLSUFFIX);
       final String ext=http.contentTypeExt();
-      bind(requestBody,arg,HTTPPayload.item(body,context.context.prop,ct,ext));
+      bind(requestBody,arg,HTTPPayload.value(body,context.context.prop,ct,ext));
     }
  catch (    final IOException ex) {
       error(INPUT_CONV,ex);
     }
   }
-  final Map<String,String[]> params=http.params();
-  for (  final RestXqParam rxp : queryParams) {
-    final ValueBuilder vb=new ValueBuilder();
-    final String[] strings=params.get(rxp.key);
-    if (strings != null)     for (    final String v : params.get(rxp.key))     vb.add(new Atm(v));
-    bind(rxp,arg,vb.value());
+  final Map<String,Value> params=new HashMap<String,Value>();
+  for (  final Map.Entry<String,String[]> entry : http.params().entrySet()) {
+    final String[] values=entry.getValue();
+    final ValueBuilder vb=new ValueBuilder(values.length);
+    for (    final String v : values)     vb.add(new Atm(v));
+    params.put(entry.getKey(),vb.value());
   }
+  for (  final RestXqParam rxp : queryParams)   bind(rxp,arg,params.get(rxp.key));
   if (!formParams.isEmpty()) {
-    if (MimeTypes.APP_FORM.equals(ct)) {
-      body=cache(http,body);
-      addParams(body.toString(),params);
+    if (MimeTypes.MULTIPART_FORM_DATA.equals(ct)) {
+      addMultipart(cache(http,body),params,http.contentTypeExt());
     }
-    for (    final RestXqParam rxp : formParams) {
-      final ValueBuilder vb=new ValueBuilder();
-      final String[] strings=params.get(rxp.key);
-      if (strings != null)       for (      final String v : params.get(rxp.key))       vb.add(new Atm(v));
-      bind(rxp,arg,vb.value());
+ else     if (MimeTypes.APP_FORM_URLENCODED.equals(ct)) {
+      addURLEncoded(cache(http,body),params);
     }
+    for (    final RestXqParam rxp : formParams)     bind(rxp,arg,params.get(rxp.key));
   }
   for (  final RestXqParam rxp : headerParams) {
     final TokenList tl=new TokenList();
