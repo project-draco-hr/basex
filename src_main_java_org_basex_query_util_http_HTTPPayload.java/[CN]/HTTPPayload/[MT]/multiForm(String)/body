@@ -1,0 +1,37 @@
+{
+  final byte[] b=boundary(ext);
+  final byte[] boundary=concat(DASHES,b), last=concat(boundary,DASHES);
+  HashMap<String,Value> map=new HashMap<String,Value>();
+  String name=null, fn=null;
+  for (byte[] line; (line=readLine()) != null; ) {
+    if (startsWith(line,boundary)) {
+      if (eq(line,last))       break;
+    }
+ else     if (startsWith(line,CONTENT_DISPOSITION)) {
+      name=!contains(line,token(NAME_IS)) ? null : string(line).replaceAll("^.*?" + NAME_IS + "\"|\".*","").replaceAll("\\[\\]","");
+      fn=!contains(line,token(FILENAME_IS)) ? null : string(line).replaceAll("^.*" + FILENAME_IS + "\"|\"$","");
+    }
+ else     if (line.length == 0) {
+      final ByteList cont=new ByteList();
+      while (true) {
+        line=readLine();
+        if (line == null || eq(line,boundary))         break;
+        if (!cont.isEmpty())         cont.add(CRLF);
+        cont.add(line);
+      }
+      Value val=map.get(name);
+      if (val == null && fn != null)       val=Map.EMPTY;
+      if (fn != null && val instanceof Map) {
+        val=((Map)val).insert(Str.get(fn),new B64(cont.toArray()),null);
+      }
+ else {
+        val=Str.get(cont.toArray());
+      }
+      map.put(name,val);
+    }
+ else {
+      Util.debug("multipart/form-data: ignored: %",line);
+    }
+  }
+  return map;
+}

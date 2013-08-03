@@ -1,0 +1,23 @@
+{
+  final String type=conn.getContentType();
+  InputStream is=conn.getErrorStream();
+  final boolean error=is != null;
+  if (!error)   is=conn.getInputStream();
+  final FElem response=new FElem(Q_RESPONSE).declareNS();
+  response.add(STATUS,token(conn.getResponseCode()));
+  response.add(MESSAGE,conn.getResponseMessage());
+  for (  final String header : conn.getHeaderFields().keySet()) {
+    if (header != null) {
+      final FElem hdr=new FElem(Q_HEADER);
+      hdr.add(NAME,token(header));
+      hdr.add(VALUE,conn.getHeaderField(header));
+      response.add(hdr);
+    }
+  }
+  final boolean st=status != null && Bln.parse(status,info);
+  final HTTPPayload hp=new HTTPPayload(is,st,info,prop);
+  response.add(hp.parse(error,type,utype));
+  final ValueBuilder vb=new ValueBuilder().add(response);
+  if (!st)   vb.add(hp.payloads());
+  return vb;
+}
