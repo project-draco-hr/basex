@@ -23,9 +23,15 @@
     parse();
     if (Prop.debug)     Util.errln(" " + perf + " ("+ Performance.getMemory()+ ')');
   }
-  finally {
-    close();
+ catch (  final IOException ex) {
+    try {
+      close();
+    }
+ catch (    final IOException ignored) {
+    }
+    throw ex;
   }
+  close();
   final DataInput in=new DataInput(md.dbfile(DATATMP));
   final TableAccess ta=new TableDiskAccess(md,true);
   for (; spos < ssize; ++spos)   ta.write4(in.readNum(),8,in.readNum());
