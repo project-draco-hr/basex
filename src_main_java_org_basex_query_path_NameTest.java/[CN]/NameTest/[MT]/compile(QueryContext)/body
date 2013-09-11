@@ -1,15 +1,19 @@
 {
   final Data data=ctx.data();
   if (data == null)   return true;
-  final byte[] ns=data.nspaces.globalNS();
-  if (ns == null)   return true;
-  boolean ok=true;
-  if (mode == Mode.STD && !name.hasPrefix()) {
-    final byte[] nse=ctx.sc.nsElem != null ? ctx.sc.nsElem : Token.EMPTY;
-    ok=type == NodeType.ATT || Token.eq(ns,nse);
-    if (ok)     mode=Mode.NAME;
+  final byte[] dataNS=data.nspaces.globalNS();
+  if (dataNS == null)   return true;
+  boolean results=true;
+  if (mode == Mode.STD && !name.hasURI()) {
+    final byte[] elemNS=ctx.sc.nsElem != null ? ctx.sc.nsElem : Token.EMPTY;
+    if (type == NodeType.ATT || Token.eq(dataNS,elemNS)) {
+      mode=Mode.LN;
+    }
+ else {
+      results=false;
+    }
   }
-  ok=ok && (mode != Mode.NAME || (type == NodeType.ELM ? data.tagindex : data.atnindex).contains(ln));
-  if (!ok)   ctx.compInfo(OPTNAME,name);
-  return ok;
+  if (results)   results=mode != Mode.LN || (type == NodeType.ELM ? data.tagindex : data.atnindex).contains(ln);
+  if (!results)   ctx.compInfo(OPTNAME,name);
+  return results;
 }
