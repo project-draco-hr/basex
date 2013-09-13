@@ -1,0 +1,43 @@
+{
+  if (init)   return;
+  init=true;
+  final String webapp=sc.getRealPath("/");
+  AProp.setSystem(Prop.PATH,webapp);
+  AProp.setSystem(MainProp.WEBPATH,webapp);
+  final Enumeration<String> en=sc.getInitParameterNames();
+  while (en.hasMoreElements()) {
+    final String key=en.nextElement();
+    if (!key.startsWith(Prop.DBPREFIX))     continue;
+    final String val=sc.getInitParameter(key);
+    String k=key;
+    String v=val;
+    if (key.equals(Prop.DBPREFIX + "httppath")) {
+      k=Prop.DBPREFIX + MainProp.RESTXQPATH[0];
+    }
+ else     if (key.equals(Prop.DBPREFIX + "mode")) {
+      k=Prop.DBPREFIX + MainProp.HTTPLOCAL[0];
+      v=Boolean.toString(v.equals("local"));
+    }
+ else     if (key.equals(Prop.DBPREFIX + "server")) {
+      k=Prop.DBPREFIX + MainProp.HTTPLOCAL[0];
+      v=Boolean.toString(!Boolean.parseBoolean(v));
+    }
+    k=k.toLowerCase(Locale.ENGLISH);
+    if (!k.equals(key) || !v.equals(val)) {
+      Util.errln("Warning! Outdated property: " + key + '='+ val+ " => "+ k+ '='+ v);
+    }
+    if (k.endsWith("path") && !new File(v).isAbsolute()) {
+      Util.debug(k.toUpperCase(Locale.ENGLISH) + ": " + v);
+      v=new IOFile(webapp,v).path();
+    }
+    AProp.setSystem(k,v);
+  }
+  if (context == null) {
+    context=new Context(false);
+  }
+ else {
+    context.mprop.setSystem();
+    context.prop.setSystem();
+  }
+  if (!context.mprop.is(MainProp.HTTPLOCAL))   new BaseXServer(context);
+}

@@ -1,0 +1,25 @@
+{
+  System.out.println("=== XMLDBInsert ===");
+  Collection col=null;
+  try {
+    Class<?> c=Class.forName(DRIVER);
+    Database db=(Database)c.newInstance();
+    DatabaseManager.registerDatabase(db);
+    System.out.println("\n* Get collection.");
+    col=DatabaseManager.getCollection(DBNAME);
+    String id="world";
+    String doc="<xml>Hello World!</xml>";
+    System.out.println("\n* Create new resource.");
+    XMLResource res=(XMLResource)col.createResource(id,XMLResource.RESOURCE_TYPE);
+    res.setContent(doc);
+    System.out.println("\n* Store new resource.");
+    col.storeResource(res);
+  }
+ catch (  final XMLDBException ex) {
+    System.err.println("XML:DB Exception occurred " + ex.errorCode);
+    ex.printStackTrace();
+  }
+ finally {
+    if (col != null)     col.close();
+  }
+}

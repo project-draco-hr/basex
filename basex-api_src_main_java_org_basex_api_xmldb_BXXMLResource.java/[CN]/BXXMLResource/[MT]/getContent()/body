@@ -1,0 +1,22 @@
+{
+  if (content == null) {
+    try {
+      final ArrayOutput ao=new ArrayOutput();
+      final Serializer ser=Serializer.get(ao);
+      if (data != null) {
+        ser.serialize(new DBNode(data,pos));
+      }
+ else       if (result != null) {
+        result.serialize(ser,pos);
+      }
+ else {
+        return null;
+      }
+      content=ao.toArray();
+    }
+ catch (    final IOException ex) {
+      throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ex.getMessage());
+    }
+  }
+  return content instanceof byte[] ? string((byte[])content) : content;
+}

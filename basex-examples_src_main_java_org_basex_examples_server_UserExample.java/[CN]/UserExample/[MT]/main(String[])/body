@@ -1,0 +1,22 @@
+{
+  final Context context=new Context();
+  System.out.println("=== UserExample ===");
+  System.out.println("\n* Create a database.");
+  new CreateDB("input","src/main/resources/xml/input.xml").execute(context);
+  System.out.println("\n* Create a user.");
+  new CreateUser("testuser","5f4dcc3b5aa765d61d8327deb882cf99").execute(context);
+  System.out.println("\n* Remove global user rights.");
+  new Grant("NONE","testuser").execute(context);
+  System.out.println("\n* Grant local user rights.");
+  new Grant("WRITE","testuser","input").execute(context);
+  System.out.println("\n* Show global users.");
+  System.out.print(new ShowUsers().execute(context));
+  System.out.println("\n* Show local users.");
+  System.out.print(new ShowUsers("input").execute(context));
+  System.out.println("\n* Alter a user's password.");
+  new AlterUser("testuser","22af645d1859cb5ca6da0c484f1f37ea").execute(context);
+  System.out.println("\n* Drop the user and database.");
+  new DropUser("testuser").execute(context);
+  new DropDB("input").execute(context);
+  context.close();
+}

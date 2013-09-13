@@ -1,0 +1,14 @@
+def recv_until_terminator(self):
+    'recv a nul(or specified as terminator_byte)-terminated whole string\nfrom previously fetched buffer.'
+    result_bytes = bytearray()
+    while True:
+        self.__fill_buffer()
+        pos = self.__buf.find(self.terminator, self.__bpos, self.__bsize)
+        if (pos >= 0):
+            result_bytes.extend(self.__buf[self.__bpos:pos])
+            self.__bpos = (pos + 1)
+            break
+        else:
+            result_bytes.extend(self.__buf[self.__bpos:self.__bsize])
+            self.__bpos = self.__bsize
+    return result_bytes.decode(self.receive_bytes_encoding)

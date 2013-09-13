@@ -1,0 +1,23 @@
+{
+  check();
+  final BXXMLResource xml=checkXML(res);
+  if (res.getContent() == null)   throw new XMLDBException(ErrorCodes.INVALID_RESOURCE,ERR_EMPTY);
+  final String id=res.getId();
+  if (id == null)   throw new XMLDBException(ErrorCodes.INVALID_RESOURCE,ERR_ID);
+  final Resource old=getResource(id);
+  if (old != null)   removeResource(getResource(id));
+  final Object cont=xml.content;
+  final Data md;
+  try {
+    final Parser p=cont instanceof Document ? new DOMWrapper((Document)cont,id,ctx.prop) : Parser.singleParser(new IOContent((byte[])cont,id),ctx.prop,"");
+    md=MemBuilder.build(id,p);
+  }
+ catch (  final IOException ex) {
+    throw new XMLDBException(ErrorCodes.INVALID_RESOURCE,ex.getMessage());
+  }
+  final Data data=ctx.data();
+  if (!data.startUpdate())   throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_LOCK);
+  data.insert(data.meta.size,-1,new DataClip(md));
+  ctx.update();
+  data.finishUpdate();
+}

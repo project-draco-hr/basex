@@ -1,0 +1,65 @@
+{
+  parseArguments(args);
+  context=HTTPContext.init();
+  final MainProp mprop=context.mprop;
+  final String webapp=mprop.get(MainProp.WEBPATH);
+  final WebAppContext wac=new WebAppContext(webapp,"/");
+  jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
+  jetty.setHandler(wac);
+  if (httpPort != 0) {
+    for (    final Connector c : jetty.getConnectors()) {
+      if (c instanceof SelectChannelConnector) {
+        c.setPort(httpPort);
+        break;
+      }
+    }
+  }
+  final String startX=HTTP + ' ' + SRV_STARTED_PORT_X;
+  final String stopX=HTTP + ' ' + SRV_STOPPED_PORT_X;
+  if (stopped) {
+    stop();
+    for (    final Connector c : jetty.getConnectors())     Util.outln(stopX,c.getPort());
+    Performance.sleep(1000);
+    return;
+  }
+  if (service) {
+    final Connector connector=jetty.getConnectors()[0];
+    start(connector.getPort(),connector instanceof SslSelectChannelConnector,args);
+    for (    final Connector c : jetty.getConnectors()) {
+      Util.outln(startX,c.getPort());
+    }
+    Performance.sleep(1000);
+    return;
+  }
+  if (!AProp.getSystem(MainProp.USER).isEmpty()) {
+    while (AProp.getSystem(MainProp.PASSWORD).isEmpty()) {
+      Util.out(PASSWORD + COLS);
+      AProp.setSystem(MainProp.PASSWORD,Util.password());
+    }
+  }
+  jetty.start();
+  for (  final Connector c : jetty.getConnectors()) {
+    Util.outln(startX,c.getPort());
+  }
+  HTTPContext.init(wac.getServletContext());
+  final int stop=mprop.num(MainProp.STOPPORT);
+  if (stop >= 0)   new StopServer(mprop.get(MainProp.SERVERHOST),stop).start();
+  Runtime.getRuntime().addShutdownHook(new Thread(){
+    @Override public void run(){
+      for (      final Connector c : jetty.getConnectors()) {
+        Util.outln(stopX,c.getPort());
+      }
+      final Log l=context.log;
+      if (l != null) {
+        for (        final Connector c : jetty.getConnectors()) {
+          l.writeServer(OK,Util.info(stopX,c.getPort()));
+        }
+      }
+      context.close();
+    }
+  }
+);
+  for (  final Connector c : jetty.getConnectors()) {
+    context.log.writeServer(OK,Util.info(startX,c.getPort()));
+  }
+}

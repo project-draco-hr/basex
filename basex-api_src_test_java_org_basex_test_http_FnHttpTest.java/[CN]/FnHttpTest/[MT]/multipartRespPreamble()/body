@@ -1,0 +1,31 @@
+{
+  final FakeHttpConnection conn=new FakeHttpConnection(new URL("http://www.test.com"));
+  final Map<String,List<String>> hdrs=new HashMap<String,List<String>>();
+  final List<String> fromVal=new ArrayList<String>();
+  fromVal.add("Nathaniel Borenstein <nsb@bellcore.com>");
+  hdrs.put("From",fromVal);
+  final List<String> mimeVal=new ArrayList<String>();
+  mimeVal.add("1.0");
+  final List<String> toVal=new ArrayList<String>();
+  toVal.add("Ned Freed <ned@innosoft.com>");
+  hdrs.put("To",toVal);
+  hdrs.put("MIME-version",mimeVal);
+  final List<String> subjVal=new ArrayList<String>();
+  subjVal.add("Formatted text mail");
+  hdrs.put("Subject",subjVal);
+  final List<String> contTypeVal=new ArrayList<String>();
+  contTypeVal.add("multipart/mixed");
+  contTypeVal.add("boundary=\"simple boundary\"");
+  hdrs.put("Content-Type",contTypeVal);
+  conn.headers=hdrs;
+  conn.contentType="multipart/mixed; boundary=\"simple boundary\"";
+  conn.content=token("This is the preamble.  " + "It is to be ignored, though it" + NL + "is a handy place for mail composers to include an"+ CRLF+ "explanatory note to non-MIME compliant readers."+ CRLF+ "--simple boundary"+ CRLF+ CRLF+ "This is implicitly typed plain ASCII text."+ CRLF+ "It does NOT end with a linebreak."+ CRLF+ "--simple boundary"+ CRLF+ "Content-type: text/plain; charset=us-ascii"+ CRLF+ CRLF+ "This is explicitly typed plain ASCII text."+ CRLF+ "It DOES end with a linebreak."+ CRLF+ CRLF+ "--simple boundary--"+ CRLF+ "This is the epilogue.  It is also to be ignored.");
+  final Iter i=new HTTPResponse(null,ctx.prop).getResponse(conn,Bln.FALSE.string(),null);
+  final ValueBuilder resultIter=new ValueBuilder();
+  final String reqItem="<http:response " + "xmlns:http='http://expath.org/ns/http-client' " + "status='200' message='OK'>"+ "<http:header name='Subject' value='Formatted text mail'/>"+ "<http:header name='To' value='Ned "+ "Freed &lt;ned@innosoft.com&gt;'/>"+ "<http:header name='Content-Type' value='multipart/mixed;"+ "boundary=&quot;simple boundary&quot;'/>"+ "<http:header name='MIME-version' value='1.0'/>"+ "<http:header name='From' value='Nathaniel Borenstein "+ "&lt;nsb@bellcore.com&gt;'/>"+ "<http:multipart media-type='multipart/mixed' "+ "boundary='simple boundary'>"+ "<http:body media-type='text/plain'/>"+ "<http:header name='Content-type' value='text/plain; "+ "charset=us-ascii'/>"+ "<http:body media-type='text/plain; charset=us-ascii'/>"+ "</http:multipart>"+ "</http:response>";
+  final DBNode dbNode=new DBNode(new IOContent(reqItem),ctx.prop);
+  resultIter.add(dbNode.children().next());
+  resultIter.add(Str.get("This is implicitly typed plain ASCII text.\n" + "It does NOT end with a linebreak.\n"));
+  resultIter.add(Str.get("This is explicitly typed plain ASCII text.\n" + "It DOES end with a linebreak.\n\n"));
+  assertTrue(Compare.deep(resultIter,i,null));
+}

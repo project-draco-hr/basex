@@ -1,0 +1,31 @@
+{
+  final FElem application=new FElem(WADL + "application",WADL_URI).declareNS();
+  final String base=http.req.getRequestURL().toString();
+  final FElem resources=elem("resources",application).add("base",base);
+  final TreeMap<String,FElem> map=new TreeMap<String,FElem>();
+  for (  final RestXqModule mod : modules.values()) {
+    for (    final RestXqFunction func : mod.functions()) {
+      final TokenObjMap<TokenList> xqdoc=func.function.doc();
+      final String path=func.path.toString();
+      final String methods=func.methods.toString().replaceAll("[^A-Z ]","");
+      final FElem resource=new FElem(WADL + "resource",WADL_URI).add("path",path);
+      map.put(path + "?" + methods,resource);
+      final Matcher var=Pattern.compile("\\$[^}]*").matcher(path);
+      while (var.find()) {
+        addParam(var.group().substring(1),"template",resource,xqdoc,func);
+      }
+      final FElem method=elem("method",resource).add("name",methods);
+      final TokenList descs=xqdoc != null ? xqdoc.get(DOC_DESCRIPTION) : null;
+      if (descs != null)       for (      final byte[] desc : descs)       addDoc(desc,method);
+      final FElem request=elem("request",method);
+      for (      final RestXqParam rxp : func.queryParams)       addParam(rxp.key,"query",request,xqdoc,func);
+      for (      final RestXqParam rxp : func.formParams)       addParam(rxp.key,"query",request,xqdoc,func);
+      for (      final RestXqParam rxp : func.headerParams)       addParam(rxp.key,"header",request,xqdoc,func);
+      final FElem response=elem("response",method);
+      final FElem representation=elem("representation",response);
+      representation.add("mediaType",HTTPContext.mediaType(func.output));
+    }
+  }
+  for (  final FElem elem : map.values())   resources.add(elem);
+  return application;
+}

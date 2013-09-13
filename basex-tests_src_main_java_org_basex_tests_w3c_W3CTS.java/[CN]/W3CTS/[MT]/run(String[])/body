@@ -1,0 +1,90 @@
+{
+  try {
+    parseArguments(args);
+  }
+ catch (  final IOException ex) {
+    Util.errln(ex);
+    System.exit(1);
+  }
+  queries=path + "Queries/XQuery/";
+  expected=path + "ExpectedTestResults/";
+  results=path + "ReportingResults/Results/";
+  final String report=path + "ReportingResults/";
+  final String sources=path + "TestSources/";
+  final Performance perf=new Performance();
+  context.prop.set(Prop.CHOP,false);
+  data=CreateDB.mainMem(new IOFile(path + input),context);
+  final Nodes root=new Nodes(0,data);
+  Util.outln(NL + Util.name(this) + " Test Suite "+ text("/*:test-suite/@version",root));
+  Util.outln("Caching Sources...");
+  for (  final int s : nodes("//*:source",root).pres) {
+    final Nodes srcRoot=new Nodes(s,data);
+    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
+    srcs.put(text("@ID",srcRoot),val);
+  }
+  Util.outln("Caching Modules...");
+  for (  final int s : nodes("//*:module",root).pres) {
+    final Nodes srcRoot=new Nodes(s,data);
+    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
+    mods.put(text("@ID",srcRoot),val);
+  }
+  Util.outln("Caching Collections...");
+  for (  final int c : nodes("//*:collection",root).pres) {
+    final Nodes nodes=new Nodes(c,data);
+    final String cname=text("@ID",nodes);
+    final StringList dl=new StringList();
+    final Nodes doc=nodes("*:input-document",nodes);
+    for (int d=0; d < doc.size(); ++d) {
+      dl.add(sources + string(data.atom(doc.pres[d])) + IO.XMLSUFFIX);
+    }
+    colls.put(cname,dl.toArray());
+  }
+  init(root);
+  if (reporting) {
+    Util.outln("Delete old results...");
+    new IOFile(results).delete();
+  }
+  if (verbose)   Util.outln();
+  final Nodes nodes=minimum ? nodes("//*:test-group[starts-with(@name, 'Minim')]//*:test-case",root) : group != null ? nodes("//*:test-group[@name eq '" + group + "']//*:test-case",root) : nodes("//*:test-case",root);
+  long total=nodes.size();
+  Util.out("Parsing " + total + " Queries");
+  for (int t=0; t < total; ++t) {
+    if (!parse(new Nodes(nodes.pres[t],data)))     break;
+    if (!verbose && t % 500 == 0)     Util.out(".");
+  }
+  Util.outln();
+  total=ok + ok2 + err+ err2;
+  final String time=perf.getTime();
+  Util.outln("Writing log file..." + NL);
+  PrintOutput po=new PrintOutput(path + pathlog);
+  po.println("TEST RESULTS ________________________________________________");
+  po.println(NL + "Total #Queries: " + total);
+  po.println("Correct / Empty Results: " + ok + " / "+ ok2);
+  po.print("Conformance (w/Empty Results): ");
+  po.println(pc(ok,total) + " / " + pc(ok + ok2,total));
+  po.println("Wrong Results / Errors: " + err + " / "+ err2+ NL);
+  po.println("WRONG _______________________________________________________");
+  po.print(NL + logErr);
+  po.println("WRONG (ERRORS) ______________________________________________");
+  po.print(NL + logErr2);
+  po.println("CORRECT? (EMPTY) ____________________________________________");
+  po.print(NL + logOK2);
+  po.println("CORRECT _____________________________________________________");
+  po.print(NL + logOK);
+  po.println("_____________________________________________________________");
+  po.close();
+  if (reporting) {
+    po=new PrintOutput(report + Prop.NAME + IO.XMLSUFFIX);
+    print(po,report + Prop.NAME + "Pre"+ IO.XMLSUFFIX);
+    po.print(logReport.toString());
+    print(po,report + Prop.NAME + "Pos"+ IO.XMLSUFFIX);
+    po.close();
+  }
+  Util.outln("Total #Queries: " + total);
+  Util.outln("Correct / Empty results: " + ok + " / "+ ok2);
+  Util.out("Conformance (w/empty results): ");
+  Util.outln(pc(ok,total) + " / " + pc(ok + ok2,total));
+  Util.outln("Total Time: " + time);
+  context.close();
+  sandbox().delete();
+}

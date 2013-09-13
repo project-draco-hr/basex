@@ -1,0 +1,18 @@
+{
+  if (cache == null) {
+    out.write(4);
+    send(id);
+    cache=new ArrayList<byte[]>();
+    final ByteArrayOutputStream os=new ByteArrayOutputStream();
+    while (in.read() > 0) {
+      receive(in,os);
+      cache.add(os.toByteArray());
+      os.reset();
+    }
+    if (!ok())     throw new IOException(receive());
+    pos=0;
+  }
+  if (pos < cache.size())   return true;
+  cache=null;
+  return false;
+}

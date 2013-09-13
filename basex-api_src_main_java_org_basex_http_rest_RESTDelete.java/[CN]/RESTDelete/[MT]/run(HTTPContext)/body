@@ -1,0 +1,15 @@
+{
+  parseOptions(http);
+  open(http);
+  final LocalSession session=http.session();
+  if (http.depth() == 0) {
+    HTTPErr.NO_PATH.thrw();
+  }
+ else   if (http.depth() == 1) {
+    session.execute(new DropDB(http.db()));
+  }
+ else {
+    session.execute(new Delete(http.dbpath()));
+  }
+  http.res.getOutputStream().write(token(session.info()));
+}

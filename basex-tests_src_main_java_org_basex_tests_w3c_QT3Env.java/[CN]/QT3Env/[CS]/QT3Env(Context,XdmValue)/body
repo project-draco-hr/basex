@@ -1,0 +1,29 @@
+{
+  name=XQuery.string('@' + NNAME,env,ctx);
+  sources=list(ctx,env,SOURCE);
+  resources=list(ctx,env,RESOURCE);
+  params=list(ctx,env,PARAM);
+  namespaces=list(ctx,env,NAMESPACE);
+  ArrayList<HashMap<String,String>> al=list(ctx,env,SCHEMA);
+  schemas=al.isEmpty() ? null : al.get(0);
+  al=list(ctx,env,COLLATION);
+  collations=al.isEmpty() ? null : al.get(0);
+  final String uri=string(STATIC_BASE_URI,ctx,env);
+  baseURI="#UNDEFINED".equals(uri) ? "" : uri;
+  collURI=XQuery.string("*:collection/@uri",env,ctx);
+  collContext=new XQuery("*:collection/*:source/@role = '.'",ctx).context(env).value().getBoolean();
+  collSources=new StringList();
+  for (  final XdmItem iatt : new XQuery("*:collection/*:source/@file",ctx).context(env))   collSources.add(iatt.getString());
+  decFormats=new HashMap<QName,HashMap<String,String>>();
+  for (  final XdmItem it : new XQuery("*:decimal-format",ctx).context(env)) {
+    final XdmValue it1=new XQuery("for $n in @name " + "let $b := substring-before($n, ':') " + "return QName(if($b) then namespace-uri-for-prefix($b, .) else '', $n)",ctx).context(it).value();
+    final HashMap<String,String> hm=new HashMap<String,String>();
+    final QNm qnm=it1.size() != 0 ? (QNm)it1.internal() : new QNm(Token.EMPTY);
+    decFormats.put(qnm.toJava(),hm);
+    for (    final XdmItem it2 : new XQuery("@*[name() != 'name']",ctx).context(it)) {
+      hm.put(it2.getName().getLocalPart(),it2.getString());
+    }
+  }
+  final String c=XQuery.string("*:context-item/@select",env,ctx);
+  context=c.isEmpty() ? null : new XQuery(c,ctx).value();
+}

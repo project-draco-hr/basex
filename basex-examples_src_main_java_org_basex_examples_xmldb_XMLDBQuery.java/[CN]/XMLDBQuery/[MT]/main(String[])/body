@@ -1,0 +1,24 @@
+{
+  System.out.println("=== XMLDBQuery ===\n");
+  System.out.println("* Run query via XML:DB:");
+  Collection coll=null;
+  try {
+    Class<?> c=Class.forName(DRIVER);
+    Database db=(Database)c.newInstance();
+    DatabaseManager.registerDatabase(db);
+    coll=DatabaseManager.getCollection(DBNAME);
+    XPathQueryService service=(XPathQueryService)coll.getService("XPathQueryService","1.0");
+    ResourceSet set=service.query(QUERY);
+    ResourceIterator iter=set.getIterator();
+    while (iter.hasMoreResources()) {
+      Resource res=iter.nextResource();
+      System.out.println(res.getContent());
+    }
+  }
+ catch (  final XMLDBException ex) {
+    System.err.println("XML:DB Exception occurred " + ex.errorCode);
+  }
+ finally {
+    if (coll != null)     coll.close();
+  }
+}

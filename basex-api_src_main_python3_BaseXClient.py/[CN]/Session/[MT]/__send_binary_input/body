@@ -1,0 +1,16 @@
+def __send_binary_input(self, code, path, content):
+    "internal. don't care."
+    if (not isinstance(content, (bytearray, bytes))):
+        raise ValueError(('Sorry, content must be bytearray or bytes, not ' + str(type(content))))
+    data = bytearray([code])
+    try:
+        data.extend(path)
+    except:
+        data.extend(path.encode('utf-8'))
+    data.extend([0])
+    data.extend(content)
+    data.extend([0])
+    self.__swrapper.sendall(data)
+    self.__info = self.recv_c_str()
+    if (not self.server_response_success()):
+        raise IOError(self.info())

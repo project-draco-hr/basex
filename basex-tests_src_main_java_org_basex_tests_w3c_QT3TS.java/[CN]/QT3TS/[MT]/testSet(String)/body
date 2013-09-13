@@ -1,0 +1,20 @@
+{
+  final XdmValue doc=new XQuery("doc(' " + file(false,name) + "')",ctx).value();
+  final XdmValue set=new XQuery("*:test-set",ctx).context(doc).value();
+  final IO base=IO.get(doc.getBaseURI());
+  baseURI=base.path();
+  baseDir=base.dirPath();
+  if (supported(set)) {
+    final ArrayList<QT3Env> envs=new ArrayList<QT3Env>();
+    for (    final XdmItem ienv : new XQuery("*:environment",ctx).context(set))     envs.add(new QT3Env(ctx,ienv));
+    if (report != null)     report.addSet(asString("@name",set));
+    for (    final XdmItem its : new XQuery("*:test-case",ctx).context(set)) {
+      try {
+        testCase(its,envs);
+      }
+ catch (      final IOException ex) {
+        Util.debug(ex);
+      }
+    }
+  }
+}

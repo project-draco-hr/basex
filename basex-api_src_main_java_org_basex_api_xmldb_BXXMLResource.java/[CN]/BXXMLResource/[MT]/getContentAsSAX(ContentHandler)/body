@@ -1,0 +1,14 @@
+{
+  if (handler == null)   throw new XMLDBException(ErrorCodes.INVALID_RESOURCE);
+  final SAXParserFactory factory=SAXParserFactory.newInstance();
+  factory.setNamespaceAware(true);
+  factory.setValidating(false);
+  try {
+    final XMLReader reader=factory.newSAXParser().getXMLReader();
+    reader.setContentHandler(handler);
+    reader.parse(new InputSource(new StringReader(getContent().toString())));
+  }
+ catch (  final Exception pce) {
+    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,pce.getMessage());
+  }
+}
