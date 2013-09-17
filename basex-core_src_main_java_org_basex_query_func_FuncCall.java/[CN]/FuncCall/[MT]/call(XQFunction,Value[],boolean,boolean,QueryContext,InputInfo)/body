@@ -1,15 +1,15 @@
 {
   final int calls=ctx.tailCalls, max=ctx.maxCalls;
-  if (tailCall && max >= 0 && ++ctx.tailCalls >= max) {
+  if (tc && max >= 0 && ++ctx.tailCalls >= max) {
     throw new Continuation(fun,arg);
   }
   try {
-    if (tailCall)     return itm ? fun.invItem(ctx,info,arg) : fun.invValue(ctx,info,arg);
+    if (tc)     return itm ? fun.internalInvItem(ctx,ii,arg) : fun.internalInvValue(ctx,ii,arg);
     XQFunction func=fun;
     Value[] args=arg;
     for (; ; ) {
       try {
-        return itm ? func.invItem(ctx,info,args) : func.invValue(ctx,info,args);
+        return itm ? func.internalInvItem(ctx,ii,args) : func.internalInvValue(ctx,ii,args);
       }
  catch (      final Continuation c) {
         func=c.getFunc();
@@ -19,7 +19,7 @@
     }
   }
  catch (  final QueryException ex) {
-    ex.add(info);
+    ex.add(ii);
     throw ex;
   }
  finally {
