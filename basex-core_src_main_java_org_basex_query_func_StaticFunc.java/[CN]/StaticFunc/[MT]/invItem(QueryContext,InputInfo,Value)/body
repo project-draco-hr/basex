@@ -1,3 +1,18 @@
 {
-  return FuncCall.callItem(this,arg,ctx,ii);
+  final Value cv=ctx.value;
+  final StaticContext cs=ctx.sc;
+  ctx.sc=sc;
+  ctx.value=null;
+  final int fp=scope.enter(ctx);
+  try {
+    addArgs(ctx,ii,arg);
+    final Item it=expr.item(ctx,ii);
+    final Value v=it == null ? Empty.SEQ : it;
+    return cast ? declType.funcConvert(ctx,ii,v).item(ctx,ii) : it;
+  }
+  finally {
+    scope.exit(ctx,fp);
+    ctx.value=cv;
+    ctx.sc=cs;
+  }
 }
