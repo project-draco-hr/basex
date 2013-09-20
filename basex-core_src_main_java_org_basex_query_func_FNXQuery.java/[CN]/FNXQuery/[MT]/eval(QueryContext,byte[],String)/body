@@ -1,13 +1,14 @@
 {
   final QueryContext qc=new QueryContext(ctx.context);
+  final StaticContext sctx=new StaticContext(qc.context.options.get(MainOptions.XQUERY3));
   for (  final Map.Entry<String,Value> it : bindings(1,ctx).entrySet()) {
     final String k=it.getKey();
     final Value v=it.getValue();
-    if (k.isEmpty())     qc.context(v,null);
+    if (k.isEmpty())     qc.context(v,null,sctx);
  else     qc.bind(k,v,null);
   }
   try {
-    qc.parseMain(string(qu),path);
+    qc.parseMain(string(qu),path,sctx);
     if (qc.updating)     BXXQ_UPDATING.thrw(info);
     qc.compile();
     final ValueBuilder vb=new ValueBuilder();
