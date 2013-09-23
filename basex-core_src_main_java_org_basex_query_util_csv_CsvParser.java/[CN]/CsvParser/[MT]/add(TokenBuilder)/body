@@ -1,0 +1,29 @@
+{
+  if (header) {
+    final TokenBuilder name=new TokenBuilder();
+    final byte[] field=tb.finish();
+    for (int p=0; p < field.length; p+=cl(field,p)) {
+      final int cp=cp(field,p);
+      name.add((p == 0 ? XMLToken.isNCStartChar(cp) : XMLToken.isNCChar(cp)) ? cp : '_');
+    }
+    if (name.isEmpty())     name.add(COLUMN);
+    byte[] fb=name.finish();
+    if (headers.contains(fb)) {
+      int c=2;
+      do {
+        fb=concat(field,token(c++));
+      }
+ while (headers.contains(fb));
+    }
+    headers.add(fb);
+    tb.reset();
+    return;
+  }
+  byte[] tag=headers.get(col);
+  if (tag == null)   tag=ENTRY;
+  if (!tb.isEmpty()) {
+    if (record != null)     record.add(new FElem(tag).add(tb.finish()));
+    tb.reset();
+  }
+  ++col;
+}
