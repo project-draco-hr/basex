@@ -11,12 +11,11 @@
     if (i > 0)     s=i;
  else     throw new BaseXException(INVALID_VALUE_X_X,ParserProp.SEPARATOR[0],val);
   }
-  int separator=s;
-  String encoding=props.get(ParserProp.ENCODING);
-  final byte[] content=new NewlineInput(io).encoding(encoding).content();
+  final int separator=s;
+  final String encoding=props.get(ParserProp.ENCODING);
   try {
     final CsvParser conv=new CsvParser(separator,header);
-    final ANode node=conv.convert(content);
+    final ANode node=conv.convert(new NewlineInput(io).encoding(encoding));
     final IOContent xml=new IOContent(node.serialize().toArray());
     xml.name(io.name());
     return xml;

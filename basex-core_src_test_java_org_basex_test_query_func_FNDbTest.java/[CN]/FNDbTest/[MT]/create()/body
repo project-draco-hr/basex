@@ -32,25 +32,25 @@
   query(_DB_OPEN.args(dbname) + "/root()","<dummy/>");
   query(_DB_DROP.args(dbname));
   for (  final boolean b : new boolean[]{false,true}) {
-    query(_DB_CREATE.args(dbname,"()","()"," map { 'updindex':=" + b + "() }"));
+    query(_DB_CREATE.args(dbname,"()","()"," { 'updindex':" + b + "() }"));
     query(_DB_INFO.args(dbname) + "//updindex/text()",b ? "ON" : "OFF");
   }
   assertEquals(context.prop.is(Prop.UPDINDEX),false);
   final String[] nopt={"maxcats","maxlen","indexsplitsize","ftindexsplitsize"};
   for (  final String k : nopt) {
-    query(_DB_CREATE.args(dbname,"()","()"," map { '" + k + "':=1 }"));
+    query(_DB_CREATE.args(dbname,"()","()"," { '" + k + "':1 }"));
   }
   final String[] bopt={"textindex","attrindex","ftindex","stemming","casesens","diacritics"};
   for (  final String k : bopt) {
     for (    final boolean v : new boolean[]{true,false}) {
-      query(_DB_CREATE.args(dbname,"()","()"," map { '" + k + "':="+ v+ "() }"));
+      query(_DB_CREATE.args(dbname,"()","()"," { '" + k + "':"+ v+ "() }"));
     }
   }
   final String[] sopt={"language","stopwords"};
   for (  final String k : sopt) {
-    query(_DB_CREATE.args(dbname,"()","()"," map { '" + k + "':='' }"));
+    query(_DB_CREATE.args(dbname,"()","()"," { '" + k + "':'' }"));
   }
-  error(_DB_CREATE.args(dbname,"()","()"," map { 'xyz':='abc' }"),Err.BASX_OPTIONS);
-  error(_DB_CREATE.args(dbname,"()","()"," map { 'maxlen':=-1 }"),Err.BASX_VALUE);
-  error(_DB_CREATE.args(dbname,"()","()"," map { 'maxlen':='a' }"),Err.BASX_VALUE);
+  error(_DB_CREATE.args(dbname,"()","()"," { 'xyz':'abc' }"),Err.BASX_OPTIONS);
+  error(_DB_CREATE.args(dbname,"()","()"," { 'maxlen':-1 }"),Err.BASX_VALUE);
+  error(_DB_CREATE.args(dbname,"()","()"," { 'maxlen':'a' }"),Err.BASX_VALUE);
 }
