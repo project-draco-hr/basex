@@ -1,8 +1,8 @@
 {
   super(os,props);
-  final byte[] cp=token(props.get(SerializerProp.S_CSV_SEPARATOR));
-  if (cp.length != 1)   BXCS_SEP.thrwSerial();
-  separator=cp[0];
-  header=props.get(SerializerProp.S_CSV_HEADER).equals("true");
+  final TokenParser tp=new TokenParser(token(props.get(S_CSV_SEPARATOR)));
+  separator=tp.next();
+  if (separator == -1 || tp.next() != -1)   BXCS_CONFIG.thrwSerial();
+  header=Util.yes(props.get(S_CSV_HEADER));
   headers=header ? new TokenList() : null;
 }
