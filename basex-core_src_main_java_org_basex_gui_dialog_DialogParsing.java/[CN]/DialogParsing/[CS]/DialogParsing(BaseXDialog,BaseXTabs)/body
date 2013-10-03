@@ -5,10 +5,22 @@
   label=new BaseXLabel(" ").border(0,0,12,0).large();
   final Prop prop=gui.context.prop;
   try {
-    props=new ParserProp(prop.get(Prop.PARSEROPT));
+    tprop=new TextProp(prop.get(Prop.TEXTPARSER));
   }
  catch (  final IOException ex) {
-    props=new ParserProp();
+    tprop=new TextProp();
+  }
+  try {
+    cprop=new CsvProp(prop.get(Prop.CSVPARSER));
+  }
+ catch (  final IOException ex) {
+    cprop=new CsvProp();
+  }
+  try {
+    jprop=new JsonProp(prop.get(Prop.JSONPARSER));
+  }
+ catch (  final IOException ex) {
+    jprop=new JsonProp();
   }
   intparse=new BaseXCheckBox(INT_PARSER,prop.is(Prop.INTPARSE),0,d);
   dtd=new BaseXCheckBox(PARSE_DTDS,prop.is(Prop.DTD),0,d);
@@ -17,32 +29,31 @@
   cfile=new BaseXTextField(prop.get(Prop.CATFILE),d);
   browsec=new BaseXButton(BROWSE_D,d);
   usecat=new BaseXCheckBox(USE_CATALOG_FILE,!prop.get(Prop.CATFILE).isEmpty(),0,d);
-  jsonml=new BaseXCheckBox(PARSE_AS_JSONML,props.is(ParserProp.JSONML),0,d);
-  params=new BaseXTextField(prop.get(Prop.HTMLOPT),d);
-  lines=new BaseXCheckBox(SPLIT_INPUT_LINES,props.is(ParserProp.LINES),0,d);
-  header=new BaseXCheckBox(FIRST_LINE_HEADER,props.is(ParserProp.HEADER),0,d);
+  jencoding=DialogExport.encoding(d,jprop.get(JsonProp.ENCODING));
+  jsonml=new BaseXCheckBox(PARSE_AS_JSONML,jprop.get(JsonProp.FORMAT).equals(DataText.M_JSONML),0,d);
+  html=new BaseXTextField(prop.get(Prop.HTMLPARSER),d);
+  tencoding=DialogExport.encoding(d,tprop.get(TextProp.ENCODING));
+  lines=new BaseXCheckBox(SPLIT_INPUT_LINES,tprop.is(TextProp.LINES),0,d);
+  cencoding=DialogExport.encoding(d,cprop.get(CsvProp.ENCODING));
+  header=new BaseXCheckBox(FIRST_LINE_HEADER,cprop.is(CsvProp.HEADER),0,d);
   separator=new BaseXBack().layout(new TableLayout(1,2,6,0));
   final StringList sl=new StringList();
-  sl.add(CSVParser.SEPARATORS).add("");
+  sl.add(CsvProp.SEPARATORS).add("");
   sepcombo=new BaseXCombo(d,sl.toArray());
   separator.add(sepcombo);
   String f="";
-  final String s=props.get(ParserProp.SEPARATOR);
-  if (Token.eq(s,CSVParser.SEPARATORS)) {
+  final String s=cprop.get(CsvProp.SEPARATOR);
+  if (Token.eq(s,CsvProp.SEPARATORS)) {
     sepcombo.setSelectedItem(s);
   }
  else {
-    sepcombo.setSelectedIndex(CSVParser.SEPARATORS.length);
+    sepcombo.setSelectedIndex(CsvProp.SEPARATORS.length);
     final int ch=Token.toInt(s);
     f=ch > 0 ? String.valueOf((char)ch) : "";
   }
   sepchar=new BaseXTextField(f,d);
   separator.add(sepchar);
   BaseXLayout.setWidth(sepchar,35);
-  final String enc=props.get(ParserProp.ENCODING);
-  cencoding=DialogExport.encoding(d,enc);
-  tencoding=DialogExport.encoding(d,enc);
-  jencoding=DialogExport.encoding(d,enc);
   xmlopts=new BaseXBack(new TableLayout(9,1));
   htmlopts=new BaseXBack(new TableLayout(2,1,0,8));
   jsonopts=new BaseXBack(new TableLayout(2,1,0,8));
