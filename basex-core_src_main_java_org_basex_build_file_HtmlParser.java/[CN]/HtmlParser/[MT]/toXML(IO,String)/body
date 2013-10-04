@@ -1,0 +1,83 @@
+{
+  if (READER == null)   return io;
+  try {
+    final TextInput ti=new TextInput(io);
+    String enc=ti.encoding();
+    final byte[] content=ti.content();
+    final byte[] encoding=token("charset=");
+    int cs=indexOf(content,encoding);
+    if (cs > 0) {
+      cs+=encoding.length;
+      int ce=cs;
+      while (++ce < content.length && content[ce] > 0x28)       ;
+      enc=string(substring(content,cs,ce));
+    }
+    final InputSource is=new InputSource(new ArrayInput(content));
+    is.setEncoding(supported(enc) ? normEncoding(enc) : UTF8);
+    final StringWriter sw=new StringWriter();
+    final XMLReader reader=(XMLReader)Reflect.get(READER);
+    final Object writer=Reflect.get(WRITER,sw);
+    final HtmlProp props=new HtmlProp(options);
+    String p;
+    if (props.is(HtmlProp.HTML)) {
+      reader.setFeature("http://xml.org/sax/features/namespaces",false);
+      opt("method","html");
+      opt("omit-xml-declaration","yes");
+    }
+    if (props.is(HtmlProp.NONS)) {
+      reader.setFeature("http://xml.org/sax/features/namespaces",false);
+    }
+    if (props.is(HtmlProp.OMITXML)) {
+      opt("omit-xml-declaration","yes");
+    }
+    if (!(p=props.get(HtmlProp.METHOD)).isEmpty()) {
+      opt("method",p);
+    }
+    if (props.is(HtmlProp.NOBOGONS)) {
+      reader.setFeature(FEATURES + "ignore-bogons",true);
+    }
+    if (props.is(HtmlProp.NODEFAULTS)) {
+      reader.setFeature(FEATURES + "default-attributes",false);
+    }
+    if (props.is(HtmlProp.NOCOLONS)) {
+      reader.setFeature(FEATURES + "translate-colons",true);
+    }
+    if (props.is(HtmlProp.NORESTART)) {
+      reader.setFeature(FEATURES + "restart-elements",false);
+    }
+    if (props.is(HtmlProp.IGNORABLE)) {
+      reader.setFeature(FEATURES + "ignorable-whitespace",true);
+    }
+    if (props.is(HtmlProp.EMPTYBOGONS)) {
+      reader.setFeature(FEATURES + "bogons-empty",true);
+    }
+    if (props.is(HtmlProp.ANY)) {
+      reader.setFeature(FEATURES + "bogons-empty",false);
+    }
+    if (props.is(HtmlProp.NOROOTBOGONS)) {
+      reader.setFeature(FEATURES + "root-bogons",false);
+    }
+    if (props.is(HtmlProp.NOCDATA)) {
+      reader.setFeature(FEATURES + "cdata-elements",false);
+    }
+    if (props.is(HtmlProp.LEXICAL)) {
+      reader.setProperty("http://xml.org/sax/properties/lexical-handler",writer);
+    }
+    if (!(p=props.get(HtmlProp.DOCTYPESYS)).isEmpty()) {
+      opt("doctype-system",p);
+    }
+    if (!(p=props.get(HtmlProp.DOCTYPEPUB)).isEmpty()) {
+      opt("doctype-public",p);
+    }
+    if (!(p=props.get(HtmlProp.ENCODING)).isEmpty()) {
+      is.setEncoding(p);
+    }
+    reader.setContentHandler((ContentHandler)writer);
+    reader.parse(is);
+    return new IOContent(token(sw.toString()),io.name());
+  }
+ catch (  final SAXException ex) {
+    Util.errln(ex);
+    return io;
+  }
+}

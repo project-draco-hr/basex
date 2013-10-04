@@ -2,11 +2,8 @@
   final byte[] input=checkStr(expr[0],ctx);
   final Item opt=expr.length > 1 ? expr[1].item(ctx,info) : null;
   final TokenMap map=new FuncParams(Q_OPTIONS,info).parse(opt);
-  final boolean unesc=!map.contains(UNESCAPE) || eq(map.get(UNESCAPE),TRUE);
-  final byte[] sp=map.get(SPEC);
-  final Spec spec=sp != null ? Spec.find(string(sp)) : Spec.RFC4627;
-  if (spec == null)   BXJS_CONFIG.thrw(info,"Unknown spec '" + string(sp) + "'");
-  final byte[] form=ml ? JsonConverter.JSONML : map.get(FORMAT);
-  final JsonConverter conv=JsonConverter.get(form,spec,unesc,info);
+  final JsonProp jprop=props(map,ml);
+  if (jprop.spec() == null)   BXJS_CONFIG.thrw(info,"Unknown spec '" + jprop.get(JsonProp.SPEC) + "'");
+  final JsonConverter conv=JsonConverter.get(jprop,info);
   return conv.convert(string(input)).item(ctx,info);
 }
