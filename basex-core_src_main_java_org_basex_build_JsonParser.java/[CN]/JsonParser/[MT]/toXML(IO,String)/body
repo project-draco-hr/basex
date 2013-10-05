@@ -1,0 +1,15 @@
+{
+  final JsonProp jprop=new JsonProp(options);
+  final String encoding=jprop.get(JsonProp.ENCODING);
+  final byte[] content=new NewlineInput(io).encoding(encoding).content();
+  try {
+    final JsonConverter conv=JsonConverter.get(jprop,null);
+    final Item node=conv.convert(string(content));
+    final IOContent xml=new IOContent(node.serialize().toArray());
+    xml.name(io.name());
+    return xml;
+  }
+ catch (  final QueryException ex) {
+    throw new BaseXException(ex);
+  }
+}

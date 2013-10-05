@@ -5,8 +5,16 @@
   usecat.setEnabled(!ip && CatalogWrapper.available());
   cfile.setEnabled(uc);
   browsec.setEnabled(uc);
-  final int s=sepcombo.getSelectedIndex();
-  final boolean customsep=s == CsvProp.SEPARATORS.length;
-  sepchar.setEnabled(customsep);
-  return !customsep || sepchar.getText().length() == 1;
+  final boolean fixedsep=sepcombo.getSelectedIndex() < CsvSep.values().length;
+  sepchar.setEnabled(!fixedsep);
+  if (fixedsep) {
+    cprop.set(CsvProp.SEPARATOR,sepcombo.getSelectedItem().toString());
+    try {
+      sepchar.setText(new TokenBuilder().add(cprop.separator()).toString());
+    }
+ catch (    final SerializerException ex) {
+      Util.notexpected();
+    }
+  }
+  return fixedsep || sepchar.getText().length() == 1;
 }
