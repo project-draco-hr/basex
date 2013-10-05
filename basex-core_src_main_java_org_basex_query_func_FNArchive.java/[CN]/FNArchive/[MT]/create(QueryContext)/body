@@ -2,15 +2,15 @@
   final Iter entr=ctx.iter(expr[0]);
   final Iter cont=ctx.iter(expr[1]);
   final Item opt=expr.length > 2 ? expr[2].item(ctx,info) : null;
-  final TokenMap map=new FuncParams(Q_OPTIONS,info).parse(opt);
-  final byte[] f=map.get(FORMAT);
-  final String format=f != null ? string(lc(f)) : "zip";
-  final ArchiveOut out=ArchiveOut.get(format,info);
-  final byte[] alg=map.get(ALGORITHM);
+  final ArchiveOptions opts=new ArchiveOptions();
+  new FuncOptions(Q_OPTIONS,info).parse(opt,opts);
+  final String format=opts.get(ArchiveOptions.FORMAT);
+  final ArchiveOut out=ArchiveOut.get(format.toLowerCase(Locale.ENGLISH),info);
+  final String alg=opts.get(ArchiveOptions.ALGORITHM);
   int level=ZipEntry.DEFLATED;
   if (alg != null) {
     if (format.equals("zip") && !eq(alg,STORED,DEFLATE) || format.equals("gzip") && !eq(alg,DEFLATE)) {
-      ARCH_SUPP.thrw(info,ALGORITHM,alg);
+      ARCH_SUPP.thrw(info,ArchiveOptions.ALGORITHM.name,alg);
     }
     if (eq(alg,STORED))     level=ZipEntry.STORED;
  else     if (eq(alg,DEFLATE))     level=ZipEntry.DEFLATED;

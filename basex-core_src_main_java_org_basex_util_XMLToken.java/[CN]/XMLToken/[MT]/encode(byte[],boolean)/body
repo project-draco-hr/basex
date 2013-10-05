@@ -6,14 +6,15 @@
       final TokenBuilder tb=new TokenBuilder(name.length << 1).add(name,0,i);
       for (int j=i; j < name.length; j+=cl(name,j)) {
         cp=cp(name,j);
-        if (j == 0 ? XMLToken.isNCStartChar(cp) : XMLToken.isNCChar(cp)) {
-          tb.add(cp);
-        }
- else         if (lax) {
-          tb.add('_');
+        final boolean valid=j == 0 ? XMLToken.isNCStartChar(cp) : XMLToken.isNCChar(cp);
+        if (lax) {
+          tb.add(valid ? cp : '_');
         }
  else         if (cp == '_') {
           tb.add('_').add('_');
+        }
+ else         if (valid) {
+          tb.add(cp);
         }
  else         if (cp < 0x10000) {
           addEsc(tb,cp);

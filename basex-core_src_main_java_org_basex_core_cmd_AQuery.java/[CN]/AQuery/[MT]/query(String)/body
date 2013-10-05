@@ -6,8 +6,8 @@
   }
  else {
     try {
-      final boolean serial=options.is(Options.SERIALIZE);
-      qi.runs=Math.max(1,options.num(Options.RUNS));
+      final boolean serial=options.is(MainOptions.SERIALIZE);
+      qi.runs=Math.max(1,options.num(MainOptions.RUNS));
       long hits=0;
       for (int r=0; r < qi.runs; ++r) {
         if (r != 0)         qp=null;
@@ -20,7 +20,7 @@
         if (r == 0)         plan(true);
         final PrintOutput po=r == 0 && serial ? out : new NullOutput();
         final Serializer ser;
-        if (options.is(Options.CACHEQUERY)) {
+        if (options.is(MainOptions.CACHEQUERY)) {
           result=qp.execute();
           qi.evlt+=p.time();
           ser=qp.getSerializer(po);
@@ -46,7 +46,7 @@
       }
       out.flush();
       if (goptions.is(GlobalOptions.GLOBALLOCK) && qp.updating)       qi.readLocked=qi.writeLocked=null;
-      return info(qi.toString(qp,out,hits,options.is(Options.QUERYINFO)));
+      return info(qi.toString(qp,out,hits,options.is(MainOptions.QUERYINFO)));
     }
  catch (    final QueryException ex) {
       err=Util.message(ex);

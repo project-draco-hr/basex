@@ -1,17 +1,17 @@
 {
   final LocalSession session=http.session();
   if (item != null) {
-    final boolean mm=session.execute(new Get(Options.MAINMEM)).split(COLS)[1].equals(TRUE);
-    session.execute(new Set(Options.MAINMEM,true));
-    session.create(Util.name(RESTQuery.class),new ArrayInput(item));
-    if (!mm)     session.execute(new Set(Options.MAINMEM,false));
+    final boolean mm=session.execute(new Get(MainOptions.MAINMEM)).split(COLS)[1].equals(TRUE);
+    session.execute(new Set(MainOptions.MAINMEM,true));
+    session.create(Util.className(RESTQuery.class),new ArrayInput(item));
+    if (!mm)     session.execute(new Set(MainOptions.MAINMEM,false));
   }
  else {
     open(http);
   }
-  session.execute(new Set(Options.SERIALIZER,serial(http)));
+  session.execute(new Set(MainOptions.SERIALIZER,serial(http)));
   session.setOutputStream(http.res.getOutputStream());
-  session.execute(new Set(Options.QUERYPATH,path));
+  session.execute(new Set(MainOptions.QUERYPATH,path));
   final Query qu=session.query(in);
   qu.context(http);
   for (  final Entry<String,String[]> e : variables.entrySet()) {

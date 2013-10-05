@@ -5,13 +5,14 @@
       final String user=string(checkStr(expr[1],ctx));
       final String pass=string(checkStr(expr[2],ctx));
       if (expr.length == 4) {
-        final Item opt=checkItem(expr[3],ctx);
-        final TokenMap options=new FuncParams(Q_OPTIONS,info).parse(opt);
+        final Options opts=new Options();
+        new FuncOptions(Q_OPTIONS,info).parse(checkItem(expr[3],ctx),opts);
         boolean ac=true;
-        final byte[] commit=options.get(AUTO_COMM);
+        final HashMap<String,String> options=opts.free();
+        final String commit=options.get(AUTO_COMM);
         if (commit != null) {
-          ac=eq(commit,TRUE);
-          options.delete(AUTO_COMM);
+          ac=Util.yes(commit);
+          options.remove(AUTO_COMM);
         }
         final Properties props=connProps(options);
         props.setProperty(USER,user);

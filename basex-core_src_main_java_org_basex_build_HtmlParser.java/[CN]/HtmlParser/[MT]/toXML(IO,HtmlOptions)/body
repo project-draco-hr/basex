@@ -1,0 +1,82 @@
+{
+  if (READER == null)   return io;
+  try {
+    final TextInput ti=new TextInput(io);
+    String enc=ti.encoding();
+    final byte[] content=ti.content();
+    final byte[] encoding=token("charset=");
+    int cs=indexOf(content,encoding);
+    if (cs > 0) {
+      cs+=encoding.length;
+      int ce=cs;
+      while (++ce < content.length && content[ce] > 0x28)       ;
+      enc=string(substring(content,cs,ce));
+    }
+    final InputSource is=new InputSource(new ArrayInput(content));
+    is.setEncoding(supported(enc) ? normEncoding(enc) : UTF8);
+    final StringWriter sw=new StringWriter();
+    final XMLReader reader=(XMLReader)Reflect.get(READER);
+    final Object writer=Reflect.get(WRITER,sw);
+    String p;
+    if (opts.is(HtmlOptions.HTML)) {
+      reader.setFeature("http://xml.org/sax/features/namespaces",false);
+      opt("method","html");
+      opt("omit-xml-declaration","yes");
+    }
+    if (opts.is(HtmlOptions.NONS)) {
+      reader.setFeature("http://xml.org/sax/features/namespaces",false);
+    }
+    if (opts.is(HtmlOptions.OMITXML)) {
+      opt("omit-xml-declaration","yes");
+    }
+    if (!(p=opts.get(HtmlOptions.METHOD)).isEmpty()) {
+      opt("method",p);
+    }
+    if (opts.is(HtmlOptions.NOBOGONS)) {
+      reader.setFeature(FEATURES + "ignore-bogons",true);
+    }
+    if (opts.is(HtmlOptions.NODEFAULTS)) {
+      reader.setFeature(FEATURES + "default-attributes",false);
+    }
+    if (opts.is(HtmlOptions.NOCOLONS)) {
+      reader.setFeature(FEATURES + "translate-colons",true);
+    }
+    if (opts.is(HtmlOptions.NORESTART)) {
+      reader.setFeature(FEATURES + "restart-elements",false);
+    }
+    if (opts.is(HtmlOptions.IGNORABLE)) {
+      reader.setFeature(FEATURES + "ignorable-whitespace",true);
+    }
+    if (opts.is(HtmlOptions.EMPTYBOGONS)) {
+      reader.setFeature(FEATURES + "bogons-empty",true);
+    }
+    if (opts.is(HtmlOptions.ANY)) {
+      reader.setFeature(FEATURES + "bogons-empty",false);
+    }
+    if (opts.is(HtmlOptions.NOROOTBOGONS)) {
+      reader.setFeature(FEATURES + "root-bogons",false);
+    }
+    if (opts.is(HtmlOptions.NOCDATA)) {
+      reader.setFeature(FEATURES + "cdata-elements",false);
+    }
+    if (opts.is(HtmlOptions.LEXICAL)) {
+      reader.setProperty("http://xml.org/sax/properties/lexical-handler",writer);
+    }
+    if (!(p=opts.get(HtmlOptions.DOCTYPESYS)).isEmpty()) {
+      opt("doctype-system",p);
+    }
+    if (!(p=opts.get(HtmlOptions.DOCTYPEPUB)).isEmpty()) {
+      opt("doctype-public",p);
+    }
+    if (!(p=opts.get(HtmlOptions.ENCODING)).isEmpty()) {
+      is.setEncoding(p);
+    }
+    reader.setContentHandler((ContentHandler)writer);
+    reader.parse(is);
+    return new IOContent(token(sw.toString()),io.name());
+  }
+ catch (  final SAXException ex) {
+    Util.errln(ex);
+    return io;
+  }
+}

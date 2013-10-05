@@ -1,13 +1,14 @@
 {
-  for (  final byte[] key : options) {
+  for (  final Entry<String,String> entry : options.entrySet()) {
+    final String key=entry.getKey();
     if (!eq(key,K_N_OPT) && !eq(key,K_B_OPT) && !eq(key,K_S_OPT) || !create && eq(key,K_B_OPT[K_B_OPT.length - 1]))     BASX_OPTIONS.thrw(info,key);
-    final String v=string(options.get(key));
+    final String v=entry.getValue();
     if (eq(key,K_N_OPT)) {
       if (toInt(v) < 0)       BASX_VALUE.thrw(info,key,v);
     }
  else     if (eq(key,K_B_OPT)) {
-      if (eqic(v,Text.YES,Text.TRUE,Text.ON))       options.put(key,Token.TRUE);
- else       if (eqic(v,Text.NO,Text.FALSE,Text.OFF))       options.put(key,Token.FALSE);
+      if (Util.yes(v))       options.put(key,Text.TRUE);
+ else       if (Util.no(v))       options.put(key,Text.FALSE);
  else       BASX_VALUE.thrw(info,key,v);
     }
   }

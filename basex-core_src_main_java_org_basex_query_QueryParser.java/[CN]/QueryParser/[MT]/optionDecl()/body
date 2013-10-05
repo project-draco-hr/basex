@@ -6,25 +6,26 @@
   if (ctx.sc.xquery3() && eq(name.uri(),OUTPUTURI)) {
     if (module != null)     error(MODOUT);
     if (ctx.serialOpts == null) {
-      final Options opts=ctx.context.options;
-      ctx.serialOpts=new SerializerOptions(opts.get(Options.SERIALIZER));
+      final MainOptions opts=ctx.context.options;
+      ctx.serialOpts=new SerializerOptions(opts.get(MainOptions.SERIALIZER));
     }
-    if (ctx.serialOpts.get(key) == null)     error(OUTWHICH,key);
     if (!decl.add("S " + key))     error(OUTDUPL,key);
-    if (key.equals(SerializerOptions.S_PARAMETER_DOCUMENT.key)) {
+    if (ctx.serialOpts.set(key,string(val)) == null)     error(OUTWHICH,key);
+    if (key.equals(SerializerOptions.S_PARAMETER_DOCUMENT.name)) {
       final IO io=IO.get(string(resolvedUri(val).string()));
       try {
         final ANode node=new DBNode(io,ctx.context.options).children().next();
         final InputInfo info=info();
-        final TokenMap tm=FuncParams.serializerMap(node,info);
-        FuncParams.serializerProp(tm,info);
-        for (        final byte[] sk : tm)         ctx.serialOpts.set(string(sk),string(tm.get(sk)));
+        FuncOptions.parse(node,ctx.serialOpts,info);
+        final HashMap<String,String> unknown=ctx.serialOpts.free();
+        if (!unknown.isEmpty())         SERWHICH.thrw(info,unknown.keySet().iterator().next());
+        final Option cm=SerializerOptions.S_USE_CHARACTER_MAPS;
+        if (!ctx.serialOpts.get(cm).isEmpty())         SERWHICH.thrw(info,cm.name);
       }
  catch (      final IOException ex) {
         error(OUTDOC,val);
       }
     }
-    ctx.serialOpts.set(key,string(val));
   }
  else   if (ctx.sc.xquery3() && eq(name.uri(),XQURI)) {
     error(DECLOPTION,name);

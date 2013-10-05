@@ -1,0 +1,24 @@
+{
+  final Object type=get(key);
+  if (type == null) {
+    if (cache)     free.put(key,val);
+    return null;
+  }
+  String v=val;
+  if (type instanceof Boolean) {
+    final boolean b=val == null || val.isEmpty() ? !((Boolean)type) : Util.yes(val);
+    setObject(key,b);
+    v=Util.flag(b);
+  }
+ else   if (type instanceof Integer) {
+    setObject(key,Integer.parseInt(val));
+    v=String.valueOf(get(key));
+  }
+ else   if (type instanceof String) {
+    setObject(key,val);
+  }
+ else {
+    throw new IllegalArgumentException("Unknown option type: " + Util.className(type));
+  }
+  return v;
+}
