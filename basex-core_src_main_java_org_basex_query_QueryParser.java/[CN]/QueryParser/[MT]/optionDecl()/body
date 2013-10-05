@@ -5,33 +5,33 @@
   final String key=string(name.local());
   if (ctx.sc.xquery3() && eq(name.uri(),OUTPUTURI)) {
     if (module != null)     error(MODOUT);
-    if (ctx.serProp == null) {
-      final Prop prop=ctx.context.prop;
-      ctx.serProp=new SerializerProp(prop.get(Prop.SERIALIZER));
+    if (ctx.serialOpts == null) {
+      final Options opts=ctx.context.options;
+      ctx.serialOpts=new SerializerOptions(opts.get(Options.SERIALIZER));
     }
-    if (ctx.serProp.get(key) == null)     error(OUTWHICH,key);
+    if (ctx.serialOpts.get(key) == null)     error(OUTWHICH,key);
     if (!decl.add("S " + key))     error(OUTDUPL,key);
-    if (key.equals(AProp.toString(SerializerProp.S_PARAMETER_DOCUMENT))) {
+    if (key.equals(AOptions.toString(SerializerOptions.S_PARAMETER_DOCUMENT))) {
       final IO io=IO.get(string(resolvedUri(val).string()));
       try {
-        final ANode node=new DBNode(io,ctx.context.prop).children().next();
+        final ANode node=new DBNode(io,ctx.context.options).children().next();
         final InputInfo info=info();
         final TokenMap tm=FuncParams.serializerMap(node,info);
         FuncParams.serializerProp(tm,info);
-        for (        final byte[] sk : tm)         ctx.serProp.set(string(sk),string(tm.get(sk)));
+        for (        final byte[] sk : tm)         ctx.serialOpts.set(string(sk),string(tm.get(sk)));
       }
  catch (      final IOException ex) {
         error(OUTDOC,val);
       }
     }
-    ctx.serProp.set(key,string(val));
+    ctx.serialOpts.set(key,string(val));
   }
  else   if (ctx.sc.xquery3() && eq(name.uri(),XQURI)) {
     error(DECLOPTION,name);
   }
  else   if (eq(name.uri(),DBURI)) {
     final String ukey=key.toUpperCase(Locale.ENGLISH);
-    final Object obj=ctx.context.prop.get(ukey);
+    final Object obj=ctx.context.options.get(ukey);
     if (obj == null)     error(BASX_OPTIONS,ukey);
     ctx.globalOpt.put(ukey,obj);
     ctx.dbOptions.add(key);

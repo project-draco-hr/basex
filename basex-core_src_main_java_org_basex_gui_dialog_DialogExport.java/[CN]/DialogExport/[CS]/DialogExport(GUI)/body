@@ -3,8 +3,8 @@
   final BaseXBack p=new BaseXBack(new TableLayout(4,1,0,0));
   p.add(new BaseXLabel(OUTPUT_DIR + COL,true,true).border(0,0,6,0));
   BaseXBack pp=new BaseXBack(new TableLayout(1,2,8,0));
-  path=new BaseXTextField(main.gprop.get(GUIProp.INPUTPATH),this);
-  path.history(gui,GUIProp.INPUTS);
+  path=new BaseXTextField(main.gopts.get(GUIOptions.INPUTPATH),this);
+  path.history(gui,GUIOptions.INPUTS);
   pp.add(path);
   final BaseXButton browse=new BaseXButton(BROWSE_D,this);
   browse.addActionListener(new ActionListener(){
@@ -15,25 +15,25 @@
 );
   pp.add(browse);
   p.add(pp);
-  final Prop prop=gui.context.prop;
-  final String exporter=prop.get(Prop.EXPORTER);
-  final SerializerProp sp=new SerializerProp(exporter);
+  final Options opts=gui.context.options;
+  final String exporter=opts.get(Options.EXPORTER);
+  final SerializerOptions sopts=new SerializerOptions(exporter);
   final String[] methods=new String[DataText.METHODS.length - 1];
   for (int m=0; m < methods.length; m++) {
     methods[m]=DataText.METHODS[m].toUpperCase(Locale.ENGLISH);
   }
   method=new BaseXCombo(this,methods);
-  method.setSelectedItem(sp.get(SerializerProp.S_METHOD).toUpperCase(Locale.ENGLISH));
+  method.setSelectedItem(sopts.get(SerializerOptions.S_METHOD).toUpperCase(Locale.ENGLISH));
   encoding=new BaseXCombo(this,ENCODINGS);
-  String enc=sp.get(SerializerProp.S_ENCODING);
+  String enc=sopts.get(SerializerOptions.S_ENCODING);
   boolean f=false;
   for (  final String s : ENCODINGS)   f|=s.equals(enc);
   if (!f) {
     enc=enc.toUpperCase(Locale.ENGLISH);
     for (    final String s : ENCODINGS)     f|=s.equals(enc);
   }
-  encoding.setSelectedItem(f ? enc : sp.get(SerializerProp.S_ENCODING));
-  params=new BaseXTextField(parameters(sp,true),this);
+  encoding.setSelectedItem(f ? enc : sopts.get(SerializerOptions.S_ENCODING));
+  params=new BaseXTextField(parameters(sopts,true),this);
   pp=new BaseXBack(new TableLayout(3,2,16,6)).border(8,0,8,0);
   pp.add(new BaseXLabel(METHOD + COL,true,true));
   pp.add(method);

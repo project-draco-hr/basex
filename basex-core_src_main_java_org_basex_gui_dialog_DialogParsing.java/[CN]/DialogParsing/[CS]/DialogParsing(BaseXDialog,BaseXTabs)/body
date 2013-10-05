@@ -3,46 +3,46 @@
   gui=d.gui;
   tabs=t;
   label=new BaseXLabel(" ").border(0,0,12,0).large();
-  final Prop prop=gui.context.prop;
+  final Options opts=gui.context.options;
   try {
-    tprop=new TextProp(prop.get(Prop.TEXTPARSER));
+    topts=new TextOptions(opts.get(Options.TEXTPARSER));
   }
  catch (  final IOException ex) {
-    tprop=new TextProp();
+    topts=new TextOptions();
   }
   try {
-    cprop=new CsvProp(prop.get(Prop.CSVPARSER));
+    copts=new CsvOptions(opts.get(Options.CSVPARSER));
   }
  catch (  final IOException ex) {
-    cprop=new CsvProp();
+    copts=new CsvOptions();
   }
   try {
-    jprop=new JsonProp(prop.get(Prop.JSONPARSER));
+    jopts=new JsonOptions(opts.get(Options.JSONPARSER));
   }
  catch (  final IOException ex) {
-    jprop=new JsonProp();
+    jopts=new JsonOptions();
   }
-  intparse=new BaseXCheckBox(INT_PARSER,prop.is(Prop.INTPARSE),0,d);
-  dtd=new BaseXCheckBox(PARSE_DTDS,prop.is(Prop.DTD),0,d);
-  chopWS=new BaseXCheckBox(CHOP_WS,prop.is(Prop.CHOP),0,d);
-  stripNS=new BaseXCheckBox(STRIP_NS,prop.is(Prop.STRIPNS),0,d);
-  cfile=new BaseXTextField(prop.get(Prop.CATFILE),d);
+  intparse=new BaseXCheckBox(INT_PARSER,opts.is(Options.INTPARSE),0,d);
+  dtd=new BaseXCheckBox(PARSE_DTDS,opts.is(Options.DTD),0,d);
+  chopWS=new BaseXCheckBox(CHOP_WS,opts.is(Options.CHOP),0,d);
+  stripNS=new BaseXCheckBox(STRIP_NS,opts.is(Options.STRIPNS),0,d);
+  cfile=new BaseXTextField(opts.get(Options.CATFILE),d);
   browsec=new BaseXButton(BROWSE_D,d);
-  usecat=new BaseXCheckBox(USE_CATALOG_FILE,!prop.get(Prop.CATFILE).isEmpty(),0,d);
-  jsonenc=DialogExport.encoding(d,jprop.get(JsonProp.ENCODING));
+  usecat=new BaseXCheckBox(USE_CATALOG_FILE,!opts.get(Options.CATFILE).isEmpty(),0,d);
+  jsonenc=DialogExport.encoding(d,jopts.get(JsonOptions.ENCODING));
   StringList sl=new StringList();
   final JsonFormat[] formats=JsonFormat.values();
   final int fl=formats.length - 1;
   for (int f=0; f < fl; f++)   sl.add(formats[f].toString());
   String[] sa=sl.toArray();
   jsonformat=new BaseXCombo(d,sa);
-  String s=jprop.get(JsonProp.FORMAT);
+  String s=jopts.get(JsonOptions.FORMAT);
   if (Token.eq(s,sa))   jsonformat.setSelectedItem(s);
-  html=new BaseXTextField(prop.get(Prop.HTMLPARSER),d);
-  textenc=DialogExport.encoding(d,tprop.get(TextProp.ENCODING));
-  lines=new BaseXCheckBox(SPLIT_INPUT_LINES,tprop.is(TextProp.LINES),0,d);
-  csven=DialogExport.encoding(d,cprop.get(CsvProp.ENCODING));
-  header=new BaseXCheckBox(FIRST_LINE_HEADER,cprop.is(CsvProp.HEADER),0,d);
+  html=new BaseXTextField(opts.get(Options.HTMLPARSER),d);
+  textenc=DialogExport.encoding(d,topts.get(TextOptions.ENCODING));
+  lines=new BaseXCheckBox(SPLIT_INPUT_LINES,topts.is(TextOptions.LINES),0,d);
+  csven=DialogExport.encoding(d,copts.get(CsvOptions.ENCODING));
+  header=new BaseXCheckBox(FIRST_LINE_HEADER,copts.is(CsvOptions.HEADER),0,d);
   separator=new BaseXBack().layout(new TableLayout(1,2,6,0));
   sl=new StringList();
   for (  final CsvSep cs : CsvSep.values())   sl.add(cs.toString());
@@ -50,7 +50,7 @@
   sepcombo=new BaseXCombo(d,sl.add("").toArray());
   separator.add(sepcombo);
   String f="";
-  s=cprop.get(CsvProp.SEPARATOR);
+  s=copts.get(CsvOptions.SEPARATOR);
   if (Token.eq(s,sa)) {
     sepcombo.setSelectedItem(s);
   }

@@ -9,11 +9,11 @@
     for (int i=0; i < ops.size(); i++) {
       final int c=ops.get(i);
       String val=vals.get(i);
-      Object[] prop=null;
+      Object[] opt=null;
       if (c == 'b') {
         if (bind.length() != 0)         bind.append(',');
         val=bind.append(val.replaceAll(",",",,")).toString();
-        prop=Prop.BINDINGS;
+        opt=Options.BINDINGS;
       }
  else       if (c == 'c') {
         final IO io=IO.get(val);
@@ -22,27 +22,27 @@
           val=io.string();
           base=io.path();
         }
-        execute(new Set(Prop.QUERYPATH,base),false);
+        execute(new Set(Options.QUERYPATH,base),false);
         execute(val);
-        execute(new Set(Prop.QUERYPATH,""),false);
+        execute(new Set(Options.QUERYPATH,""),false);
         console=false;
       }
  else       if (c == 'd') {
         Prop.debug^=true;
       }
  else       if (c == 'D') {
-        prop=Prop.DOTPLAN;
+        opt=Options.DOTPLAN;
       }
  else       if (c == 'i') {
-        execute(new Set(Prop.MAINMEM,true),false);
+        execute(new Set(Options.MAINMEM,true),false);
         execute(new Check(val),verbose);
-        execute(new Set(Prop.MAINMEM,false),false);
+        execute(new Set(Options.MAINMEM,false),false);
       }
  else       if (c == 'L') {
         newline^=true;
         if (serial.length() != 0)         serial.append(',');
-        val=serial.append(AProp.toString(SerializerProp.S_ITEM_SEPARATOR)).append("=\\n").toString();
-        prop=Prop.SERIALIZER;
+        val=serial.append(AOptions.toString(SerializerOptions.S_ITEM_SEPARATOR)).append("=\\n").toString();
+        opt=Options.SERIALIZER;
       }
  else       if (c == 'o') {
         if (out != System.out)         out.close();
@@ -60,46 +60,46 @@
           val=io.string();
           base=io.path();
         }
-        execute(new Set(Prop.QUERYPATH,base),false);
+        execute(new Set(Options.QUERYPATH,base),false);
         execute(new XQuery(val),verbose);
-        execute(new Set(Prop.QUERYPATH,""),false);
+        execute(new Set(Options.QUERYPATH,""),false);
         console=false;
       }
  else       if (c == 'r') {
-        prop=Prop.RUNS;
+        opt=Options.RUNS;
       }
  else       if (c == 's') {
         if (serial.length() != 0)         serial.append(',');
         val=serial.append(val.replaceAll(",",",,")).toString();
-        prop=Prop.SERIALIZER;
+        opt=Options.SERIALIZER;
       }
  else       if (c == 'u') {
-        prop=Prop.WRITEBACK;
+        opt=Options.WRITEBACK;
       }
  else       if (c == 'v') {
         v^=true;
       }
  else       if (c == 'V') {
         qi^=true;
-        prop=Prop.QUERYINFO;
+        opt=Options.QUERYINFO;
       }
  else       if (c == 'w') {
-        prop=Prop.CHOP;
+        opt=Options.CHOP;
       }
  else       if (c == 'W') {
-        writeProps^=true;
+        writeOptions^=true;
       }
  else       if (c == 'x') {
-        prop=Prop.XMLPLAN;
+        opt=Options.XMLPLAN;
         qp^=true;
       }
  else       if (c == 'X') {
-        prop=Prop.COMPPLAN;
+        opt=Options.COMPPLAN;
       }
  else       if (c == 'z') {
-        prop=Prop.SERIALIZE;
+        opt=Options.SERIALIZE;
       }
-      if (prop != null)       execute(new Set(prop,val),false);
+      if (opt != null)       execute(new Set(opt,val),false);
       verbose=qi || qp || v;
     }
     if (console) {
@@ -107,7 +107,7 @@
       Util.outln(CONSOLE + TRY_MORE_X,sa() ? LOCALMODE : CLIENTMODE);
       console();
     }
-    if (writeProps)     context.mprop.write();
+    if (writeOptions)     context.globalopts.write();
   }
   finally {
     quit();

@@ -1,0 +1,22 @@
+{
+  if (it.type.isNode()) {
+    final ArrayOutput ao=new ArrayOutput();
+    Serializer.get(ao,sopts).serialize(it);
+    final IOContent io=new IOContent(ao.toArray());
+    io.name(string(((ANode)it).baseURI()));
+    return io;
+  }
+  if (it.type.isStringOrUntyped()) {
+    final String path=string(it.string(info));
+    IO io=IO.get(path);
+    if (!io.exists())     WHICHRES.thrw(info,path);
+    if (sopts != null) {
+      final ArrayOutput ao=new ArrayOutput();
+      Serializer.get(ao,sopts).serialize(new DBNode(io,ctx.context.options));
+      io=new IOContent(ao.toArray());
+      io.name(path);
+    }
+    return io;
+  }
+  throw STRNODTYPE.thrw(info,this,it.type);
+}

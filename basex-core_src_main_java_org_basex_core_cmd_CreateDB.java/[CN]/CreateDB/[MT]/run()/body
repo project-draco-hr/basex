@@ -14,14 +14,14 @@
   }
   if (io != null) {
     if (!io.exists())     return error(RES_NOT_FOUND_X,io);
-    parser=new DirParser(io,prop,mprop.dbpath(name));
+    parser=new DirParser(io,options,globalopts.dbpath(name));
   }
  else   if (parser == null) {
-    parser=Parser.emptyParser(context.prop);
+    parser=Parser.emptyParser(context.options);
   }
   new Close().run(context);
   try {
-    if (prop.is(Prop.MAINMEM)) {
+    if (options.is(Options.MAINMEM)) {
       final Data data=proc(new MemBuilder(name,parser)).build();
       context.openDB(data);
       context.dbs.add(data);
@@ -41,7 +41,7 @@
         data.finishUpdate();
       }
     }
-    if (prop.is(Prop.CREATEONLY))     new Close().run(context);
+    if (options.is(Options.CREATEONLY))     new Close().run(context);
     return info(parser.info() + DB_CREATED_X_X,name,perf);
   }
  catch (  final ProcException ex) {

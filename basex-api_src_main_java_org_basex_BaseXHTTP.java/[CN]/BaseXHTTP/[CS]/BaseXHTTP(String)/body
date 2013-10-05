@@ -1,8 +1,8 @@
 {
   parseArguments(args);
   context=HTTPContext.init();
-  final MainProp mprop=context.mprop;
-  final String webapp=mprop.get(MainProp.WEBPATH);
+  final GlobalOptions gopts=context.globalopts;
+  final String webapp=gopts.get(GlobalOptions.WEBPATH);
   final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
   jetty.setHandler(wac);
@@ -31,10 +31,10 @@
     Performance.sleep(1000);
     return;
   }
-  if (!AProp.getSystem(MainProp.USER).isEmpty()) {
-    while (AProp.getSystem(MainProp.PASSWORD).isEmpty()) {
+  if (!AOptions.getSystem(GlobalOptions.USER).isEmpty()) {
+    while (AOptions.getSystem(GlobalOptions.PASSWORD).isEmpty()) {
       Util.out(PASSWORD + COLS);
-      AProp.setSystem(MainProp.PASSWORD,Util.password());
+      AOptions.setSystem(GlobalOptions.PASSWORD,Util.password());
     }
   }
   jetty.start();
@@ -42,8 +42,8 @@
     Util.outln(startX,c.getPort());
   }
   HTTPContext.init(wac.getServletContext());
-  final int stop=mprop.num(MainProp.STOPPORT);
-  if (stop >= 0)   new StopServer(mprop.get(MainProp.SERVERHOST),stop).start();
+  final int stop=gopts.num(GlobalOptions.STOPPORT);
+  if (stop >= 0)   new StopServer(gopts.get(GlobalOptions.SERVERHOST),stop).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       for (      final Connector c : jetty.getConnectors()) {
