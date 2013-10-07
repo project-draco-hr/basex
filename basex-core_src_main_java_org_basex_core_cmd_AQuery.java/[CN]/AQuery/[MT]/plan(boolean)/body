@@ -1,17 +1,17 @@
 {
-  if (c != options.is(MainOptions.COMPPLAN))   return;
+  if (c != options.bool(MainOptions.COMPPLAN))   return;
   BufferOutput bo=null;
   try {
-    if (options.is(MainOptions.DOTPLAN)) {
-      final String path=context.options.get(MainOptions.QUERYPATH);
+    if (options.bool(MainOptions.DOTPLAN)) {
+      final String path=context.options.string(MainOptions.QUERYPATH);
       final String dot=path.isEmpty() ? "plan.dot" : new IOFile(path).name().replaceAll("\\..*?$",".dot");
       bo=new BufferOutput(dot);
-      final DOTSerializer d=new DOTSerializer(bo,options.is(MainOptions.DOTCOMPACT));
+      final DOTSerializer d=new DOTSerializer(bo,options.bool(MainOptions.DOTCOMPACT));
       d.serialize(qp.plan());
       d.close();
-      if (options.is(MainOptions.DOTDISPLAY))       new ProcessBuilder(options.get(MainOptions.DOTTY),dot).start();
+      if (options.bool(MainOptions.DOTDISPLAY))       new ProcessBuilder(options.string(MainOptions.DOTTY),dot).start();
     }
-    if (options.is(MainOptions.XMLPLAN)) {
+    if (options.bool(MainOptions.XMLPLAN)) {
       info(NL + QUERY_PLAN + COL);
       info(qp.plan().serialize().toString());
     }

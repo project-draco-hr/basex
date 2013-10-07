@@ -7,20 +7,22 @@
     if (module != null)     error(MODOUT);
     if (ctx.serialOpts == null) {
       final MainOptions opts=ctx.context.options;
-      ctx.serialOpts=new SerializerOptions(opts.get(MainOptions.SERIALIZER));
+      ctx.serialOpts=new SerializerOptions(opts.string(MainOptions.SERIALIZER));
     }
     if (!decl.add("S " + key))     error(OUTDUPL,key);
-    if (!ctx.serialOpts.set(key,string(val)))     error(OUTWHICH,key);
+    final Option opt=ctx.serialOpts.option(key);
+    if (opt == null)     error(OUTWHICH,key);
+    ctx.serialOpts.set(opt,string(val));
     if (key.equals(SerializerOptions.S_PARAMETER_DOCUMENT.name)) {
       final IO io=IO.get(string(resolvedUri(val).string()));
       try {
         final ANode node=new DBNode(io,ctx.context.options).children().next();
         final InputInfo info=info();
         FuncOptions.parse(node,ctx.serialOpts,info);
-        final HashMap<String,String> unknown=ctx.serialOpts.free();
-        if (!unknown.isEmpty())         SERWHICH.thrw(info,unknown.keySet().iterator().next());
+        final HashMap<String,String> free=ctx.serialOpts.free();
+        if (!free.isEmpty())         SERWHICH.thrw(info,free.keySet().iterator().next());
         final Option cm=SerializerOptions.S_USE_CHARACTER_MAPS;
-        if (!ctx.serialOpts.get(cm).isEmpty())         SERWHICH.thrw(info,cm.name);
+        if (!ctx.serialOpts.string(cm).isEmpty())         SERWHICH.thrw(info,cm.name);
       }
  catch (      final IOException ex) {
         error(OUTDOC,val);
@@ -32,11 +34,10 @@
   }
  else   if (eq(name.uri(),DBURI)) {
     final String ukey=key.toUpperCase(Locale.ENGLISH);
-    final Object obj=ctx.context.options.get(ukey);
-    if (obj == null)     error(BASX_OPTIONS,ukey);
-    ctx.globalOpt.put(ukey,obj);
-    ctx.dbOptions.add(key);
-    ctx.dbOptions.add(string(val));
+    final Option opt=ctx.context.options.option(ukey);
+    if (opt == null)     error(BASX_OPTIONS,ukey);
+    ctx.globalOpt.put(opt,ctx.context.options.get(opt));
+    ctx.dbOptions.add(key).add(string(val));
   }
  else   if (eq(name.uri(),QUERYURI)) {
     if (key.equals(READ_LOCK)) {

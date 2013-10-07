@@ -13,7 +13,7 @@
   }
   tested++;
   final XdmValue expected=new XQuery("*:result/*[1]",ctx).context(test).value();
-  if (new XQuery("*:dependency[@type='spec'][matches(@value,'(XQ10)([^+]|$)')]",ctx).context(test).next() != null)   ctx.options.set(MainOptions.XQUERY3,false);
+  if (new XQuery("*:dependency[@type='spec'][matches(@value,'(XQ10)([^+]|$)')]",ctx).context(test).next() != null)   ctx.options.bool(MainOptions.XQUERY3,false);
   QT3Env e=null;
   final XdmValue ienv=new XQuery("*:environment[*]",ctx).context(test).value();
   if (ienv.size() != 0)   e=new QT3Env(ctx,ienv);
@@ -99,7 +99,7 @@ catch (  final Throwable ex) {
     final long l=perf.time();
     if (l > 100000000)     slow.put(-l,name);
   }
-  ctx.options.set(MainOptions.XQUERY3,true);
+  ctx.options.bool(MainOptions.XQUERY3,true);
   final String exp=test(result,expected);
   final TokenBuilder tmp=new TokenBuilder();
   tmp.add(name).add(NL);
@@ -114,7 +114,7 @@ catch (  final Throwable ex) {
       res=result.err.getCode() + ": " + result.err.getLocalizedMessage();
     }
  else {
-      result.sprop.set(SerializerOptions.S_OMIT_XML_DECLARATION,"yes");
+      result.sprop.string(SerializerOptions.S_OMIT_XML_DECLARATION,"yes");
       res=serialize(result.value,result.sprop);
     }
   }

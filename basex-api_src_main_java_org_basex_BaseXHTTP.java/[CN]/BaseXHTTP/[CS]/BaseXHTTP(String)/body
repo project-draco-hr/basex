@@ -2,7 +2,7 @@
   parseArguments(args);
   context=HTTPContext.init();
   final GlobalOptions gopts=context.globalopts;
-  final String webapp=gopts.get(GlobalOptions.WEBPATH);
+  final String webapp=gopts.string(GlobalOptions.WEBPATH);
   final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
   jetty.setHandler(wac);
@@ -42,8 +42,8 @@
     Util.outln(startX,c.getPort());
   }
   HTTPContext.init(wac.getServletContext());
-  final int stop=gopts.num(GlobalOptions.STOPPORT);
-  if (stop >= 0)   new StopServer(gopts.get(GlobalOptions.SERVERHOST),stop).start();
+  final int stop=gopts.number(GlobalOptions.STOPPORT);
+  if (stop >= 0)   new StopServer(gopts.string(GlobalOptions.SERVERHOST),stop).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       for (      final Connector c : jetty.getConnectors()) {

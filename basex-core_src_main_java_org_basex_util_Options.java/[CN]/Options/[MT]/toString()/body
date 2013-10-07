@@ -1,8 +1,22 @@
 {
-  final TokenBuilder tb=new TokenBuilder();
-  for (  final Entry<String,Object> e : options.entrySet()) {
-    if (!tb.isEmpty())     tb.add(',');
-    tb.add(e.getKey()).add('=').add(e.getValue().toString().replace(",",",,"));
+  final StringBuilder sb=new StringBuilder();
+  for (  final Entry<String,Object> e : values.entrySet()) {
+    final String key=e.getKey();
+    final Object value=e.getValue();
+    final StringList sl=new StringList();
+    if (value instanceof String[]) {
+      for (      final String s : (String[])value)       sl.add(s);
+    }
+ else     if (value instanceof int[]) {
+      for (      final int s : (int[])value)       sl.add(Integer.toString(s));
+    }
+ else {
+      sl.add(value.toString());
+    }
+    for (    final String s : sl) {
+      if (sb.length() != 0)       sb.append(',');
+      sb.append(key).append('=').append(s.replace(",",",,"));
+    }
   }
-  return tb.toString();
+  return sb.toString();
 }

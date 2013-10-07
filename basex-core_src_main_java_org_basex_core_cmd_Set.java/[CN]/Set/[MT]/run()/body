@@ -1,11 +1,15 @@
 {
   final String key=args[0].toUpperCase(Locale.ENGLISH), val=args[1];
+  final Option opt=options.option(key);
   try {
-    if (options.set(key,val))     return info(key + COLS + options.get(key));
-    if (context.user.has(Perm.ADMIN) && goptions.get(key) != null) {
+    if (opt != null) {
+      options.set(opt,val);
+      return info(key + COLS + options.get(opt));
+    }
+    if (context.user.has(Perm.ADMIN) && goptions.option(key) != null) {
       return error(Text.GLOBAL_OPTION_X,key);
     }
-    return error(options.unknown(key));
+    return error(options.error(key));
   }
  catch (  final IllegalArgumentException ex) {
     Util.debug(ex);

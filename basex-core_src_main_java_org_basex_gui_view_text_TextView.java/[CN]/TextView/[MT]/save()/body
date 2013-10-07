@@ -1,14 +1,14 @@
 {
-  final BaseXFileChooser fc=new BaseXFileChooser(SAVE_AS,gui.gopts.get(GUIOptions.WORKPATH),gui).suffix(IO.XMLSUFFIX);
+  final BaseXFileChooser fc=new BaseXFileChooser(SAVE_AS,gui.gopts.string(GUIOptions.WORKPATH),gui).suffix(IO.XMLSUFFIX);
   final IO file=fc.select(Mode.FSAVE);
   if (file == null)   return;
-  gui.gopts.set(GUIOptions.WORKPATH,file.path());
+  gui.gopts.string(GUIOptions.WORKPATH,file.path());
   PrintOutput out=null;
   gui.cursor(CURSORWAIT,true);
   final MainOptions opts=gui.context.options;
-  final int mh=opts.num(MainOptions.MAXHITS);
-  opts.set(MainOptions.MAXHITS,-1);
-  opts.set(MainOptions.CACHEQUERY,false);
+  final int mh=opts.number(MainOptions.MAXHITS);
+  opts.number(MainOptions.MAXHITS,-1);
+  opts.bool(MainOptions.CACHEQUERY,false);
   try {
     out=new PrintOutput(file.toString());
     if (cmd != null) {
@@ -31,8 +31,8 @@
     }
  catch (    final IOException ignored) {
     }
-    opts.set(MainOptions.MAXHITS,mh);
-    opts.set(MainOptions.CACHEQUERY,true);
+    opts.number(MainOptions.MAXHITS,mh);
+    opts.bool(MainOptions.CACHEQUERY,true);
     gui.cursor(CURSORARROW,true);
   }
 }

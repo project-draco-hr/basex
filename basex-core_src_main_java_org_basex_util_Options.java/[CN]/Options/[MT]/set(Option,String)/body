@@ -1,3 +1,32 @@
 {
-  setObject(option.name,val);
+  final Object type=option.value;
+  if (type instanceof Boolean) {
+    final boolean empty=value == null || value.isEmpty();
+    put(option,empty ? !((Boolean)get(option)) : Util.yes(value));
+  }
+ else   if (type instanceof Integer) {
+    put(option,Integer.parseInt(value));
+  }
+ else   if (type instanceof String) {
+    put(option,value);
+  }
+ else   if (type instanceof String[]) {
+    String[] ss=(String[])get(option);
+    if (ss == null)     ss=new String[0];
+    final StringList sl=new StringList(ss.length + 1);
+    for (    final String s : ss)     sl.add(s);
+    sl.add(value);
+    put(option,sl.toArray());
+  }
+ else   if (type instanceof int[]) {
+    int[] ii=(int[])get(option);
+    if (ii == null)     ii=new int[0];
+    final IntList il=new IntList(ii.length + 1);
+    for (    final int i : ii)     il.add(i);
+    il.add(Integer.parseInt(value));
+    put(option,il.toArray());
+  }
+ else {
+    Util.notexpected("Unknown option type: " + Util.className(type));
+  }
 }
