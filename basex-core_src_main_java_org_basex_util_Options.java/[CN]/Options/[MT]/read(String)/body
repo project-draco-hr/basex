@@ -24,73 +24,79 @@
           continue;
         }
         final String val=line.substring(d + 1).trim();
-        String key=line.substring(0,d).trim();
+        String name=line.substring(0,d).trim();
         int num=0;
-        final int ss=key.length();
+        final int ss=name.length();
         for (int s=0; s < ss; ++s) {
-          if (Character.isDigit(key.charAt(s))) {
-            num=Integer.parseInt(key.substring(s));
-            key=key.substring(0,s);
+          if (Character.isDigit(name.charAt(s))) {
+            num=Integer.parseInt(name.substring(s));
+            name=name.substring(0,s);
             break;
           }
         }
         if (local) {
-          setSystem(key,val);
+          setSystem(name,val);
           continue;
         }
-        final Object entry=values.get(key);
-        if (entry == null) {
-          err.addExt("%: \"%\" not found. " + NL,file,key);
+        final Option opt=options.get(name);
+        if (opt == null) {
+          err.addExt("%: \"%\" not found. " + NL,file,name);
         }
- else         if (entry instanceof String) {
-          values.put(key,val);
-        }
- else         if (entry instanceof Integer) {
-          values.put(key,Integer.parseInt(val));
-        }
- else         if (entry instanceof Boolean) {
-          values.put(key,Boolean.parseBoolean(val));
-        }
- else         if (entry instanceof String[]) {
-          if (num == 0) {
-            values.put(key,new String[Integer.parseInt(val)]);
-          }
  else {
-            ((String[])entry)[num - 1]=val;
-          }
-        }
- else         if (entry instanceof int[]) {
-          ((int[])entry)[num]=Integer.parseInt(val);
-        }
-        read.add(key);
-      }
-    }
- catch (    final Exception ex) {
-      err.addExt("% could not be parsed." + NL,file);
-      Util.debug(ex);
-    }
+switch (opt.type) {
+case BOOLEAN:
+            values.put(name,Boolean.parseBoolean(val));
+          break;
+case COMMENT:
+        break;
+case NUMBER:
+      values.put(name,Integer.parseInt(val));
+    break;
+case NUMBERS:
+  ((int[])get(opt))[num]=Integer.parseInt(val);
+break;
+case STRING:
+put(opt,val);
+break;
+case STRINGS:
+if (num == 0) {
+values.put(name,new String[Integer.parseInt(val)]);
+}
+ else {
+((String[])get(opt))[num - 1]=val;
+}
+break;
+}
+}
+read.add(name);
+}
+}
+ catch (final Exception ex) {
+err.addExt("% could not be parsed." + NL,file);
+Util.debug(ex);
+}
  finally {
-      if (br != null)       try {
-        br.close();
-      }
- catch (      final IOException ignored) {
-      }
-    }
-  }
-  try {
-    if (err.isEmpty()) {
-      boolean ok=true;
-      for (      final Option opt : options(getClass())) {
-        if (ok && opt.value != null)         ok=read.contains(opt.name);
-      }
-      if (!ok)       err.addExt("Saving options in \"%\"..." + NL,file);
-    }
-  }
- catch (  final IllegalAccessException ex) {
-    Util.notexpected(ex);
-  }
-  if (!err.isEmpty()) {
-    Util.err(err.toString());
-    write();
-  }
+if (br != null) try {
+br.close();
+}
+ catch (final IOException ignored) {
+}
+}
+}
+try {
+if (err.isEmpty()) {
+boolean ok=true;
+for (final Option opt : options(getClass())) {
+if (ok && opt.type != Type.COMMENT) ok=read.contains(opt.name);
+}
+if (!ok) err.addExt("Saving options in \"%\"..." + NL,file);
+}
+}
+ catch (final IllegalAccessException ex) {
+Util.notexpected(ex);
+}
+if (!err.isEmpty()) {
+Util.err(err.toString());
+write();
+}
 }

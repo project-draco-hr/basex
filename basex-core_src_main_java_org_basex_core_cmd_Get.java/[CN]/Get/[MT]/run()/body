@@ -8,15 +8,13 @@
     for (    final Option o : options)     out.println(o.name + COLS + options.get(o));
   }
  else {
-    final String key=args[0].toUpperCase(Locale.ENGLISH);
-    Options opts=options;
-    Option opt=opts.option(key);
-    if (opt == null && context.user.has(Perm.ADMIN)) {
-      opts=goptions;
-      opt=opts.option(key);
+    final String name=args[0].toUpperCase(Locale.ENGLISH);
+    try {
+      out.println(name + COLS + get(name,context));
     }
-    if (opt == null)     return error(options.error(key));
-    out.println(opt.name + COLS + opts.get(opt));
+ catch (    final BaseXException ex) {
+      return error(ex.getMessage());
+    }
   }
   return true;
 }
