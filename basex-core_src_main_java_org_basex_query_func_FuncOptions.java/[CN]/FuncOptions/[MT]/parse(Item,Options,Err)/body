@@ -1,0 +1,33 @@
+{
+  if (item == null)   return;
+  try {
+    if (item instanceof Map) {
+      final Map map=(Map)item;
+      final ValueIter vi=map.keys().iter();
+      for (Item it; (it=vi.next()) != null; ) {
+        if (!(it instanceof AStr))         FUNCMP.thrw(info,map.description(),AtomType.STR,it.type);
+        final Value v=map.get(it,info);
+        if (!v.isItem())         FUNCMP.thrw(info,map.description(),AtomType.ITEM,v);
+        final String key=string(it.string(null));
+        final String val=string(((Item)v).string(info));
+        options.assign(key,val);
+      }
+    }
+ else {
+      if (!test.eq(item))       ELMMAPTYPE.thrw(info,root,item.type);
+      final AxisIter ai=((ANode)item).children();
+      for (ANode n; (n=ai.next()) != null; ) {
+        if (n.type != NodeType.ELM)         continue;
+        final QNm qn=n.qname();
+        final String name=string(qn.local());
+        if (eq(qn.uri(),root.uri())) {
+          final byte[] val=n.attribute(VALUE);
+          options.assign(name,string(val == null ? n.string() : val));
+        }
+      }
+    }
+  }
+ catch (  final BaseXException ex) {
+    error.thrw(info,ex);
+  }
+}

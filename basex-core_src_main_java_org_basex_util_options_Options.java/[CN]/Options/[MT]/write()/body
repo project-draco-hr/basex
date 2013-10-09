@@ -1,0 +1,45 @@
+{
+  BufferedWriter bw=null;
+  try {
+    bw=new BufferedWriter(new FileWriter(file.file()));
+    for (    final Option opt : options(getClass())) {
+      final String name=opt.name();
+      if (opt instanceof Comment) {
+        bw.write(NL + "# " + name+ NL);
+      }
+ else       if (opt instanceof BooleanOption) {
+        bw.write(name + " = " + get((BooleanOption)opt)+ NL);
+      }
+ else       if (opt instanceof StringOption) {
+        bw.write(name + " = " + get((StringOption)opt)+ NL);
+      }
+ else       if (opt instanceof NumberOption) {
+        bw.write(name + " = " + get((NumberOption)opt)+ NL);
+      }
+ else       if (opt instanceof NumbersOption) {
+        final int[] ints=get((NumbersOption)opt);
+        final int is=ints == null ? 0 : ints.length;
+        for (int i=0; i < is; ++i)         bw.write(name + i + " = "+ ints[i]+ NL);
+      }
+ else {
+        final String[] strings=get((StringsOption)opt);
+        final int ss=strings == null ? 0 : strings.length;
+        bw.write(name + " = " + ss+ NL);
+        for (int i=0; i < ss; ++i)         bw.write(name + (i + 1) + " = "+ strings[i]+ NL);
+      }
+    }
+    bw.write(NL + PROPUSER + NL);
+    bw.write(user.toString());
+  }
+ catch (  final Exception ex) {
+    Util.errln("% could not be written.",file);
+    Util.debug(ex);
+  }
+ finally {
+    if (bw != null)     try {
+      bw.close();
+    }
+ catch (    final IOException ignored) {
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  if (options.isEmpty()) {
+    free.put(name,value);
+  }
+ else {
+    final Option option=options.get(name);
+    if (option == null)     throw new BaseXException(error(name));
+    if (option instanceof BooleanOption) {
+      final BooleanOption bo=(BooleanOption)option;
+      if (value == null || value.isEmpty()) {
+        set(bo,!get(bo));
+      }
+ else {
+        final boolean yes=Util.yes(value);
+        if (yes || Util.no(value))         set(bo,yes);
+ else         throw new BaseXException(Text.INVALID_VALUE_X_X,option.name(),value);
+      }
+    }
+ else     if (option instanceof NumberOption) {
+      try {
+        set((NumberOption)option,Integer.parseInt(value));
+      }
+ catch (      final NumberFormatException ex) {
+        throw new BaseXException(Text.INVALID_VALUE_X_X,option.name(),value);
+      }
+    }
+ else     if (option instanceof NumbersOption) {
+      final NumbersOption no=(NumbersOption)option;
+      int[] ii=get(no);
+      if (ii == null)       ii=new int[0];
+      final IntList il=new IntList(ii.length + 1);
+      for (      final int i : ii)       il.add(i);
+      try {
+        il.add(Integer.parseInt(value));
+      }
+ catch (      final NumberFormatException ex) {
+        throw new BaseXException(Text.INVALID_VALUE_X_X,option.name(),value);
+      }
+      set(no,il.toArray());
+    }
+ else     if (option instanceof StringOption) {
+      put(option,value);
+    }
+ else     if (option instanceof StringsOption) {
+      final StringsOption so=(StringsOption)option;
+      String[] ss=get(so);
+      if (ss == null)       ss=new String[0];
+      final StringList sl=new StringList(ss.length + 1);
+      for (      final String s : ss)       sl.add(s);
+      sl.add(value);
+      set(so,sl.toArray());
+    }
+  }
+}
