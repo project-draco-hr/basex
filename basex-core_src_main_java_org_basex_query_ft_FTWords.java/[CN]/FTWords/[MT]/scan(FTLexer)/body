@@ -3,7 +3,7 @@
   final FTLexer input=new FTLexer(ftt.opt);
   final FTTokens tokens=ftt.cache(lex.get());
   return new FTIndexIterator(){
-    int pre=-1, pos;
+    int pre=-1, ps;
     @Override public int pre(){
       return pre;
     }
@@ -11,7 +11,7 @@
       while (++pre < data.meta.size) {
         if (data.kind(pre) != Data.TEXT)         continue;
         input.init(data.text(pre,true));
-        matches.reset(pos);
+        matches.reset(ps);
         try {
           if (ftt.contains(tokens,input) != 0)           return true;
         }
@@ -24,7 +24,7 @@
       return matches;
     }
     @Override public void pos(    final int p){
-      pos=p;
+      ps=p;
     }
     @Override public int size(){
       return data.meta.size >>> 1;
