@@ -14,7 +14,8 @@
   }
   ctx.ftOpt(opt);
   FTExpr expr=new FTWords(info,ic,terms,mode,ctx);
-  if (opts.contains(FTOptions.DISTANCE)) {
+  ctx.ftOpt(tmp);
+  if (opts != null && opts.contains(FTOptions.DISTANCE)) {
     try {
       final FTDistanceOptions ftdo=new FTDistanceOptions(opts.get(FTOptions.DISTANCE));
       expr=new FTDistance(info,expr,new Expr[]{Int.get(ftdo.get(FTDistanceOptions.MIN)),Int.get(ftdo.get(FTDistanceOptions.MAX))},ftdo.unit());
@@ -23,6 +24,5 @@
       INVALIDOPT.thrw(info,ex);
     }
   }
-  ctx.ftOpt(tmp);
   return new FTIndexAccess(info,expr,ic).iter(ctx);
 }
