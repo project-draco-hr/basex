@@ -1,0 +1,15 @@
+{
+  if (value instanceof Map) {
+    final Map m=(Map)value;
+    final TokenBuilder tb=new TokenBuilder();
+    for (    final Item i : m.keys()) {
+      if (!(i instanceof AStr))       FUNCMP.thrw(info,m.description(),AtomType.STR,i.type);
+      final Value vl=m.get(i,info);
+      if (!vl.isItem())       FUNCMP.thrw(info,m.description(),AtomType.ITEM,vl);
+      final String s=string(((Item)vl).string(info));
+      tb.add(i.string(info)).add('=').add(s.replace(",",",,")).add(',');
+    }
+    return tb.toString();
+  }
+  return string(((Item)value).string(info));
+}

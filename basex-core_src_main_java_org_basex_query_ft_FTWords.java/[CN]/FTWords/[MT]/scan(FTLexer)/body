@@ -1,27 +1,30 @@
 {
   final Data data=ictx.data;
-  final FTLexer intok=new FTLexer(ftt.opt);
-  final FTTokens qtok=ftt.cache(lex.get());
+  final FTLexer input=new FTLexer(ftt.opt);
+  final FTTokens tokens=ftt.cache(lex.get());
   return new FTIndexIterator(){
-    int pre=-1;
-    @Override public int next(){
+    int pre=-1, pos;
+    @Override public int pre(){
       return pre;
     }
     @Override public boolean more(){
       while (++pre < data.meta.size) {
         if (data.kind(pre) != Data.TEXT)         continue;
-        intok.init(data.text(pre,true));
-        matches.reset(0);
+        input.init(data.text(pre,true));
+        matches.reset(pos);
         try {
-          if (ftt.contains(qtok,intok) != 0)           return true;
+          if (ftt.contains(tokens,input) != 0)           return true;
         }
- catch (        final QueryException ex) {
+ catch (        final QueryException ignore) {
         }
       }
       return false;
     }
     @Override public FTMatches matches(){
       return matches;
+    }
+    @Override public void pos(    final int p){
+      pos=p;
     }
     @Override public int size(){
       return data.meta.size >>> 1;

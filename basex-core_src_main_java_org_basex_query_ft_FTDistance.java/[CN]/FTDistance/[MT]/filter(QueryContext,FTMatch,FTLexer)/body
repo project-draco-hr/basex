@@ -3,26 +3,25 @@
   final long max=checkItr(dist[1],ctx);
   mtc.sort();
   final FTMatch match=new FTMatch();
-  FTStringMatch sm=null;
-  FTStringMatch f=null;
-  for (  final FTStringMatch m : mtc) {
-    if (m.ex) {
-      match.add(m);
+  FTStringMatch last=null, first=null;
+  for (  final FTStringMatch sm : mtc) {
+    if (sm.exclude) {
+      match.add(sm);
     }
  else {
-      if (sm != null) {
-        final int d=pos(m.s,lex) - pos(sm.e,lex) - 1;
+      if (first == null) {
+        first=sm;
+      }
+ else {
+        final int d=pos(sm.start,lex) - pos(last.end,lex) - 1;
         if (d < min || d > max)         return false;
       }
- else {
-        f=m;
-      }
-      sm=m;
+      last=sm;
     }
   }
-  f.e=sm.e;
+  first.end=last.end;
   mtc.reset();
-  mtc.add(f);
+  mtc.add(first);
   mtc.add(match);
   return true;
 }

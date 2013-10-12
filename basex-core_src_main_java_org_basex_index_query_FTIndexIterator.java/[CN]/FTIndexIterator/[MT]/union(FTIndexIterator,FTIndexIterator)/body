@@ -1,25 +1,25 @@
 {
   return new FTIndexIterator(){
-    FTIndexIterator n, r, s;
-    int c;
+    FTIndexIterator ii1, ii2, next;
+    int diff;
     @Override public boolean more(){
-      if (c <= 0)       r=i1.more() ? i1 : null;
-      if (c >= 0)       s=i2.more() ? i2 : null;
-      c=r != null && s != null ? r.next() - s.next() : r != null ? -1 : 1;
-      n=c <= 0 ? r : s;
-      return n != null;
+      if (diff <= 0)       ii1=i1.more() ? i1 : null;
+      if (diff >= 0)       ii2=i2.more() ? i2 : null;
+      diff=ii1 != null ? ii2 != null ? ii1.pre() - ii2.pre() : -1 : 1;
+      next=diff <= 0 ? ii1 : ii2;
+      return next != null;
     }
     @Override public FTMatches matches(){
-      final FTMatches m=n.matches();
-      if (c == 0)       for (      final FTMatch sm : s.matches())       m.add(sm);
-      return m;
+      final FTMatches all=next.matches();
+      if (diff == 0)       for (      final FTMatch m : ii2.matches())       all.add(m);
+      return all;
     }
-    @Override public int next(){
-      return n.next();
+    @Override public int pre(){
+      return next.pre();
     }
-    @Override public void tokenNum(    final byte tn){
-      i1.toknum=tn;
-      i2.toknum=tn;
+    @Override public void pos(    final int p){
+      i1.pos(p);
+      i2.pos(p);
     }
     @Override public synchronized int size(){
       return i1.size() + i2.size();
