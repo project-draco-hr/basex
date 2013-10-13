@@ -1,20 +1,6 @@
 {
-  final boolean ip=intparse.isSelected();
-  final boolean uc=usecat.isSelected();
-  intparse.setEnabled(!uc);
-  usecat.setEnabled(!ip && CatalogWrapper.available());
-  cfile.setEnabled(uc);
-  browsec.setEnabled(uc);
-  final boolean fixedsep=sepcombo.getSelectedIndex() < CsvSep.values().length;
-  sepchar.setEnabled(!fixedsep);
-  if (fixedsep) {
-    copts.set(CsvOptions.SEPARATOR,sepcombo.getSelectedItem().toString());
-    try {
-      sepchar.setText(new TokenBuilder().add(copts.separator()).toString());
-    }
- catch (    final QueryIOException ex) {
-      Util.notexpected("Assigned string should equal pre-defined separators.");
-    }
-  }
-  return fixedsep || sepchar.getText().length() == 1;
+  update();
+  boolean ok=true;
+  for (  final DialogParser dp : parsers)   ok&=dp.action(parser == dp);
+  return ok;
 }

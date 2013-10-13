@@ -1,8 +1,13 @@
 {
   if (it.type.isNode()) {
-    final IO io=new IOContent(it.serialize().toArray());
-    io.name(string(((ANode)it).baseURI()));
-    return io;
+    try {
+      final IO io=new IOContent(it.serialize().toArray());
+      io.name(string(((ANode)it).baseURI()));
+      return io;
+    }
+ catch (    final QueryIOException ex) {
+      ex.getCause(info);
+    }
   }
   if (it.type.isStringOrUntyped()) {
     final String path=string(it.string(info));

@@ -1,13 +1,19 @@
 {
   if (header) {
-    headers.add(XMLToken.encode(entry.finish(),lax));
-    entry.reset();
+    headers.add(atts ? entry.finish() : XMLToken.encode(entry.finish(),lax));
   }
  else {
-    byte[] tag=headers.get(col);
-    if (tag == null)     tag=ENTRY;
-    record.add(new FElem(tag).add(entry.finish()));
-    entry.reset();
+    byte[] name=headers.get(col);
+    final FElem e;
+    if (atts) {
+      e=new FElem(ENTRY);
+      if (name != null)       e.add(NAME,name);
+    }
+ else {
+      e=new FElem(name == null ? ENTRY : name);
+    }
+    if (record != null)     record.add(e.add(entry.finish()));
     ++col;
   }
+  entry.reset();
 }

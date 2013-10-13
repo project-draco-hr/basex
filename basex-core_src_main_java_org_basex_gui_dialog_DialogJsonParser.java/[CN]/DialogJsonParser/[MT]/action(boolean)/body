@@ -1,0 +1,24 @@
+{
+  try {
+    final boolean direct=jopts.format() == JsonFormat.DIRECT;
+    lax.setEnabled(direct);
+    root.setEnabled(direct);
+    if (active) {
+      String ex=EXAMPLES[format.getSelectedIndex()];
+      if (jopts.format() != JsonFormat.JSONML) {
+        if (jopts.spec() == JsonSpec.LIBERAL) {
+          ex=ex.replace("\"Person\"","Person").replace(" }",", }");
+        }
+ else         if (jopts.spec() == JsonSpec.ECMA_262) {
+          ex="\"John\\nMiller\"";
+        }
+      }
+      final IO io=JsonParser.toXML(new IOContent(ex),jopts.toString());
+      example.setText(example(DataText.M_JSON.toUpperCase(Locale.ENGLISH),ex,io.toString()));
+    }
+  }
+ catch (  final IOException ex) {
+    example.setText(error(ex));
+  }
+  return true;
+}
