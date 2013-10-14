@@ -3,23 +3,22 @@
   if (!in.isEmpty() && io instanceof IOFile)   dbname=io.dbname();
   final boolean dir=io.isDir();
   final boolean archive=io.isArchive();
-  if (dir || archive)   filter.setText('*' + IO.XMLSUFFIX);
-  String type=null;
-  if (!dir && !archive) {
-    final String path=io.path();
-    final int i=path.lastIndexOf('.');
-    if (i != -1) {
-      final String suf=path.substring(i).toLowerCase(Locale.ENGLISH);
-      if (Token.eq(suf,IO.XMLSUFFIXES))       type=DataText.M_XML;
- else       if (Token.eq(suf,IO.XSLSUFFIXES))       type=DataText.M_XML;
- else       if (Token.eq(suf,IO.HTMLSUFFIXES))       type=DataText.M_HTML;
- else       if (Token.eq(suf,IO.CSVSUFFIX))       type=DataText.M_CSV;
- else       if (Token.eq(suf,IO.TXTSUFFIXES))       type=DataText.M_TEXT;
- else       if (Token.eq(suf,IO.JSONSUFFIX))       type=DataText.M_JSON;
-    }
-    if (type == null)     type=guess(io);
+  if (dir || archive) {
+    return;
   }
+  String type=null;
+  final String path=io.path();
+  final int i=path.lastIndexOf('.');
+  if (i != -1) {
+    final String suf=path.substring(i).toLowerCase(Locale.ENGLISH);
+    if (Token.eq(suf,IO.XMLSUFFIXES))     type=DataText.M_XML;
+ else     if (Token.eq(suf,IO.XSLSUFFIXES))     type=DataText.M_XML;
+ else     if (Token.eq(suf,IO.HTMLSUFFIXES))     type=DataText.M_HTML;
+ else     if (Token.eq(suf,IO.CSVSUFFIX))     type=DataText.M_CSV;
+ else     if (Token.eq(suf,IO.TXTSUFFIXES))     type=DataText.M_TEXT;
+ else     if (Token.eq(suf,IO.JSONSUFFIX))     type=DataText.M_JSON;
+  }
+  if (type == null)   type=guess(io);
   if (type == null)   type=DataText.M_XML;
   parser.setSelectedItem(type.toUpperCase(Locale.ENGLISH));
-  parsing.updateType(type);
 }

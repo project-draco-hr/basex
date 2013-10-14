@@ -1,20 +1,25 @@
 {
   try {
-    final boolean direct=jopts.format() == JsonFormat.DIRECT;
-    lax.setEnabled(direct);
-    root.setEnabled(direct);
+    final boolean jsonml=jopts.format() == JsonFormat.JSONML;
+    lax.setEnabled(jopts.format() == JsonFormat.DIRECT);
+    merge.setEnabled(!jsonml);
+    strings.setEnabled(!jsonml);
     if (active) {
-      String ex=EXAMPLES[format.getSelectedIndex()];
-      if (jopts.format() != JsonFormat.JSONML) {
-        if (jopts.spec() == JsonSpec.LIBERAL) {
-          ex=ex.replace("\"Person\"","Person").replace(" }",", }");
-        }
- else         if (jopts.spec() == JsonSpec.ECMA_262) {
-          ex="\"John\\nMiller\"";
-        }
+      final String json;
+      if (jsonml) {
+        json=EXAMPLEML;
       }
-      final IO io=JsonParser.toXML(new IOContent(ex),jopts.toString());
-      example.setText(example(DataText.M_JSON.toUpperCase(Locale.ENGLISH),ex,io.toString()));
+ else       if (jopts.spec() == JsonSpec.LIBERAL) {
+        json=EXAMPLE.replace("\"Person\"","Person").replace(" }",", }");
+      }
+ else       if (jopts.spec() == JsonSpec.ECMA_262) {
+        json="\"John\\nMiller\"";
+      }
+ else {
+        json=EXAMPLE;
+      }
+      final IO io=JsonParser.toXML(new IOContent(json),jopts.toString());
+      example.setText(example(DataText.M_JSON.toUpperCase(Locale.ENGLISH),json,io.toString()));
     }
   }
  catch (  final IOException ex) {

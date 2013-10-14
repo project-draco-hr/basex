@@ -1,15 +1,13 @@
 {
-  final JsonOptions jopts=new JsonOptions(options);
-  final String encoding=jopts.get(JsonOptions.ENCODING);
-  final byte[] content=new NewlineInput(io).encoding(encoding).content();
+  final JsonParserOptions jopts=new JsonParserOptions(options);
   try {
-    final JsonConverter conv=JsonConverter.get(jopts);
-    final Item node=conv.convert(string(content));
-    final IOContent xml=new IOContent(node.serialize().toArray());
+    final Item item=JsonConverter.convert(io,jopts);
+    final IOContent xml=new IOContent(item.serialize().toArray());
     xml.name(io.name());
     return xml;
   }
  catch (  final QueryIOException ex) {
-    throw new BaseXException(ex.getLocalizedMessage());
+    final String msg=ex.getLocalizedMessage();
+    throw new BaseXException(msg.replaceAll(".*?parser","\"" + io + "\""));
   }
 }

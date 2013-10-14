@@ -1,10 +1,20 @@
 {
-  main=new BaseXBack(new BorderLayout()).border(8);
+  border(8);
   gui=d.gui;
   tabs=t;
-  label=new BaseXLabel(" ").border(0,0,12,0).large();
+  label=new BaseXLabel().border(0,0,12,0).large();
   final MainOptions opts=gui.context.options;
   parsers=new DialogParser[]{new DialogXmlParser(d,opts),new DialogHtmlParser(d,opts),new DialogJsonParser(d,opts),new DialogCsvParser(d,opts),new DialogTextParser(d,opts)};
   setLayout(new BorderLayout());
-  add(main,BorderLayout.CENTER);
+  addComponentListener(new ComponentAdapter(){
+    @Override public void componentShown(    final ComponentEvent e){
+      removeAll();
+      label.setText(Util.info(PARSER_X,type.toUpperCase(Locale.ENGLISH)));
+      add(label,BorderLayout.NORTH);
+      add(parser,BorderLayout.CENTER);
+      revalidate();
+      repaint();
+    }
+  }
+);
 }
