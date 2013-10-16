@@ -6,13 +6,7 @@
   if (ctx.sc.xquery3() && eq(qnm.uri(),OUTPUTURI)) {
     if (module != null)     error(MODOUT);
     if (ctx.serialOpts == null) {
-      final MainOptions opts=ctx.context.options;
-      try {
-        ctx.serialOpts=new SerializerOptions(opts.get(MainOptions.SERIALIZER));
-      }
- catch (      final IOException ex) {
-        ctx.serialOpts=new SerializerOptions();
-      }
+      ctx.serialOpts=ctx.context.options.get(MainOptions.SERIALIZER);
     }
     if (!decl.add("S " + name))     error(OUTDUPL,name);
     try {
@@ -27,7 +21,7 @@
       try {
         final ANode node=new DBNode(io,ctx.context.options).children().next();
         final InputInfo info=info();
-        FuncOptions.parse(node,ctx.serialOpts,info);
+        FuncOptions.serializer(node,ctx.serialOpts,info);
         final HashMap<String,String> free=ctx.serialOpts.free();
         if (!free.isEmpty())         SERWHICH.thrw(info,free.keySet().iterator().next());
         final StringOption cm=SerializerOptions.USE_CHARACTER_MAPS;

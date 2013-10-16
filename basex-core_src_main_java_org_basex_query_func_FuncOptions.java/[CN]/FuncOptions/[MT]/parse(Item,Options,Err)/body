@@ -1,30 +1,12 @@
 {
-  if (item == null)   return;
-  try {
-    if (item instanceof Map) {
-      final Map map=(Map)item;
-      for (      final Item it : map.keys()) {
-        if (!(it instanceof AStr))         FUNCMP.thrw(info,map.description(),AtomType.STR,it.type);
-        final Value val=map.get(it,info);
-        if (!val.isItem())         FUNCMP.thrw(info,map.description(),AtomType.ITEM,val);
-        options.assign(string(it.string(null)),value(val));
-      }
+  final TokenBuilder tb=new TokenBuilder();
+  if (item != null) {
+    try {
+      if (!(item instanceof Map || test.eq(item)))       ELMMAPTYPE.thrw(info,root,item.type);
+      options.parse(tb.add(optString(item)).toString());
     }
- else {
-      if (!test.eq(item))       ELMMAPTYPE.thrw(info,root,item.type);
-      final AxisIter ai=((ANode)item).children();
-      for (ANode n; (n=ai.next()) != null; ) {
-        if (n.type != NodeType.ELM)         continue;
-        final QNm qn=n.qname();
-        final String name=string(qn.local());
-        if (eq(qn.uri(),root.uri())) {
-          final byte[] val=n.attribute(VALUE);
-          options.assign(name,string(val == null ? n.string() : val));
-        }
-      }
+ catch (    final BaseXException ex) {
+      error.thrw(info,ex);
     }
-  }
- catch (  final BaseXException ex) {
-    error.thrw(info,ex);
   }
 }

@@ -2,10 +2,12 @@
   BufferedWriter bw=null;
   try {
     bw=new BufferedWriter(new FileWriter(file.file()));
+    boolean first=true;
     for (    final Option opt : options(getClass())) {
       final String name=opt.name();
       if (opt instanceof Comment) {
-        bw.write(NL + "# " + name+ NL);
+        if (!first)         bw.write(NL);
+        bw.write("# " + name + NL);
       }
  else       if (opt instanceof NumbersOption) {
         final int[] ints=get((NumbersOption)opt);
@@ -21,6 +23,7 @@
  else {
         bw.write(name + " = " + get(opt)+ NL);
       }
+      first=false;
     }
     bw.write(NL + PROPUSER + NL);
     bw.write(user.toString());
