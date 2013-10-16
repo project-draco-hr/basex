@@ -24,22 +24,27 @@
  catch (  final BaseXException ex) {
     sopts=new SerializerOptions();
   }
-  final String[] methods=new String[DataText.METHODS.length - 1];
-  for (int m=0; m < methods.length; m++) {
-    methods[m]=DataText.METHODS[m].toUpperCase(Locale.ENGLISH);
-  }
-  method=new BaseXCombo(this,methods);
-  method.setSelectedItem(sopts.get(SerializerOptions.S_METHOD).toUpperCase(Locale.ENGLISH));
+  final StringList sl=new StringList();
+  for (  final SerialMethod sm : SerialMethod.values())   sl.add(sm.name());
+  sl.deleteAt(sl.size() - 1);
+  method=new BaseXCombo(this,sl.toArray());
+  method.setSelectedItem(sopts.get(SerializerOptions.METHOD).name());
   encoding=new BaseXCombo(this,ENCODINGS);
-  String enc=sopts.get(SerializerOptions.S_ENCODING);
+  String enc=sopts.get(SerializerOptions.ENCODING);
   boolean f=false;
   for (  final String s : ENCODINGS)   f|=s.equals(enc);
   if (!f) {
     enc=enc.toUpperCase(Locale.ENGLISH);
     for (    final String s : ENCODINGS)     f|=s.equals(enc);
   }
-  encoding.setSelectedItem(f ? enc : sopts.get(SerializerOptions.S_ENCODING));
+  encoding.setSelectedItem(f ? enc : sopts.get(SerializerOptions.ENCODING));
   params=new BaseXTextField(parameters(sopts,true),this);
+  final StringBuilder sb=new StringBuilder("<html><b>").append(PARAMETERS).append(":</b><br>");
+  for (  final Option so : Serializer.OPTIONS) {
+    sb.append("\u2022 ").append(so).append("<br/>");
+  }
+  sb.append("</html>");
+  params.setToolTipText(sb.toString());
   pp=new BaseXBack(new TableLayout(3,2,16,6)).border(8,0,8,0);
   pp.add(new BaseXLabel(METHOD + COL,true,true));
   pp.add(method);

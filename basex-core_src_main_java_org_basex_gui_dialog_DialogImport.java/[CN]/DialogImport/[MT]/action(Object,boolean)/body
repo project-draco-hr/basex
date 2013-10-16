@@ -7,13 +7,13 @@
   archives.setEnabled(multi);
   multi&=archives.isSelected();
   filter.setEnabled(multi);
-  final String type=parser();
-  final boolean raw=type.equals(DataText.M_RAW);
+  final MainParser parser=MainParser.valueOf(parsers.getSelectedItem());
+  final boolean raw=parser == MainParser.RAW;
   addRaw.setEnabled(multi && !raw && !gui.context.options.get(MainOptions.MAINMEM));
   skipCorrupt.setEnabled(!raw);
-  if (comp == parser) {
-    parsing.setType(type);
-    if (multi)     filter.setText(raw ? "*" : "*." + type);
+  if (comp == parsers) {
+    parsing.setType(parser);
+    if (multi)     filter.setText(raw ? "*" : "*." + parser);
   }
   ok&=empty ? in.isEmpty() || io.exists() : !in.isEmpty() && io.exists();
   if (ok && comp == input)   setType(in);

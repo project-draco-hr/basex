@@ -7,22 +7,29 @@
     if (option == null)     throw new BaseXException(error(name));
     if (option instanceof BooleanOption) {
       final BooleanOption bo=(BooleanOption)option;
+      final boolean v;
       if (value == null || value.isEmpty()) {
-        set(bo,!get(bo));
+        v=!get(bo);
       }
  else {
-        final boolean yes=Util.yes(value);
-        if (yes || Util.no(value))         set(bo,yes);
- else         throw new BaseXException(Text.INVALID_VALUE_X_X,option.name(),value);
+        v=Util.yes(value);
+        if (!v && !Util.no(value))         throw new BaseXException(Text.OPT_BOOLEAN,option.name());
       }
+      set(bo,v);
+    }
+ else     if (option instanceof EnumOption) {
+      @SuppressWarnings("unchecked") final EnumOption<V> eo=(EnumOption<V>)option;
+      final V v=eo.get(value);
+      if (v != null)       set(eo,v);
+ else       throw new BaseXException(allowed(option,(Object[])eo.values()));
     }
  else     if (option instanceof NumberOption) {
-      try {
-        set((NumberOption)option,Integer.parseInt(value));
-      }
- catch (      final NumberFormatException ex) {
-        throw new BaseXException(Text.INVALID_VALUE_X_X,option.name(),value);
-      }
+      final int v=toInt(value);
+      if (v == Integer.MIN_VALUE)       throw new BaseXException(Text.OPT_NUMBER,option.name());
+      set((NumberOption)option,v);
+    }
+ else     if (option instanceof StringOption) {
+      set((StringOption)option,value);
     }
  else     if (option instanceof NumbersOption) {
       final NumbersOption no=(NumbersOption)option;
@@ -37,9 +44,6 @@
         throw new BaseXException(Text.INVALID_VALUE_X_X,option.name(),value);
       }
       set(no,il.toArray());
-    }
- else     if (option instanceof StringOption) {
-      put(option,value);
     }
  else     if (option instanceof StringsOption) {
       final StringsOption so=(StringsOption)option;

@@ -1,11 +1,18 @@
 {
   final String enc=encoding.getSelectedItem();
   copts.set(CsvParserOptions.ENCODING,enc.equals(Token.UTF8) ? null : enc);
-  tooltip(copts,CsvParserOptions.ENCODING,encoding);
   copts.set(CsvOptions.HEADER,header.isSelected());
-  copts.set(CsvOptions.SEPARATOR,seps.getSelectedIndex() < CsvSep.values().length ? seps.getSelectedItem() : sepchar.getText());
-  tooltip(copts,CsvOptions.SEPARATOR,seps);
   copts.set(CsvOptions.FORMAT,format.getSelectedItem());
-  tooltip(copts,CsvOptions.FORMAT,format);
   copts.set(CsvOptions.LAX,lax.isSelected());
+  String sep;
+  if (seps.getSelectedIndex() < CsvSep.values().length) {
+    sep=seps.getSelectedItem();
+  }
+ else {
+    sep=sepchar.getText();
+    for (    final CsvSep cs : CsvSep.values()) {
+      if (String.valueOf(cs.sep).equals(sep))       sep=cs.toString();
+    }
+  }
+  copts.set(CsvOptions.SEPARATOR,sep);
 }

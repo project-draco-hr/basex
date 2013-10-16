@@ -2,23 +2,15 @@
   try {
     final boolean head=header.isSelected();
     format.setEnabled(head);
-    lax.setEnabled(head && copts.format() == CsvFormat.DIRECT);
+    lax.setEnabled(head && copts.get(CsvOptions.FORMAT) == CsvFormat.DIRECT);
     final IO io=CsvParser.toXML(new IOContent(EXAMPLE),copts.toString());
-    example.setText(example(DataText.M_CSV.toUpperCase(Locale.ENGLISH),EXAMPLE,io.toString()));
+    example.setText(example(MainParser.CSV.name(),EXAMPLE,io.toString()));
   }
  catch (  final IOException ex) {
     example.setText(error(ex));
   }
   final boolean fixedsep=seps.getSelectedIndex() < CsvSep.values().length;
   sepchar.setEnabled(!fixedsep);
-  if (fixedsep) {
-    copts.set(CsvOptions.SEPARATOR,seps.getSelectedItem());
-    try {
-      sepchar.setText(new TokenBuilder().add(copts.separator()).toString());
-    }
- catch (    final QueryIOException ex) {
-      Util.notexpected("Assigned string should equal pre-defined separators.");
-    }
-  }
+  if (fixedsep)   sepchar.setText(new TokenBuilder().add(copts.separator()).toString());
   return fixedsep || sepchar.getText().length() == 1;
 }

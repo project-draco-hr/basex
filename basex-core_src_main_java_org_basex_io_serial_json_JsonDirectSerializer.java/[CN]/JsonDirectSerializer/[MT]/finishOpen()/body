@@ -1,0 +1,48 @@
+{
+  if (comma.get(level))   print(',');
+ else   comma.set(level,true);
+  if (level > 0) {
+    indent(level);
+    final byte[] ptype=types.get(level - 1);
+    if (eq(ptype,OBJECT)) {
+      if (atts && !eq(tag,PAIR))       error("<%> found, <%> expected",tag,PAIR);
+      if (key == null)       error("<%> has no name attribute",tag);
+      print('"');
+      print(XMLToken.decode(key,lax));
+      print("\":");
+      if (indent)       print(' ');
+    }
+ else     if (eq(ptype,ARRAY)) {
+      if (atts) {
+        if (!eq(tag,ITEM))         error("<%> found, <%> expected",tag,ITEM);
+        if (key != null)         error("<%> must have no name attribute",tag);
+      }
+ else {
+        if (!eq(tag,VALUE))         error("<%> found, <%> expected",tag,VALUE);
+      }
+    }
+ else {
+      error("<%> is typed as \"%\" and cannot be nested",tags.get(level - 1),ptype);
+    }
+  }
+  byte[] type=types.get(level);
+  if (type == null) {
+    if (key != null) {
+      final int tl=typeCache.length;
+      for (int t=0; t < tl && type == null; t++) {
+        if (typeCache[t].contains(key))         type=TYPES[t];
+      }
+    }
+    if (type == null)     type=STRING;
+    types.set(level,type);
+  }
+  if (eq(type,OBJECT)) {
+    print('{');
+  }
+ else   if (eq(type,ARRAY)) {
+    print('[');
+  }
+ else   if (level == 0) {
+    error("<%> must be typed as \"%\" or \"%\"",JSON,OBJECT,ARRAY);
+  }
+}

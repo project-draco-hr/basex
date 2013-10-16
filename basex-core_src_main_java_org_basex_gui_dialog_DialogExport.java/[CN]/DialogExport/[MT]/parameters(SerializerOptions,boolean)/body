@@ -1,14 +1,14 @@
 {
-  final String[] ex=!excl ? new String[0] : new String[]{SerializerOptions.S_METHOD.name(),SerializerOptions.S_ENCODING.name()};
+  final String[] ex=!excl ? new String[0] : new String[]{SerializerOptions.METHOD.name(),SerializerOptions.ENCODING.name()};
   final StringBuilder sb=new StringBuilder();
   for (  final Option o : sopts) {
-    final StringOption so=(StringOption)o;
     final String name=o.name();
     if (Token.eq(name,ex))     continue;
-    final String val=sopts.get(so);
-    if (!Serializer.OPTIONS.get(so).equals(val)) {
+    final Object val1=sopts.get(o);
+    final Object val2=Serializer.OPTIONS.get(o);
+    if (val1 == null ? val2 != null : val2 == null || !val1.equals(val2)) {
       if (sb.length() != 0)       sb.append(',');
-      sb.append(name).append('=').append(val);
+      sb.append(name).append('=').append(val1);
     }
   }
   return sb.toString();

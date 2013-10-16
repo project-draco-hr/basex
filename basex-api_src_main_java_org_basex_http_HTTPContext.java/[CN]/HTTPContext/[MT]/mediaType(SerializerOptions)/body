@@ -1,16 +1,16 @@
 {
-  final String type=sopts.get(SerializerOptions.S_MEDIA_TYPE);
+  final String type=sopts.get(SerializerOptions.MEDIA_TYPE);
   if (!type.isEmpty())   return type;
-  final String mt=sopts.get(SerializerOptions.S_METHOD);
-  if (mt.equals(M_RAW))   return APP_OCTET;
-  if (mt.equals(M_XML))   return APP_XML;
-  if (eq(mt,M_XHTML,M_HTML))   return TEXT_HTML;
-  if (mt.equals(M_JSON)) {
+  final SerialMethod sm=sopts.get(SerializerOptions.METHOD);
+  if (sm == SerialMethod.RAW)   return APP_OCTET;
+  if (sm == SerialMethod.XML)   return APP_XML;
+  if (sm == SerialMethod.XHTML || sm == SerialMethod.HTML)   return TEXT_HTML;
+  if (sm == SerialMethod.JSON) {
     try {
-      final JsonParserOptions jprop=new JsonParserOptions(sopts.get(SerializerOptions.S_JSON));
-      if (jprop.format() == JsonFormat.JSONML)       return APP_JSONML;
+      final JsonParserOptions jprop=new JsonParserOptions(sopts.get(SerializerOptions.JSON));
+      if (jprop.get(JsonOptions.FORMAT) == JsonFormat.JSONML)       return APP_JSONML;
     }
- catch (    final IOException ignored) {
+ catch (    final IOException ignore) {
     }
     return APP_JSON;
   }

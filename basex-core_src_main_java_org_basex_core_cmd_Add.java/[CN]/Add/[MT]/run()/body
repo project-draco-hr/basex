@@ -22,13 +22,18 @@
   if (!name.isEmpty())   io.name(name);
  else   name=io.name();
   if (name.isEmpty())   return error(NAME_INVALID_X,name);
-  parser=new DirParser(io,options,data.meta.path);
-  parser.target(target);
-  final boolean cache=cache(parser);
-  final String db=cache ? context.globalopts.random(data.meta.name) : name;
-  build=cache ? new DiskBuilder(db,parser,context) : new MemBuilder(db,parser);
+  String db=null;
   Data tmp=null;
   try {
+    parser=new DirParser(io,options,data.meta.path);
+    parser.target(target);
+    if (cache(parser)) {
+      db=context.globalopts.random(data.meta.name);
+      build=new DiskBuilder(db,parser,context);
+    }
+ else {
+      build=new MemBuilder(name,parser);
+    }
     tmp=build.build();
     if (tmp.meta.size > 1) {
       if (lock && !data.startUpdate())       return error(DB_PINNED_X,data.meta.name);
@@ -43,6 +48,6 @@
   }
  finally {
     if (tmp != null)     tmp.close();
-    if (cache)     DropDB.drop(db,context);
+    if (db != null)     DropDB.drop(db,context);
   }
 }

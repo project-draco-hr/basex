@@ -1,24 +1,23 @@
 {
-  final String parser=options.get(MainOptions.PARSER).toLowerCase(Locale.ENGLISH);
   final SingleParser p;
-  if (parser.equals(DataText.M_HTML)) {
+  final MainParser mp=options.get(MainOptions.PARSER);
+switch (mp) {
+case HTML:
     p=new HtmlParser(in,options);
-  }
- else   if (parser.equals(DataText.M_TEXT)) {
-    p=new TextParser(in,options);
-  }
- else   if (parser.equals(DataText.M_JSON)) {
-    p=new JsonParser(in,options);
-  }
- else   if (parser.equals(DataText.M_CSV)) {
-    p=new CsvParser(in,options);
-  }
- else   if (parser.equals(DataText.M_XML)) {
-    p=xmlParser(in,options);
-  }
- else {
-    throw new BuildException(UNKNOWN_PARSER_X,parser);
-  }
-  p.target(target);
-  return p;
+  break;
+case TEXT:
+p=new TextParser(in,options);
+break;
+case JSON:
+p=new JsonParser(in,options);
+break;
+case CSV:
+p=new CsvParser(in,options);
+break;
+default :
+p=xmlParser(in,options);
+break;
+}
+p.target(target);
+return p;
 }

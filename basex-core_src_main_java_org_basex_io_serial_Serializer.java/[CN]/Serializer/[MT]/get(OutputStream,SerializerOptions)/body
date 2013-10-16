@@ -1,14 +1,20 @@
 {
   if (opts == null)   return get(os);
-  final String m=opts.check(S_METHOD,METHODS);
-  if (M_XHTML.equals(m))   return new XHTMLSerializer(os,opts);
-  if (M_HTML.equals(m))   return new HTMLSerializer(os,opts);
-  if (M_TEXT.equals(m))   return new TextSerializer(os,opts);
-  if (M_RAW.equals(m))   return new RawSerializer(os,opts);
-  if (M_CSV.equals(m))   return new CsvSerializer(os,opts);
-  if (M_JSON.equals(m)) {
-    final JsonParserOptions jopts=new JsonParserOptions(opts.get(S_JSON));
-    return jopts.format() == JsonFormat.JSONML ? new JsonMLSerializer(os,opts) : new JsonDirectSerializer(os,opts);
-  }
-  return new XMLSerializer(os,opts);
+switch (opts.get(SerializerOptions.METHOD)) {
+case XHTML:
+    return new XHTMLSerializer(os,opts);
+case HTML:
+  return new HTMLSerializer(os,opts);
+case TEXT:
+return new TextSerializer(os,opts);
+case RAW:
+return new RawSerializer(os,opts);
+case CSV:
+return new CsvSerializer(os,opts);
+case JSON:
+final JsonSerialOptions jopts=new JsonSerialOptions(opts.get(SerializerOptions.JSON));
+return jopts.get(JsonOptions.FORMAT) == JsonFormat.JSONML ? new JsonMLSerializer(os,opts) : new JsonDirectSerializer(os,opts);
+default :
+return new XMLSerializer(os,opts);
+}
 }

@@ -1,12 +1,13 @@
 {
-  super(d);
+  super(d,MainParser.CSV);
   try {
     copts=new CsvParserOptions(opts.get(MainOptions.CSVPARSER));
   }
  catch (  final BaseXException ex) {
+    Util.debug(ex);
     copts=new CsvParserOptions();
   }
-  BaseXBack pp=new BaseXBack(new TableLayout(2,1,0,8));
+  final BaseXBack pp=new BaseXBack(new TableLayout(2,1,0,8));
   BaseXBack p=new BaseXBack(new TableLayout(4,2,8,4));
   p.add(new BaseXLabel(ENCODING + COL,true,true));
   encoding=DialogExport.encoding(d,copts.get(CsvParserOptions.ENCODING));
@@ -17,17 +18,14 @@
   final String[] sa=sl.toArray();
   seps=new BaseXCombo(d,sl.add("").toArray());
   sep.add(seps);
-  String f="";
   final String s=copts.get(CsvOptions.SEPARATOR);
   if (Token.eq(s,sa)) {
     seps.setSelectedItem(s);
   }
  else {
     seps.setSelectedIndex(sa.length);
-    final int ch=Token.toInt(s);
-    f=ch > 0 ? String.valueOf((char)ch) : "";
   }
-  sepchar=new BaseXTextField(f,d);
+  sepchar=new BaseXTextField(s,d);
   sep.add(sepchar);
   BaseXLayout.setWidth(sepchar,35);
   p.add(new BaseXLabel(SEPARATOR,true,true));
