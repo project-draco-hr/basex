@@ -1,19 +1,21 @@
 {
-  if (opts == null)   return get(os);
-switch (opts.get(SerializerOptions.METHOD)) {
+  if (sopts == null)   return get(os);
+switch (sopts.get(SerializerOptions.METHOD)) {
 case XHTML:
-    return new XHTMLSerializer(os,opts);
+    return new XHTMLSerializer(os,sopts);
 case HTML:
-  return new HTMLSerializer(os,opts);
+  return new HTMLSerializer(os,sopts);
 case TEXT:
-return new TextSerializer(os,opts);
+return new TextSerializer(os,sopts);
 case RAW:
-return new RawSerializer(os,opts);
+return new RawSerializer(os,sopts);
 case CSV:
-return new CsvSerializer(os,opts);
+return new CsvSerializer(os,sopts);
 case JSON:
-return opts.get(SerializerOptions.JSON).get(JsonOptions.FORMAT) == JsonFormat.JSONML ? new JsonMLSerializer(os,opts) : new JsonDirectSerializer(os,opts);
+final JsonSerialOptions jopts=sopts.get(SerializerOptions.JSON);
+final JsonFormat format=jopts.get(JsonOptions.FORMAT);
+return format == JsonFormat.JSONML ? new JsonMLSerializer(os,sopts) : format == JsonFormat.MAP ? new JsonMapSerializer(os,sopts) : new JsonDirectSerializer(os,sopts);
 default :
-return new XMLSerializer(os,opts);
+return new XMLSerializer(os,sopts);
 }
 }
