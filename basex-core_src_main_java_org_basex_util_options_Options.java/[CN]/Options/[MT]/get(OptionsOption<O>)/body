@@ -1,6 +1,12 @@
 {
   final O o=(O)get((Option)option);
   if (o == null)   return null;
-  final Class<O> clz=(Class<O>)o.getClass();
-  return Reflect.get(Reflect.find(clz,String.class),o.toString());
+  try {
+    final O n=((Class<O>)o.getClass()).newInstance();
+    n.parse(o.toString());
+    return n;
+  }
+ catch (  final Exception ex) {
+    throw Util.notexpected(ex);
+  }
 }

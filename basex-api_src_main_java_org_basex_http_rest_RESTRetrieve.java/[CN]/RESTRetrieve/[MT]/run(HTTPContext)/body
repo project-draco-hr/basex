@@ -1,11 +1,10 @@
 {
   open(http);
   final LocalSession session=http.session();
-  SerializerOptions sopts=http.serialization;
   if (http.depth() == 0) {
     final Table table=new Table(session.execute(new List()));
-    final Serializer ser=Serializer.get(http.res.getOutputStream(),sopts);
-    http.initResponse(sopts);
+    final Serializer ser=Serializer.get(http.res.getOutputStream(),http.serialization);
+    http.initResponse();
     final FElem el=new FElem(Q_DATABASES).declareNS();
     el.add(RESOURCES,token(table.contents.size()));
     list(table,el,Q_DATABASE,1);
@@ -14,8 +13,8 @@
   }
  else   if (!exists(http)) {
     final Table table=new Table(session.execute(new List(http.db(),http.dbpath())));
-    final Serializer ser=Serializer.get(http.res.getOutputStream(),sopts);
-    http.initResponse(sopts);
+    final Serializer ser=Serializer.get(http.res.getOutputStream(),http.serialization);
+    http.initResponse();
     final FElem el=new FElem(Q_DATABASE).declareNS();
     el.add(NAME,http.db());
     el.add(RESOURCES,token(table.contents.size()));
@@ -24,14 +23,13 @@
     ser.close();
   }
  else   if (isRaw(http)) {
-    if (sopts == null)     sopts=new SerializerOptions();
-    sopts.set(SerializerOptions.MEDIA_TYPE,contentType(http));
-    http.initResponse(sopts);
+    http.serialization.set(SerializerOptions.MEDIA_TYPE,contentType(http));
+    http.initResponse();
     session.setOutputStream(http.res.getOutputStream());
     session.execute(new Retrieve(http.dbpath()));
   }
  else {
-    http.initResponse(sopts);
+    http.initResponse();
     session.execute(new Set(MainOptions.SERIALIZER,serial(http)));
     session.setOutputStream(http.res.getOutputStream());
     session.query(".").execute();

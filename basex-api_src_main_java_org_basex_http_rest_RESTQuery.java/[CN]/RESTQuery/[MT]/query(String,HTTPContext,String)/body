@@ -9,16 +9,17 @@
  else {
     open(http);
   }
+  session.execute(new Set(MainOptions.QUERYPATH,path));
   session.execute(new Set(MainOptions.SERIALIZER,serial(http)));
   session.setOutputStream(http.res.getOutputStream());
-  session.execute(new Set(MainOptions.QUERYPATH,path));
-  final Query qu=session.query(in);
+  final LocalQuery qu=session.query(in);
   qu.context(http);
   for (  final Entry<String,String[]> e : variables.entrySet()) {
     final String[] val=e.getValue();
     if (val.length == 2)     qu.bind(e.getKey(),val[0],val[1]);
     if (val.length == 1)     qu.bind(e.getKey(),val[0]);
   }
-  http.initResponse(new SerializerOptions(qu.options()));
+  http.serialization.parse(qu.options());
+  http.initResponse();
   qu.execute();
 }

@@ -3,14 +3,20 @@
   for (  final Entry<String,Object> e : values.entrySet()) {
     final String name=e.getKey();
     final Object value=e.getValue();
+    if (value == null)     continue;
     final StringList sl=new StringList();
+    final Object value2=options.get(name).value();
     if (value instanceof String[]) {
       for (      final String s : (String[])value)       sl.add(s);
     }
  else     if (value instanceof int[]) {
       for (      final int s : (int[])value)       sl.add(Integer.toString(s));
     }
- else     if (value != null && !value.equals(options.get(name).value())) {
+ else     if (value instanceof Options) {
+      final String s=value.toString();
+      if (value2 == null || !s.equals(value2.toString()))       sl.add(s);
+    }
+ else     if (!value.equals(value2)) {
       sl.add(value.toString());
     }
     for (    final String s : sl) {

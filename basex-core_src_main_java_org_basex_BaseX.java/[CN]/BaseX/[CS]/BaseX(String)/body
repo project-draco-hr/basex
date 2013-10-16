@@ -1,7 +1,7 @@
 {
   super(args);
   session();
-  final StringBuilder serial=new StringBuilder();
+  SerializerOptions sopts=null;
   final StringBuilder bind=new StringBuilder();
   boolean v=false, qi=false, qp=false;
   console=true;
@@ -40,8 +40,9 @@
       }
  else       if (c == 'L') {
         newline^=true;
-        if (serial.length() != 0)         serial.append(',');
-        val=serial.append(SerializerOptions.ITEM_SEPARATOR.name()).append("=\\n").toString();
+        if (sopts == null)         sopts=new SerializerOptions();
+        sopts.set(SerializerOptions.ITEM_SEPARATOR,"\\n");
+        val=sopts.toString();
         opt=MainOptions.SERIALIZER;
       }
  else       if (c == 'o') {
@@ -69,8 +70,10 @@
         opt=MainOptions.RUNS;
       }
  else       if (c == 's') {
-        if (serial.length() != 0)         serial.append(',');
-        val=serial.append(val.replaceAll(",",",,")).toString();
+        if (sopts == null)         sopts=new SerializerOptions();
+        final String[] kv=val.split("=",2);
+        sopts.assign(kv[0],kv.length > 1 ? kv[1] : "");
+        val=sopts.toString();
         opt=MainOptions.SERIALIZER;
       }
  else       if (c == 'u') {

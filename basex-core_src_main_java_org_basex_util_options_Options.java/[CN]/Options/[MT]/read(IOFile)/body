@@ -2,8 +2,8 @@
   file=opts;
   final StringList read=new StringList();
   final StringList errs=new StringList();
+  final boolean exists=file.exists();
   boolean local=false;
-  boolean exists=file.exists();
   if (exists) {
     BufferedReader br=null;
     try {
@@ -27,65 +27,23 @@
         final int ss=name.length();
         for (int s=0; s < ss; ++s) {
           if (Character.isDigit(name.charAt(s))) {
-            num=Integer.parseInt(name.substring(s));
+            num=Token.toInt(name.substring(s));
             name=name.substring(0,s);
             break;
           }
         }
         if (local) {
           setSystem(name,val);
-          continue;
         }
-        final Option option=options.get(name);
-        if (option == null) {
-          errs.add(error(name));
-        }
- else         if (option instanceof BooleanOption) {
-          final boolean v;
-          if (val == null || val.isEmpty()) {
-            v=!get((BooleanOption)option);
-          }
  else {
-            v=Util.yes(val);
-            if (!v && !Util.no(val))             errs.add(Util.info(Text.OPT_BOOLEAN,option.name()));
+          try {
+            assign(name,val,num);
+            read.add(name);
           }
-          put(option,v);
-        }
- else         if (option instanceof NumberOption) {
-          final int v=toInt(val);
-          if (v == MIN_VALUE)           errs.add(Util.info(Text.OPT_NUMBER,option.name()));
- else           put(option,v);
-        }
- else         if (option instanceof StringOption) {
-          put(option,val);
-        }
- else         if (option instanceof EnumOption) {
-          @SuppressWarnings("unchecked") final EnumOption<V> eo=(EnumOption<V>)option;
-          final V v=eo.get(val);
-          if (v == null)           errs.add(allowed(option,(Object[])eo.values()));
- else           put(option,v);
-        }
- else         if (option instanceof OptionsOption) {
-          @SuppressWarnings("unchecked") final O o=((OptionsOption<O>)option).newInstance();
-          o.parse(val);
-          put(option,o);
-        }
- else         if (option instanceof NumbersOption) {
-          final int v=toInt(val);
-          if (v == MIN_VALUE)           errs.add(Util.info(Text.OPT_NUMBER,option.name()));
- else           ((int[])get(option))[num]=v;
-        }
- else         if (option instanceof StringsOption) {
-          if (num == 0) {
-            final int v=toInt(val);
-            if (v == MIN_VALUE)             errs.add(Util.info(Text.OPT_NUMBER,option.name()));
-            values.put(name,new String[v]);
-          }
- else {
-            ((String[])get(option))[num - 1]=val;
+ catch (          final BaseXException ex) {
+            errs.add(ex.getMessage());
           }
         }
-        read.add(name);
       }
     }
  catch (    final IOException ex) {
@@ -111,7 +69,7 @@
       Util.notexpected(ex);
     }
   }
-  if (!errs.isEmpty()) {
+  if (!exists || !errs.isEmpty()) {
     write();
     errs.add("Writing new configuration file.");
     for (    final String s : errs)     Util.errln(file + ": " + s);
