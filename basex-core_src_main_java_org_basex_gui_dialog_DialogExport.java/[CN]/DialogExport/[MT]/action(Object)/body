@@ -3,12 +3,26 @@
   final IOFile io=new IOFile(pth);
   String inf=io.isDir() && io.children().length > 0 ? DIR_NOT_EMPTY : null;
   ok=!pth.isEmpty();
+  final SerialMethod mth=SerialMethod.valueOf(method.getSelectedItem());
+  final OptionsOption<? extends Options> opts=mth == SerialMethod.JSON ? SerializerOptions.JSON : mth == SerialMethod.CSV ? SerializerOptions.CSV : null;
+  final boolean showmparams=opts != null;
+  mparams.setEnabled(showmparams);
   if (ok) {
     gui.gopts.set(GUIOptions.INPUTPATH,pth);
     try {
-      final SerializerOptions sopts=new SerializerOptions();
-      sopts.parse(params.getText());
-      Serializer.get(new ArrayOutput(),sopts);
+      if (comp == method) {
+        if (showmparams) {
+          final Options mopts=options(null).get(opts);
+          System.out.println("=> " + options(null));
+          mparams.setToolTipText(tooltip(mopts));
+          mparams.setText(mopts.toString());
+        }
+ else {
+          mparams.setToolTipText(null);
+          mparams.setText("");
+        }
+      }
+      Serializer.get(new ArrayOutput(),options(mth));
     }
  catch (    final IOException ex) {
       ok=false;
