@@ -1,17 +1,17 @@
 {
   tb.reset();
-  int c=consume();
-  tb.addByte((byte)c);
-  if (c == '-') {
-    c=consume();
-    if (c < '0' || c > '9')     throw error("Number expected after '-'");
-    tb.addByte((byte)c);
+  int ch=consume();
+  tb.addByte((byte)ch);
+  if (ch == '-') {
+    ch=consume();
+    if (ch < '0' || ch > '9')     throw error("Number expected after '-'");
+    tb.addByte((byte)ch);
   }
-  final boolean zero=c == '0';
-  c=curr();
-  if (zero && c >= '0' && c <= '9')   throw error("No digit allowed after '0'");
+  final boolean zero=ch == '0';
+  ch=curr();
+  if (zero && ch >= '0' && ch <= '9')   throw error("No digit allowed after '0'");
   loop:   while (true) {
-switch (c) {
+switch (ch) {
 case '0':
 case '1':
 case '2':
@@ -22,9 +22,9 @@ case '6':
 case '7':
 case '8':
 case '9':
-      tb.addByte((byte)c);
+      tb.addByte((byte)ch);
     pos++;
-  c=curr();
+  ch=curr();
 break;
 case '.':
 case 'e':
@@ -37,28 +37,28 @@ return tb.finish();
 }
 if (consume('.')) {
 tb.addByte((byte)'.');
-c=curr();
-if (c < '0' || c > '9') throw error("Number expected after '.'");
+ch=curr();
+if (ch < '0' || ch > '9') throw error("Number expected after '.'");
 do {
-tb.addByte((byte)c);
+tb.addByte((byte)ch);
 pos++;
-c=curr();
+ch=curr();
 }
- while (c >= '0' && c <= '9');
-if (c != 'e' && c != 'E') {
+ while (ch >= '0' && ch <= '9');
+if (ch != 'e' && ch != 'E') {
 skipWs();
 return tb.finish();
 }
 }
 tb.addByte((byte)consume());
-c=curr();
-if (c == '-' || c == '+') {
+ch=curr();
+if (ch == '-' || ch == '+') {
 tb.addByte((byte)consume());
-c=curr();
+ch=curr();
 }
-if (c < '0' || c > '9') throw error("Exponent expected");
+if (ch < '0' || ch > '9') throw error("Exponent expected");
 do tb.addByte((byte)consume());
- while ((c=curr()) >= '0' && c <= '9');
+ while ((ch=curr()) >= '0' && ch <= '9');
 skipWs();
 return tb.finish();
 }
