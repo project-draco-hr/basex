@@ -10,23 +10,5 @@
       expr[e]=FNInfo.error(ex,type);
     }
   }
-  if (expr[0].sameAs(expr[1]))   return optPre(expr[0],ctx);
-  if (cond.isFunction(Function.NOT)) {
-    ctx.compInfo(OPTWRITE,this);
-    cond=((StandardFunc)cond).expr[0];
-    final Expr tmp=expr[0];
-    expr[0]=expr[1];
-    expr[1]=tmp;
-  }
-  if (expr[0] == Bln.TRUE && expr[1] == Bln.FALSE) {
-    ctx.compInfo(OPTWRITE,this);
-    return compBln(cond,info);
-  }
-  if (expr[0].type().eq(SeqType.BLN) && expr[1] == Bln.TRUE) {
-    ctx.compInfo(OPTWRITE,this);
-    final Expr e=Function.NOT.get(null,info,cond);
-    return expr[0] == Bln.FALSE ? e : new Or(info,e,expr[0]);
-  }
-  type=expr[0].type().union(expr[1].type());
-  return this;
+  return optimize(ctx,scp);
 }
