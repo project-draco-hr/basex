@@ -1,18 +1,18 @@
 {
-  final String cp=path.replace('/','.').substring(1);
+  final String cp=camelCase(path.replace('/','.').substring(1));
   Class<?> clz=null;
   try {
     clz=findClass(cp);
   }
  catch (  final ClassNotFoundException ex) {
-    NOMODULE.thrw(ii,uri);
+    WHICHCLASS.thrw(ii,ex.getMessage());
   }
 catch (  final Throwable th) {
-    MODINIT.thrw(ii,th);
+    MODINITERR.thrw(ii,th);
   }
   final boolean qm=clz.getSuperclass() == QueryModule.class;
   final Object jm=Reflect.get(clz);
-  if (jm == null)   NOINST.thrw(ii,cp);
+  if (jm == null)   INSTERR.thrw(ii,cp);
   final ArrayList<Method> list=new ArrayList<Method>();
   for (  final Method m : clz.getMethods()) {
     if (!qm || m.getDeclaringClass() == clz)     list.add(m);
