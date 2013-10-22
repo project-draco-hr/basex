@@ -1,5 +1,6 @@
 {
-  if (type == null || type.isEmpty())   return val instanceof Expr ? (Expr)val : JavaMapping.toValue(val,this);
+  final StaticContext sc=root != null ? root.sc : new StaticContext(true);
+  if (type == null || type.isEmpty())   return val instanceof Expr ? (Expr)val : JavaMapping.toValue(val,this,sc);
   try {
     if (type.equalsIgnoreCase(MainParser.JSON.toString())) {
       final JsonParserOptions jp=new JsonParserOptions();
@@ -11,7 +12,7 @@
  catch (  final QueryIOException ex) {
     throw ex.getCause();
   }
-  final QNm nm=new QNm(token(type.replaceAll("\\(.*?\\)$","")),this);
+  final QNm nm=new QNm(token(type.replaceAll("\\(.*?\\)$","")),sc);
   if (!nm.hasURI() && nm.hasPrefix())   NOURI.thrw(null,nm.string());
   Type t=null;
   if (type.endsWith(")")) {
@@ -22,5 +23,5 @@
     if (t == null)     t=AtomType.find(nm,false);
   }
   if (t == null)   NOTYPE.thrw(null,type);
-  return t.cast(val,this,null);
+  return t.cast(val,this,sc,null);
 }

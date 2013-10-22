@@ -5,7 +5,7 @@
   final int arity=expr.length + holes.length - 1;
   if (f.arity() != arity)   Err.INVARITY.thrw(ii,f,arity);
   final Expr[] args=new Expr[arity];
-  final VarScope scp=new VarScope();
+  final VarScope scp=new VarScope(sc);
   final Var[] vars=new Var[holes.length];
   int p=-1;
   for (int i=0; i < holes.length; i++) {
@@ -15,6 +15,6 @@
   }
   while (++p < args.length)   args[p]=expr[p - holes.length].value(ctx);
   final Expr call=new DynFuncCall(info,f,args).optimize(ctx,scp);
-  final InlineFunc func=new InlineFunc(info,ft.type,vars,call,new Ann(),ctx.sc,scp);
+  final InlineFunc func=new InlineFunc(info,ft.type,vars,call,new Ann(),sc,scp);
   return func.optimize(ctx,null).item(ctx,ii);
 }

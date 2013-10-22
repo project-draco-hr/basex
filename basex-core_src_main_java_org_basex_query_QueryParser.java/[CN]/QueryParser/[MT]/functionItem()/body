@@ -10,19 +10,19 @@
     if (ann != null && (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC)))     error(INVISIBLE);
     final Expr body=enclosed(NOFUNBODY);
     scope=scope.parent();
-    return new InlineFunc(info(),type,args,body,ann,ctx.sc,inner);
+    return new InlineFunc(info(),type,args,body,ann,sc,inner);
   }
   if (ann != null)   error(NOANN);
   pos=ip;
-  final QNm name=eQName(null,ctx.sc.funcNS);
+  final QNm name=eQName(null,sc.funcNS);
   if (name != null && consume('#')) {
     if (keyword(name))     error(RESERVED,name.local());
     final Expr ex=numericLiteral(true);
     if (!(ex instanceof Int))     return ex;
     final long card=ex instanceof Int ? ((Int)ex).itr() : -1;
     if (card < 0 || card > Integer.MAX_VALUE)     error(FUNCUNKNOWN,name);
-    final Expr lit=Functions.getLiteral(name,(int)card,ctx,info());
-    return lit != null ? lit : FuncLit.unknown(name,card,ctx,info());
+    final Expr lit=Functions.getLiteral(name,(int)card,ctx,sc,info());
+    return lit != null ? lit : FuncLit.unknown(name,card,ctx,sc,info());
   }
   pos=ip;
   return null;

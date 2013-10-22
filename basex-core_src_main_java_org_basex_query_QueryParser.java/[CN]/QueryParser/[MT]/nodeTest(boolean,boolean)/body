@@ -2,13 +2,13 @@
   final int i=pos;
   if (consume('*')) {
     if (!consume(':'))     return new NameTest(att);
-    return new NameTest(new QNm(ncName(QNAMEINV)),NameTest.Mode.LN,att);
+    return new NameTest(new QNm(ncName(QNAMEINV)),NameTest.Mode.LN,att,sc.elemNS);
   }
-  if (ctx.sc.xquery3() && consume(EQNAME)) {
+  if (sc.xquery3() && consume(EQNAME)) {
     final byte[] uri=bracedURILiteral();
     if (consume('*')) {
       final QNm nm=new QNm(COLON,uri);
-      return new NameTest(nm,NameTest.Mode.NS,att);
+      return new NameTest(nm,NameTest.Mode.NS,att,sc.elemNS);
     }
   }
   pos=i;
@@ -24,12 +24,12 @@
       if (name.hasPrefix() || !consume(':')) {
         skipWS();
         names.add(new QNmCheck(name,!att));
-        return new NameTest(name,NameTest.Mode.STD,att);
+        return new NameTest(name,NameTest.Mode.STD,att,sc.elemNS);
       }
       if (consume('*')) {
         final QNm nm=new QNm(concat(name.string(),COLON));
         names.add(new QNmCheck(nm,!att));
-        return new NameTest(nm,NameTest.Mode.NS,att);
+        return new NameTest(nm,NameTest.Mode.NS,att,sc.elemNS);
       }
     }
   }

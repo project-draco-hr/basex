@@ -8,8 +8,6 @@
       entry.setValue(ex);
     }
   }
-  final StaticContext cs=ctx.sc;
-  ctx.sc=sc;
   if (val) {
     final int fp=scope.enter(ctx);
     try {
@@ -19,12 +17,11 @@
       }
     }
  catch (    final QueryException qe) {
-      expr=FNInfo.error(qe);
+      expr=FNInfo.error(qe,ret != null ? ret : expr.type());
     }
  finally {
       scope.cleanUp(this);
       scope.exit(ctx,fp);
-      ctx.sc=cs;
     }
   }
   return change ? optimize(ctx,scp) : null;

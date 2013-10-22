@@ -1,15 +1,15 @@
 {
   final InputInfo ii=info();
-  final QNm name=eQName(FUNCNAME,ctx.sc.funcNS);
-  if (ctx.sc.xquery3() && keyword(name))   error(RESERVED,name.local());
+  final QNm name=eQName(FUNCNAME,sc.funcNS);
+  if (sc.xquery3() && keyword(name))   error(RESERVED,name.local());
   if (module != null && !eq(name.uri(),module.uri()))   error(MODNS,name);
   wsCheck(PAR1);
-  scope=new VarScope();
+  scope=new VarScope(sc);
   final Var[] args=paramList();
   wsCheck(PAR2);
   final SeqType tp=optAsType();
   if (ann.contains(Ann.Q_UPDATING))   ctx.updating(false);
   final Expr body=wsConsumeWs(EXTERNAL) ? null : enclosed(NOFUNBODY);
-  funcs.add(ctx.funcs.declare(ann,name,args,tp,body,ctx.sc,scope,currDoc.toString(),ii));
+  funcs.add(ctx.funcs.declare(ann,name,args,tp,body,sc,scope,currDoc.toString(),ii));
   scope=null;
 }

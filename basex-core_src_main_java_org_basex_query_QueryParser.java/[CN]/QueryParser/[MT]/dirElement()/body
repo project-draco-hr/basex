@@ -1,6 +1,6 @@
 {
-  final int s=ctx.sc.ns.size();
-  final byte[] nse=ctx.sc.elemNS;
+  final int s=sc.ns.size();
+  final byte[] nse=sc.elemNS;
   final int npos=names.size();
   final QNm tag=new QNm(qName(TAGNAME));
   names.add(new QNmCheck(tag));
@@ -81,11 +81,11 @@
           if (eq(pref,XML,XMLNS))           error(BINDXML,pref);
           if (eq(uri,XMLURI))           error(BINDXMLURI,uri,XML);
           if (eq(uri,XMLNSURI))           error(BINDXMLURI,uri,XMLNS);
-          ctx.sc.ns.add(pref,uri);
+          sc.ns.add(pref,uri);
         }
  else {
           if (eq(uri,XMLURI))           error(XMLNSDEF,uri);
-          ctx.sc.elemNS=uri;
+          sc.elemNS=uri;
         }
         if (ns.contains(pref))         error(DUPLNSDEF,pref);
         ns.add(pref,uri);
@@ -96,7 +96,7 @@
       if (atts == null)       atts=new ArrayList<QNm>(1);
       atts.add(attn);
       names.add(new QNmCheck(attn,false));
-      add(cont,new CAttr(info(),false,attn,attv.finish()));
+      add(cont,new CAttr(sc,info(),false,attn,attv.finish()));
     }
     if (!consumeWS())     break;
   }
@@ -125,7 +125,7 @@
       }
     }
   }
-  ctx.sc.ns.size(s);
-  ctx.sc.elemNS=nse;
-  return new CElem(info(),tag,ns,cont.finish());
+  sc.ns.size(s);
+  sc.elemNS=nse;
+  return new CElem(sc,info(),tag,ns,cont.finish());
 }

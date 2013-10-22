@@ -1,0 +1,22 @@
+{
+  final byte[] uri=qname.uri();
+  final boolean java=startsWith(uri,JAVAPREF);
+  final String name=camelCase(string(qname.local()));
+  final String path=camelCase(toPath(java ? substring(uri,JAVAPREF.length) : uri));
+  final Object jm=ctx.modules.findImport(path);
+  if (jm != null) {
+    final Method meth=getModMethod(jm,path,name,args.length,ctx,ii);
+    if (meth != null)     return new JavaModuleFunc(sctx,ii,jm,meth,args);
+  }
+  if (!ctx.context.user.has(Perm.ADMIN))   return null;
+  try {
+    return new JavaFunc(sctx,ii,ctx.modules.findClass(path),name,args);
+  }
+ catch (  final ClassNotFoundException ex) {
+    if (java)     FUNCJAVA.thrw(ii,path);
+  }
+catch (  final Throwable th) {
+    throw JAVAINIT.thrw(ii,th);
+  }
+  return null;
+}

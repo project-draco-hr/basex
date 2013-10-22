@@ -1,5 +1,5 @@
 {
-  final int s=addNS(ctx);
+  final int s=addNS();
   try {
     final Atts ns=new Atts();
     for (int i=0; i < nspaces.size(); ++i) {
@@ -12,18 +12,18 @@
     if (eq(cp,XMLNS))     CEINV.thrw(info,cp);
     if (!nm.hasURI() && nm.hasPrefix())     INVPREF.thrw(info,nm);
     if (!eq(cp,XML)) {
-      final byte[] uri=ctx.sc.ns.uri(cp);
+      final byte[] uri=sc.ns.uri(cp);
       if (nm.hasURI()) {
-        if (!comp && (uri == null || !eq(uri,cu)))         ctx.sc.ns.add(cp,cu);
+        if (!comp && (uri == null || !eq(uri,cu)))         sc.ns.add(cp,cu);
         if (!ns.contains(cp))         ns.add(cp,cu);
       }
  else {
         nm.uri(uri);
       }
     }
-    final Constr constr=new Constr(ii,ctx);
+    final Constr constr=new Constr(ii,sc);
     final FElem node=new FElem(nm,ns,constr.children,constr.atts);
-    constr.add(expr);
+    constr.add(ctx,expr);
     if (constr.errAtt)     NOATTALL.thrw(info);
     if (constr.errNS)     NONSALL.thrw(info);
     if (constr.duplAtt != null)     CATTDUPL.thrw(info,constr.duplAtt);
@@ -44,7 +44,7 @@
         constr.atts.set(a,new FAttr(aname,att.string()));
       }
     }
-    final Atts stack=ctx.sc.ns.stack();
+    final Atts stack=sc.ns.stack();
     for (int a=stack.size() - 1; a >= 0; a--) {
       final byte[] pref=stack.name(a);
       if (!ns.contains(pref))       ns.add(pref,stack.value(a));
@@ -52,14 +52,14 @@
     for (int c=0; c < constr.children.size(); ++c) {
       final ANode child=constr.children.get(c);
       if (child.type == NodeType.ELM) {
-        if (ctx.sc.inheritNS)         inherit(child,ns);
-        if (!ctx.sc.preserveNS)         noPreserve(child);
+        if (sc.inheritNS)         inherit(child,ns);
+        if (!sc.preserveNS)         noPreserve(child);
         child.optimize();
       }
     }
     return node.optimize();
   }
   finally {
-    ctx.sc.ns.size(s);
+    sc.ns.size(s);
   }
 }

@@ -1,0 +1,15 @@
+{
+  if (expr.isValue() || expr.exprSize() < ctx.context.options.get(MainOptions.INLINELIMIT) && !(expr.has(Flag.NDT) || expr.has(Flag.CTX))) {
+    final ASTVisitor visitor=new ASTVisitor(){
+      @Override public boolean funcItem(      final FuncItem f){
+        return f != FuncItem.this && f.visit(this);
+      }
+      @Override public boolean inlineFunc(      final Scope sub){
+        return sub.visit(this);
+      }
+    }
+;
+    return Expr.visitAll(visitor,as);
+  }
+  return false;
+}

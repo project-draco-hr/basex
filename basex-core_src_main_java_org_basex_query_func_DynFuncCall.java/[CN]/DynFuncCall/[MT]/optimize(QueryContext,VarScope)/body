@@ -1,0 +1,20 @@
+{
+  final int ar=expr.length - 1;
+  final Expr f=expr[ar];
+  final Type t=f.type().type;
+  if (t instanceof FuncType) {
+    final FuncType ft=(FuncType)t;
+    if (ft.args != null && ft.args.length != ar)     INVARITY.thrw(info,f,ar);
+    if (ft.type != null)     type=ft.type;
+  }
+  if (f instanceof XQFunction) {
+    if (allAreValues() && f instanceof Map)     return optPre(value(ctx),ctx);
+    final Expr[] args=Arrays.copyOf(expr,expr.length - 1);
+    final Expr inl=((XQFunction)f).inlineExpr(args,ctx,scp,info);
+    if (inl != null) {
+      ctx.compInfo(OPTINLINEFN,f);
+      return inl;
+    }
+  }
+  return this;
+}
