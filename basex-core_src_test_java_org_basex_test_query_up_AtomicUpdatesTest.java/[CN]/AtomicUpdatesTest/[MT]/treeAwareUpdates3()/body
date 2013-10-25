@@ -1,8 +1,9 @@
 {
   final String doc="<a><b/></a>";
-  final AtomicUpdateList l=atomics(doc);
-  l.addInsert(3,1,data("<d/>"),false);
-  l.addReplace(2,data("<newb/>"));
-  optimize(l,2);
+  final AtomicUpdateCache l=atomics(doc);
+  final MemData m=new MemData(l.data);
+  l.addReplace(2,clipE(m,"<newb/>",false));
+  l.addInsert(3,1,clipE(m,"<d/>",false),false);
+  assertEquals(2,l.updatesSize());
   query(transform(doc,"insert node <d/> into $input," + "replace node $input/b with <newb/>"),"<a><newb/><d/></a>");
 }

@@ -1,0 +1,32 @@
+{
+  final Data src=insseq.data;
+  final int sourceSize=insseq.size();
+  if (sourceSize != dst.size(location,dst.kind(location)))   return false;
+  final List<BasicUpdate> valueUpdates=new ArrayList<BasicUpdate>();
+  for (int c=0; c < sourceSize; c++) {
+    final int s=insseq.start + c;
+    final int d=location + c;
+    final int sk=src.kind(s);
+    final int dk=dst.kind(d);
+    if (sk != dk)     return false;
+    final int sdis=src.dist(s,sk);
+    final int ddis=dst.dist(d,dk);
+    if (sdis != ddis)     return false;
+switch (sk) {
+case Data.ELEM:
+      if (src.attSize(s,sk) != dst.attSize(d,dk) || src.size(s,sk) != dst.size(d,dk))       return false;
+    break;
+case Data.ATTR:
+  break;
+case Data.TEXT:
+case Data.COMM:
+case Data.PI:
+final byte[] stxt=src.text(s,true);
+if (dst.textLen(d,true) != src.textLen(s,true) || !Token.eq(dst.text(d,true),stxt)) valueUpdates.add(UpdateValue.getInstance(dst,d,stxt));
+}
+}
+for (final BasicUpdate u : valueUpdates) {
+u.apply(dst);
+}
+return true;
+}

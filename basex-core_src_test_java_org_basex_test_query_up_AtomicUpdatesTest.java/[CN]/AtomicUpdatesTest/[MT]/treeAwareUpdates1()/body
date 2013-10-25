@@ -1,8 +1,9 @@
 {
   final String doc="<a><b/></a>";
-  final AtomicUpdateList l=atomics(doc);
-  l.addInsert(3,2,data("<c/>"),false);
+  final AtomicUpdateCache l=atomics(doc);
+  final MemData m=new MemData(l.data);
   l.addDelete(2);
-  optimize(l,1);
+  l.addInsert(3,2,clipE(m,"<c/>",false),false);
+  assertEquals(1,l.updatesSize());
   query(transform(doc,"insert node <c/> into $input/b, delete node $input/b"),"<a/>");
 }
