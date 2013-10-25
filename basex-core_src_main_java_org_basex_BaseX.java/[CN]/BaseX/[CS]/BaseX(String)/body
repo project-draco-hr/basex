@@ -9,11 +9,10 @@
     for (int i=0; i < ops.size(); i++) {
       final int c=ops.get(i);
       String val=vals.get(i);
-      Option opt=null;
       if (c == 'b') {
         if (bind.length() != 0)         bind.append(',');
         val=bind.append(val.replaceAll(",",",,")).toString();
-        opt=MainOptions.BINDINGS;
+        execute(new Set(MainOptions.BINDINGS,val),false);
       }
  else       if (c == 'c') {
         final IO io=IO.get(val);
@@ -31,7 +30,7 @@
         Prop.debug^=true;
       }
  else       if (c == 'D') {
-        opt=MainOptions.DOTPLAN;
+        execute(new Set(MainOptions.DOTPLAN,null),false);
       }
  else       if (c == 'i') {
         execute(new Set(MainOptions.MAINMEM,true),false);
@@ -42,8 +41,7 @@
         newline^=true;
         if (sopts == null)         sopts=new SerializerOptions();
         sopts.set(SerializerOptions.ITEM_SEPARATOR,"\\n");
-        val=sopts.toString();
-        opt=MainOptions.SERIALIZER;
+        execute(new Set(MainOptions.SERIALIZER,sopts),false);
       }
  else       if (c == 'o') {
         if (out != System.out)         out.close();
@@ -67,42 +65,40 @@
         console=false;
       }
  else       if (c == 'r') {
-        opt=MainOptions.RUNS;
+        execute(new Set(MainOptions.RUNS,Token.toInt(val)),false);
       }
  else       if (c == 's') {
         if (sopts == null)         sopts=new SerializerOptions();
         final String[] kv=val.split("=",2);
         sopts.assign(kv[0],kv.length > 1 ? kv[1] : "");
-        val=sopts.toString();
-        opt=MainOptions.SERIALIZER;
+        execute(new Set(MainOptions.SERIALIZER,sopts),false);
       }
  else       if (c == 'u') {
-        opt=MainOptions.WRITEBACK;
+        execute(new Set(MainOptions.WRITEBACK,null),false);
       }
  else       if (c == 'v') {
         v^=true;
       }
  else       if (c == 'V') {
         qi^=true;
-        opt=MainOptions.QUERYINFO;
+        execute(new Set(MainOptions.QUERYINFO,null),false);
       }
  else       if (c == 'w') {
-        opt=MainOptions.CHOP;
+        execute(new Set(MainOptions.CHOP,null),false);
       }
  else       if (c == 'W') {
         writeOptions^=true;
       }
  else       if (c == 'x') {
-        opt=MainOptions.XMLPLAN;
+        execute(new Set(MainOptions.XMLPLAN,null),false);
         qp^=true;
       }
  else       if (c == 'X') {
-        opt=MainOptions.COMPPLAN;
+        execute(new Set(MainOptions.COMPPLAN,null),false);
       }
  else       if (c == 'z') {
-        opt=MainOptions.SERIALIZE;
+        execute(new Set(MainOptions.SERIALIZE,null),false);
       }
-      if (opt != null)       execute(new Set(opt,val),false);
       verbose=qi || qp || v;
     }
     if (console) {
