@@ -1,0 +1,60 @@
+{
+  final HTTPContext http=rs.http;
+  String enc=http.req.getCharacterEncoding();
+  if (enc == null)   enc=Token.UTF8;
+  final byte[] input=new NewlineInput(http.req.getInputStream()).encoding(enc).content();
+  validate(input);
+  final Context ctx=rs.context;
+  DBNode doc;
+  try {
+    doc=new DBNode(new IOContent(input),ctx.options);
+  }
+ catch (  final IOException ex) {
+    throw HTTPCode.BAD_REQUEST_X.thrw(ex);
+  }
+  try {
+    final SerializerOptions sopts=http.serialization;
+    QueryProcessor qp=new QueryProcessor("*/*:parameter",ctx).context(doc);
+    for (    final Item param : qp.value()) {
+      final String name=value("@name",param,ctx);
+      final String value=value("@value",param,ctx);
+      if (sopts.option(name) != null) {
+        sopts.assign(name,value);
+      }
+ else       if (name.equals(WRAP)) {
+        http.wrapping=Util.yes(value);
+      }
+ else {
+        HTTPCode.UNKNOWN_PARAM_X.thrw(name);
+      }
+    }
+    qp=new QueryProcessor("*/*:option",ctx).context(doc);
+    for (    final Item it : qp.value()) {
+      final String name=value("@name",it,ctx);
+      final String value=value("@value",it,ctx);
+      ctx.options.assign(name,value);
+    }
+    final Map<String,String[]> vars=new HashMap<String,String[]>();
+    qp=new QueryProcessor("*/*:variable",ctx).context(doc);
+    for (    final Item it : qp.value()) {
+      final String name=value("@name",it,ctx);
+      final String value=value("@value",it,ctx);
+      final String type=value("@type",it,ctx);
+      vars.put(name,new String[]{value,type});
+    }
+    String value=null;
+    qp=new QueryProcessor("*/*:context/node()",ctx).context(doc);
+    for (    final Item it : qp.value()) {
+      if (value != null)       HTTPCode.MULTIPLE_CONTEXT_X.thrw();
+      value=DataBuilder.stripNS((ANode)it,Token.token(RESTURI),ctx).serialize().toString();
+    }
+    final String request=value("local-name(*)",doc,ctx);
+    final String text=value("*/*:text/text()",doc,ctx);
+    if (request.equals(COMMAND))     return RESTCommand.get(rs,text);
+    if (request.equals(RUN))     return RESTRun.get(rs,text,vars,value);
+    return RESTQuery.get(rs,text,vars,value);
+  }
+ catch (  final QueryException ex) {
+    throw HTTPCode.BAD_REQUEST_X.thrw(ex);
+  }
+}

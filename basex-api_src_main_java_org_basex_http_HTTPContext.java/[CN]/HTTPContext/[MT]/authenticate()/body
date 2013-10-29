@@ -1,0 +1,15 @@
+{
+  final byte[] address=token(req.getRemoteAddr());
+  try {
+    if (user == null || user.isEmpty() || pass == null || pass.isEmpty())     throw new LoginException(NOPASSWD);
+    final Context ctx=new Context(context(),null);
+    ctx.user=ctx.users.get(user);
+    if (ctx.user == null || !ctx.user.password.equals(Token.md5(pass)))     throw new LoginException();
+    context.blocker.remove(address);
+    return ctx;
+  }
+ catch (  final LoginException ex) {
+    for (int d=context.blocker.delay(address); d > 0; d--)     Performance.sleep(1000);
+    throw ex;
+  }
+}

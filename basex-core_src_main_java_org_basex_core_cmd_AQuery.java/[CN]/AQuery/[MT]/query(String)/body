@@ -11,7 +11,13 @@
       long hits=0;
       for (int r=0; r < qi.runs; ++r) {
         if (r != 0)         qp=null;
-        qp=queryProcessor(query,context);
+        qp(query,context);
+        qp.http(http);
+        for (        final String name : vars.keySet()) {
+          final String[] value=vars.get(name);
+          if (name == null)           qp.context(value[0],value[1]);
+ else           qp.bind(name,value[0],value[1]);
+        }
         qp.parse();
         qi.pars+=p.time();
         if (r == 0)         plan(false);
