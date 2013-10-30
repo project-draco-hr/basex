@@ -1,6 +1,5 @@
 {
   final FElem testsuite=new FElem(TESTSUITE).add(NAME,sc.baseURI().string());
-  int t=0, e=0, f=0, s=0;
   final ArrayList<StaticFunc> before=new ArrayList<StaticFunc>(1);
   final ArrayList<StaticFunc> after=new ArrayList<StaticFunc>(1);
   final ArrayList<StaticFunc> beforeModule=new ArrayList<StaticFunc>(1);
@@ -23,6 +22,10 @@
     if (indexOf(uf,AFTER_MODULE) != -1)     afterModule.add(uf);
     if (indexOf(uf,TEST) != -1)     tests.add(uf);
   }
+  int s=0;
+  int f=0;
+  int e=0;
+  int t=0;
   try {
     for (    final StaticFunc uf : beforeModule)     eval(uf);
     for (    final StaticFunc uf : tests) {
@@ -41,14 +44,7 @@
       t++;
       final Performance pt=new Performance();
       final int skip=indexOf(uf,IGNORE);
-      if (skip != -1) {
-        final FElem skipped=new FElem(SKIPPED);
-        final Value sv=uf.ann.values[skip];
-        if (sv.size() > 0)         skipped.add(MESSAGE,sv.itemAt(0).string(info));
-        testcase.add(skipped);
-        s++;
-      }
- else {
+      if (skip == -1) {
         try {
           for (          final StaticFunc fn : before)           eval(fn);
           eval(uf);
@@ -73,6 +69,13 @@
             testcase.add(error);
           }
         }
+      }
+ else {
+        final FElem skipped=new FElem(SKIPPED);
+        final Value sv=uf.ann.values[skip];
+        if (!sv.isEmpty())         skipped.add(MESSAGE,sv.itemAt(0).string(info));
+        testcase.add(skipped);
+        s++;
       }
       testcase.add(TIME,time(pt));
       testsuite.add(testcase);

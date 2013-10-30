@@ -1,7 +1,7 @@
 {
   Value val=null;
   if (ctype != null) {
-    if (MimeTypes.isJSON(ctype)) {
+    if (isJSON(ctype)) {
       final JsonParserOptions jopts=new JsonParserOptions();
       if (eq(ctype,APP_JSONML))       jopts.set(JsonOptions.FORMAT,JsonFormat.JSONML);
       val=new DBNode(new JsonParser(in,opts,jopts));
@@ -16,13 +16,13 @@
       final String enc=charset(ext);
       val=Str.get(URLDecoder.decode(string(in.read()),enc == null ? UTF8 : enc));
     }
- else     if (MimeTypes.isXML(ctype)) {
+ else     if (isXML(ctype)) {
       val=new DBNode(in,opts);
     }
- else     if (MimeTypes.isText(ctype)) {
+ else     if (isText(ctype)) {
       val=Str.get(new TextInput(in).content());
     }
- else     if (MimeTypes.isMultipart(ctype)) {
+ else     if (isMultipart(ctype)) {
       final HTTPPayload hp=new HTTPPayload(in.inputStream(),false,null,opts);
       hp.extractParts(concat(DASHES,hp.boundary(ext)),null);
       val=hp.payloads();
