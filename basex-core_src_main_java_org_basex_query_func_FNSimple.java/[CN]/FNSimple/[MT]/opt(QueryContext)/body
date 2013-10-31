@@ -4,18 +4,18 @@
 switch (sig) {
 case EMPTY:
 case EXISTS:
-    return e.size() == -1 || e.has(Flag.NDT) || e.has(Flag.CNS) ? this : Bln.get(sig == Function.EMPTY ^ e.size() != 0);
+    return e.size() == -1 || e.has(Flag.NDT) || e.has(Flag.CNS) ? this : Bln.get(sig == Function.EMPTY ^ !e.isEmpty());
 case BOOLEAN:
   return e.type().eq(SeqType.BLN) ? e : this;
 case NOT:
 if (e.isFunction(Function.EMPTY)) {
   ctx.compInfo(QueryText.OPTWRITE,this);
-  expr=((StandardFunc)e).expr;
+  expr=((Arr)e).expr;
   sig=Function.EXISTS;
 }
  else if (e.isFunction(Function.EXISTS)) {
   ctx.compInfo(QueryText.OPTWRITE,this);
-  expr=((StandardFunc)e).expr;
+  expr=((Arr)e).expr;
   sig=Function.EMPTY;
 }
  else if (e instanceof CmpV || e instanceof CmpG) {
@@ -23,7 +23,7 @@ if (e.isFunction(Function.EMPTY)) {
   return c == e ? this : c;
 }
  else if (e.isFunction(Function.NOT)) {
-  return compBln(((StandardFunc)e).expr[0],info);
+  return compBln(((Arr)e).expr[0],info);
 }
  else {
   expr[0]=e.compEbv(ctx);
@@ -37,7 +37,7 @@ type=SeqType.get(e.type().type,Occ.ONE);
 return e.type().one() ? e : this;
 case ONE_OR_MORE:
 type=SeqType.get(e.type().type,Occ.ONE_MORE);
-return !e.type().mayBeZero() ? e : this;
+return e.type().mayBeZero() ? this : e;
 case UNORDERED:
 return e;
 default :

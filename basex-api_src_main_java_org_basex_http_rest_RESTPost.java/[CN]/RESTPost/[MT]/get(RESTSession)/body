@@ -5,7 +5,7 @@
   final byte[] input=new NewlineInput(http.req.getInputStream()).encoding(enc).content();
   validate(input);
   final Context ctx=rs.context;
-  DBNode doc;
+  final DBNode doc;
   try {
     doc=new DBNode(new IOContent(input),ctx.options);
   }
@@ -42,8 +42,8 @@
       final String type=value("@type",it,ctx);
       vars.put(name,new String[]{value,type});
     }
-    String value=null;
     qp=new QueryProcessor("*/*:context/node()",ctx).context(doc);
+    String value=null;
     for (    final Item it : qp.value()) {
       if (value != null)       HTTPCode.MULTIPLE_CONTEXT_X.thrw();
       value=DataBuilder.stripNS((ANode)it,Token.token(RESTURI),ctx).serialize().toString();

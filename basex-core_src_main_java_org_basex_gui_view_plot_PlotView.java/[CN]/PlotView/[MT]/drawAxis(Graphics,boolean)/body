@@ -67,7 +67,6 @@
       drawCaptionAndGrid(g,drawX,BaseXLayout.value(axis.min),.5d);
       return;
     }
-    int c=0;
     if (axis.log) {
       int l;
       double a;
@@ -79,7 +78,7 @@
           if (a <= axis.max && adequateDistance(drawX,a,0)) {
             drawCaptionAndGrid(g,drawX,BaseXLayout.value(a),axis.calcPosition(a));
           }
-          final int lim=(int)(-1 * Math.pow(10,l + 1));
+          final int lim=(int)(-1 * StrictMath.pow(10,l + 1));
           double last=a;
           b=2 * a;
           while (b > lim && b >= axis.min) {
@@ -90,10 +89,10 @@
             b+=a;
           }
           ++l;
-          a=-1 * Math.pow(10,l);
+          a=-1 * StrictMath.pow(10,l);
         }
       }
-      if (0 >= axis.min && 0 <= axis.max)       drawCaptionAndGrid(g,drawX,BaseXLayout.value(0),axis.calcPosition(0));
+      if (axis.min <= 0 && axis.max >= 0)       drawCaptionAndGrid(g,drawX,BaseXLayout.value(0),axis.calcPosition(0));
       if (axis.max > 0) {
         l=0;
         a=1;
@@ -101,7 +100,7 @@
           if (a >= axis.min && adequateDistance(drawX,a,0)) {
             drawCaptionAndGrid(g,drawX,BaseXLayout.value(a),axis.calcPosition(a));
           }
-          final int lim=(int)Math.pow(10,l + 1);
+          final int lim=(int)StrictMath.pow(10,l + 1);
           double last=a;
           b=2 * a;
           while (b < lim && b <= axis.max) {
@@ -112,13 +111,14 @@
             b+=a;
           }
           ++l;
-          a=Math.pow(10,l);
+          a=StrictMath.pow(10,l);
         }
       }
     }
  else {
       double d=axis.calcPosition(axis.startvalue);
       double f=axis.startvalue;
+      int c=0;
       while (d < 1.0d - .25d / nrCaptions) {
         ++c;
         drawCaptionAndGrid(g,drawX,BaseXLayout.value(f),d);
