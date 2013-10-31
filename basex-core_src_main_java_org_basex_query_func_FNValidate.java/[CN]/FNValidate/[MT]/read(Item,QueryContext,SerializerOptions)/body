@@ -7,14 +7,12 @@
     return io;
   }
   if (it.type.isStringOrUntyped()) {
-    final String path=string(it.string(info));
-    IO io=IO.get(path);
-    if (!io.exists())     WHICHRES.thrw(info,path);
+    IO io=checkPath(it,ctx);
     if (sopts != null) {
       final ArrayOutput ao=new ArrayOutput();
       Serializer.get(ao,sopts).serialize(new DBNode(io,ctx.context.options));
       io=new IOContent(ao.toArray());
-      io.name(path);
+      io.name(io.path());
     }
     return io;
   }

@@ -5,12 +5,10 @@
       SerializerOptions sp=null;
       if (expr.length > 1) {
         sp=new SerializerOptions();
-        final String dtd=string(checkStr(expr[1],ctx));
-        IO scio=IO.get(dtd);
-        if (!scio.exists())         WHICHRES.thrw(info,dtd);
-        tmp=createTmp(scio);
-        if (tmp != null)         scio=tmp;
-        sp.set(SerializerOptions.DOCTYPE_SYSTEM,scio.url());
+        IO dtd=checkPath(expr[1],ctx);
+        tmp=createTmp(dtd);
+        if (tmp != null)         dtd=tmp;
+        sp.set(SerializerOptions.DOCTYPE_SYSTEM,dtd.url());
       }
       final IO in=read(it,ctx,sp);
       final SAXParserFactory sf=SAXParserFactory.newInstance();
