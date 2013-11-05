@@ -1,3 +1,9 @@
 {
-  return cache(name,Class.forName(name));
+  Class<?> c=CLASSES.get(name);
+  if (c == null) {
+    c=Class.forName(name);
+    if (!Modifier.isPublic(c.getModifiers()))     throw new ClassNotFoundException(name);
+    CLASSES.put(name,c);
+  }
+  return c;
 }
