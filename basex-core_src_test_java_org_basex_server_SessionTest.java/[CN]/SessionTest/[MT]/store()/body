@@ -1,0 +1,10 @@
+{
+  session.execute("create db " + NAME);
+  session.store("X",new ArrayInput("!"));
+  assertEqual("true",session.query(_DB_IS_RAW.args(NAME,"X")).execute());
+  session.store("X",new ArrayInput(""));
+  assertEqual("",session.query(_DB_RETRIEVE.args(NAME,"X")).execute());
+  session.store("X",new ArrayInput(new byte[]{0,1,-1}));
+  assertEqual("0001FF",session.query("xs:hexBinary(" + _DB_RETRIEVE.args(NAME,"X") + ')').execute());
+  session.execute("drop db " + NAME);
+}

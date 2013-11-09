@@ -1,0 +1,14 @@
+{
+  final LockResult lr=new LockResult();
+  cmd.updating(DUMMY_CONTEXT);
+  cmd.databases(lr);
+  for (  final StringList list : new StringList[]{reqRd,allowRd,reqWt,allowWt,lr.read,lr.write})   if (list != null)   list.sort(false).unique();
+  if (reqRd == null && !lr.readAll)   fail("Should read lock all databases, didn't.");
+  if (reqRd != null && allowRd != null && !lr.read.containsAll(reqRd))   fail("Didn't read lock all necessary databases.");
+  if (allowRd != null && lr.readAll)   fail("Read locked all databases, may not.");
+  if (allowRd != null && !allowRd.containsAll(lr.read))   fail("Read locked more databases than I should.");
+  if (reqWt == null && !lr.writeAll)   fail("Should write lock all databases, didn't.");
+  if (reqWt != null && allowWt != null && !lr.write.containsAll(reqWt))   fail("Didn't write lock all necessary databases.");
+  if (allowWt != null && lr.writeAll)   fail("Write locked all databases, may not.");
+  if (allowWt != null && !allowWt.containsAll(lr.write))   fail("Write locked more databases than I should.");
+}
