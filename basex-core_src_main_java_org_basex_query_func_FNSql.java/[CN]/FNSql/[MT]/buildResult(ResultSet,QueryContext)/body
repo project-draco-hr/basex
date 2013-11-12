@@ -10,8 +10,20 @@
         final String name=metadata.getColumnLabel(k);
         Object value=rs.getObject(k);
         if (value == null)         continue;
-        if (value instanceof SQLXML)         value=((SQLXML)value).getString();
-        row.add(new FElem(Q_COLUMN).add(NAME,name).add(value.toString()));
+        final FElem col=new FElem(Q_COLUMN).add(NAME,name);
+        row.add(col);
+        if (value instanceof SQLXML) {
+          final String xml=((SQLXML)value).getString();
+          try {
+            col.add(new DBNode(new IOContent(xml),ctx.context.options).children().next());
+          }
+ catch (          final IOException ex) {
+            col.add(xml);
+          }
+        }
+ else {
+          col.add(value.toString());
+        }
       }
     }
     return rows;
