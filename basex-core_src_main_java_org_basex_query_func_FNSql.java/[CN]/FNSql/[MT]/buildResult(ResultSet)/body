@@ -7,10 +7,11 @@
       final FElem row=new FElem(Q_ROW);
       rows.add(row);
       for (int k=1; k <= cc; k++) {
-        final String label=metadata.getColumnLabel(k);
-        final Object value=rs.getObject(label);
+        final String name=metadata.getColumnLabel(k);
+        Object value=rs.getObject(k);
         if (value == null)         continue;
-        row.add(new FElem(Q_COLUMN).add(NAME,label).add(value.toString()));
+        if (value instanceof SQLXML)         value=((SQLXML)value).getString();
+        row.add(new FElem(Q_COLUMN).add(NAME,name).add(value.toString()));
       }
     }
     return rows;
