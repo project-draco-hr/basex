@@ -7,30 +7,15 @@
   final boolean regular=u == 0 || u == Integer.MAX_VALUE;
   if (regular) {
     used=u == 0 ? 0 : b;
-    fpres=new int[b];
-    pages=new int[b];
-    for (int i=0; i < b; i++) {
-      fpres[i]=i * IO.ENTRIES;
-      pages[i]=i;
-    }
   }
  else {
     used=u;
     fpres=in.readNums();
     pages=in.readNums();
   }
-  if (regular) {
-    usedPages=new BitArray(used,true);
-  }
- else {
+  if (!regular) {
     final int psize=in.readNum();
-    if (psize == 0) {
-      usedPages=new BitArray(blocks);
-      for (      final int p : pages)       usedPages.set(p);
-    }
- else {
-      usedPages=new BitArray(in.readLongs(psize),used);
-    }
+    usedPages=new BitArray(in.readLongs(psize),used);
   }
   in.close();
   file=new RandomAccessFile(meta.dbfile(DATATBL).file(),"rw");
