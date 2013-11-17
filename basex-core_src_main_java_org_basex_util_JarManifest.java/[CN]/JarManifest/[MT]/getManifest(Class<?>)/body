@@ -1,0 +1,22 @@
+{
+  try {
+    final String jar=cls.getProtectionDomain().getCodeSource().getLocation().getFile();
+    final Enumeration<URL> list=cls.getClassLoader().getResources("META-INF/MANIFEST.MF");
+    while (list.hasMoreElements()) {
+      final URL url=list.nextElement();
+      if (url.getFile().contains(jar)) {
+        final InputStream in=url.openStream();
+        try {
+          if (in != null)           return new Manifest(in);
+        }
+  finally {
+          in.close();
+        }
+      }
+    }
+  }
+ catch (  Exception e) {
+    System.err.println(e);
+  }
+  return null;
+}
