@@ -7,19 +7,19 @@
     String enc=null;
     if (consume(DOCDECL)) {
       if (s()) {
-        if (!version())         error(DECLSTART);
+        if (!version())         throw error(DECLSTART);
         boolean s=s();
         enc=encoding();
         if (enc != null) {
-          if (!s)           error(WSERROR);
+          if (!s)           throw error(WSERROR);
           s=s();
         }
-        if (sddecl() != null && !s)         error(WSERROR);
+        if (sddecl() != null && !s)         throw error(WSERROR);
         s();
         int ch=nextChar();
-        if (ch != '?')         error(WRONGCHAR,'?',(char)ch);
+        if (ch != '?')         throw error(WRONGCHAR,'?',(char)ch);
         ch=nextChar();
-        if (ch != '>')         error(WRONGCHAR,'>',(char)ch);
+        if (ch != '>')         throw error(WRONGCHAR,'>',(char)ch);
       }
  else {
         prev(5);
@@ -29,7 +29,7 @@
     if (!fragment) {
       final int n=consume();
       if (!s(n)) {
-        if (n != '<')         error(n == 0 ? DOCEMPTY : BEFOREROOT);
+        if (n != '<')         throw error(n == 0 ? DOCEMPTY : BEFOREROOT);
         prev(1);
       }
     }

@@ -1,16 +1,16 @@
 {
   final File src=checkFile(0,ctx).getCanonicalFile();
   File trg=checkFile(1,ctx).getCanonicalFile();
-  if (!src.exists())   FILE_WHICH.thrw(info,src.getAbsolutePath());
+  if (!src.exists())   throw FILE_WHICH.get(info,src.getAbsolutePath());
   if (trg.isDirectory()) {
     trg=new File(trg,src.getName());
-    if (trg.isDirectory())     FILE_DIR.thrw(info,trg);
+    if (trg.isDirectory())     throw FILE_DIR.get(info,trg);
   }
  else   if (!trg.isFile()) {
-    if (!trg.getParentFile().isDirectory())     FILE_NODIR.thrw(info,trg);
+    if (!trg.getParentFile().isDirectory())     throw FILE_NODIR.get(info,trg);
   }
  else   if (src.isDirectory()) {
-    FILE_DIR.thrw(info,src);
+    throw FILE_DIR.get(info,src);
   }
   final String spath=src.getPath();
   final String tpath=trg.getPath();
@@ -19,8 +19,8 @@
       copy(src,trg);
     }
  else {
-      if (trg.exists() && (Prop.CASE || !spath.equalsIgnoreCase(tpath)) && !trg.delete())       FILE_DEL.thrw(info,src,trg);
-      if (!src.renameTo(trg))       FILE_MOVE.thrw(info,src,trg);
+      if (trg.exists() && (Prop.CASE || !spath.equalsIgnoreCase(tpath)) && !trg.delete())       throw FILE_DEL.get(info,src,trg);
+      if (!src.renameTo(trg))       throw FILE_MOVE.get(info,src,trg);
     }
   }
   return null;

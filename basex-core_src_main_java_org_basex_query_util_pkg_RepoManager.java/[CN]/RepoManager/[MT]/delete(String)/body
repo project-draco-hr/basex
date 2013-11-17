@@ -6,17 +6,17 @@
     if (nextPkg == null)     continue;
     if (eq(nextPkg,pp) || eq(Package.name(nextPkg),pp)) {
       final byte[] primPkg=primary(nextPkg);
-      if (primPkg != null)       BXRE_DEP.thrw(info,string(primPkg),pkg);
+      if (primPkg != null)       throw BXRE_DEP.get(info,string(primPkg),pkg);
       final IOFile f=repo.path(string(dict.get(nextPkg)));
       repo.delete(new PkgParser(repo,info).parse(new IOFile(f,DESCRIPTOR)));
-      if (!f.delete())       BXRE_DELETE.thrw(info,f);
+      if (!f.delete())       throw BXRE_DELETE.get(info,f);
       found=true;
     }
   }
   final IOFile file=file(pkg,repo);
   if (file != null) {
-    if (!file.delete())     BXRE_DELETE.thrw(info,file);
+    if (!file.delete())     throw BXRE_DELETE.get(info,file);
     return;
   }
-  if (!found)   BXRE_WHICH.thrw(info,pkg);
+  if (!found)   throw BXRE_WHICH.get(info,pkg);
 }

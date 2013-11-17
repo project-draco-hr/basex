@@ -4,26 +4,26 @@
     final Document doc=toDOMNode(node);
     final DOMValidateContext valContext=new DOMValidateContext(new MyKeySelector(),doc);
     final NodeList signl=doc.getElementsByTagNameNS(XMLSignature.XMLNS,"Signature");
-    if (signl.getLength() < 1)     CX_NOSIG.thrw(info,node);
+    if (signl.getLength() < 1)     throw CX_NOSIG.get(info,node);
     valContext.setNode(signl.item(0));
     final XMLSignatureFactory fac=XMLSignatureFactory.getInstance("DOM");
     final XMLSignature signature=fac.unmarshalXMLSignature(valContext);
     coreVal=signature.validate(valContext);
   }
  catch (  final XMLSignatureException e) {
-    CX_IOEXC.thrw(info,e);
+    throw CX_IOEXC.get(info,e);
   }
 catch (  final SAXException e) {
-    CX_IOEXC.thrw(info,e);
+    throw CX_IOEXC.get(info,e);
   }
 catch (  final ParserConfigurationException e) {
-    CX_IOEXC.thrw(info,e);
+    throw CX_IOEXC.get(info,e);
   }
 catch (  final IOException e) {
-    CX_IOEXC.thrw(info,e);
+    throw CX_IOEXC.get(info,e);
   }
 catch (  final MarshalException e) {
-    CX_SIGEXC.thrw(info,e);
+    throw CX_SIGEXC.get(info,e);
   }
   return Bln.get(coreVal);
 }

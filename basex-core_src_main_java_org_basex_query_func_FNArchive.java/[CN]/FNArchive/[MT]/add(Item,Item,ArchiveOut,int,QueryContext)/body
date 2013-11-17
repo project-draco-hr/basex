@@ -1,6 +1,6 @@
 {
   String name=string(entry.string(info));
-  if (name.isEmpty())   ARCH_EMPTY.thrw(info);
+  if (name.isEmpty())   throw ARCH_EMPTY.get(info);
   if (Prop.WIN)   name=name.replace('\\','/');
   final ZipEntry ze=new ZipEntry(name);
   String en=null;
@@ -14,13 +14,13 @@
         ze.setTime(dateTimeToMs(new Dtm(mod,info),ctx));
       }
  catch (      final QueryException qe) {
-        ARCH_DATETIME.thrw(info,mod);
+        throw ARCH_DATETIME.get(info,mod);
       }
     }
     final byte[] enc=el.attribute(ENCODING);
     if (enc != null) {
       en=string(enc);
-      if (!Charset.isSupported(en))       ARCH_ENCODING.thrw(info,enc);
+      if (!Charset.isSupported(en))       throw ARCH_ENCODING.get(info,enc);
     }
   }
   byte[] val=checkStrBin(cont);
@@ -29,7 +29,7 @@
     out.level(lvl == null ? level : toInt(lvl));
   }
  catch (  final IllegalArgumentException ex) {
-    ARCH_LEVEL.thrw(info,lvl);
+    throw ARCH_LEVEL.get(info,lvl);
   }
   out.write(ze,val);
 }

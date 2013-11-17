@@ -8,7 +8,7 @@
   int level=ZipEntry.DEFLATED;
   if (alg != null) {
     if (format.equals(ZIP) && !eq(alg,STORED,DEFLATE) || format.equals(GZIP) && !eq(alg,DEFLATE)) {
-      ARCH_SUPP.thrw(info,ArchiveOptions.ALGORITHM.name(),alg);
+      throw ARCH_SUPP.get(info,ArchiveOptions.ALGORITHM.name(),alg);
     }
     if (eq(alg,STORED))     level=ZipEntry.STORED;
  else     if (eq(alg,DEFLATE))     level=ZipEntry.DEFLATED;
@@ -22,7 +22,7 @@
       en=entr.next();
       cn=cont.next();
       if (en == null || cn == null)       break;
-      if (out instanceof GZIPOut && c > 0)       ARCH_ONE.thrw(info,format.toUpperCase(Locale.ENGLISH));
+      if (out instanceof GZIPOut && c > 0)       throw ARCH_ONE.get(info,format.toUpperCase(Locale.ENGLISH));
       add(checkElmStr(en),cn,out,level,ctx);
       e++;
       c++;
@@ -31,10 +31,10 @@
  while (cont.next() != null);
     if (en != null)     do     e++;
  while (entr.next() != null);
-    if (e != c)     throw ARCH_DIFF.thrw(info,e,c);
+    if (e != c)     throw ARCH_DIFF.get(info,e,c);
   }
  catch (  final IOException ex) {
-    throw ARCH_FAIL.thrw(info,ex);
+    throw ARCH_FAIL.get(info,ex);
   }
  finally {
     out.close();

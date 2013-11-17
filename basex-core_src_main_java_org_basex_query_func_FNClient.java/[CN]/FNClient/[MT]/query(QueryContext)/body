@@ -9,7 +9,7 @@
       final String k=it.getKey();
       final Value v=it.getValue();
       final ArrayOutput val=v.serialize();
-      if (!v.isItem())       BXCL_ITEM.thrw(info,v);
+      if (!v.isItem())       throw BXCL_ITEM.get(info,v);
       final String t=v.type().toString();
       if (k.isEmpty())       cq.context(val,t);
  else       cq.bind(k,val,t);
@@ -26,13 +26,13 @@
 catch (  final BaseXException ex) {
     final Matcher m=QUERYPAT.matcher(ex.getMessage());
     if (m.find()) {
-      thrw(m.group(1),info,m.group(2));
-      throw new QueryException(info,new QNm(m.group(1)),m.group(2));
+      final QueryException exc=get(m.group(1),info,m.group(2));
+      throw exc == null ? new QueryException(info,new QNm(m.group(1)),m.group(2)) : exc;
     }
-    throw BXCL_QUERY.thrw(info,ex);
+    throw BXCL_QUERY.get(info,ex);
   }
 catch (  final IOException ex) {
-    throw BXCL_COMM.thrw(info,ex);
+    throw BXCL_COMM.get(info,ex);
   }
  finally {
     if (cq != null)     try {
