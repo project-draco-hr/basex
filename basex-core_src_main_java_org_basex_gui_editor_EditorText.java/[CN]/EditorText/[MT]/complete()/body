@@ -4,17 +4,20 @@
   if (space)   ps--;
   for (int s=0; s < REPLACE.size(); s+=2) {
     final String key=REPLACE.get(s);
-    if (find(key)) {
-      String value=REPLACE.get(s + 1);
-      int p=ps - key.length();
-      int cursor=value.indexOf('_');
-      if (cursor != -1)       value=value.replace("_","");
-      select(p,ps);
-      delete();
-      add(value);
-      if (cursor != -1)       setCaret(p + cursor);
-      return;
+    if (!find(key))     continue;
+    String value=REPLACE.get(s + 1);
+    final int p=ps - key.length(), cursor=value.indexOf('_');
+    if (cursor != -1)     value=value.replace("_","");
+    final StringBuilder spaces=new StringBuilder();
+    open(spaces);
+    if (spaces.length() != 0) {
+      value=new TokenBuilder().addSep(value.split("\n"),"\n" + spaces).toString();
     }
+    select(p,ps);
+    delete();
+    add(value);
+    if (cursor != -1)     setCaret(p + cursor);
+    return;
   }
   int s=ps;
   while (--s >= 0 && XMLToken.isChar(text[s]))   ;
