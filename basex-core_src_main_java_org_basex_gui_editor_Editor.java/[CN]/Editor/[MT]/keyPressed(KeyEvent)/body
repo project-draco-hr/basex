@@ -129,6 +129,9 @@
  else     if (COMMENT.is(e)) {
       text.comment(rend.getSyntax());
     }
+ else     if (COMPLETE.is(e)) {
+      text.complete();
+    }
  else     if (DELLINE.is(e)) {
       text.deleteLine();
     }
@@ -152,17 +155,18 @@
  else     if (DELLINESTART.is(e) || DELPREVWORD.is(e) || DELPREV.is(e)) {
       if (nomark) {
         if (text.pos() == 0)         return;
-        text.startSelect();
         if (DELPREVWORD.is(e)) {
+          text.startSelect();
           text.prevToken(true);
+          text.finishSelect();
         }
  else         if (DELLINESTART.is(e)) {
+          text.startSelect();
           text.bol(true);
         }
  else {
-          text.prev();
+          text.backspace();
         }
-        text.finishSelect();
       }
       text.delete();
       down=false;

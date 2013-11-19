@@ -1,14 +1,15 @@
 {
   if (!hist.active() || control(e) || DELNEXT.is(e)|| DELPREV.is(e)|| ESCAPE.is(e))   return;
-  final int pc=text.getCaret();
+  int pc=text.getCaret();
   text.pos(pc);
   final StringBuilder sb=new StringBuilder(1).append(e.getKeyChar());
   final boolean indent=TAB.is(e) && text.indent(sb,e.isShiftDown());
   if (text.selected() && !indent)   text.delete();
+  final int ps=text.pos();
   if (ENTER.is(e))   text.open(sb);
-  final boolean move=text.add(sb);
+  final int move=text.add(sb);
   hist.store(text.text(),pc,text.getCaret());
-  if (move && pc + 1 <= text.size())   text.setCaret(pc + 1);
+  if (move != 0)   text.setCaret(Math.min(text.size(),ps + move));
   calcCode.invokeLater(true);
   e.consume();
 }

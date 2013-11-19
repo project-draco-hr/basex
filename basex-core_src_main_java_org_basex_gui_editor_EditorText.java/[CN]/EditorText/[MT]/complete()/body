@@ -1,0 +1,30 @@
+{
+  if (selected())   return;
+  final boolean space=ps > 0 && ws(text[ps - 1]);
+  if (space)   ps--;
+  for (int s=0; s < REPLACE.size(); s+=2) {
+    final String key=REPLACE.get(s);
+    if (find(key)) {
+      String value=REPLACE.get(s + 1);
+      int p=ps - key.length();
+      int cursor=value.indexOf('_');
+      if (cursor != -1)       value=value.replace("_","");
+      select(p,ps);
+      delete();
+      add(value);
+      if (cursor != -1)       setCaret(p + cursor);
+      return;
+    }
+  }
+  int s=ps;
+  while (--s >= 0 && XMLToken.isChar(text[s]))   ;
+  ++s;
+  final String key=Token.string(text,s,ps - s);
+  final byte[] value=XMLToken.getEntity(token(key));
+  if (value != null) {
+    select(s,ps);
+    delete();
+    add(string(value));
+  }
+  if (space)   ps++;
+}
