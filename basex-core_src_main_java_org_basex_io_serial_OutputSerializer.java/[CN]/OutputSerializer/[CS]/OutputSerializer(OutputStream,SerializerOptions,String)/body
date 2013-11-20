@@ -8,7 +8,7 @@
   final YesNoOmit sa=opts.get(STANDALONE);
   saomit=sa == YesNoOmit.OMIT;
   final String maps=opts.get(USE_CHARACTER_MAPS);
-  final String enc=normEncoding(opts.get(ENCODING));
+  final String enc=normEncoding(opts.get(ENCODING),true);
   try {
     encoding=Charset.forName(enc);
   }
@@ -16,6 +16,10 @@
     throw SERENCODING.getIO(enc);
   }
   utf8=enc == UTF8;
+  if (!utf8) {
+    encoder=encoding.newEncoder();
+    encbuffer=new TokenBuilder();
+  }
   indents=opts.get(INDENTS);
   format=opts.yes(FORMAT);
   tab=opts.yes(TABULATOR) ? '\t' : ' ';
