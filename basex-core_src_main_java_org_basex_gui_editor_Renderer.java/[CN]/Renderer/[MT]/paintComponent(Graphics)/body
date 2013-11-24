@@ -1,10 +1,24 @@
 {
+  if (lineNumberBar != null) {
+    lineNumberBar.setLastLineNumber(text.lineNumbers());
+    lineNumberOffset=lineNumberBar.getWidth() - 8;
+  }
   super.paintComponent(g);
   pars.reset();
   init(g,bar.pos());
-  while (more(g))   write(g);
+  if (lineNumberBar != null) {
+    lineNumberBar.resetLineNumbers();
+    lineNumberBar.addRenderedTextLine(y);
+  }
+  int oldY;
+  while (more(g)) {
+    oldY=y;
+    write(g);
+    if (lineNumberBar != null && y != oldY)     lineNumberBar.addRenderedTextLine(y);
+  }
   wordW=0;
   final int s=text.size();
   if (cursor && s == text.getCaret())   drawCursor(g,x);
   if (s == text.error())   drawError(g);
+  if (lineNumberBar != null)   lineNumberBar.repaint();
 }
