@@ -1,0 +1,36 @@
+{
+  super(ev.gui);
+  view=ev;
+  setLayout(new BorderLayout());
+  root=new DefaultMutableTreeNode();
+  tree=new BaseXTree(root,gui).border(4,4,4,4);
+  tree.setCellRenderer(new EditorNodeRenderer());
+  tree.addTreeWillExpandListener(this);
+  tree.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (REFRESH.is(e)) {
+        refresh();
+      }
+ else       if (DELNEXT.is(e)) {
+        delete();
+      }
+    }
+    @Override public void keyTyped(    final KeyEvent e){
+      if (ENTER.is(e))       open();
+    }
+  }
+);
+  tree.addMouseListener(new MouseAdapter(){
+    @Override public void mousePressed(    final MouseEvent e){
+      if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)       open();
+    }
+  }
+);
+  roots=roots();
+  init();
+  for (int c=0; c <= roots.size(); c++)   tree.expandRow(c);
+  tree.setRootVisible(false);
+  tree.setSelectionRow(0);
+  add(new JScrollPane(tree),BorderLayout.CENTER);
+  new BaseXPopup(tree,gui,new DeleteCmd(),null,new ChangeCmd());
+}

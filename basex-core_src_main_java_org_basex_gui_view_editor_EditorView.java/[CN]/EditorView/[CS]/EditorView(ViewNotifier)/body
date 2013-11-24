@@ -34,7 +34,14 @@
   final SearchEditor se=new SearchEditor(gui,tabs,null).button(srch);
   search=se.bar();
   addCreateTab();
-  add(se,BorderLayout.CENTER);
+  files=new EditorTree(this);
+  split=new BaseXSplit(true);
+  split.mode(Fill.NONE);
+  split.add(files);
+  split.add(se);
+  split.sizes(sizes);
+  project();
+  add(split,BorderLayout.CENTER);
   search.editor(addTab(),false);
   info=new BaseXLabel().setText(OK,Msg.SUCCESS);
   pos=new BaseXLabel(" ");
@@ -64,19 +71,18 @@
       final JPopupMenu pm=new JPopupMenu();
       ActionListener al=new ActionListener(){
         @Override public void actionPerformed(        final ActionEvent ac){
-          final String s=ac.getActionCommand().replaceAll("(.*) \\[(.*)\\]","$2/$1");
-          open(new IOFile(s),true);
+          open(new IOFile(ac.getActionCommand().replaceAll("(.*) \\[(.*)\\]","$2/$1")));
         }
       }
 ;
       final StringList opened=new StringList();
       for (      final EditorArea ea : editors())       opened.add(ea.file.path());
-      final StringList files=new StringList(HISTORY);
+      final StringList hst=new StringList(HISTORY);
       final StringList all=new StringList(gui.gopts.get(GUIOptions.EDITOR));
       final int fl=Math.min(all.size(),e == null ? HISTORY : HISTCOMP);
-      for (int f=0; f < fl; f++)       files.add(all.get(f));
+      for (int f=0; f < fl; f++)       hst.add(all.get(f));
       Font f=null;
-      for (      final String en : files.sort(Prop.CASE)) {
+      for (      final String en : hst.sort(Prop.CASE)) {
         final JMenuItem it=new JMenuItem(en.replaceAll("(.*)[/\\\\](.*)","$2 [$1]"));
         if (opened.contains(en)) {
           if (f == null)           f=it.getFont().deriveFont(Font.BOLD);
@@ -130,7 +136,7 @@
 );
   BaseXLayout.addDrop(this,new DropHandler(){
     @Override public void drop(    final Object file){
-      if (file instanceof File)       open(new IOFile((File)file),true);
+      if (file instanceof File)       open(new IOFile((File)file));
     }
   }
 );
