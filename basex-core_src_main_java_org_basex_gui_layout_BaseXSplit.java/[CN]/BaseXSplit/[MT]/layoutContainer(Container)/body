@@ -1,19 +1,25 @@
 {
   final Component[] c=getComponents();
-  final int h=getHeight();
-  final int w=getWidth();
-  final int m=c.length + 1 >> 1;
-  final double p=(l ? w : h) - (m - 1) * BaseXSplitSep.SIZE;
-  final boolean a=s == null;
-  if (a)   s=new double[m];
+  final int h=getHeight(), w=getWidth();
+  final double m=c.length + 1 >> 1;
+  if (propSize == null) {
+    propSize=new double[(int)m];
+    for (int n=0; n < c.length; ++n) {
+      if ((n & 1) == 0)       propSize[n >> 1]=1 / m;
+    }
+  }
+  final double sz=(horiz ? w : h) - (m - 1) * BaseXSplitSep.SIZE;
   double v=0;
   for (int n=0; n < c.length; ++n) {
-    final boolean b=(n & 1) == 0;
-    double z=BaseXSplitSep.SIZE;
-    if (b)     z=s[n >> 1] == 0 ? (int)(p / m) : s[n >> 1] * p;
+    final boolean sep=(n & 1) != 0;
+    final int z=sep ? BaseXSplitSep.SIZE : (int)(propSize[n >> 1] * sz);
     final int y=(int)v;
-    c[n].setBounds(l ? y : 0,l ? 0 : y,l ? (int)z : w,l ? h : (int)z);
-    if (a && b)     s[n >> 1]=z / p;
+    if (horiz) {
+      c[n].setBounds(y,0,z,h);
+    }
+ else {
+      c[n].setBounds(0,y,w,z);
+    }
     v+=z;
   }
 }
