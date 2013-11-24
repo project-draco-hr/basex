@@ -1,32 +1,45 @@
 {
   final Data src=insseq.data;
-  final int sourceSize=insseq.size();
-  if (sourceSize != dst.size(location,dst.kind(location)))   return false;
+  final int srcSize=insseq.size();
+  if (srcSize != trg.size(location,trg.kind(location)))   return false;
   final List<BasicUpdate> valueUpdates=new ArrayList<BasicUpdate>();
-  for (int c=0; c < sourceSize; c++) {
+  for (int c=0; c < srcSize; c++) {
     final int s=insseq.start + c;
-    final int d=location + c;
+    final int t=location + c;
     final int sk=src.kind(s);
-    final int dk=dst.kind(d);
-    if (sk != dk)     return false;
-    final int sdis=src.dist(s,sk);
-    final int ddis=dst.dist(d,dk);
-    if (sdis != ddis)     return false;
+    final int tk=trg.kind(t);
+    if (sk != tk)     return false;
+    if (c > 0 && src.dist(s,sk) != trg.dist(t,tk))     return false;
+    if (sk == Data.TEXT || sk == Data.COMM) {
+      byte[] srcText=src.text(s,true);
+      if (trg.textLen(t,true) != src.textLen(s,true) || !eq(trg.text(t,true),srcText))       valueUpdates.add(UpdateValue.getInstance(trg,t,srcText));
+    }
+ else {
+      final byte[] srcName=src.name(s,sk);
+      final byte[] trgName=trg.name(t,tk);
+      if (!eq(srcName,trgName))       valueUpdates.add(Rename.getInstance(trg,t,srcName,EMPTY));
 switch (sk) {
 case Data.ELEM:
-      if (src.attSize(s,sk) != dst.attSize(d,dk) || src.size(s,sk) != dst.size(d,dk))       return false;
-    break;
+        if (src.attSize(s,sk) != trg.attSize(t,tk) || src.size(s,sk) != trg.size(t,tk))         return false;
+      break;
 case Data.ATTR:
-  break;
-case Data.TEXT:
-case Data.COMM:
+    byte[] srcValue=src.text(s,false);
+  if (!eq(trg.text(t,false),srcValue))   valueUpdates.add(UpdateValue.getInstance(trg,t,srcValue));
+break;
 case Data.PI:
-final byte[] stxt=src.text(s,true);
-if (dst.textLen(d,true) != src.textLen(s,true) || !Token.eq(dst.text(d,true),stxt)) valueUpdates.add(UpdateValue.getInstance(dst,d,stxt));
+final byte[] srcText=src.text(s,true);
+final byte[] trgText=trg.text(t,true);
+final int i=indexOf(srcText,' ');
+srcValue=i == -1 ? EMPTY : substring(srcText,i + 1);
+if (!eq(srcValue,indexOf(trgText,' ') == -1 ? EMPTY : substring(trgText,i + 1))) {
+valueUpdates.add(UpdateValue.getInstance(trg,t,srcValue));
+}
+break;
+}
 }
 }
 for (final BasicUpdate u : valueUpdates) {
-u.apply(dst);
+u.apply(trg);
 }
 return true;
 }
