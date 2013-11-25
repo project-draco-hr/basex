@@ -1,27 +1,10 @@
 {
-  boolean change=false, val=false;
+  boolean change=false;
   for (  final Entry<Var,Expr> entry : scope.closure().entrySet()) {
     final Expr ex=entry.getValue().inline(ctx,scp,v,e);
     if (ex != null) {
       change=true;
-      val|=ex.isValue();
       entry.setValue(ex);
-    }
-  }
-  if (val) {
-    final int fp=scope.enter(ctx);
-    try {
-      for (      final Entry<Var,Expr> entry : staticBindings()) {
-        final Expr inl=expr.inline(ctx,scope,entry.getKey(),entry.getValue());
-        if (inl != null)         expr=inl;
-      }
-    }
- catch (    final QueryException qe) {
-      expr=FNInfo.error(qe,ret != null ? ret : expr.type());
-    }
- finally {
-      scope.cleanUp(this);
-      scope.exit(ctx,fp);
     }
   }
   return change ? optimize(ctx,scp) : null;

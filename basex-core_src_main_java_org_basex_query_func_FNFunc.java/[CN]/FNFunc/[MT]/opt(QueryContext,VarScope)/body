@@ -1,0 +1,23 @@
+{
+  if (oneOf(sig,Function.FOLD_LEFT,Function.FOLD_RIGHT,Function.FOR_EACH) && allAreValues() && expr[0].size() < UNROLL_LIMIT) {
+    ctx.compInfo(QueryText.OPTUNROLL,this);
+    final Value seq=(Value)expr[0];
+    final int len=(int)seq.size();
+    if (sig == Function.FOR_EACH) {
+      final Expr[] results=new Expr[len];
+      for (int i=0; i < len; i++) {
+        results[i]=new DynFuncCall(info,expr[1],seq.itemAt(i)).optimize(ctx,scp);
+      }
+      return new List(info,results).optimize(ctx,scp);
+    }
+    Expr e=expr[1];
+    if (sig == Function.FOLD_LEFT) {
+      for (      final Item it : seq)       e=new DynFuncCall(info,expr[2],e,it).optimize(ctx,scp);
+    }
+ else {
+      for (int i=len; --i >= 0; )       e=new DynFuncCall(info,expr[2],seq.itemAt(i),e).optimize(ctx,scp);
+    }
+    return e;
+  }
+  return this;
+}
