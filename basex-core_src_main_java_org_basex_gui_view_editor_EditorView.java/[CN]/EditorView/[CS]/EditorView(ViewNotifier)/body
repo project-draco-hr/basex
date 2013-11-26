@@ -1,6 +1,6 @@
 {
   super(EDITORVIEW,man);
-  border(5).layout(new BorderLayout());
+  layout(new BorderLayout());
   label=new BaseXLabel(EDITOR,true,false);
   label.setForeground(GRAY);
   final BaseXButton openB=BaseXButton.command(GUICommands.C_EDITOPEN,gui);
@@ -25,23 +25,14 @@
   buttons.add(stop);
   buttons.add(go);
   buttons.add(filter);
-  final BaseXBack b=new BaseXBack(Fill.NONE).layout(new BorderLayout());
-  b.add(buttons,BorderLayout.WEST);
-  b.add(label,BorderLayout.EAST);
-  add(b,BorderLayout.NORTH);
+  final BaseXBack north=new BaseXBack(Fill.NONE).layout(new BorderLayout());
+  north.add(buttons,BorderLayout.WEST);
+  north.add(label,BorderLayout.EAST);
   tabs=new BaseXTabs(gui);
   tabs.setFocusable(Prop.MAC);
-  final SearchEditor se=new SearchEditor(gui,tabs,null).button(srch);
-  search=se.bar();
+  final SearchEditor center=new SearchEditor(gui,tabs,null).button(srch);
+  search=center.bar();
   addCreateTab();
-  files=new EditorTree(this);
-  split=new BaseXSplit(true);
-  split.mode(Fill.NONE);
-  split.add(files);
-  split.add(se);
-  split.sizes(sizes);
-  project();
-  add(split,BorderLayout.CENTER);
   search.editor(addTab(),false);
   info=new BaseXLabel().setText(OK,Msg.SUCCESS);
   pos=new BaseXLabel(" ");
@@ -50,7 +41,19 @@
   south.layout(new BorderLayout(4,0));
   south.add(info,BorderLayout.CENTER);
   south.add(pos,BorderLayout.EAST);
-  add(south,BorderLayout.SOUTH);
+  final BaseXBack main=new BaseXBack().border(5).mode(Fill.NONE);
+  main.layout(new BorderLayout());
+  main.add(north,BorderLayout.NORTH);
+  main.add(center,BorderLayout.CENTER);
+  main.add(south,BorderLayout.SOUTH);
+  files=new EditorTree(this);
+  split=new BaseXSplit(true);
+  split.mode(Fill.NONE);
+  split.add(files);
+  split.add(main);
+  split.sizes(sizes);
+  project();
+  add(split,BorderLayout.CENTER);
   refreshLayout();
   saveB.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
