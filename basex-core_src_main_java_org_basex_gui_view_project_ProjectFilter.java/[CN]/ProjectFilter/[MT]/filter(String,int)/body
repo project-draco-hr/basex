@@ -1,24 +1,22 @@
 {
-  final StringList match=new StringList();
+  final boolean path=pattern.indexOf('\\') != -1 || pattern.indexOf('/') != -1;
+  final TreeSet<String> match=new TreeSet<String>();
   for (  final String input : cache) {
-    final int a=input.lastIndexOf('\\'), b=input.lastIndexOf('/'), c=a > b ? a : b;
-    if (input.startsWith(pattern,c + 1)) {
+    if (input.startsWith(pattern,offset(input,path))) {
       match.add(input);
       if (match.size() >= 100)       return match;
     }
     if (threadID != thread)     return null;
   }
   for (  final String input : cache) {
-    final int a=input.lastIndexOf('\\'), b=input.lastIndexOf('/'), c=a > b ? a : b;
-    if (input.substring(c + 1).contains(pattern) && !match.contains(input)) {
+    if (input.substring(offset(input,path)).contains(pattern) && !match.contains(input)) {
       match.add(input);
       if (match.size() >= 100)       return match;
     }
     if (threadID != thread)     return null;
   }
   for (  final String input : cache) {
-    final int a=input.lastIndexOf('\\'), b=input.lastIndexOf('/'), c=a > b ? a : b;
-    if (matches(input,pattern,c + 1) && !match.contains(input)) {
+    if (matches(input,pattern,offset(input,path)) && !match.contains(input)) {
       match.add(input);
       if (match.size() >= 100)       return match;
     }

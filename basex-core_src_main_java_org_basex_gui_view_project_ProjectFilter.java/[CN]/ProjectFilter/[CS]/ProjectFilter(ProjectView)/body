@@ -1,6 +1,5 @@
 {
   super(view.gui);
-  history(view.gui,GUIOptions.FILTERS);
   project=view;
   addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
@@ -24,8 +23,14 @@
       }
       if (oldView != newView)       view.scroll.setViewportView(newView);
     }
+    @Override public void keyPressed(    final KeyEvent e){
+      if (BaseXKeys.NEXTLINE.is(e) || BaseXKeys.PREVLINE.is(e) || BaseXKeys.NEXTPAGE.is(e)|| BaseXKeys.PREVPAGE.is(e)|| BaseXKeys.LINESTART.is(e)|| BaseXKeys.LINEEND.is(e)) {
+        project.list.dispatchEvent(e);
+      }
+    }
     @Override public void keyTyped(    final KeyEvent e){
       if (BaseXKeys.ENTER.is(e))       view.list.open();
+ else       if (BaseXKeys.ESCAPE.is(e))       setText("");
     }
   }
 );

@@ -2,7 +2,7 @@
   super(ev.gui);
   view=ev;
   setLayout(new BorderLayout());
-  root=new DefaultMutableTreeNode();
+  final DefaultMutableTreeNode root=new DefaultMutableTreeNode();
   tree=new BaseXTree(root,gui).border(4,4,4,4);
   renderer=new ProjectCellRenderer();
   tree.setExpandsSelectedPaths(true);
@@ -33,10 +33,9 @@
 );
   tree.setCellEditor(new ProjectCellEditor(tree,renderer));
   tree.setEditable(true);
-  final StringList roots=roots();
-  root.removeAllChildren();
-  for (  final String s : roots)   root.add(new ProjectDir(new IOFile(s),this));
-  for (int c=0; c <= roots.size(); c++)   tree.expandRow(c);
+  dir=new ProjectDir(new IOFile(root()),this);
+  root.add(dir);
+  for (int r=0; r < 2; r++)   tree.expandRow(r);
   tree.setRootVisible(false);
   tree.setSelectionRow(0);
   new BaseXPopup(tree,gui,new DeleteCmd(),new RenameCmd(),new NewCmd(),null,new ChangeCmd(),new RefreshCmd());
