@@ -1,28 +1,22 @@
 {
   if (!selected() && shift && text.length != 0)   select(ps + 1,ps);
-  boolean i=false;
   if (selected()) {
-    final int s=Math.min(ps,start());
-    final int l=Math.max(ps,start()) - 1;
-    int p=s;
-    for (; p <= l && p < text.length; p++)     i|=text[p] != '\n';
-    i|=p == text.length;
-    if (i) {
-      indent(s,l,shift);
-      sb.setLength(0);
-    }
+    indent(shift);
+    sb.setLength(0);
+    return selected();
   }
- else {
+  if (!shift) {
     boolean c=ps > 0;
     for (int p=ps - 1; p >= 0 && c; p--) {
       final byte b=text[p];
-      c=ws(b);
+      if (!ws(b))       return false;
       if (b == '\n')       break;
     }
-    if (c) {
-      sb.setLength(0);
-      sb.append("  ");
-    }
+    sb.setLength(0);
+    sb.append("  ");
   }
-  return i;
+ else {
+    sb.setLength(0);
+  }
+  return false;
 }

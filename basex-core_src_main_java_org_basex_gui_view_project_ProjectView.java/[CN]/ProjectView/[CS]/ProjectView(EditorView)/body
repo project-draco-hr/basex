@@ -1,0 +1,53 @@
+{
+  super(ev.gui);
+  view=ev;
+  setLayout(new BorderLayout());
+  root=new DefaultMutableTreeNode();
+  tree=new BaseXTree(root,gui).border(4,4,4,4);
+  renderer=new ProjectCellRenderer();
+  tree.setExpandsSelectedPaths(true);
+  tree.setCellRenderer(renderer);
+  tree.addTreeWillExpandListener(this);
+  tree.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (BaseXKeys.REFRESH.is(e)) {
+        new RefreshCmd().execute(gui);
+      }
+ else       if (BaseXKeys.DELNEXT.is(e)) {
+        new DeleteCmd().execute(gui);
+      }
+ else       if (BaseXKeys.NEWDIR.is(e)) {
+        new NewCmd().execute(gui);
+      }
+    }
+    @Override public void keyTyped(    final KeyEvent e){
+      if (BaseXKeys.ENTER.is(e))       open();
+    }
+  }
+);
+  tree.addMouseListener(new MouseAdapter(){
+    @Override public void mousePressed(    final MouseEvent e){
+      if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)       open();
+    }
+  }
+);
+  tree.setCellEditor(new ProjectCellEditor(tree,renderer));
+  tree.setEditable(true);
+  final StringList roots=roots();
+  root.removeAllChildren();
+  for (  final String s : roots)   root.add(new ProjectDir(new IOFile(s),this));
+  for (int c=0; c <= roots.size(); c++)   tree.expandRow(c);
+  tree.setRootVisible(false);
+  tree.setSelectionRow(0);
+  new BaseXPopup(tree,gui,new DeleteCmd(),new RenameCmd(),new NewCmd(),null,new ChangeCmd(),new RefreshCmd());
+  scroll=new JScrollPane(tree);
+  scroll.setBorder(new EmptyBorder(0,0,0,0));
+  list=new ProjectList(this);
+  BaseXLayout.addInteraction(list,gui);
+  final BaseXBack back=new BaseXBack().layout(new GridLayout(1,1));
+  back.setBorder(new CompoundBorder(new MatteBorder(0,0,1,0,GUIConstants.GRAY),new EmptyBorder(3,1,3,2)));
+  filter=new ProjectFilter(this);
+  back.add(filter);
+  add(back,BorderLayout.NORTH);
+  add(scroll,BorderLayout.CENTER);
+}
