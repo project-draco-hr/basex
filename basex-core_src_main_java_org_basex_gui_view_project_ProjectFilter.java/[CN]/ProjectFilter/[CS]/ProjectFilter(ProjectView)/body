@@ -1,26 +1,31 @@
 {
   super(view.gui);
   history(view.gui,GUIOptions.FILTERS);
+  project=view;
   addKeyListener(new KeyAdapter(){
     @Override public void keyReleased(    final KeyEvent e){
-      final BaseXTree tree=view.tree;
-      final ProjectList list=view.list;
       final String pattern=getText().trim();
       if (last.equals(pattern))       return;
+      last=pattern;
       final Component oldView=view.scroll.getViewport().getView(), newView;
       if (pattern.isEmpty()) {
-        newView=tree;
+        newView=view.tree;
       }
  else {
-        setCursor(CURSORWAIT);
-        init(view);
-        list.model.removeAllElements();
-        for (        final String file : filter(pattern))         list.model.addElement(file);
-        setCursor(CURSORARROW);
-        newView=list;
+        newView=view.list;
+        final Thread t=new Thread(){
+          @Override public void run(){
+            filter(pattern);
+          }
+        }
+;
+        t.setDaemon(true);
+        t.start();
       }
       if (oldView != newView)       view.scroll.setViewportView(newView);
-      last=pattern;
+    }
+    @Override public void keyTyped(    final KeyEvent e){
+      if (BaseXKeys.ENTER.is(e))       view.list.open();
     }
   }
 );
