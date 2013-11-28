@@ -7,7 +7,8 @@
   }
  else {
     try {
-      final byte[] text=file.read();
+      final byte[] text=read(file);
+      if (text == null)       return null;
       edit=getEditor();
       if (edit.opened() || edit.modified)       edit=addTab();
       edit.initText(text);
@@ -16,7 +17,9 @@
     }
  catch (    final IOException ex) {
       refreshHistory(null);
-      BaseXDialog.error(gui,FILE_NOT_OPENED);
+      Util.debug(ex);
+      BaseXDialog.error(gui,Util.info(FILE_NOT_OPENED_X,file));
+      ex.printStackTrace();
       return null;
     }
   }

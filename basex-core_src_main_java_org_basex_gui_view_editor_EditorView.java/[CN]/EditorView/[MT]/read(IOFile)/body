@@ -1,0 +1,28 @@
+{
+  final BufferInput bi=new BufferInput(file);
+  final byte[] buffer=new byte[IO.BLOCKSIZE];
+  final int size=Math.max(0,bi.read(buffer) - 4);
+  for (int c=0; c < size; c+=cl(buffer,c)) {
+    if (!XMLToken.valid(cp(buffer,c))) {
+      if (!BaseXDialog.confirm(gui,H_FILE_BINARY))       break;
+      try {
+        Desktop.getDesktop().open(file.file());
+      }
+ catch (      final IOException ex) {
+        final String[] args;
+        if (Prop.WIN) {
+          args=new String[]{"rundll32","url.dll,FileProtocolHandler",file.path()};
+        }
+ else         if (Prop.MAC) {
+          args=new String[]{"/usr/bin/open",file.path()};
+        }
+ else {
+          args=new String[]{"xdg-open",file.path()};
+        }
+        new ProcessBuilder(args).start();
+      }
+      return null;
+    }
+  }
+  return file.read();
+}
