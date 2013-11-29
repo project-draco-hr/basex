@@ -3,8 +3,8 @@
   final byte[] p=token(io.path());
   final byte[] u=ctx.modParsed.get(p);
   if (u != null) {
-    if (!eq(uri,u))     error(WRONGMODULE,uri,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
-    if (!sc.xquery3() && ctx.modStack.contains(p))     error(CIRCMODULE);
+    if (!eq(uri,u))     throw error(WRONGMODULE,uri,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
+    if (!sc.xquery3() && ctx.modStack.contains(p))     throw error(CIRCMODULE);
     return;
   }
   ctx.modParsed.put(p,uri);
@@ -13,19 +13,19 @@
     qu=string(io.read());
   }
  catch (  final IOException ex) {
-    error(WHICHMODFILE,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
+    throw error(WHICHMODFILE,ctx.context.user.has(Perm.ADMIN) ? io.path() : io.name());
   }
   ctx.modStack.push(p);
   final StaticContext sub=new StaticContext(sc.xquery3());
   final LibraryModule lib=new QueryParser(qu,io.path(),ctx,sub).parseLibrary(!imprt);
   final byte[] muri=lib.name.uri();
-  if (!eq(uri,muri))   error(WRONGMODULE,muri,file);
+  if (!eq(uri,muri))   throw error(WRONGMODULE,muri,file);
   if (sub.initType != null) {
     if (sc.initType == null) {
       sc.initType=sub.initType;
     }
  else     if (!sub.initType.eq(sc.initType)) {
-      error(CITYPES,sub.initType,sc.initType);
+      throw error(CITYPES,sub.initType,sc.initType);
     }
   }
   ctx.modStack.pop();

@@ -2,7 +2,7 @@
   byte[] pref=null;
   if (wsConsumeWs(NSPACE)) {
     pref=ncName(NONAME);
-    if (eq(pref,XML,XMLNS))     error(BINDXML,pref);
+    if (eq(pref,XML,XMLNS))     throw error(BINDXML,pref);
     wsCheck(IS);
   }
  else   if (wsConsumeWs(DEFAULT)) {
@@ -10,14 +10,14 @@
     wsCheck(NSPACE);
   }
   byte[] ns=stringLiteral();
-  if (pref != null && ns.length == 0)   error(NSEMPTY);
-  if (!Uri.uri(ns).isValid())   error(INVURI,ns);
+  if (pref != null && ns.length == 0)   throw error(NSEMPTY);
+  if (!Uri.uri(ns).isValid())   throw error(INVURI,ns);
   if (wsConsumeWs(AT)) {
     do {
       ns=stringLiteral();
-      if (!Uri.uri(ns).isValid())       error(INVURI,ns);
+      if (!Uri.uri(ns).isValid())       throw error(INVURI,ns);
     }
  while (wsConsumeWs(COMMA));
   }
-  error(IMPLSCHEMA);
+  throw error(IMPLSCHEMA);
 }

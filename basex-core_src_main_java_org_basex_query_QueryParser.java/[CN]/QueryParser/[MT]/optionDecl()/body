@@ -4,17 +4,17 @@
   final byte[] val=stringLiteral();
   final String name=string(qnm.local());
   if (sc.xquery3() && eq(qnm.uri(),OUTPUTURI)) {
-    if (module != null)     error(MODOUT);
+    if (module != null)     throw error(MODOUT);
     if (ctx.serialOpts == null) {
       ctx.serialOpts=ctx.context.options.get(MainOptions.SERIALIZER);
     }
-    if (!decl.add("S " + name))     error(OUTDUPL,name);
+    if (!decl.add("S " + name))     throw error(OUTDUPL,name);
     try {
       ctx.serialOpts.assign(name,string(val));
     }
  catch (    final BaseXException ex) {
-      for (      final Option<?> o : ctx.serialOpts)       if (o.name().equals(name))       error(SERANY,ex);
-      error(OUTINVALID,ex);
+      for (      final Option<?> o : ctx.serialOpts)       if (o.name().equals(name))       throw error(SERANY,ex);
+      throw error(OUTINVALID,ex);
     }
     if (name.equals(SerializerOptions.PARAMETER_DOCUMENT.name())) {
       final IO io=IO.get(string(resolvedUri(val).string()));
@@ -28,17 +28,17 @@
         if (!ctx.serialOpts.get(cm).isEmpty())         throw SERWHICH.get(info,cm.name());
       }
  catch (      final IOException ex) {
-        error(OUTDOC,val);
+        throw error(OUTDOC,val);
       }
     }
   }
  else   if (sc.xquery3() && eq(qnm.uri(),XQURI)) {
-    error(DECLOPTION,qnm);
+    throw error(DECLOPTION,qnm);
   }
  else   if (eq(qnm.uri(),DBURI)) {
     final String ukey=name.toUpperCase(Locale.ENGLISH);
     final Option<?> opt=ctx.context.options.option(ukey);
-    if (opt == null)     error(BASX_OPTIONS,ukey);
+    if (opt == null)     throw error(BASX_OPTIONS,ukey);
     ctx.staticOpts.put(opt,ctx.context.options.get(opt));
     ctx.tempOpts.add(name).add(string(val));
   }
@@ -50,7 +50,7 @@
       for (      final byte[] lock : split(val,','))       ctx.writeLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
     }
  else {
-      error(BASX_OPTIONS,name);
+      throw error(BASX_OPTIONS,name);
     }
   }
 }

@@ -7,16 +7,16 @@
     final Var[] args=paramList();
     wsCheck(PAR2);
     final SeqType type=optAsType();
-    if (ann != null && (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC)))     error(INVISIBLE);
+    if (ann != null && (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC)))     throw error(INVISIBLE);
     final Expr body=enclosed(NOFUNBODY);
     scope=scope.parent();
     return new InlineFunc(info(),type,args,body,ann,sc,inner);
   }
-  if (ann != null)   error(NOANN);
+  if (ann != null)   throw error(NOANN);
   pos=ip;
   final QNm name=eQName(null,sc.funcNS);
   if (name != null && consume('#')) {
-    if (keyword(name))     error(RESERVED,name.local());
+    if (keyword(name))     throw error(RESERVED,name.local());
     final Expr ex=numericLiteral(true);
     if (!(ex instanceof Int))     return ex;
     final long card=((ANum)ex).itr();
