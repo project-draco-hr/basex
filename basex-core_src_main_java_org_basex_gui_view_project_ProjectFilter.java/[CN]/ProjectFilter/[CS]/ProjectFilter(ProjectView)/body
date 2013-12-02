@@ -1,38 +1,13 @@
 {
-  super(view.gui);
   project=view;
-  addKeyListener(new KeyAdapter(){
-    @Override public void keyReleased(    final KeyEvent e){
-      final String pattern=getText().trim();
-      if (last.equals(pattern))       return;
-      last=pattern;
-      final Component oldView=view.scroll.getViewport().getView(), newView;
-      if (pattern.isEmpty()) {
-        newView=view.tree;
-        ++threadID;
-      }
- else {
-        newView=view.list;
-        final Thread t=new Thread(){
-          @Override public void run(){
-            filter(Token.token(pattern));
-          }
-        }
-;
-        t.setDaemon(true);
-        t.start();
-      }
-      if (oldView != newView)       view.scroll.setViewportView(newView);
-    }
-    @Override public void keyPressed(    final KeyEvent e){
-      if (BaseXKeys.NEXTLINE.is(e) || BaseXKeys.PREVLINE.is(e) || BaseXKeys.NEXTPAGE.is(e)|| BaseXKeys.PREVPAGE.is(e)|| BaseXKeys.LINESTART.is(e)|| BaseXKeys.LINEEND.is(e)) {
-        project.list.dispatchEvent(e);
-      }
-    }
-    @Override public void keyTyped(    final KeyEvent e){
-      if (BaseXKeys.ENTER.is(e))       view.list.open();
- else       if (BaseXKeys.ESCAPE.is(e))       setText("");
-    }
-  }
-);
+  layout(new BorderLayout(0,2));
+  files=new BaseXTextField(view.gui);
+  files.hint(Text.SEARCH_FILES);
+  contents=new BaseXTextField(view.gui);
+  contents.setEnabled(false);
+  contents.hint(Text.SEARCH_CONTENTS);
+  add(files,BorderLayout.NORTH);
+  add(contents,BorderLayout.CENTER);
+  files.addKeyListener(this);
+  contents.addKeyListener(this);
 }
