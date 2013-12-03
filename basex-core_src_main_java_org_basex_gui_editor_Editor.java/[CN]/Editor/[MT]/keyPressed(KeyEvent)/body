@@ -1,34 +1,5 @@
 {
-  if (search != null) {
-    if (ESCAPE.is(e)) {
-      search.deactivate(true);
-      return;
-    }
-    if (FIND.is(e)) {
-      search.activate(text.copy(),true);
-      return;
-    }
-    if (FINDNEXT.is(e) || FINDNEXT2.is(e)) {
-      find(true);
-      return;
-    }
-    if (FINDPREV.is(e) || FINDPREV2.is(e)) {
-      find(false);
-      return;
-    }
-  }
-  if (modifier(e))   return;
-  if (PREVTAB.is(e)) {
-    gui.editor.tab(false);
-    e.consume();
-  }
- else   if (NEXTTAB.is(e)) {
-    gui.editor.tab(true);
-    e.consume();
-  }
- else   if (CLOSETAB.is(e)) {
-    gui.editor.close(null);
-  }
+  if (searchKey(e) || specialKey(e) || modifier(e))   return;
   cursor(true);
   final int fh=rend.fontHeight();
   if (SCROLLDOWN.is(e)) {
@@ -50,7 +21,7 @@
     selectAll();
     return;
   }
-  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !COMMENT.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e)&& !PREVPAGE_RO.is(e);
+  final boolean marking=e.isShiftDown() && !DELNEXT.is(e) && !DELPREV.is(e)&& !PASTE2.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e)&& !PREVPAGE_RO.is(e);
   final boolean nomark=!text.selecting();
   if (marking && nomark)   text.startSelect();
   boolean down=true;
@@ -130,9 +101,6 @@
         text.text(t);
         text.pos(hist.cursor());
       }
-    }
- else     if (COMMENT.is(e)) {
-      text.comment(rend.getSyntax());
     }
  else     if (COMPLETE.is(e)) {
       text.complete();
