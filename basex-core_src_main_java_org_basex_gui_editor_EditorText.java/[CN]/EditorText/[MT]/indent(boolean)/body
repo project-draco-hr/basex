@@ -1,17 +1,10 @@
 {
-  int s=Math.min(ms,me), e=Math.max(ms,me) - 1;
-  pos(s);
-  bol(true);
-  s=ps;
-  pos(e);
-  forward(Integer.MAX_VALUE,true);
-  e=ps;
-  final byte[] add=new byte[TAB];
-  for (int a=0; a < TAB; a++)   add[a]=' ';
+  extend();
+  int s=ms, e=me, o=e;
+  final int tl=text.length;
   final TokenBuilder tb=new TokenBuilder();
   tb.add(text,0,s);
-  final int pl=text.length;
-  for (int p=s; p < ps; p+=cl(text,p)) {
+  for (int p=s; p < o; p+=cl(text,p)) {
     if (p == 0 || text[p - 1] == '\n') {
       if (shift) {
         if (text[p] == '\t') {
@@ -20,7 +13,7 @@
         }
         if (text[p] == ' ') {
           e--;
-          for (int i=1; i < TAB && p + i < pl && text[p + i] == ' '; i++) {
+          for (int i=1; i < TAB && p + i < tl && text[p + i] == ' '; i++) {
             e--;
             p++;
           }
@@ -28,15 +21,15 @@
         }
       }
  else {
-        tb.add(add);
-        e+=add.length;
+        tb.add(INDENT);
+        e+=TAB;
       }
     }
     tb.add(cp(text,p));
   }
-  tb.add(text,ps,text.length);
+  tb.add(text,o,tl);
   text(tb.finish());
-  ms=s;
-  me=e;
+  select(s,e);
   pc=e;
+  ps=e;
 }
