@@ -1,24 +1,3 @@
 {
-  final String file=files.getText().trim();
-  final String cont=contents.getText().trim();
-  if (lastFiles.equals(file) && lastContents.equals(cont))   return;
-  lastFiles=file;
-  lastContents=cont;
-  final Component oldView=project.scroll.getViewport().getView(), newView;
-  if (file.isEmpty() && cont.isEmpty()) {
-    newView=project.tree;
-    ++threadID;
-  }
- else {
-    newView=project.list;
-    final Thread t=new Thread(){
-      @Override public void run(){
-        filter(Token.token(file),Token.token(cont));
-      }
-    }
-;
-    t.setDaemon(true);
-    t.start();
-  }
-  if (oldView != newView)   project.scroll.setViewportView(newView);
+  refresh(false);
 }

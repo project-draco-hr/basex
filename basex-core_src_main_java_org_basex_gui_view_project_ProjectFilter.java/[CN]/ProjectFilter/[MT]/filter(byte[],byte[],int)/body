@@ -1,5 +1,15 @@
 {
-  final StringList match=new StringList();
-  for (int i=0; i < 3; i++)   if (!filter(file,cont,thread,i,match))   return null;
-  return match;
+  while (running) {
+    Thread.yield();
+    if (threadID != thread)     return;
+  }
+  running=true;
+  setCursor(CURSORWAIT);
+  init(thread);
+  final StringList matches=new StringList();
+  int i=-1;
+  while (++i < 3 && filter(file,cont,thread,i,matches))   ;
+  if (i == 3)   project.list.setElements(matches,cont.length == 0 ? null : Token.string(cont));
+  setCursor(CURSORARROW);
+  running=false;
 }
