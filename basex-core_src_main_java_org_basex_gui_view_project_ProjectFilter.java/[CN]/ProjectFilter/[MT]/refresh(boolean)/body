@@ -1,19 +1,20 @@
 {
   final String file=files.getText().trim();
-  final String cont=contents.getText().trim();
-  if (!force && lastFiles.equals(file) && lastContents.equals(cont))   return;
+  final String content=contents.getText().trim();
+  if (!force && lastFiles.equals(file) && lastContents.equals(content))   return;
   lastFiles=file;
-  lastContents=cont;
+  lastContents=content;
+  System.out.println("Search " + content);
   ++threadID;
   final Component oldView=project.scroll.getViewport().getView(), newView;
-  if (file.isEmpty() && cont.isEmpty()) {
+  if (file.isEmpty() && content.isEmpty()) {
     newView=project.tree;
   }
  else {
     newView=project.list;
     final Thread t=new Thread(){
       @Override public void run(){
-        filter(Token.token(file),Token.token(cont),threadID);
+        filter(file,content,threadID);
       }
     }
 ;

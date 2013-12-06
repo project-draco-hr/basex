@@ -8,9 +8,14 @@
   contents.setCursor(CURSORWAIT);
   init(thread);
   final StringList matches=new StringList();
-  int i=-1;
-  while (++i < 3 && filter(file,cont,thread,i,matches))   ;
-  if (i == 3)   project.list.setElements(matches,cont.length == 0 ? null : Token.string(cont));
+  final IntList il=new IntList();
+  final TokenParser tp=new TokenParser(Token.token(content));
+  while (tp.more())   il.add(Token.lc(tp.next()));
+  if (filter(pattern,il.toArray(),thread,matches)) {
+    project.list.setElements(matches,content.isEmpty() ? null : content);
+  }
+ else {
+  }
   files.setCursor(CURSORTEXT);
   contents.setCursor(CURSORTEXT);
   running=false;
