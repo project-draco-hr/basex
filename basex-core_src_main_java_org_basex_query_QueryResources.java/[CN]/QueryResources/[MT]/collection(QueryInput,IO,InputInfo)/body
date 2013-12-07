@@ -1,13 +1,17 @@
 {
-  final String in=baseIO != null ? baseIO.merge(input).path() : null;
+  if (ctx.context.options.get(MainOptions.DEFAULTDB) && ctx.nodes != null) {
+    final Data dt=data[0];
+    final IntList pres=dt.resources.docs(qi.original);
+    return DBNodeSeq.get(pres,dt,true,qi.original.isEmpty());
+  }
+  final String in=baseIO != null ? baseIO.merge(qi.original).path() : null;
   if (in != null) {
-    final String[] names={in,input};
+    final String[] names={in,qi.original};
     for (int c=0; c < colls; c++) {
       final String n=collName[c];
       if (Prop.CASE ? Token.eq(n,names) : Token.eqic(n,names))       return coll[c];
     }
   }
-  final QueryInput qi=new QueryInput(input);
   Data dt=null;
   for (int i=0; i < datas; ++i) {
     final Data d=data[i];
