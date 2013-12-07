@@ -1,16 +1,15 @@
 {
-  int ns=0;
-  final int pc=text.getCaret();
-  final int ts=text.size();
-  final byte[] old=text.text();
-  boolean eq=true;
-  for (int r=0; r < s; ++r) {
-    final byte b=t[r];
-    if (b != 0x0D)     t[ns++]=t[r];
-    eq&=ns < ts && ns < s && t[ns] == old[ns];
+  byte[] txt=t;
+  if (Token.contains(t,'\r')) {
+    int ns=0;
+    for (int r=0; r < s; ++r) {
+      final byte b=t[r];
+      if (b != 0x0D)       t[ns++]=b;
+    }
+    txt=Arrays.copyOf(t,ns);
   }
-  eq&=ns == ts;
-  if (!eq)   text.text(Arrays.copyOf(t,ns));
-  if (hist != null)   hist.store(t.length == ns ? t : Arrays.copyOf(t,ns),pc,0);
+  if (text.text(txt)) {
+    if (hist != null)     hist.store(txt,text.getCaret(),0);
+  }
   componentResized(null);
 }

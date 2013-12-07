@@ -1,23 +1,31 @@
 {
-  final BufferInput bi=new BufferInput(file);
-  final byte[] buffer=new byte[IO.BLOCKSIZE];
+  final TokenBuilder text=new TokenBuilder((int)Math.min(1 << 28,file.length()));
+  final TextInput ti=new NewlineInput(file).validate(true);
+  boolean first=true;
   try {
-    final int size=Math.max(0,bi.read(buffer) - 4);
-    for (int c=0; c < size; c+=cl(buffer,c)) {
-      if (!XMLToken.valid(cp(buffer,c))) {
-        if (!BaseXDialog.confirm(gui,H_FILE_BINARY))         break;
-        try {
-          file.open();
+    while (true) {
+      try {
+        final int cp=ti.read();
+        if (cp == -1)         return text.finish();
+        text.add(cp);
+      }
+ catch (      final InputException ex) {
+        if (first) {
+          first=false;
+          if (BaseXDialog.confirm(gui,H_FILE_BINARY)) {
+            try {
+              file.open();
+            }
+ catch (            final IOException ioex) {
+              Desktop.getDesktop().open(file.file());
+            }
+            return null;
+          }
         }
- catch (        final IOException ex) {
-          Desktop.getDesktop().open(file.file());
-        }
-        return null;
       }
     }
   }
   finally {
-    bi.close();
+    ti.close();
   }
-  return file.read();
 }
