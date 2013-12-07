@@ -1,10 +1,21 @@
 {
   final String name=args[0].toUpperCase(Locale.ENGLISH), val=args[1];
-  if (context.user.has(Perm.ADMIN) && goptions.option(name) != null)   return error(GLOBAL_OPTION_X,name);
-  final Option<?> opt=options.option(name);
+  Options opts=options;
+  boolean debug=false;
+  if (context.user.has(Perm.ADMIN)) {
+    final Option<?> opt=goptions.option(name);
+    if (opt == GlobalOptions.DEBUG) {
+      debug=true;
+      opts=goptions;
+    }
+ else     if (opt != null) {
+      return error(GLOBAL_OPTION_X,name);
+    }
+  }
   try {
-    options.assign(name,val);
-    return info(name + COLS + options.get(opt));
+    opts.assign(name,val);
+    if (debug)     Prop.debug=opts.get(GlobalOptions.DEBUG);
+    return info(name + COLS + opts.get(opts.option(name)));
   }
  catch (  final BaseXException ex) {
     Util.debug(ex);
