@@ -7,6 +7,19 @@
   contents.hint(Text.FIND_CONTENTS);
   add(files,BorderLayout.NORTH);
   add(contents,BorderLayout.CENTER);
-  files.addKeyListener(this);
-  contents.addKeyListener(this);
+  final KeyAdapter refreshKeys=new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (BaseXKeys.NEXTLINE.is(e) || BaseXKeys.PREVLINE.is(e) || BaseXKeys.NEXTPAGE.is(e)|| BaseXKeys.PREVPAGE.is(e)) {
+        project.list.dispatchEvent(e);
+      }
+    }
+    @Override public void keyReleased(    final KeyEvent e){
+      refresh(false);
+    }
+  }
+;
+  files.addKeyListener(keys);
+  contents.addKeyListener(keys);
+  files.addKeyListener(refreshKeys);
+  contents.addKeyListener(refreshKeys);
 }

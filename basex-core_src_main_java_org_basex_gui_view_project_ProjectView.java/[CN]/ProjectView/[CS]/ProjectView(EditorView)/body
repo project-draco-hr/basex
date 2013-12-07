@@ -19,9 +19,12 @@
  else       if (BaseXKeys.NEWDIR.is(e)) {
         new NewCmd().execute(gui);
       }
+ else       if (BaseXKeys.COPY_PATH.is(e)) {
+        new CopyPathCmd().execute(gui);
+      }
     }
     @Override public void keyTyped(    final KeyEvent e){
-      if (BaseXKeys.SHIFT_ENTER.is(e)) {
+      if (BaseXKeys.OPEN.is(e)) {
         new OpenExternalCmd().execute(gui);
       }
  else       if (BaseXKeys.ENTER.is(e)) {
@@ -43,9 +46,10 @@
   for (int r=0; r < 2; r++)   tree.expandRow(r);
   tree.setRootVisible(false);
   tree.setSelectionRow(0);
-  new BaseXPopup(tree,gui,new OpenCmd(),new OpenExternalCmd(),null,new DeleteCmd(),new RenameCmd(),new NewCmd(),null,new RefreshCmd());
+  new BaseXPopup(tree,gui,new OpenCmd(),new OpenExternalCmd(),null,new DeleteCmd(),new RenameCmd(),new NewCmd(),null,new RefreshCmd(),new CopyPathCmd());
   scroll=new JScrollPane(tree);
   scroll.setBorder(new EmptyBorder(0,0,0,0));
+  filter=new ProjectFilter(this);
   list=new ProjectList(this);
   BaseXLayout.addInteraction(list,gui);
   final BaseXBack back=new BaseXBack().layout(new BorderLayout(2,2));
@@ -53,7 +57,6 @@
   path=new BaseXTextField(gui);
   path.setText(root.file.path());
   path.setEnabled(false);
-  filter=new ProjectFilter(this);
   final BaseXButton browse=new BaseXButton(DOTS,gui);
   browse.setMargin(new Insets(0,2,0,2));
   browse.setToolTipText(CHOOSE_DIR);
