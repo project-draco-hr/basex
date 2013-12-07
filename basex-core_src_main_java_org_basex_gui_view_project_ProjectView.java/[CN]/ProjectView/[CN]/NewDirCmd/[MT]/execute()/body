@@ -1,0 +1,25 @@
+{
+  ProjectNode parent=selectedNode();
+  if (parent instanceof ProjectFile)   parent=(ProjectDir)parent.getParent();
+  String name='(' + NEW_DIR + ')';
+  IOFile file=new IOFile(parent.file,name);
+  int c=1;
+  while (file.exists()) {
+    name='(' + NEW_DIR + ' '+ ++c+ ')';
+    file=new IOFile(parent.file,name);
+  }
+  if (file.md()) {
+    tree.setSelectionPaths(null);
+    parent.refresh();
+    final int cl=parent.getChildCount();
+    for (int i=0; i < cl; i++) {
+      final ProjectNode node=(ProjectNode)parent.getChildAt(i);
+      if (node.file.name().equals(name)) {
+        final TreePath tp=node.path();
+        tree.setSelectionPath(tp);
+        tree.startEditingAtPath(tp);
+        break;
+      }
+    }
+  }
+}

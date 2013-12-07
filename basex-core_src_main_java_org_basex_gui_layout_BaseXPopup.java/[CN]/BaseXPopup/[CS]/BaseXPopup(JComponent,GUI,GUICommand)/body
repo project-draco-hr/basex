@@ -1,0 +1,50 @@
+{
+  commands=cmds;
+  gui=g;
+  comp.addMouseListener(new MouseAdapter(){
+    @Override public void mousePressed(    final MouseEvent e){
+      if (!gui.updating && e.isPopupTrigger())       show(e.getComponent(),e.getX() - 10,e.getY() - 15);
+    }
+    @Override public void mouseReleased(    final MouseEvent e){
+      mousePressed(e);
+    }
+  }
+);
+  comp.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (!gui.updating && CONTEXT.is(e)) {
+        show(e.getComponent(),10,10);
+      }
+ else {
+        for (        final GUICommand cmd : cmds) {
+          if (cmd instanceof GUIPopupCmd) {
+            final BaseXKeys sc=((GUIPopupCmd)cmd).shortcut();
+            if (sc != null && sc.is(e)) {
+              cmd.execute(g);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+);
+  final StringBuilder mnemCache=new StringBuilder();
+  for (  final GUICommand cmd : cmds) {
+    if (cmd == null) {
+      addSeparator();
+    }
+ else {
+      final JMenuItem item=add(cmd.label());
+      item.addActionListener(new ActionListener(){
+        @Override public void actionPerformed(        final ActionEvent e){
+          if (!gui.updating)           cmd.execute(gui);
+        }
+      }
+);
+      BaseXLayout.setMnemonic(item,mnemCache);
+      item.setAccelerator(BaseXLayout.keyStroke(cmd));
+      item.setToolTipText(cmd.help());
+    }
+  }
+}
