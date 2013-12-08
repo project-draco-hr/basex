@@ -1,0 +1,15 @@
+{
+  if (!hist.active() || control(e) || DELETE.is(e)|| BACKSPACE.is(e)|| ESCAPE.is(e))   return;
+  final int pc=text.caret();
+  text.pos(pc);
+  final StringBuilder sb=new StringBuilder(1).append(e.getKeyChar());
+  final boolean indent=TAB.is(e) && text.indent(sb,e.isShiftDown());
+  final boolean selected=text.selected() && !indent;
+  if (selected)   text.delete();
+  final int ps=text.pos();
+  final int move=ENTER.is(e) ? text.enter(sb) : text.add(sb,selected);
+  hist.store(text.text(),pc,text.caret());
+  if (move != 0)   text.setCaret(Math.min(text.size(),ps + move));
+  scrollCode.invokeLater(true);
+  e.consume();
+}

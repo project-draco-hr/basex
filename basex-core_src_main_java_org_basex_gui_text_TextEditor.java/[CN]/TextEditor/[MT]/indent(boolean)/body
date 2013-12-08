@@ -1,0 +1,32 @@
+{
+  extend();
+  final int s=selectPos, e=selectEnd, tl=text.length;
+  int o=e;
+  final TokenBuilder tb=new TokenBuilder();
+  for (int p=s; p < e; p+=cl(text,p)) {
+    if (p == 0 || text[p - 1] == '\n') {
+      if (shift) {
+        if (text[p] == '\t') {
+          o--;
+          continue;
+        }
+        if (text[p] == ' ') {
+          o--;
+          for (int i=1; i < TAB && p + i < tl && text[p + i] == ' '; i++) {
+            o--;
+            p++;
+          }
+          continue;
+        }
+      }
+ else {
+        tb.add(INDENT);
+        o+=TAB;
+      }
+    }
+    tb.add(cp(text,p));
+  }
+  add(tb.finish(),s,e);
+  select(s,o);
+  setCaret(o);
+}

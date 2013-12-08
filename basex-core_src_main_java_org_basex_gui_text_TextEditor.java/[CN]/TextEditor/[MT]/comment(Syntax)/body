@@ -1,0 +1,30 @@
+{
+  final byte[] st=syntax.commentOpen();
+  final byte[] en=syntax.commentEnd();
+  final int sl=st.length, el=en.length;
+  if (!selected()) {
+    selectPos=caret;
+    selectEnd=caret;
+    while (selectPos > 0 && text[selectPos - 1] != '\n')     --selectPos;
+    while (selectEnd < size() && text[selectEnd] != '\n')     ++selectEnd;
+  }
+  final int min=Math.min(selectPos,selectEnd);
+  int max=Math.max(selectPos,selectEnd);
+  if (selected() && text[max - 1] == '\n')   max--;
+  final TokenBuilder tb=new TokenBuilder();
+  final int mx=Math.max(min + sl,max - el), off;
+  if (indexOf(text,st,min) == min && indexOf(text,en,mx) == mx) {
+    tb.add(text,min + sl,max - el);
+    off=-sl - el;
+  }
+ else {
+    tb.add(st).add(text,min,max).add(en);
+    off=sl + el;
+  }
+  final boolean added=add(tb.finish(),min,max);
+  selectPos=min;
+  selectEnd=max + off;
+  setCaret(selectEnd);
+  checkSelect();
+  return added;
+}

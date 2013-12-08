@@ -1,0 +1,24 @@
+{
+  if (!isEnabled() || !isFocusable())   return;
+  requestFocusInWindow();
+  cursor(true);
+  if (SwingUtilities.isMiddleMouseButton(e))   copy();
+  final boolean marking=e.isShiftDown();
+  final boolean nomark=!text.selecting();
+  if (SwingUtilities.isLeftMouseButton(e)) {
+    final int c=e.getClickCount();
+    if (c == 1) {
+      if (marking && nomark)       text.startSelect();
+      rend.select(e.getPoint(),!marking);
+    }
+ else     if (c == 2) {
+      text.selectWord();
+    }
+ else {
+      text.selectLine();
+    }
+  }
+ else   if (nomark) {
+    rend.select(e.getPoint(),true);
+  }
+}
