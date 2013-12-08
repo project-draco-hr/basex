@@ -1,5 +1,9 @@
 {
-  if (searchKey(e) || specialKey(e) || modifier(e))   return;
+  if (search != null && ESCAPE.is(e)) {
+    search.deactivate(true);
+    return;
+  }
+  if (specialKey(e) || modifier(e))   return;
   cursor(true);
   final int fh=rend.fontHeight();
   if (SCROLLDOWN.is(e)) {
@@ -10,17 +14,9 @@
     scroll.pos(scroll.pos() - fh);
     return;
   }
-  if (COPY1.is(e) || COPY2.is(e)) {
-    copy();
-    return;
-  }
   final int pc=text.getCaret();
   text.pos(pc);
   if (!PREVLINE.is(e) && !NEXTLINE.is(e))   lastCol=-1;
-  if (SELECTALL.is(e)) {
-    selectAll();
-    return;
-  }
   final boolean marking=e.isShiftDown() && !DELETE.is(e) && !BACKSPACE.is(e)&& !PASTE2.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e)&& !PREVPAGE_RO.is(e);
   final boolean nomark=!text.selecting();
   if (marking && nomark)   text.startSelect();
@@ -78,31 +74,7 @@
     text.finishSelect();
   }
  else   if (hist.active()) {
-    if (CUT1.is(e) || CUT2.is(e)) {
-      if (copy())       text.delete();
-    }
- else     if (PASTE1.is(e) || PASTE2.is(e)) {
-      final String clip=clip();
-      if (clip != null) {
-        if (text.selected())         text.delete();
-        text.add(clip);
-      }
-    }
- else     if (UNDOSTEP.is(e)) {
-      final byte[] t=hist.prev();
-      if (t != null) {
-        text.text(t);
-        text.pos(hist.cursor());
-      }
-    }
- else     if (REDOSTEP.is(e)) {
-      final byte[] t=hist.next();
-      if (t != null) {
-        text.text(t);
-        text.pos(hist.cursor());
-      }
-    }
- else     if (COMPLETE.is(e)) {
+    if (COMPLETE.is(e)) {
       text.complete();
     }
  else     if (DELLINE.is(e)) {
@@ -153,10 +125,10 @@
   text.setCaret();
   final byte[] tmp=text.text();
   if (txt == tmp) {
-    showCursor(down ? 2 : 0);
+    cursorCode.invokeLater(down ? 2 : 0);
   }
  else {
     hist.store(tmp,pc,text.getCaret());
-    calcCode.invokeLater(down);
+    scrollCode.invokeLater(down);
   }
 }
