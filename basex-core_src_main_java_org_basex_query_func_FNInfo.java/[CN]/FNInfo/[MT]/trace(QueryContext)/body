@@ -2,13 +2,20 @@
   return new Iter(){
     final Iter ir=expr[0].iter(ctx);
     final byte[] s=checkStr(expr[1],ctx);
+    boolean empty=true;
     @Override public Item next() throws QueryException {
       final Item it=ir.next();
-      if (it != null)       try {
-        dump(it.serialize().toArray(),s,ctx);
+      if (it != null) {
+        try {
+          dump(it.serialize().toArray(),s,ctx);
+        }
+ catch (        final QueryIOException ex) {
+          throw ex.getCause(info);
+        }
+        empty=false;
       }
- catch (      final QueryIOException ex) {
-        throw ex.getCause(info);
+ else       if (empty) {
+        dump(Token.token(SeqType.EMP.toString()),s,ctx);
       }
       return it;
     }
