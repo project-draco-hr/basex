@@ -1,0 +1,17 @@
+{
+  final Map<Var,Expr> closure=scope.closure();
+  final LinkedList<GFLWOR.Clause> cls=exprs.length == 0 && closure.isEmpty() ? null : new LinkedList<GFLWOR.Clause>();
+  final IntObjMap<Var> vs=new IntObjMap<Var>();
+  for (int i=0; i < args.length; i++) {
+    final Var old=args[i], v=scp.newCopyOf(ctx,old);
+    vs.put(old.id,v);
+    cls.add(new Let(v,exprs[i],false,ii).optimize(ctx,scp));
+  }
+  for (  final Entry<Var,Expr> e : closure.entrySet()) {
+    final Var old=e.getKey(), v=scp.newCopyOf(ctx,old);
+    vs.put(old.id,v);
+    cls.add(new Let(v,e.getValue(),false,ii).optimize(ctx,scp));
+  }
+  final Expr cpy=expr.copy(ctx,scp,vs), rt=ret == null ? cpy : new TypeCheck(sc,ii,cpy,ret,true).optimize(ctx,scp);
+  return cls == null ? rt : new GFLWOR(ii,cls,rt).optimize(ctx,scp);
+}
