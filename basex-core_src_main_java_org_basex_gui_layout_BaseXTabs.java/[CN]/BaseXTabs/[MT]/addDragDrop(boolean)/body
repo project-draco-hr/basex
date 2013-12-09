@@ -1,0 +1,33 @@
+{
+  addMouseMotionListener(new MouseMotionAdapter(){
+    @Override public void mouseDragged(    final MouseEvent e){
+      if (draggedTab == -1) {
+        int tabs=getTabCount();
+        int t=getUI().tabForCoordinate(BaseXTabs.this,e.getX(),e.getY());
+        if (tabs == (last ? 1 : 2) || !last && t + 1 == tabs)         t=-1;
+        if (t != -1) {
+          draggedTab=t;
+          setCursor(GUIConstants.CURSORMOVE);
+        }
+      }
+      refreshTabs();
+    }
+  }
+);
+  addMouseListener(new MouseAdapter(){
+    @Override public void mouseReleased(    final MouseEvent e){
+      if (draggedTab < 0)       return;
+      final int index=Math.min(getTabCount() - (last ? 1 : 2),getUI().tabForCoordinate(BaseXTabs.this,e.getX(),10));
+      if (index >= 0) {
+        final Component comp=getComponentAt(draggedTab);
+        final Component head=getTabComponentAt(draggedTab);
+        removeTabAt(draggedTab);
+        add(comp,head,index);
+      }
+      draggedTab=-1;
+      setCursor(GUIConstants.CURSORARROW);
+      refreshTabs();
+    }
+  }
+);
+}
