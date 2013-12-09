@@ -3,7 +3,11 @@
   final VarScope scp=new VarScope(sc);
   final int arity=sf.args.length;
   final Var[] args=new Var[arity];
-  final Expr[] calls=ft.args(args,ctx,scp,info);
+  final Expr[] calls=new Expr[args.length];
+  for (int i=0; i < args.length; i++) {
+    args[i]=scp.newLocal(ctx,sf.argName(i),ft.args[i],true);
+    calls[i]=new VarRef(info,args[i]);
+  }
   final TypedFunc tf=ctx.funcs.getFuncRef(sf.name,calls,sc,info);
   return new FuncItem(sf.name,args,tf.fun,ft,scp,sc,sf,tf.ann);
 }
