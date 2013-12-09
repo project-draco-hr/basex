@@ -3,8 +3,10 @@
   final int s=selectPos, e=selectEnd, tl=text.length;
   int o=e;
   final TokenBuilder tb=new TokenBuilder();
+  boolean indent=true;
   for (int p=s; p < e; p+=cl(text,p)) {
     if (p == 0 || text[p - 1] == '\n') {
+      indent=true;
       if (shift) {
         if (text[p] == '\t') {
           o--;
@@ -24,7 +26,17 @@
         o+=TAB;
       }
     }
-    tb.add(cp(text,p));
+    int cp=cp(text,p);
+    if (indent) {
+      if (cp == '\t') {
+        cp=' ';
+        tb.add(' ');
+      }
+ else       if (cp != ' ') {
+        indent=false;
+      }
+    }
+    tb.add(cp);
   }
   add(tb.finish(),s,e);
   select(s,o);

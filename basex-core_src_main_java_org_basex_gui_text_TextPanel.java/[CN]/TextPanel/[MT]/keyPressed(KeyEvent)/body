@@ -1,8 +1,4 @@
 {
-  if (search != null && ESCAPE.is(e)) {
-    search.deactivate(true);
-    return;
-  }
   if (specialKey(e) || modifier(e))   return;
   cursor(true);
   final int fh=rend.fontHeight();
@@ -14,16 +10,22 @@
     scroll.pos(scroll.pos() - fh);
     return;
   }
-  final int pc=text.caret();
-  text.pos(pc);
+  final int caret=text.caret();
+  text.pos(caret);
   if (!PREVLINE.is(e) && !NEXTLINE.is(e))   lastCol=-1;
-  final boolean marking=e.isShiftDown() && !DELETE.is(e) && !BACKSPACE.is(e)&& !PASTE2.is(e)&& !DELLINE.is(e)&& !REDOSTEP.is(e)&& !PREVPAGE_RO.is(e);
+  final boolean marking=e.isShiftDown() && !BACKSPACE.is(e) && !PASTE2.is(e)&& !DELLINE.is(e)&& !PREVPAGE_RO.is(e);
   final boolean nomark=!text.selecting();
   if (marking && nomark)   text.startSelect();
   boolean down=true;
   boolean consumed=true;
   final byte[] txt=text.text();
-  if (NEXTWORD.is(e)) {
+  if (MOVEDOWN.is(e)) {
+    text.move(true);
+  }
+ else   if (MOVEUP.is(e)) {
+    text.move(false);
+  }
+ else   if (NEXTWORD.is(e)) {
     text.nextToken(marking);
   }
  else   if (PREVWORD.is(e)) {
@@ -129,7 +131,7 @@
     cursorCode.invokeLater(down ? 2 : 0);
   }
  else {
-    hist.store(tmp,pc,text.caret());
+    hist.store(tmp,caret,text.caret());
     scrollCode.invokeLater(down);
   }
 }

@@ -1,0 +1,30 @@
+{
+  extend();
+  if (!selected())   return;
+  final int tl=text.length;
+  final int s=selectPos, e=selectEnd;
+  final byte[] tmp=Arrays.copyOf(text,tl);
+  if (down) {
+    if (e == text.length)     return;
+    pos(e);
+    eol(true);
+    int c=s;
+    for (int i=e; i < pos; i++)     tmp[c++]=text[i];
+    tmp[c++]='\n';
+    for (int i=s; i < e - 1; i++)     tmp[c++]=text[i];
+    text(tmp);
+    select(s + pos - e + 1,Math.min(tl,pos + 1));
+    pos(s + pos - e + 1);
+  }
+ else {
+    if (s == 0)     return;
+    pos(s - 1);
+    bol(true);
+    int c=pos;
+    for (int i=s; i < e; i++)     tmp[c++]=text[i];
+    if (tmp[c - 1] != '\n')     tmp[c++]='\n';
+    for (int i=pos; i < s && c < tl; i++)     tmp[c++]=text[i];
+    text(tmp);
+    select(pos,pos + e - s);
+  }
+}
