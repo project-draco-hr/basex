@@ -2,7 +2,7 @@
   final QNm vn=varName();
   final SeqType tp=optAsType();
   if (module != null && !eq(vn.uri(),module.uri()))   throw error(MODNS,vn);
-  scope=new VarScope(sc);
+  pushVarContext();
   final boolean external=wsConsumeWs(EXTERNAL);
   final Expr bind;
   if (external) {
@@ -12,6 +12,6 @@
     wsCheck(ASSIGN);
     bind=check(single(),NOVARDECL);
   }
+  final VarScope scope=popVarContext();
   vars.add(ctx.vars.declare(vn,tp,ann,bind,external,sc,scope,currDoc.toString(),info()));
-  scope=null;
 }

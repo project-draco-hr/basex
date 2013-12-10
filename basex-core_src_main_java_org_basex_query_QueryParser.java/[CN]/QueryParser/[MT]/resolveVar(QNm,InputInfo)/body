@@ -1,0 +1,10 @@
+{
+  final VarRef local=resolveLocalVar(name,ii);
+  if (local != null)   return local;
+  final byte[] uri=name.uri();
+  final boolean main=module == null, implicit=main && uri.length == 0;
+  if (!(sc.xquery3() || ctx.vars.declared(name) || implicit) || Prop.gui && !ctx.vars.exists(name) || !(main || eq(module.uri(),uri) || modules.contains(uri))) {
+    throw error(VARUNDEF,'$' + string(name.string()));
+  }
+  return ctx.vars.newRef(name,sc,ii);
+}
