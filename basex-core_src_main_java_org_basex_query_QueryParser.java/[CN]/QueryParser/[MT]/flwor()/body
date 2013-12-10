@@ -1,5 +1,5 @@
 {
-  final int s=scope.open();
+  final int s=openSubScope();
   final LinkedList<Clause> clauses=initialClause(null);
   if (clauses == null)   return null;
   final TokenObjMap<Var> curr=new TokenObjMap<Var>();
@@ -31,7 +31,7 @@
       final Var[] ngrp=new Var[ng.size()];
       for (int i=ng.size(); --i >= 0; ) {
         final VarRef v=ng.get(i);
-        final Var nv=addLocal(v.var.name,null,false);
+        final Var nv=addVar(v.var.name,null,false);
         if (v.type().one())         nv.refineType(SeqType.get(v.type().type,Occ.ONE_MORE),ctx,info());
         ngrp[i]=nv;
         curr.put(nv.name.id(),nv);
@@ -58,7 +58,7 @@
       alter=ORDERBY;
     }
     if (sc.xquery3() && wsConsumeWs(COUNT,DOLLAR,NOCOUNT)) {
-      final Var v=addLocal(varName(),SeqType.ITR,false);
+      final Var v=addVar(varName(),SeqType.ITR,false);
       curr.put(v.name.id(),v);
       clauses.add(new Count(v,info()));
     }
@@ -66,6 +66,6 @@
  while (sc.xquery3() && size < clauses.size());
   if (!wsConsumeWs(RETURN))   throw alter == null ? error(FLWORRETURN) : error();
   final Expr ret=check(single(),NORETURN);
-  scope.close(s);
+  closeSubScope(s);
   return new GFLWOR(clauses.get(0).info,clauses,ret);
 }

@@ -1,6 +1,6 @@
 {
   if (!wsConsumeWs(COPY,DOLLAR,INCOMPLETE))   return null;
-  final int s=scope.open();
+  final int s=openSubScope();
   final boolean u=ctx.updating;
   ctx.updating(false);
   Let[] fl={};
@@ -8,14 +8,14 @@
     final QNm name=varName();
     wsCheck(ASSIGN);
     final Expr e=check(single(),INCOMPLETE);
-    fl=Array.add(fl,new Let(addLocal(name,SeqType.NOD,false),e,false,info()));
+    fl=Array.add(fl,new Let(addVar(name,SeqType.NOD,false),e,false,info()));
   }
  while (wsConsumeWs(COMMA));
   wsCheck(MODIFY);
   final Expr m=check(single(),INCOMPLETE);
   wsCheck(RETURN);
   final Expr r=check(single(),INCOMPLETE);
-  scope.close(s);
+  closeSubScope(s);
   ctx.updating=u;
   return new Transform(info(),fl,m,r);
 }

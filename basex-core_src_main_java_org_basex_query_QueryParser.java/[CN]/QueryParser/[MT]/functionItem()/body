@@ -3,14 +3,14 @@
   final int ip=pos;
   final Ann ann=curr('%') ? annotations() : null;
   if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
-    final VarScope inner=scope=scope.child();
+    pushVarContext();
     final Var[] args=paramList();
     wsCheck(PAR2);
     final SeqType type=optAsType();
     if (ann != null && (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC)))     throw error(INVISIBLE);
     final Expr body=enclosed(NOFUNBODY);
-    scope=scope.parent();
-    return new InlineFunc(info(),type,args,body,ann,sc,inner);
+    final VarScope scope=popVarContext();
+    return new InlineFunc(info(),type,args,body,ann,sc,scope);
   }
   if (ann != null)   throw error(NOANN);
   pos=ip;
