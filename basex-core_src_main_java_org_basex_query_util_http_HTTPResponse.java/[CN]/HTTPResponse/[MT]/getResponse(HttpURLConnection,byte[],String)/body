@@ -2,7 +2,13 @@
   final String type=conn.getContentType();
   InputStream is=conn.getErrorStream();
   final boolean error=is != null;
-  if (!error)   is=conn.getInputStream();
+  try {
+    if (!error)     is=conn.getInputStream();
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+  }
+  final ValueBuilder vb=new ValueBuilder();
   final FElem response=new FElem(Q_RESPONSE).declareNS();
   response.add(STATUS,token(conn.getResponseCode()));
   response.add(MESSAGE,conn.getResponseMessage());
@@ -14,10 +20,12 @@
       response.add(hdr);
     }
   }
-  final boolean st=status != null && Bln.parse(status,info);
-  final HTTPPayload hp=new HTTPPayload(is,st,info,options);
-  response.add(hp.parse(error,type,utype));
-  final ValueBuilder vb=new ValueBuilder().add(response);
-  if (!st)   vb.add(hp.payloads());
+  vb.add(response);
+  final boolean body=status == null || !Bln.parse(status,info);
+  if (is != null) {
+    final HTTPPayload hp=new HTTPPayload(is,body,info,options);
+    response.add(hp.parse(error,type,utype));
+    if (body)     vb.add(hp.payloads());
+  }
   return vb;
 }
