@@ -1,16 +1,12 @@
 {
   if (!inline(exprs,ctx))   return null;
-  final LinkedList<GFLWOR.Clause> cls=exprs.length == 0 && closure.isEmpty() ? null : new LinkedList<GFLWOR.Clause>();
+  ctx.compInfo(OPTINLINEFN,this);
+  final LinkedList<GFLWOR.Clause> cls=exprs.length == 0 ? null : new LinkedList<GFLWOR.Clause>();
   final IntObjMap<Var> vs=new IntObjMap<Var>();
   for (int i=0; i < vars.length; i++) {
     final Var old=vars[i], v=scp.newCopyOf(ctx,old);
     vs.put(old.id,v);
     cls.add(new Let(v,exprs[i],false,ii).optimize(ctx,scp));
-  }
-  for (  final Entry<Var,Value> e : closure.entrySet()) {
-    final Var old=e.getKey(), v=scp.newCopyOf(ctx,old);
-    vs.put(old.id,v);
-    cls.add(new Let(v,e.getValue(),false,ii).optimize(ctx,scp));
   }
   final Expr cpy=expr.copy(ctx,scp,vs), rt=cast == null ? cpy : new TypeCheck(sc,ii,cpy,cast,true).optimize(ctx,scp);
   return cls == null ? rt : new GFLWOR(ii,cls,rt).optimize(ctx,scp);
