@@ -1,6 +1,13 @@
 {
   if (expr.isValue() || expr.exprSize() < ctx.context.options.get(MainOptions.INLINELIMIT) && !expr.has(Flag.CTX)) {
-    final ASTVisitor visitor=new ASTVisitor(){
+    final ASTVisitor self=new ASTVisitor(){
+      @Override public boolean dynFuncCall(      final DynFuncCall call){
+        return false;
+      }
+    }
+;
+    if (expr.accept(self))     return true;
+    final ASTVisitor args=new ASTVisitor(){
       @Override public boolean funcItem(      final FuncItem f){
         return f != FuncItem.this && f.visit(this);
       }
@@ -9,7 +16,7 @@
       }
     }
 ;
-    return Expr.visitAll(visitor,as);
+    return Expr.visitAll(args,as);
   }
   return false;
 }
