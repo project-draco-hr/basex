@@ -1,0 +1,51 @@
+{
+  final int es=expr.length;
+  final ExprList el=new ExprList(es);
+  Pos ps=null;
+  CmpR cr=null;
+  CmpSR cs=null;
+  for (  final Expr e : expr) {
+    Expr tmp=null;
+    if (e instanceof Pos) {
+      tmp=ps == null ? e : ps.intersect((Pos)e,info);
+      if (!(tmp instanceof Pos))       return tmp;
+      ps=(Pos)tmp;
+    }
+ else     if (e instanceof CmpR) {
+      tmp=cr == null ? e : cr.intersect((CmpR)e);
+      if (tmp instanceof CmpR)       cr=(CmpR)tmp;
+ else       if (tmp != null)       return tmp;
+    }
+ else     if (e instanceof CmpSR) {
+      tmp=cs == null ? e : cs.intersect((CmpSR)e);
+      if (tmp instanceof CmpSR)       cs=(CmpSR)tmp;
+ else       if (tmp != null)       return tmp;
+    }
+    if (tmp == null && e != Bln.TRUE) {
+      if (e == Bln.FALSE)       return optPre(Bln.FALSE,ctx);
+      el.add(e);
+    }
+  }
+  if (ps != null)   el.add(ps);
+  if (cr != null)   el.add(cr);
+  if (cs != null)   el.add(cs);
+  if (el.size() == 0)   return optPre(Bln.TRUE,ctx);
+  if (es != el.size())   ctx.compInfo(OPTWRITE,this);
+  expr=el.finish();
+  compFlatten(ctx);
+  boolean not=true;
+  for (  final Expr e : expr) {
+    if (!e.isFunction(Function.NOT)) {
+      not=false;
+      break;
+    }
+  }
+  if (not) {
+    ctx.compInfo(OPTWRITE,this);
+    Expr[] inner=new Expr[expr.length];
+    for (int i=0; i < inner.length; i++)     inner[i]=((Arr)expr[i]).expr[0];
+    final Expr or=new Or(info,inner).optimize(ctx,scp);
+    return Function.NOT.get(null,or).optimize(ctx,scp);
+  }
+  return expr.length == 1 ? compBln(expr[0],info) : this;
+}

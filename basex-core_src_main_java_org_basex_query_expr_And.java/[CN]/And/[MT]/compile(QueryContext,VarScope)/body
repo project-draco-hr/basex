@@ -1,35 +1,4 @@
 {
   final Expr c=super.compile(ctx,scp);
-  if (c != this)   return c;
-  final int es=expr.length;
-  final ExprList el=new ExprList(es);
-  Pos ps=null;
-  CmpR cr=null;
-  CmpSR cs=null;
-  for (  final Expr e : expr) {
-    Expr tmp=null;
-    if (e instanceof Pos) {
-      tmp=ps == null ? e : ps.intersect((Pos)e,info);
-      if (!(tmp instanceof Pos))       return tmp;
-      ps=(Pos)tmp;
-    }
- else     if (e instanceof CmpR) {
-      tmp=cr == null ? e : cr.intersect((CmpR)e);
-      if (tmp instanceof CmpR)       cr=(CmpR)tmp;
- else       if (tmp != null)       return tmp;
-    }
- else     if (e instanceof CmpSR) {
-      tmp=cs == null ? e : cs.intersect((CmpSR)e);
-      if (tmp instanceof CmpSR)       cs=(CmpSR)tmp;
- else       if (tmp != null)       return tmp;
-    }
-    if (tmp == null)     el.add(e);
-  }
-  if (ps != null)   el.add(ps);
-  if (cr != null)   el.add(cr);
-  if (cs != null)   el.add(cs);
-  if (es != el.size())   ctx.compInfo(OPTWRITE,this);
-  expr=el.finish();
-  compFlatten(ctx);
-  return expr.length == 1 ? compBln(expr[0],info) : this;
+  return c != this ? c : optimize(ctx,scp);
 }
