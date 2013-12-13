@@ -1,14 +1,7 @@
 {
   final FuncType ft=(FuncType)type;
-  final TokenBuilder tb=new TokenBuilder();
-  if (!closure.isEmpty()) {
-    tb.add("((: closure :) ");
-    for (    final Entry<Var,Value> e : closure.entrySet())     tb.add("let ").addExt(e.getKey()).add(" := ").addExt(e.getValue()).add(' ');
-    tb.add(RETURN).add(' ');
-  }
-  tb.add(FUNCTION).add('(');
+  final TokenBuilder tb=new TokenBuilder(FUNCTION).add('(');
   for (  final Var v : vars)   tb.addExt(v).add(v == vars[vars.length - 1] ? "" : ", ");
-  tb.add(')').add(ft.type != null ? " as " + ft.type : "").add(" { ").addExt(expr).add(" }");
-  if (!closure.isEmpty())   tb.addByte((byte)')');
+  tb.add(')').add(ft.ret != null ? " as " + ft.ret : "").add(" { ").addExt(expr).add(" }");
   return tb.toString();
 }
