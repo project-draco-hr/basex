@@ -1,17 +1,17 @@
 {
-  final TokenBuilder text=new TokenBuilder((int)Math.min(1 << 28,file.length()));
+  final TokenBuilder text=new TokenBuilder((int)Math.min(Integer.MAX_VALUE,file.length()));
   final TextInput ti=new NewlineInput(file).validate(true);
-  boolean first=true;
+  boolean valid=true;
   try {
     while (true) {
       try {
         final int cp=ti.read();
-        if (cp == -1)         return text.finish();
+        if (cp == -1)         return text.array();
         text.add(cp);
       }
  catch (      final InputException ex) {
-        if (first) {
-          first=false;
+        if (valid) {
+          valid=false;
           if (BaseXDialog.confirm(gui,H_FILE_BINARY)) {
             try {
               file.open();

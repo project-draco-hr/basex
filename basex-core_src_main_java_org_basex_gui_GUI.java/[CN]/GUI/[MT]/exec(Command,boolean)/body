@@ -23,11 +23,14 @@
     if (cmd.newData(context))     notify.init();
     cmd.listen(infoListener);
     String inf=null;
+    Throwable cause=null;
     try {
       cmd.execute(context,ao);
       inf=cmd.info();
     }
  catch (    final BaseXException ex) {
+      cause=ex.getCause();
+      if (cause == null)       cause=ex;
       ok=false;
       inf=Util.message(ex);
     }
@@ -36,11 +39,9 @@
     }
     final String time=perf.getTime();
     info.setInfo(inf,cmd,time,ok,true);
-    final boolean interrupted=inf.endsWith(INTERRUPTED);
-    if (edit) {
-      editor.info(interrupted ? INTERRUPTED : ok ? OK : inf,ok || interrupted,true);
-    }
-    if (!ok && !interrupted) {
+    final boolean stopped=inf.endsWith(INTERRUPTED);
+    if (edit)     editor.info(cause,stopped,true);
+    if (!ok && !stopped) {
       if ((!edit || inf.startsWith(BUGINFO)) && !info.visible()) {
         GUIMenuCmd.C_SHOWINFO.execute(this);
       }
@@ -72,7 +73,7 @@
           if (context.marked != m)           notify.mark(m,null);
         }
       }
-      if (thread == threadID && !interrupted) {
+      if (thread == threadID && !stopped) {
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
         if (nodes == null) {

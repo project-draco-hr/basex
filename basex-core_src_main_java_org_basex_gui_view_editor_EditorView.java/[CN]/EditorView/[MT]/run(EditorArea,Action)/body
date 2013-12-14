@@ -32,10 +32,10 @@
       try {
         if (main)         qc.parseMain(input,null,null);
  else         qc.parseLibrary(input,null,null);
-        info(OK,true,false);
+        info(null);
       }
  catch (      final QueryException ex) {
-        info(Util.message(ex),false,false);
+        info(ex);
       }
  finally {
         qc.close();
@@ -43,16 +43,17 @@
     }
   }
  else   if (editor.script || file.hasSuffix(IO.XMLSUFFIXES) || file.hasSuffix(IO.XSLSUFFIXES)|| file.hasSuffix(IO.HTMLSUFFIXES)) {
+    final ArrayInput ai=new ArrayInput(in);
     try {
-      if (startsWith(in,'<') || !editor.script)       new EmptyBuilder(new IOContent(in),gui.context).build();
+      if (startsWith(in,'<') || !editor.script)       new XmlParser().parse(ai);
       if (editor.script)       new CommandParser(string(in),gui.context).parse();
-      info(OK,true,false);
+      info(null);
     }
  catch (    final Exception ex) {
-      info(Util.message(ex),false,false);
+      info(ex);
     }
   }
  else   if (action != Action.CHECK) {
-    info(OK,true,false);
+    info(null);
   }
 }

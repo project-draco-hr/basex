@@ -1,43 +1,17 @@
 {
-  Matcher m=XQERROR.matcher(errMsg);
-  final int el;
-  int ec=2;
-  if (m.matches()) {
-    errFile=new IOFile(m.group(1));
-    el=toInt(m.group(2));
-    ec=toInt(m.group(3));
-  }
- else {
-    m=XMLERROR.matcher(errMsg);
-    if (!m.matches())     return;
-    el=toInt(m.group(1));
-    errFile=getEditor().file;
-  }
-  EditorArea edit=find(errFile,false);
+  final InputInfo ei=errorInfo;
+  if (ei == null)   return;
+  final IOFile file=new IOFile(ei.path());
+  EditorArea edit=find(file,false);
   if (jump) {
-    if (edit == null)     edit=open(errFile,false,true);
+    if (edit == null)     edit=open(file,false,true);
     if (edit != null)     tabs.setSelectedComponent(edit);
   }
   if (edit == null)   return;
-  final int ll=edit.last.length;
-  int ep=ll;
-  for (int p=0, l=1, c=1; p < ll; ++c, p+=cl(edit.last,p)) {
-    if (l > el || l == el && c == ec) {
-      ep=p;
-      break;
-    }
-    if (edit.last[p] == '\n') {
-      ++l;
-      c=0;
-    }
-  }
-  if (ep < ll && Character.isLetterOrDigit(cp(edit.last,ep))) {
-    while (ep > 0 && Character.isLetterOrDigit(cp(edit.last,ep - 1)))     ep--;
-  }
+  final int ep=pos(edit.last,ei.line(),ei.column());
   edit.error(ep);
-  errPos=ep;
   if (jump) {
-    edit.jumpError(errPos);
+    edit.setCaret(ep);
     posCode.invokeLater();
   }
 }
