@@ -1,19 +1,19 @@
 {
-  if (!file.isDir() && view.open(file) != null) {
-    final TextPanel editor=view.getEditor();
-    final SearchBar sb=editor.search;
-    if (search != null) {
-      sb.reset();
-      sb.activate(search,true);
-    }
- else {
-      sb.deactivate(true);
-    }
-    SwingUtilities.invokeLater(new Runnable(){
-      @Override public void run(){
-        editor.requestFocusInWindow();
+  final EditorArea editor=view.open(file);
+  if (editor == null)   return;
+  SwingUtilities.invokeLater(new Runnable(){
+    @Override public void run(){
+      final SearchBar sb=editor.search;
+      if (search != null) {
+        sb.reset();
+        sb.activate(search,false);
+        editor.jump(SearchDir.CURRENT,true);
       }
+ else {
+        sb.deactivate(true);
+      }
+      editor.requestFocusInWindow();
     }
-);
   }
+);
 }

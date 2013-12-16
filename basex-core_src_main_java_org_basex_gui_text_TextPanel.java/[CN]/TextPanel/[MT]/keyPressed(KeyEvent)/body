@@ -10,42 +10,42 @@
     scroll.pos(scroll.pos() - fh);
     return;
   }
-  final int caret=text.caret();
-  text.pos(caret);
+  final int caret=editor.caret();
+  editor.pos(caret);
   if (!PREVLINE.is(e) && !NEXTLINE.is(e))   lastCol=-1;
   final boolean selecting=e.isShiftDown() && !BACKSPACE.is(e) && !PASTE2.is(e)&& !DELLINE.is(e)&& !PREVPAGE_RO.is(e);
-  final boolean selected=text.selected();
-  if (selecting && !selected)   text.startSelect();
+  final boolean selected=editor.selected();
+  if (selecting && !selected)   editor.startSelect();
   boolean down=true, consumed=true;
-  final byte[] txt=text.text();
+  final byte[] txt=editor.text();
   if (MOVEDOWN.is(e)) {
-    text.move(true);
+    editor.move(true);
   }
  else   if (MOVEUP.is(e)) {
-    text.move(false);
+    editor.move(false);
   }
  else   if (NEXTWORD.is(e)) {
-    text.nextToken(selecting);
+    editor.nextToken(selecting);
   }
  else   if (PREVWORD.is(e)) {
-    text.prevToken(selecting);
+    editor.prevToken(selecting);
     down=false;
   }
  else   if (TEXTSTART.is(e)) {
-    if (!selecting)     text.noSelect();
-    text.pos(0);
+    if (!selecting)     editor.noSelect();
+    editor.pos(0);
     down=false;
   }
  else   if (TEXTEND.is(e)) {
-    if (!selecting)     text.noSelect();
-    text.pos(text.size());
+    if (!selecting)     editor.noSelect();
+    editor.pos(editor.size());
   }
  else   if (LINESTART.is(e)) {
-    text.home(selecting);
+    editor.home(selecting);
     down=false;
   }
  else   if (LINEEND.is(e)) {
-    text.eol(selecting);
+    editor.eol(selecting);
   }
  else   if (PREVPAGE.is(e) || !hist.active() && PREVPAGE_RO.is(e)) {
     up(getHeight() / fh,selecting);
@@ -55,10 +55,10 @@
     down(getHeight() / fh,selecting);
   }
  else   if (NEXT.is(e)) {
-    text.next(selecting);
+    editor.next(selecting);
   }
  else   if (PREV.is(e)) {
-    text.prev(selecting);
+    editor.prev(selecting);
     down=false;
   }
  else   if (PREVLINE.is(e)) {
@@ -72,50 +72,50 @@
     consumed=false;
   }
   if (selecting) {
-    text.finishSelect();
+    editor.finishSelect();
   }
  else   if (hist.active()) {
     if (COMPLETE.is(e)) {
-      text.complete();
+      editor.complete();
     }
  else     if (DELLINE.is(e)) {
-      text.deleteLine();
+      editor.deleteLine();
     }
  else     if (DELLINEEND.is(e) || DELNEXTWORD.is(e) || DELETE.is(e)) {
       if (!selected) {
-        if (text.pos() == text.size())         return;
-        text.startSelect();
+        if (editor.pos() == editor.size())         return;
+        editor.startSelect();
         if (DELNEXTWORD.is(e)) {
-          text.nextToken(true);
+          editor.nextToken(true);
         }
  else         if (DELLINEEND.is(e)) {
-          text.eol(true);
+          editor.eol(true);
         }
  else {
-          text.next(true);
+          editor.next(true);
         }
-        text.finishSelect();
+        editor.finishSelect();
       }
-      text.delete();
+      editor.delete();
     }
  else     if (DELLINESTART.is(e) || DELPREVWORD.is(e) || BACKSPACE.is(e)) {
       if (!selected) {
-        if (text.pos() == 0)         return;
+        if (editor.pos() == 0)         return;
         if (DELPREVWORD.is(e)) {
-          text.startSelect();
-          text.prevToken(true);
-          text.finishSelect();
+          editor.startSelect();
+          editor.prevToken(true);
+          editor.finishSelect();
         }
  else         if (DELLINESTART.is(e)) {
-          text.startSelect();
-          text.bol(true);
-          text.finishSelect();
+          editor.startSelect();
+          editor.bol(true);
+          editor.finishSelect();
         }
  else {
-          text.backspace();
+          editor.backspace();
         }
       }
-      text.delete();
+      editor.delete();
       down=false;
     }
  else {
@@ -123,13 +123,13 @@
     }
   }
   if (consumed)   e.consume();
-  text.setCaret();
-  final byte[] tmp=text.text();
+  editor.setCaret();
+  final byte[] tmp=editor.text();
   if (txt == tmp) {
     cursorCode.invokeLater(down ? 2 : 0);
   }
  else {
-    hist.store(tmp,caret,text.caret());
+    hist.store(tmp,caret,editor.caret());
     scrollCode.invokeLater(down);
   }
 }
