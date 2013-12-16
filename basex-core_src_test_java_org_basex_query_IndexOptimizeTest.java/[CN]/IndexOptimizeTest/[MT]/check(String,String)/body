@@ -3,13 +3,12 @@
   QueryProcessor qp=new QueryProcessor(query,context);
   try {
     ArrayOutput ao=qp.execute().serialize();
-    final String info=qp.info();
     if (result != null)     assertEquals(result,ao.toString().replaceAll("\\r?\\n",""));
     plan=qp.plan().serialize().toString();
     qp.close();
     qp=new QueryProcessor(plan + "/descendant-or-self::*" + "[self::"+ Util.className(ValueAccess.class)+ "|self::"+ Util.className(FTIndexAccess.class)+ ']',context);
     ao=qp.execute().serialize();
-    assertFalse("No index used:\nQuery: " + query + "\nInfo: "+ info+ "\nPlan: "+ plan,ao.toString().isEmpty());
+    assertFalse("No index used:\nQuery: " + query + "\nInfo: "+ qp.info()+ "\nPlan: "+ plan,ao.toString().isEmpty());
   }
  catch (  final QueryException ex) {
     fail(Util.message(ex) + "\nQuery: " + query+ "\nPlan: "+ plan);

@@ -6,10 +6,10 @@
   }
  else {
     try {
-      final boolean serial=options.get(MainOptions.SERIALIZE);
-      qi.runs=Math.max(1,options.get(MainOptions.RUNS));
       long hits=0;
-      for (int r=0; r < qi.runs; ++r) {
+      final boolean serial=options.get(MainOptions.SERIALIZE);
+      final int runs=Math.max(1,options.get(MainOptions.RUNS));
+      for (int r=0; r < runs; ++r) {
         if (r != 0)         qp=null;
         qp(query,context);
         qp.http(http);
@@ -19,16 +19,16 @@
  else           qp.bind(name,value[0],value[1]);
         }
         qp.parse();
-        qi.pars+=p.time();
+        info.parsing+=p.time();
         if (r == 0)         plan(false);
         qp.compile();
-        qi.cmpl+=p.time();
+        info.compiling+=p.time();
         if (r == 0)         plan(true);
         final PrintOutput po=r == 0 && serial ? out : new NullOutput();
         final Serializer ser;
         if (options.get(MainOptions.CACHEQUERY)) {
           result=qp.execute();
-          qi.evlt+=p.time();
+          info.evaluating+=p.time();
           ser=qp.getSerializer(po);
           result.serialize(ser);
           hits=result.size();
@@ -36,7 +36,7 @@
  else {
           hits=0;
           final Iter ir=qp.iter();
-          qi.evlt+=p.time();
+          info.evaluating+=p.time();
           Item it=ir.next();
           ser=qp.getSerializer(po);
           while (it != null) {
@@ -48,11 +48,14 @@
         }
         ser.close();
         qp.close();
-        qi.srlz+=p.time();
+        info.serializing+=p.time();
       }
       out.flush();
-      if (goptions.get(GlobalOptions.GLOBALLOCK) && qp.updating)       qi.readLocked=qi.writeLocked=null;
-      return info(qi.toString(qp,out,hits,options.get(MainOptions.QUERYINFO)));
+      if (goptions.get(GlobalOptions.GLOBALLOCK) && qp.updating) {
+        info.readLocked=null;
+        info.writeLocked=null;
+      }
+      return info(info.toString(qp,out.size(),hits,options.get(MainOptions.QUERYINFO)));
     }
  catch (    final QueryException ex) {
       cause=ex;
