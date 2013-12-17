@@ -1,5 +1,6 @@
 {
   final QueryContext qc=new QueryContext(ctx);
+  qc.resource.openDB=openDB;
   final StaticContext sctx=new StaticContext(qc.context.options.get(MainOptions.XQUERY3));
   for (  final Map.Entry<String,Value> it : bindings(1,ctx).entrySet()) {
     final String k=it.getKey();
@@ -12,7 +13,16 @@
     if (qc.updating)     throw BXXQ_UPDATING.get(info);
     qc.compile();
     final ValueBuilder vb=new ValueBuilder();
-    cache(qc.iter(),vb,ctx);
+    final Iter iter=qc.iter();
+    if (openDB) {
+      cache(iter,vb,ctx);
+    }
+ else {
+      for (Item it; (it=iter.next()) != null; ) {
+        if (it instanceof FItem)         throw FIVALUE.get(info,it);
+        vb.add(it);
+      }
+    }
     return vb;
   }
   finally {
