@@ -1,29 +1,10 @@
 {
   super(ev.gui);
-  view=ev;
+  editor=ev;
   setLayout(new BorderLayout());
-  final DefaultMutableTreeNode invisible=new DefaultMutableTreeNode();
-  tree=new BaseXTree(invisible,gui).border(4,4,4,4);
-  renderer=new ProjectCellRenderer();
-  tree.setExpandsSelectedPaths(true);
-  tree.setCellRenderer(renderer);
-  tree.addTreeWillExpandListener(this);
-  tree.addMouseListener(new MouseAdapter(){
-    @Override public void mousePressed(    final MouseEvent e){
-      if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)       new OpenCmd().execute(gui);
-    }
-  }
-);
-  tree.setCellEditor(new ProjectCellEditor(tree,renderer));
-  tree.setEditable(true);
+  tree=new ProjectTree(this);
   root=new ProjectDir(new IOFile(root()),this);
-  invisible.add(root);
-  for (int r=0; r < 2; r++)   tree.expandRow(r);
-  tree.setRootVisible(false);
-  tree.setSelectionRow(0);
-  new BaseXPopup(tree,gui,new OpenCmd(),new OpenExternalCmd(),null,new DeleteCmd(),new RenameCmd(),new NewDirCmd(),null,new RefreshCmd(),new CopyPathCmd());
-  scroll=new JScrollPane(tree);
-  scroll.setBorder(new EmptyBorder(0,0,0,0));
+  tree.init(root);
   filter=new ProjectFilter(this);
   list=new ProjectList(this);
   BaseXLayout.addInteraction(list,gui);
@@ -44,6 +25,16 @@
   back.add(path,BorderLayout.CENTER);
   back.add(browse,BorderLayout.EAST);
   back.add(filter,BorderLayout.SOUTH);
+  final JScrollPane lscroll=new JScrollPane(list);
+  lscroll.setBorder(new EmptyBorder(0,0,0,0));
+  final JScrollPane tscroll=new JScrollPane(tree);
+  tscroll.setBorder(new EmptyBorder(0,0,0,0));
+  split=new BaseXSplit(false);
+  split.mode(Fill.NONE);
+  split.add(lscroll);
+  split.add(tscroll);
+  split.sizes(sizes);
+  showList(false);
   add(back,BorderLayout.NORTH);
-  add(scroll,BorderLayout.CENTER);
+  add(split,BorderLayout.CENTER);
 }
