@@ -1,5 +1,5 @@
 {
-  if (!inline(exprs,ctx))   return null;
+  if (!(expr.isValue() || expr.exprSize() < ctx.context.options.get(MainOptions.INLINELIMIT) && !expr.has(Flag.CTX)))   return null;
   ctx.compInfo(OPTINLINE,this);
   final LinkedList<GFLWOR.Clause> cls=exprs.length == 0 ? null : new LinkedList<GFLWOR.Clause>();
   final IntObjMap<Var> vs=new IntObjMap<Var>();
@@ -8,6 +8,16 @@
     vs.put(old.id,v);
     cls.add(new Let(v,exprs[i],false,ii).optimize(ctx,scp));
   }
-  final Expr ret=expr.copy(ctx,scp,vs);
-  return (cls == null ? ret : new GFLWOR(ii,cls,ret)).optimize(ctx,scp);
+  final Expr rt=expr.copy(ctx,scp,vs);
+  rt.accept(new ASTVisitor(){
+    @Override public boolean inlineFunc(    final Scope sub){
+      return sub.visit(this);
+    }
+    @Override public boolean dynFuncCall(    final DynFuncCall call){
+      call.markInlined(FuncItem.this);
+      return true;
+    }
+  }
+);
+  return cls == null ? rt : new GFLWOR(ii,cls,rt).optimize(ctx,scp);
 }
