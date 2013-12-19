@@ -1,0 +1,14 @@
+{
+  final FuncType ft=(FuncType)type().type;
+  final Expr body;
+  if (!nonLocal.isEmpty()) {
+    final LinkedList<GFLWOR.Clause> cls=new LinkedList<GFLWOR.Clause>();
+    for (    final Entry<Var,Expr> e : nonLocal.entrySet())     cls.add(new Let(e.getKey(),e.getValue().value(ctx),false,ii));
+    body=new GFLWOR(ii,cls,expr);
+  }
+ else {
+    body=expr;
+  }
+  final Expr checked=ret == null ? body : new TypeCheck(sc,info,body,ret,true).optimize(ctx,scope);
+  return new FuncItem(sc,ann,null,args,ft,checked,scope.stackSize());
+}
