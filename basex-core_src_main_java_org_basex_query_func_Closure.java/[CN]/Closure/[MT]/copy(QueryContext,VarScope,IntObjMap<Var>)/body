@@ -1,0 +1,14 @@
+{
+  final VarScope v=scope.copy(cx,vs);
+  final HashMap<Var,Expr> nl=new HashMap<Var,Expr>();
+  for (  final Entry<Var,Expr> e : nonLocal.entrySet()) {
+    final Var var=vs.get(e.getKey().id);
+    final Expr ex=e.getValue().copy(cx,scp,vs);
+    nl.put(var,ex);
+  }
+  final Var[] a=args.clone();
+  for (int i=0; i < a.length; i++)   a[i]=vs.get(a[i].id);
+  final Expr e=expr.copy(cx,v,vs);
+  e.markTailCalls(null);
+  return copyType(new Closure(info,name,ret,a,e,ann,nl,sc,v));
+}
