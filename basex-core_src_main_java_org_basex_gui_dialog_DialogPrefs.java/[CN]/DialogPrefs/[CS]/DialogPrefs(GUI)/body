@@ -1,67 +1,14 @@
 {
-  super(main,PREFERENCES);
-  final BaseXBack pp=new BaseXBack(new TableLayout(13,1));
-  pp.add(new BaseXLabel(DATABASE_PATH + COL,true,true));
-  BaseXBack p=new BaseXBack(new TableLayout(1,2,8,0));
-  final GlobalOptions opts=gui.context.globalopts;
-  final GUIOptions gopts=gui.gopts;
-  path=new BaseXTextField(opts.dbpath().path(),this);
-  final BaseXButton button=new BaseXButton(BROWSE_D,this);
-  button.addActionListener(new ActionListener(){
-    @Override public void actionPerformed(    final ActionEvent e){
-      final IOFile file=new BaseXFileChooser(CHOOSE_DIR,path.getText(),gui).select(Mode.DOPEN);
-      if (file != null)       path.setText(file.dirPath());
-    }
-  }
-);
-  p.add(path);
-  p.add(button);
-  pp.add(p);
-  pp.add(new BaseXLabel(GUI_INTERACTIONS + COL,true,true).border(12,0,6,0));
-  focus=new BaseXCheckBox(RT_FOCUS,GUIOptions.MOUSEFOCUS,gopts,this);
-  pp.add(focus);
-  simpfd=new BaseXCheckBox(SIMPLE_FILE_CHOOSER,GUIOptions.SIMPLEFD,gopts,this);
-  pp.add(simpfd);
-  final Data data=gui.context.data();
-  names=new BaseXCheckBox(SHOW_NAME_ATTS,GUIOptions.SHOWNAME,gopts,this);
-  names.setEnabled(data != null && ViewData.nameID(data) != 0);
-  oldShowNames=names.isSelected();
-  pp.add(names);
-  final int mh=hitsForSlider();
-  limit=new BaseXSlider(0,HITS.length - 1,mh,this,new ActionListener(){
-    @Override public void actionPerformed(    final ActionEvent e){
-      action(limit);
-    }
-  }
-);
-  label=new BaseXLabel(" ");
-  p=new BaseXBack(new TableLayout(1,3,12,0)).border(8,0,0,0);
-  p.add(new BaseXLabel(MAX_NO_OF_HITS + COL));
-  p.add(limit);
-  p.add(label);
-  pp.add(p);
-  pp.add(new BaseXLabel(JAVA_LF + COL).border(12,0,6,0));
-  final StringList lafs=new StringList("(default)");
-  for (  final LookAndFeelInfo lafi : UIManager.getInstalledLookAndFeels())   lafs.add(lafi.getName());
-  lookfeel=new BaseXCombo(this,lafs.toArray());
-  final String laf=gopts.get(GUIOptions.LOOKANDFEEL);
-  if (laf.isEmpty()) {
-    lookfeel.setSelectedIndex(0);
-  }
- else {
-    lookfeel.setSelectedItem(laf);
-  }
-  pp.add(lookfeel);
-  pp.add(new BaseXLabel(LANGUAGE_RESTART + COL,true,true).border(16,0,6,0));
-  lang=new BaseXCombo(this,LANGS[0]);
-  lang.setSelectedItem(opts.get(GlobalOptions.LANG));
-  creds=new BaseXLabel(" ");
-  p=new BaseXBack(new TableLayout(1,2,12,0));
-  p.add(lang);
-  p.add(creds);
-  pp.add(p);
-  set(pp,BorderLayout.CENTER);
-  set(okCancel(),BorderLayout.SOUTH);
+  super(main,PREFERENCES,false);
+  tabs=new BaseXTabs(this);
+  general=new DialogGeneralPrefs(this);
+  editor=new DialogEditorPrefs(this);
+  visual=new DialogVisualPrefs(this);
+  tabs.add(GENERAL,general);
+  tabs.add(EDITOR,editor);
+  tabs.add(VISUALIZATION,visual);
+  tabs.setSelectedIndex(gui.gopts.get(GUIOptions.PREFTAB));
+  set(tabs,BorderLayout.CENTER);
   action(null);
   finish(null);
 }

@@ -1,8 +1,13 @@
 {
-  refreshControls(false);
+  refreshControls(editor,false);
   final byte[] in=editor.getText();
   final boolean eq=eq(in,editor.last);
   if (eq && action == Action.CHECK)   return;
+  if (action == Action.EXECUTE && gui.gopts.get(GUIOptions.SAVERUN)) {
+    for (    final EditorArea edit : editors()) {
+      if (edit.opened())       edit.save();
+    }
+  }
   IOFile file=editor.file;
   editor.last=in;
   final boolean xquery=file.hasSuffix(IO.XQSUFFIXES) || !file.path().contains(".");

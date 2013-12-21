@@ -1,44 +1,33 @@
 {
   extend();
-  final int s=selectPos, e=selectEnd, tl=text.length;
-  int o=e;
+  final int s=selectPos, e=selectEnd, ind=indent();
+  final byte[] spaces=spaces();
   final TokenBuilder tb=new TokenBuilder();
-  boolean indent=true;
-  for (int p=s; p < e; p+=cl(text,p)) {
+  for (int p=s; p < e; p++) {
     if (p == 0 || text[p - 1] == '\n') {
-      indent=true;
-      if (shift) {
-        if (text[p] == '\t') {
-          o--;
-          continue;
+      int i=0;
+      do {
+        int cp=text[p];
+        if (cp == '\t') {
+          i+=ind;
         }
-        if (text[p] == ' ') {
-          o--;
-          for (int i=1; i < TAB && p + i < tl && text[p + i] == ' '; i++) {
-            o--;
-            p++;
-          }
-          continue;
+ else         if (cp == ' ') {
+          i++;
         }
-      }
  else {
-        tb.add(INDENT);
-        o+=TAB;
+          break;
+        }
       }
+ while (++p < e);
+      i=shift ? Math.max(0,i - ind) : i + ind;
+      for (int c=0; c < i / ind; c++)       tb.add(spaces);
+      for (int c=0; c < i % ind; c++)       tb.add(' ');
     }
-    int cp=cp(text,p);
-    if (indent) {
-      if (cp == '\t') {
-        cp=' ';
-        tb.add(' ');
-      }
- else       if (cp != ' ') {
-        indent=false;
-      }
-    }
-    tb.add(cp);
+    if (p < e)     tb.addByte(text[p]);
   }
-  add(tb.finish(),s,e);
+  final byte[] tmp=tb.finish();
+  add(tmp,s,e);
+  final int o=s + tmp.length;
   select(s,o);
   setCaret(o);
 }

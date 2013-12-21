@@ -27,12 +27,16 @@
     }
     iter.pos(cp);
     if (iter.erroneous())     drawError(g);
-    if (ch == '\u00a0') {
-      final int s=fontHeight / 12;
+    if (ch == '\n' && showNL) {
+      g.setColor(GUIConstants.GRAY);
+      g.drawString("\u00b6",x,y);
+    }
+ else     if ((ch == '\u00a0' || ch >= 0x2000 && ch <= 0x200A) && showInvisible) {
+      final int s=fontHeight / 12 + 1;
       g.setColor(GUIConstants.GRAY);
       g.fillRect(x + (wordWidth >> 1),y - fontHeight * 3 / 10,s,s);
     }
- else     if (ch == '\t') {
+ else     if (ch == '\t' && showInvisible) {
       final int yy=y - fontHeight * 3 / 10;
       final int s=1 + fontHeight / 12;
       final int xe=x + fontWidth(g,'\t') - s;
@@ -42,7 +46,7 @@
       g.drawLine(xe - as,yy - as,xe,yy);
       g.drawLine(xe - as,yy + as,xe,yy);
     }
- else     if (ch >= ' ') {
+ else     if (ch > ' ') {
       g.setColor(color);
       String n=iter.nextString();
       int ww=width - x;
