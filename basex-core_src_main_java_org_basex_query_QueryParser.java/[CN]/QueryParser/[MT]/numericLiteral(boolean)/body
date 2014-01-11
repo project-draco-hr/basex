@@ -8,7 +8,11 @@
     while (digit(curr()))     tok.add(consume());
   }
   if (XMLToken.isNCStartChar(curr()))   return checkDbl();
-  if (dec)   return new Dec(tok.finish());
+  if (dec) {
+    final byte[] t=tok.finish();
+    if (endsWith(t,'.'))     throw error(NUMBERDEC,t);
+    return new Dec(t);
+  }
   final long l=toLong(tok.finish());
   if (l != Long.MIN_VALUE)   return Int.get(l);
   return FNInfo.error(new QueryException(info(),RANGE,tok),SeqType.ITR);
