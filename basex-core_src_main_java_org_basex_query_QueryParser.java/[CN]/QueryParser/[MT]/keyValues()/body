@@ -1,14 +1,14 @@
 {
-  if (old)   wsCheck(BRACE1);
+  wsCheck(BRACE1);
   final ExprList el=new ExprList();
   if (!wsConsume(BRACE2)) {
     do {
       add(el,check(single(),INVMAPKEY));
-      wsCheck(old ? ASSIGN : COL);
+      if (!wsConsume(ASSIGN))       check(':');
       add(el,check(single(),INVMAPVAL));
     }
  while (wsConsume(COMMA));
     wsCheck(BRACE2);
   }
-  return new LitMap(info(),el.finish());
+  return el.finish();
 }
