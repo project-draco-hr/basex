@@ -6,14 +6,14 @@
     xqpe.executeCommand("SET DEFAULTDB true");
     HashMap<String,XQItem> docs=new HashMap<String,XQItem>();
     ThreadPoolExecutor tpe=new ThreadPoolExecutor(CONCURRENT_WRITE_THREADS,CONCURRENT_WRITE_THREADS,4l,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(CONCURRENT_READ_THREADS),new ThreadPoolExecutor.CallerRunsPolicy());
-    ArrayList<Future> futures=new ArrayList<Future>();
+    ArrayList<Future<?>> futures=new ArrayList<Future<?>>();
     for (int i=0; i < DOCS_TO_INSERT; i++) {
       String uri=i + "-" + UUID.randomUUID().toString()+ ".xml";
       XQItem item=createDocument("<e>" + uri + "</e>");
       docs.put(uri,item);
     }
     for (    String uri : docs.keySet())     futures.add(tpe.submit(new InsertItemThread(uri,docs.get(uri))));
-    for (    Future future : futures)     future.get();
+    for (    Future<?> future : futures)     future.get();
     for (    String uri : docs.keySet())     assertTrue(docAvailable(uri));
   }
   finally {
