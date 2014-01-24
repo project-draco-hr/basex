@@ -1,10 +1,10 @@
 {
-  final int runs=Math.max(1,qc.context.options.get(MainOptions.RUNS));
+  final int runs=Math.max(1,qp.ctx.context.options.get(MainOptions.RUNS));
   final TokenBuilder tb=new TokenBuilder();
   final long total=parsing + compiling + evaluating+ serializing;
   if (detailed) {
     final int up=qp.updates();
-    tb.add(toString()).add(NL);
+    tb.add(toString(qp.ctx)).add(NL);
     tb.add(PARSING_CC).add(Performance.getTime(parsing,runs)).add(NL);
     tb.add(COMPILING_CC).add(Performance.getTime(compiling,runs)).add(NL);
     tb.add(EVALUATING_CC).add(Performance.getTime(evaluating,runs)).add(NL);
@@ -14,13 +14,13 @@
     tb.add(UPDATED_CC + up).add(' ').add(up == 1 ? ITEM : ITEMS).add(NL);
     tb.add(PRINTED_CC).add(Performance.format(printed)).add(NL);
     tb.add(READ_LOCKING_CC);
-    if (readLocked == null)     tb.add("global");
- else     if (readLocked.isEmpty())     tb.add("none");
- else     tb.add("local ").add(Arrays.toString(readLocked.toArray()));
+    if (readLocked == null)     tb.add(GLOBAL);
+ else     if (readLocked.isEmpty())     tb.add(NONE);
+ else     tb.add(LOCAL).add(' ').add(Arrays.toString(readLocked.toArray()));
     tb.add(NL).add(WRITE_LOCKING_CC);
-    if (writeLocked == null)     tb.add("global");
- else     if (writeLocked.isEmpty())     tb.add("none");
- else     tb.add("local ").add(Arrays.toString(writeLocked.toArray()));
+    if (writeLocked == null)     tb.add(GLOBAL);
+ else     if (writeLocked.isEmpty())     tb.add(NONE);
+ else     tb.add(LOCAL).add(' ').add(Arrays.toString(writeLocked.toArray()));
     tb.add(NL);
   }
   final IO io=qp.sc.baseIO();
