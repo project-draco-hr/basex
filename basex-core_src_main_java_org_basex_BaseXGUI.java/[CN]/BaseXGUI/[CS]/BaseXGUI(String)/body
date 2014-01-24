@@ -17,20 +17,17 @@
       init(gopts);
       final GUI gui=new GUI(context,gopts);
       if (osxGUI != null)       osxGUI.init(gui);
-      boolean xml=false;
       for (      final String file : files) {
         if (file.matches("^.*\\" + IO.BASEXSUFFIX + "[^.]*$"))         continue;
         final IOFile io=new IOFile(file);
-        boolean xq=file.endsWith(IO.BXSSUFFIX);
-        for (        final String suf : IO.XQSUFFIXES)         xq|=file.endsWith(suf);
-        if (xq) {
-          gui.editor.open(io);
-        }
- else         if (!xml) {
+        final boolean xml=file.endsWith(IO.XMLSUFFIX);
+        if (xml && BaseXDialog.confirm(gui,Util.info(Text.CREATE_DB_FILE,io))) {
           gopts.set(GUIOptions.INPUTPATH,io.path());
           gopts.set(GUIOptions.DBNAME,io.dbname());
           DialogProgress.execute(gui,new Check(file));
-          xml=true;
+        }
+ else {
+          gui.editor.open(io);
         }
       }
     }
