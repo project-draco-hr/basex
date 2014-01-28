@@ -16,13 +16,16 @@
       final String name=string(tok.finish());
       if (!dtd && r)       return cont;
       final XMLInput tin=input;
-      try {
-        final IO file=input.io().merge(name);
-        cont=file.read();
+      if (dtd) {
+        try {
+          cont=input.io().merge(name).read();
+        }
+ catch (        final IOException ex) {
+          throw error(Util.message(ex));
+        }
       }
- catch (      final IOException ex) {
-        Util.debug(ex);
-        cont=new byte[]{'?'};
+ else {
+        cont=new byte[0];
       }
       input=new XMLInput(new IOContent(cont,name));
       if (consume(XDECL)) {

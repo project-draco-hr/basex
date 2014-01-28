@@ -4,8 +4,10 @@
   try {
     XMLReader r=saxs.getXMLReader();
     if (r == null) {
+      final boolean dtd=options.get(MainOptions.DTD);
       final SAXParserFactory f=SAXParserFactory.newInstance();
-      f.setFeature(EXTDTD,options.get(MainOptions.DTD));
+      f.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",dtd);
+      f.setFeature("http://xml.org/sax/features/external-parameter-entities",dtd);
       f.setFeature("http://xml.org/sax/features/use-entity-resolver2",false);
       f.setNamespaceAware(true);
       f.setValidating(false);
@@ -17,7 +19,7 @@
     if (!cat.isEmpty())     CatalogWrapper.set(r,cat);
     r.setDTDHandler(saxh);
     r.setContentHandler(saxh);
-    r.setProperty(LEXHANDLER,saxh);
+    r.setProperty("http://xml.org/sax/properties/lexical-handler",saxh);
     r.setErrorHandler(saxh);
     if (is != null)     r.parse(is);
  else     r.parse(saxs.getSystemId());
