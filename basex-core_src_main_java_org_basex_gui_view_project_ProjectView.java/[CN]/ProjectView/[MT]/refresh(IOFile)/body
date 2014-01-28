@@ -1,14 +1,11 @@
 {
-  final Enumeration<?> en=root.depthFirstEnumeration();
-  while (en.hasMoreElements()) {
-    final ProjectNode node=(ProjectNode)en.nextElement();
-    if (node.file == null)     continue;
-    if (node.file.path().equals(file.path())) {
-      node.refresh();
-      return;
-    }
+  final ProjectNode node=find(file);
+  if (node != null) {
+    node.refresh();
   }
-  final File parent=file.file().getParentFile();
-  if (parent == null)   return;
-  refresh(new IOFile(parent));
+ else {
+    final File parent=file.file().getParentFile();
+    if (parent == null)     return;
+    refresh(new IOFile(parent));
+  }
 }
