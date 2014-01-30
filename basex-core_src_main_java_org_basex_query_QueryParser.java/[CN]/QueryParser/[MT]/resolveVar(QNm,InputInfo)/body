@@ -2,10 +2,6 @@
   final VarRef local=resolveLocalVar(name,ii);
   if (local != null)   return local;
   final byte[] uri=name.uri();
-  final boolean main=module == null;
-  final boolean implicit=main && uri.length == 0;
-  if (!sc.xquery3() && !ctx.vars.declared(name) && !implicit || !main && !eq(module.uri(),uri) && !modules.contains(uri)) {
-    throw error(VARUNDEF,'$' + string(name.string()));
-  }
-  return ctx.vars.newRef(name,sc,ii);
+  if ((sc.xquery3() || ctx.vars.declared(name)) && (module == null || eq(module.uri(),uri) || modules.contains(uri)))   return ctx.vars.newRef(name,sc,ii);
+  throw error(VARUNDEF,'$' + string(name.string()));
 }
