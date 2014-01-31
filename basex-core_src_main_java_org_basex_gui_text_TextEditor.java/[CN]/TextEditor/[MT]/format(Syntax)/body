@@ -1,15 +1,9 @@
 {
-  if (!selected()) {
-    select(0,size());
-    if (!selected())     return false;
-  }
-  final int s=Math.min(selectPos,selectEnd);
-  final int e=Math.max(selectPos,selectEnd);
+  final boolean sel=selected();
+  final int s=sel ? Math.min(start,end) : 0;
+  final int e=sel ? Math.max(start,end) : size();
   final byte[] format=syntax.format(Arrays.copyOfRange(text,s,e),spaces());
   final boolean changed=add(format,s,e);
-  selectPos=s;
-  selectEnd=s + format.length;
-  setCaret(selectEnd);
-  checkSelect();
+  select(s,s + format.length);
   return changed;
 }
