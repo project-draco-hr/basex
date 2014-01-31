@@ -1,9 +1,9 @@
 {
   final List<T> ch=new ArrayList<T>();
   final HashSet<String> paths=new HashSet<String>();
-  final Query q=session().query("for $a in " + _DB_LIST_DETAILS.args("$d","$p") + "return ($a/@raw/data(),"+ "$a/@content-type/data(),"+ "$a/@modified-date/data(),"+ "$a/@size/data(),"+ SUBSTRING_AFTER.args("$a/text()","$p")+ ')');
-  q.bind("d",db);
-  q.bind("p",path);
+  final Query q=session().query(ext("db") + ext("path") + _DB_LIST_DETAILS.args("$db","$path")+ " ! ("+ "@raw/data(),"+ "@content-type/data(),"+ "@modified-date/data(),"+ "@size/data(),"+ SUBSTRING_AFTER.args("text()","$path")+ ')');
+  q.bind("db",db);
+  q.bind("path",path);
   while (q.more()) {
     final boolean raw=Boolean.parseBoolean(q.next());
     final String ctype=q.next();
