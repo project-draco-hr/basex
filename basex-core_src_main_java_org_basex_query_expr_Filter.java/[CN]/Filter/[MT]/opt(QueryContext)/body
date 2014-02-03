@@ -15,7 +15,13 @@
     type=SeqType.get(t.type,size);
   }
   if (!super.has(Flag.FCS))   return new IterFilter(this);
-  if (preds.length == 1 && (last || pos != null) && root.isValue() && t.one() && (last || pos.min == 1 && pos.max == 1))   return optPre(root,ctx);
+  final boolean iter=posIterator();
+  if (preds.length == 1 && (last || pos != null) && root.isValue()) {
+    final Value v=(Value)root;
+    final long from=last ? v.size() - 1 : pos.min - 1;
+    final long len=last ? 1 : pos.max - from;
+    return optPre(SubSeq.get(v,from,len),ctx);
+  }
   boolean off=false;
   if (preds.length == 1) {
     final Expr p=preds[0];
@@ -23,5 +29,5 @@
     off=st.type.isNumber() && st.zeroOrOne() && !p.has(Flag.CTX)&& !p.has(Flag.NDT);
     if (off)     type=SeqType.get(type.type,Occ.ZERO_ONE);
   }
-  return off || useIterator() ? new IterPosFilter(this,off) : this;
+  return off || iter ? new IterPosFilter(this,off) : this;
 }
