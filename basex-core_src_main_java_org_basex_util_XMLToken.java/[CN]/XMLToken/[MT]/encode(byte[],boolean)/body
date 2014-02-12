@@ -1,0 +1,34 @@
+{
+  final byte[] name=lax ? trim(nm) : nm;
+  if (name.length == 0)   return UNDERSCORE;
+  for (int i=0; i < name.length; i+=cl(name,i)) {
+    int cp=cp(name,i);
+    if (cp == '_' || !(i == 0 ? isNCStartChar(cp) : isNCChar(cp))) {
+      final TokenBuilder tb=new TokenBuilder(name.length << 1).add(name,0,i);
+      for (int j=i; j < name.length; j+=cl(name,j)) {
+        cp=cp(name,j);
+        if (lax) {
+          final boolean nc=isNCChar(cp);
+          if (j == 0 && nc && !isNCStartChar(cp))           tb.add('_');
+          tb.add(nc ? cp : '_');
+        }
+ else         if (cp == '_') {
+          tb.add('_').add('_');
+        }
+ else         if (j == 0 ? isNCStartChar(cp) : isNCChar(cp)) {
+          tb.add(cp);
+        }
+ else         if (cp < 0x10000) {
+          addEsc(tb,cp);
+        }
+ else {
+          final int r=cp - 0x10000;
+          addEsc(tb,(r >>> 10) + 0xD800);
+          addEsc(tb,(r & 0x3FF) + 0xDC00);
+        }
+      }
+      return tb.finish();
+    }
+  }
+  return name;
+}

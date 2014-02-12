@@ -1,18 +1,21 @@
 {
   super(md);
   final DataInput in=new DataInput(meta.dbfile(DATATBL + 'i'));
-  blocks=in.readNum();
-  used=in.readNum();
-  fpres=in.readNums();
-  pages=in.readNums();
-  final int psize=in.readNum();
-  if (psize == 0) {
-    freePages=new BitArray(blocks);
-    for (    final int p : pages)     freePages.set(p);
-    dirty=true;
+  final int b=in.readNum();
+  blocks=b;
+  final int u=in.readNum();
+  final boolean regular=u == 0 || u == Integer.MAX_VALUE;
+  if (regular) {
+    used=u == 0 ? 0 : b;
   }
  else {
-    freePages=new BitArray(in.readLongs(psize),blocks);
+    used=u;
+    fpres=in.readNums();
+    pages=in.readNums();
+  }
+  if (!regular) {
+    final int psize=in.readNum();
+    usedPages=new BitArray(in.readLongs(psize),used);
   }
   in.close();
   file=new RandomAccessFile(meta.dbfile(DATATBL).file(),"rw");

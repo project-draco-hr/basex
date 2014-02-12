@@ -44,7 +44,7 @@
         errorParams.add(param(value,name,declared));
       }
  else {
-        final HTTPMethod m=HTTPMethod.get(string(local));
+        final HTTPMethod m=get(string(local));
         if (m == null)         error(info,ANN_UNKNOWN,"%",name.string());
         if (!value.isEmpty()) {
           if (requestBody != null)           error(info,ANN_TWICE,"%",name.string());
@@ -56,10 +56,12 @@
       }
     }
  else     if (eq(uri,QueryText.OUTPUTURI)) {
-      final String key=string(local);
-      final String val=toString(value,name);
-      if (output.get(key) == null)       error(info,UNKNOWN_SER,key);
-      output.set(key,val);
+      try {
+        output.assign(string(local),toString(value,name));
+      }
+ catch (      final BaseXException ex) {
+        error(info,UNKNOWN_SER,local);
+      }
     }
     found|=rexq;
   }

@@ -5,30 +5,30 @@
   wsCheck(PAR2);
   TypeCase[] cases={};
   final ArrayList<SeqType> types=new ArrayList<SeqType>();
-  final int s=scope.open();
+  final int s=openSubScope();
   boolean cs;
   do {
     types.clear();
     cs=wsConsumeWs(CASE);
     if (!cs) {
       wsCheck(DEFAULT);
-      skipWS();
+      skipWs();
     }
     Var var=null;
     if (curr('$')) {
-      var=addLocal(varName(),null,false);
+      var=addVar(varName(),null,false);
       if (cs)       wsCheck(AS);
     }
     if (cs) {
       do       types.add(sequenceType());
- while (ctx.sc.xquery3() && wsConsume(PIPE));
+ while (sc.xquery3() && wsConsume(PIPE));
     }
     wsCheck(RETURN);
     final Expr ret=check(single(),NOTYPESWITCH);
     cases=Array.add(cases,new TypeCase(info(),var,types.toArray(new SeqType[types.size()]),ret));
-    scope.close(s);
+    closeSubScope(s);
   }
  while (cs);
-  if (cases.length == 1)   error(NOTYPESWITCH);
+  if (cases.length == 1)   throw error(NOTYPESWITCH);
   return new TypeSwitch(info(),ts,cases);
 }

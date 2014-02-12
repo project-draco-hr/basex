@@ -1,21 +1,21 @@
 {
   checkCreate(ctx);
   final byte[] path=checkStr(expr[0],ctx);
-  final IO base=ctx.sc.baseIO();
-  if (base == null)   throw STBASEURI.thrw(info);
+  final IO base=sc.baseIO();
+  if (base == null)   throw STBASEURI.get(info);
   String enc=null;
   try {
     enc=encoding(1,WHICHENC,ctx);
     final String p=string(path);
-    if (p.indexOf('#') != -1)     FRAGID.thrw(info,p);
-    if (!Uri.uri(p).isValid())     INVURL.thrw(info,p);
+    if (p.indexOf('#') != -1)     throw FRAGID.get(info,p);
+    if (!Uri.uri(p).isValid())     throw INVURL.get(info,p);
     IO io=base.merge(p);
     final String[] rp=ctx.resource.resources.get(io.path());
     if (rp != null && rp.length > 0) {
       io=IO.get(rp[0]);
       if (rp.length > 1)       enc=rp[1];
     }
-    if (!io.exists())     RESNF.thrw(info,p);
+    if (!io.exists())     throw RESNF.get(info,p);
     final InputStream is=io.inputStream();
     try {
       final TextInput ti=new TextInput(io).encoding(enc).validate(true);
@@ -28,15 +28,15 @@
     }
   }
  catch (  final QueryException ex) {
-    if (check && ex.err().type != ErrType.XPTY)     return Bln.FALSE;
+    if (check && !ex.err().is(ErrType.XPTY))     return Bln.FALSE;
     throw ex;
   }
 catch (  final IOException ex) {
     if (check)     return Bln.FALSE;
     if (ex instanceof InputException) {
-      if (ex instanceof EncodingException || enc != null)       INVCHARS.thrw(info,ex);
- else       WHICHCHARS.thrw(info,ex);
+      final boolean inv=ex instanceof EncodingException || enc != null;
+      throw (inv ? INVCHARS : WHICHCHARS).get(info,ex);
     }
-    throw RESNF.thrw(info,path);
+    throw RESNF.get(info,path);
   }
 }

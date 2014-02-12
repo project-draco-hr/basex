@@ -1,13 +1,14 @@
 {
   boolean supported=false;
+  final int i=Prop.VERSION.indexOf(' ');
+  final TokenSet versions=new TokenSet(token(i == -1 ? Prop.VERSION : Prop.VERSION.substring(0,i)));
+  final byte[] name=token(Text.PROJECT_NAME);
   for (  final Dependency d : procs) {
-    if (!eq(lc(d.processor),token(Text.NAMELC))) {
+    if (!eq(lc(d.processor),name)) {
       supported=false;
       break;
     }
-    final int i=Prop.VERSION.indexOf(' ');
-    final String v=i == -1 ? Prop.VERSION : Prop.VERSION.substring(0,i);
-    supported=availVersion(d,new TokenSet(token(v))) != null;
+    supported=availVersion(d,versions) != null;
   }
-  if (!supported)   BXRE_VERSION.thrw(info);
+  if (!supported)   throw BXRE_VERSION.get(info);
 }

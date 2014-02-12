@@ -1,0 +1,34 @@
+{
+  if (pos >= length)   throw eof(", expected JSON value.");
+switch (curr()) {
+case '[':
+    array();
+  break;
+case '{':
+object();
+break;
+case '"':
+conv.stringLit(string());
+break;
+case '-':
+case '0':
+case '1':
+case '2':
+case '3':
+case '4':
+case '5':
+case '6':
+case '7':
+case '8':
+case '9':
+conv.numberLit(number());
+break;
+default :
+if (consume("true")) conv.booleanLit(TRUE);
+ else if (consume("false")) conv.booleanLit(FALSE);
+ else if (consume("null")) conv.nullLit();
+ else if (spec == JsonSpec.LIBERAL && consume("new") && Character.isWhitespace(curr())) constr();
+ else throw error("Unexpected JSON value: '%'",rest());
+skipWs();
+}
+}

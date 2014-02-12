@@ -3,13 +3,12 @@
   Collections.sort(dbops);
   for (  final BasicOperation d : dbops)   d.apply();
   for (  final Put p : puts.values())   p.apply();
-  if (data.meta.prop.is(Prop.WRITEBACK) && !data.meta.original.isEmpty()) {
+  if (data.inMemory() && !data.meta.original.isEmpty() && data.meta.options.get(MainOptions.WRITEBACK)) {
     try {
-      final SerializerProp sp=new SerializerProp(data.meta.prop.get(Prop.EXPORTER));
-      Export.export(data,data.meta.original,sp,null);
+      Export.export(data,data.meta.original,null);
     }
  catch (    final IOException ex) {
-      UPPUTERR.thrw(null,data.meta.original);
+      throw UPPUTERR.get(null,data.meta.original);
     }
   }
 }

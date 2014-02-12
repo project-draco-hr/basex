@@ -1,5 +1,21 @@
 {
-  type=FuncType.get(ann,args,ret).seqType();
+  final SeqType r=expr.type();
+  final SeqType retType=ret == null || r.instanceOf(ret) ? r : ret;
+  type=FuncType.get(ann,args,retType).seqType();
   size=1;
+  final int fp=scope.enter(ctx);
+  try {
+    for (    final Entry<Var,Value> e : staticBindings()) {
+      final Expr inlined=expr.inline(ctx,scope,e.getKey(),e.getValue());
+      if (inlined != null)       expr=inlined;
+    }
+  }
+ catch (  final QueryException qe) {
+    expr=FNInfo.error(qe,ret != null ? ret : expr.type());
+  }
+ finally {
+    scope.cleanUp(this);
+    scope.exit(ctx,fp);
+  }
   return scope.closure().isEmpty() ? preEval(ctx) : this;
 }

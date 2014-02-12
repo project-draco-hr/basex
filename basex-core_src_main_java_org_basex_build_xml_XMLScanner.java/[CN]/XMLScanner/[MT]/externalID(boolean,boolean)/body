@@ -16,13 +16,16 @@
       final String name=string(tok.finish());
       if (!dtd && r)       return cont;
       final XMLInput tin=input;
-      try {
-        final IO file=input.io().merge(name);
-        cont=file.read();
+      if (dtd) {
+        try {
+          cont=input.io().merge(name).read();
+        }
+ catch (        final IOException ex) {
+          throw error(Util.message(ex));
+        }
       }
- catch (      final IOException ex) {
-        Util.debug(ex);
-        cont=new byte[]{'?'};
+ else {
+        cont=new byte[0];
       }
       input=new XMLInput(new IOContent(cont,name));
       if (consume(XDECL)) {
@@ -30,23 +33,23 @@
         s();
         if (version())         checkS();
         s();
-        if (encoding() == null)         error(TEXTENC);
+        if (encoding() == null)         throw error(TEXTENC);
         ch=nextChar();
         if (s(ch))         ch=nextChar();
-        if (ch != '?')         error(WRONGCHAR,'?',ch);
+        if (ch != '?')         throw error(WRONGCHAR,'?',ch);
         ch=nextChar();
-        if (ch != '>')         error(WRONGCHAR,'>',ch);
+        if (ch != '>')         throw error(WRONGCHAR,'>',ch);
         cont=Arrays.copyOfRange(cont,input.pos(),cont.length);
       }
       s();
       if (r) {
         extSubsetDecl();
-        if (!consume((char)0))         error(INVEND);
+        if (!consume((char)0))         throw error(INVEND);
       }
       input=tin;
     }
  else {
-      if (f)       error(SCANQUOTE,(char)qu);
+      if (f)       throw error(SCANQUOTE,(char)qu);
       prev(1);
     }
   }

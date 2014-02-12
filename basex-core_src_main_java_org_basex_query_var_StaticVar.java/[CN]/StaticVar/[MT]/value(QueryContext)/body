@@ -1,10 +1,8 @@
 {
-  if (dontEnter)   circVar(ctx,this);
+  if (dontEnter)   throw circVarError(this);
   if (lazy) {
-    if (!compiled)     throw Util.notexpected(this + " was not compiled.");
+    if (!compiled)     throw Util.notExpected(this + " was not compiled.");
     if (value != null)     return value;
-    final StaticContext cs=ctx.sc;
-    ctx.sc=sc;
     dontEnter=true;
     final int fp=scope.enter(ctx);
     try {
@@ -15,22 +13,18 @@
     }
  finally {
       scope.exit(ctx,fp);
-      ctx.sc=cs;
       dontEnter=false;
     }
   }
   if (value != null)   return value;
-  if (expr == null)   throw VAREMPTY.thrw(info,this);
+  if (expr == null)   throw VAREMPTY.get(info,this);
   dontEnter=true;
   final int fp=scope.enter(ctx);
-  final StaticContext cs=ctx.sc;
-  ctx.sc=sc;
   try {
     return bind(expr.value(ctx));
   }
   finally {
     scope.exit(ctx,fp);
-    ctx.sc=cs;
     dontEnter=false;
   }
 }

@@ -1,23 +1,23 @@
 {
   if (def && !wsConsumeWs(DECIMAL_FORMAT))   return false;
   final QNm name=def ? new QNm() : eQName(QNAMEINV,null);
-  if (ctx.sc.decFormats.get(name.id()) != null)   error(DECDUPL);
+  if (sc.decFormats.get(name.id()) != null)   throw error(DECDUPL);
   final TokenMap map=new TokenMap();
   int n;
   do {
     n=map.size();
-    skipWS();
+    skipWs();
     final byte[] prop=ncName(null);
     for (    final byte[] s : DECFORMATS) {
       if (!eq(prop,s))       continue;
-      if (map.get(s) != null)       error(DECDUPLPROP,s);
+      if (map.get(s) != null)       throw error(DECDUPLPROP,s);
       wsCheck(IS);
       map.put(s,stringLiteral());
       break;
     }
-    if (map.isEmpty())     error(NODECLFORM,prop);
+    if (map.isEmpty())     throw error(NODECLFORM,prop);
   }
  while (n != map.size());
-  ctx.sc.decFormats.put(name.id(),new DecFormatter(info(),map));
+  sc.decFormats.put(name.id(),new DecFormatter(info(),map));
   return true;
 }

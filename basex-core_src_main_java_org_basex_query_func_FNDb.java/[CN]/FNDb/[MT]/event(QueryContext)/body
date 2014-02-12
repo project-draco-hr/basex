@@ -1,8 +1,11 @@
 {
   final byte[] name=checkStr(expr[0],ctx);
-  final ArrayOutput ao=ctx.value(expr[1]).serialize();
-  if (!ctx.context.events.notify(ctx.context,name,ao.toArray())) {
-    BXDB_EVENT.thrw(info,name);
+  try {
+    final ArrayOutput ao=ctx.value(expr[1]).serialize();
+    if (!ctx.context.events.notify(ctx.context,name,ao.toArray()))     throw BXDB_EVENT.get(info,name);
+    return null;
   }
-  return null;
+ catch (  final QueryIOException ex) {
+    throw ex.getCause(info);
+  }
 }

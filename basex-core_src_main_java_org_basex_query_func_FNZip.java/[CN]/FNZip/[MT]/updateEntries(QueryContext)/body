@@ -1,6 +1,6 @@
 {
   final ANode elm=(ANode)checkType(expr[0].item(ctx,info),NodeType.ELM);
-  if (!elm.qname().eq(Q_FILE))   ZIP_UNKNOWN.thrw(info,elm.qname());
+  if (!elm.qname().eq(Q_FILE))   throw ZIP_UNKNOWN.get(info,elm.qname());
   final String in=attribute(elm,HREF,true);
   final IOFile target=new IOFile(string(checkStr(expr[1],ctx)));
   IOFile out;
@@ -8,7 +8,7 @@
     out=new IOFile(target.path() + new Random().nextInt(0x7FFFFFFF));
   }
  while (out.exists());
-  if (!new IOFile(in).exists())   ZIP_NOTFOUND.thrw(info,in);
+  if (!new IOFile(in).exists())   throw ZIP_NOTFOUND.get(info,in);
   ZipFile zf=null;
   boolean ok=true;
   try {
@@ -22,7 +22,7 @@
     }
  catch (    final IOException ex) {
       ok=false;
-      ZIP_FAIL.thrw(info,ex);
+      throw ZIP_FAIL.get(info,ex);
     }
  finally {
       if (fos != null)       try {
@@ -33,7 +33,7 @@
     }
   }
  catch (  final IOException ex) {
-    throw ZIP_FAIL.thrw(info,ex);
+    throw ZIP_FAIL.get(info,ex);
   }
  finally {
     if (zf != null)     try {

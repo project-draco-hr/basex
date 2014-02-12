@@ -1,25 +1,17 @@
 {
   final Data data=ictx.data;
   return new FTIter(){
-    /** 
- * Index iterator. 
- */
-    FTIndexIterator iat;
-    /** 
- * Text length. 
- */
+    FTIndexIterator ftiter;
     int len;
     @Override public FTNode next() throws QueryException {
-      if (iat == null) {
+      if (ftiter == null) {
         final FTLexer lex=new FTLexer(ftt.opt);
-        FTIndexIterator ia;
         int t=0;
-        final TokenSet ts=unique(txt != null ? txt : tokens(ctx));
-        for (        final byte[] k : ts) {
+        for (        final byte[] k : unique(txt != null ? txt : tokens(ctx))) {
           lex.init(k);
-          ia=null;
-          int d=0;
           if (!lex.hasNext())           return null;
+          int d=0;
+          FTIndexIterator ii=null;
           do {
             final byte[] tok=lex.nextToken();
             t+=tok.length;
@@ -28,34 +20,34 @@
             }
  else {
               final FTIndexIterator ir=lex.get().length > data.meta.maxlen ? scan(lex) : (FTIndexIterator)data.iter(lex);
-              if (ia == null) {
-                ia=ir;
+              ir.pos(++ctx.ftPos);
+              if (ii == null) {
+                ii=ir;
               }
  else {
-                ia=FTIndexIterator.intersect(ia,ir,++d);
+                ii=FTIndexIterator.intersect(ii,ir,++d);
                 d=0;
               }
             }
           }
  while (lex.hasNext());
-          if (iat == null) {
+          if (ftiter == null) {
             len=t;
-            iat=ia;
+            ftiter=ii;
           }
  else           if (mode == FTMode.ALL || mode == FTMode.ALL_WORDS) {
-            if (ia.size() == 0)             return null;
+            if (ii.size() == 0)             return null;
             len+=t;
-            iat=FTIndexIterator.intersect(ia,iat,0);
+            ftiter=FTIndexIterator.intersect(ftiter,ii,0);
           }
  else {
-            if (ia.size() == 0)             continue;
+            if (ii.size() == 0)             continue;
             len=Math.max(t,len);
-            iat=FTIndexIterator.union(ia,iat);
+            ftiter=FTIndexIterator.union(ftiter,ii);
           }
-          iat.tokenNum(++ctx.ftoknum);
         }
       }
-      return iat == null || !iat.more() ? null : new FTNode(iat.matches(),data,iat.next(),len,iat.size(),-1);
+      return ftiter == null || !ftiter.more() ? null : new FTNode(ftiter.matches(),data,ftiter.pre(),len,ftiter.size(),-1);
     }
   }
 ;

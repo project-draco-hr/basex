@@ -1,20 +1,20 @@
 {
   final Iter t=ctx.iter(expr[0]);
   final Item i=t.next();
-  if (i == null)   throw UPSEQEMP.thrw(info,Util.name(this));
-  if (t.next() != null)   UPWRTRGTYP.thrw(info);
-  final CFrag ex;
+  if (i == null)   throw UPSEQEMP.get(info,Util.className(this));
+  if (t.next() != null)   throw UPWRTRGTYP.get(info);
+  final CNode ex;
   if (i.type == NodeType.ELM) {
-    ex=new CElem(info,expr[1],null);
+    ex=new CElem(sc,info,expr[1],null);
   }
  else   if (i.type == NodeType.ATT) {
-    ex=new CAttr(info,false,expr[1],Empty.SEQ);
+    ex=new CAttr(sc,info,false,expr[1],Empty.SEQ);
   }
  else   if (i.type == NodeType.PI) {
-    ex=new CPI(info,expr[1],Empty.SEQ);
+    ex=new CPI(sc,info,expr[1],Empty.SEQ);
   }
  else {
-    throw UPWRTRGTYP.thrw(info);
+    throw UPWRTRGTYP.get(info);
   }
   final QNm rename=ex.item(ctx,info).qname();
   final ANode targ=(ANode)i;
@@ -24,7 +24,7 @@
     final Atts at=targ.nsScope();
     final int as=at.size();
     for (int a=0; a < as; a++) {
-      if (eq(at.name(a),rp) && !eq(at.value(a),ru))       UPNSCONFL.thrw(info);
+      if (eq(at.name(a),rp) && !eq(at.value(a),ru))       throw UPNSCONFL.get(info);
     }
   }
   final DBNode dbn=ctx.updates.determineDataRef(targ,ctx);

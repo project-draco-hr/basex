@@ -1,13 +1,13 @@
 {
-  skipWS();
+  skipWs();
   if (consume(PAR1)) {
     final SeqType ret=itemType();
     wsCheck(PAR2);
     return ret;
   }
-  final Ann ann=ctx.sc.xquery3() && curr('%') ? annotations() : null;
+  final Ann ann=sc.xquery3() && curr('%') ? annotations() : null;
   final QNm name=eQName(TYPEINVALID,null);
-  skipWS();
+  skipWs();
   final boolean func=curr('(');
   Type t=null;
   if (func) {
@@ -18,15 +18,15 @@
       t=FuncType.find(name);
       if (t != null)       return functionTest(ann,t).seqType();
     }
-    if (t == null)     error(NOTYPE,name.string());
+    if (t == null)     throw error(NOTYPE,name.string());
   }
  else {
-    if (!name.hasURI())     name.uri(ctx.sc.elemNS);
+    if (!name.hasURI())     name.uri(sc.elemNS);
     t=AtomType.find(name,false);
-    if (t == null)     error(TYPEUNKNOWN,name);
+    if (t == null)     throw error(TYPEUNKNOWN,name);
   }
-  if (ann != null)   error(NOANN);
+  if (ann != null)   throw error(NOANN);
   if (!func || wsConsume(PAR2))   return t.seqType();
   if (!(t instanceof NodeType))   wsCheck(PAR2);
-  return SeqType.get(t,SeqType.Occ.ONE,kindTest((NodeType)t));
+  return SeqType.get(t,Occ.ONE,kindTest((NodeType)t));
 }

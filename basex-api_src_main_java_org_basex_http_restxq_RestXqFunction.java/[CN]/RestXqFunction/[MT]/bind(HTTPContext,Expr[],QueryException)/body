@@ -3,7 +3,8 @@
     for (int s=0; s < path.size; s++) {
       final Matcher m=TEMPLATE.matcher(path.segment[s]);
       if (!m.find())       continue;
-      final QNm qnm=new QNm(token(m.group(1)),context);
+      final QNm qnm=new QNm(token(m.group(1)),function.sc);
+      if (function.sc.elemNS != null && eq(qnm.uri(),function.sc.elemNS))       qnm.uri(EMPTY);
       bind(qnm,arg,new Atm(http.segment(s)));
     }
   }
@@ -13,7 +14,7 @@
     body=cache(http,null);
     try {
       final String ext=http.contentTypeExt();
-      bind(requestBody,arg,HTTPPayload.value(body,context.context.prop,ct,ext));
+      bind(requestBody,arg,HTTPPayload.value(body,context.context.options,ct,ext));
     }
  catch (    final IOException ex) {
       error(INPUT_CONV,ex);

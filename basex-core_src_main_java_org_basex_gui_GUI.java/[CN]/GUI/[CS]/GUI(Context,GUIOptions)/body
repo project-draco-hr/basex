@@ -1,0 +1,119 @@
+{
+  super(ctx,opts);
+  GUIMacOSX.enableOSXFullscreen(this);
+  final Dimension scr=Toolkit.getDefaultToolkit().getScreenSize();
+  final int[] ps=gopts.get(GUIOptions.GUILOC);
+  final int[] sz=gopts.get(GUIOptions.GUISIZE);
+  final int x=Math.max(0,Math.min(scr.width - sz[0],ps[0]));
+  final int y=Math.max(0,Math.min(scr.height - sz[1],ps[1]));
+  setBounds(x,y,sz[0],sz[1]);
+  if (gopts.get(GUIOptions.MAXSTATE)) {
+    setExtendedState(MAXIMIZED_HORIZ);
+    setExtendedState(MAXIMIZED_VERT);
+    setExtendedState(MAXIMIZED_BOTH);
+  }
+  top=new BaseXBack(new BorderLayout());
+  control=new BaseXBack(new BorderLayout());
+  menu=new GUIMenu(this);
+  setJMenuBar(menu);
+  buttons=new BaseXBack(new BorderLayout());
+  toolbar=new GUIToolBar(TOOLBAR,this);
+  buttons.add(toolbar,BorderLayout.WEST);
+  hits=new BaseXLabel(" ");
+  hits.setFont(hits.getFont().deriveFont(18f));
+  hits.setHorizontalAlignment(SwingConstants.RIGHT);
+  BaseXBack b=new BaseXBack();
+  b.add(hits);
+  buttons.add(b,BorderLayout.EAST);
+  if (gopts.get(GUIOptions.SHOWBUTTONS))   control.add(buttons,BorderLayout.CENTER);
+  nav=new BaseXBack(new BorderLayout(5,0)).border(2,2,0,2);
+  mode=new BaseXCombo(this,FIND,XQUERY,COMMAND);
+  mode.setSelectedIndex(2);
+  mode.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      final int s=mode.getSelectedIndex();
+      if (s == gopts.get(GUIOptions.SEARCHMODE) || !mode.isEnabled())       return;
+      gopts.set(GUIOptions.SEARCHMODE,s);
+      input.mode(mode.getSelectedItem());
+      refreshControls();
+    }
+  }
+);
+  nav.add(mode,BorderLayout.WEST);
+  input=new GUIInput(this);
+  input.mode(mode.getSelectedItem());
+  hist=BaseXButton.get("c_hist",INPUT_HISTORY,false,this);
+  hist.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      final JPopupMenu pop=new JPopupMenu();
+      final ActionListener al=new ActionListener(){
+        @Override public void actionPerformed(        final ActionEvent ac){
+          input.setText(ac.getActionCommand());
+          input.requestFocusInWindow();
+          pop.setVisible(false);
+        }
+      }
+;
+      final int i=context.data() == null ? 2 : gopts.get(GUIOptions.SEARCHMODE);
+      final String[] hs=gopts.get(i == 0 ? GUIOptions.SEARCH : i == 1 ? GUIOptions.XQUERY : GUIOptions.COMMANDS);
+      for (      final String en : hs) {
+        final JMenuItem jmi=new JMenuItem(en);
+        jmi.addActionListener(al);
+        pop.add(jmi);
+      }
+      pop.show(hist,0,hist.getHeight());
+    }
+  }
+);
+  b=new BaseXBack(new BorderLayout(5,0));
+  b.add(hist,BorderLayout.WEST);
+  b.add(input,BorderLayout.CENTER);
+  nav.add(b,BorderLayout.CENTER);
+  stop=BaseXButton.get("c_stop",STOP,false,this);
+  stop.setEnabled(false);
+  stop.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      if (command != null) {
+        command.stop();
+        stop.setEnabled(false);
+      }
+    }
+  }
+);
+  go=BaseXButton.get("c_go",EXECUTE_QUERY,false,this);
+  go.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      execute();
+    }
+  }
+);
+  filter=BaseXButton.command(GUIMenuCmd.C_FILTER,this);
+  b=new BaseXBack(new TableLayout(1,3,1,0));
+  b.add(stop);
+  b.add(go);
+  b.add(filter);
+  nav.add(b,BorderLayout.EAST);
+  if (gopts.get(GUIOptions.SHOWINPUT))   control.add(nav,BorderLayout.SOUTH);
+  top.add(control,BorderLayout.NORTH);
+  notify=new ViewNotifier(this);
+  text=new TextView(notify);
+  editor=new EditorView(notify);
+  info=new InfoView(notify);
+  views=new ViewContainer(this,text,editor,info,new FolderView(notify),new PlotView(notify),new TableView(notify),new MapView(notify),new TreeView(notify),new ExploreView(notify));
+  top.add(views,BorderLayout.CENTER);
+  setContentBorder();
+  status=new GUIStatus(this);
+  if (gopts.get(GUIOptions.SHOWSTATUS))   top.add(status,BorderLayout.SOUTH);
+  setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+  add(top);
+  setVisible(true);
+  views.updateViews();
+  refreshControls();
+  SwingUtilities.invokeLater(new Runnable(){
+    @Override public void run(){
+      checkVersion();
+    }
+  }
+);
+  input.requestFocusInWindow();
+}

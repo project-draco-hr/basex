@@ -1,0 +1,73 @@
+{
+  layout(new BorderLayout(2,0));
+  mode(Fill.NONE);
+  setVisible(false);
+  gui=main;
+  search=new BaseXTextField(main);
+  search.history(GUIOptions.SEARCHED,gui);
+  search.setPreferredSize(null);
+  search.hint(Text.FIND);
+  replace=new BaseXTextField(main);
+  replace.history(GUIOptions.REPLACED,gui);
+  replace.setPreferredSize(null);
+  replace.hint(Text.REPLACE_WITH);
+  regex=onOffButton("f_regex",Text.REGULAR_EXPR,GUIOptions.SR_REGEX);
+  mcase=onOffButton("f_case",Text.MATCH_CASE,GUIOptions.SR_CASE);
+  word=onOffButton("f_word",Text.WHOLE_WORD,GUIOptions.SR_WORD);
+  multi=onOffButton("f_multi",Text.MULTI_LINE,GUIOptions.SR_MULTI);
+  rplc=BaseXButton.get("f_replace",Text.REPLACE_ALL,false,main);
+  cls=BaseXButton.get("f_close",BaseXLayout.addShortcut(Text.CLOSE,ESCAPE.toString()),false,main);
+  multi.setEnabled(regex.isSelected());
+  word.setEnabled(!regex.isSelected());
+  search.addKeyListener(new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (FINDPREV1.is(e) || FINDPREV2.is(e) || FINDNEXT1.is(e)|| FINDNEXT2.is(e)) {
+        editor.editor.noSelect();
+        deactivate(false);
+      }
+ else       if (ESCAPE.is(e)) {
+        deactivate(search.getText().isEmpty());
+      }
+ else       if (ENTER.is(e)) {
+        editor.jump(e.isShiftDown() ? SearchDir.BACKWARD : SearchDir.FORWARD,true);
+      }
+    }
+    @Override public void keyReleased(    final KeyEvent e){
+      main.gopts.set(GUIOptions.SR_SEARCH,search.getText());
+      search();
+    }
+  }
+);
+  BaseXLayout.addDrop(search,new DropHandler(){
+    @Override public void drop(    final Object object){
+      search.setText(object.toString());
+      search();
+    }
+  }
+);
+  replace.addKeyListener(escape);
+  replace.addKeyListener(new KeyAdapter(){
+    @Override public void keyReleased(    final KeyEvent e){
+      main.gopts.set(GUIOptions.SR_REPLACE,replace.getText());
+    }
+  }
+);
+  cls.addKeyListener(escape);
+  cls.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      deactivate(true);
+    }
+  }
+);
+  rplc.addKeyListener(escape);
+  rplc.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      search.store();
+      replace.store();
+      final String in=replace.getText();
+      editor.replace(new ReplaceContext(regex.isSelected() ? decode(in) : in));
+      deactivate(true);
+    }
+  }
+);
+}

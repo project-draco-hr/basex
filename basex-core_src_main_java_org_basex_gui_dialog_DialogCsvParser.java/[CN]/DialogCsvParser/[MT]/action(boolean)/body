@@ -1,0 +1,17 @@
+{
+  try {
+    final boolean head=header.isSelected();
+    format.setEnabled(head);
+    lax.setEnabled(head && copts.get(CsvOptions.FORMAT) == CsvFormat.DIRECT);
+    final IO io=CsvParser.toXML(new IOContent(EXAMPLE),copts);
+    final DBNode node=new DBNode(io,dialog.gui.context.options);
+    example.setText(example(MainParser.CSV.name(),EXAMPLE,node.serialize().toString()));
+  }
+ catch (  final IOException ex) {
+    example.setText(error(ex));
+  }
+  final boolean fixedsep=seps.getSelectedIndex() < CsvSep.values().length;
+  sepchar.setEnabled(!fixedsep);
+  if (fixedsep)   sepchar.setText(new TokenBuilder().add(copts.separator()).toString());
+  return fixedsep || sepchar.getText().length() == 1;
+}

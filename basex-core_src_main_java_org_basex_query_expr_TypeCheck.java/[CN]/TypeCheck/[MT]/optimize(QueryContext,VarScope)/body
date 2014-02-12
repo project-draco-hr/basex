@@ -1,13 +1,22 @@
 {
-  if (expr.isValue())   return optPre(value(ctx),ctx);
   final SeqType argType=expr.type();
   if (argType.instanceOf(type)) {
     ctx.compInfo(QueryText.OPTCAST,type);
     return expr;
   }
+  if (expr.isValue()) {
+    if (expr instanceof FuncItem && type.type instanceof FuncType) {
+      if (!type.occ.check(1))       throw Err.treatError(info,type,expr);
+      final FuncItem fit=(FuncItem)expr;
+      return optPre(fit.coerceTo((FuncType)type.type,ctx,info,true),ctx);
+    }
+    return optPre(value(ctx),ctx);
+  }
   if (argType.type.instanceOf(type.type)) {
     final SeqType.Occ occ=argType.occ.intersect(type.occ);
-    if (occ == null)     throw Err.INVCAST.thrw(info,argType,type);
+    if (occ == null)     throw INVCAST.get(info,argType,type);
   }
+  final Expr opt=expr.typeCheck(this,ctx,scp);
+  if (opt != null)   return optPre(opt,ctx);
   return this;
 }

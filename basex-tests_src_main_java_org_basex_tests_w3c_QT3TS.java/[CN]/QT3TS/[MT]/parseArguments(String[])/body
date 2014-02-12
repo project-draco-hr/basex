@@ -1,5 +1,5 @@
 {
-  final Args arg=new Args(args,this," -v [pat]" + NL + " [pat] perform tests starting with a pattern"+ NL+ " -a  save all tests"+ NL+ " -d  debugging mode"+ NL+ " -e  ignore error codes"+ NL+ " -i  also save ignored files"+ NL+ " -p  path to the test suite"+ NL+ " -r  generate report file"+ NL+ " -s  print slow queries"+ NL+ " -v  verbose output",Util.info(Text.CONSOLE,Util.name(this)));
+  final Args arg=new Args(args,this," -v [pat]" + NL + " [pat] perform tests starting with a pattern"+ NL+ " -a  save all tests"+ NL+ " -d  debugging mode"+ NL+ " -e  ignore error codes"+ NL+ " -i  also save ignored files"+ NL+ " -p  path to the test suite"+ NL+ " -r  generate report file"+ NL+ " -s  print slow queries"+ NL+ " -v  verbose output",Util.info(Text.S_CONSOLE,Util.className(this)));
   while (arg.more()) {
     if (arg.dash()) {
       final char c=arg.next();
@@ -10,7 +10,7 @@
         all=true;
       }
  else       if (c == 'd') {
-        ctx.mprop.set(MainProp.DEBUG,true);
+        ctx.globalopts.set(GlobalOptions.DEBUG,true);
       }
  else       if (c == 'i') {
         ignoring=true;
@@ -26,11 +26,11 @@
       }
  else       if (c == 'p') {
         final File f=new File(arg.string());
-        if (!f.isDirectory())         arg.usage();
+        if (!f.isDirectory())         throw arg.usage();
         basePath=f.getCanonicalPath();
       }
  else {
-        arg.usage();
+        throw arg.usage();
       }
     }
  else {

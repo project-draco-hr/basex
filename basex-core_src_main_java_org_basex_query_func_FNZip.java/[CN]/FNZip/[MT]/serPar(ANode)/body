@@ -1,11 +1,10 @@
 {
-  final TokenBuilder tb=new TokenBuilder();
+  final SerializerOptions sopts=new SerializerOptions();
   final AxisIter ati=node.attributes();
   for (ANode at; (at=ati.next()) != null; ) {
     final byte[] name=at.qname().string();
-    if (Token.eq(name,NAME) || Token.eq(name,SRC))     continue;
-    if (!tb.isEmpty())     tb.add(',');
-    tb.add(name).add('=').add(at.string());
+    if (eq(name,NAME,SRC))     continue;
+    sopts.assign(string(name),string(at.string()));
   }
-  return new SerializerProp(tb.toString());
+  return sopts;
 }

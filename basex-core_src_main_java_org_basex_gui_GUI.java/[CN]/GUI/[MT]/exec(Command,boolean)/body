@@ -8,24 +8,29 @@
     if (threadID != thread)     return true;
   }
   cursor(CURSORWAIT);
+  input.setCursor(CURSORWAIT);
+  stop.setEnabled(true);
   boolean ok=true;
   try {
     final Performance perf=new Performance();
     final Data data=context.data();
-    if (gprop.is(GUIProp.FILTERRT) && data != null && !context.root())     context.update();
+    if (gopts.get(GUIOptions.FILTERRT) && data != null && !context.root())     context.update();
     final Nodes current=context.current();
     command=cmd;
-    final ArrayOutput ao=new ArrayOutput().max(gprop.num(GUIProp.MAXTEXT));
+    final ArrayOutput ao=new ArrayOutput().max(gopts.get(GUIOptions.MAXTEXT));
     updating=cmd.updating(context);
     if (edit)     editor.start();
     if (cmd.newData(context))     notify.init();
     cmd.listen(infoListener);
     String inf=null;
+    Throwable cause=null;
     try {
       cmd.execute(context,ao);
       inf=cmd.info();
     }
  catch (    final BaseXException ex) {
+      cause=ex.getCause();
+      if (cause == null)       cause=ex;
       ok=false;
       inf=Util.message(ex);
     }
@@ -34,13 +39,11 @@
     }
     final String time=perf.getTime();
     info.setInfo(inf,cmd,time,ok,true);
-    final boolean interrupted=inf.endsWith(INTERRUPTED);
-    if (edit) {
-      editor.info(interrupted ? INTERRUPTED : ok ? OK : inf,ok || interrupted,true);
-    }
-    if (!ok && !interrupted) {
-      if ((!edit || inf.startsWith(BUGINFO)) && !info.visible()) {
-        GUICommands.C_SHOWINFO.execute(this);
+    final boolean stopped=inf.endsWith(INTERRUPTED);
+    if (edit)     editor.info(cause,stopped,true);
+    if (!ok && !stopped) {
+      if ((!edit || inf.startsWith(S_BUGINFO)) && !info.visible()) {
+        GUIMenuCmd.C_SHOWINFO.execute(this);
       }
     }
  else {
@@ -54,7 +57,7 @@
         if (nodes == null)         nodes=context.current();
       }
  else       if (result != null) {
-        final boolean flt=gprop.is(GUIProp.FILTERRT);
+        final boolean flt=gopts.get(GUIOptions.FILTERRT);
         final Nodes nd=context.current();
         if (flt || nd != null && !nd.sameAs(current)) {
           if (nodes != null)           notify.context((Nodes)result,flt,null);
@@ -70,11 +73,11 @@
           if (context.marked != m)           notify.mark(m,null);
         }
       }
-      if (thread == threadID && !interrupted) {
+      if (thread == threadID && !stopped) {
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
         if (nodes == null) {
-          if (!text.visible() && ao.size() != 0)           GUICommands.C_SHOWRESULT.execute(this);
+          if (!text.visible() && ao.size() != 0)           GUIMenuCmd.C_SHOWRESULT.execute(this);
           text.setText(ao);
         }
         text.cacheText(ao,cmd,result);
@@ -85,7 +88,6 @@
     BaseXDialog.error(this,Util.info(EXEC_ERROR,cmd,Util.bug(ex)));
     updating=false;
   }
-  cursor(CURSORARROW,true);
-  command=null;
+  stop();
   return ok;
 }

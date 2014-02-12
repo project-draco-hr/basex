@@ -1,14 +1,14 @@
 {
-  final BaseXFileChooser fc=new BaseXFileChooser(SAVE_AS,gui.gprop.get(GUIProp.WORKPATH),gui).suffix(IO.XMLSUFFIX);
+  final BaseXFileChooser fc=new BaseXFileChooser(SAVE_AS,gui.gopts.get(GUIOptions.WORKPATH),gui).suffix(IO.XMLSUFFIX);
   final IO file=fc.select(Mode.FSAVE);
   if (file == null)   return;
-  gui.gprop.set(GUIProp.WORKPATH,file.path());
-  PrintOutput out=null;
+  gui.gopts.set(GUIOptions.WORKPATH,file.path());
   gui.cursor(CURSORWAIT,true);
-  final Prop prop=gui.context.prop;
-  final int mh=prop.num(Prop.MAXHITS);
-  prop.set(Prop.MAXHITS,-1);
-  prop.set(Prop.CACHEQUERY,false);
+  final MainOptions opts=gui.context.options;
+  final int mh=opts.get(MainOptions.MAXHITS);
+  opts.set(MainOptions.MAXHITS,-1);
+  opts.set(MainOptions.CACHEQUERY,false);
+  PrintOutput out=null;
   try {
     out=new PrintOutput(file.toString());
     if (cmd != null) {
@@ -23,7 +23,7 @@
     }
   }
  catch (  final IOException ex) {
-    BaseXDialog.error(gui,FILE_NOT_SAVED);
+    BaseXDialog.error(gui,Util.info(FILE_NOT_SAVED_X,file));
   }
  finally {
     if (out != null)     try {
@@ -31,8 +31,8 @@
     }
  catch (    final IOException ignored) {
     }
-    prop.set(Prop.MAXHITS,mh);
-    prop.set(Prop.CACHEQUERY,true);
+    opts.set(MainOptions.MAXHITS,mh);
+    opts.set(MainOptions.CACHEQUERY,true);
     gui.cursor(CURSORARROW,true);
   }
 }

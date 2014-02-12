@@ -1,0 +1,44 @@
+{
+  super(ev.gui);
+  editor=ev;
+  setLayout(new BorderLayout());
+  tree=new ProjectTree(this);
+  root=new ProjectDir(new IOFile(root()),this);
+  tree.init(root);
+  filter=new ProjectFilter(this);
+  list=new ProjectList(this);
+  BaseXLayout.addInteraction(list,gui);
+  final BaseXBack back=new BaseXBack().layout(new BorderLayout(2,2));
+  back.setBorder(new CompoundBorder(new MatteBorder(0,0,1,0,GUIConstants.GRAY),new EmptyBorder(3,1,3,2)));
+  path=new BaseXTextField(gui);
+  path.setText(root.file.path());
+  path.setEnabled(false);
+  final BaseXButton browse=new BaseXButton(DOTS,gui);
+  browse.setMargin(new Insets(0,2,0,2));
+  browse.setToolTipText(CHOOSE_DIR);
+  browse.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      change();
+    }
+  }
+);
+  back.add(path,BorderLayout.CENTER);
+  back.add(browse,BorderLayout.EAST);
+  back.add(filter,BorderLayout.SOUTH);
+  final JScrollPane lscroll=new JScrollPane(list);
+  lscroll.setBorder(new EmptyBorder(0,0,0,0));
+  final JScrollPane tscroll=new JScrollPane(tree);
+  tscroll.setBorder(new EmptyBorder(0,0,0,0));
+  split=new BaseXSplit(false);
+  split.mode(Fill.NONE);
+  split.add(lscroll);
+  split.add(tscroll);
+  split.init(new double[]{0.3,0.7},new double[]{0,1});
+  split.visible(false);
+  showList(false);
+  add(back,BorderLayout.NORTH);
+  add(split,BorderLayout.CENTER);
+  last=tree;
+  tree.addFocusListener(lastfocus);
+  list.addFocusListener(lastfocus);
+}

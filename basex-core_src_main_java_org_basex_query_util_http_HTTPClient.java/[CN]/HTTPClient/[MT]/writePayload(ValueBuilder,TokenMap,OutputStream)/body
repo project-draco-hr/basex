@@ -1,37 +1,39 @@
 {
-  final byte[] t=payloadAtts.get(MEDIA_TYPE);
-  final String type=t == null ? null : string(t);
-  final byte[] src=payloadAtts.get(SRC);
-  if (src == null) {
-    byte[] m=payloadAtts.get(METHOD);
-    if (m == null) {
-      if (eq(type,APP_HTML_XML)) {
-        m=token(M_XHTML);
-      }
- else       if (eq(type,TEXT_HTML)) {
-        m=token(M_HTML);
-      }
- else       if (type != null && isXML(type)) {
-        m=token(M_XML);
-      }
- else       if (type != null && isText(type)) {
-        m=token(M_TEXT);
-      }
- else {
-        m=token(M_XML);
-      }
+  final byte[] m=payloadAtts.get(METHOD);
+  final String method;
+  if (m == null) {
+    final String type=string(payloadAtts.get(MEDIA_TYPE));
+    if (eq(type,APP_HTML_XML)) {
+      method=SerialMethod.XHTML.toString();
     }
-    if (eq(m,BASE64)) {
-      writeBase64(payload,out);
+ else     if (eq(type,TEXT_HTML)) {
+      method=SerialMethod.HTML.toString();
     }
- else     if (eq(m,HEXBIN)) {
-      writeHex(payload,out);
+ else     if (type != null && isXML(type)) {
+      method=SerialMethod.XML.toString();
+    }
+ else     if (type != null && isText(type)) {
+      method=SerialMethod.TEXT.toString();
     }
  else {
-      write(payload,payloadAtts,m,out);
+      method=SerialMethod.XML.toString();
     }
   }
  else {
-    writeResource(src,out);
+    method=string(m);
+  }
+  final byte[] src=payloadAtts.get(SRC);
+  if (src == null) {
+    write(payload,payloadAtts,method,out);
+  }
+ else {
+    final IOUrl io=new IOUrl(string(src));
+    if (eq(method,BINARY)) {
+      out.write(io.read());
+    }
+ else {
+      final ValueBuilder vb=new ValueBuilder().add(Str.get(new TextInput(io).content()));
+      write(vb,payloadAtts,method,out);
+    }
   }
 }

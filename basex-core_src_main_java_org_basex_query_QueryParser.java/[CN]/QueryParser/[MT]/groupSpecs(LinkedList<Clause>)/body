@@ -10,7 +10,7 @@
       by=check(single(),NOVARDECL);
     }
  else {
-      final VarRef vr=scope.resolve(name,ctx,ii);
+      final VarRef vr=resolveLocalVar(name,ii);
       boolean dec=false;
       if (vr != null) {
         for (        final Clause f : cl) {
@@ -28,11 +28,11 @@
           }
         }
       }
-      if (!dec)       error(GVARNOTDEFINED,'$' + string(name.string()));
+      if (!dec)       throw error(GVARNOTDEFINED,'$' + string(name.string()));
       by=vr;
     }
-    final Collation coll=!wsConsumeWs(COLLATION) ? ctx.sc.collation : Collation.get(stringLiteral(),ctx,info(),FLWORCOLL);
-    final GroupBy.Spec spec=new GroupBy.Spec(ii,addLocal(name,type,false),by,coll);
+    final Collation coll=wsConsumeWs(COLLATION) ? Collation.get(stringLiteral(),ctx,sc,info(),FLWORCOLL) : sc.collation;
+    final GroupBy.Spec spec=new GroupBy.Spec(ii,addVar(name,type,false),by,coll);
     if (specs == null) {
       specs=new GroupBy.Spec[]{spec};
     }

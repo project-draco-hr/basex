@@ -1,10 +1,10 @@
 {
   super(args,ctx);
-  final MainProp mprop=context.mprop;
-  final int port=mprop.num(MainProp.SERVERPORT);
-  final int eport=mprop.num(MainProp.EVENTPORT);
+  final GlobalOptions gopts=context.globalopts;
+  final int port=gopts.get(GlobalOptions.SERVERPORT);
+  final int eport=gopts.get(GlobalOptions.EVENTPORT);
   if (port == eport)   throw new BaseXException(PORT_TWICE_X,port);
-  final String host=mprop.get(MainProp.SERVERHOST);
+  final String host=gopts.get(GlobalOptions.SERVERHOST);
   final InetAddress addr=host.isEmpty() ? null : InetAddress.getByName(host);
   if (service) {
     start(port,args);
@@ -37,7 +37,7 @@
 );
     new Thread(this).start();
     while (!running)     Performance.sleep(10);
-    Util.outln(CONSOLE + (console ? TRY_MORE_X : Util.info(SRV_STARTED_PORT_X,port)),SERVERMODE);
+    Util.outln(S_CONSOLE + (console ? TRY_MORE_X : Util.info(SRV_STARTED_PORT_X,port)),S_SERVER);
     if (console) {
       console();
       quit();

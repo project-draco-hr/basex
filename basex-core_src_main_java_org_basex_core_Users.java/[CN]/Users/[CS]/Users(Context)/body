@@ -1,12 +1,9 @@
 {
   if (ctx == null)   return;
   final String perm=IO.BASEXSUFFIX + "perm";
-  file=new IOFile(ctx.mprop.dbpath(),perm);
+  file=new IOFile(ctx.globalopts.dbpath(),perm);
   if (!file.exists())   file=new IOFile(Prop.HOME,perm);
-  if (!file.exists()) {
-    list.add(new User(ADMIN,md5(ADMIN),Perm.ADMIN));
-  }
- else {
+  if (file.exists()) {
     DataInput in=null;
     try {
       in=new DataInput(file);
@@ -22,5 +19,8 @@
  catch (      final IOException ignored) {
       }
     }
+  }
+ else {
+    list.add(new User(S_ADMIN,md5(S_ADMIN),Perm.ADMIN));
   }
 }

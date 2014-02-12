@@ -1,23 +1,23 @@
 {
   final MetaData meta=data.meta;
-  final Prop prop=meta.prop;
-  nprops.put(Prop.TEXTINDEX,meta.createtext);
-  nprops.put(Prop.ATTRINDEX,meta.createattr);
-  nprops.put(Prop.FTINDEX,meta.createftxt);
+  final MainOptions opts=meta.options;
+  nprops.put(MainOptions.TEXTINDEX,meta.createtext);
+  nprops.put(MainOptions.ATTRINDEX,meta.createattr);
+  nprops.put(MainOptions.FTINDEX,meta.createftxt);
   initOptions();
   assignOptions();
-  final boolean rebuild=prop.num(Prop.MAXCATS) != meta.maxcats || prop.num(Prop.MAXLEN) != meta.maxlen;
-  meta.maxcats=prop.num(Prop.MAXCATS);
-  meta.maxlen=prop.num(Prop.MAXLEN);
-  meta.createtext=prop.is(Prop.TEXTINDEX);
-  meta.createattr=prop.is(Prop.ATTRINDEX);
-  meta.createftxt=prop.is(Prop.FTINDEX);
+  final boolean rebuild=opts.get(MainOptions.MAXCATS) != meta.maxcats || opts.get(MainOptions.MAXLEN) != meta.maxlen;
+  meta.maxcats=opts.get(MainOptions.MAXCATS);
+  meta.maxlen=opts.get(MainOptions.MAXLEN);
+  meta.createtext=opts.get(MainOptions.TEXTINDEX);
+  meta.createattr=opts.get(MainOptions.ATTRINDEX);
+  meta.createftxt=opts.get(MainOptions.FTINDEX);
   try {
     if (all)     OptimizeAll.optimizeAll(data,qc.context,null);
  else     Optimize.optimize(data,rebuild,null);
   }
  catch (  final IOException ex) {
-    UPDBOPTERR.thrw(info,ex);
+    throw UPDBOPTERR.get(info,ex);
   }
  finally {
     resetOptions();

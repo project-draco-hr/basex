@@ -1,16 +1,24 @@
 {
-  final String key=args[0].toUpperCase(Locale.ENGLISH);
-  final String val=args[1];
-  try {
-    final String v=prop.set(key,val);
-    if (v != null)     return info(key + COLS + v);
-    if (context.user.has(Perm.ADMIN) && mprop.get(key) != null) {
-      return error(Text.GLOBAL_OPTION_X,key);
+  final String name=args[0].toUpperCase(Locale.ENGLISH), val=args[1];
+  Options opts=options;
+  boolean debug=false;
+  if (context.user.has(Perm.ADMIN)) {
+    final Option<?> opt=goptions.option(name);
+    if (opt == GlobalOptions.DEBUG) {
+      debug=true;
+      opts=goptions;
     }
-    return error(prop.unknown(key));
+ else     if (opt != null) {
+      return error(GLOBAL_OPTION_X,name);
+    }
   }
- catch (  final Exception ex) {
+  try {
+    opts.assign(name,val);
+    if (debug)     Prop.debug=opts.get(GlobalOptions.DEBUG);
+    return info(name + COLS + opts.get(opts.option(name)));
+  }
+ catch (  final BaseXException ex) {
     Util.debug(ex);
-    return error(INVALID_VALUE_X_X,key,val);
+    return error(Util.message(ex));
   }
 }

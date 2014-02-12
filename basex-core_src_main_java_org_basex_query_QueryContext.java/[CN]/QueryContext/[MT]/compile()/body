@@ -1,13 +1,14 @@
 {
-  final StringList o=dbOptions;
+  final StringList o=tempOpts;
   for (int s=0; s < o.size(); s+=2) {
     try {
-      context.prop.set(o.get(s).toUpperCase(Locale.ENGLISH),o.get(s + 1));
+      context.options.assign(o.get(s).toUpperCase(Locale.ENGLISH),o.get(s + 1));
     }
- catch (    final Exception ex) {
-      BASX_VALUE.thrw(null,o.get(s),o.get(s + 1));
+ catch (    final BaseXException ex) {
+      throw BASX_VALUE.get(null,o.get(s),o.get(s + 1));
     }
   }
+  maxCalls=context.options.get(MainOptions.TAILCALLS);
   vars.bindExternal(this,bindings);
   if (ctxItem != null) {
     try {
@@ -16,19 +17,16 @@
     }
  catch (    final QueryException ex) {
       if (ex.err() != NOCTX)       throw ex;
-      CIRCCTX.thrw(ctxItem.info);
+      throw CIRCCTX.get(ctxItem.info);
     }
   }
  else   if (nodes != null) {
-    if (nodes.ftpos != null)     ftpos=new FTPosData();
+    if (nodes.ftpos != null)     ftPosData=new FTPosData();
     resource.compile(nodes);
   }
-  if (value != null && sc.initType != null) {
-    value=sc.initType.funcConvert(this,null,value);
+  if (value != null && root.sc.initType != null) {
+    value=root.sc.initType.funcConvert(this,root.sc,null,value,true);
   }
   analyze();
-  if (inf) {
-    info.add(NL).add(QUERY).add(COL).add(NL).add(QueryProcessor.removeComments(query,Integer.MAX_VALUE)).add(NL);
-    if (compInfo)     info.add(NL + OPTIMIZED_QUERY + COL+ NL+ funcs+ root+ NL);
-  }
+  info.runtime=true;
 }

@@ -1,0 +1,57 @@
+{
+  if (lax)   return name;
+  final TokenBuilder tb=new TokenBuilder();
+  int uc=0;
+  int mode=0;
+  for (int n=0; n < name.length; ) {
+    final int cp=cp(name,n);
+    if (mode >= 3) {
+      uc<<=4;
+      if (cp >= '0' && cp <= '9') {
+        uc+=cp - '0';
+      }
+ else       if (cp >= 'A' && cp <= 'F') {
+        uc+=cp - 0x37;
+      }
+ else       if (cp >= 'a' && cp <= 'f') {
+        uc+=cp - 0x57;
+      }
+ else {
+        return null;
+      }
+      if (++mode == 7) {
+        tb.add(uc);
+        mode=0;
+        uc=0;
+      }
+    }
+ else     if (cp == '_') {
+      if (++mode == 3) {
+        tb.add('_');
+        mode=0;
+        continue;
+      }
+    }
+ else     if (mode == 1) {
+      mode=3;
+      continue;
+    }
+ else     if (mode == 2) {
+      tb.add('_');
+      mode=0;
+      continue;
+    }
+ else {
+      tb.add(cp);
+      mode=0;
+    }
+    n+=cl(name,n);
+  }
+  if (mode == 2) {
+    tb.add('_');
+  }
+ else   if (mode > 0 && !tb.isEmpty()) {
+    return null;
+  }
+  return tb.finish();
+}

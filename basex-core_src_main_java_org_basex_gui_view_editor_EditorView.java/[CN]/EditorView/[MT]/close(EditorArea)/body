@@ -1,14 +1,28 @@
 {
   final EditorArea ea=edit != null ? edit : getEditor();
   if (!confirm(ea))   return false;
+  if (execFile != null && ea.file.path().equals(execFile.path()))   execFile=null;
   tabs.remove(ea);
   final int t=tabs.getTabCount();
   final int i=tabs.getSelectedIndex();
   if (t == 1) {
+    search.deactivate(true);
     addTab();
+    SwingUtilities.invokeLater(new Runnable(){
+      @Override public void run(){
+        project();
+      }
+    }
+);
   }
  else   if (i + 1 == t) {
     tabs.setSelectedIndex(i - 1);
+    SwingUtilities.invokeLater(new Runnable(){
+      @Override public void run(){
+        getEditor().requestFocusInWindow();
+      }
+    }
+);
   }
   return true;
 }

@@ -1,20 +1,20 @@
 {
   if (more()) {
-    if (alter != null)     error();
+    if (alter != null)     throw error();
     final String rest=rest();
     pos++;
-    if (mm == null)     error(MODEXPR,rest);
-    error(QUERYEND,rest);
+    if (mm == null)     throw error(MODEXPR,rest);
+    throw error(QUERYEND,rest);
   }
   assignURI(0);
-  if (ctx.sc.elemNS != null)   ctx.sc.ns.add(EMPTY,ctx.sc.elemNS,null);
+  if (sc.elemNS != null)   sc.ns.add(EMPTY,sc.elemNS,null);
   final byte[] empty=new QNm(EMPTY).id();
-  if (ctx.sc.decFormats.get(empty) == null) {
-    ctx.sc.decFormats.put(empty,new DecFormatter());
+  if (sc.decFormats.get(empty) == null) {
+    sc.decFormats.put(empty,new DecFormatter());
   }
   if (check) {
     ctx.funcs.check(ctx);
-    ctx.vars.check(ctx);
+    ctx.vars.check();
     if (ctx.updates != null) {
       ctx.funcs.checkUp();
       ctx.vars.checkUp();

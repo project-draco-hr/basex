@@ -1,0 +1,43 @@
+{
+  final int ch=iter.curr();
+  if (comment > 0)   return comment(ch);
+  if (pi > 0)   return pi(ch);
+  if (tag) {
+    if (quote != 0) {
+      if (quote == ch)       quote=0;
+      return STRING;
+    }
+    if (ch == '"' || ch == '\'') {
+      quote=ch;
+      return STRING;
+    }
+    if (ch == '>') {
+      tag=false;
+      return KEYWORD;
+    }
+    if (ch == '=' || ch == '/') {
+      return KEYWORD;
+    }
+    if (ch == '!') {
+      comment=1;
+      tag=false;
+      return COMMENT;
+    }
+    if (ch == '?') {
+      pi=1;
+      tag=false;
+      return FUNCTION;
+    }
+    if (elem) {
+      if (ch <= ' ')       elem=false;
+      return KEYWORD;
+    }
+    return FUNCTION;
+  }
+  if (ch == '<') {
+    tag=true;
+    elem=true;
+    return KEYWORD;
+  }
+  return TEXT;
+}

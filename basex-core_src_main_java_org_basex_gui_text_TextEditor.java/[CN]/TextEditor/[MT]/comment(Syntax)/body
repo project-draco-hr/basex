@@ -1,0 +1,27 @@
+{
+  final byte[] st=syntax.commentOpen();
+  final byte[] en=syntax.commentEnd();
+  final int sl=st.length, el=en.length;
+  if (!selected()) {
+    start=pos;
+    end=pos;
+    while (start > 0 && text[start - 1] != '\n')     --start;
+    while (end < size() && text[end] != '\n')     ++end;
+  }
+  final int min=Math.min(start,end);
+  int max=Math.max(start,end);
+  if (selected() && text[max - 1] == '\n')   max--;
+  final TokenBuilder tb=new TokenBuilder();
+  final int mx=Math.max(min + sl,max - el), off;
+  if (indexOf(text,st,min) == min && indexOf(text,en,mx) == mx) {
+    tb.add(text,min + sl,max - el);
+    off=-sl - el;
+  }
+ else {
+    tb.add(st).add(text,min,max).add(en);
+    off=sl + el;
+  }
+  final boolean added=add(tb.finish(),min,max);
+  select(min,max + off);
+  return added;
+}

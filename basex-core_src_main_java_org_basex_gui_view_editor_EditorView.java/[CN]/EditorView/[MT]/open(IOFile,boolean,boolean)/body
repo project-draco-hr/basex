@@ -1,0 +1,26 @@
+{
+  if (!visible())   GUIMenuCmd.C_SHOWEDITOR.execute(gui);
+  EditorArea edit=find(file,true);
+  if (edit != null) {
+    tabs.setSelectedComponent(edit);
+    edit.reopen(true);
+  }
+ else {
+    try {
+      final byte[] text=read(file);
+      if (text == null)       return null;
+      edit=getEditor();
+      if (edit.opened() || edit.modified)       edit=addTab();
+      edit.initText(text);
+      edit.file(file);
+      if (parse)       run(edit,Action.PARSE);
+    }
+ catch (    final IOException ex) {
+      refreshHistory(null);
+      Util.debug(ex);
+      if (error)       BaseXDialog.error(gui,Util.info(FILE_NOT_OPENED_X,file));
+      return null;
+    }
+  }
+  return edit;
+}

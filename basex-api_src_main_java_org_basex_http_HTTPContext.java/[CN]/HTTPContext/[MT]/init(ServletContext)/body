@@ -2,8 +2,8 @@
   if (init)   return;
   init=true;
   final String webapp=sc.getRealPath("/");
-  AProp.setSystem(Prop.PATH,webapp);
-  AProp.setSystem(MainProp.WEBPATH,webapp);
+  Options.setSystem(Prop.PATH,webapp);
+  Options.setSystem(GlobalOptions.WEBPATH,webapp);
   final Enumeration<String> en=sc.getInitParameterNames();
   while (en.hasMoreElements()) {
     final String key=en.nextElement();
@@ -12,32 +12,32 @@
     String k=key;
     String v=val;
     if (key.equals(Prop.DBPREFIX + "httppath")) {
-      k=Prop.DBPREFIX + MainProp.RESTXQPATH[0];
+      k=Prop.DBPREFIX + GlobalOptions.RESTXQPATH.name();
     }
  else     if (key.equals(Prop.DBPREFIX + "mode")) {
-      k=Prop.DBPREFIX + MainProp.HTTPLOCAL[0];
-      v=Boolean.toString(v.equals("local"));
+      k=Prop.DBPREFIX + GlobalOptions.HTTPLOCAL.name();
+      v=Boolean.toString("local".equals(v));
     }
  else     if (key.equals(Prop.DBPREFIX + "server")) {
-      k=Prop.DBPREFIX + MainProp.HTTPLOCAL[0];
+      k=Prop.DBPREFIX + GlobalOptions.HTTPLOCAL.name();
       v=Boolean.toString(!Boolean.parseBoolean(v));
     }
     k=k.toLowerCase(Locale.ENGLISH);
     if (!k.equals(key) || !v.equals(val)) {
-      Util.errln("Warning! Outdated property: " + key + '='+ val+ " => "+ k+ '='+ v);
+      Util.errln("Warning! Outdated option: " + key + '='+ val+ " => "+ k+ '='+ v);
     }
     if (k.endsWith("path") && !new File(v).isAbsolute()) {
       Util.debug(k.toUpperCase(Locale.ENGLISH) + ": " + v);
       v=new IOFile(webapp,v).path();
     }
-    AProp.setSystem(k,v);
+    Options.setSystem(k,v);
   }
   if (context == null) {
     context=new Context(false);
   }
  else {
-    context.mprop.setSystem();
-    context.prop.setSystem();
+    context.globalopts.setSystem();
+    context.options.setSystem();
   }
-  if (!context.mprop.is(MainProp.HTTPLOCAL))   new BaseXServer(context);
+  if (!context.globalopts.get(GlobalOptions.HTTPLOCAL))   new BaseXServer(context);
 }

@@ -8,29 +8,26 @@
       throw new BaseXException("Failed to initialize native Mac OS X interface",ex);
     }
   }
-  final GUIProp gprop=new GUIProp();
-  context.prop.set(Prop.CACHEQUERY,true);
-  context.prop.set(Prop.MAXHITS,gprop.num(GUIProp.MAXHITS));
-  GUIConstants.init(gprop);
+  final GUIOptions gopts=new GUIOptions();
+  context.options.set(MainOptions.CACHEQUERY,true);
+  context.options.set(MainOptions.MAXHITS,gopts.get(GUIOptions.MAXHITS));
+  GUIConstants.init(gopts);
   SwingUtilities.invokeLater(new Runnable(){
     @Override public void run(){
-      init(gprop);
-      final GUI gui=new GUI(context,gprop);
+      init(gopts);
+      final GUI gui=new GUI(context,gopts);
       if (osxGUI != null)       osxGUI.init(gui);
-      boolean xml=false;
       for (      final String file : files) {
         if (file.matches("^.*\\" + IO.BASEXSUFFIX + "[^.]*$"))         continue;
         final IOFile io=new IOFile(file);
-        boolean xq=file.endsWith(IO.BXSSUFFIX);
-        for (        final String suf : IO.XQSUFFIXES)         xq|=file.endsWith(suf);
-        if (xq) {
-          gui.editor.open(io,true);
-        }
- else         if (!xml) {
-          gprop.set(GUIProp.INPUTPATH,io.path());
-          gprop.set(GUIProp.DBNAME,io.dbname());
+        final boolean xml=file.endsWith(IO.XMLSUFFIX);
+        if (xml && BaseXDialog.confirm(gui,Util.info(Text.CREATE_DB_FILE,io))) {
+          gopts.set(GUIOptions.INPUTPATH,io.path());
+          gopts.set(GUIOptions.DBNAME,io.dbname());
           DialogProgress.execute(gui,new Check(file));
-          xml=true;
+        }
+ else {
+          gui.editor.open(io);
         }
       }
     }

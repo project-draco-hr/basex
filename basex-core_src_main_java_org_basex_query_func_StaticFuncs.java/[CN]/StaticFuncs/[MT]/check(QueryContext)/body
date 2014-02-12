@@ -7,7 +7,7 @@
       final IntList al=new IntList();
       for (      final FuncCache ofc : funcs.values()) {
         if (oid++ == id)         continue;
-        if (call.name.eq(ofc.name()))         al.add(ofc.func.arity());
+        if (ofc.func != null && call.name.eq(ofc.name()))         al.add(ofc.func.arity());
       }
       if (!al.isEmpty()) {
         final StringBuilder exp=new StringBuilder();
@@ -17,12 +17,12 @@
           exp.append(al.get(a));
         }
         final int a=call.expr.length;
-        (a == 1 ? FUNCTYPESG : FUNCTYPEPL).thrw(call.info,call.name.string(),a,exp);
+        throw (a == 1 ? FUNCTYPESG : FUNCTYPEPL).get(call.info,call.name.string(),a,exp);
       }
-      FUNCUNKNOWN.thrw(call.info,call.name.string());
+      throw FUNCUNKNOWN.get(call.info,call.name.string());
     }
     if (call != null) {
-      if (fc.func.expr == null)       FUNCNOIMPL.thrw(call.info,call.name.string());
+      if (fc.func.expr == null)       throw FUNCNOIMPL.get(call.info,call.name.string());
       qc.updating|=fc.func.updating;
     }
     id++;

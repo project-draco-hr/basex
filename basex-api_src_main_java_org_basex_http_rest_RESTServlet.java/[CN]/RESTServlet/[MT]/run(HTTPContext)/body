@@ -1,3 +1,14 @@
 {
-  code(http).run(http);
+  final RESTSession rs=new RESTSession(http,http.authenticate());
+  final RESTCmd cmd=code(rs);
+  try {
+    cmd.execute(rs.context);
+  }
+ catch (  final BaseXException ex) {
+    final String msg=Open.dbnf(http.db());
+    if (ex.getMessage().equals(msg))     throw HTTPCode.NOT_FOUND_X.get(msg);
+    throw ex;
+  }
+  final HTTPCode code=cmd.code;
+  if (code != null)   throw code.get(cmd.info());
 }

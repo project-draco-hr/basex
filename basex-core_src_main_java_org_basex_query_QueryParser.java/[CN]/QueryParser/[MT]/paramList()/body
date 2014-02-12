@@ -1,14 +1,14 @@
 {
   Var[] args={};
   while (true) {
-    skipWS();
+    skipWs();
     if (curr() != '$') {
       if (args.length == 0)       break;
       check('$');
     }
-    final Var var=addLocal(varName(),optAsType(),true);
-    for (    final Var v : args)     if (v.name.eq(var.name))     error(FUNCDUPL,var);
-    args=Array.add(args,var);
+    final Var var=addVar(varName(),optAsType(),true);
+    for (    final Var v : args)     if (v.name.eq(var.name))     throw error(FUNCDUPL,var);
+    args=Array.add(args,new Var[args.length + 1],var);
     if (!consume(','))     break;
   }
   return args;

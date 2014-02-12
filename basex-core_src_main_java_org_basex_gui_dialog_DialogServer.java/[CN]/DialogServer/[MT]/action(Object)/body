@@ -1,17 +1,17 @@
 {
-  Msg icon=Msg.SUCCESS;
-  String msg=null;
-  String msg2=null;
   final boolean wait=cmp == start || cmp == stop || cmp == connect;
   if (wait)   setCursor(CURSORWAIT);
+  String msg2=null;
+  String msg=null;
+  Msg icon=Msg.SUCCESS;
   try {
     if (cmp == start) {
       try {
         final int p=Integer.parseInt(ports.getText());
-        gui.gprop.set(GUIProp.S_SERVERPORT,p);
-        if (host.getText().equals(LOCALHOST)) {
-          gui.gprop.set(GUIProp.S_PORT,p);
-          gui.gprop.set(GUIProp.S_EVENTPORT,p + 1);
+        gui.gopts.set(GUIOptions.S_SERVERPORT,p);
+        if (host.getText().equals(S_LOCALHOST)) {
+          gui.gopts.set(GUIOptions.S_PORT,p);
+          gui.gopts.set(GUIOptions.S_EVENTPORT,p + 1);
           portc.setText(String.valueOf(p));
         }
         BaseXServer.start(p,"-p",Integer.toString(p),"-e",Integer.toString(p + 1));
@@ -24,8 +24,8 @@
       }
     }
  else     if (cmp == stop) {
-      final int p=gui.gprop.num(GUIProp.S_SERVERPORT);
-      if (running)       BaseXServer.stop(p,gui.gprop.num(GUIProp.S_EVENTPORT));
+      final int p=gui.gopts.get(GUIOptions.S_SERVERPORT);
+      if (running)       BaseXServer.stop(p,gui.gopts.get(GUIOptions.S_EVENTPORT));
       running=ping(true);
       connected=connected && ping(false);
       if (!connected)       msg=Util.info(SRV_STOPPED_PORT_X,p);
@@ -36,10 +36,10 @@
       final String us=admuser.getText();
       final String hs=host.getText();
       final int pc=Integer.parseInt(portc.getText());
-      gui.gprop.set(GUIProp.S_HOST,hs);
-      gui.gprop.set(GUIProp.S_PORT,pc);
-      gui.gprop.set(GUIProp.S_USER,us);
-      gui.gprop.set(GUIProp.S_PASSWORD,pw);
+      gui.gopts.set(GUIOptions.S_HOST,hs);
+      gui.gopts.set(GUIOptions.S_PORT,pc);
+      gui.gopts.set(GUIOptions.S_USER,us);
+      gui.gopts.set(GUIOptions.S_PASSWORD,pw);
       cs=new ClientSession(hs,pc,us,pw);
       user.setSess(cs);
       dbsP.setSess(cs);
@@ -60,15 +60,12 @@
     }
  else     if (cmp == refreshLog || cmp == logc) {
       byte[] cont=Token.EMPTY;
-      if (logc.getSelectedIndex() != -1) {
-        final IOFile f=new IOFile(logd,logc.getSelectedItem().toString());
-        cont=f.read();
-      }
+      if (logc.getSelectedIndex() != -1)       cont=new IOFile(logd,logc.getSelectedItem()).read();
       logt.setText(cont);
       logt.scrollToEnd();
     }
  else     if (cmp == delete) {
-      final IOFile f=new IOFile(logd,logc.getSelectedItem().toString());
+      final IOFile f=new IOFile(logd,logc.getSelectedItem());
       if (f.delete()) {
         logc.setSelectedIndex(-1);
         refreshLog();
@@ -115,7 +112,7 @@
   final boolean vallp=new String(admpass.getPassword()).matches("[^ ;'\"]*");
   final boolean valh=host.getText().matches("([\\w]+://)?[\\w.-]+");
   if (msg == null && msg2 == null && !(valpl && valh && valp&& vallu&& vallp)) {
-    msg=Util.info(INVALID_X,!valpl ? S_LOCALPORT : !valh ? S_HOST : !valp ? S_PORT : !vallu ? USERNAME : PASSWORD);
+    msg=Util.info(INVALID_X,valpl ? valh ? valp ? vallu ? PASSWORD : USERNAME : S_PORT : S_HOST : S_LOCALPORT);
     icon=Msg.WARN;
   }
   infoC.setText(msg,icon);

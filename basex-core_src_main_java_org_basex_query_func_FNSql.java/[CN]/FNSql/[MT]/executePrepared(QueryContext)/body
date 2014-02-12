@@ -1,21 +1,21 @@
 {
   final int id=(int)checkItr(expr[0],ctx);
   final Object obj=ctx.jdbc().get(id);
-  if (!(obj instanceof PreparedStatement))   BXSQ_STATE.thrw(info,id);
+  if (!(obj instanceof PreparedStatement))   throw BXSQ_STATE.get(info,id);
   long c=0;
   ANode params=null;
   if (expr.length > 1) {
     params=(ANode)checkType(checkItem(expr[1],ctx),NodeType.ELM);
-    if (!params.qname().eq(Q_PARAMETERS))     ELMOPTION.thrw(info,params.qname());
+    if (!params.qname().eq(Q_PARAMETERS))     throw INVALIDOPTX.get(info,params.qname().local());
     c=countParams(params);
   }
   try {
     final PreparedStatement stmt=(PreparedStatement)obj;
-    if (c != stmt.getParameterMetaData().getParameterCount())     BXSQ_PARAMS.thrw(info);
+    if (c != stmt.getParameterMetaData().getParameterCount())     throw BXSQ_PARAMS.get(info);
     if (params != null)     setParameters(params.children(),stmt);
-    return stmt.execute() ? buildResult(stmt.getResultSet()) : new NodeSeqBuilder();
+    return stmt.execute() ? buildResult(stmt.getResultSet(),ctx) : new NodeSeqBuilder();
   }
  catch (  final SQLException ex) {
-    throw BXSQ_ERROR.thrw(info,ex);
+    throw BXSQ_ERROR.get(info,ex);
   }
 }

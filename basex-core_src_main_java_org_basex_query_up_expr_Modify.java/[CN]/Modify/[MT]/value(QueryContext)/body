@@ -1,0 +1,24 @@
+{
+  final int o=(int)ctx.output.size();
+  if (ctx.updates == null)   ctx.updates=new Updates();
+  final ContextModifier tmp=ctx.updates.mod;
+  final TransformModifier pu=new TransformModifier();
+  ctx.updates.mod=pu;
+  final Value cv=ctx.value;
+  try {
+    final Iter ir=ctx.iter(expr[0]);
+    Item i=ir.next();
+    if (!(i instanceof ANode) || ir.next() != null)     throw UPSOURCE.get(info);
+    i=((ANode)i).dbCopy(ctx.context.options);
+    ctx.value=i;
+    pu.addData(i.data());
+    ctx.value(expr[1]);
+    ctx.updates.apply();
+    return ctx.value;
+  }
+  finally {
+    ctx.output.size(o);
+    ctx.updates.mod=tmp;
+    ctx.value=cv;
+  }
+}

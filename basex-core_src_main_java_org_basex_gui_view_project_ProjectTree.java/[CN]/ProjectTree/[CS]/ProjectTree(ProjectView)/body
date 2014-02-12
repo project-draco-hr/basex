@@ -1,0 +1,18 @@
+{
+  super(new DefaultMutableTreeNode(),pv.gui);
+  view=pv;
+  border(4,4,4,4);
+  setExpandsSelectedPaths(true);
+  final ProjectCellRenderer renderer=new ProjectCellRenderer();
+  setCellRenderer(renderer);
+  addTreeWillExpandListener(this);
+  addMouseListener(new MouseAdapter(){
+    @Override public void mousePressed(    final MouseEvent e){
+      if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)       new OpenCmd().execute(pv.gui);
+    }
+  }
+);
+  setCellEditor(new ProjectCellEditor(this,renderer));
+  setEditable(true);
+  new BaseXPopup(this,pv.gui,new OpenCmd(),new OpenExternalCmd(),null,new DeleteCmd(),new RenameCmd(),new NewDirCmd(),null,new RefreshCmd(),new CopyPathCmd());
+}

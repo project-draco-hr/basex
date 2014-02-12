@@ -1,38 +1,39 @@
 {
   final TokenParser tp=new TokenParser(pic);
   int ch=tp.next();
-  if (!tp.more()) {
-    if (sequence(ch) != null || ch == 'i' || ch == 'I' || ch == 'w' || ch == 'W' || date && (ch == 'n' || ch == 'N') || ch == '\u2460' || ch == '\u2474' || ch == '\u2488' || ch == KANJI[1])     return pic;
-  }
- else {
+  if (tp.more()) {
     if (ch == 'W' && tp.consume('w'))     return pic;
     if (date && ch == 'N' && tp.consume('n'))     return pic;
+  }
+ else {
+    if (sequence(ch) != null || ch == 'i' || ch == 'I' || ch == 'w' || ch == 'W' || date && (ch == 'n' || ch == 'N') || ch == '\u2460' || ch == '\u2474' || ch == '\u2488' || ch == KANJI[1])     return pic;
   }
   tp.reset();
   while (first == -1 && tp.more())   first=zeroes(tp.next());
   if (first == -1)   return def;
-  boolean mds=false, gss=true;
   tp.reset();
+  boolean gss=true;
+  boolean mds=false;
   while (tp.more()) {
     ch=tp.next();
     final int d=zeroes(ch);
     if (d != -1) {
-      if (first != d)       DIFFMAND.thrw(info,pic);
+      if (first != d)       throw DIFFMAND.get(info,pic);
       mds=true;
       gss=false;
     }
  else     if (ch == '#') {
-      if (mds)       OPTAFTER.thrw(info,pic);
+      if (mds)       throw OPTAFTER.get(info,pic);
       gss=false;
     }
  else     if (!Character.isLetter(ch)) {
-      if (gss)       INVGROUP.thrw(info,pic);
+      if (gss)       throw INVGROUP.get(info,pic);
       gss=true;
     }
  else {
-      INVDDPATTERN.thrw(info,pic);
+      throw INVDDPATTERN.get(info,pic);
     }
   }
-  if (gss)   INVGROUP.thrw(info,pic);
+  if (gss)   throw INVGROUP.get(info,pic);
   return pic;
 }

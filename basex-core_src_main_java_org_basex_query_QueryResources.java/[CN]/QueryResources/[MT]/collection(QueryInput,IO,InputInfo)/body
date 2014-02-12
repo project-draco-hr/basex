@@ -1,0 +1,27 @@
+{
+  if (ctx.context.options.get(MainOptions.DEFAULTDB) && ctx.nodes != null) {
+    final Data dt=data[0];
+    final IntList pres=dt.resources.docs(qi.original);
+    return DBNodeSeq.get(pres,dt,true,qi.original.isEmpty());
+  }
+  final String in=baseIO != null ? baseIO.merge(qi.original).path() : null;
+  if (in != null) {
+    final String[] names={in,qi.original};
+    for (int c=0; c < colls; c++) {
+      final String n=collName[c];
+      if (Prop.CASE ? Token.eq(n,names) : Token.eqic(n,names))       return coll[c];
+    }
+  }
+  Data dt=null;
+  for (int i=0; i < datas; ++i) {
+    final Data d=data[i];
+    final String n=d.meta.name;
+    if (Prop.CASE ? n.equals(qi.db) : n.equalsIgnoreCase(qi.db) || IO.get(d.meta.original).eq(qi.input)) {
+      dt=d;
+      break;
+    }
+  }
+  if (dt == null)   dt=open(qi);
+  if (dt == null)   dt=create(qi,false,baseIO,info);
+  return DBNodeSeq.get(dt.resources.docs(qi.path),dt,true,qi.path.isEmpty());
+}

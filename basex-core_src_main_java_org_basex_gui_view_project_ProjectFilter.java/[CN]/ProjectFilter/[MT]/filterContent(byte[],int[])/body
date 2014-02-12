@@ -1,0 +1,28 @@
+{
+  final int cl=cont.length;
+  if (cl == 0)   return true;
+  TextInput ti=null;
+  try {
+    ti=new TextInput(new IOFile(Token.string(path)));
+    for (int c=0, cp=0; (cp=ti.read()) != -1; ) {
+      if (!XMLToken.valid(cp))       break;
+      if (Token.lc(cp) == cont[c]) {
+        if (++c == cl)         return true;
+      }
+ else {
+        c=0;
+      }
+    }
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+  }
+ finally {
+    if (ti != null)     try {
+      ti.close();
+    }
+ catch (    final IOException ignored) {
+    }
+  }
+  return false;
+}

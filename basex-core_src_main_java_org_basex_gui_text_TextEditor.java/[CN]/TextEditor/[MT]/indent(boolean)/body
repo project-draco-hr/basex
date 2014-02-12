@@ -1,0 +1,30 @@
+{
+  if (!extend())   return;
+  final int s=start, e=end, ind=indent();
+  final byte[] spaces=spaces();
+  final TokenBuilder tb=new TokenBuilder();
+  for (int p=s; p < e; p++) {
+    if (p == 0 || text[p - 1] == '\n') {
+      int i=0;
+      do {
+        final int cp=text[p];
+        if (cp == '\t') {
+          i+=ind;
+        }
+ else         if (cp == ' ') {
+          i++;
+        }
+ else {
+          break;
+        }
+      }
+ while (++p < e);
+      i=shift ? Math.max(0,i - ind) : i + ind;
+      for (int c=0; c < i / ind; c++)       tb.add(spaces);
+      for (int c=0; c < i % ind; c++)       tb.add(' ');
+    }
+    if (p < e)     tb.addByte(text[p]);
+  }
+  add(tb.finish(),s,e);
+  select(s,s + tb.size());
+}

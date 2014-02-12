@@ -1,0 +1,33 @@
+{
+  final int xx=p.x;
+  final int yy=p.y - fontHeight / 5;
+  final Graphics g=getGraphics();
+  final TextIterator iter=init(g,false);
+  if (yy > y - fontHeight) {
+    int s=iter.pos();
+    while (true) {
+      if (xx > x && yy < y - fontHeight) {
+        iter.pos(s);
+        break;
+      }
+      if (!more(iter,g)) {
+        while (iter.more())         iter.next();
+        break;
+      }
+      if (xx <= x && yy < y)       break;
+      if (xx > x && xx <= x + wordWidth && yy > y - fontHeight && yy <= y) {
+        while (iter.more()) {
+          final int ww=fontWidth(g,iter.curr());
+          if (xx < x + ww)           break;
+          x+=ww;
+          iter.next();
+        }
+        break;
+      }
+      s=iter.pos();
+      next(iter);
+    }
+  }
+  iter.link(link);
+  return iter;
+}

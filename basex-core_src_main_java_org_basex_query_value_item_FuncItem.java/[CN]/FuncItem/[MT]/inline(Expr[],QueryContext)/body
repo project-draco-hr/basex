@@ -1,0 +1,22 @@
+{
+  if (expr.isValue() || expr.exprSize() < ctx.context.options.get(MainOptions.INLINELIMIT) && !expr.has(Flag.CTX)) {
+    final ASTVisitor self=new ASTVisitor(){
+      @Override public boolean dynFuncCall(      final DynFuncCall call){
+        return false;
+      }
+    }
+;
+    if (expr.accept(self))     return true;
+    final ASTVisitor args=new ASTVisitor(){
+      @Override public boolean funcItem(      final FuncItem f){
+        return f != FuncItem.this && f.visit(this);
+      }
+      @Override public boolean inlineFunc(      final Scope sub){
+        return sub.visit(this);
+      }
+    }
+;
+    return Expr.visitAll(args,as);
+  }
+  return false;
+}

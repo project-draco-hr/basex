@@ -1,21 +1,23 @@
 {
-  if (!ctx.sc.xquery3() || !wsConsumeWs(TRY))   return null;
+  if (!sc.xquery3() || !wsConsumeWs(TRY))   return null;
   final Expr tr=enclosed(NOENCLEXPR);
   wsCheck(CATCH);
   Catch[] ct={};
   do {
     NameTest[] codes={};
     do {
-      skipWS();
+      skipWs();
       final NameTest test=(NameTest)nodeTest(false,false);
-      if (test == null)       error(NOCATCH);
+      if (test == null)       throw error(NOCATCH);
       codes=Array.add(codes,test);
     }
  while (wsConsumeWs(PIPE));
-    final int s=scope.open();
-    final Catch c=new Catch(info(),codes,ctx,scope);
+    final int s=openSubScope();
+    final Var[] vs=new Var[Catch.NAMES.length];
+    for (int i=0; i < Catch.NAMES.length; i++)     vs[i]=addVar(Catch.NAMES[i],Catch.TYPES[i],false);
+    final Catch c=new Catch(info(),codes,vs);
     c.expr=enclosed(NOENCLEXPR);
-    scope.close(s);
+    closeSubScope(s);
     ct=Array.add(ct,c);
   }
  while (wsConsumeWs(CATCH));

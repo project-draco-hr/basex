@@ -1,0 +1,15 @@
+{
+  final IO source=checkPath(input,baseIO,info);
+  final boolean createDB=ctx.context.options.get(MainOptions.FORCECREATE);
+  if (createDB && !openDB)   throw BXXQ_NEWDB.get(info,input.original);
+  if (single && source.isDir())   WHICHRES.get(info,baseIO);
+  try {
+    final Data dt=createDB ? CreateDB.create(source,ctx.context) : CreateDB.mainMem(source,ctx.context);
+    input.path="";
+    addData(dt);
+    return dt;
+  }
+ catch (  final IOException ex) {
+    throw IOERR.get(info,ex);
+  }
+}

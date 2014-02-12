@@ -1,23 +1,22 @@
 {
   checkCreate(ctx);
-  final IO in=read(checkItem(expr[0],ctx));
-  final IO xsl=read(checkItem(expr[1],ctx));
-  final Item opt=expr.length > 2 ? expr[2].item(ctx,info) : null;
-  final TokenMap map=new FuncParams(Q_PARAMETERS,info).parse(opt);
+  final IO in=read(expr[0],ctx);
+  final IO xsl=read(expr[1],ctx);
+  final Options opts=checkOptions(2,Q_PARAMETERS,new Options(),ctx);
   final PrintStream tmp=System.err;
   final ArrayOutput ao=new ArrayOutput();
   try {
     System.setErr(new PrintStream(ao));
-    final byte[] result=transform(in,xsl,map);
-    return node ? new DBNode(new IOContent(result),ctx.context.prop) : Str.get(result);
+    final byte[] result=transform(in,xsl,opts.free());
+    return node ? new DBNode(new IOContent(result),ctx.context.options) : Str.get(result);
   }
  catch (  final IOException ex) {
     System.setErr(tmp);
-    throw IOERR.thrw(info,ex);
+    throw IOERR.get(info,ex);
   }
 catch (  final TransformerException ex) {
     System.setErr(tmp);
-    throw BXSL_ERROR.thrw(info,Token.trim(Token.utf8(ao.toArray(),Prop.ENCODING)));
+    throw BXSL_ERROR.get(info,trim(utf8(ao.toArray(),Prop.ENCODING)));
   }
  finally {
     System.setErr(tmp);

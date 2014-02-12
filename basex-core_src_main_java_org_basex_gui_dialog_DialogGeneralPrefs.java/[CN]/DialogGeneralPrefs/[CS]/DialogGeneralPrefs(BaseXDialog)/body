@@ -1,0 +1,49 @@
+{
+  border(8).setLayout(new TableLayout(8,1));
+  gui=d.gui;
+  final GlobalOptions opts=gui.context.globalopts;
+  final GUIOptions gopts=gui.gopts;
+  path=new BaseXTextField(opts.dbpath().path(),d);
+  button=new BaseXButton(BROWSE_D,d);
+  button.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      final IOFile dir=new BaseXFileChooser(CHOOSE_DIR,path.getText(),gui).select(Mode.DOPEN);
+      if (dir != null)       path.setText(dir.dirPath());
+    }
+  }
+);
+  mousefocus=new BaseXCheckBox(RT_FOCUS,GUIOptions.MOUSEFOCUS,gopts,d);
+  simplefd=new BaseXCheckBox(SIMPLE_FILE_CHOOSER,GUIOptions.SIMPLEFD,gopts,d);
+  final int val=hitsForSlider();
+  limit=new BaseXSlider(0,HITS.length - 1,val,d);
+  limit.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      action(limit);
+    }
+  }
+);
+  label=new BaseXLabel(" ");
+  lang=new BaseXCombo(d,LANGS[0]);
+  lang.setSelectedItem(opts.get(GlobalOptions.LANG));
+  creds=new BaseXLabel(" ");
+  add(new BaseXLabel(DATABASE_PATH + COL,true,true));
+  BaseXBack p=new BaseXBack(new TableLayout(1,2,8,0));
+  p.add(path);
+  p.add(button);
+  add(p);
+  add(new BaseXLabel(GUI_INTERACTIONS + COL,true,true).border(8,0,8,0));
+  p=new BaseXBack(new TableLayout(2,2,40,0));
+  p.add(mousefocus);
+  p.add(new BaseXLabel(MAX_NO_OF_HITS + COL));
+  p.add(simplefd);
+  final BaseXBack pp=new BaseXBack(new TableLayout(1,2,12,0)).border(0);
+  pp.add(limit);
+  pp.add(label);
+  p.add(pp);
+  add(p);
+  add(new BaseXLabel(LANGUAGE_RESTART + COL,true,true).border(8,0,8,0));
+  p=new BaseXBack(new TableLayout(1,2,12,0));
+  p.add(lang);
+  p.add(creds);
+  add(p);
+}

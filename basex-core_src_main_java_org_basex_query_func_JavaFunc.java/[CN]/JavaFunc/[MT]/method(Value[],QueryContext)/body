@@ -11,15 +11,19 @@
   for (  final Method meth : cls.getMethods()) {
     if (!meth.getName().equals(mth))     continue;
     final boolean st=Modifier.isStatic(meth.getModifiers());
-    final Object[] arg=args(meth.getParameterTypes(),ar,st);
+    final Object[] arg=args(meth.getParameterTypes(),null,ar,st);
     if (arg != null) {
       Object inst=null;
       if (!st) {
         inst=instObj(ar[0]);
-        if (inst instanceof QueryModule)         ((QueryModule)inst).context=ctx;
+        if (inst instanceof QueryModule) {
+          final QueryModule mod=(QueryModule)inst;
+          mod.staticContext=sc;
+          mod.queryContext=ctx;
+        }
       }
       return meth.invoke(inst,arg);
     }
   }
-  throw JAVAMTH.thrw(info,name(),foundArgs(ar));
+  throw JAVAMTH.get(info,name(),foundArgs(ar));
 }

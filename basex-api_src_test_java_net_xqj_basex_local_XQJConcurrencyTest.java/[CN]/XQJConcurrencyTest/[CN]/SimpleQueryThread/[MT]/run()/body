@@ -1,0 +1,25 @@
+{
+  XQConnection newConnection=null;
+  try {
+    newConnection=xqds.getConnection();
+    final XQExpression xqpe=newConnection.createExpression();
+    final XQResultSequence rs=xqpe.executeQuery("1 to " + ITERATE_TO);
+    for (int expected=1; expected != ITERATE_TO; expected++) {
+      if (!rs.next()) {
+        thrown=new AssertionError("Expecting a result item, but did not find one.");
+        return;
+      }
+      final int value=rs.getInt();
+      if (value != expected) {
+        thrown=new AssertionError("expected result item '" + expected + "', but got '"+ value+ "'.");
+        return;
+      }
+    }
+  }
+ catch (  final Throwable th) {
+    thrown=th;
+  }
+ finally {
+    close(newConnection);
+  }
+}

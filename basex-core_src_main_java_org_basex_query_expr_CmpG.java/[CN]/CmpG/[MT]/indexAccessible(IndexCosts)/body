@@ -1,5 +1,5 @@
 {
-  if (op != OpG.EQ)   return false;
+  if (op != OpG.EQ || collation != null)   return false;
   final Step s=expr[0] instanceof Context ? ic.step : indexStep(expr[0]);
   if (s == null)   return false;
   final Data data=ic.ictx.data;
@@ -16,11 +16,11 @@
     return true;
   }
   final Iter ir=arg.iter(ic.ctx);
-  Item it;
   ic.costs(0);
+  Item it;
   while ((it=ir.next()) != null) {
     if (!it.type.isStringOrUntyped())     return false;
-    final int is=data.count(new StringToken(ind,it.string(info)));
+    final int is=data.costs(new StringToken(ind,it.string(info)));
     if (is != 0) {
       va=Array.add(va,new ValueAccess(info,it,ind,ic.ictx));
       ic.addCosts(is);

@@ -1,54 +1,54 @@
 {
-  final Args arg=new Args(args,this,HTTPINFO,Util.info(CONSOLE,HTTP));
-  boolean daemon=false;
+  final Args arg=new Args(args,this,S_HTTPINFO,Util.info(S_CONSOLE,HTTP));
+  boolean serve=true;
   while (arg.more()) {
     if (arg.dash()) {
 switch (arg.next()) {
 case 'd':
-        AProp.setSystem(MainProp.DEBUG,true);
+        Options.setSystem(GlobalOptions.DEBUG,true);
       Prop.debug=true;
     break;
 case 'D':
-  daemon=true;
+  serve=false;
 break;
 case 'e':
-AProp.setSystem(MainProp.EVENTPORT,arg.number());
+Options.setSystem(GlobalOptions.EVENTPORT,arg.number());
 break;
 case 'h':
 httpPort=arg.number();
 break;
 case 'l':
-AProp.setSystem(MainProp.HTTPLOCAL,true);
+Options.setSystem(GlobalOptions.HTTPLOCAL,true);
 break;
 case 'n':
-AProp.setSystem(MainProp.HOST,arg.string());
+Options.setSystem(GlobalOptions.HOST,arg.string());
 break;
 case 'p':
 final int p=arg.number();
-AProp.setSystem(MainProp.PORT,p);
-AProp.setSystem(MainProp.SERVERPORT,p);
+Options.setSystem(GlobalOptions.PORT,p);
+Options.setSystem(GlobalOptions.SERVERPORT,p);
 break;
 case 'P':
-AProp.setSystem(MainProp.PASSWORD,arg.string());
+Options.setSystem(GlobalOptions.PASSWORD,arg.string());
 break;
 case 's':
-AProp.setSystem(MainProp.STOPPORT,arg.number());
+Options.setSystem(GlobalOptions.STOPPORT,arg.number());
 break;
 case 'S':
-service=!daemon;
+service=serve;
 break;
 case 'U':
-AProp.setSystem(MainProp.USER,arg.string());
+Options.setSystem(GlobalOptions.USER,arg.string());
 break;
 case 'z':
-AProp.setSystem(MainProp.LOG,false);
+Options.setSystem(GlobalOptions.LOG,false);
 break;
 default :
-arg.usage();
+throw arg.usage();
 }
 }
  else {
-if (!arg.string().equalsIgnoreCase("stop")) arg.usage();
+if (!"stop".equalsIgnoreCase(arg.string())) throw arg.usage();
 stopped=true;
 }
 }

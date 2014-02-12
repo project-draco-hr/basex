@@ -3,24 +3,7 @@
   boolean f=true;
   int c=ch;
   while (c != 0) {
-    if (c != '<') {
-      if (c == '&') {
-        final byte[] r=ref(true);
-        if (r.length == 1)         token.add(r);
- else         if (!input.add(r,false))         error(RECENT);
-      }
- else {
-        if (c == ']') {
-          if (consume() == ']') {
-            if (consume() == '>')             error(CONTCDATA);
-            prev(1);
-          }
-          prev(1);
-        }
-        token.add(c);
-      }
-    }
- else {
+    if (c == '<') {
       if (!f && !isCDATA()) {
         text=false;
         prev(1);
@@ -28,11 +11,28 @@
       }
       cDATA();
     }
+ else {
+      if (c == '&') {
+        final byte[] r=ref(true);
+        if (r.length == 1)         token.add(r);
+ else         if (!input.add(r,false))         throw error(RECENT);
+      }
+ else {
+        if (c == ']') {
+          if (consume() == ']') {
+            if (consume() == '>')             throw error(CONTCDATA);
+            prev(1);
+          }
+          prev(1);
+        }
+        token.add(c);
+      }
+    }
     c=consume();
     f=false;
   }
   if (!fragment) {
-    if (!ws(token.finish()))     error(AFTERROOT);
+    if (!ws(token.finish()))     throw error(AFTERROOT);
     type=Type.EOF;
   }
 }

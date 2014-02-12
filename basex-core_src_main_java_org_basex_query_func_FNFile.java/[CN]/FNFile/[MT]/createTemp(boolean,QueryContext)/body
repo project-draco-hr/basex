@@ -1,10 +1,10 @@
 {
   final String pref=string(checkStr(expr[0],ctx));
-  final String suf=string(checkStr(expr[1],ctx));
+  final String suf=expr.length > 1 ? string(checkStr(expr[1],ctx)) : "";
   final File root;
   if (expr.length > 2) {
     root=checkFile(2,ctx);
-    if (root.isFile())     FILE_NODIR.thrw(info,root);
+    if (root.isFile())     throw FILE_ND.get(info,root);
   }
  else {
     root=new File(Prop.TMP);
@@ -17,11 +17,11 @@
  while (file.exists());
   String path=file.getPath();
   if (dir) {
-    if (!file.mkdirs())     FILE_CREATE.thrw(info,file);
+    if (!file.mkdirs())     throw FILE_IE_DIR.get(info,file);
     path=dir(path);
   }
  else {
-    new IOFile(file).write(Token.EMPTY);
+    new IOFile(file).write(EMPTY);
   }
   return Str.get(path);
 }

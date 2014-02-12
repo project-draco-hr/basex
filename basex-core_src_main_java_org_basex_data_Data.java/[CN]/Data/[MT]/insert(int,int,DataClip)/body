@@ -7,7 +7,7 @@
   buffer(buf);
   final TokenMap nsScope=nspaces.scope(tpar,this);
   final IntList preStack=new IntList();
-  final NSNode nsRoot=nspaces.current();
+  final NSNode nsRoot=nspaces.getCurrent();
   final HashSet<NSNode> newNodes=new HashSet<NSNode>();
   final IntList flagPres=new IntList();
   final Data data=source.data;
@@ -26,7 +26,7 @@
  else {
       dist=spre - spar;
     }
-    final int nsPre=kind == Data.DOC ? -1 : pre - dist;
+    final int nsPre=kind == DOC ? -1 : pre - dist;
     if (c == 0)     nspaces.root(nsPre,this);
     while (!preStack.isEmpty() && preStack.peek() > nsPre)     nspaces.close(preStack.pop());
 switch (kind) {
@@ -68,9 +68,10 @@ flagPres.add(nsPre);
 attr(pre,dist,atnindex.index(nm,null,false),data.text(spre,false),nspaces.uri(nm,false),false);
 break;
 }
+nspaces.shiftPreAfterInsert(tpre,1,newNodes);
 }
 while (!preStack.isEmpty()) nspaces.close(preStack.pop());
-nspaces.root(nsRoot);
+nspaces.setCurrent(nsRoot);
 if (bp != 0) insert(tpre + c - 1 - (c - 1) % buf);
 buffer(1);
 for (int f=0; f < flagPres.size(); f++) {
@@ -88,5 +89,4 @@ idmap.insert(tpre,id(tpre),size);
 indexEnd();
 }
 if (!cache) updateDist(tpre + size,size);
-if (tpar != -1) nspaces.insert(tpre,size,newNodes);
 }

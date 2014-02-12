@@ -1,21 +1,4 @@
 {
   final Expr c=super.compile(ctx,scp);
-  if (c != this)   return c;
-  CmpG cmpg=null;
-  final ExprList el=new ExprList(expr.length);
-  for (  final Expr e : expr) {
-    Expr tmp=null;
-    if (e instanceof CmpG) {
-      final CmpG g=(CmpG)e;
-      if (cmpg == null)       cmpg=g;
- else       if (cmpg.union(g,ctx,scp))       tmp=g;
-    }
-    if (tmp == null)     el.add(e);
-  }
-  if (expr.length != el.size()) {
-    ctx.compInfo(OPTWRITE,this);
-    expr=el.finish();
-  }
-  compFlatten(ctx);
-  return expr.length == 1 ? compBln(expr[0],info) : this;
+  return c != this ? c : optimize(ctx,scp);
 }

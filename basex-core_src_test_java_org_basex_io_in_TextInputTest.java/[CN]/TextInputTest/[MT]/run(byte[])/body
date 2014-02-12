@@ -1,0 +1,17 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  final TextInput ti=new TextInput(new IOContent(data));
+  ti.read();
+  ti.reset();
+  for (int b; (b=ti.read()) != -1; )   tb.add(b);
+  try {
+    ti.reset();
+    assertTrue("Mark should not be supported for data size of " + data.length,data.length < IO.BLOCKSIZE);
+    tb.reset();
+    for (int b; (b=ti.read()) != -1; )     tb.add(b);
+    assertSame(data,tb.finish());
+  }
+ catch (  final IOException ex) {
+    assertTrue("Mark could not be reset for data size of " + data.length,data.length >= IO.BLOCKSIZE);
+  }
+}

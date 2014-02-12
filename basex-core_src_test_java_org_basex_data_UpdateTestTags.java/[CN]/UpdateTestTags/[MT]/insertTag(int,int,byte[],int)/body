@@ -1,0 +1,23 @@
+{
+  int root;
+  final Data data=context.data();
+  if (pos == 0) {
+    root=par + data.size(par,kind);
+  }
+ else {
+    root=par + data.attSize(par,kind);
+    int currPos=1;
+    while (currPos < pos) {
+      final int k=data.kind(root);
+      if (data.parent(root,k) != par)       break;
+      root+=data.size(root,k);
+      ++currPos;
+    }
+  }
+  final MemData md=new MemData(data);
+  md.elem(1,data.tagindex.index(name,null,false),1,1,0,false);
+  md.insert(0);
+  data.startUpdate();
+  data.insert(root,par,new DataClip(md));
+  data.finishUpdate();
+}

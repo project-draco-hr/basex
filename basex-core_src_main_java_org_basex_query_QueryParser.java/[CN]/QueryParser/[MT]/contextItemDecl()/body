@@ -1,22 +1,22 @@
 {
   wsCheck(ITEMM);
-  if (!decl.add(ITEMM))   error(DUPLITEM);
+  if (!decl.add(ITEMM))   throw error(DUPLITEM);
   if (wsConsumeWs(AS)) {
     final SeqType type=itemType();
-    if (ctx.sc.initType == null) {
-      ctx.sc.initType=type;
+    if (sc.initType == null) {
+      sc.initType=type;
     }
- else     if (!ctx.sc.initType.eq(type)) {
-      error(CITYPES,ctx.sc.initType,type);
+ else     if (!sc.initType.eq(type)) {
+      throw error(CITYPES,sc.initType,type);
     }
   }
   if (!wsConsumeWs(EXTERNAL))   wsCheck(ASSIGN);
  else   if (!wsConsumeWs(ASSIGN))   return;
-  scope=new VarScope();
+  pushVarContext();
   final Expr e=check(single(),NOVARDECL);
-  final SeqType type=ctx.sc.initType == null ? SeqType.ITEM : ctx.sc.initType;
-  ctx.ctxItem=new MainModule(e,scope,type,currDoc.toString(),info());
-  scope=null;
-  if (module != null)   error(DECITEM);
-  if (e.has(Flag.UPD))   error(UPCTX,e);
+  final SeqType type=sc.initType == null ? SeqType.ITEM : sc.initType;
+  final VarScope scope=popVarContext();
+  ctx.ctxItem=new MainModule(e,scope,type,currDoc.toString(),sc,info());
+  if (module != null)   throw error(DECITEM);
+  if (e.has(Flag.UPD))   throw error(UPCTX,e);
 }

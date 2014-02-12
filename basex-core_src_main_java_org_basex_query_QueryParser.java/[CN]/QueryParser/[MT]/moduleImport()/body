@@ -5,13 +5,13 @@
     wsCheck(IS);
   }
   final byte[] uri=trim(stringLiteral());
-  if (uri.length == 0)   error(NSMODURI);
-  if (!Uri.uri(uri).isValid())   error(INVURI,uri);
-  if (modules.contains(uri))   error(DUPLMODULE,uri);
+  if (uri.length == 0)   throw error(NSMODURI);
+  if (!Uri.uri(uri).isValid())   throw error(INVURI,uri);
+  if (modules.contains(uri))   throw error(DUPLMODULE,uri);
   modules.add(uri);
   if (pref != EMPTY) {
-    if (ctx.sc.ns.staticURI(pref) != null)     error(DUPLNSDECL,pref);
-    ctx.sc.ns.add(pref,uri,info());
+    if (sc.ns.staticURI(pref) != null)     throw error(DUPLNSDECL,pref);
+    sc.ns.add(pref,uri,info());
     namespaces.put(pref,uri);
   }
   if (wsConsumeWs(AT)) {
@@ -28,5 +28,5 @@
   }
   for (  final byte[] u : Function.URIS.values())   if (eq(uri,u))   return;
   if (ctx.modules.addImport(uri,info(),this))   return;
-  error(NOMODULE,uri);
+  throw error(WHICHMODULE,uri);
 }

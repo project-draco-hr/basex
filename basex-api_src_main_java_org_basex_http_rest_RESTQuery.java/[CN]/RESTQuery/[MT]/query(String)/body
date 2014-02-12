@@ -1,0 +1,19 @@
+{
+  int c=0;
+  while (!(cmds.get(c) instanceof XQuery))   run(cmds.get(c++));
+  final XQuery xq=(XQuery)cmds.get(c);
+  if (value != null)   xq.bind(null,value,NodeType.DOC.toString());
+  final HTTPContext http=session.http;
+  context.options.set(MainOptions.QUERYPATH,path);
+  context.options.set(MainOptions.SERIALIZER,serial(http));
+  xq.http(http);
+  for (  final Entry<String,String[]> e : variables.entrySet()) {
+    final String key=e.getKey();
+    final String[] val=e.getValue();
+    if (val.length == 2)     xq.bind(key,val[0],val[1]);
+    if (val.length == 1)     xq.bind(key,val[0]);
+  }
+  http.serialization.parse(xq.parameters(context).toString());
+  http.initResponse();
+  run(xq,http.res.getOutputStream());
+}

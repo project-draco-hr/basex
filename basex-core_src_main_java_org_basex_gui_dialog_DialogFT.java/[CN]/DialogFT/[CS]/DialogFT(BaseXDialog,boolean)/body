@@ -1,27 +1,28 @@
 {
   dialog=d;
   layout(new TableLayout(create ? 9 : 15,1));
-  final Prop prop=d.gui.context.prop;
+  final MainOptions opts=d.gui.context.options;
   add(new BaseXLabel(H_FULLTEXT_INDEX,true,false).border(0,0,6,0));
-  final String sw=prop.get(Prop.STOPWORDS);
+  final String sw=opts.get(MainOptions.STOPWORDS);
   final String[] cb={LANGUAGE,STEMMING,CASE_SENSITIVITY,DIACRITICS,STOPWORD_LIST};
   final String[] desc={H_LANGUAGE,H_STEMMING,H_CASE,H_DIACRITICS,H_STOPWORDS};
-  final boolean[] val={!prop.get(Prop.LANGUAGE).isEmpty(),prop.is(Prop.STEMMING),prop.is(Prop.CASESENS),prop.is(Prop.DIACRITICS),!sw.isEmpty()};
+  final boolean[] val={!opts.get(MainOptions.LANGUAGE).isEmpty(),opts.get(MainOptions.STEMMING),opts.get(MainOptions.CASESENS),opts.get(MainOptions.DIACRITICS),!sw.isEmpty()};
   final BaseXLabel[] labels=new BaseXLabel[FLAGS];
   for (int f=0; f < check.length; ++f) {
-    check[f]=new BaseXCheckBox(cb[f],val[f],create ? 1 : 0,d);
-    if (!create) {
-      labels[f]=new BaseXLabel(desc[f],true,false);
+    check[f]=new BaseXCheckBox(cb[f],val[f],d);
+    if (create) {
+      check[f].setToolTipText(desc[f]);
     }
  else {
-      check[f].setToolTipText(desc[f]);
+      check[f].bold();
+      labels[f]=new BaseXLabel(desc[f],true,false);
     }
   }
   final BaseXBack b1=new BaseXBack(new TableLayout(1,2,8,0));
   b1.add(check[F_LANG]);
   final StringList langs=FTLexer.languages();
   language=new BaseXCombo(d,langs.toArray());
-  final Language ln=Language.get(prop);
+  final Language ln=Language.get(opts);
   for (  final String l : langs) {
     final String s=l.replaceFirst(" \\(.*","");
     if (s.equals(ln.toString()))     language.setSelectedItem(l);
@@ -36,7 +37,7 @@
   add(check[F_STOP]);
   add(Box.createVerticalStrut(4));
   final BaseXBack b3=new BaseXBack(new TableLayout(1,2,8,0));
-  swpath=new BaseXTextField(sw.isEmpty() ? d.gui.gprop.get(GUIProp.DATAPATH) : sw,d);
+  swpath=new BaseXTextField(sw.isEmpty() ? d.gui.gopts.get(GUIOptions.DATAPATH) : sw,d);
   b3.add(swpath);
   swbrowse=new BaseXButton(BROWSE_D,d);
   swbrowse.addActionListener(new ActionListener(){

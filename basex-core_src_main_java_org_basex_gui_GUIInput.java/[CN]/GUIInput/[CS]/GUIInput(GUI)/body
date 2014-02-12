@@ -20,8 +20,8 @@
         }
  else {
           final Data data=main.context.data();
-          final int i=data == null ? 2 : gui.gprop.num(GUIProp.SEARCHMODE);
-          final Object[] options=i == 0 ? GUIProp.SEARCH : i == 1 ? GUIProp.XQUERY : GUIProp.COMMANDS;
+          final int i=data == null ? 2 : gui.gopts.get(GUIOptions.SEARCHMODE);
+          final StringsOption options=i == 0 ? GUIOptions.SEARCH : i == 1 ? GUIOptions.XQUERY : GUIOptions.COMMANDS;
           new BaseXHistory(main,options).store(getText());
           if (e.getModifiers() == 0)           main.execute();
         }
@@ -30,19 +30,19 @@
       if (count == 0)       return;
       int bi=box.getSelectedIndex();
       if (NEXTLINE.is(e)) {
-        if (!pop.isVisible()) {
-          showPopup();
+        if (pop.isVisible()) {
+          if (++bi == count)           bi=0;
         }
  else {
-          if (++bi == count)           bi=0;
+          showPopup();
         }
       }
  else       if (PREVLINE.is(e)) {
-        if (!pop.isVisible()) {
-          showPopup();
+        if (pop.isVisible()) {
+          if (--bi < 0)           bi=count - 1;
         }
  else {
-          if (--bi < 0)           bi=count - 1;
+          showPopup();
         }
       }
       if (bi != box.getSelectedIndex())       box.setSelectedIndex(bi);
@@ -57,7 +57,7 @@
  else       if (!NEXTLINE.is(e) && !PREVLINE.is(e)) {
         if (modifier(e) || control(e))         return;
         showPopup();
-        if (gui.gprop.is(GUIProp.EXECRT) && !cmdMode())         main.execute();
+        if (gui.gopts.get(GUIOptions.EXECRT) && !cmdMode())         main.execute();
       }
     }
   }

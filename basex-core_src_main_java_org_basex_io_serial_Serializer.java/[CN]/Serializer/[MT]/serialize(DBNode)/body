@@ -3,9 +3,9 @@
   final Data data=node.data;
   int p=node.pre;
   int k=data.kind(p);
-  if (k == Data.ATTR)   SERATTR.thrwSerial(node);
+  if (k == Data.ATTR)   throw SERATTR.getIO(node);
   boolean doc=false;
-  final TokenSet nsp=data.nspaces.size() != 0 ? new TokenSet() : null;
+  final TokenSet nsp=data.nspaces.size() == 0 ? null : new TokenSet();
   final IntList pars=new IntList();
   final BoolList indt=new BoolList();
   final int s=p + data.size(p,k);
@@ -30,37 +30,39 @@
  else     if (k == Data.COMM) {
       comment(data.text(p++,true));
     }
- else     if (k == Data.PI) {
-      pi(data.name(p,k),data.atom(p++));
-    }
  else {
-      final byte[] name=data.name(p,k);
-      startElement(name);
-      if (nsp != null) {
-        nsp.clear();
-        int pp=p;
-        final byte[] u=data.nspaces.uri(data.uri(p,k));
-        namespace(prefix(name),u == null ? EMPTY : u);
-        do {
-          final Atts ns=data.ns(pp);
-          for (int n=0; n < ns.size(); ++n) {
-            final byte[] pref=ns.name(n);
-            if (nsp.add(pref))             namespace(pref,ns.value(n));
+      if (k == Data.PI) {
+        pi(data.name(p,Data.PI),data.atom(p++));
+      }
+ else {
+        final byte[] name=data.name(p,k);
+        startElement(name);
+        if (nsp != null) {
+          nsp.clear();
+          int pp=p;
+          final byte[] u=data.nspaces.uri(data.uri(p,k));
+          namespace(prefix(name),u == null ? EMPTY : u);
+          do {
+            final Atts ns=data.ns(pp);
+            for (int n=0; n < ns.size(); ++n) {
+              final byte[] pref=ns.name(n);
+              if (nsp.add(pref))               namespace(pref,ns.value(n));
+            }
+            if (level != 0)             break;
+            pp=data.parent(pp,data.kind(pp));
           }
-          if (level != 0)           break;
-          pp=data.parent(pp,data.kind(pp));
-        }
  while (pp >= 0 && data.kind(pp) == Data.ELEM);
+        }
+        indt.push(indent);
+        final int as=p + data.attSize(p,k);
+        while (++p != as) {
+          final byte[] n=data.name(p,Data.ATTR);
+          final byte[] v=data.text(p,false);
+          attribute(n,v);
+          if (eq(n,XML_SPACE))           indent&=eq(v,DataText.DEFAULT);
+        }
+        pars.push(r);
       }
-      indt.push(indent);
-      final int as=p + data.attSize(p,k);
-      while (++p != as) {
-        final byte[] n=data.name(p,Data.ATTR);
-        final byte[] v=data.text(p,false);
-        attribute(n,v);
-        if (eq(n,XML_SPACE))         indent&=eq(v,DataText.DEFAULT);
-      }
-      pars.push(r);
     }
   }
   while (!pars.isEmpty()) {

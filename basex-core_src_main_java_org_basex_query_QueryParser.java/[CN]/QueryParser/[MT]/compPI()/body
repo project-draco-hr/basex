@@ -1,17 +1,17 @@
 {
-  skipWS();
-  Expr name;
+  skipWs();
+  final Expr name;
   final byte[] str=ncName(null);
-  if (str.length != 0) {
-    name=Str.get(str);
-  }
- else {
+  if (str.length == 0) {
     if (!wsConsume(BRACE1))     return null;
     name=check(expr(),PIWRONG);
     wsCheck(BRACE2);
   }
+ else {
+    name=Str.get(str);
+  }
   if (!wsConsume(BRACE1))   return null;
   final Expr e=expr();
   wsCheck(BRACE2);
-  return new CPI(info(),name,e == null ? Empty.SEQ : e);
+  return new CPI(sc,info(),name,e == null ? Empty.SEQ : e);
 }

@@ -13,7 +13,7 @@
   }
  else   if (cmp == drop) {
     for (    final String s : dbs) {
-      if (ctx.mprop.dbexists(s))       cmds.add(new DropDB(s));
+      if (ctx.globalopts.dbexists(s))       cmds.add(new DropDB(s));
     }
     if (!BaseXDialog.confirm(gui,Util.info(DROPPING_DB_X,cmds.size())))     return;
     refresh=true;
@@ -34,7 +34,7 @@
     for (    final String s : dbs)     cmds.add(new CreateBackup(s));
   }
  else   if (cmp == restore) {
-    if (!gui.context.mprop.dbexists(db) || BaseXDialog.confirm(gui,OVERWRITE_DB_QUESTION))     cmds.add(new Restore(db));
+    if (!gui.context.globalopts.dbexists(db) || BaseXDialog.confirm(gui,OVERWRITE_DB_QUESTION))     cmds.add(new Restore(backups.getValue()));
   }
  else   if (cmp == backups) {
   }
@@ -49,11 +49,11 @@
     for (    final String b : back)     cmds.add(new DropBackup(b));
     refresh=true;
   }
- else   if (cmp != backups) {
+ else {
     final String title=dbs.size() == 1 ? db : dbs.size() + " " + DATABASES;
     doc1.setText(title);
     doc2.setText(BACKUPS + COLS + title);
-    boolean active=ctx.mprop.dbexists(db);
+    boolean active=ctx.globalopts.dbexists(db);
     String info="";
     if (active) {
       final MetaData meta=new MetaData(db,ctx);
@@ -68,13 +68,13 @@
  else     if (dbs.size() == 1) {
       info=ONLY_BACKUP;
     }
-    detail.setText(Token.token(info));
+    detail.setText(info);
     rename.setEnabled(active);
     copy.setEnabled(active);
     open.setEnabled(active);
     restore.setEnabled(active);
     active=false;
-    for (    final String d : dbs)     active|=ctx.mprop.dbexists(d);
+    for (    final String d : dbs)     active|=ctx.globalopts.dbexists(d);
     drop.setEnabled(active);
     backup.setEnabled(active);
     final StringList back=Databases.backupPaths(db,ctx).sort(Prop.CASE,false);

@@ -1,14 +1,14 @@
 {
-  String redirect=null, forward=null;
-  RestXqRespBuilder resp=null;
   final StaticFunc uf=function.function;
   final Expr[] args=new Expr[uf.args.length];
   function.bind(http,args,error);
   final StaticFuncCall sfc=new StaticFuncCall(uf.name,args,uf.sc,uf.info).init(uf);
-  final MainModule mm=new MainModule(sfc,new VarScope(),null);
+  final MainModule mm=new MainModule(sfc,new VarScope(uf.sc),null,uf.sc);
   query.mainModule(mm);
-  query.context(http,null);
+  query.http(http);
   query.context.register(query);
+  String redirect=null, forward=null;
+  RestXqRespBuilder resp=null;
   try {
     query.compile();
     final Iter iter=query.iter();
@@ -34,8 +34,9 @@
       }
     }
     if (function.methods.size() == 1 && function.methods.contains(HTTPMethod.HEAD))     function.error(HEAD_METHOD);
-    final SerializerProp sp=function.output;
-    http.initResponse(sp);
+    final SerializerOptions sp=function.output;
+    http.serialization=sp;
+    http.initResponse();
     final Serializer ser=Serializer.get(http.res.getOutputStream(),sp);
     for (; item != null; item=iter.next())     ser.serialize(item);
     ser.close();

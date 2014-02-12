@@ -1,17 +1,17 @@
 {
   final QNm vn=varName();
   final SeqType tp=optAsType();
-  if (module != null && !eq(vn.uri(),module.uri()))   error(MODNS,vn);
-  final Expr bind;
-  scope=new VarScope();
+  if (module != null && !eq(vn.uri(),module.uri()))   throw error(MODNS,vn);
+  pushVarContext();
   final boolean external=wsConsumeWs(EXTERNAL);
+  final Expr bind;
   if (external) {
-    bind=ctx.sc.xquery3() && wsConsumeWs(ASSIGN) ? check(single(),NOVARDECL) : null;
+    bind=sc.xquery3() && wsConsumeWs(ASSIGN) ? check(single(),NOVARDECL) : null;
   }
  else {
     wsCheck(ASSIGN);
     bind=check(single(),NOVARDECL);
   }
-  vars.add(ctx.vars.declare(vn,tp,ann,bind,external,ctx.sc,scope,currDoc.toString(),info()));
-  scope=null;
+  final VarScope scope=popVarContext();
+  vars.add(ctx.vars.declare(vn,tp,ann,bind,external,sc,scope,currDoc.toString(),info()));
 }

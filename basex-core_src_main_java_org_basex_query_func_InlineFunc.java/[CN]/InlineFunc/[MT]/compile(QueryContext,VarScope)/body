@@ -1,23 +1,23 @@
 {
   if (compiled)   return this;
   compiled=true;
-  for (  final Entry<Var,Expr> e : scope.closure().entrySet())   e.setValue(e.getValue().compile(ctx,scp));
-  final StaticContext cs=ctx.sc;
-  ctx.sc=sc;
+  for (  final Entry<Var,Expr> e : scope.closure().entrySet()) {
+    final Expr bound=e.getValue().compile(ctx,scp);
+    e.setValue(bound);
+    e.getKey().refineType(bound.type(),ctx,info);
+  }
   final int fp=scope.enter(ctx);
   try {
-    for (    final Entry<Var,Expr> e : staticBindings())     ctx.set(e.getKey(),e.getValue().value(ctx),info);
+    for (    final Entry<Var,Value> e : staticBindings())     ctx.set(e.getKey(),e.getValue(),info);
     expr=expr.compile(ctx,scope);
   }
  catch (  final QueryException qe) {
-    expr=FNInfo.error(qe);
+    expr=FNInfo.error(qe,ret != null ? ret : expr.type());
   }
  finally {
     scope.cleanUp(this);
     scope.exit(ctx,fp);
-    ctx.sc=cs;
   }
-  ctx.compInfo(OPTTCE,this);
-  expr.markTailCalls();
+  expr.markTailCalls(ctx);
   return optimize(ctx,scp);
 }

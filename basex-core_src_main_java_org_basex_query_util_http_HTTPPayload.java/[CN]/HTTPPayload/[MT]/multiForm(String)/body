@@ -18,7 +18,7 @@
  else {
           val=Str.get(cont.toArray());
         }
-        map.put(name,val);
+        if (!name.isEmpty())         map.put(name,val);
         cont.reset();
         lines=-1;
         if (eq(line,last))         break;
@@ -29,8 +29,8 @@
       }
     }
  else     if (startsWith(line,CONTENT_DISPOSITION)) {
-      name=!contains(line,token(NAME_IS)) ? null : string(line).replaceAll("^.*?" + NAME_IS + "\"|\".*","").replaceAll("\\[\\]","");
-      fn=!contains(line,token(FILENAME_IS)) ? null : string(line).replaceAll("^.*" + FILENAME_IS + "\"|\"$","");
+      name=contains(line,token(NAME_IS)) ? string(line).replaceAll("^.*?" + NAME_IS + "\"|\".*","").replaceAll("\\[\\]","") : null;
+      fn=contains(line,token(FILENAME_IS)) ? string(line).replaceAll("^.*" + FILENAME_IS + "\"|\"$","") : null;
     }
  else     if (line.length == 0) {
       lines=0;

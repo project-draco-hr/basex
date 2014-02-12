@@ -1,0 +1,37 @@
+{
+  project=view;
+  layout(new BorderLayout(0,2));
+  files=new BaseXTextField(view.gui);
+  files.hint(Text.FIND_FILES);
+  files.addFocusListener(project.lastfocus);
+  contents=new BaseXTextField(view.gui);
+  contents.hint(Text.FIND_CONTENTS);
+  contents.addFocusListener(project.lastfocus);
+  add(files,BorderLayout.NORTH);
+  add(contents,BorderLayout.CENTER);
+  final KeyAdapter refreshKeys=new KeyAdapter(){
+    @Override public void keyPressed(    final KeyEvent e){
+      if (BaseXKeys.NEXTLINE.is(e) || BaseXKeys.PREVLINE.is(e) || BaseXKeys.NEXTPAGE.is(e)|| BaseXKeys.PREVPAGE.is(e)) {
+        project.list.dispatchEvent(e);
+      }
+ else {
+        for (        final GUIPopupCmd cmd : project.list.commands) {
+          if (cmd == null)           continue;
+          for (          final BaseXKeys sc : cmd.shortcuts()) {
+            if (sc.is(e)) {
+              cmd.execute(view.gui);
+              e.consume();
+              return;
+            }
+          }
+        }
+      }
+    }
+    @Override public void keyReleased(    final KeyEvent e){
+      refresh(false);
+    }
+  }
+;
+  files.addKeyListener(refreshKeys);
+  contents.addKeyListener(refreshKeys);
+}

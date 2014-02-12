@@ -2,14 +2,14 @@
   while (true) {
     final int i=pos;
     if (!wsConsumeWs(DECLARE))     break;
-    if (ctx.sc.xquery3() && wsConsumeWs(CONTEXT)) {
+    if (sc.xquery3() && wsConsumeWs(CONTEXT)) {
       contextItemDecl();
     }
  else     if (wsConsumeWs(OPTION)) {
       optionDecl();
     }
  else     if (wsConsumeWs(DEFAULT)) {
-      error(PROLOGORDER);
+      throw error(PROLOGORDER);
     }
  else {
       final Ann ann=new Ann();
@@ -17,7 +17,7 @@
         if (wsConsumeWs(UPDATING)) {
           ann.add(Ann.Q_UPDATING,Empty.SEQ,info());
         }
- else         if (ctx.sc.xquery3() && consume('%')) {
+ else         if (sc.xquery3() && consume('%')) {
           annotation(ann);
         }
  else {
@@ -25,7 +25,7 @@
         }
       }
       if (wsConsumeWs(VARIABLE)) {
-        if (ann.contains(Ann.Q_UPDATING))         error(UPDATINGVAR);
+        if (ann.contains(Ann.Q_UPDATING))         throw error(UPDATINGVAR);
         ann.check(true);
         varDecl(ann);
       }
@@ -34,7 +34,7 @@
         functionDecl(ann);
       }
  else       if (!ann.isEmpty()) {
-        error(VARFUNC);
+        throw error(VARFUNC);
       }
  else {
         pos=i;
@@ -42,7 +42,7 @@
       }
     }
     currDoc.setLength(0);
-    skipWS();
+    skipWs();
     check(';');
   }
 }

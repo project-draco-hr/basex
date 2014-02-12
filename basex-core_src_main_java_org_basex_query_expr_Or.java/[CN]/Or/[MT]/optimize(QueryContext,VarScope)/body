@@ -1,0 +1,37 @@
+{
+  CmpG cmpg=null;
+  final ExprList el=new ExprList(expr.length);
+  for (  final Expr e : expr) {
+    boolean merged=false;
+    if (e instanceof CmpG) {
+      final CmpG g=(CmpG)e;
+      if (cmpg == null)       cmpg=g;
+ else       if (cmpg.union(g,ctx,scp))       merged=true;
+    }
+    if (!(merged || e == Bln.FALSE)) {
+      if (e == Bln.TRUE)       return optPre(Bln.TRUE,ctx);
+      el.add(e);
+    }
+  }
+  if (el.size() == 0)   return optPre(Bln.FALSE,ctx);
+  if (expr.length != el.size()) {
+    ctx.compInfo(OPTWRITE,this);
+    expr=el.finish();
+  }
+  compFlatten(ctx);
+  boolean not=true;
+  for (  final Expr e : expr) {
+    if (!e.isFunction(Function.NOT)) {
+      not=false;
+      break;
+    }
+  }
+  if (not) {
+    ctx.compInfo(OPTWRITE,this);
+    final Expr[] inner=new Expr[expr.length];
+    for (int i=0; i < inner.length; i++)     inner[i]=((Arr)expr[i]).expr[0];
+    final Expr and=new And(info,inner).optimize(ctx,scp);
+    return Function.NOT.get(null,and).optimize(ctx,scp);
+  }
+  return expr.length == 1 ? compBln(expr[0],info) : this;
+}

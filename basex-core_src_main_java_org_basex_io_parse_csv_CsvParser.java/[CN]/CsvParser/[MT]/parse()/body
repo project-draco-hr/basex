@@ -1,0 +1,31 @@
+{
+  final TokenBuilder entry=new TokenBuilder();
+  data=!header;
+  for (char ch; (ch=consume()) != 0; ) {
+    if (quoted) {
+      if (ch == '"') {
+        if (!consume('"')) {
+          quoted=false;
+          continue;
+        }
+      }
+      entry.add(XMLToken.valid(ch) ? ch : '?');
+    }
+ else     if (quotes && ch == '"') {
+      quoted=true;
+    }
+ else     if (ch == separator) {
+      record(entry,true);
+      first=false;
+    }
+ else     if (ch == '\n') {
+      record(entry,!entry.isEmpty());
+      first=true;
+      data=true;
+    }
+ else {
+      entry.add(XMLToken.valid(ch) ? ch : '?');
+    }
+  }
+  record(entry,!entry.isEmpty());
+}

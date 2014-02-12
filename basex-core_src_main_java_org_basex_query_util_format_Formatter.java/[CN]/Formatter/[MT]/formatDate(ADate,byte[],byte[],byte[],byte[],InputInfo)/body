@@ -4,14 +4,14 @@
   boolean iso=false;
   if (cal.length != 0) {
     final Matcher m=CALENDAR.matcher(string(cal));
-    if (!m.matches())     CALQNAME.thrw(ii,cal);
+    if (!m.matches())     throw CALQNAME.get(ii,cal);
     final QNm qnm=new QNm(m.group(3),m.group(1) == null || m.group(2).isEmpty() ? null : m.group(2));
     if (!qnm.hasURI()) {
       int c=-1;
       final byte[] ln=qnm.local();
       final int cl=CALENDARS.length;
       while (++c < cl && !eq(CALENDARS[c],ln))       ;
-      if (c == cl)       CALWHICH.thrw(ii,cal);
+      if (c == cl)       throw CALWHICH.get(ii,cal);
       if (c > 1)       tb.add("[Calendar: AD]");
       iso=c == 0;
     }
@@ -20,12 +20,9 @@
   final DateParser dp=new DateParser(ii,pic);
   while (dp.more()) {
     final int ch=dp.literal();
-    if (ch != -1) {
-      tb.add(ch);
-    }
- else {
+    if (ch == -1) {
       final byte[] marker=dp.marker();
-      if (marker.length == 0)       PICDATE.thrw(ii,pic);
+      if (marker.length == 0)       throw PICDATE.get(ii,pic);
       final int compSpec=ch(marker,0);
       byte[] pres=ONE;
       boolean max=false;
@@ -112,9 +109,9 @@ pres=NN;
 err=tim;
 break;
 default :
-INVCOMPSPEC.thrw(ii,marker);
+throw INVCOMPSPEC.get(ii,marker);
 }
-if (err) PICINVCOMP.thrw(ii,marker,date.type);
+if (err) throw PICINVCOMP.get(ii,marker,date.type);
 if (pres == null) continue;
 final DateFormat fp=new DateFormat(substring(marker,1),pres,ii);
 if (max) {
@@ -167,10 +164,13 @@ s=frac(frac,fp.max);
 final int fl=fp.primary.length;
 if (fl != 1 && fl != sl) s=frac(frac,fl);
 }
-num=Token.toLong(s);
+num=toLong(s);
 }
 tb.add(formatInt(num,fp));
 }
+}
+ else {
+tb.add(ch);
 }
 }
 return tb.finish();

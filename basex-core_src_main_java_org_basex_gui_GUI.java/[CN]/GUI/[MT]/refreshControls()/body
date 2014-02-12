@@ -2,22 +2,22 @@
   final Nodes marked=context.marked;
   if (marked != null)   setResults(marked.size());
   filter.setEnabled(marked != null && marked.size() != 0);
-  final boolean inf=gprop.is(GUIProp.SHOWINFO);
-  context.prop.set(Prop.QUERYINFO,inf);
-  context.prop.set(Prop.XMLPLAN,inf);
+  final boolean inf=gopts.get(GUIOptions.SHOWINFO);
+  context.options.set(MainOptions.QUERYINFO,inf);
+  context.options.set(MainOptions.XMLPLAN,inf);
   final Data data=context.data();
   final int t=mode.getSelectedIndex();
-  final int s=data == null ? 2 : gprop.num(GUIProp.SEARCHMODE);
+  final int s=data == null ? 2 : gopts.get(GUIOptions.SEARCHMODE);
   mode.setEnabled(data != null);
-  go.setEnabled(s == 2 || !gprop.is(GUIProp.EXECRT));
+  go.setEnabled(s == 2 || !gopts.get(GUIOptions.EXECRT));
   if (s != t) {
     mode.setSelectedIndex(s);
-    input.setText("");
+    input.mode(mode.getSelectedItem());
     input.requestFocusInWindow();
   }
   toolbar.refresh();
   menu.refresh();
-  final int i=context.data() == null ? 2 : gprop.num(GUIProp.SEARCHMODE);
-  final Object[] options=i == 0 ? GUIProp.SEARCH : i == 1 ? GUIProp.XQUERY : GUIProp.COMMANDS;
-  hist.setEnabled(gprop.strings(options).length != 0);
+  final int i=context.data() == null ? 2 : gopts.get(GUIOptions.SEARCHMODE);
+  final StringsOption options=i == 0 ? GUIOptions.SEARCH : i == 1 ? GUIOptions.XQUERY : GUIOptions.COMMANDS;
+  hist.setEnabled(gopts.get(options).length != 0);
 }

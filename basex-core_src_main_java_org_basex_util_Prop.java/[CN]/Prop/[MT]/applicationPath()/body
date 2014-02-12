@@ -1,0 +1,23 @@
+{
+  if (LOCATION == null)   return null;
+  final String path=LOCATION.getPath();
+  final TokenBuilder tb=new TokenBuilder();
+  final int pl=path.length();
+  for (int p=0; p < pl; ++p) {
+    final char ch=path.charAt(p);
+    if (ch == '%' && p + 2 < pl) {
+      tb.addByte((byte)Integer.parseInt(path.substring(p + 1,p + 3),16));
+      p+=2;
+    }
+ else {
+      tb.add(ch);
+    }
+  }
+  try {
+    return new String(tb.finish(),ENCODING);
+  }
+ catch (  final Exception ex) {
+    Util.stack(ex);
+    return tb.toString();
+  }
+}

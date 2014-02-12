@@ -1,0 +1,119 @@
+{
+  if (specialKey(e) || modifier(e))   return;
+  caret(true);
+  final int fh=rend.fontHeight();
+  if (SCROLLDOWN.is(e)) {
+    scroll.pos(scroll.pos() + fh);
+    return;
+  }
+  if (SCROLLUP.is(e)) {
+    scroll.pos(scroll.pos() - fh);
+    return;
+  }
+  final boolean selected=editor.selected();
+  final int pos=editor.pos();
+  final boolean shift=e.isShiftDown();
+  boolean down=true, consumed=true;
+  int lc=Integer.MIN_VALUE;
+  final byte[] txt=editor.text();
+  if (NEXTWORD.is(e)) {
+    editor.nextWord(shift);
+  }
+ else   if (PREVWORD.is(e)) {
+    editor.prevWord(shift);
+    down=false;
+  }
+ else   if (TEXTSTART.is(e)) {
+    editor.textStart(shift);
+    down=false;
+  }
+ else   if (TEXTEND.is(e)) {
+    editor.textEnd(shift);
+  }
+ else   if (LINESTART.is(e)) {
+    editor.lineStart(shift);
+    down=false;
+  }
+ else   if (LINEEND.is(e)) {
+    editor.lineEnd(shift);
+  }
+ else   if (PREVPAGE_RO.is(e) && !hist.active()) {
+    lc=editor.linesUp(getHeight() / fh,false,lastCol);
+    down=false;
+  }
+ else   if (NEXTPAGE_RO.is(e) && !hist.active()) {
+    lc=editor.linesDown(getHeight() / fh,false,lastCol);
+  }
+ else   if (PREVPAGE.is(e)) {
+    lc=editor.linesUp(getHeight() / fh,shift,lastCol);
+    down=false;
+  }
+ else   if (NEXTPAGE.is(e)) {
+    lc=editor.linesDown(getHeight() / fh,shift,lastCol);
+  }
+ else   if (NEXTLINE.is(e) && !MOVEDOWN.is(e)) {
+    lc=editor.linesDown(1,shift,lastCol);
+  }
+ else   if (PREVLINE.is(e) && !MOVEUP.is(e)) {
+    lc=editor.linesUp(1,shift,lastCol);
+    down=false;
+  }
+ else   if (NEXTCHAR.is(e)) {
+    editor.next(shift);
+  }
+ else   if (PREVCHAR.is(e)) {
+    editor.previous(shift);
+    down=false;
+  }
+ else {
+    consumed=false;
+  }
+  lastCol=lc == Integer.MIN_VALUE ? -1 : lc;
+  if (hist.active()) {
+    if (MOVEDOWN.is(e)) {
+      editor.move(true);
+    }
+ else     if (MOVEUP.is(e)) {
+      editor.move(false);
+    }
+ else     if (COMPLETE.is(e)) {
+      editor.complete();
+    }
+ else     if (DELLINE.is(e)) {
+      editor.deleteLine();
+    }
+ else     if (DELNEXTWORD.is(e)) {
+      editor.deleteNext(true);
+    }
+ else     if (DELLINEEND.is(e)) {
+      editor.deleteNext(false);
+    }
+ else     if (DELNEXT.is(e)) {
+      editor.delete();
+    }
+ else     if (DELPREVWORD.is(e)) {
+      editor.deletePrev(true);
+      down=false;
+    }
+ else     if (DELLINESTART.is(e)) {
+      editor.deletePrev(false);
+      down=false;
+    }
+ else     if (DELPREV.is(e)) {
+      editor.deletePrev();
+      down=false;
+    }
+ else {
+      consumed=false;
+    }
+  }
+  if (consumed)   e.consume();
+  final byte[] tmp=editor.text();
+  if (txt != tmp) {
+    hist.store(tmp,pos,editor.pos());
+    scrollCode.invokeLater(down);
+  }
+ else   if (pos != editor.pos() || selected != editor.selected()) {
+    cursorCode.invokeLater(down ? 2 : 0);
+  }
+}

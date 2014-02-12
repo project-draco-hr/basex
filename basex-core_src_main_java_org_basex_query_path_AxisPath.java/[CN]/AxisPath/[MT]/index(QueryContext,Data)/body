@@ -1,19 +1,18 @@
 {
-  if (root == null || has(Flag.FCS))   return this;
+  if (root == null)   return this;
   IndexCosts ics=null;
-  int pmin=0;
-  int smin=0;
+  int pmin=0, smin=0;
   for (int s=0; s < steps.length; ++s) {
-    final Step stp=step(s);
-    if (!stp.axis.down)     break;
+    final Step step=step(s);
+    if (!step.axis.down || step.has(Flag.FCS))     break;
     final boolean i=pathNodes(data,s) != null;
     final IndexContext ictx=new IndexContext(data,i);
-    for (int p=0; p < stp.preds.length; ++p) {
-      final IndexCosts ic=new IndexCosts(ictx,ctx,stp);
-      if (!stp.preds[p].indexAccessible(ic))       continue;
+    for (int p=0; p < step.preds.length; ++p) {
+      final IndexCosts ic=new IndexCosts(ictx,ctx,step);
+      if (!step.preds[p].indexAccessible(ic))       continue;
       if (ic.costs() == 0) {
         if (ic.not) {
-          stp.preds[p]=Bln.TRUE;
+          step.preds[p]=Bln.TRUE;
           continue;
         }
         ctx.compInfo(OPTNOINDEX,this);
@@ -56,12 +55,12 @@
       for (int j=smin; j >= 0; --j) {
         final Axis ax=step(j).axis.invert();
         if (ax == null)         break;
-        if (j != 0) {
-          final Step prev=step(j - 1);
-          invSteps=Array.add(invSteps,Step.get(info,ax,prev.test,prev.preds));
+        if (j == 0) {
+          if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)           invSteps=Array.add(invSteps,Step.get(info,ax,test));
         }
  else {
-          if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)           invSteps=Array.add(invSteps,Step.get(info,ax,test));
+          final Step prev=step(j - 1);
+          invSteps=Array.add(invSteps,Step.get(info,ax,prev.test,prev.preds));
         }
       }
     }

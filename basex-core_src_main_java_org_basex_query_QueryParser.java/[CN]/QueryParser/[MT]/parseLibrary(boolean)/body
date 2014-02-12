@@ -1,20 +1,19 @@
 {
-  file(ctx.sc.baseIO(),ctx.context);
-  checkValidChars();
+  init();
   try {
     versionDecl();
     wsCheck(MODULE);
     wsCheck(NSPACE);
-    skipWS();
+    skipWs();
     final byte[] pref=ncName(NONAME);
     wsCheck(IS);
     final byte[] uri=stringLiteral();
-    if (uri.length == 0)     error(NSMODURI);
+    if (uri.length == 0)     throw error(NSMODURI);
     module=new QNm(pref,uri);
-    ctx.sc.ns.add(pref,uri,info());
+    sc.ns.add(pref,uri,info());
     namespaces.put(pref,uri);
     wsCheck(";");
-    final IO base=ctx.sc.baseIO();
+    final IO base=sc.baseIO();
     final byte[] p=token(base == null ? "" : base.path());
     ctx.modParsed.put(p,uri);
     ctx.modStack.push(p);
@@ -22,7 +21,7 @@
     prolog2();
     finish(null,check);
     ctx.modStack.pop();
-    return new LibraryModule(module,moduleDoc);
+    return new LibraryModule(module,moduleDoc,sc);
   }
  catch (  final QueryException ex) {
     mark();

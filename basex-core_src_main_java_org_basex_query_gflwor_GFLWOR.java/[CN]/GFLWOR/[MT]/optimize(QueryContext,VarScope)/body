@@ -6,17 +6,17 @@
       final Where wh=(Where)c;
       if (wh.pred instanceof And) {
         iter.remove();
-        for (        final Expr e : ((And)wh.pred).expr)         iter.add(new Where(e,wh.info));
+        for (        final Expr e : ((Arr)wh.pred).expr)         iter.add(new Where(e,wh.info));
       }
     }
   }
   boolean changed;
   do {
     changed=forToLet(ctx);
+    changed|=slideLetsOut(ctx);
     changed|=inlineLets(ctx,scp);
     changed|=cleanDeadVars(ctx);
     changed|=unnestFLWR(ctx,scp);
-    changed|=slideLetsOut(ctx);
     changed|=optimizeWhere(ctx,scp);
     if (clauses.isEmpty()) {
       ctx.compInfo(QueryText.OPTFLWOR,this);
@@ -32,30 +32,53 @@
     }
     if (!clauses.isEmpty() && clauses.getFirst() instanceof For) {
       final For fst=(For)clauses.getFirst();
-      if (!fst.empty && fst.expr instanceof GFLWOR) {
-        ctx.compInfo(QueryText.OPTFLAT,fst);
-        final GFLWOR sub=(GFLWOR)fst.expr;
-        clauses.set(0,new For(fst.var,null,fst.score,sub.ret,false,fst.info));
-        if (fst.pos != null)         clauses.add(1,new Count(fst.pos,fst.info));
-        clauses.addAll(0,sub.clauses);
-        changed=true;
+      if (!fst.empty) {
+        if (fst.expr instanceof GFLWOR) {
+          ctx.compInfo(QueryText.OPTFLAT,fst);
+          final GFLWOR sub=(GFLWOR)fst.expr;
+          clauses.set(0,new For(fst.var,null,fst.score,sub.ret,false,fst.info));
+          if (fst.pos != null)           clauses.add(1,new Count(fst.pos,fst.info));
+          clauses.addAll(0,sub.clauses);
+          changed=true;
+        }
+ else         if (clauses.size() > 1 && clauses.get(1) instanceof Count) {
+          final Count cnt=(Count)clauses.get(1);
+          if (fst.pos != null) {
+            final Let lt=new Let(cnt.count,new VarRef(cnt.info,fst.pos).optimize(ctx,scp),false,cnt.info);
+            clauses.set(1,lt.optimize(ctx,scp));
+          }
+ else {
+            clauses.set(0,new For(fst.var,cnt.count,fst.score,fst.expr,false,fst.info).optimize(ctx,scp));
+            clauses.remove(1);
+          }
+          changed=true;
+        }
       }
     }
-    if (!clauses.isEmpty() && ret instanceof GFLWOR) {
-      final GFLWOR sub=(GFLWOR)ret;
-      if (sub.isFLWR()) {
-        ctx.compInfo(QueryText.OPTFLAT,this);
-        clauses.addAll(sub.clauses);
-        ret=sub.ret;
-        changed=true;
+    if (!clauses.isEmpty()) {
+      if (ret instanceof GFLWOR) {
+        final GFLWOR sub=(GFLWOR)ret;
+        if (sub.isFLWR()) {
+          ctx.compInfo(QueryText.OPTFLAT,this);
+          clauses.addAll(sub.clauses);
+          ret=sub.ret;
+          changed=true;
+        }
       }
- else       if (sub.clauses.getFirst() instanceof Let) {
-        ctx.compInfo(QueryText.OPTFLAT,this);
-        final LinkedList<Clause> cls=sub.clauses;
-        do         clauses.add(cls.removeFirst());
+      final TypeCheck tc=ret instanceof TypeCheck ? (TypeCheck)ret : null;
+      if (ret instanceof GFLWOR || tc != null && tc.expr instanceof GFLWOR) {
+        final GFLWOR sub=(GFLWOR)(tc == null ? ret : tc.expr);
+        if (sub.clauses.getFirst() instanceof Let) {
+          ctx.compInfo(QueryText.OPTFLAT,this);
+          final LinkedList<Clause> cls=sub.clauses;
+          do {
+            clauses.add(cls.removeFirst());
+          }
  while (!cls.isEmpty() && cls.getFirst() instanceof Let);
-        ret=ret.optimize(ctx,scp);
-        changed=true;
+          if (tc != null)           tc.expr=sub.optimize(ctx,scp);
+          ret=ret.optimize(ctx,scp);
+          changed=true;
+        }
       }
     }
   }

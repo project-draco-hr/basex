@@ -4,27 +4,28 @@
   final BaseXBack panel=new BaseXBack(Fill.NONE).layout(new BorderLayout());
   Box box=new Box(BoxLayout.X_AXIS);
   xLog=new BaseXCheckBox(PLOTLOG,false,gui);
-  xLog.setSelected(gui.gprop.is(GUIProp.PLOTXLOG));
+  xLog.setSelected(gui.gopts.get(GUIOptions.PLOTXLOG));
   xLog.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      gui.gprop.invert(GUIProp.PLOTXLOG);
+      gui.gopts.invert(GUIOptions.PLOTXLOG);
       refreshUpdate();
     }
   }
 );
-  dots=new BaseXSlider(-6,6,gui.gprop.num(GUIProp.PLOTDOTS),gui,new ActionListener(){
+  dots=new BaseXSlider(-6,6,GUIOptions.PLOTDOTS,gui.gopts,gui);
+  dots.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      gui.gprop.set(GUIProp.PLOTDOTS,dots.value());
+      dots.assign();
       refreshLayout();
     }
   }
 );
   BaseXLayout.setWidth(dots,40);
   yLog=new BaseXCheckBox(PLOTLOG,false,gui);
-  yLog.setSelected(gui.gprop.is(GUIProp.PLOTYLOG));
+  yLog.setSelected(gui.gopts.get(GUIOptions.PLOTYLOG));
   yLog.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      gui.gprop.invert(GUIProp.PLOTYLOG);
+      gui.gopts.invert(GUIOptions.PLOTYLOG);
       refreshUpdate();
     }
   }
@@ -53,9 +54,9 @@
   itemCombo=new BaseXCombo(gui);
   itemCombo.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      final String item=(String)itemCombo.getSelectedItem();
-      plotData.xAxis.log=gui.gprop.is(GUIProp.PLOTXLOG);
-      plotData.yAxis.log=gui.gprop.is(GUIProp.PLOTYLOG);
+      final String item=itemCombo.getSelectedItem();
+      plotData.xAxis.log=gui.gopts.get(GUIOptions.PLOTXLOG);
+      plotData.yAxis.log=gui.gopts.get(GUIOptions.PLOTYLOG);
       if (plotData.setItem(item)) {
         plotChanged=true;
         markingChanged=true;

@@ -1,13 +1,22 @@
 {
-  if (type == null || type.isEmpty()) {
-    return val instanceof Expr ? (Expr)val : JavaMapping.toValue(val,this);
+  final StaticContext sc=root != null ? root.sc : new StaticContext(true);
+  if (type == null || type.isEmpty())   return val instanceof Expr ? (Expr)val : JavaMapping.toValue(val,this,sc);
+  try {
+    if (type.equalsIgnoreCase(MainParser.JSON.toString())) {
+      final JsonParserOptions jp=new JsonParserOptions();
+      jp.set(JsonOptions.SPEC,JsonSpec.ECMA_262);
+      jp.set(JsonOptions.FORMAT,JsonFormat.MAP);
+      final JsonConverter conv=JsonConverter.get(jp);
+      conv.convert(token(val.toString()),null);
+      return conv.finish();
+    }
   }
-  if (type.equalsIgnoreCase(QueryText.JSONSTR)) {
-    return new JsonMapConverter(Spec.ECMA_262,true,null).convert(val.toString());
+ catch (  final QueryIOException ex) {
+    throw ex.getCause();
   }
-  final QNm nm=new QNm(token(type.replaceAll("\\(.*?\\)$","")),this);
-  if (!nm.hasURI() && nm.hasPrefix())   NOURI.thrw(null,nm.string());
-  Type t=null;
+  final QNm nm=new QNm(token(type.replaceAll("\\(.*?\\)$","")),sc);
+  if (!nm.hasURI() && nm.hasPrefix())   throw NOURI.get(null,nm.string());
+  Type t;
   if (type.endsWith(")")) {
     t=NodeType.find(nm);
   }
@@ -15,6 +24,6 @@
     t=ListType.find(nm);
     if (t == null)     t=AtomType.find(nm,false);
   }
-  if (t == null)   NOTYPE.thrw(null,type);
-  return t.cast(val,this,null);
+  if (t == null)   throw NOTYPE.get(null,type);
+  return t.cast(val,this,sc,null);
 }

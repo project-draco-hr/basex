@@ -1,58 +1,14 @@
 {
-  super(main,PREFERENCES);
-  final BaseXBack pp=new BaseXBack(new TableLayout(12,1));
-  pp.add(new BaseXLabel(DATABASE_PATH + COL,true,true));
-  BaseXBack p=new BaseXBack(new TableLayout(1,2,8,0));
-  final MainProp mprop=gui.context.mprop;
-  final GUIProp gprop=gui.gprop;
-  path=new BaseXTextField(mprop.dbpath().path(),this);
-  final BaseXButton button=new BaseXButton(BROWSE_D,this);
-  button.addActionListener(new ActionListener(){
-    @Override public void actionPerformed(    final ActionEvent e){
-      final IOFile file=new BaseXFileChooser(CHOOSE_DIR,path.getText(),gui).select(Mode.DOPEN);
-      if (file != null)       path.setText(file.dirPath());
-    }
-  }
-);
-  p.add(path);
-  p.add(button);
-  pp.add(p);
-  pp.add(new BaseXLabel(GUI_INTERACTIONS + COL,true,true).border(12,0,6,0));
-  javalook=new BaseXCheckBox(JAVA_LF,gprop.is(GUIProp.JAVALOOK),this);
-  pp.add(javalook);
-  focus=new BaseXCheckBox(RT_FOCUS,gprop.is(GUIProp.MOUSEFOCUS),this);
-  pp.add(focus);
-  simpfd=new BaseXCheckBox(SIMPLE_FILE_CHOOSER,gprop.is(GUIProp.SIMPLEFD),this);
-  pp.add(simpfd);
-  final boolean sn=gprop.is(GUIProp.SHOWNAME);
-  names=new BaseXCheckBox(SHOW_NAME_ATTS,sn,6,this);
-  final Data data=gui.context.data();
-  names.setEnabled(data != null && ViewData.nameID(data) != 0);
-  oldShowNames=sn;
-  pp.add(names);
-  final int mh=hitsForSlider();
-  limit=new BaseXSlider(0,HITS.length - 1,mh,this,new ActionListener(){
-    @Override public void actionPerformed(    final ActionEvent e){
-      action(limit);
-    }
-  }
-);
-  label=new BaseXLabel(" ");
-  p=new BaseXBack(new TableLayout(1,4,12,0));
-  p.add(new BaseXLabel(MAX_NO_OF_HITS + COL));
-  p.add(limit);
-  p.add(label);
-  pp.add(p);
-  pp.add(new BaseXLabel(LANGUAGE_RESTART + COL,true,true).border(16,0,6,0));
-  lang=new BaseXCombo(this,LANGS[0]);
-  lang.setSelectedItem(mprop.get(MainProp.LANG));
-  creds=new BaseXLabel(" ");
-  p=new BaseXBack(new TableLayout(1,2,12,0));
-  p.add(lang);
-  p.add(creds);
-  pp.add(p);
-  set(pp,BorderLayout.CENTER);
-  set(okCancel(),BorderLayout.SOUTH);
+  super(main,PREFERENCES,false);
+  tabs=new BaseXTabs(this);
+  general=new DialogGeneralPrefs(this);
+  editor=new DialogEditorPrefs(this);
+  visual=new DialogVisualPrefs(this);
+  tabs.add(GENERAL,general);
+  tabs.add(EDITOR,editor);
+  tabs.add(VISUALIZATION,visual);
+  tabs.setSelectedIndex(gui.gopts.get(GUIOptions.PREFTAB));
+  set(tabs,BorderLayout.CENTER);
   action(null);
   finish(null);
 }

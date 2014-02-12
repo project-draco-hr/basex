@@ -1,0 +1,13 @@
+{
+  if (!hist.active() || control(e) || DELNEXT.is(e)|| DELPREV.is(e)|| ESCAPE.is(e))   return;
+  final int caret=editor.pos();
+  final StringBuilder sb=new StringBuilder(1).append(e.getKeyChar());
+  final boolean indent=TAB.is(e) && editor.indent(sb,e.isShiftDown());
+  final boolean selected=editor.selected() && !indent;
+  if (selected)   editor.delete();
+  final int move=ENTER.is(e) ? editor.enter(sb) : editor.add(sb,selected);
+  hist.store(editor.text(),caret,editor.pos());
+  if (move != 0)   editor.pos(Math.min(editor.size(),caret + move));
+  scrollCode.invokeLater(true);
+  e.consume();
+}

@@ -1,19 +1,18 @@
 {
   super(args);
   session();
-  final StringBuilder serial=new StringBuilder();
-  final StringBuilder bind=new StringBuilder();
-  boolean v=false, qi=false, qp=false;
   console=true;
   try {
+    final StringBuilder bind=new StringBuilder();
+    SerializerOptions sopts=null;
+    boolean v=false, qi=false, qp=false;
     for (int i=0; i < ops.size(); i++) {
       final int c=ops.get(i);
       String val=vals.get(i);
-      Object[] prop=null;
       if (c == 'b') {
         if (bind.length() != 0)         bind.append(',');
         val=bind.append(val.replaceAll(",",",,")).toString();
-        prop=Prop.BINDINGS;
+        execute(new Set(MainOptions.BINDINGS,val),false);
       }
  else       if (c == 'c') {
         final IO io=IO.get(val);
@@ -22,27 +21,27 @@
           val=io.string();
           base=io.path();
         }
-        execute(new Set(Prop.QUERYPATH,base),false);
+        execute(new Set(MainOptions.QUERYPATH,base),false);
         execute(val);
-        execute(new Set(Prop.QUERYPATH,""),false);
+        execute(new Set(MainOptions.QUERYPATH,""),false);
         console=false;
       }
  else       if (c == 'd') {
         Prop.debug^=true;
       }
  else       if (c == 'D') {
-        prop=Prop.DOTPLAN;
+        execute(new Set(MainOptions.DOTPLAN,null),false);
       }
  else       if (c == 'i') {
-        execute(new Set(Prop.MAINMEM,true),false);
+        execute(new Set(MainOptions.MAINMEM,true),false);
         execute(new Check(val),verbose);
-        execute(new Set(Prop.MAINMEM,false),false);
+        execute(new Set(MainOptions.MAINMEM,false),false);
       }
  else       if (c == 'L') {
         newline^=true;
-        if (serial.length() != 0)         serial.append(',');
-        val=serial.append(SerializerProp.S_ITEM_SEPARATOR[0]).append("=\\n").toString();
-        prop=Prop.SERIALIZER;
+        if (sopts == null)         sopts=new SerializerOptions();
+        sopts.set(SerializerOptions.ITEM_SEPARATOR,"\\n");
+        execute(new Set(MainOptions.SERIALIZER,sopts),false);
       }
  else       if (c == 'o') {
         if (out != System.out)         out.close();
@@ -60,54 +59,57 @@
           val=io.string();
           base=io.path();
         }
-        execute(new Set(Prop.QUERYPATH,base),false);
+        execute(new Set(MainOptions.QUERYPATH,base),false);
         execute(new XQuery(val),verbose);
-        execute(new Set(Prop.QUERYPATH,""),false);
+        execute(new Set(MainOptions.QUERYPATH,""),false);
         console=false;
       }
  else       if (c == 'r') {
-        prop=Prop.RUNS;
+        execute(new Set(MainOptions.RUNS,Token.toInt(val)),false);
+      }
+ else       if (c == 'R') {
+        execute(new Set(MainOptions.RUNQUERY,null),false);
       }
  else       if (c == 's') {
-        if (serial.length() != 0)         serial.append(',');
-        val=serial.append(val).toString();
-        prop=Prop.SERIALIZER;
+        if (sopts == null)         sopts=new SerializerOptions();
+        final String[] kv=val.split("=",2);
+        sopts.assign(kv[0],kv.length > 1 ? kv[1] : "");
+        execute(new Set(MainOptions.SERIALIZER,sopts),false);
       }
  else       if (c == 'u') {
-        prop=Prop.WRITEBACK;
+        execute(new Set(MainOptions.WRITEBACK,null),false);
       }
  else       if (c == 'v') {
         v^=true;
       }
  else       if (c == 'V') {
         qi^=true;
-        prop=Prop.QUERYINFO;
+        execute(new Set(MainOptions.QUERYINFO,null),false);
       }
  else       if (c == 'w') {
-        prop=Prop.CHOP;
+        execute(new Set(MainOptions.CHOP,null),false);
       }
  else       if (c == 'W') {
-        writeProps^=true;
+        writeOptions^=true;
       }
  else       if (c == 'x') {
-        prop=Prop.XMLPLAN;
+        execute(new Set(MainOptions.XMLPLAN,null),false);
         qp^=true;
       }
  else       if (c == 'X') {
-        prop=Prop.COMPPLAN;
+        execute(new Set(MainOptions.COMPPLAN,null),false);
       }
  else       if (c == 'z') {
-        prop=Prop.SERIALIZE;
+        execute(new Set(MainOptions.SERIALIZE,null),false);
       }
-      if (prop != null)       execute(new Set(prop,val),false);
       verbose=qi || qp || v;
     }
     if (console) {
       verbose=true;
-      Util.outln(CONSOLE + TRY_MORE_X,sa() ? LOCALMODE : CLIENTMODE);
+      Util.outln(S_CONSOLE + TRY_MORE_X,sa() ? S_STANDALONE : S_CLIENT);
       console();
     }
-    if (writeProps)     context.mprop.write();
+    if (writeOptions)     context.globalopts.write();
   }
   finally {
     quit();
