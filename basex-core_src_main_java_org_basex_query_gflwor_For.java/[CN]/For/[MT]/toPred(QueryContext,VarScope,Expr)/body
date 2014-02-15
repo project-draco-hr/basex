@@ -1,15 +1,17 @@
 {
-  if (empty || !(vars.length == 1 && p.uses(var) && p.removable(var)))   return false;
-  final Expr r=p.inline(ctx,scp,var,new Context(info)), e=r == null ? p : r;
-  final Expr a=e.type().mayBeNumber() ? Function.BOOLEAN.get(null,info,e) : e;
+  if (empty || !(vars.length == 1 && prd.uses(var) && prd.removable(var)))   return false;
+  final Context c=new Context(info);
+  c.type=expr.type().type.seqType();
+  final Expr r=prd.inline(ctx,scp,var,c), inl=r == null ? prd : r;
+  final Expr pred=inl.type().mayBeNumber() ? Function.BOOLEAN.get(null,info,inl) : inl;
   if (expr instanceof AxisPath) {
-    expr=((Path)expr).addPreds(ctx,scp,a);
+    expr=((Path)expr).addPreds(ctx,scp,pred);
   }
  else   if (expr instanceof Filter) {
-    expr=((Filter)expr).addPred(ctx,scp,a);
+    expr=((Filter)expr).addPred(ctx,scp,pred);
   }
  else {
-    expr=Filter.get(info,expr,a).optimize(ctx,scp);
+    expr=Filter.get(info,expr,pred).optimize(ctx,scp);
   }
   return true;
 }
