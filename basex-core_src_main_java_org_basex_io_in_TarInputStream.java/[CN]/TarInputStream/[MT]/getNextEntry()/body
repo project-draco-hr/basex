@@ -1,0 +1,22 @@
+{
+  if (entry != null) {
+    long ln=entry.getSize() - size + BLOCK - (size & (BLOCK - 1));
+    while (ln > 0)     ln-=skip(ln);
+    entry=null;
+    size=0;
+  }
+  final byte[] header=new byte[BLOCK];
+  int tr=0;
+  while (tr < BLOCK) {
+    final int res=read(header,tr,BLOCK - tr);
+    if (res < 0)     break;
+    tr+=res;
+  }
+  for (  final byte b : header) {
+    if (b != 0) {
+      entry=new TarEntry(header);
+      break;
+    }
+  }
+  return entry;
+}
