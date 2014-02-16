@@ -6,7 +6,7 @@ case BACKUP:
       return new CreateBackup(glob(cmd));
 case DATABASE:
 case DB:
-    return new CreateDB(name(cmd),single ? remaining(null) : string(null));
+    return new CreateDB(name(cmd),remaining(null));
 case INDEX:
   return new CreateIndex(consume(CmdIndex.class,cmd));
 case USER:
@@ -32,10 +32,10 @@ case CHECK:
 return new Check(string(cmd));
 case ADD:
 String arg=key(S_TO,null) ? string(cmd) : null;
-return new Add(arg,single ? remaining(cmd) : string(cmd));
+return new Add(arg,remaining(cmd));
 case STORE:
 arg=key(S_TO,null) ? string(cmd) : null;
-return new Store(arg,single ? remaining(cmd) : string(cmd));
+return new Store(arg,remaining(cmd));
 case RETRIEVE:
 return new Retrieve(string(cmd));
 case DELETE:
@@ -43,7 +43,7 @@ return new Delete(string(cmd));
 case RENAME:
 return new Rename(string(cmd),string(cmd));
 case REPLACE:
-return new Replace(string(cmd),single ? remaining(cmd) : string(cmd));
+return new Replace(string(cmd),remaining(cmd));
 case INFO:
 switch (consume(CmdInfo.class,cmd)) {
 case NULL:
@@ -65,7 +65,7 @@ return new Inspect();
 case CLOSE:
 return new Close();
 case LIST:
-return new List(string(null),string(null));
+return new List(name(null),string(null));
 case DROP:
 switch (consume(CmdDrop.class,cmd)) {
 case DATABASE:
@@ -96,15 +96,15 @@ return new XQuery(xquery(cmd));
 case RUN:
 return new Run(string(cmd));
 case EXECUTE:
-return new Execute(string(cmd));
+return new Execute(string(cmd,false));
 case FIND:
-return new Find(string(cmd));
+return new Find(string(cmd,false));
 case CS:
 return new Cs(xquery(cmd));
 case GET:
 return new Get(name(null));
 case SET:
-return new Set(name(cmd),string(null));
+return new Set(name(cmd),string(null,false));
 case PASSWORD:
 return new Password(password());
 case HELP:
