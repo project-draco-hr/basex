@@ -1,0 +1,17 @@
+{
+  XQFunction func=fun;
+  Value[] args=arg;
+  final int fp=ctx.stack.enterFrame(func.stackFrameSize());
+  try {
+    while (true) {
+      final Value ret=itm ? func.invItem(ctx,ii,args) : func.invValue(ctx,ii,args);
+      func=ctx.pollTailCall();
+      if (func == null)       return ret;
+      ctx.stack.reuseFrame(func.stackFrameSize());
+      args=ctx.pollTailArgs();
+    }
+  }
+  finally {
+    ctx.stack.exitFrame(fp);
+  }
+}

@@ -9,7 +9,14 @@
     vs[i]=vsc.newLocal(ctx,vars[i].name,ft.args[i],true);
     refs[i]=new VarRef(ii,vs[i]);
   }
-  final Expr e=new DynFuncCall(ii,this,refs);
-  e.markTailCalls(null);
-  return new FuncItem(sc,ann,name,vs,ft,opt ? e.optimize(ctx,vsc) : e,!tp.ret.instanceOf(ft.ret),vsc.stackSize());
+  final Expr e=new DynFuncCall(ii,this,refs), optimized=opt ? e.optimize(ctx,vsc) : e, checked;
+  if (ft.ret == null || tp.ret != null && tp.ret.instanceOf(ft.ret)) {
+    checked=optimized;
+  }
+ else {
+    final TypeCheck tc=new TypeCheck(sc,ii,optimized,ft.ret,true);
+    checked=opt ? tc.optimize(ctx,vsc) : tc;
+  }
+  checked.markTailCalls(null);
+  return new FuncItem(sc,ann,name,vs,ft,checked,vsc.stackSize());
 }
