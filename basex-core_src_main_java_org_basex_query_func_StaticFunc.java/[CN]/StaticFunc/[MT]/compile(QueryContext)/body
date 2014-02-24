@@ -6,6 +6,14 @@
   final int fp=scope.enter(ctx);
   try {
     expr=expr.compile(ctx,scope);
+    if (declType != null) {
+      if ((declType.type == AtomType.BLN || declType.type == AtomType.FLT || declType.type == AtomType.DBL || declType.type == AtomType.QNM || declType.type == AtomType.URI) && declType.eq(expr.type())) {
+        ctx.compInfo(OPTCAST,declType);
+      }
+ else {
+        expr=new TypeCheck(sc,info,expr,declType,true).optimize(ctx,scope);
+      }
+    }
   }
  catch (  final QueryException qe) {
     expr=FNInfo.error(qe,expr.type());
@@ -16,11 +24,5 @@
     ctx.value=cv;
   }
   expr.markTailCalls(ctx);
-  if (declType != null) {
-    if ((declType.type == AtomType.BLN || declType.type == AtomType.FLT || declType.type == AtomType.DBL || declType.type == AtomType.QNM || declType.type == AtomType.URI) && declType.eq(expr.type())) {
-      ctx.compInfo(OPTCAST,declType);
-      cast=false;
-    }
-  }
   compiling=false;
 }

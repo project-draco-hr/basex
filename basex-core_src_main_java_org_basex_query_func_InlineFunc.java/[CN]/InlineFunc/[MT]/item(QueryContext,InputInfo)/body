@@ -1,6 +1,5 @@
 {
   final FuncType ft=(FuncType)type().type;
-  final boolean c=ret != null && !expr.type().instanceOf(ret);
   final Expr body;
   if (!scope.closure().isEmpty()) {
     final LinkedList<GFLWOR.Clause> cls=new LinkedList<GFLWOR.Clause>();
@@ -10,5 +9,6 @@
  else {
     body=expr;
   }
-  return new FuncItem(sc,ann,null,args,ft,body,c,scope.stackSize());
+  final Expr checked=ret == null ? body : new TypeCheck(sc,info,body,ret,true).optimize(ctx,scope);
+  return new FuncItem(sc,ann,null,args,ft,checked,scope.stackSize());
 }
