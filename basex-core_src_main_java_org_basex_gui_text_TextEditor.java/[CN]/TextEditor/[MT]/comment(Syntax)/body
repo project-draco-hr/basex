@@ -1,7 +1,7 @@
 {
-  final byte[] st=syntax.commentOpen();
-  final byte[] en=syntax.commentEnd();
-  final int sl=st.length, el=en.length;
+  final byte[] st=syntax.commentOpen(), en=syntax.commentEnd();
+  final byte[] ste=concat(st,SPACE), ene=concat(SPACE,en);
+  final int sl=st.length, el=en.length, sle=ste.length, ele=ene.length;
   if (!selected()) {
     start=pos;
     end=pos;
@@ -13,13 +13,18 @@
   if (selected() && text[max - 1] == '\n')   max--;
   final TokenBuilder tb=new TokenBuilder();
   final int mx=Math.max(min + sl,max - el), off;
-  if (indexOf(text,st,min) == min && indexOf(text,en,mx) == mx) {
+  final int mxe=Math.max(min + sle,max - ele);
+  if (indexOf(text,ste,min) == min && indexOf(text,ene,mxe) == mxe) {
+    tb.add(text,min + sle,max - ele);
+    off=-sle - ele;
+  }
+ else   if (indexOf(text,st,min) == min && indexOf(text,en,mx) == mx) {
     tb.add(text,min + sl,max - el);
     off=-sl - el;
   }
  else {
-    tb.add(st).add(text,min,max).add(en);
-    off=sl + el;
+    tb.add(ste).add(text,min,max).add(ene);
+    off=sle + ele;
   }
   final boolean added=add(tb.finish(),min,max);
   select(min,max + off);
