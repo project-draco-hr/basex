@@ -1,19 +1,13 @@
 {
   String db=args[0];
   if (!Databases.validName(db))   return error(NAME_INVALID_X,db);
-  IOFile file=goptions.dbpath(db + IO.ZIPSUFFIX);
-  if (file.exists()) {
-    db=Pattern.compile(DateTime.PATTERN + '$').split(db)[0];
-  }
- else {
-    final StringList list=Databases.backupPaths(db,context).sort(Prop.CASE,false);
-    if (!list.isEmpty())     file=new IOFile(list.get(0));
-  }
-  if (!file.exists())   return error(BACKUP_NOT_FOUND_X,db);
+  IOFile file=backupFile(db,context);
+  if (file != null)   db=dbName(db);
+ else   return error(BACKUP_NOT_FOUND_X,db);
   if (!closed)   closed=close(context,db);
   if (context.pinned(db))   return error(DB_PINNED_X,db);
   try {
-    restore(file,this);
+    restore(file,this,goptions);
     return !closed || new Open(db).run(context) ? info(DB_RESTORED_X,file.name(),perf) : error(DB_NOT_RESTORED_X,db);
   }
  catch (  final IOException ex) {

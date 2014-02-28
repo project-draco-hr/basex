@@ -1,27 +1,61 @@
 {
   final Collection<DatabaseUpdates> updates=pendingUpdates.values();
+  final Collection<DBBackup> backups=dbBackups.values();
   final Collection<DBCreate> creates=dbCreates.values();
+  final Collection<DBRestore> restores=dbRestores.values();
   if (tmp == null) {
     for (    final DatabaseUpdates c : updates) {
       tmp=new MemData(c.data().meta.options);
       break;
     }
   }
-  for (  final DatabaseUpdates c : updates)   c.check(tmp);
-  for (  final DBCreate c : creates)   c.prepare(null);
+  final Set<Data> dataWriteLocks=new HashSet<Data>();
+  for (  final DatabaseUpdates c : updates) {
+    c.check(tmp);
+    dataWriteLocks.add(c.data());
+  }
+  for (  final DBBackup b : backups) {
+    b.prepare(null);
+    dataWriteLocks.add(b.data);
+  }
+  for (  final DBCreate c : creates) {
+    c.prepare(null);
+    try {
+      dataWriteLocks.add(c.qc.resource.database(c.dbName,c.info));
+    }
+ catch (    QueryException e) {
+    }
+  }
+  for (  final DBRestore r : restores) {
+    r.prepare(null);
+    try {
+      dataWriteLocks.add(r.qc.resource.database(r.dbName,r.info));
+    }
+ catch (    QueryException e) {
+    }
+  }
   int i=0;
   try {
-    for (    final DatabaseUpdates c : updates) {
-      c.startUpdate();
+    for (    final Data d : dataWriteLocks) {
+      if (!d.startUpdate())       throw BXDB_OPENED.get(null,d.meta.name);
       i++;
     }
+    for (    final DBBackup b : backups)     b.apply();
     for (    final DatabaseUpdates c : updates)     c.apply();
+    for (    final DBCreate c : creates) {
+      c.apply();
+      final Data d=c.qc.resource.database(c.dbName,c.info);
+      if (dataWriteLocks.add(d)) {
+        d.startUpdate();
+        i++;
+      }
+    }
+    for (    final DBRestore r : restores)     r.apply();
   }
   finally {
-    for (    final DatabaseUpdates c : updates) {
+    for (    final Data d : dataWriteLocks) {
       if (i-- == 0)       break;
-      c.finishUpdate();
+      d.finishUpdate();
     }
   }
-  for (  final DBCreate c : creates)   c.apply();
 }
