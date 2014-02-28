@@ -12,5 +12,11 @@
   if (!file.exists())   return error(BACKUP_NOT_FOUND_X,db);
   if (!closed)   closed=close(context,db);
   if (context.pinned(db))   return error(DB_PINNED_X,db);
-  return restore(file) && (!closed || new Open(db).run(context)) ? info(DB_RESTORED_X,file.name(),perf) : error(DB_NOT_RESTORED_X,db);
+  try {
+    restore(file,this);
+    return !closed || new Open(db).run(context) ? info(DB_RESTORED_X,file.name(),perf) : error(DB_NOT_RESTORED_X,db);
+  }
+ catch (  final IOException ex) {
+    return error(DB_NOT_RESTORED_X,db);
+  }
 }
