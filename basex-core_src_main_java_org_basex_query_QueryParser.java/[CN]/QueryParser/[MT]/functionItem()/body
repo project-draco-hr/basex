@@ -7,13 +7,14 @@
       if (ann.contains(Ann.Q_UPDATING))       throw error(UPFUNCITEM);
       if (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC))       throw error(INVISIBLE);
     }
-    pushVarContext();
+    final HashMap<Var,Expr> nonLocal=new HashMap<Var,Expr>();
+    pushVarContext(nonLocal);
     final Var[] args=paramList();
     wsCheck(PAR2);
     final SeqType type=optAsType();
     final Expr body=enclosed(NOFUNBODY);
     final VarScope scope=popVarContext();
-    return new InlineFunc(info(),type,args,body,ann,sc,scope);
+    return new Closure(info(),type,args,body,ann,nonLocal,sc,scope);
   }
   if (ann != null)   throw error(NOANN);
   pos=ip;

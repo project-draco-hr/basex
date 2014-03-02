@@ -20,14 +20,16 @@
       iter.remove();
     }
   }
-  final Iterator<Entry<Var,Expr>> cls=closure.entrySet().iterator();
-  while (cls.hasNext()) {
-    final Entry<Var,Expr> e=cls.next();
-    final Var v=e.getKey();
-    if (!used.get(v.id)) {
-      cls.remove();
-      v.slot=-1;
-      vars.remove(v);
+  if (expr instanceof Closure) {
+    final Iterator<Entry<Var,Expr>> cls=((Closure)expr).nonLocalBindings();
+    while (cls.hasNext()) {
+      final Entry<Var,Expr> e=cls.next();
+      final Var v=e.getKey();
+      if (!used.get(v.id)) {
+        cls.remove();
+        v.slot=-1;
+        vars.remove(v);
+      }
     }
   }
   for (int i=vars.size(); --i >= 0; )   vars.get(i).slot=i;
