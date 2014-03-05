@@ -3,13 +3,14 @@
     final Pattern pt=Pattern.compile(IOFile.regex(pattern));
     for (    final byte[] input : cache) {
       final int offset=offset(input,true);
-      if (pt.matcher(Token.string(Token.substring(input,offset))).matches() && filterContent(input,content,matches))       return true;
+      if (pt.matcher(Token.string(Token.substring(input,offset))).matches() && filterContent(input,search,results))       return true;
       if (thread != threadID)       return false;
     }
   }
   final byte[] patt=Token.token(pattern);
+  final TokenSet exclude=new TokenSet();
   for (int i=0; i < 3; i++) {
-    if (!filter(patt,content,thread,i,matches))     return false;
+    if (!filter(patt,search,thread,i,results,exclude))     return false;
   }
   return true;
 }
