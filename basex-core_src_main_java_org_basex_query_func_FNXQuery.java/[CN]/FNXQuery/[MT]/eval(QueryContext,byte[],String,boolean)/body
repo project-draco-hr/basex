@@ -8,6 +8,24 @@
     if (k.isEmpty())     qc.context(v,null,sctx);
  else     qc.bind(k,v,null);
   }
+  Thread to=null;
+  final Perm tmp=ctx.context.user.perm;
+  if (expr.length > 2) {
+    final Options opts=checkOptions(2,Q_OPTIONS,new XQueryOptions(),ctx);
+    ctx.context.user.perm=Perm.get(opts.get(XQueryOptions.PERMISSION));
+    final long ms=opts.get(XQueryOptions.TIMEOUT) * 1000l;
+    if (ms != 0) {
+      to=new Thread(){
+        @Override public void run(){
+          Performance.sleep(ms);
+          qc.stop();
+        }
+      }
+;
+      to.setDaemon(false);
+      to.start();
+    }
+  }
   try {
     qc.parseMain(string(qu),path,sctx);
     if (qc.updating)     throw BXXQ_UPDATING.get(info);
@@ -25,7 +43,15 @@
     }
     return vb;
   }
-  finally {
+ catch (  final ProcException ex) {
+    throw BXXQ_STOPPED.get(info);
+  }
+catch (  final QueryException ex) {
+    throw ex.err() == BASX_PERM ? BXXQ_PERM.get(info,ex.getLocalizedMessage()) : ex;
+  }
+ finally {
+    ctx.context.user.perm=tmp;
     qc.close();
+    if (to != null)     to.interrupt();
   }
 }
