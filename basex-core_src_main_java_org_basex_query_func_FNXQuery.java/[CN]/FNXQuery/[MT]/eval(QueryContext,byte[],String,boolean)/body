@@ -8,25 +8,37 @@
     if (k.isEmpty())     qc.context(v,null,sctx);
  else     qc.bind(k,v,null);
   }
-  Thread to=null;
+  final Timer to=new Timer(true);
   final Perm tmp=ctx.context.user.perm;
   if (expr.length > 2) {
     final Options opts=checkOptions(2,Q_OPTIONS,new XQueryOptions(),ctx);
     ctx.context.user.perm=Perm.get(opts.get(XQueryOptions.PERMISSION));
+    Performance.gc(2);
+    final long mb=opts.get(XQueryOptions.MEMORY);
+    if (mb != 0) {
+      final long limit=Performance.memory() + (mb << 20);
+      to.schedule(new TimerTask(){
+        @Override public void run(){
+          if (Performance.memory() > limit) {
+            Performance.gc(1);
+            if (Performance.memory() > limit)             qc.stop();
+          }
+        }
+      }
+,500,500);
+    }
     final long ms=opts.get(XQueryOptions.TIMEOUT) * 1000l;
     if (ms != 0) {
-      to=new Thread(){
+      to.schedule(new TimerTask(){
         @Override public void run(){
-          Performance.sleep(ms);
           qc.stop();
         }
       }
-;
-      to.setDaemon(false);
-      to.start();
+,ms);
     }
   }
   try {
+    ctx.proc(qc);
     qc.parseMain(string(qu),path,sctx);
     if (qc.updating)     throw BXXQ_UPDATING.get(info);
     qc.compile();
@@ -51,7 +63,8 @@ catch (  final QueryException ex) {
   }
  finally {
     ctx.context.user.perm=tmp;
+    ctx.proc(null);
     qc.close();
-    if (to != null)     to.interrupt();
+    to.cancel();
   }
 }
