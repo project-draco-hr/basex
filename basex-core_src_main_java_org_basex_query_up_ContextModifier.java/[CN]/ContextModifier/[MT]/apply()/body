@@ -1,61 +1,24 @@
 {
-  final Collection<DatabaseUpdates> updates=pendingUpdates.values();
-  final Collection<DBBackup> backups=dbBackups.values();
-  final Collection<DBCreate> creates=dbCreates.values();
-  final Collection<DBRestore> restores=dbRestores.values();
-  if (tmp == null) {
-    for (    final DatabaseUpdates c : updates) {
-      tmp=new MemData(c.data().meta.options);
-      break;
-    }
+  for (  final DataUpdates up : dbUpdates.values()) {
+    if (tmp == null)     tmp=new MemData(up.data().meta.options);
+    up.prepare(tmp);
   }
-  final Set<Data> dataWriteLocks=new HashSet<Data>();
-  for (  final DatabaseUpdates c : updates) {
-    c.check(tmp);
-    dataWriteLocks.add(c.data());
-  }
-  for (  final DBBackup b : backups) {
-    b.prepare(null);
-    dataWriteLocks.add(b.data);
-  }
-  for (  final DBCreate c : creates) {
-    c.prepare(null);
-    try {
-      dataWriteLocks.add(c.qc.resource.database(c.dbName,c.info));
-    }
- catch (    QueryException e) {
-    }
-  }
-  for (  final DBRestore r : restores) {
-    r.prepare(null);
-    try {
-      dataWriteLocks.add(r.qc.resource.database(r.dbName,r.info));
-    }
- catch (    QueryException e) {
-    }
-  }
+  for (  final NameUpdates up : nameUpdates.values())   up.prepare();
+  for (  final NameUpdates up : nameUpdates.values())   up.apply(true);
+  final Set<Data> datas=new HashSet<Data>();
+  for (  final Data data : dbUpdates.keySet())   datas.add(data);
   int i=0;
   try {
-    for (    final Data d : dataWriteLocks) {
-      if (!d.startUpdate())       throw BXDB_OPENED.get(null,d.meta.name);
+    for (    final Data data : datas) {
+      if (!data.startUpdate())       throw BXDB_OPENED.get(null,data.meta.name);
       i++;
     }
-    for (    final DBBackup b : backups)     b.apply();
-    for (    final DatabaseUpdates c : updates)     c.apply();
-    for (    final DBCreate c : creates) {
-      c.apply();
-      final Data d=c.qc.resource.database(c.dbName,c.info);
-      if (dataWriteLocks.add(d)) {
-        d.startUpdate();
-        i++;
-      }
-    }
-    for (    final DBRestore r : restores)     r.apply();
+    for (    final DataUpdates c : dbUpdates.values())     c.apply();
   }
   finally {
-    for (    final Data d : dataWriteLocks) {
-      if (i-- == 0)       break;
-      d.finishUpdate();
+    for (    final Data data : datas) {
+      if (i-- > 0)       data.finishUpdate();
     }
   }
+  for (  final NameUpdates up : nameUpdates.values())   up.apply(false);
 }

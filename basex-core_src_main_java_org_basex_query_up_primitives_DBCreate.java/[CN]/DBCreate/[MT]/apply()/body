@@ -1,27 +1,25 @@
 {
-  qc.resource.removeData(dbName);
-  if (qc.context.pinned(dbName))   throw BXDB_OPENED.get(info,dbName);
-  initOptions();
-  assignOptions();
+  close();
+  updates.initOptions();
+  updates.assignOptions();
   try {
-    data=CreateDB.create(dbName,Parser.emptyParser(qc.context.options),qc.context);
+    final Data data=CreateDB.create(name,Parser.emptyParser(updates.qc.context.options),updates.qc.context);
+    if (add.md != null) {
+      if (!data.startUpdate())       throw BXDB_OPENED.get(null,data.meta.name);
+      try {
+        data.insert(data.meta.size,-1,new DataClip(add.md));
+        Optimize.optimize(data,null);
+      }
+  finally {
+        data.finishUpdate();
+      }
+    }
+    Close.close(data,qc.context);
   }
  catch (  final IOException ex) {
     throw UPDBOPTERR.get(info,ex);
   }
  finally {
-    resetOptions();
-  }
-  qc.resource.addData(data);
-  if (md != null) {
-    if (!data.startUpdate())     throw BXDB_OPENED.get(null,data.meta.name);
-    data.insert(data.meta.size,-1,new DataClip(md));
-    try {
-      Optimize.optimize(data,null);
-    }
- catch (    final IOException ex) {
-      data.finishUpdate();
-      throw UPDBOPTERR.get(info,ex);
-    }
+    updates.resetOptions();
   }
 }

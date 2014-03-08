@@ -1,0 +1,14 @@
+{
+  createAtomicUpdates(preparePrimitives()).execute(true);
+  Collections.sort(dbUpdates);
+  for (  final DBUpdate bo : dbUpdates)   bo.apply();
+  for (  final Put put : puts.values())   put.apply();
+  if (data.inMemory() && !data.meta.original.isEmpty() && data.meta.options.get(MainOptions.WRITEBACK)) {
+    try {
+      Export.export(data,data.meta.original,null);
+    }
+ catch (    final IOException ex) {
+      throw UPPUTERR.get(null,data.meta.original);
+    }
+  }
+}
