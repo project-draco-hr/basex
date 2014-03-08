@@ -1,8 +1,10 @@
 {
   checkCreate(ctx);
-  final String backupName=string(checkStr(expr[0],ctx));
-  final String dbName=Restore.dbName(backupName);
-  if (!Databases.validName(dbName))   throw BXDB_NAME.get(info,dbName);
-  ctx.updates.add(new DBRestore(dbName,backupName,info,ctx),ctx);
+  final String name=string(checkStr(expr[0],ctx));
+  final String db=Restore.dbName(name);
+  if (!Databases.validName(db))   throw BXDB_NAME.get(info,db);
+  final IOFile backup=Restore.backupFile(name,ctx.context);
+  if (backup == null)   throw BXDB_NOBACKUP.get(info,name);
+  ctx.updates.add(new DBRestore(db,backup,ctx,info),ctx);
   return null;
 }

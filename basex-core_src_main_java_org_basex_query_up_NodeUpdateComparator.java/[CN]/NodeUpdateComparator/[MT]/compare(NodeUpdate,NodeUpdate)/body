@@ -1,0 +1,24 @@
+{
+  final Data data=a.data();
+  final boolean aIsInsertInto=a.type == INSERTINTO || a.type == INSERTINTOLAST || a.type == INSERTAFTER;
+  final boolean bIsInsertInto=b.type == INSERTINTO || b.type == INSERTINTOLAST || b.type == INSERTAFTER;
+  final boolean aIsInsertIntoAsFirst=a.type == INSERTINTOFIRST;
+  final boolean bIsInsertIntoAsFirst=b.type == INSERTINTOFIRST;
+  final int aPre=a.pre;
+  final int bPre=b.pre;
+  final int aKind=data.kind(aPre);
+  final int bKind=data.kind(bPre);
+  final int aSize=data.size(aPre,aKind);
+  final int bSize=data.size(bPre,bKind);
+  final int aActualLocation=aPre + (aIsInsertInto ? aSize : 0) + (aIsInsertIntoAsFirst ? data.attSize(aPre,aKind) : 0);
+  final int bActualLocation=bPre + (bIsInsertInto ? bSize : 0) + (bIsInsertIntoAsFirst ? data.attSize(bPre,bKind) : 0);
+  if (aActualLocation > bActualLocation)   return 1;
+  if (bActualLocation > aActualLocation)   return -1;
+  if (aActualLocation > bPre && aPre < bPre)   return 1;
+  if (bActualLocation > aPre && bPre < aPre)   return -1;
+  if (aPre > bPre)   return 1;
+  if (bPre > aPre)   return -1;
+  if (a.type.ordinal() > b.type.ordinal())   return 1;
+  if (b.type.ordinal() > a.type.ordinal())   return -1;
+  throw Util.notExpected("Ambiguous order of UpdatePrimitives: " + a + ", "+ b);
+}

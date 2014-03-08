@@ -1,0 +1,30 @@
+{
+  if (up instanceof NodeUpdate) {
+    for (    final NodeUpdate nodeUp : ((NodeUpdate)up).substitute(tmp)) {
+      final int pre=nodeUp.pre;
+      NodeUpdates pc=nodeUpdates.get(pre);
+      if (pc == null) {
+        pc=new NodeUpdates();
+        nodeUpdates.put(pre,pc);
+      }
+      pc.add(nodeUp);
+    }
+  }
+ else   if (up instanceof Put) {
+    final Put p=(Put)up;
+    final int id=p.nodeid;
+    final Put old=puts.get(id);
+    if (old == null)     puts.put(id,p);
+ else     old.merge(p);
+  }
+ else {
+    final DBUpdate dbUp=(DBUpdate)up;
+    for (    final DBUpdate o : dbUpdates) {
+      if (o.type == dbUp.type) {
+        o.merge(dbUp);
+        return;
+      }
+    }
+    dbUpdates.add(dbUp);
+  }
+}
