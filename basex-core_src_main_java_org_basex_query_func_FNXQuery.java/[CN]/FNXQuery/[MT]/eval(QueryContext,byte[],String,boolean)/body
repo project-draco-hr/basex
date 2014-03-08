@@ -1,13 +1,5 @@
 {
-  final QueryContext qc=new QueryContext(ctx);
-  qc.resource.openDB=openDB;
-  final StaticContext sctx=new StaticContext(qc.context.options.get(MainOptions.XQUERY3));
-  for (  final Map.Entry<String,Value> it : bindings(1,ctx).entrySet()) {
-    final String k=it.getKey();
-    final Value v=it.getValue();
-    if (k.isEmpty())     qc.context(v,null,sctx);
- else     qc.bind(k,v,null);
-  }
+  final HashMap<String,Value> bindings=bindings(1,ctx);
   final Timer to=new Timer(true);
   final Perm tmp=ctx.context.user.perm;
   if (expr.length > 2) {
@@ -37,8 +29,16 @@
 ,ms);
     }
   }
+  final QueryContext qc=ctx.proc(new QueryContext(ctx));
+  qc.resource.openDB=openDB;
   try {
-    ctx.proc(qc);
+    final StaticContext sctx=new StaticContext(qc.context.options.get(MainOptions.XQUERY3));
+    for (    final Map.Entry<String,Value> it : bindings.entrySet()) {
+      final String k=it.getKey();
+      final Value v=it.getValue();
+      if (k.isEmpty())       qc.context(v,null,sctx);
+ else       qc.bind(k,v,null);
+    }
     qc.parseMain(string(qu),path,sctx);
     if (qc.updating)     throw BXXQ_UPDATING.get(info);
     qc.compile();
