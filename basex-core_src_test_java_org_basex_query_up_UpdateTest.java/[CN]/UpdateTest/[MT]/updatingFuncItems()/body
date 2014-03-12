@@ -1,6 +1,13 @@
 {
-  error("db:output(?)",Err.UPFUNCITEM);
-  error("db:output#1",Err.UPFUNCITEM);
-  error("declare %updating function local:a() { () }; local:a#0()",Err.UPFUNCITEM);
-  error("declare function local:a() { local:b#0 };" + "declare %updating function local:b() { db:output('1') }; local:a()",Err.UPFUNCITEM);
+  final boolean ou=context.options.get(MainOptions.ONLYUPDATES);
+  try {
+    context.options.set(MainOptions.ONLYUPDATES,true);
+    error("db:output(?)",Err.UPFUNCITEM);
+    error("db:output#1",Err.UPFUNCITEM);
+    error("declare %updating function local:a() { () }; local:a#0()",Err.UPFUNCITEM);
+    error("declare function local:a() { local:b#0 };" + "declare %updating function local:b() { db:output('1') }; local:a()",Err.UPFUNCITEM);
+  }
+  finally {
+    context.options.set(MainOptions.ONLYUPDATES,ou);
+  }
 }
