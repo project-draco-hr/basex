@@ -1,0 +1,13 @@
+{
+  final IOFile sandbox=sandbox();
+  final IOFile file=new IOFile(sandbox,"x.xq");
+  file.write(Token.token("import module namespace a='a'at'a.xqm'; ()"));
+  new IOFile(sandbox,"a.xqm").write(Token.token("module namespace a='a';" + "import module namespace b='b' at 'b.xqm'; declare function a:a(){()};"));
+  new IOFile(sandbox,"b.xqm").write(Token.token("module namespace b='b';" + "import module namespace a='a' at 'a.xqm'; declare function b:b(){a:a()};"));
+  new Run(file.path()).execute(context);
+  final IOFile repo=new IOFile(sandbox,"repo");
+  repo.md();
+  new IOFile(repo,"a.xqm").write(Token.token("module namespace a='a';" + "import module namespace b='b'; declare function a:a(){()};"));
+  new IOFile(repo,"b.xqm").write(Token.token("module namespace b='b';" + "import module namespace a='a'; declare function b:b(){a:a()};"));
+  new QueryContext(context).parseMain("import module namespace a='a'; ()",null,null);
+}
