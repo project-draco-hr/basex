@@ -1,11 +1,11 @@
 {
   final String name=string(checkStr(expr[0],ctx));
   if (!Databases.validName(name))   throw BXDB_NAME.get(info,name);
-  final StringList files=DropBackup.backups(name,ctx.context);
-  if (files.isEmpty())   throw BXDB_WHICHBACK.get(info,name);
+  final StringList backups=ctx.context.databases.backups(name);
+  if (backups.isEmpty())   throw BXDB_WHICHBACK.get(info,name);
   final Updates updates=ctx.resources.updates();
-  for (  final String file : files) {
-    updates.add(new BackupDrop(file,info,ctx),ctx);
+  for (  final String backup : backups) {
+    updates.add(new BackupDrop(backup,info,ctx),ctx);
   }
   return null;
 }
