@@ -1,5 +1,7 @@
 {
   final HashMap<String,Value> bindings=bindings(1,ctx);
+  final QueryContext qc=ctx.proc(new QueryContext(ctx));
+  qc.resource.openDB=openDB;
   final Timer to=new Timer(true);
   final Perm tmp=ctx.context.user.perm;
   if (expr.length > 2) {
@@ -13,7 +15,7 @@
         @Override public void run(){
           if (Performance.memory() > limit) {
             Performance.gc(1);
-            if (Performance.memory() > limit)             ctx.stop();
+            if (Performance.memory() > limit)             qc.stop();
           }
         }
       }
@@ -23,14 +25,12 @@
     if (ms != 0) {
       to.schedule(new TimerTask(){
         @Override public void run(){
-          ctx.stop();
+          qc.stop();
         }
       }
 ,ms);
     }
   }
-  final QueryContext qc=ctx.proc(new QueryContext(ctx));
-  qc.resource.openDB=openDB;
   try {
     final StaticContext sctx=new StaticContext(qc.context.options.get(MainOptions.XQUERY3));
     for (    final Map.Entry<String,Value> it : bindings.entrySet()) {
