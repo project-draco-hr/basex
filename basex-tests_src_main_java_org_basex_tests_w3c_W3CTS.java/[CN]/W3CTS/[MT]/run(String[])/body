@@ -56,30 +56,30 @@
   total=ok + ok2 + err+ err2;
   final String time=perf.getTime();
   Util.outln("Writing log file..." + NL);
-  PrintOutput po=new PrintOutput(path + pathlog);
-  po.println("TEST RESULTS ________________________________________________");
-  po.println(NL + "Total #Queries: " + total);
-  po.println("Correct / Empty Results: " + ok + " / "+ ok2);
-  po.print("Conformance (w/Empty Results): ");
-  po.println(pc(ok,total) + " / " + pc(ok + ok2,total));
-  po.println("Wrong Results / Errors: " + err + " / "+ err2+ NL);
-  po.println("WRONG _______________________________________________________");
-  po.print(NL + logErr);
-  po.println("WRONG (ERRORS) ______________________________________________");
-  po.print(NL + logErr2);
-  po.println("CORRECT? (EMPTY) ____________________________________________");
-  po.print(NL + logOK2);
-  po.println("CORRECT _____________________________________________________");
-  po.print(NL + logOK);
-  po.println("_____________________________________________________________");
-  po.close();
-  if (reporting) {
-    po=new PrintOutput(report + Prop.NAME + IO.XMLSUFFIX);
-    print(po,report + Prop.NAME + "Pre"+ IO.XMLSUFFIX);
-    po.print(logReport.toString());
-    print(po,report + Prop.NAME + "Pos"+ IO.XMLSUFFIX);
-    po.close();
+  try (final PrintOutput po=new PrintOutput(path + pathlog)){
+    po.println("TEST RESULTS ________________________________________________");
+    po.println(NL + "Total #Queries: " + total);
+    po.println("Correct / Empty Results: " + ok + " / "+ ok2);
+    po.print("Conformance (w/Empty Results): ");
+    po.println(pc(ok,total) + " / " + pc(ok + ok2,total));
+    po.println("Wrong Results / Errors: " + err + " / "+ err2+ NL);
+    po.println("WRONG _______________________________________________________");
+    po.print(NL + logErr);
+    po.println("WRONG (ERRORS) ______________________________________________");
+    po.print(NL + logErr2);
+    po.println("CORRECT? (EMPTY) ____________________________________________");
+    po.print(NL + logOK2);
+    po.println("CORRECT _____________________________________________________");
+    po.print(NL + logOK);
+    po.println("_____________________________________________________________");
   }
+   if (reporting) {
+    try (final PrintOutput po=new PrintOutput(report + Prop.NAME + IO.XMLSUFFIX)){
+      print(po,report + Prop.NAME + "Pre"+ IO.XMLSUFFIX);
+      po.print(logReport.toString());
+      print(po,report + Prop.NAME + "Pos"+ IO.XMLSUFFIX);
+    }
+   }
   Util.outln("Total #Queries: " + total);
   Util.outln("Correct / Empty results: " + ok + " / "+ ok2);
   Util.out("Conformance (w/empty results): ");

@@ -9,38 +9,20 @@
   }
  while (out.exists());
   if (!new IOFile(in).exists())   throw ZIP_NOTFOUND.get(info,in);
-  ZipFile zf=null;
   boolean ok=true;
-  try {
-    zf=new ZipFile(in);
-    FileOutputStream fos=null;
-    try {
-      fos=new FileOutputStream(out.path());
-      final ZipOutputStream zos=new ZipOutputStream(new BufferedOutputStream(fos));
+  try (final ZipFile zf=new ZipFile(in)){
+    try (final FileOutputStream fos=new FileOutputStream(out.path());final ZipOutputStream zos=new ZipOutputStream(new BufferedOutputStream(fos))){
       create(zos,elm.children(),"",zf,ctx);
-      zos.close();
     }
  catch (    final IOException ex) {
       ok=false;
       throw ZIP_FAIL.get(info,ex);
-    }
- finally {
-      if (fos != null)       try {
-        fos.close();
-      }
- catch (      final IOException ignored) {
-      }
     }
   }
  catch (  final IOException ex) {
     throw ZIP_FAIL.get(info,ex);
   }
  finally {
-    if (zf != null)     try {
-      zf.close();
-    }
- catch (    final IOException ignored) {
-    }
     if (ok) {
       target.delete();
       out.rename(target);

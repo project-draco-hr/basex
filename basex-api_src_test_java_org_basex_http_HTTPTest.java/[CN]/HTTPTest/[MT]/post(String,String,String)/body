@@ -6,10 +6,10 @@
   conn.setRequestProperty(MimeTypes.CONTENT_TYPE,type);
   final String encoded=Base64.encode(Text.S_ADMIN + ':' + Text.S_ADMIN);
   conn.setRequestProperty(HTTPText.AUTHORIZATION,HTTPText.BASIC + ' ' + encoded);
-  final OutputStream out=conn.getOutputStream();
-  out.write(token(request));
-  out.close();
-  try {
+  try (final OutputStream out=conn.getOutputStream()){
+    out.write(token(request));
+  }
+   try {
     return read(conn.getInputStream()).replaceAll("\r?\n *","");
   }
  catch (  final IOException ex) {

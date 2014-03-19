@@ -23,21 +23,21 @@
   result.append(" Wrong   : ").append(tested - correct).append(NL);
   result.append(" Ignored : ").append(ignored).append(NL);
   Util.outln(NL + "Writing log file '" + testid+ ".log'...");
-  final PrintOutput po=new PrintOutput(testid + ".log");
-  po.println("QT3TS RESULTS __________________________" + NL);
-  po.println(result.toString());
-  po.println("WRONG __________________________________" + NL);
-  po.print(wrong.finish());
-  if (all || !single.isEmpty()) {
-    po.println("CORRECT ________________________________" + NL);
-    po.print(right.finish());
+  try (final PrintOutput po=new PrintOutput(testid + ".log")){
+    po.println("QT3TS RESULTS __________________________" + NL);
+    po.println(result.toString());
+    po.println("WRONG __________________________________" + NL);
+    po.print(wrong.finish());
+    if (all || !single.isEmpty()) {
+      po.println("CORRECT ________________________________" + NL);
+      po.print(right.finish());
+    }
+    if (ignoring) {
+      po.println("IGNORED ________________________________" + NL);
+      po.print(ignore.finish());
+    }
   }
-  if (ignoring) {
-    po.println("IGNORED ________________________________" + NL);
-    po.print(ignore.finish());
-  }
-  po.close();
-  if (report != null) {
+   if (report != null) {
     final String file="ReportingResults/results_" + Prop.NAME + "_"+ Prop.VERSION+ IO.XMLSUFFIX;
     new IOFile(file).write(report.create(ctx).toArray());
     Util.outln("Creating report '" + file + "'...");

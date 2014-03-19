@@ -8,18 +8,18 @@
   conn.setDoOutput(true);
   conn.setRequestMethod("POST");
   conn.setRequestProperty("Content-Type","application/query+xml");
-  OutputStream out=conn.getOutputStream();
-  out.write(request.getBytes("UTF-8"));
-  out.close();
-  int code=conn.getResponseCode();
+  try (OutputStream out=conn.getOutputStream()){
+    out.write(request.getBytes("UTF-8"));
+  }
+   int code=conn.getResponseCode();
   System.out.println("\n* HTTP response: " + code + " ("+ conn.getResponseMessage()+ ')');
   if (code == HttpURLConnection.HTTP_OK) {
     System.out.println("\n* Result:");
-    BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"));
-    for (String line; (line=br.readLine()) != null; ) {
-      System.out.println(line);
+    try (BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream(),"UTF-8"))){
+      for (String line; (line=br.readLine()) != null; ) {
+        System.out.println(line);
+      }
     }
-    br.close();
-  }
+   }
   conn.disconnect();
 }

@@ -32,12 +32,12 @@
     throw ex;
   }
   close();
-  final DataInput in=new DataInput(md.dbfile(DATATMP));
-  final TableAccess ta=new TableDiskAccess(md,true);
-  for (; spos < ssize; ++spos)   ta.write4(in.readNum(),8,in.readNum());
-  ta.close();
-  in.close();
-  md.dbfile(DATATMP).delete();
+  try (final DataInput in=new DataInput(md.dbfile(DATATMP))){
+    final TableAccess ta=new TableDiskAccess(md,true);
+    for (; spos < ssize; ++spos)     ta.write4(in.readNum(),8,in.readNum());
+    ta.close();
+  }
+   md.dbfile(DATATMP).delete();
   final DiskData data=new DiskData(md,tags,atts,path,ns);
   data.finishUpdate();
   return data;
