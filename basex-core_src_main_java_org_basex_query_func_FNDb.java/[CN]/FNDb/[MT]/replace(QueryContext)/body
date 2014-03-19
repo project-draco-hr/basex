@@ -4,17 +4,18 @@
   final NewInput input=checkInput(checkItem(expr[2],ctx),token(path));
   final Resources res=data.resources;
   final IntList pre=res.docs(path,true);
+  final Updates updates=ctx.resources.updates();
   for (int p=0; p < pre.size(); p++) {
-    ctx.updates.add(new DeleteNode(pre.get(p),data,info),ctx);
+    updates.add(new DeleteNode(pre.get(p),data,info),ctx);
   }
   final IOFile bin=data.inMemory() ? null : data.meta.binary(path);
   if (bin != null) {
     if (bin.exists()) {
       if (bin.isDir())       throw BXDB_DIR.get(info,path);
-      ctx.updates.add(new DBStore(data,path,input,info),ctx);
+      updates.add(new DBStore(data,path,input,info),ctx);
     }
  else {
-      ctx.updates.add(new DBAdd(data,input,ctx,info),ctx);
+      updates.add(new DBAdd(data,input,ctx,info),ctx);
     }
   }
   return null;

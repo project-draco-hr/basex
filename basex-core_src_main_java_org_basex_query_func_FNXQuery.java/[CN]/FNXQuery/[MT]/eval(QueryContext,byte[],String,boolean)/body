@@ -1,7 +1,6 @@
 {
   final HashMap<String,Value> bindings=bindings(1,ctx);
   final QueryContext qc=ctx.proc(new QueryContext(ctx));
-  qc.resource.openDB=openDB;
   final Timer to=new Timer(true);
   final Perm tmp=ctx.context.user.perm;
   if (expr.length > 2) {
@@ -32,7 +31,7 @@
     }
   }
   try {
-    final StaticContext sctx=new StaticContext(qc.context.options.get(MainOptions.XQUERY3));
+    final StaticContext sctx=new StaticContext(qc.context);
     for (    final Map.Entry<String,Value> it : bindings.entrySet()) {
       final String k=it.getKey();
       final Value v=it.getValue();
@@ -40,19 +39,15 @@
  else       qc.bind(k,v,null);
     }
     qc.parseMain(string(qu),path,sctx);
-    if (qc.updating)     throw BXXQ_UPDATING.get(info);
-    qc.compile();
-    final ValueBuilder vb=new ValueBuilder();
-    final Iter iter=qc.iter();
-    if (openDB) {
-      cache(iter,vb,ctx);
+    if (updating) {
+      if (!sc.mixUpdates && !qc.updating && !qc.root.expr.isVacuous())       throw BXXQ_NOUPDATE.get(info);
     }
  else {
-      for (Item it; (it=iter.next()) != null; ) {
-        if (it instanceof FItem)         throw FIVALUE.get(info,it.type);
-        vb.add(it);
-      }
+      if (qc.updating)       throw BXXQ_UPDATING.get(info);
     }
+    qc.compile();
+    final ValueBuilder vb=new ValueBuilder();
+    cache(qc.iter(),vb,ctx);
     return vb;
   }
  catch (  final ProcException ex) {

@@ -8,14 +8,15 @@
   final Type tp=i.type;
   if (!(i instanceof ANode) || tp == NodeType.DOC || t.next() != null)   throw UPTRGMULT.get(info);
   final ANode targ=(ANode)i;
-  final DBNode dbn=ctx.updates.determineDataRef(targ,ctx);
+  final Updates updates=ctx.resources.updates();
+  final DBNode dbn=updates.determineDataRef(targ,ctx);
   final ANodeList aList=c.atts;
   ANodeList list=c.children;
   if (value) {
     final byte[] txt=list.size() < 1 ? aList.size() < 1 ? EMPTY : aList.get(0).string() : list.get(0).string();
     if (tp == NodeType.COM)     FComm.parse(txt,info);
     if (tp == NodeType.PI)     FPI.parse(txt,info);
-    ctx.updates.add(new ReplaceValue(dbn.pre,dbn.data,info,txt),ctx);
+    updates.add(new ReplaceValue(dbn.pre,dbn.data,info,txt),ctx);
   }
  else {
     final ANode par=targ.parent();
@@ -27,7 +28,7 @@
  else {
       if (!aList.isEmpty())       throw UPWRELM.get(info);
     }
-    ctx.updates.add(new ReplaceNode(dbn.pre,dbn.data,info,list),ctx);
+    updates.add(new ReplaceNode(dbn.pre,dbn.data,info,list),ctx);
   }
   return null;
 }

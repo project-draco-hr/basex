@@ -1,9 +1,4 @@
 {
-  for (  final DataUpdates up : dbUpdates.values()) {
-    if (tmp == null)     tmp=new MemData(up.data().meta.options);
-    up.prepare(tmp);
-  }
-  for (  final NameUpdates up : nameUpdates.values())   up.prepare();
   for (  final NameUpdates up : nameUpdates.values())   up.apply(true);
   final Set<Data> datas=new HashSet<Data>();
   for (  final Data data : dbUpdates.keySet())   datas.add(data);
@@ -13,7 +8,7 @@
       if (!data.startUpdate())       throw BXDB_OPENED.get(null,data.meta.name);
       i++;
     }
-    for (    final DataUpdates c : dbUpdates.values())     c.apply();
+    for (    final DataUpdates up : dbUpdates.values())     up.apply();
   }
   finally {
     for (    final Data data : datas) {

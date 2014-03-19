@@ -1,5 +1,6 @@
 {
   final String url=string(checkStr(expr[0],ctx));
+  final JDBCConnections jdbc=jdbc(ctx);
   try {
     if (expr.length > 2) {
       final String user=string(checkStr(expr[1],ctx));
@@ -18,11 +19,11 @@
         props.setProperty(PASS,pass);
         final Connection conn=getConnection(url,props);
         conn.setAutoCommit(ac);
-        return Int.get(ctx.jdbc().add(conn));
+        return Int.get(jdbc.add(conn));
       }
-      return Int.get(ctx.jdbc().add(getConnection(url,user,pass)));
+      return Int.get(jdbc.add(getConnection(url,user,pass)));
     }
-    return Int.get(ctx.jdbc().add(getConnection(url)));
+    return Int.get(jdbc.add(getConnection(url)));
   }
  catch (  final SQLException ex) {
     throw BXSQ_ERROR.get(info,ex);
