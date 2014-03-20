@@ -1,11 +1,27 @@
 {
   checkCreate(ctx);
+  try {
 switch (sig) {
+case _FILE_CHILDREN:
+      return children(ctx);
 case _FILE_LIST:
     return list(ctx);
 case _FILE_READ_TEXT_LINES:
   return readTextLines(ctx);
 default :
 return super.iter(ctx);
+}
+}
+ catch (final NoSuchFileException ex) {
+throw FILE_NOT_FOUND.get(info,ex);
+}
+catch (final NotDirectoryException ex) {
+throw FILE_NO_DIR.get(info,ex);
+}
+catch (final AccessDeniedException ex) {
+throw FILE_IE_ERROR_ACCESS.get(info,ex);
+}
+catch (final IOException ex) {
+throw FILE_IO_ERROR.get(info,ex);
 }
 }
