@@ -1,7 +1,11 @@
 {
-  if (var != null && v != null)   ctx.set(var,v,info);
+  Value val=var != null && v != null ? var.checkType(v,ctx,info,true) : null;
   try {
     super.compile(ctx,scp);
+    if (val != null) {
+      Expr inlined=expr.inline(ctx,scp,var,val);
+      if (inlined != null)       expr=inlined;
+    }
   }
  catch (  final QueryException ex) {
     expr=FNInfo.error(ex,expr.type());
