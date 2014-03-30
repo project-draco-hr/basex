@@ -20,14 +20,13 @@
   final int is=il.size();
   for (int i=0; i < is; i++) {
     final int pre=il.get(i);
-    final IO f=root.merge(Token.string(data.text(pre,true)));
+    final IOFile f=root.resolve(Token.string(data.text(pre,true)));
     if (export != null) {
       export.checkStop();
       export.progFile=f;
       export.progPos++;
     }
-    final IOFile dir=new IOFile(f.dirPath());
-    if (!dir.exists())     dir.md();
+    f.parent().md();
     try (final PrintOutput po=new PrintOutput(unique(exported,f.path()))){
       final Serializer ser=Serializer.get(po,sopts);
       ser.serialize(new DBNode(data,pre));
