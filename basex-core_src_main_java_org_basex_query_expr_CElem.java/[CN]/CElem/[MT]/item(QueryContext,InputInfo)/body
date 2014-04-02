@@ -44,19 +44,7 @@
         constr.atts.set(a,new FAttr(aname,att.string()));
       }
     }
-    final Atts stack=sc.ns.stack();
-    for (int a=stack.size() - 1; a >= 0; a--) {
-      final byte[] pref=stack.name(a);
-      if (!ns.contains(pref))       ns.add(pref,stack.value(a));
-    }
-    for (int c=0; c < constr.children.size(); ++c) {
-      final ANode child=constr.children.get(c);
-      if (child.type == NodeType.ELM) {
-        if (sc.inheritNS)         inherit(child,ns);
-        if (!sc.preserveNS)         noPreserve(child);
-        child.optimize();
-      }
-    }
+    for (int c=0; c < constr.children.size(); ++c)     constr.children.get(c).optimize();
     return node.optimize();
   }
   finally {
