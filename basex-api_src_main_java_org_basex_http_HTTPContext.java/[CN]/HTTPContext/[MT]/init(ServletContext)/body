@@ -8,29 +8,12 @@
   while (en.hasMoreElements()) {
     final String key=en.nextElement();
     if (!key.startsWith(Prop.DBPREFIX))     continue;
-    final String val=sc.getInitParameter(key);
-    String k=key;
-    String v=val;
-    if (key.equals(Prop.DBPREFIX + "httppath")) {
-      k=Prop.DBPREFIX + GlobalOptions.RESTXQPATH.name();
+    String val=sc.getInitParameter(key);
+    if (key.endsWith("path") && !new File(val).isAbsolute()) {
+      Util.debug(key.toUpperCase(Locale.ENGLISH) + ": " + val);
+      val=new IOFile(webapp,val).path();
     }
- else     if (key.equals(Prop.DBPREFIX + "mode")) {
-      k=Prop.DBPREFIX + GlobalOptions.HTTPLOCAL.name();
-      v=Boolean.toString("local".equals(v));
-    }
- else     if (key.equals(Prop.DBPREFIX + "server")) {
-      k=Prop.DBPREFIX + GlobalOptions.HTTPLOCAL.name();
-      v=Boolean.toString(!Boolean.parseBoolean(v));
-    }
-    k=k.toLowerCase(Locale.ENGLISH);
-    if (!k.equals(key) || !v.equals(val)) {
-      Util.errln("Warning! Outdated option: " + key + '='+ val+ " => "+ k+ '='+ v);
-    }
-    if (k.endsWith("path") && !new File(v).isAbsolute()) {
-      Util.debug(k.toUpperCase(Locale.ENGLISH) + ": " + v);
-      v=new IOFile(webapp,v).path();
-    }
-    Options.setSystem(k,v);
+    Options.setSystem(key,val);
   }
   if (context == null) {
     context=new Context(false);
