@@ -5,14 +5,20 @@
   final String home=IO.BASEXSUFFIX + "home";
   IOFile file=new IOFile(dir,home);
   if (!file.exists())   file=new IOFile(dir,IO.BASEXSUFFIX);
-  if (file.exists())   return file.parent().path();
-  dir=applicationPath();
-  if (dir != null) {
-    file=new IOFile(dir);
-    dir=file.dir();
-    file=new IOFile(dir,home);
-    if (!file.exists())     file=new IOFile(dir,IO.BASEXSUFFIX);
-    if (file.exists())     return file.parent().path();
+  if (file.exists())   return file.dir();
+  if (LOCATION != null) {
+    try {
+      dir=Paths.get(LOCATION.toURI()).toString();
+      if (dir != null) {
+        dir=new IOFile(dir).dir();
+        file=new IOFile(dir,home);
+        if (!file.exists())         file=new IOFile(dir,IO.BASEXSUFFIX);
+        if (file.exists())         return file.dir();
+      }
+    }
+ catch (    final Exception ex) {
+      Util.stack(ex);
+    }
   }
   return USERHOME;
 }
