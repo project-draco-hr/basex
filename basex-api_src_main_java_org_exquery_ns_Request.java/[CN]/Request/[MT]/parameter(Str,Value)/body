@@ -1,7 +1,15 @@
 {
-  final String[] val=request().getParameterValues(key.toJava());
-  if (val == null)   return def;
-  final TokenList tl=new TokenList(val.length);
-  for (  final String v : val)   tl.add(v);
-  return StrSeq.get(tl);
+  try {
+    final String name=key.toJava();
+    final HTTPParams params=context().params;
+    final Value query=params.query().get(name);
+    final Value form=params.form().get(name);
+    if (query == null && form == null)     return def;
+    if (query == null)     return form;
+    if (form == null)     return query;
+    return new ValueBuilder().add(query).add(form).value();
+  }
+ catch (  final IOException ex) {
+    throw new QueryException(ex);
+  }
 }
