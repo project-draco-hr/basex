@@ -4,8 +4,9 @@
   if (run(query(_DB_EXISTS)).equals(Text.TRUE)) {
     final boolean raw=run(query(_DB_IS_RAW)).equals(Text.TRUE);
     if (raw) {
-      http.serialization.set(SerializerOptions.METHOD,SerialMethod.RAW);
-      http.serialization.set(SerializerOptions.MEDIA_TYPE,run(query(_DB_CONTENT_TYPE)));
+      final SerializerOptions sopts=http.sopts();
+      sopts.set(SerializerOptions.METHOD,SerialMethod.RAW);
+      sopts.set(SerializerOptions.MEDIA_TYPE,run(query(_DB_CONTENT_TYPE)));
     }
     http.initResponse();
     context.options.set(MainOptions.SERIALIZER,serial(http));
@@ -17,7 +18,7 @@
     el.add(RESTText.NAME,http.db()).add(RESTText.RESOURCES,token(table.contents.size()));
     list(table,el,RESTText.Q_RESOURCE,0);
     http.initResponse();
-    final Serializer ser=Serializer.get(http.res.getOutputStream(),http.serialization);
+    final Serializer ser=Serializer.get(http.res.getOutputStream(),http.sopts());
     ser.serialize(el);
     ser.close();
   }
