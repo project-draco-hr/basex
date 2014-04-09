@@ -1,5 +1,4 @@
 {
-  boolean coreVal=false;
   try {
     final Document doc=toDOMNode(node);
     final DOMValidateContext valContext=new DOMValidateContext(new MyKeySelector(),doc);
@@ -8,7 +7,7 @@
     valContext.setNode(signl.item(0));
     final XMLSignatureFactory fac=XMLSignatureFactory.getInstance("DOM");
     final XMLSignature signature=fac.unmarshalXMLSignature(valContext);
-    coreVal=signature.validate(valContext);
+    return Bln.get(signature.validate(valContext));
   }
  catch (  final XMLSignatureException|SAXException|ParserConfigurationException|IOException e) {
     throw CX_IOEXC.get(info,e);
@@ -16,5 +15,4 @@
 catch (  final MarshalException e) {
     throw CX_SIGEXC.get(info,e);
   }
-  return Bln.get(coreVal);
 }

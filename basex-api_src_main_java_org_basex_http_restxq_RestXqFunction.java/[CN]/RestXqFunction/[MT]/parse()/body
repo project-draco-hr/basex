@@ -12,14 +12,14 @@
     final boolean rexq=eq(uri,QueryText.RESTURI);
     if (rexq) {
       if (eq(PATH,local)) {
-        if (path != null)         error(info,ANN_TWICE,"%",name.string());
+        if (path != null)         throw error(info,ANN_TWICE,"%",name.string());
         path=new RestXqPath(toString(value,name));
         for (        final String s : path) {
           if (s.trim().startsWith("{"))           checkVariable(s,AtomType.AAT,declared);
         }
       }
  else       if (eq(ERROR,local)) {
-        if (error != null)         error(info,ANN_TWICE,"%",name.string());
+        if (error != null)         throw error(info,ANN_TWICE,"%",name.string());
         error=error(value,name);
       }
  else       if (eq(CONSUMES,local)) {
@@ -45,13 +45,13 @@
       }
  else {
         final HTTPMethod m=get(string(local));
-        if (m == null)         error(info,ANN_UNKNOWN,"%",name.string());
+        if (m == null)         throw error(info,ANN_UNKNOWN,"%",name.string());
         if (!value.isEmpty()) {
-          if (requestBody != null)           error(info,ANN_TWICE,"%",name.string());
-          if (m != POST && m != PUT)           error(info,METHOD_VALUE,m);
+          if (requestBody != null)           throw error(info,ANN_TWICE,"%",name.string());
+          if (m != POST && m != PUT)           throw error(info,METHOD_VALUE,m);
           requestBody=checkVariable(toString(value,name),declared);
         }
-        if (mth.contains(m))         error(info,ANN_TWICE,"%",name.string());
+        if (mth.contains(m))         throw error(info,ANN_TWICE,"%",name.string());
         mth.add(m);
       }
     }
@@ -60,17 +60,17 @@
         output.assign(string(local),toString(value,name));
       }
  catch (      final BaseXException ex) {
-        error(info,UNKNOWN_SER,local);
+        throw error(info,UNKNOWN_SER,local);
       }
     }
     found|=rexq;
   }
   if (!mth.isEmpty())   methods=mth;
   if (found) {
-    if (path == null && error == null)     error(function.info,ANN_MISSING,'%',PATH,'%',ERROR);
+    if (path == null && error == null)     throw error(function.info,ANN_MISSING,'%',PATH,'%',ERROR);
     for (int i=0; i < declared.length; i++) {
       if (declared[i])       continue;
-      error(function.info,VAR_UNDEFINED,function.args[i].name.string());
+      throw error(function.info,VAR_UNDEFINED,function.args[i].name.string());
     }
   }
   return found;
