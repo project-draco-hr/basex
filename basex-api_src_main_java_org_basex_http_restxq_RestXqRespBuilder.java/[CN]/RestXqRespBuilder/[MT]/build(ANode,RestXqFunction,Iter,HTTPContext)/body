@@ -1,5 +1,5 @@
 {
-  for (  final ANode a : response.attributes())   func.error(UNEXP_NODE,a);
+  for (  final ANode a : response.attributes())   throw func.error(UNEXP_NODE,a);
   SerializerOptions sp=func.output;
   String cType=null;
   for (  final ANode n : response.children()) {
@@ -9,7 +9,7 @@
         final QNm qnm=a.qname();
         if (qnm.eq(Q_STATUS))         sta=a.string();
  else         if (qnm.eq(Q_REASON) || qnm.eq(Q_MESSAGE))         msg=a.string();
- else         func.error(UNEXP_NODE,a);
+ else         throw func.error(UNEXP_NODE,a);
       }
       if (sta != null) {
         status=toInt(sta);
@@ -31,7 +31,7 @@
           }
         }
  else {
-          func.error(UNEXP_NODE,c);
+          throw func.error(UNEXP_NODE,c);
         }
       }
     }
@@ -40,7 +40,7 @@
       FuncOptions.serializer(n,func.output,func.function.info);
     }
  else {
-      func.error(UNEXP_NODE,n);
+      throw func.error(UNEXP_NODE,n);
     }
   }
   if (cType != null)   sp.set(SerializerOptions.MEDIA_TYPE,cType);
@@ -49,7 +49,7 @@
     error=true;
   }
  else   if (func.methods.size() == 1 && func.methods.contains(HTTPMethod.HEAD)) {
-    func.error(HEAD_METHOD);
+    throw func.error(HEAD_METHOD);
   }
   http.sopts(sp);
   http.initResponse();
