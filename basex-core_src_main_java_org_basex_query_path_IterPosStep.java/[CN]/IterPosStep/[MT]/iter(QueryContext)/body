@@ -15,18 +15,20 @@
           return lnode;
         }
         if (!test.eq(node))         continue;
-        final long cp=ctx.pos;
-        final long cs=ctx.size;
+        final long cp=ctx.pos, cs=ctx.size;
         ctx.size=0;
         ctx.pos=++cpos;
-        final boolean p=preds(node,ctx);
-        ctx.pos=cp;
-        ctx.size=cs;
-        if (p) {
-          skip=pos != null && pos.skip(ctx);
-          return node.finish();
+        try {
+          if (preds(node,ctx)) {
+            skip=pos != null && pos.skip(ctx);
+            return node.finish();
+          }
+          if (last)           lnode=node.finish();
         }
-        if (last)         lnode=node.finish();
+  finally {
+          ctx.pos=cp;
+          ctx.size=cs;
+        }
       }
     }
     @Override public boolean reset(){
