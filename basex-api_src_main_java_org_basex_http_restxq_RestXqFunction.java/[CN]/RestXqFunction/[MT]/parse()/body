@@ -1,5 +1,4 @@
 {
-  final EnumSet<HTTPMethod> mth=EnumSet.noneOf(HTTPMethod.class);
   final boolean[] declared=new boolean[function.args.length];
   boolean found=false;
   final int as=function.ann.size();
@@ -48,16 +47,16 @@
  else       if (eq(ERROR_PARAM,local)) {
         errorParams.add(param(value,name,declared));
       }
+ else       if (eq(METHOD,local)) {
+        if (value.size() < 1)         throw error(function.info,ANN_ATLEAST,"%",name.string(),1);
+        final String mth=toString(value.itemAt(0),name);
+        final Value body=value.size() > 1 ? value.itemAt(1) : null;
+        addMethod(mth,body,name,declared,info);
+      }
  else {
-        final HTTPMethod m=get(string(local));
-        if (m == null)         throw error(info,ANN_UNKNOWN,"%",name.string());
-        if (!value.isEmpty()) {
-          if (!m.body)           throw error(info,METHOD_VALUE,m);
-          if (requestBody != null)           throw error(info,ANN_BODYVAR);
-          requestBody=checkVariable(toString(value,name),declared);
-        }
-        if (mth.contains(m))         throw error(info,ANN_TWICE,"%",name.string());
-        mth.add(m);
+        final String mth=string(local);
+        if (get(mth) == null)         throw error(info,ANN_UNKNOWN,"%",name.string());
+        addMethod(mth,value,name,declared,info);
       }
     }
  else     if (eq(uri,QueryText.OUTPUTURI)) {
@@ -70,7 +69,6 @@
     }
     found|=rexq;
   }
-  if (!mth.isEmpty())   methods=mth;
   if (found) {
     if (path == null && error == null)     throw error(function.info,ANN_MISSING,'%',PATH,'%',ERROR);
     for (int i=0; i < declared.length; i++) {
