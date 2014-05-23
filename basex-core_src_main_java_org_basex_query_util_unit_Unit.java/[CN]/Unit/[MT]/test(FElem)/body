@@ -1,0 +1,119 @@
+{
+  final FElem suite=new FElem(TESTSUITE).add(NAME,file.url());
+  final ArrayList<StaticFunc> before=new ArrayList<StaticFunc>(0);
+  final ArrayList<StaticFunc> after=new ArrayList<StaticFunc>(0);
+  final ArrayList<StaticFunc> beforeModule=new ArrayList<StaticFunc>(0);
+  final ArrayList<StaticFunc> afterModule=new ArrayList<StaticFunc>(0);
+  final ArrayList<StaticFunc> test=new ArrayList<StaticFunc>(0);
+  final Performance perf=new Performance();
+  try {
+    final QueryContext qc=new QueryContext(ctx);
+    input=string(file.read());
+    qc.parse(input,file.path(),null);
+    funcs=qc.funcs.funcs();
+    for (    final StaticFunc uf : funcs) {
+      final Ann ann=uf.ann;
+      final int as=ann.size();
+      boolean xq=false;
+      for (int a=0; !xq && a < as; a++) {
+        xq|=eq(ann.names[a].uri(),QueryText.UNITURI);
+      }
+      if (!xq)       continue;
+      if (uf.ann.contains(Ann.Q_PRIVATE))       throw UNIT_PRIVATE.get(null,uf.name.local());
+      if (uf.args.length > 0)       throw UNIT_ARGS.get(null,uf.name.local());
+      if (indexOf(uf,BEFORE) != -1)       before.add(uf);
+      if (indexOf(uf,AFTER) != -1)       after.add(uf);
+      if (indexOf(uf,BEFORE_MODULE) != -1)       beforeModule.add(uf);
+      if (indexOf(uf,AFTER_MODULE) != -1)       afterModule.add(uf);
+      if (indexOf(uf,TEST) != -1)       test.add(uf);
+    }
+    for (    final StaticFunc uf : beforeModule)     eval(uf);
+    for (    final StaticFunc uf : test) {
+      final Value values=uf.ann.values[indexOf(uf,TEST)];
+      final long vs=values.size();
+      byte[] code=null;
+      if (vs != 0) {
+        if (vs == 2 && eq(EXPECTED,values.itemAt(0).string(null))) {
+          code=values.itemAt(1).string(null);
+        }
+ else {
+          throw UNIT_ANN.get(null,'%',uf.ann.names[0]);
+        }
+      }
+      final FElem testcase=new FElem(TESTCASE).add(NAME,uf.name.local());
+      tests++;
+      final Performance perf2=new Performance();
+      final int skip=indexOf(uf,IGNORE);
+      if (skip == -1) {
+        try {
+          for (          final StaticFunc fn : before)           eval(fn);
+          eval(uf);
+          for (          final StaticFunc fn : after)           eval(fn);
+          if (code != null) {
+            failures++;
+            testcase.add(new FElem(FAILURE).add(new FElem(EXPECTED).add(code)));
+          }
+        }
+ catch (        final QueryException ex) {
+          final QNm name=ex.qname();
+          if (code == null || !eq(code,name.local())) {
+            final FElem error;
+            final boolean failure=eq(name.uri(),QueryText.UNITURI);
+            if (failure) {
+              failures++;
+              error=new FElem(FAILURE);
+            }
+ else {
+              errors++;
+              error=new FElem(ERROR);
+            }
+            error.add(LINE,token(ex.line()));
+            error.add(COLUMN,token(ex.column()));
+            if (ex instanceof UnitException) {
+              final UnitException ue=(UnitException)ex;
+              error.add(elem(ue.returned,RETURNED,ue.count));
+              error.add(elem(ue.expected,EXPECTED,ue.count));
+            }
+ else {
+              if (!failure)               error.add(TYPE,ex.qname().local());
+              error.add(ex.getLocalizedMessage());
+            }
+            testcase.add(error);
+          }
+        }
+      }
+ else {
+        final Value sv=uf.ann.values[skip];
+        testcase.add(SKIPPED,sv.isEmpty() ? EMPTY : sv.itemAt(0).string(null));
+        skipped++;
+      }
+      testcase.add(TIME,time(perf2));
+      suite.add(testcase);
+    }
+    for (    final StaticFunc uf : afterModule)     eval(uf);
+  }
+ catch (  final QueryException ex) {
+    if (current == null) {
+      final FElem error=new FElem(ERROR);
+      error.add(LINE,token(ex.line()));
+      error.add(COLUMN,token(ex.column()));
+      error.add(TYPE,ex.qname().local());
+      error.add(ex.getLocalizedMessage());
+      suite.add(error);
+    }
+ else {
+      final FElem testcase=new FElem(TESTCASE).add(NAME,current.name.local());
+      testcase.add(TIME,time(perf));
+      suite.add(testcase);
+    }
+    errors++;
+  }
+  if (suite.hasChildren()) {
+    suite.add(TIME,time(perf));
+    suite.add(TESTS,token(tests));
+    suite.add(FAILURES,token(failures));
+    suite.add(ERRORS,token(errors));
+    suite.add(SKIPPED,token(skipped));
+    suites.add(suite);
+  }
+}

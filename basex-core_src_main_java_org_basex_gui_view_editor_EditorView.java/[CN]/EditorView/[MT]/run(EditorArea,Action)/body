@@ -3,7 +3,8 @@
   final byte[] in=editor.getText();
   final boolean eq=eq(in,editor.last);
   if (eq && action == Action.CHECK)   return;
-  if (action == Action.EXECUTE && gui.gopts.get(GUIOptions.SAVERUN)) {
+  final boolean run=action == Action.EXECUTE || action == Action.TEST;
+  if (run && gui.gopts.get(GUIOptions.SAVERUN)) {
     for (    final EditorArea edit : editors()) {
       if (edit.opened())       edit.save();
     }
@@ -12,10 +13,10 @@
   editor.last=in;
   final boolean xquery=file.hasSuffix(IO.XQSUFFIXES) || !file.path().contains(".");
   editor.script=!xquery && file.hasSuffix(IO.BXSSUFFIX);
-  if (action == Action.EXECUTE && editor.script) {
+  if (editor.script && run) {
     gui.execute(true,new Execute(string(in)));
   }
- else   if (xquery || action == Action.EXECUTE) {
+ else   if (xquery || run) {
     String input=in.length == 0 ? "()" : string(in);
     boolean lib=QueryProcessor.isLibrary(input);
     final boolean exec=action == Action.EXECUTE || gui.gopts.get(GUIOptions.EXECRT);
@@ -30,6 +31,10 @@
     gui.context.options.set(MainOptions.QUERYPATH,file.path());
     if (!lib && exec) {
       gui.execute(true,new XQuery(input));
+      execFile=file;
+    }
+ else     if (action == Action.TEST) {
+      gui.execute(true,new Test(file.path()));
       execFile=file;
     }
  else {

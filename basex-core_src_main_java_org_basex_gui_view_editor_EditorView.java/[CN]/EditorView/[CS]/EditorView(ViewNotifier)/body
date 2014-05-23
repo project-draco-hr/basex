@@ -16,10 +16,12 @@
   stop=BaseXButton.get("c_stop",STOP,false,gui);
   stop.addKeyListener(this);
   stop.setEnabled(false);
-  go=BaseXButton.get("c_go",BaseXLayout.addShortcut(EXECUTE_QUERY,BaseXKeys.EXEC1.toString()),false,gui);
+  go=BaseXButton.get("c_go",BaseXLayout.addShortcut(RUN_QUERY,BaseXKeys.EXEC1.toString()),false,gui);
   go.addKeyListener(this);
+  test=BaseXButton.get("c_test",BaseXLayout.addShortcut(RUN_TESTS,BaseXKeys.UNIT.toString()),false,gui);
+  test.addKeyListener(this);
   final BaseXBack buttons=new BaseXBack(Fill.NONE);
-  buttons.layout(new TableLayout(1,7,1,0)).border(0,0,8,0);
+  buttons.layout(new TableLayout(1,8,1,0)).border(0,0,8,0);
   buttons.add(openB);
   buttons.add(saveB);
   buttons.add(hist);
@@ -27,6 +29,7 @@
   buttons.add(Box.createHorizontalStrut(6));
   buttons.add(stop);
   buttons.add(go);
+  buttons.add(test);
   final BaseXBack north=new BaseXBack(Fill.NONE).layout(new BorderLayout());
   north.add(buttons,BorderLayout.WEST);
   north.add(label,BorderLayout.EAST);
@@ -114,6 +117,7 @@
     @Override public void actionPerformed(    final ActionEvent e){
       stop.setEnabled(false);
       go.setEnabled(false);
+      test.setEnabled(false);
       gui.stop();
     }
   }
@@ -124,6 +128,12 @@
     }
   }
 );
+  test.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      run(getEditor(),Action.TEST);
+    }
+  }
+);
   tabs.addChangeListener(new ChangeListener(){
     @Override public void stateChanged(    final ChangeEvent e){
       final EditorArea ea=getEditor();
@@ -131,6 +141,7 @@
       search.editor(ea,true);
       gui.refreshControls();
       posCode.invokeLater();
+      refreshMark();
       run(ea,Action.PARSE);
     }
   }
