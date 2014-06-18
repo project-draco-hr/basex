@@ -1,0 +1,26 @@
+{
+  final String path=context.globalopts.get(GlobalOptions.WEBPATH);
+  new IOFile(path,"x.xq").write(Token.token("1"));
+  assertEquals("1",get("?run=x.xq"));
+  new IOFile(path,"x.bxs").write(Token.token("xquery 2"));
+  assertEquals("2",get("?run=x.bxs"));
+  new IOFile(path,"x.bxs").write(Token.token("xquery 3\nxquery 4"));
+  assertEquals("34",get("?run=x.bxs"));
+  new IOFile(path,"x.bxs").write(Token.token("<commands><xquery>5</xquery></commands>"));
+  assertEquals("5",get("?run=x.bxs"));
+  new IOFile(path,"x.bxs").write(Token.token("<set option='maxlen'>123</set>"));
+  assertEquals("",get("?run=x.bxs"));
+  try {
+    get("?run=unknown.abc");
+    fail("Error expected.");
+  }
+ catch (  final IOException ignored) {
+  }
+  try {
+    new IOFile(path,"x.bxs").write(Token.token("<set option='unknown'>123</set>"));
+    assertEquals("",get("?run=x.bxs"));
+    fail("Error expected.");
+  }
+ catch (  final IOException ignored) {
+  }
+}
