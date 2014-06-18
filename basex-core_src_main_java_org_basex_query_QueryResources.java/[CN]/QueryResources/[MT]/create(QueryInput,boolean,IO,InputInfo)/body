@@ -1,16 +1,27 @@
 {
-  final boolean createDB=ctx.context.options.get(MainOptions.FORCECREATE);
-  if (createDB && !openDB)   throw BXXQ_NEWDB.get(info);
-  if (!ctx.context.user.has(Perm.READ))   throw BXXQ_PERM.get(info,Util.info(Text.PERM_REQUIRED_X,Perm.READ));
+  final Context context=ctx.context;
+  final boolean force=context.options.get(MainOptions.FORCECREATE);
+  if (force && !openDB)   throw BXXQ_NEWDB.get(info);
+  if (!context.user.has(Perm.READ))   throw BXXQ_PERM.get(info,Util.info(Text.PERM_REQUIRED_X,Perm.READ));
   final IO source=checkPath(input,baseIO,info);
   if (single && source.isDir())   WHICHRES.get(info,baseIO);
+  final MainOptions opts=context.options;
+  final Option<?>[] options={MainOptions.SKIPCORRUPT,MainOptions.ADDARCHIVES,MainOptions.ADDRAW,MainOptions.PARSER,MainOptions.CREATEFILTER};
+  final Object[] values=new Object[options.length];
+  final int ol=options.length;
+  for (int o=0; o < ol; o++) {
+    final Option<?> option=options[o];
+    values[o]=opts.get(option);
+    opts.put(option,option.value());
+  }
   try {
-    final Data dt=createDB ? CreateDB.create(source,ctx.context) : CreateDB.mainMem(source,ctx.context);
-    input.path="";
-    addData(dt);
-    return dt;
+    return add(CreateDB.create(source.dbname(),new DirParser(source,opts),context,!force));
   }
  catch (  final IOException ex) {
     throw IOERR.get(info,ex);
+  }
+ finally {
+    for (int o=0; o < ol; o++)     opts.put(options[o],values[o]);
+    input.path="";
   }
 }
