@@ -1,14 +1,15 @@
 {
   final MetaData meta=data.meta;
   final MainOptions opts=meta.options;
-  updates.nprops.put(MainOptions.TEXTINDEX,meta.createtext);
-  updates.nprops.put(MainOptions.ATTRINDEX,meta.createattr);
-  updates.nprops.put(MainOptions.FTINDEX,meta.createftxt);
-  updates.initOptions();
-  updates.assignOptions();
+  options.tOptions.put(MainOptions.TEXTINDEX,meta.createtext);
+  options.tOptions.put(MainOptions.ATTRINDEX,meta.createattr);
+  options.tOptions.put(MainOptions.FTINDEX,meta.createftxt);
+  options.tOptions.put(MainOptions.UPDINDEX,meta.updindex);
+  options.assign(opts);
   meta.createtext=opts.get(MainOptions.TEXTINDEX);
   meta.createattr=opts.get(MainOptions.ATTRINDEX);
   meta.createftxt=opts.get(MainOptions.FTINDEX);
+  meta.updindex=opts.get(MainOptions.UPDINDEX);
   final int mc=opts.get(MainOptions.MAXCATS);
   final int ml=opts.get(MainOptions.MAXLEN);
   final boolean rebuild=mc != meta.maxcats || ml != meta.maxlen;
@@ -26,14 +27,14 @@
   meta.maxcats=mc;
   meta.maxlen=ml;
   try {
-    if (all)     OptimizeAll.optimizeAll(data,updates.qc.context,null);
+    if (all)     OptimizeAll.optimizeAll(data,qc.context,null);
  else     Optimize.optimize(data,rebuild,rebuildFT,null);
   }
  catch (  final IOException ex) {
     throw UPDBOPTERR.get(info,ex);
   }
  finally {
-    updates.resetOptions();
+    options.reset(opts);
   }
-  if (all)   updates.qc.resource.remove(data.meta.name);
+  if (all)   qc.resource.remove(data.meta.name);
 }
