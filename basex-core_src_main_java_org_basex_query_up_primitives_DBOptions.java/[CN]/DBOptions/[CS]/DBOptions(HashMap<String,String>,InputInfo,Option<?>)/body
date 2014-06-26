@@ -1,0 +1,30 @@
+{
+  final HashMap<String,Option<?>> opts=new HashMap<>();
+  final int n=OPTIONS.length;
+  for (int o=0; o < n; o++)   opts.put(OPTIONS[o].name().toLowerCase(Locale.ENGLISH),OPTIONS[o]);
+  for (  final Entry<String,String> entry : options.entrySet()) {
+    final String key=entry.getKey();
+    final Option<?> opt=opts.get(key);
+    boolean valid=opt != null;
+    if (valid) {
+      for (      final Option<?> ex : exclude) {
+        if (opt == ex)         valid=false;
+      }
+    }
+    if (!valid)     throw BASX_OPTIONS.get(info,key);
+    final String value=entry.getValue();
+    if (opt instanceof NumberOption) {
+      final int v=toInt(value);
+      if (v < 0)       throw BASX_VALUE.get(info,key,value);
+      rOptions.put(opt,v);
+    }
+ else     if (opt instanceof BooleanOption) {
+      final boolean yes=Util.yes(value);
+      if (!yes && !Util.no(value))       throw BASX_VALUE.get(info,key,value);
+      rOptions.put(opt,yes);
+    }
+ else {
+      rOptions.put(opt,value);
+    }
+  }
+}
