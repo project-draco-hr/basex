@@ -2,7 +2,7 @@
   boolean change=false;
   for (int i=0; i < clauses.size(); i++) {
     final Clause c=clauses.get(i);
-    if (!(c instanceof Where) || c.has(Flag.NDT))     continue;
+    if (!(c instanceof Where) || c.has(Flag.NDT) || c.has(Flag.UPD))     continue;
     final Where wh=(Where)c;
     if (wh.pred.isValue()) {
       if (!(wh.pred instanceof Bln))       wh.pred=Bln.get(wh.pred.ebv(ctx,wh.info).bool(wh.info));
@@ -14,7 +14,7 @@
       int insert=-1;
       for (int j=i; --j >= 0; ) {
         final Clause curr=clauses.get(j);
-        if (curr.has(Flag.NDT) || !curr.skippable(wh))         break;
+        if (curr.has(Flag.NDT) || curr.has(Flag.UPD) || !curr.skippable(wh))         break;
         if (!(curr instanceof Where))         insert=j;
       }
       if (insert >= 0) {
