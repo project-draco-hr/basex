@@ -1,12 +1,23 @@
 {
-  if (root != null)   setRoot(ctx,root.compile(ctx,scp));
-  final Value v=ctx.value;
-  if (root == null && v != null && v.type == NodeType.DOC)   root=new Root(info);
+  if (root != null)   root=root.compile(ctx,scp);
+  final Value init=ctx.value, cv=initial(ctx);
+  final boolean doc=cv != null && cv.type == NodeType.DOC;
+  ctx.value=cv;
   try {
-    ctx.value=initial(ctx);
-    return compilePath(ctx,scp);
+    for (int s=0; s < steps.length; s++) {
+      Expr e=steps[s];
+      final boolean as=e instanceof Step;
+      if (as && s == 0 && doc)       cv.type=NodeType.NOD;
+      e=e.compile(ctx,scp);
+      if (e.isEmpty())       return optPre(null,ctx);
+      steps[s]=e;
+      if (!as)       ctx.value=null;
+    }
   }
   finally {
-    ctx.value=v;
+    if (doc)     cv.type=NodeType.DOC;
+    ctx.value=init;
   }
+  if (steps.length == 0)   return root == null ? new Context(info) : root;
+  return optimize(ctx,scp);
 }

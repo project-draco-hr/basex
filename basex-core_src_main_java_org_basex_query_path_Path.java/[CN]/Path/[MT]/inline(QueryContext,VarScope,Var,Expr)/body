@@ -1,24 +1,19 @@
 {
-  final Value oldVal=ctx.value;
-  try {
-    ctx.value=initial(ctx);
-    final Expr rt=root == null ? null : root.inline(ctx,scp,v,e);
+  boolean changed=false;
+  if (root != null) {
+    final Expr rt=root.inline(ctx,scp,v,e);
     if (rt != null) {
-      setRoot(ctx,rt);
-      ctx.value=oldVal;
-      ctx.value=initial(ctx);
+      root=rt;
+      changed=true;
     }
-    boolean change=rt != null;
-    for (int i=0; i < steps.length; i++) {
-      final Expr nw=steps[i].inline(ctx,scp,v,e);
-      if (nw != null) {
-        steps[i]=nw;
-        change=true;
-      }
+  }
+  final int sl=steps.length;
+  for (int s=0; s < sl; s++) {
+    final Expr nw=steps[s].inline(ctx,scp,v,e);
+    if (nw != null) {
+      steps[s]=nw;
+      changed=true;
     }
-    return change ? optimize(ctx,scp) : null;
   }
-  finally {
-    ctx.value=oldVal;
-  }
+  return changed ? optimize(ctx,scp) : null;
 }

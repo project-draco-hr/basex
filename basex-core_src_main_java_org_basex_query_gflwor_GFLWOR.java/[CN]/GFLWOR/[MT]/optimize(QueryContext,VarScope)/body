@@ -6,7 +6,7 @@
       final Where wh=(Where)c;
       if (wh.pred instanceof And) {
         iter.remove();
-        for (        final Expr e : ((Arr)wh.pred).expr)         iter.add(new Where(e,wh.info));
+        for (        final Expr e : ((Arr)wh.pred).exprs)         iter.add(new Where(e,wh.info));
       }
     }
   }
@@ -44,11 +44,11 @@
  else         if (clauses.size() > 1 && clauses.get(1) instanceof Count) {
           final Count cnt=(Count)clauses.get(1);
           if (fst.pos != null) {
-            final Let lt=new Let(cnt.count,new VarRef(cnt.info,fst.pos).optimize(ctx,scp),false,cnt.info);
+            final Let lt=new Let(cnt.var,new VarRef(cnt.info,fst.pos).optimize(ctx,scp),false,cnt.info);
             clauses.set(1,lt.optimize(ctx,scp));
           }
  else {
-            clauses.set(0,new For(fst.var,cnt.count,fst.score,fst.expr,false,fst.info).optimize(ctx,scp));
+            clauses.set(0,new For(fst.var,cnt.var,fst.score,fst.expr,false,fst.info).optimize(ctx,scp));
             clauses.remove(1);
           }
           changed=true;

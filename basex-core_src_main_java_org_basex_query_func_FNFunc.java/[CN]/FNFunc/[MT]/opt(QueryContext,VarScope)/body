@@ -1,25 +1,25 @@
 {
-  if (oneOf(sig,FOLD_LEFT,FOLD_RIGHT,FOR_EACH) && allAreValues() && expr[0].size() < UNROLL_LIMIT) {
+  if (oneOf(func,FOLD_LEFT,FOLD_RIGHT,FOR_EACH) && allAreValues() && exprs[0].size() < UNROLL_LIMIT) {
     ctx.compInfo(QueryText.OPTUNROLL,this);
-    final Value seq=(Value)expr[0];
+    final Value seq=(Value)exprs[0];
     final int len=(int)seq.size();
-    if (sig == FOR_EACH) {
+    if (func == FOR_EACH) {
       final Expr[] results=new Expr[len];
       for (int i=0; i < len; i++) {
-        results[i]=new DynFuncCall(info,sc,false,expr[1],seq.itemAt(i)).optimize(ctx,scp);
+        results[i]=new DynFuncCall(info,sc,false,exprs[1],seq.itemAt(i)).optimize(ctx,scp);
       }
       return new List(info,results).optimize(ctx,scp);
     }
-    Expr e=expr[1];
-    if (sig == FOLD_LEFT) {
-      for (      final Item it : seq)       e=new DynFuncCall(info,sc,false,expr[2],e,it).optimize(ctx,scp);
+    Expr e=exprs[1];
+    if (func == FOLD_LEFT) {
+      for (      final Item it : seq)       e=new DynFuncCall(info,sc,false,exprs[2],e,it).optimize(ctx,scp);
     }
  else {
-      for (int i=len; --i >= 0; )       e=new DynFuncCall(info,sc,false,expr[2],seq.itemAt(i),e).optimize(ctx,scp);
+      for (int i=len; --i >= 0; )       e=new DynFuncCall(info,sc,false,exprs[2],seq.itemAt(i),e).optimize(ctx,scp);
     }
     return e;
   }
-  if (sig == FUNCTION_LOOKUP) {
+  if (func == FUNCTION_LOOKUP) {
     for (    final StaticFunc sf : ctx.funcs.funcs())     sf.compile(ctx);
   }
   return this;

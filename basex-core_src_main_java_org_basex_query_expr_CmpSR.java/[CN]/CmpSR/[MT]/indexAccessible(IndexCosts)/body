@@ -1,9 +1,10 @@
 {
-  final Step s=CmpG.indexStep(expr);
+  if (coll != null)   return false;
   final Data data=ic.ictx.data;
-  if (collation != null || s == null || data.inMemory())   return false;
-  final boolean text=s.test.type == NodeType.TXT && data.meta.textindex;
-  final boolean attr=s.test.type == NodeType.ATT && data.meta.attrindex;
+  final Step step=ic.indexStep(expr);
+  if (step == null || data.inMemory())   return false;
+  final boolean text=step.test.type == NodeType.TXT && data.meta.textindex;
+  final boolean attr=step.test.type == NodeType.ATT && data.meta.attrindex;
   if (!text && !attr || min == null || max == null)   return false;
   rt=new StringRange(text ? IndexType.TEXT : IndexType.ATTRIBUTE,min,mni,max,mxi);
   ic.costs(Math.max(1,data.meta.size / 10));

@@ -1,13 +1,13 @@
 {
-  if (op != OpG.EQ || collation != null)   return false;
-  final Step s=expr[0] instanceof Context ? ic.step : indexStep(expr[0]);
-  if (s == null)   return false;
+  if (op != OpG.EQ || coll != null)   return false;
+  final Step step=ic.indexStep(exprs[0]);
+  if (step == null)   return false;
   final Data data=ic.ictx.data;
-  final boolean text=s.test.type == NodeType.TXT && data.meta.textindex;
-  final boolean attr=s.test.type == NodeType.ATT && data.meta.attrindex;
+  final boolean text=step.test.type == NodeType.TXT && data.meta.textindex;
+  final boolean attr=step.test.type == NodeType.ATT && data.meta.attrindex;
   if (!text && !attr)   return false;
   final IndexType ind=text ? IndexType.TEXT : IndexType.ATTRIBUTE;
-  final Expr arg=expr[1];
+  final Expr arg=exprs[1];
   if (!arg.isValue()) {
     final SeqType t=arg.type();
     if (!t.type.isStringOrUntyped() || arg.has(Flag.CTX) || arg.has(Flag.NDT)|| arg.has(Flag.UPD))     return false;
@@ -15,11 +15,11 @@
     va=Array.add(va,new ValueAccess(info,arg,ind,ic.ictx));
     return true;
   }
-  final Iter ir=arg.iter(ic.ctx);
   ic.costs(0);
-  Item it;
-  while ((it=ir.next()) != null) {
+  final Iter ir=arg.iter(ic.ctx);
+  for (Item it; (it=ir.next()) != null; ) {
     if (!it.type.isStringOrUntyped())     return false;
+    if (it.string(info).length == 0)     return false;
     final int is=data.costs(new StringToken(ind,it.string(info)));
     if (is != 0) {
       va=Array.add(va,new ValueAccess(info,it,ind,ic.ictx));

@@ -1,26 +1,26 @@
 {
   if (atomic) {
-    final Item it1=expr[0].item(ctx,info);
+    final Item it1=exprs[0].item(ctx,info);
     if (it1 == null)     return Bln.FALSE;
-    final Item it2=expr[1].item(ctx,info);
+    final Item it2=exprs[1].item(ctx,info);
     if (it2 == null)     return Bln.FALSE;
-    return Bln.get(eval(it1,it2,collation));
+    return Bln.get(eval(it1,it2,coll));
   }
-  final Iter ir1=ctx.iter(expr[0]);
+  final Iter ir1=ctx.iter(exprs[0]);
   final long is1=ir1.size();
   if (is1 == 0)   return Bln.FALSE;
   final boolean s1=is1 == 1;
-  if (s1 && expr[1].size() == 1)   return Bln.get(eval(ir1.next(),expr[1].item(ctx,info),collation));
-  Iter ir2=ctx.iter(expr[1]);
+  if (s1 && exprs[1].size() == 1)   return Bln.get(eval(ir1.next(),exprs[1].item(ctx,info),coll));
+  Iter ir2=ctx.iter(exprs[1]);
   final long is2=ir2.size();
   if (is2 == 0)   return Bln.FALSE;
   final boolean s2=is2 == 1;
-  if (s1 && s2)   return Bln.get(eval(ir1.next(),ir2.next(),collation));
+  if (s1 && s2)   return Bln.get(eval(ir1.next(),ir2.next(),coll));
   Item it1, it2;
   if (s2) {
     it2=ir2.next();
     while ((it1=ir1.next()) != null) {
-      if (eval(it1,it2,collation))       return Bln.TRUE;
+      if (eval(it1,it2,coll))       return Bln.TRUE;
     }
     return Bln.FALSE;
   }
@@ -29,7 +29,7 @@
     it1=ir1.next();
     if (it1 == null)     return Bln.FALSE;
     while ((it2=ir2.next()) != null) {
-      if (eval(it1,it2,collation))       return Bln.TRUE;
+      if (eval(it1,it2,coll))       return Bln.TRUE;
       vb.add(it2);
     }
     ir2=vb;
@@ -37,7 +37,7 @@
   while ((it1=ir1.next()) != null) {
     ir2.reset();
     while ((it2=ir2.next()) != null) {
-      if (eval(it1,it2,collation))       return Bln.TRUE;
+      if (eval(it1,it2,coll))       return Bln.TRUE;
     }
   }
   return Bln.FALSE;

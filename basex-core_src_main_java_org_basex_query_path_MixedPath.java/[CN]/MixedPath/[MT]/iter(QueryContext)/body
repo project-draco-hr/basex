@@ -7,18 +7,18 @@
   try {
     final int sl=steps.length;
     for (int s=0; s < sl; s++) {
-      final Expr e=steps[s];
+      final Expr step=steps[s];
       final ValueBuilder vb=new ValueBuilder();
-      final boolean path=!(e instanceof Bang);
+      final boolean path=!(step instanceof Bang);
       ctx.size=res.size();
       ctx.pos=1;
       int nodes=0;
       for (Item it; (it=res.next()) != null; ) {
-        if (path && !(it instanceof ANode))         throw PATHNODE.get(info,it.type);
+        if (path && !it.type.isNode())         throw PATHNODE.get(info,it.type);
         ctx.value=it;
-        final Iter ir=ctx.iter(e);
+        final Iter ir=ctx.iter(step);
         for (Item i; (i=ir.next()) != null; ) {
-          if (i instanceof ANode)           nodes++;
+          if (i.type.isNode())           nodes++;
           vb.add(i);
         }
         ctx.pos++;

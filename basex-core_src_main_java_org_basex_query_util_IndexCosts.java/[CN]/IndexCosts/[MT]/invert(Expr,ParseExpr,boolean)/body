@@ -1,18 +1,17 @@
 {
-  if (ex instanceof Context) {
-    if (text)     return root;
-    if (step.test.name == null)     return root;
+  if (expr instanceof Context) {
+    if (text || step.test.name == null)     return root;
     final Step as=Step.get(step.info,Axis.SELF,step.test);
     return Path.get(root.info,root,as);
   }
-  final AxisPath orig=(AxisPath)ex;
-  final AxisPath path=orig.invertPath(root,step);
+  final AxisPath orig=(AxisPath)expr;
+  final Path path=orig.invertPath(root,step);
   if (!text) {
-    final Step s=orig.step(orig.steps.length - 1);
-    if (s.test.name != null) {
-      Expr[] steps={Step.get(s.info,Axis.SELF,s.test)};
-      for (      final Expr e : path.steps)       steps=Array.add(steps,e);
-      path.steps=steps;
+    final Step attr=orig.step(orig.steps.length - 1);
+    if (attr.test.name != null) {
+      final ExprList steps=new ExprList(path.steps.length + 1);
+      steps.add(Step.get(attr.info,Axis.SELF,attr.test)).add(path.steps);
+      return Path.get(path.info,path.root,steps.finish());
     }
   }
   return path;

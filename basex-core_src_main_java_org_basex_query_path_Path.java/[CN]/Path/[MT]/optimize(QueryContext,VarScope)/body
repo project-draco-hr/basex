@@ -1,10 +1,18 @@
 {
-  if (root instanceof Context) {
-    ctx.compInfo(OPTREMCTX);
-    root=null;
+  final Value v=initial(ctx);
+  if (emptyPath(v))   return optPre(null,ctx);
+  Expr e=mergeSteps(ctx);
+  if (e == this && v != null && v.type == NodeType.DOC) {
+    e=index(ctx,v);
+    if (e == this)     e=children(ctx,v);
   }
-  for (  final Expr e : steps) {
-    if (e.isEmpty())     return optPre(null,ctx);
+  if (e != this)   return e.compile(ctx,scp);
+  if (root == null && steps.length == 1 && steps[0] instanceof Step) {
+    final Step curr=(Step)steps[0];
+    if (curr.axis == ATTR && curr.test.kind == Kind.URI_NAME)     curr.type=SeqType.NOD_ZO;
   }
-  return this;
+  final Path path=get(info,root,steps);
+  path.size(ctx);
+  path.type=SeqType.get(steps[steps.length - 1].type().type,size);
+  return path;
 }

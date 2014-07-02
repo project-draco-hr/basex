@@ -1,7 +1,7 @@
 {
   CmpG cmpg=null;
-  final ExprList el=new ExprList(expr.length);
-  for (  final Expr e : expr) {
+  final ExprList el=new ExprList(exprs.length);
+  for (  final Expr e : exprs) {
     boolean merged=false;
     if (e instanceof CmpG) {
       final CmpG g=(CmpG)e;
@@ -14,13 +14,13 @@
     }
   }
   if (el.isEmpty())   return optPre(Bln.FALSE,ctx);
-  if (expr.length != el.size()) {
+  if (exprs.length != el.size()) {
     ctx.compInfo(OPTWRITE,this);
-    expr=el.finish();
+    exprs=el.finish();
   }
   compFlatten(ctx);
   boolean not=true;
-  for (  final Expr e : expr) {
+  for (  final Expr e : exprs) {
     if (!e.isFunction(Function.NOT)) {
       not=false;
       break;
@@ -28,10 +28,10 @@
   }
   if (not) {
     ctx.compInfo(OPTWRITE,this);
-    final Expr[] inner=new Expr[expr.length];
-    for (int i=0; i < inner.length; i++)     inner[i]=((Arr)expr[i]).expr[0];
+    final Expr[] inner=new Expr[exprs.length];
+    for (int i=0; i < inner.length; i++)     inner[i]=((Arr)exprs[i]).exprs[0];
     final Expr and=new And(info,inner).optimize(ctx,scp);
     return Function.NOT.get(null,and).optimize(ctx,scp);
   }
-  return expr.length == 1 ? compBln(expr[0],info) : this;
+  return exprs.length == 1 ? compBln(exprs[0],info) : this;
 }

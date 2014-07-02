@@ -1,32 +1,32 @@
 {
-  if (expr.length == 0)   return this;
-  final Expr e=expr[0];
-switch (sig) {
+  if (exprs.length == 0)   return this;
+  final Expr e=exprs[0];
+switch (func) {
 case EMPTY:
 case EXISTS:
-    return e.size() == -1 || e.has(Flag.NDT) || e.has(Flag.CNS) || e.has(Flag.UPD) ? this : Bln.get(sig == Function.EMPTY ^ e.size() != 0);
+    return e.size() == -1 || e.has(Flag.NDT) || e.has(Flag.CNS) || e.has(Flag.UPD) ? this : Bln.get(func == Function.EMPTY ^ e.size() != 0);
 case BOOLEAN:
   return e.type().eq(SeqType.BLN) ? e : this;
 case NOT:
 if (e.isFunction(Function.EMPTY)) {
   ctx.compInfo(QueryText.OPTWRITE,this);
-  expr=((Arr)e).expr;
-  sig=Function.EXISTS;
+  exprs=((Arr)e).exprs;
+  func=Function.EXISTS;
 }
  else if (e.isFunction(Function.EXISTS)) {
   ctx.compInfo(QueryText.OPTWRITE,this);
-  expr=((Arr)e).expr;
-  sig=Function.EMPTY;
+  exprs=((Arr)e).exprs;
+  func=Function.EMPTY;
 }
  else if (e instanceof CmpV || e instanceof CmpG) {
   final Cmp c=((Cmp)e).invert();
   return c == e ? this : c;
 }
  else if (e.isFunction(Function.NOT)) {
-  return compBln(((Arr)e).expr[0],info);
+  return compBln(((Arr)e).exprs[0],info);
 }
  else {
-  expr[0]=e.compEbv(ctx);
+  exprs[0]=e.compEbv(ctx);
 }
 return this;
 case ZERO_OR_ONE:
