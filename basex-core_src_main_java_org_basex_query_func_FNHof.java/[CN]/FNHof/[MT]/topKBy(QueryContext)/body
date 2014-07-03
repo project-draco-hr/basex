@@ -1,8 +1,8 @@
 {
-  final FItem getKey=withArity(1,1,ctx);
-  final long k=checkItr(exprs[2],ctx);
+  final FItem getKey=withArity(1,1,qc);
+  final long k=checkItr(exprs[2],qc);
   if (k < 1 || k > Integer.MAX_VALUE / 2)   return Empty.SEQ;
-  final Iter iter=exprs[0].iter(ctx);
+  final Iter iter=exprs[0].iter(qc);
   final MinHeap<Item,Item> heap=new MinHeap<>((int)k,new Comparator<Item>(){
     @Override public int compare(    final Item it1,    final Item it2){
       try {
@@ -16,7 +16,7 @@
 );
   try {
     for (Item it; (it=iter.next()) != null; ) {
-      heap.insert(checkNoEmpty(getKey.invokeItem(ctx,info,it)),it);
+      heap.insert(checkNoEmpty(getKey.invokeItem(qc,info,it)),it);
       if (heap.size() > k)       heap.removeMin();
     }
   }

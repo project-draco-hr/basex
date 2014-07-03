@@ -1,11 +1,11 @@
 {
-  final HashMap<String,Value> bindings=bindings(1,ctx);
-  final QueryContext qc=ctx.proc(new QueryContext(ctx));
+  final HashMap<String,Value> bindings=bindings(1,qc);
+  final QueryContext qctx=qc.proc(new QueryContext(qc));
   final Timer to=new Timer(true);
-  final Perm tmp=ctx.context.user.perm;
+  final Perm tmp=qc.context.user.perm;
   if (exprs.length > 2) {
-    final Options opts=checkOptions(2,Q_OPTIONS,new XQueryOptions(),ctx);
-    ctx.context.user.perm=Perm.get(opts.get(XQueryOptions.PERMISSION));
+    final Options opts=checkOptions(2,Q_OPTIONS,new XQueryOptions(),qc);
+    qc.context.user.perm=Perm.get(opts.get(XQueryOptions.PERMISSION));
     Performance.gc(2);
     final long mb=opts.get(XQueryOptions.MEMORY);
     if (mb != 0) {
@@ -14,7 +14,7 @@
         @Override public void run(){
           if (Performance.memory() > limit) {
             Performance.gc(1);
-            if (Performance.memory() > limit)             qc.stop();
+            if (Performance.memory() > limit)             qctx.stop();
           }
         }
       }
@@ -24,30 +24,30 @@
     if (ms != 0) {
       to.schedule(new TimerTask(){
         @Override public void run(){
-          qc.stop();
+          qctx.stop();
         }
       }
 ,ms);
     }
   }
   try {
-    final StaticContext sctx=new StaticContext(qc.context);
+    final StaticContext sctx=new StaticContext(qctx.context);
     for (    final Map.Entry<String,Value> it : bindings.entrySet()) {
       final String k=it.getKey();
       final Value v=it.getValue();
-      if (k.isEmpty())       qc.context(v,null,sctx);
- else       qc.bind(k,v,null);
+      if (k.isEmpty())       qctx.context(v,null,sctx);
+ else       qctx.bind(k,v,null);
     }
-    qc.parseMain(string(qu),path,sctx);
+    qctx.parseMain(string(qu),path,sctx);
     if (updating) {
-      if (!sc.mixUpdates && !qc.updating && !qc.root.expr.isVacuous())       throw BXXQ_NOUPDATE.get(info);
+      if (!sc.mixUpdates && !qctx.updating && !qctx.root.expr.isVacuous())       throw BXXQ_NOUPDATE.get(info);
     }
  else {
-      if (qc.updating)       throw BXXQ_UPDATING.get(info);
+      if (qctx.updating)       throw BXXQ_UPDATING.get(info);
     }
-    qc.compile();
+    qctx.compile();
     final ValueBuilder vb=new ValueBuilder();
-    cache(qc.iter(),vb,ctx);
+    cache(qctx.iter(),vb,qc);
     return vb;
   }
  catch (  final ProcException ex) {
@@ -57,9 +57,9 @@ catch (  final QueryException ex) {
     throw ex.err() == BASX_PERM ? BXXQ_PERM.get(info,ex.getLocalizedMessage()) : ex;
   }
  finally {
-    ctx.context.user.perm=tmp;
-    ctx.proc(null);
-    qc.close();
+    qc.context.user.perm=tmp;
+    qc.proc(null);
+    qctx.close();
     to.cancel();
   }
 }

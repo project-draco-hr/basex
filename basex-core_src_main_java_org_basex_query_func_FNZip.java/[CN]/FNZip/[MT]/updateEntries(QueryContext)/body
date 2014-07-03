@@ -1,8 +1,8 @@
 {
-  final ANode elm=(ANode)checkType(exprs[0].item(ctx,info),NodeType.ELM);
+  final ANode elm=(ANode)checkType(exprs[0].item(qc,info),NodeType.ELM);
   if (!elm.qname().eq(Q_FILE))   throw ZIP_UNKNOWN.get(info,elm.qname());
   final String in=attribute(elm,HREF,true);
-  final IOFile target=new IOFile(string(checkStr(exprs[1],ctx)));
+  final IOFile target=new IOFile(string(checkStr(exprs[1],qc)));
   IOFile out;
   do {
     out=new IOFile(target.path() + new Random().nextInt(0x7FFFFFFF));
@@ -12,7 +12,7 @@
   boolean ok=true;
   try (final ZipFile zf=new ZipFile(in)){
     try (final FileOutputStream fos=new FileOutputStream(out.path());final ZipOutputStream zos=new ZipOutputStream(new BufferedOutputStream(fos))){
-      create(zos,elm.children(),"",zf,ctx);
+      create(zos,elm.children(),"",zf,qc);
     }
  catch (    final IOException ex) {
       ok=false;

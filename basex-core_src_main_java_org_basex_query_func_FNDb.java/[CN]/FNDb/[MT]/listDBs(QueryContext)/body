@@ -1,10 +1,10 @@
 {
-  final StringList sl=ctx.context.databases.listDBs();
+  final StringList sl=qc.context.databases.listDBs();
   return new Iter(){
     int pos;
     @Override public ANode get(    final long i) throws QueryException {
       final String name=sl.get((int)i);
-      final MetaData meta=new MetaData(name,ctx.context);
+      final MetaData meta=new MetaData(name,qc.context);
       try {
         meta.read();
       }
@@ -15,7 +15,7 @@
       res.add(RESOURCES,token(meta.ndocs));
       res.add(MDATE,DateTime.format(new Date(meta.dbtime()),DateTime.FULL));
       res.add(SIZE,token(meta.dbsize()));
-      if (ctx.context.perm(Perm.CREATE,meta))       res.add(PATH,meta.original);
+      if (qc.context.perm(Perm.CREATE,meta))       res.add(PATH,meta.original);
       res.add(name);
       return res;
     }

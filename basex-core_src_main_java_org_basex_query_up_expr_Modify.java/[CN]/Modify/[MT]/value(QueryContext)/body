@@ -1,26 +1,26 @@
 {
-  final int o=(int)ctx.resources.output.size();
-  final Updates updates=ctx.resources.updates();
+  final int o=(int)qc.resources.output.size();
+  final Updates updates=qc.resources.updates();
   final ContextModifier tmp=updates.mod;
   final TransformModifier pu=new TransformModifier();
   updates.mod=pu;
-  final Value cv=ctx.value;
+  final Value cv=qc.value;
   try {
-    final Iter ir=ctx.iter(exprs[0]);
+    final Iter ir=qc.iter(exprs[0]);
     Item i=ir.next();
     if (!(i instanceof ANode) || ir.next() != null)     throw UPSOURCE.get(info);
-    i=((ANode)i).dbCopy(ctx.context.options);
-    ctx.value=i;
+    i=((ANode)i).dbCopy(qc.context.options);
+    qc.value=i;
     pu.addData(i.data());
-    final Value v=ctx.value(exprs[1]);
+    final Value v=qc.value(exprs[1]);
     if (!v.isEmpty())     throw BASEX_MOD.get(info);
     updates.prepare();
     updates.apply();
-    return ctx.value;
+    return qc.value;
   }
   finally {
-    ctx.resources.output.size(o);
+    qc.resources.output.size(o);
     updates.mod=tmp;
-    ctx.value=cv;
+    qc.value=cv;
   }
 }

@@ -1,5 +1,5 @@
 {
-  final Iter t=ctx.iter(exprs[0]);
+  final Iter t=qc.iter(exprs[0]);
   final Item i=t.next();
   if (i == null)   throw UPSEQEMP.get(info,Util.className(this));
   if (t.next() != null)   throw UPWRTRGTYP.get(info);
@@ -16,7 +16,7 @@
  else {
     throw UPWRTRGTYP.get(info);
   }
-  final QNm rename=ex.item(ctx,info).qname();
+  final QNm rename=ex.item(qc,info).qname();
   final ANode targ=(ANode)i;
   if (targ.type == NodeType.ELM || targ.type == NodeType.ATT) {
     final byte[] rp=rename.prefix();
@@ -27,8 +27,8 @@
       if (eq(at.name(a),rp) && !eq(at.value(a),ru))       throw UPNSCONFL.get(info);
     }
   }
-  final Updates updates=ctx.resources.updates();
-  final DBNode dbn=updates.determineDataRef(targ,ctx);
-  updates.add(new RenameNode(dbn.pre,dbn.data,info,rename),ctx);
+  final Updates updates=qc.resources.updates();
+  final DBNode dbn=updates.determineDataRef(targ,qc);
+  updates.add(new RenameNode(dbn.pre,dbn.data,info,rename),qc);
   return null;
 }

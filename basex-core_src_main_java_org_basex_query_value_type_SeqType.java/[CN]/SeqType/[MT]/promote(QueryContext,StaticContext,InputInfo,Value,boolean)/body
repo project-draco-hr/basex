@@ -2,12 +2,12 @@
   final long n=val.size();
   if (!occ.check(n))   throw Err.treatError(ii,this,val);
   if (n == 0)   return Empty.SEQ;
-  if (val.isItem())   return instance((Item)val,true) ? val : promote(ctx,sc,ii,(Item)val,opt);
+  if (val.isItem())   return instance((Item)val,true) ? val : promote(qc,sc,ii,(Item)val,opt);
   ValueBuilder vb=null;
   final Item fst=val.itemAt(0);
   if (!instance(fst,true)) {
     vb=new ValueBuilder(new Item[(int)val.size()],0);
-    vb.add(promote(ctx,sc,ii,fst,opt));
+    vb.add(promote(qc,sc,ii,fst,opt));
   }
  else   if (val.homogeneous()) {
     return val;
@@ -15,12 +15,12 @@
   for (int i=1; i < n; i++) {
     final Item it=val.itemAt(i);
     if (vb != null) {
-      vb.add(instance(it,true) ? it : promote(ctx,sc,ii,it,opt));
+      vb.add(instance(it,true) ? it : promote(qc,sc,ii,it,opt));
     }
  else     if (!instance(it,true)) {
       vb=new ValueBuilder(new Item[(int)val.size()],0);
       for (int j=0; j < i; j++)       vb.add(val.itemAt(j));
-      vb.add(promote(ctx,sc,ii,it,opt));
+      vb.add(promote(qc,sc,ii,it,opt));
     }
   }
   return vb != null ? Seq.get(vb.items(),(int)vb.size(),type) : val;

@@ -1,11 +1,11 @@
 {
-  final ClientSession cs=session(ctx,false);
-  final String query=Token.string(checkStr(exprs[1],ctx));
+  final ClientSession cs=session(qc,false);
+  final String query=Token.string(checkStr(exprs[1],qc));
   final ValueBuilder vb=new ValueBuilder();
   ClientQuery cq=null;
   try {
     cq=cs.query(query);
-    for (    final Map.Entry<String,Value> binding : bindings(2,ctx).entrySet()) {
+    for (    final Map.Entry<String,Value> binding : bindings(2,qc).entrySet()) {
       final String k=binding.getKey();
       final Value v=binding.getValue();
       if (!v.isItem())       throw BXCL_ITEM.get(info,v);
@@ -18,7 +18,7 @@
     }
     while (cq.more()) {
       final String result=cq.next();
-      vb.add(cq.type().castString(result,ctx,sc,info));
+      vb.add(cq.type().castString(result,qc,sc,info));
     }
     return vb.value();
   }

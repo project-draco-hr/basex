@@ -1,0 +1,18 @@
+{
+  final int es=exprs.length;
+  final int[] ics=new int[es];
+  final Expr[] tmp=new Expr[es];
+  for (int e=0; e < es; e++) {
+    final Expr expr=exprs[e];
+    if (!expr.indexAccessible(ii) || ii.seq)     return false;
+    if (ii.costs == 0)     return true;
+    ics[e]=ii.costs;
+    tmp[e]=ii.expr;
+  }
+  final int[] ord=Array.createOrder(ics,true);
+  final Expr[] ex=new Expr[es];
+  for (int e=0; e < es; ++e)   ex[e]=tmp[ord[e]];
+  ii.expr=new InterSect(info,ex);
+  ii.costs=ics[ord[es - 1]];
+  return true;
+}

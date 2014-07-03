@@ -8,8 +8,8 @@
  * Current position. 
  */
     private int pos;
-    @Override public boolean next(    final QueryContext ctx) throws QueryException {
-      if (groups == null)       groups=init(ctx);
+    @Override public boolean next(    final QueryContext qc) throws QueryException {
+      if (groups == null)       groups=init(qc);
       if (pos == groups.length)       return false;
       final Group curr=groups[pos];
       groups[pos++]=null;
@@ -17,32 +17,32 @@
       for (      final Spec spec : specs) {
         if (!spec.occluded) {
           final Item key=curr.key[p++];
-          ctx.set(spec.var,key == null ? Empty.SEQ : key,info);
+          qc.set(spec.var,key == null ? Empty.SEQ : key,info);
         }
       }
-      for (int i=0; i < post.length; i++)       ctx.set(post[i],curr.ngv[i].value(),info);
+      for (int i=0; i < post.length; i++)       qc.set(post[i],curr.ngv[i].value(),info);
       return true;
     }
     /** 
  * Builds up the groups.
- * @param ctx query context
+ * @param qc query context
  * @throws QueryException query exception
  */
-    private Group[] init(    final QueryContext ctx) throws QueryException {
+    private Group[] init(    final QueryContext qc) throws QueryException {
       final ArrayList<Group> grps=new ArrayList<>();
       final IntObjMap<Group> map=new IntObjMap<>();
       final Collation[] colls=new Collation[nonOcc];
       for (int i=0, p=0; i < specs.length; i++)       if (!specs[i].occluded)       colls[p++]=specs[i].coll;
-      while (sub.next(ctx)) {
+      while (sub.next(qc)) {
         final Item[] key=new Item[nonOcc];
         int p=0, hash=1;
         for (        final Spec spec : specs) {
-          final Item ki=spec.item(ctx,info), atom=ki == null ? null : StandardFunc.atom(ki,info);
+          final Item ki=spec.item(qc,info), atom=ki == null ? null : StandardFunc.atom(ki,info);
           if (!spec.occluded) {
             key[p++]=atom;
             hash=31 * hash + (atom == null || spec.coll != null ? 0 : atom.hash(info));
           }
-          ctx.set(spec.var,atom == null ? Empty.SEQ : atom,info);
+          qc.set(spec.var,atom == null ? Empty.SEQ : atom,info);
         }
         final Group fst;
         Group grp=null;
@@ -66,7 +66,7 @@
             grp.next=nxt;
           }
         }
-        for (int j=0; j < preExpr.length; j++)         grp.ngv[j].add(preExpr[j].value(ctx));
+        for (int j=0; j < preExpr.length; j++)         grp.ngv[j].add(preExpr[j].value(qc));
       }
       return grps.toArray(new Group[grps.size()]);
     }

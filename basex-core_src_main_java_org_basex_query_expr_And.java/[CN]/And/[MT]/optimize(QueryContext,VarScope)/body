@@ -22,17 +22,17 @@
  else       if (tmp != null)       return tmp;
     }
     if (tmp == null && e != Bln.TRUE) {
-      if (e == Bln.FALSE)       return optPre(Bln.FALSE,ctx);
+      if (e == Bln.FALSE)       return optPre(Bln.FALSE,qc);
       el.add(e);
     }
   }
   if (ps != null)   el.add(ps);
   if (cr != null)   el.add(cr);
   if (cs != null)   el.add(cs);
-  if (el.isEmpty())   return optPre(Bln.TRUE,ctx);
-  if (es != el.size())   ctx.compInfo(OPTWRITE,this);
+  if (el.isEmpty())   return optPre(Bln.TRUE,qc);
+  if (es != el.size())   qc.compInfo(OPTWRITE,this);
   exprs=el.finish();
-  compFlatten(ctx);
+  compFlatten(qc);
   boolean not=true;
   for (  final Expr e : exprs) {
     if (!e.isFunction(Function.NOT)) {
@@ -41,11 +41,11 @@
     }
   }
   if (not) {
-    ctx.compInfo(OPTWRITE,this);
+    qc.compInfo(OPTWRITE,this);
     final Expr[] inner=new Expr[exprs.length];
     for (int i=0; i < inner.length; i++)     inner[i]=((Arr)exprs[i]).exprs[0];
-    final Expr or=new Or(info,inner).optimize(ctx,scp);
-    return Function.NOT.get(null,or).optimize(ctx,scp);
+    final Expr or=new Or(info,inner).optimize(qc,scp);
+    return Function.NOT.get(null,or).optimize(qc,scp);
   }
   return exprs.length == 1 ? compBln(exprs[0],info) : this;
 }

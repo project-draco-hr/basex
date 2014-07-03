@@ -6,19 +6,19 @@
     if (e instanceof CmpG) {
       final CmpG g=(CmpG)e;
       if (cmpg == null)       cmpg=g;
- else       if (cmpg.union(g,ctx,scp))       merged=true;
+ else       if (cmpg.union(g,qc,scp))       merged=true;
     }
     if (!(merged || e == Bln.FALSE)) {
-      if (e == Bln.TRUE)       return optPre(Bln.TRUE,ctx);
+      if (e == Bln.TRUE)       return optPre(Bln.TRUE,qc);
       el.add(e);
     }
   }
-  if (el.isEmpty())   return optPre(Bln.FALSE,ctx);
+  if (el.isEmpty())   return optPre(Bln.FALSE,qc);
   if (exprs.length != el.size()) {
-    ctx.compInfo(OPTWRITE,this);
+    qc.compInfo(OPTWRITE,this);
     exprs=el.finish();
   }
-  compFlatten(ctx);
+  compFlatten(qc);
   boolean not=true;
   for (  final Expr e : exprs) {
     if (!e.isFunction(Function.NOT)) {
@@ -27,11 +27,11 @@
     }
   }
   if (not) {
-    ctx.compInfo(OPTWRITE,this);
+    qc.compInfo(OPTWRITE,this);
     final Expr[] inner=new Expr[exprs.length];
     for (int i=0; i < inner.length; i++)     inner[i]=((Arr)exprs[i]).exprs[0];
-    final Expr and=new And(info,inner).optimize(ctx,scp);
-    return Function.NOT.get(null,and).optimize(ctx,scp);
+    final Expr and=new And(info,inner).optimize(qc,scp);
+    return Function.NOT.get(null,and).optimize(qc,scp);
   }
   return exprs.length == 1 ? compBln(exprs[0],info) : this;
 }

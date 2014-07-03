@@ -10,11 +10,11 @@
   Perm perm=Perm.ADMIN;
   final QueryModule.Requires req=meth.getAnnotation(QueryModule.Requires.class);
   if (req != null)   perm=Perm.get(req.value().name());
-  if (!ctx.context.user.has(perm))   return null;
+  if (!qc.context.user.has(perm))   return null;
   final QueryModule.Lock lock=meth.getAnnotation(QueryModule.Lock.class);
   if (lock != null) {
-    for (    final String read : lock.read())     ctx.readLocks.add(DBLocking.MODULE_PREFIX + read);
-    for (    final String write : lock.write())     ctx.writeLocks.add(DBLocking.MODULE_PREFIX + write);
+    for (    final String read : lock.read())     qc.readLocks.add(DBLocking.MODULE_PREFIX + read);
+    for (    final String write : lock.write())     qc.writeLocks.add(DBLocking.MODULE_PREFIX + write);
   }
   return meth;
 }

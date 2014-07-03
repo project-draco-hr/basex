@@ -1,20 +1,20 @@
 {
-  final Iter iter=ctx.iter(exprs[0]);
+  final Iter iter=qc.iter(exprs[0]);
 switch (func) {
 case COUNT:
     long c=iter.size();
   if (c == -1) {
     do {
-      ctx.checkStop();
+      qc.checkStop();
       ++c;
     }
  while (iter.next() != null);
   }
 return Int.get(c);
 case MIN:
-return minmax(iter,OpV.GT,ctx);
+return minmax(iter,OpV.GT,qc);
 case MAX:
-return minmax(iter,OpV.LT,ctx);
+return minmax(iter,OpV.LT,qc);
 case SUM:
 if (exprs[0] instanceof RangeSeq) {
 final RangeSeq rs=(RangeSeq)exprs[0];
@@ -25,11 +25,11 @@ return Int.get(n < 3037000500L ? n * (n + 1) / 2 : BigInteger.valueOf(n).multipl
 }
 }
 Item it=iter.next();
-return it != null ? sum(iter,it,false) : exprs.length == 2 ? exprs[1].item(ctx,info) : Int.get(0);
+return it != null ? sum(iter,it,false) : exprs.length == 2 ? exprs[1].item(qc,info) : Int.get(0);
 case AVG:
 it=iter.next();
 return it == null ? null : sum(iter,it,true);
 default :
-return super.item(ctx,ii);
+return super.item(qc,ii);
 }
 }

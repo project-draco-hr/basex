@@ -1,14 +1,14 @@
 {
   XQFunction func=fun;
   Value[] args=arg;
-  final int fp=ctx.stack.enterFrame(func.stackFrameSize());
+  final int fp=qc.stack.enterFrame(func.stackFrameSize());
   try {
     while (true) {
-      final Value ret=itm ? func.invItem(ctx,ii,args) : func.invValue(ctx,ii,args);
-      func=ctx.pollTailCall();
+      final Value ret=itm ? func.invItem(qc,ii,args) : func.invValue(qc,ii,args);
+      func=qc.pollTailCall();
       if (func == null)       return ret;
-      ctx.stack.reuseFrame(func.stackFrameSize());
-      args=ctx.pollTailArgs();
+      qc.stack.reuseFrame(func.stackFrameSize());
+      args=qc.pollTailArgs();
     }
   }
  catch (  final QueryException ex) {
@@ -16,6 +16,6 @@
     throw ex;
   }
  finally {
-    ctx.stack.exitFrame(fp);
+    qc.stack.exitFrame(fp);
   }
 }

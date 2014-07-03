@@ -1,23 +1,23 @@
 {
   final ArrayList<StaticFunc> old=new ArrayList<>();
   if (exprs.length > 0) {
-    for (    final StaticFunc sf : ctx.funcs.funcs())     old.add(sf);
+    for (    final StaticFunc sf : qc.funcs.funcs())     old.add(sf);
     try {
-      final IO io=checkPath(exprs[0],ctx);
-      ctx.parse(Token.string(io.read()),io.path(),sc);
-      ctx.compile();
+      final IO io=checkPath(exprs[0],qc);
+      qc.parse(Token.string(io.read()),io.path(),sc);
+      qc.compile();
     }
  catch (    final IOException ex) {
       throw IOERR.get(info,ex);
     }
  finally {
-      ctx.close();
+      qc.close();
     }
   }
   final ValueBuilder vb=new ValueBuilder();
-  for (  final StaticFunc sf : ctx.funcs.funcs()) {
+  for (  final StaticFunc sf : qc.funcs.funcs()) {
     if (old.contains(sf))     continue;
-    final FuncItem fi=Functions.getUser(sf,ctx,sf.sc,info);
+    final FuncItem fi=Functions.getUser(sf,qc,sf.sc,info);
     if (sc.mixUpdates || !fi.annotations().contains(Ann.Q_UPDATING))     vb.add(fi);
   }
   return vb;

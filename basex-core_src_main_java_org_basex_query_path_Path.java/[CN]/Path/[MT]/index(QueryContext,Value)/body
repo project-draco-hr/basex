@@ -1,7 +1,7 @@
 {
   final Data data=rt.data();
   if (data == null)   return this;
-  IndexCosts index=null;
+  IndexInfo index=null;
   int iPred=0, iStep=0;
   final int sl=steps.length;
   for (int s=0; s < sl; s++) {
@@ -11,28 +11,28 @@
     final IndexContext ictx=new IndexContext(data,iter);
     final int pl=step.preds.length;
     for (int p=0; p < pl; p++) {
-      final IndexCosts ic=new IndexCosts(ictx,ctx,step);
-      if (!step.preds[p].indexAccessible(ic))       continue;
-      if (ic.costs() == 0) {
-        if (ic.not) {
+      final IndexInfo ii=new IndexInfo(ictx,qc,step);
+      if (!step.preds[p].indexAccessible(ii))       continue;
+      if (ii.costs == 0) {
+        if (ii.not) {
           step.preds[p]=Bln.TRUE;
           continue;
         }
-        ctx.compInfo(OPTNOINDEX,this);
+        qc.compInfo(OPTNOINDEX,this);
         return Empty.SEQ;
       }
-      if (index == null || index.costs() > ic.costs()) {
-        index=ic;
+      if (index == null || index.costs > ii.costs) {
+        index=ii;
         iPred=p;
         iStep=s;
       }
     }
   }
-  if (index == null || index.costs() > data.meta.size)   return this;
+  if (index == null || index.costs > data.meta.size)   return this;
+  qc.compInfo(index.info);
   final Step indexStep=index.step;
-  Expr indexExpr=indexStep.preds[iPred].indexEquivalent(index);
   if (index.seq) {
-    indexStep.preds[iPred]=indexExpr;
+    indexStep.preds[iPred]=index.expr;
   }
  else {
     final int pl=indexStep.preds.length;
@@ -69,13 +69,13 @@
     if (!invSteps.isEmpty())     newPreds.add(get(info,null,invSteps.finish()));
     final ExprList resultSteps=new ExprList();
     final Expr resultRoot;
-    if (indexExpr instanceof Path) {
-      final Path p=(Path)indexExpr;
+    if (index.expr instanceof Path) {
+      final Path p=(Path)index.expr;
       resultRoot=p.root;
       resultSteps.add(p.steps);
     }
  else {
-      resultRoot=indexExpr;
+      resultRoot=index.expr;
     }
     if (!newPreds.isEmpty()) {
       int ls=resultSteps.size() - 1;

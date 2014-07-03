@@ -1,27 +1,27 @@
 {
-  final Value v=root != null ? ctx.value(root) : checkCtx(ctx);
+  final Value v=root != null ? qc.value(root) : checkCtx(qc);
   Iter res=v.iter();
-  final Value cv=ctx.value;
-  final long cs=ctx.size;
-  final long cp=ctx.pos;
+  final Value cv=qc.value;
+  final long cs=qc.size;
+  final long cp=qc.pos;
   try {
     final int sl=steps.length;
     for (int s=0; s < sl; s++) {
       final Expr step=steps[s];
       final ValueBuilder vb=new ValueBuilder();
       final boolean path=!(step instanceof Bang);
-      ctx.size=res.size();
-      ctx.pos=1;
+      qc.size=res.size();
+      qc.pos=1;
       int nodes=0;
       for (Item it; (it=res.next()) != null; ) {
         if (path && !it.type.isNode())         throw PATHNODE.get(info,it.type);
-        ctx.value=it;
-        final Iter ir=ctx.iter(step);
+        qc.value=it;
+        final Iter ir=qc.iter(step);
         for (Item i; (i=ir.next()) != null; ) {
           if (i.type.isNode())           nodes++;
           vb.add(i);
         }
-        ctx.pos++;
+        qc.pos++;
       }
       final long vs=vb.size();
       if (nodes < vs) {
@@ -40,8 +40,8 @@
     return res;
   }
   finally {
-    ctx.value=cv;
-    ctx.size=cs;
-    ctx.pos=cp;
+    qc.value=cv;
+    qc.size=cs;
+    qc.pos=cp;
   }
 }

@@ -1,9 +1,9 @@
 {
   boolean change=false;
   try {
-    final Expr sub=expr.inline(ctx,scp,v,e);
+    final Expr sub=expr.inline(qc,scp,v,e);
     if (sub != null) {
-      if (sub.isValue())       return optPre(sub,ctx);
+      if (sub.isValue())       return optPre(sub,qc);
       expr=sub;
       change=true;
     }
@@ -12,12 +12,12 @@
     if (!qe.isCatchable())     throw qe;
     for (    final Catch c : catches) {
       if (c.matches(qe)) {
-        final Catch nw=c.inline(ctx,scp,v,e);
-        return optPre((nw == null ? c : nw).asExpr(qe,ctx,scp),ctx);
+        final Catch nw=c.inline(qc,scp,v,e);
+        return optPre((nw == null ? c : nw).asExpr(qe,qc,scp),qc);
       }
     }
     throw qe;
   }
-  for (  final Catch c : catches)   change|=c.inline(ctx,scp,v,e) != null;
+  for (  final Catch c : catches)   change|=c.inline(qc,scp,v,e) != null;
   return change ? this : null;
 }

@@ -1,0 +1,18 @@
+{
+  if (orig instanceof Context) {
+    if (!attr || step.test.name == null)     return root;
+    final Step as=Step.get(step.info,Axis.SELF,step.test);
+    return Path.get(root.info,root,as);
+  }
+  final AxisPath origPath=(AxisPath)orig;
+  final Path invPath=origPath.invertPath(root,step);
+  if (attr) {
+    final Step at=origPath.step(origPath.steps.length - 1);
+    if (at.test.name != null) {
+      final ExprList steps=new ExprList(invPath.steps.length + 1);
+      steps.add(Step.get(at.info,Axis.SELF,at.test)).add(invPath.steps);
+      return Path.get(invPath.info,invPath.root,steps.finish());
+    }
+  }
+  return invPath;
+}
