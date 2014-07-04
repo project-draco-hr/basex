@@ -1,3 +1,12 @@
 {
-  return expr.isValue() ? optPre(item(qc,info),qc) : this;
+  if (expr.isValue())   return optPre(item(qc,info),qc);
+  if (expr instanceof GFLWOR && !expr.has(Flag.NDT) && !expr.has(Flag.UPD)) {
+    final GFLWOR gflwor=(GFLWOR)expr;
+    if (gflwor.size() > 0 && gflwor.ret.isValue()) {
+      final Value value=(Value)gflwor.ret;
+      qc.compInfo(OPTPRE,value);
+      return Bln.get(value.ebv(qc,info).bool(info));
+    }
+  }
+  return this;
 }
