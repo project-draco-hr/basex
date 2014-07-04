@@ -14,10 +14,6 @@
       final IndexInfo ii=new IndexInfo(ictx,qc,step);
       if (!step.preds[p].indexAccessible(ii))       continue;
       if (ii.costs == 0) {
-        if (ii.not) {
-          step.preds[p]=Bln.TRUE;
-          continue;
-        }
         qc.compInfo(OPTNOINDEX,this);
         return Empty.SEQ;
       }
@@ -31,66 +27,60 @@
   if (index == null || index.costs > data.meta.size)   return this;
   qc.compInfo(index.info);
   final Step indexStep=index.step;
-  if (index.seq) {
-    indexStep.preds[iPred]=index.expr;
+  final int pl=indexStep.preds.length;
+  final ExprList newPreds=new ExprList(pl - 1);
+  for (int p=0; p < pl; p++) {
+    if (p != iPred)     newPreds.add(indexStep.preds[p]);
+  }
+  final Test test=InvDocTest.get(rt);
+  boolean inv=true;
+  if (test == Test.DOC && data.meta.uptodate) {
+    int s=0;
+    for (; s <= iStep; s++) {
+      final Step step=axisStep(s);
+      if (step.test.kind != Kind.NAME || step.axis != Axis.CHILD || s != iStep && step.preds.length > 0)       break;
+      final int name=data.tagindex.id(step.test.name.local());
+      final ArrayList<PathNode> pn=data.paths.desc(name,Data.ELEM);
+      if (pn.size() != 1 || pn.get(0).level() != s + 1)       break;
+    }
+    inv=s <= iStep;
+  }
+  final ExprList invSteps=new ExprList();
+  if (inv) {
+    for (int s=iStep; s >= 0; s--) {
+      final Axis ax=axisStep(s).axis.invert();
+      if (s == 0) {
+        if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)         invSteps.add(Step.get(info,ax,test));
+      }
+ else {
+        final Step prev=axisStep(s - 1);
+        invSteps.add(Step.get(info,ax,prev.test,prev.preds));
+      }
+    }
+  }
+  if (!invSteps.isEmpty())   newPreds.add(get(info,null,invSteps.finish()));
+  final ExprList resultSteps=new ExprList();
+  final Expr resultRoot;
+  if (index.expr instanceof Path) {
+    final Path p=(Path)index.expr;
+    resultRoot=p.root;
+    resultSteps.add(p.steps);
   }
  else {
-    final int pl=indexStep.preds.length;
-    final ExprList newPreds=new ExprList(pl - 1);
-    for (int p=0; p < pl; p++) {
-      if (p != iPred)       newPreds.add(indexStep.preds[p]);
-    }
-    final Test test=InvDocTest.get(rt);
-    boolean inv=true;
-    if (test == Test.DOC && data.meta.uptodate) {
-      int s=0;
-      for (; s <= iStep; s++) {
-        final Step step=axisStep(s);
-        if (step.test.kind != Kind.NAME || step.axis != Axis.CHILD || s != iStep && step.preds.length > 0)         break;
-        final int name=data.tagindex.id(step.test.name.local());
-        final ArrayList<PathNode> pn=data.paths.desc(name,Data.ELEM);
-        if (pn.size() != 1 || pn.get(0).level() != s + 1)         break;
-      }
-      inv=s <= iStep;
-    }
-    final ExprList invSteps=new ExprList();
-    if (inv) {
-      for (int s=iStep; s >= 0; s--) {
-        final Axis ax=axisStep(s).axis.invert();
-        if (s == 0) {
-          if (test != Test.DOC || ax != Axis.ANC && ax != Axis.ANCORSELF)           invSteps.add(Step.get(info,ax,test));
-        }
- else {
-          final Step prev=axisStep(s - 1);
-          invSteps.add(Step.get(info,ax,prev.test,prev.preds));
-        }
-      }
-    }
-    if (!invSteps.isEmpty())     newPreds.add(get(info,null,invSteps.finish()));
-    final ExprList resultSteps=new ExprList();
-    final Expr resultRoot;
-    if (index.expr instanceof Path) {
-      final Path p=(Path)index.expr;
-      resultRoot=p.root;
-      resultSteps.add(p.steps);
-    }
- else {
-      resultRoot=index.expr;
-    }
-    if (!newPreds.isEmpty()) {
-      int ls=resultSteps.size() - 1;
-      Step step;
-      if (ls < 0 || !(resultSteps.get(ls) instanceof Step)) {
-        step=Step.get(info,Axis.SELF,Test.NOD);
-        ls++;
-      }
- else {
-        step=(Step)resultSteps.get(ls);
-      }
-      resultSteps.set(ls,step.addPreds(newPreds.finish()));
-    }
-    for (int s=iStep + 1; s < sl; s++)     resultSteps.add(steps[s]);
-    return get(info,resultRoot,resultSteps.finish());
+    resultRoot=index.expr;
   }
-  return this;
+  if (!newPreds.isEmpty()) {
+    int ls=resultSteps.size() - 1;
+    Step step;
+    if (ls < 0 || !(resultSteps.get(ls) instanceof Step)) {
+      step=Step.get(info,Axis.SELF,Test.NOD);
+      ls++;
+    }
+ else {
+      step=(Step)resultSteps.get(ls);
+    }
+    resultSteps.set(ls,step.addPreds(newPreds.finish()));
+  }
+  for (int s=iStep + 1; s < sl; s++)   resultSteps.add(steps[s]);
+  return get(info,resultRoot,resultSteps.finish());
 }
