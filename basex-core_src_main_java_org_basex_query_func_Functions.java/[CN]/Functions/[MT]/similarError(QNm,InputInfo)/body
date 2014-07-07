@@ -1,12 +1,15 @@
 {
   final byte[] local=name.local(), uri=name.uri();
+  for (  final byte[] key : this) {
+    final int k=indexOf(key,'}');
+    final byte[] l=substring(key,k + 1);
+    if (eq(local,l))     return similarError(name,ii,key);
+  }
   final Levenshtein ls=new Levenshtein();
   for (  final byte[] key : this) {
-    final int i=indexOf(key,'}');
-    final byte[] u=substring(key,2,i), l=substring(key,i + 1);
-    if (eq(local,l) || eq(uri,u) && ls.similar(local,l)) {
-      return FUNCSIMILAR.get(ii,name.prefixId(FNURI),new TokenBuilder(NSGlobal.prefix(u)).add(':').add(l));
-    }
+    final int k=indexOf(key,'}');
+    final byte[] u=substring(key,2,k), l=substring(key,k + 1);
+    if (eq(uri,u) && ls.similar(local,l))     return similarError(name,ii,key);
   }
   return null;
 }
