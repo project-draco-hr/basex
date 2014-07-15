@@ -1,10 +1,15 @@
 {
-  final StringList list=new StringList();
-  for (  final IOFile f : gopts.dbpath().children()) {
-    final String name=f.name();
-    if (name.endsWith(IO.ZIPSUFFIX) && (prefix == null || name.startsWith(prefix))) {
-      list.add(name.replaceFirst("\\..*",""));
+  final StringList backups=new StringList();
+  final IOFile file=gopts.dbpath(db + IO.ZIPSUFFIX);
+  if (file.exists()) {
+    backups.add(db);
+  }
+ else {
+    final String regex=db.replaceAll("([" + REGEXCHARS + "])","\\\\$1") + DateTime.PATTERN + IO.ZIPSUFFIX;
+    for (    final IOFile f : gopts.dbpath().children()) {
+      final String n=f.name();
+      if (n.matches(regex))       backups.add(n.substring(0,n.lastIndexOf('.')));
     }
   }
-  return list;
+  return backups.sort(Prop.CASE,false);
 }

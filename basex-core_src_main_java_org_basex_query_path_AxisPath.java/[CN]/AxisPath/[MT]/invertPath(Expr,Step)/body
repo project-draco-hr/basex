@@ -1,11 +1,10 @@
 {
-  int s=steps.length;
-  final Expr[] e=new Expr[s--];
-  final Expr rt=step(s).preds.length == 0 ? r : Filter.get(info,r,step(s).preds);
-  int c=0;
+  int s=steps.length - 1;
+  final Expr r=step(s).preds.length == 0 ? rt : Filter.get(info,rt,step(s).preds);
+  final ExprList stps=new ExprList();
   while (--s >= 0) {
-    e[c++]=Step.get(info,step(s + 1).axis.invert(),step(s).test,step(s).preds);
+    stps.add(Step.get(info,step(s + 1).axis.invert(),step(s).test,step(s).preds));
   }
-  e[c]=Step.get(info,step(s + 1).axis.invert(),curr.test);
-  return new CachedPath(info,rt,e);
+  stps.add(Step.get(info,step(s + 1).axis.invert(),curr.test));
+  return Path.get(info,r,stps.finish());
 }

@@ -1,0 +1,28 @@
+{
+  cache=null;
+  String t=type, v;
+  if (value instanceof Value) {
+    final Value val=(Value)value;
+    final Type tp=val.type;
+    if (t == null || t.isEmpty())     t=val.isEmpty() ? QueryText.EMPTY_SEQUENCE + "()" : tp.toString();
+    try {
+      final TokenBuilder tb=new TokenBuilder();
+      for (      final Item it : val) {
+        if (!tb.isEmpty())         tb.add(1);
+        tb.add(it.type instanceof NodeType ? it.serialize().toArray() : it.string(null));
+        if (it.type != tp)         tb.add(2).add(it.type.toString());
+      }
+      v=tb.toString();
+    }
+ catch (    final QueryException ex) {
+      throw new QueryIOException(ex);
+    }
+  }
+ else {
+    v=value.toString();
+    if (t == null)     t="";
+  }
+  final ServerCmd cmd=name == null ? ServerCmd.CONTEXT : ServerCmd.BIND;
+  final String n=name == null ? "" : (name + '\0');
+  cs.exec(cmd,id + '\0' + n+ v+ '\0'+ t,null);
+}

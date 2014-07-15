@@ -1,6 +1,6 @@
 {
   try {
-    final Field f=cls.getField(mth);
+    final Field f=clazz.getField(method);
     final boolean st=Modifier.isStatic(f.getModifiers());
     if (ar.length == (st ? 0 : 1)) {
       return f.get(st ? null : instObj(ar[0]));
@@ -8,8 +8,8 @@
   }
  catch (  final NoSuchFieldException ex) {
   }
-  for (  final Method meth : cls.getMethods()) {
-    if (!meth.getName().equals(mth))     continue;
+  for (  final Method meth : clazz.getMethods()) {
+    if (!meth.getName().equals(method))     continue;
     final boolean st=Modifier.isStatic(meth.getModifiers());
     final Object[] arg=args(meth.getParameterTypes(),null,ar,st);
     if (arg != null) {
@@ -19,7 +19,7 @@
         if (inst instanceof QueryModule) {
           final QueryModule mod=(QueryModule)inst;
           mod.staticContext=sc;
-          mod.queryContext=ctx;
+          mod.queryContext=qc;
         }
       }
       return meth.invoke(inst,arg);

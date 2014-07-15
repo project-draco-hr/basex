@@ -1,6 +1,15 @@
 {
   try {
-    connection(ctx,true).close();
+    final int id=(int)checkItr(exprs[0],qc);
+    final JDBCConnections jdbc=jdbc(qc);
+    final Object obj=jdbc.get(id);
+    if (obj instanceof Connection) {
+      ((Connection)obj).close();
+    }
+ else {
+      ((PreparedStatement)obj).close();
+    }
+    jdbc.remove(id);
     return null;
   }
  catch (  final SQLException ex) {

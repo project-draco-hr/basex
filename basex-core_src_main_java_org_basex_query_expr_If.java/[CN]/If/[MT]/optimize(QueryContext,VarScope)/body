@@ -1,42 +1,42 @@
 {
-  if (cond.isValue())   return optPre(eval(ctx),ctx);
-  if (expr[0].sameAs(expr[1]))   return optPre(expr[0],ctx);
+  if (cond.isValue())   return optPre(eval(qc),qc);
+  if (exprs[0].sameAs(exprs[1]))   return optPre(exprs[0],qc);
   if (cond.isFunction(Function.NOT)) {
-    ctx.compInfo(OPTWRITE,this);
-    cond=((Arr)cond).expr[0];
-    final Expr tmp=expr[0];
-    expr[0]=expr[1];
-    expr[1]=tmp;
+    qc.compInfo(OPTWRITE,this);
+    cond=((Arr)cond).exprs[0];
+    final Expr tmp=exprs[0];
+    exprs[0]=exprs[1];
+    exprs[1]=tmp;
   }
-  if (expr[0].type().eq(SeqType.BLN) && expr[1].type().eq(SeqType.BLN)) {
-    final Expr a=cond, b=expr[0], c=expr[1];
+  if (exprs[0].type().eq(SeqType.BLN) && exprs[1].type().eq(SeqType.BLN)) {
+    final Expr a=cond, b=exprs[0], c=exprs[1];
     if (b == Bln.TRUE) {
       if (c == Bln.FALSE) {
-        ctx.compInfo(OPTPRE,this);
+        qc.compInfo(OPTPRE,this);
         return compBln(a,info);
       }
-      ctx.compInfo(OPTWRITE,this);
-      return new Or(info,a,c).optimize(ctx,scp);
+      qc.compInfo(OPTWRITE,this);
+      return new Or(info,a,c).optimize(qc,scp);
     }
     if (c == Bln.TRUE) {
       if (b == Bln.FALSE) {
-        ctx.compInfo(OPTPRE,this);
-        return Function.NOT.get(null,a).optimize(ctx,scp);
+        qc.compInfo(OPTPRE,this);
+        return Function.NOT.get(null,a).optimize(qc,scp);
       }
-      ctx.compInfo(OPTWRITE,this);
-      final Expr notA=Function.NOT.get(null,a).optimize(ctx,scp);
-      return new Or(info,notA,b).optimize(ctx,scp);
+      qc.compInfo(OPTWRITE,this);
+      final Expr notA=Function.NOT.get(null,a).optimize(qc,scp);
+      return new Or(info,notA,b).optimize(qc,scp);
     }
     if (b == Bln.FALSE) {
-      ctx.compInfo(OPTWRITE,this);
-      final Expr notA=Function.NOT.get(null,a).optimize(ctx,scp);
-      return new And(info,notA,c).optimize(ctx,scp);
+      qc.compInfo(OPTWRITE,this);
+      final Expr notA=Function.NOT.get(null,a).optimize(qc,scp);
+      return new And(info,notA,c).optimize(qc,scp);
     }
     if (c == Bln.FALSE) {
-      ctx.compInfo(OPTWRITE,this);
-      return new And(info,a,b).optimize(ctx,scp);
+      qc.compInfo(OPTWRITE,this);
+      return new And(info,a,b).optimize(qc,scp);
     }
   }
-  type=expr[0].type().union(expr[1].type());
+  type=exprs[0].type().union(exprs[1].type());
   return this;
 }

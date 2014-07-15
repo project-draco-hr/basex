@@ -1,0 +1,22 @@
+{
+  final int typeIndex=index(up.type);
+  if (typeIndex == -1) {
+    updates.add(up);
+  }
+ else {
+    final NodeUpdate nodeUp=updates.get(typeIndex);
+    if (nodeUp instanceof InsertInto) {
+      final InsertInto oprim=(InsertInto)nodeUp;
+      final InsertInto nprim=(InsertInto)up;
+      if (nprim instanceof ReplaceContent) {
+        updates.set(typeIndex,nprim);
+      }
+ else       if (!(oprim instanceof ReplaceContent)) {
+        nodeUp.merge(up);
+      }
+    }
+ else {
+      nodeUp.merge(up);
+    }
+  }
+}

@@ -1,10 +1,9 @@
 {
   final IOFile dbfile=new IOFile(sandbox(),NAME);
-  final BufferOutput bo=new BufferOutput(dbfile.path());
-  final int max=16;
-  final byte[] cache=new byte[max];
-  final Random rnd=new Random(0);
-  try {
+  try (final BufferOutput bo=new BufferOutput(dbfile.path())){
+    final int max=16;
+    final byte[] cache=new byte[max];
+    final Random rnd=new Random(0);
     bo.write(Token.token("<XML>"));
     final byte[] start=Token.token("<SUB>");
     final byte[] end=Token.token("</SUB>");
@@ -17,8 +16,5 @@
     }
     bo.write(Token.token("</XML>"));
   }
-  finally {
-    bo.close();
-  }
-  new CreateDB(NAME,dbfile.path()).execute(context);
+   new CreateDB(NAME,dbfile.path()).execute(context);
 }

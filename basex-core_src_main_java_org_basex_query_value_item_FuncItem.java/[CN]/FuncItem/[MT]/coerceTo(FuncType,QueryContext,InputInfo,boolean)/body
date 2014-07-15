@@ -6,16 +6,17 @@
   final Var[] vs=new Var[params.length];
   final Expr[] refs=new Expr[vs.length];
   for (int i=vs.length; i-- > 0; ) {
-    vs[i]=vsc.newLocal(ctx,params[i].name,ft.args[i],true);
+    vs[i]=vsc.newLocal(qc,params[i].name,ft.args[i],true);
     refs[i]=new VarRef(ii,vs[i]);
   }
-  final Expr e=new DynFuncCall(ii,this,refs), optimized=opt ? e.optimize(ctx,vsc) : e, checked;
+  final Expr e=new DynFuncCall(ii,sc,false,this,refs);
+  final Expr optimized=opt ? e.optimize(qc,vsc) : e, checked;
   if (ft.ret == null || tp.ret != null && tp.ret.instanceOf(ft.ret)) {
     checked=optimized;
   }
  else {
     final TypeCheck tc=new TypeCheck(sc,ii,optimized,ft.ret,true);
-    checked=opt ? tc.optimize(ctx,vsc) : tc;
+    checked=opt ? tc.optimize(qc,vsc) : tc;
   }
   checked.markTailCalls(null);
   return new FuncItem(sc,ann,name,vs,ft,checked,vsc.stackSize());

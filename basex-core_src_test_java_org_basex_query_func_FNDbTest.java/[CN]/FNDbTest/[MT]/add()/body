@@ -1,4 +1,7 @@
 {
+  query(COUNT.args(COLLECTION.args(NAME)),"1");
+  query(_DB_ADD.args(NAME,FILE));
+  query(COUNT.args(COLLECTION.args(NAME)),"2");
   query(_DB_ADD.args(NAME,"\"<root/>\"","t1.xml"));
   query(COUNT.args(COLLECTION.args(NAME + "/t1.xml") + "/root"),"1");
   query(_DB_ADD.args(NAME," document { <root/> }","t2.xml"));
@@ -15,4 +18,8 @@
   query(COUNT.args(COLLECTION.args(NAME + "/dir")),NFLDR);
   query("for $i in 1 to 3 return " + _DB_ADD.args(NAME,"\"<root/>\"","\"doc\" || $i"));
   query(COUNT.args(" for $i in 1 to 3 return " + COLLECTION.args('"' + NAME + "/doc\" || $i")),3);
+  query(_DB_ADD.args(NAME," '<a> </a>'","chop.xml"," map { 'chop':true() }"));
+  query(_DB_OPEN.args(NAME,"chop.xml"),"<a/>");
+  query(_DB_ADD.args(NAME," '<a> </a>'","nochop.xml"," map { 'chop':false() }"));
+  query(_DB_OPEN.args(NAME,"nochop.xml"),"<a> </a>");
 }

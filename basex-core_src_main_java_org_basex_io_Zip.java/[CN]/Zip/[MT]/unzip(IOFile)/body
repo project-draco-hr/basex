@@ -1,8 +1,7 @@
 {
-  final ZipInputStream in=new ZipInputStream(archive.inputStream());
   total=size();
   curr=0;
-  try {
+  try (final ZipInputStream in=new ZipInputStream(archive.inputStream())){
     final byte[] data=new byte[IO.BLOCKSIZE];
     for (ZipEntry ze; (ze=in.getNextEntry()) != null; ) {
       curr++;
@@ -11,18 +10,11 @@
         trg.md();
       }
  else {
-        trg.dir().md();
-        final OutputStream out=new FileOutputStream(trg.path());
-        try {
+        trg.parent().md();
+        try (final OutputStream out=new FileOutputStream(trg.path())){
           for (int c; (c=in.read(data)) != -1; )           out.write(data,0,c);
         }
-  finally {
-          out.close();
-        }
-      }
+       }
     }
   }
-  finally {
-    in.close();
-  }
-}
+ }

@@ -1,0 +1,36 @@
+{
+  for (  final DBUpdate d : dbUpdates)   d.prepare(tmp);
+  final int s=nodeUpdates.size();
+  nodes=new IntList(s);
+  for (int i=1; i <= s; i++)   nodes.add(nodeUpdates.key(i));
+  nodes.sort();
+  for (int i=0; i < s; ++i) {
+    final NodeUpdates ups=nodeUpdates.get(nodes.get(i));
+    for (    final NodeUpdate p : ups.updates) {
+      if (p instanceof NodeCopy)       ((NodeCopy)p).prepare(tmp);
+    }
+  }
+  int p=nodes.size() - 1;
+  int par=-1;
+  while (p >= 0) {
+    if (par == nodes.get(p) && --p < 0)     break;
+    int pre=nodes.get(p);
+    if (pre == -1)     break;
+    final int k=data.kind(pre);
+    if (k == Data.ATTR) {
+      par=data.parent(pre,Data.ATTR);
+      final IntList il=new IntList();
+      while (p >= 0 && (pre=nodes.get(p)) > par) {
+        il.add(pre);
+        --p;
+      }
+      if (par != -1)       il.add(par);
+      checkNames(il.toArray());
+    }
+ else {
+      if (k == Data.ELEM)       checkNames(pre);
+      --p;
+    }
+  }
+  auc=createAtomicUpdates(preparePrimitives());
+}

@@ -4,10 +4,9 @@
   final Ann ann=curr('%') ? annotations() : null;
   if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
     if (ann != null) {
-      if (ann.contains(Ann.Q_UPDATING))       throw error(UPFUNCITEM);
       if (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC))       throw error(INVISIBLE);
     }
-    final HashMap<Var,Expr> nonLocal=new HashMap<Var,Expr>();
+    final HashMap<Var,Expr> nonLocal=new HashMap<>();
     pushVarContext(nonLocal);
     final Var[] args=paramList();
     wsCheck(PAR2);
@@ -24,8 +23,8 @@
     final Expr ex=numericLiteral(true);
     if (!(ex instanceof Int))     return ex;
     final long card=((ANum)ex).itr();
-    final Expr lit=Functions.getLiteral(name,(int)card,ctx,sc,info());
-    return lit != null ? lit : FuncLit.unknown(name,card,ctx,sc,info());
+    final Expr lit=Functions.getLiteral(name,(int)card,qc,sc,info());
+    return lit != null ? lit : FuncLit.unknown(name,card,qc,sc,info());
   }
   pos=ip;
   return null;

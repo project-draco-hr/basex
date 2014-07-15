@@ -3,9 +3,8 @@
   if (dontEnter)   throw circVarError(this);
   if (!compiled) {
     dontEnter=true;
-    final int fp=scope.enter(ctx);
     try {
-      expr=expr.compile(ctx,scope);
+      expr=expr.compile(qc,scope);
     }
  catch (    final QueryException qe) {
       compiled=true;
@@ -17,10 +16,9 @@
     }
  finally {
       scope.cleanUp(this);
-      scope.exit(ctx,fp);
       dontEnter=false;
     }
     compiled=true;
-    if (!lazy || expr.isValue())     bind(value(ctx));
+    if (!lazy || expr.isValue())     bind(value(qc));
   }
 }

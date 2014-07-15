@@ -1,6 +1,6 @@
 {
   cache(http);
-  final ArrayList<RestXqFunction> list=new ArrayList<RestXqFunction>();
+  final ArrayList<RestXqFunction> list=new ArrayList<>();
   for (  final RestXqModule mod : modules.values()) {
     for (    final RestXqFunction rxf : mod.functions()) {
       if (rxf.matches(http,error))       list.add(rxf);
@@ -17,8 +17,7 @@
         if (first.compareTo(rxf) != 0)         break;
         tb.add(Prop.NL).add(rxf.function.info.toString());
       }
-      if (first.path != null)       first.error(PATH_CONFLICT,first.path,tb);
-      first.error(ERROR_CONFLICT,first.error,tb);
+      throw first.path == null ? first.error(ERROR_CONFLICT,error,tb) : first.error(PATH_CONFLICT,first.path,tb);
     }
   }
   return first;

@@ -1,4 +1,5 @@
 {
+  final String pattern=file.isEmpty() ? project.gui.gopts.get(GUIOptions.FILES) : file;
   if (pattern.contains("*") || pattern.contains("?")) {
     final Pattern pt=Pattern.compile(IOFile.regex(pattern));
     for (    final byte[] input : cache) {
@@ -7,10 +8,11 @@
       if (thread != threadID)       return false;
     }
   }
-  final byte[] patt=Token.token(pattern);
+  final byte[] pttrn=Token.replace(Token.lc(Token.token(pattern)),'\\','/');
   final TokenSet exclude=new TokenSet();
-  for (int i=0; i < 3; i++) {
-    if (!filter(patt,search,thread,i,results,exclude))     return false;
+  final boolean path=Token.indexOf(pttrn,'/') != -1;
+  for (int i=0; i < (path ? 2 : 3); i++) {
+    if (!filter(pttrn,search,thread,i,results,exclude,path))     return false;
   }
   return true;
 }

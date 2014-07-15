@@ -1,5 +1,4 @@
 {
-  final EnumSet<HTTPMethod> mth=EnumSet.noneOf(HTTPMethod.class);
   final boolean[] declared=new boolean[function.args.length];
   boolean found=false;
   final int as=function.ann.size();
@@ -12,15 +11,19 @@
     final boolean rexq=eq(uri,QueryText.RESTURI);
     if (rexq) {
       if (eq(PATH,local)) {
-        if (path != null)         error(info,ANN_TWICE,"%",name.string());
-        path=new RestXqPath(toString(value,name));
-        for (        final String s : path) {
-          if (s.trim().startsWith("{"))           checkVariable(s,AtomType.AAT,declared);
+        if (path != null)         throw error(info,ANN_TWICE,"%",name.string());
+        try {
+          path=new RestXqPath(toString(value,name));
+        }
+ catch (        final IllegalArgumentException ex) {
+          throw error(info,ex.getMessage());
+        }
+        for (int s=0; s < path.size; s++) {
+          if (path.isTemplate(s))           checkVariable(path.segment[s],AtomType.AAT,declared);
         }
       }
  else       if (eq(ERROR,local)) {
-        if (error != null)         error(info,ANN_TWICE,"%",name.string());
-        error=error(value,name);
+        error(value,name);
       }
  else       if (eq(CONSUMES,local)) {
         strings(value,name,consumes);
@@ -43,16 +46,16 @@
  else       if (eq(ERROR_PARAM,local)) {
         errorParams.add(param(value,name,declared));
       }
+ else       if (eq(METHOD,local)) {
+        if (value.size() < 1)         throw error(function.info,ANN_ATLEAST,"%",name.string(),1);
+        final String mth=toString(value.itemAt(0),name).toUpperCase(Locale.ENGLISH);
+        final Value body=value.size() > 1 ? value.itemAt(1) : null;
+        addMethod(mth,body,name,declared,info);
+      }
  else {
-        final HTTPMethod m=get(string(local));
-        if (m == null)         error(info,ANN_UNKNOWN,"%",name.string());
-        if (!value.isEmpty()) {
-          if (requestBody != null)           error(info,ANN_TWICE,"%",name.string());
-          if (m != POST && m != PUT)           error(info,METHOD_VALUE,m);
-          requestBody=checkVariable(toString(value,name),declared);
-        }
-        if (mth.contains(m))         error(info,ANN_TWICE,"%",name.string());
-        mth.add(m);
+        final String mth=string(local);
+        if (get(mth) == null)         throw error(info,ANN_UNKNOWN,"%",name.string());
+        addMethod(mth,value,name,declared,info);
       }
     }
  else     if (eq(uri,QueryText.OUTPUTURI)) {
@@ -60,17 +63,16 @@
         output.assign(string(local),toString(value,name));
       }
  catch (      final BaseXException ex) {
-        error(info,UNKNOWN_SER,local);
+        throw error(info,UNKNOWN_SER,local);
       }
     }
     found|=rexq;
   }
-  if (!mth.isEmpty())   methods=mth;
   if (found) {
-    if (path == null && error == null)     error(function.info,ANN_MISSING,'%',PATH,'%',ERROR);
+    if (path == null && error == null)     throw error(function.info,ANN_MISSING,'%',PATH,'%',ERROR);
     for (int i=0; i < declared.length; i++) {
       if (declared[i])       continue;
-      error(function.info,VAR_UNDEFINED,function.args[i].name.string());
+      throw error(function.info,VAR_UNDEFINED,function.args[i].name.string());
     }
   }
   return found;

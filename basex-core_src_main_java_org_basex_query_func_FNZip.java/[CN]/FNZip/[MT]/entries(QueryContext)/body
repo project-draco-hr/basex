@@ -1,22 +1,13 @@
 {
-  final String file=string(checkStr(expr[0],ctx));
+  final String file=string(checkStr(exprs[0],qc));
   final IOFile path=new IOFile(file);
   if (!path.exists())   throw ZIP_NOTFOUND.get(info,file);
-  ZipFile zf=null;
-  try {
-    zf=new ZipFile(file);
+  try (final ZipFile zf=new ZipFile(file)){
     final FElem root=new FElem(Q_FILE).declareNS().add(HREF,path.path());
     createEntries(paths(zf).iterator(),root,"");
     return root;
   }
  catch (  final IOException ex) {
     throw ZIP_FAIL.get(info,ex);
-  }
- finally {
-    if (zf != null)     try {
-      zf.close();
-    }
- catch (    final IOException ignored) {
-    }
   }
 }

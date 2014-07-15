@@ -1,15 +1,16 @@
 {
-  final Data data=checkWrite(checkData(ctx),ctx);
-  final String path=path(1,ctx);
+  final Data data=checkData(qc);
+  final String path=path(1,qc);
   final IntList docs=data.resources.docs(path);
   final int is=docs.size();
+  final Updates updates=qc.resources.updates();
   for (int i=0; i < is; i++) {
-    ctx.updates.add(new DeleteNode(docs.get(i),data,info),ctx);
+    updates.add(new DeleteNode(docs.get(i),data,info),qc);
   }
   if (!data.inMemory()) {
     final IOFile bin=data.meta.binary(path);
     if (bin == null)     throw UPDBDELERR.get(info,path);
-    ctx.updates.add(new DBDelete(data,path,info),ctx);
+    updates.add(new DBDelete(data,path,info),qc);
   }
   return null;
 }

@@ -1,0 +1,21 @@
+{
+  final IOFile root=new IOFile(args[0]);
+  if (!root.exists())   return error(RES_NOT_FOUND_X,context.user.has(Perm.CREATE) ? root : args[0]);
+  try {
+    final XMLSerializer ser=Serializer.get(out);
+    final Suite suite=new Suite();
+    ser.serialize(suite.test(root,context,this));
+    out.print(NL);
+    out.flush();
+    final StringBuilder sb=new StringBuilder(RESULT).append(COLS);
+    add(sb,"test",suite.tests);
+    add(sb,"failure",suite.failures);
+    add(sb,"error",suite.errors);
+    sb.append(suite.skipped).append(' ').append("skipped.");
+    return suite.errors + suite.failures == 0 ? info(sb.toString()) : error(sb.toString());
+  }
+ catch (  final IOException ex) {
+    cause=ex;
+    return error(Util.message(ex));
+  }
+}

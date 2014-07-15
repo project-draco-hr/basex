@@ -1,14 +1,14 @@
 {
   req=rq;
   res=rs;
-  final String mth=rq.getMethod();
-  method=HTTPMethod.get(mth);
+  params=new HTTPParams(this);
+  method=rq.getMethod();
   final StringBuilder uri=new StringBuilder(req.getRequestURL());
   final String qs=req.getQueryString();
   if (qs != null)   uri.append('?').append(qs);
-  log('[' + mth + "] "+ uri,null);
+  log('[' + method + "] "+ uri,null);
   res.setCharacterEncoding(UTF8);
-  segments=toSegments(req.getPathInfo());
+  segments=decode(toSegments(req.getPathInfo()));
   final GlobalOptions mprop=context().globalopts;
   user=servlet.user != null ? servlet.user : mprop.get(GlobalOptions.USER);
   pass=servlet.pass != null ? servlet.pass : mprop.get(GlobalOptions.PASSWORD);

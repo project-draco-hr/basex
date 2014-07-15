@@ -1,15 +1,9 @@
 {
   if (data == null || size() != 0 || data.inMemory())   return;
-  try {
-    final IOFile file=data.meta.dbfile(DATASWL);
-    if (!file.exists())     return;
-    final DataInput in=new DataInput(data.meta.dbfile(DATASWL));
-    try {
-      read(in);
-    }
-  finally {
-      in.close();
-    }
+  final IOFile file=data.meta.dbfile(DATASWL);
+  if (!file.exists())   return;
+  try (final DataInput in=new DataInput(data.meta.dbfile(DATASWL))){
+    read(in);
   }
  catch (  final Exception ex) {
     Util.debug(ex);

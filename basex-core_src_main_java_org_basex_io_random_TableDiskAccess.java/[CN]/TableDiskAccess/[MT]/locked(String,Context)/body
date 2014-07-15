@@ -1,22 +1,13 @@
 {
   final IOFile table=MetaData.file(ctx.globalopts.dbpath(db),DATATBL);
   if (!table.exists())   return false;
-  try {
-    final RandomAccessFile file=new RandomAccessFile(table.file(),"rw");
-    try {
-      return file.getChannel().tryLock() == null;
-    }
-  finally {
-      file.close();
-    }
+  try (final RandomAccessFile file=new RandomAccessFile(table.file(),"rw")){
+    return file.getChannel().tryLock() == null;
   }
- catch (  final OverlappingFileLockException ex) {
-    return true;
-  }
-catch (  final ClosedChannelException ex) {
+ catch (  final ClosedChannelException ex) {
     return false;
   }
-catch (  final IOException ex) {
+catch (  final OverlappingFileLockException|IOException ex) {
     return true;
   }
 }

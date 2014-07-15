@@ -1,11 +1,12 @@
 {
   ok(new Grant("create",NAME),adminSession);
+  ok(new XQuery("db:create('" + NAME + "')"),testSession);
   ok(new Close(),testSession);
   ok(new CreateDB(NAME,"<xml/>"),testSession);
   for (  final CmdIndex cmd : CmdIndex.values()) {
     ok(new CreateIndex(cmd),testSession);
   }
-  ok(new Export("."),testSession);
+  ok(new Export(Prop.TMP + NAME),testSession);
   ok(new RepoInstall(REPO + "/pkg3.xar",null),testSession);
   ok(new RepoList(),testSession);
   ok(new RepoDelete("http://www.pkg3.com",null),testSession);
@@ -16,4 +17,5 @@
   no(new Grant("read",NAME),testSession);
   no(new Grant("none",NAME),testSession);
   no(new AlterUser(NAME,Token.md5(NAME)),testSession);
+  no(new org.basex.core.cmd.Test(FOLDER + "tests-ok.xqm"),testSession);
 }

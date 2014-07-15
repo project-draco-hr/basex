@@ -1,12 +1,6 @@
 {
-  final QueryProcessor qp=new QueryProcessor(query,context);
-  qp.sc.baseURI(".");
   try {
-    final ArrayOutput ao=new ArrayOutput();
-    final Serializer ser=qp.getSerializer(ao);
-    qp.execute().serialize(ser);
-    ser.close();
-    final String res=ao.toString().replaceAll("(\\r|\\n)+ *","");
+    final String res=run(query);
     final StringBuilder sb=new StringBuilder("Query did not fail:\n");
     sb.append(query).append("\n[E]");
     for (    final Err e : error)     sb.append(' ').append(e);
@@ -21,8 +15,5 @@ catch (  final QueryException ex) {
 catch (  final Exception ex) {
     Util.stack(ex);
     fail("Unexpected exception: " + ex);
-  }
- finally {
-    qp.close();
   }
 }

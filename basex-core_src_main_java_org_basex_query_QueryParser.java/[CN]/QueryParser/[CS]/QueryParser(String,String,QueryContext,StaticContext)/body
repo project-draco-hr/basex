@@ -1,10 +1,11 @@
 {
-  super(in);
-  ctx=c;
-  final MainOptions opts=c.context.options;
+  super(query);
+  this.qc=qc;
+  final MainOptions opts=qc.context.options;
   final String bi=path != null ? path : opts.get(MainOptions.QUERYPATH);
-  sc=sctx != null ? sctx : new StaticContext(opts.get(MainOptions.XQUERY3));
-  if (!bi.isEmpty())   sc.baseURI(bi);
+  final StaticContext sctx=sc != null ? sc : new StaticContext(qc.context);
+  if (!bi.isEmpty())   sctx.baseURI(bi);
+  this.sc=sctx;
   final String bind=opts.get(MainOptions.BINDINGS).trim();
   final StringBuilder key=new StringBuilder();
   final StringBuilder val=new StringBuilder();
@@ -23,7 +24,7 @@
  else {
       if (ch == ',') {
         if (s + 1 == sl || bind.charAt(s + 1) != ',') {
-          bind(key,val);
+          qc.bind(key.toString().trim(),new Atm(val.toString()));
           key.setLength(0);
           val.setLength(0);
           first=true;
@@ -34,5 +35,5 @@
       val.append(ch);
     }
   }
-  bind(key,val);
+  if (key.length() != 0)   qc.bind(key.toString().trim(),new Atm(val.toString()));
 }

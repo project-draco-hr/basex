@@ -1,26 +1,26 @@
 {
-  final int k=data.kind(targetPre);
+  final int k=data.kind(pre);
   if (rec) {
-    final List<UpdatePrimitive> l=new LinkedList<UpdatePrimitive>();
+    final List<NodeUpdate> l=new LinkedList<>();
     l.add(this);
-    final int firstChild=targetPre + data.attSize(targetPre,k);
-    final int followingNode=targetPre + data.size(targetPre,k);
+    final int firstChild=pre + data.attSize(pre,k);
+    final int followingNode=pre + data.size(pre,k);
     int runner=firstChild;
     while (runner < followingNode) {
       l.add(new DeleteNode(runner,data,info,true));
       runner+=data.size(runner,data.kind(runner));
     }
     if (value.length > 0) {
-      final int pre=tmp.meta.size;
-      tmp.text(pre,1,value,Data.TEXT);
-      tmp.insert(pre);
-      final ANodeList nl=new ANodeList(new DBNode(tmp,pre));
-      l.add(new ReplaceContent(targetPre,data,info,nl));
+      final int p=tmp.meta.size;
+      tmp.text(p,1,value,Data.TEXT);
+      tmp.insert(p);
+      final ANodeList nl=new ANodeList(new DBNode(tmp,p));
+      l.add(new ReplaceContent(pre,data,info,nl));
     }
-    return l.toArray(new UpdatePrimitive[l.size()]);
+    return l.toArray(new NodeUpdate[l.size()]);
   }
   if (deleteText()) {
-    return new UpdatePrimitive[]{this,new DeleteNode(targetPre,data,info,false)};
+    return new NodeUpdate[]{this,new DeleteNode(pre,data,info,false)};
   }
-  return new UpdatePrimitive[]{this};
+  return new NodeUpdate[]{this};
 }

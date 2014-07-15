@@ -1,73 +1,73 @@
 {
-  final Expr e=expr[0];
-switch (sig) {
+  final Expr e=exprs[0];
+switch (func) {
 case CODEPOINTS_TO_STRING:
-    return cp2str(ctx.iter(e));
+    return cp2str(qc.iter(e));
 case COMPARE:
-  Collation coll=checkColl(expr.length == 3 ? expr[2] : null,ctx,sc);
-Item it1=e.item(ctx,info);
-Item it2=expr[1].item(ctx,info);
+  Collation coll=checkColl(exprs.length == 3 ? exprs[2] : null,qc,sc);
+Item it1=e.item(qc,info);
+Item it2=exprs[1].item(qc,info);
 if (it1 == null || it2 == null) return null;
 return Int.get(Math.max(-1,Math.min(1,coll == null ? diff(checkEStr(it1),checkEStr(it2)) : coll.compare(checkStr(it1),checkStr(it2)))));
 case CODEPOINT_EQUAL:
-it1=e.item(ctx,info);
-it2=expr[1].item(ctx,info);
+it1=e.item(qc,info);
+it2=exprs[1].item(qc,info);
 if (it1 == null || it2 == null) return null;
 return Bln.get(eq(checkEStr(it1),checkEStr(it2)));
 case STRING_JOIN:
-return strjoin(ctx);
+return strjoin(qc);
 case SUBSTRING:
-return substr(ctx);
+return substr(qc);
 case NORMALIZE_UNICODE:
-return normuni(ctx);
+return normuni(qc);
 case UPPER_CASE:
-return Str.get(uc(checkEStr(e,ctx)));
+return Str.get(uc(checkEStr(e,qc)));
 case LOWER_CASE:
-return Str.get(lc(checkEStr(e,ctx)));
+return Str.get(lc(checkEStr(e,qc)));
 case TRANSLATE:
-return trans(ctx);
+return trans(qc);
 case ENCODE_FOR_URI:
-return Str.get(uri(checkEStr(e,ctx),false));
+return Str.get(uri(checkEStr(e,qc),false));
 case IRI_TO_URI:
-return Str.get(uri(checkEStr(e,ctx),true));
+return Str.get(uri(checkEStr(e,qc),true));
 case ESCAPE_HTML_URI:
-return Str.get(escape(checkEStr(e,ctx)));
+return Str.get(escape(checkEStr(e,qc)));
 case CONCAT:
-return concat(ctx);
+return concat(qc);
 case CONTAINS:
-coll=checkColl(expr.length == 3 ? expr[2] : null,ctx,sc);
-byte[] ss=checkEStr(e,ctx);
-byte[] sb=checkEStr(expr[1],ctx);
+coll=checkColl(exprs.length == 3 ? exprs[2] : null,qc,sc);
+byte[] ss=checkEStr(e,qc);
+byte[] sb=checkEStr(exprs[1],qc);
 return Bln.get(coll == null ? contains(ss,sb) : coll.contains(ss,sb,info));
 case STARTS_WITH:
-coll=checkColl(expr.length == 3 ? expr[2] : null,ctx,sc);
-ss=checkEStr(e,ctx);
-sb=checkEStr(expr[1],ctx);
+coll=checkColl(exprs.length == 3 ? exprs[2] : null,qc,sc);
+ss=checkEStr(e,qc);
+sb=checkEStr(exprs[1],qc);
 return Bln.get(coll == null ? startsWith(ss,sb) : coll.startsWith(ss,sb,info));
 case ENDS_WITH:
-coll=checkColl(expr.length == 3 ? expr[2] : null,ctx,sc);
-ss=checkEStr(e,ctx);
-sb=checkEStr(expr[1],ctx);
+coll=checkColl(exprs.length == 3 ? exprs[2] : null,qc,sc);
+ss=checkEStr(e,qc);
+sb=checkEStr(exprs[1],qc);
 return Bln.get(coll == null ? endsWith(ss,sb) : coll.endsWith(ss,sb,info));
 case SUBSTRING_AFTER:
-coll=checkColl(expr.length == 3 ? expr[2] : null,ctx,sc);
-ss=checkEStr(e,ctx);
-sb=checkEStr(expr[1],ctx);
+coll=checkColl(exprs.length == 3 ? exprs[2] : null,qc,sc);
+ss=checkEStr(e,qc);
+sb=checkEStr(exprs[1],qc);
 if (coll == null) {
 final int p=indexOf(ss,sb);
 return p == -1 ? Str.ZERO : Str.get(substring(ss,p + sb.length));
 }
 return Str.get(coll.after(ss,sb,info));
 case SUBSTRING_BEFORE:
-coll=checkColl(expr.length == 3 ? expr[2] : null,ctx,sc);
-ss=checkEStr(e,ctx);
-sb=checkEStr(expr[1],ctx);
+coll=checkColl(exprs.length == 3 ? exprs[2] : null,qc,sc);
+ss=checkEStr(e,qc);
+sb=checkEStr(exprs[1],qc);
 if (coll == null) {
 final int p=indexOf(ss,sb);
 return p == -1 ? Str.ZERO : Str.get(substring(ss,0,p));
 }
 return Str.get(coll.before(ss,sb,info));
 default :
-return super.item(ctx,ii);
+return super.item(qc,ii);
 }
 }

@@ -1,7 +1,18 @@
 {
   final IOFile root=new IOFile(rs.context.globalopts.get(GlobalOptions.WEBPATH));
-  final IOFile io=new IOFile(root,input);
-  if (!io.exists() || io.isDir() || !io.path().startsWith(root.path()))   throw HTTPCode.NOT_FOUND_X.get(Util.info(RES_NOT_FOUND_X,input));
-  rs.add(new XQuery(io.string()));
-  return new RESTRun(rs,vars,val,io.path());
+  final IOFile file=new IOFile(root,path);
+  if (!file.exists() || file.isDir() || !file.path().startsWith(root.path()))   throw HTTPCode.NOT_FOUND_X.get(Util.info(RES_NOT_FOUND_X,path));
+  final String input=file.string();
+  if (file.hasSuffix(IO.BXSSUFFIX)) {
+    try {
+      for (      final Command cmd : new CommandParser(input,rs.context).parse())       rs.add(cmd);
+    }
+ catch (    final QueryException ex) {
+      throw new IOException(ex);
+    }
+  }
+ else {
+    rs.add(new XQuery(input));
+  }
+  return new RESTRun(rs,vars,val,file.path());
 }

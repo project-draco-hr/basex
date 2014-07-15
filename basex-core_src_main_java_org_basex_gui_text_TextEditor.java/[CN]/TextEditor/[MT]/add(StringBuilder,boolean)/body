@@ -7,10 +7,10 @@
     final int curr=pos < size() ? text[pos] : 0;
     final int prev=pos > 0 ? text[pos - 1] : 0;
     final int pprv=pos > 1 ? text[pos - 2] : 0;
-    final int open=OPENING.indexOf(ch);
-    if (open != -1) {
-      if (!XMLToken.isChar(curr)) {
-        sb.append(CLOSING.charAt(open));
+    final int opening=OPENING.indexOf(ch);
+    if (opening != -1) {
+      if (CLOSING.indexOf(curr) != -1 || curr == 0 || ws(curr) || curr == '<') {
+        sb.append(CLOSING.charAt(opening));
         move=1;
       }
     }
@@ -32,7 +32,7 @@
     }
  else     if (ch == ':') {
       if (prev == '(') {
-        sb.append(":");
+        sb.append(':');
         if (curr != ')')         sb.append(')');
         move=1;
       }

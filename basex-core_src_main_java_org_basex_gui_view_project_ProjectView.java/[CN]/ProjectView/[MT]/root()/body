@@ -2,14 +2,13 @@
   final GlobalOptions gopts=gui.context.globalopts;
   final String proj=gui.gopts.get(GUIOptions.PROJECTPATH);
   if (!proj.isEmpty())   return proj;
-  final File io1=new File(gopts.get(GlobalOptions.REPOPATH));
-  final File io2=new File(gopts.get(GlobalOptions.WEBPATH));
-  final File fl=new File(gopts.get(GlobalOptions.RESTXQPATH));
-  final File io3=fl.isAbsolute() ? fl : new File(io2,fl.getPath());
+  final IOFile dir1=new IOFile(gopts.get(GlobalOptions.REPOPATH));
+  final IOFile dir2=new IOFile(gopts.get(GlobalOptions.WEBPATH));
+  final IOFile dir3=dir2.resolve(gopts.get(GlobalOptions.RESTXQPATH));
   final StringList sl=new StringList();
-  for (  final File f : new File[]{io1,io2,io3}) {
-    final String p=canonical(f).getParent();
+  for (  final IOFile f : new IOFile[]{dir1,dir2,dir3}) {
+    final String p=f.normalize().parent().path();
     if (!sl.contains(p))     sl.add(p);
   }
-  return sl.unique().get(0);
+  return sl.sort().unique().get(0);
 }

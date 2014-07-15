@@ -1,18 +1,27 @@
 {
-  boolean axes=true;
-  for (int p=0; p < path.length; p++) {
-    Expr e=path[p];
-    if (e instanceof Context) {
-      e=Step.get(((ParseExpr)e).info,SELF,Test.NOD);
-    }
- else     if (e instanceof Filter) {
-      final Filter f=(Filter)e;
-      if (f.root instanceof Context) {
-        e=Step.get(f.info,SELF,Test.NOD,f.preds);
-      }
-    }
-    axes&=e instanceof Step;
-    path[p]=e;
+  final ExprList stps=new ExprList(steps.length);
+  Expr rt=root;
+  if (rt instanceof Path) {
+    final Path path=(Path)rt;
+    stps.add(path.steps);
+    rt=path.root;
   }
-  return axes ? new CachedPath(ii,r,path).finish(null) : new MixedPath(ii,r,path);
+  if (rt instanceof Context)   rt=null;
+  final int sl=steps.length;
+  for (int s=0; s < sl; s++) {
+    Expr step=steps[s];
+    if (step instanceof Context) {
+      if (sl > 1)       continue;
+      step=Step.get(((Context)step).info,SELF,Test.NOD);
+    }
+ else     if (step instanceof Filter) {
+      final Filter f=(Filter)step;
+      if (f.root instanceof Context)       step=Step.get(f.info,SELF,Test.NOD,f.preds);
+    }
+    stps.add(step);
+  }
+  boolean axes=true;
+  final Expr[] st=stps.finish();
+  for (  final Expr step : st)   axes&=step instanceof Step;
+  return axes ? iterative(rt,st) ? new IterPath(info,rt,st) : new CachedPath(info,rt,st) : new MixedPath(info,rt,st);
 }

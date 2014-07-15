@@ -1,22 +1,18 @@
 {
-  String db=args[0];
-  if (!Databases.validName(db))   return error(NAME_INVALID_X,db);
-  IOFile file=goptions.dbpath(db + IO.ZIPSUFFIX);
-  if (file.exists()) {
-    db=Pattern.compile(DateTime.PATTERN + '$').split(db)[0];
-  }
- else {
-    final StringList list=Databases.backupPaths(db,context).sort(Prop.CASE,false);
-    if (!list.isEmpty())     file=new IOFile(list.get(0));
-  }
-  if (!file.exists())   return error(BACKUP_NOT_FOUND_X,db);
+  final String name=args[0];
+  if (!Databases.validName(name))   return error(NAME_INVALID_X,name);
+  final StringList backups=context.databases.backups(name);
+  if (backups.isEmpty())   return error(BACKUP_NOT_FOUND_X,name);
+  final String backup=backups.get(0);
+  final String db=Databases.name(backup);
   if (!closed)   closed=close(context,db);
   if (context.pinned(db))   return error(DB_PINNED_X,db);
   try {
-    restore(file,this);
-    return !closed || new Open(db).run(context) ? info(DB_RESTORED_X,file.name(),perf) : error(DB_NOT_RESTORED_X,db);
+    restore(db,backup,this,context);
+    return !closed || new Open(db).run(context) ? info(DB_RESTORED_X,backup,perf) : error(DB_NOT_RESTORED_X,db);
   }
  catch (  final IOException ex) {
+    Util.debug(ex);
     return error(DB_NOT_RESTORED_X,db);
   }
 }

@@ -1,14 +1,15 @@
 {
   final MetaData meta=data.meta;
   final MainOptions opts=meta.options;
-  nprops.put(MainOptions.TEXTINDEX,meta.createtext);
-  nprops.put(MainOptions.ATTRINDEX,meta.createattr);
-  nprops.put(MainOptions.FTINDEX,meta.createftxt);
-  initOptions();
-  assignOptions();
+  options.assign(MainOptions.TEXTINDEX,meta.createtext);
+  options.assign(MainOptions.ATTRINDEX,meta.createattr);
+  options.assign(MainOptions.FTINDEX,meta.createftxt);
+  options.assign(MainOptions.UPDINDEX,meta.updindex);
+  options.assign(opts);
   meta.createtext=opts.get(MainOptions.TEXTINDEX);
   meta.createattr=opts.get(MainOptions.ATTRINDEX);
   meta.createftxt=opts.get(MainOptions.FTINDEX);
+  meta.updindex=opts.get(MainOptions.UPDINDEX);
   final int mc=opts.get(MainOptions.MAXCATS);
   final int ml=opts.get(MainOptions.MAXLEN);
   final boolean rebuild=mc != meta.maxcats || ml != meta.maxlen;
@@ -33,7 +34,7 @@
     throw UPDBOPTERR.get(info,ex);
   }
  finally {
-    resetOptions();
+    options.reset(opts);
   }
-  if (all)   qc.resource.removeData(data.meta.name);
+  if (all)   qc.resources.remove(data.meta.name);
 }

@@ -1,0 +1,75 @@
+{
+  final Option<?> option=options.get(name);
+  if (option == null) {
+    if (error)     throw new BaseXException(error(name));
+    return false;
+  }
+  if (option instanceof BooleanOption) {
+    final boolean v;
+    if (val == null || val.isEmpty()) {
+      final Boolean b=get((BooleanOption)option);
+      if (b == null)       throw new BaseXException(Text.OPT_BOOLEAN,option.name());
+      v=!b;
+    }
+ else {
+      v=Util.yes(val);
+      if (!v && !Util.no(val))       throw new BaseXException(Text.OPT_BOOLEAN,option.name());
+    }
+    put(option,v);
+  }
+ else   if (option instanceof NumberOption) {
+    final int v=toInt(val);
+    if (v == MIN_VALUE)     throw new BaseXException(Text.OPT_NUMBER,option.name());
+    put(option,v);
+  }
+ else   if (option instanceof StringOption) {
+    put(option,val);
+  }
+ else   if (option instanceof EnumOption) {
+    final EnumOption<?> eo=(EnumOption<?>)option;
+    final Object v=eo.get(val);
+    if (v == null)     throw new BaseXException(allowed(option,(Object[])eo.values()));
+    put(option,v);
+  }
+ else   if (option instanceof OptionsOption) {
+    final Options o=((OptionsOption<?>)option).newInstance();
+    o.parse(val);
+    put(option,o);
+  }
+ else   if (option instanceof NumbersOption) {
+    final int v=toInt(val);
+    if (v == MIN_VALUE)     throw new BaseXException(Text.OPT_NUMBER,option.name());
+    int[] ii=(int[])get(option);
+    if (num == -1) {
+      if (ii == null)       ii=new int[0];
+      final IntList il=new IntList(ii.length + 1);
+      for (      final int i : ii)       il.add(i);
+      il.add(v);
+      put(option,il.toArray());
+    }
+ else {
+      if (num < 0 || num >= ii.length)       throw new BaseXException(Text.OPT_OFFSET,option.name());
+      ii[num]=v;
+    }
+  }
+ else   if (option instanceof StringsOption) {
+    String[] ss=(String[])get(option);
+    if (num == -1) {
+      if (ss == null)       ss=new String[0];
+      final StringList sl=new StringList(ss.length + 1);
+      for (      final String s : ss)       sl.add(s);
+      sl.add(val);
+      put(option,sl.toArray());
+    }
+ else     if (num == 0) {
+      final int v=toInt(val);
+      if (v == MIN_VALUE)       throw new BaseXException(Text.OPT_NUMBER,option.name());
+      values.put(name,new String[v]);
+    }
+ else {
+      if (num <= 0 || num > ss.length)       throw new BaseXException(Text.OPT_OFFSET,option.name());
+      ss[num - 1]=val;
+    }
+  }
+  return true;
+}

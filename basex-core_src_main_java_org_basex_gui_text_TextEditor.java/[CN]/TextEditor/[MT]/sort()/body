@@ -1,0 +1,31 @@
+{
+  if (!extend())   return false;
+  final int s=start, e=end, ts=size();
+  final byte[] tmp=Arrays.copyOf(text,ts);
+  final TokenList tl=new TokenList();
+  final ByteList bl=new ByteList();
+  for (int i=s; i < e; i++) {
+    final byte ch=tmp[i];
+    if (ch == '\n') {
+      tl.add(bl.toArray());
+      bl.reset();
+    }
+ else {
+      bl.add(ch);
+    }
+  }
+  if (!bl.isEmpty())   tl.add(bl.toArray());
+  tl.sort(gopts.get(GUIOptions.CASESORT),gopts.get(GUIOptions.ASCSORT));
+  if (gopts.get(GUIOptions.MERGEDUPL))   tl.unique();
+  int i=s;
+  for (  final byte[] line : tl) {
+    final int ll=line.length;
+    System.arraycopy(line,0,tmp,i,ll);
+    i+=ll;
+    if (i < e)     tmp[i++]='\n';
+  }
+  if (i < e)   System.arraycopy(tmp,e,tmp,i,ts - e);
+  final boolean changed=text(i == e ? tmp : Arrays.copyOf(tmp,ts - e + i));
+  select(s,i);
+  return changed;
+}

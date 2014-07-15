@@ -1,21 +1,22 @@
 {
-  final Expr fn=expr[expr.length - 1];
-  final FItem f=(FItem)checkType(fn.item(ctx,ii),FuncType.ANY_FUN);
+  final Expr fn=exprs[exprs.length - 1];
+  final FItem f=(FItem)checkType(fn.item(qc,ii),FuncType.ANY_FUN);
   final FuncType ft=f.funcType();
-  final int arity=expr.length + holes.length - 1;
+  final int arity=exprs.length + holes.length - 1;
   if (f.arity() != arity)   throw INVARITY.get(ii,f,arity);
   final Expr[] args=new Expr[arity];
   final VarScope scp=new VarScope(sc);
   final Var[] vars=new Var[holes.length];
   int p=-1;
   for (int i=0; i < holes.length; i++) {
-    while (++p < holes[i])     args[p]=expr[p - i].value(ctx);
-    vars[i]=scp.newLocal(ctx,f.argName(holes[i]),null,false);
+    while (++p < holes[i])     args[p]=exprs[p - i].value(qc);
+    vars[i]=scp.newLocal(qc,f.argName(holes[i]),null,false);
     args[p]=new VarRef(info,vars[i]);
-    vars[i].refineType(ft.args[p],ctx,ii);
+    vars[i].refineType(ft.args[p],qc,ii);
   }
-  while (++p < args.length)   args[p]=expr[p - holes.length].value(ctx);
+  while (++p < args.length)   args[p]=exprs[p - holes.length].value(qc);
   final Ann ann=f.annotations();
   final FuncType tp=FuncType.get(ann,vars,ft.ret);
-  return new FuncItem(sc,ann,null,vars,tp,new DynFuncCall(info,f,args),ctx.value,ctx.pos,ctx.size,scp.stackSize());
+  final DynFuncCall fc=new DynFuncCall(info,sc,ann.contains(Ann.Q_UPDATING),f,args);
+  return new FuncItem(sc,ann,null,vars,tp,fc,qc.value,qc.pos,qc.size,scp.stackSize());
 }
