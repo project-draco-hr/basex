@@ -9,13 +9,13 @@
       qp.bind(entry.getKey(),entry.getValue());
     }
     qp.qc.parseLibrary(string(module),FILE,qp.sc);
-    final Result r=qp.execute();
-    final int n=(int)r.size();
-    final StringList items=new StringList(n);
-    for (int i=0; i < n; i++) {
-      final ArrayOutput ao=new ArrayOutput();
-      r.serialize(Serializer.get(ao),0);
+    final StringList items=new StringList();
+    final ArrayOutput ao=new ArrayOutput();
+    final Serializer ser=qp.getSerializer(ao);
+    for (    final Item it : qp.value()) {
+      ser.serialize(it);
       items.add(ao.toString());
+      ao.reset();
     }
     return items;
   }
