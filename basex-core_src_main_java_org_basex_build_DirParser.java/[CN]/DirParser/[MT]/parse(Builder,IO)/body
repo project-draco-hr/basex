@@ -1,10 +1,10 @@
 {
-  if (io instanceof IOFile && io.isDir()) {
-    for (    final IO f : ((IOFile)io).children())     parse(b,f);
+  if (input instanceof IOFile && input.isDir()) {
+    for (    final IO f : ((IOFile)input).children())     parse(builder,f);
   }
- else   if (archives && io.isArchive()) {
-    final String name=io.name().toLowerCase(Locale.ENGLISH);
-    InputStream in=io.inputStream();
+ else   if (archives && input.isArchive()) {
+    final String name=input.name().toLowerCase(Locale.ENGLISH);
+    InputStream in=input.inputStream();
     if (name.endsWith(IO.TARSUFFIX) || name.endsWith(IO.TGZSUFFIX) || name.endsWith(IO.TARGZSUFFIX)) {
       if (!name.endsWith(IO.TARSUFFIX))       in=new GZIPInputStream(in);
       try (final TarInputStream is=new TarInputStream(in)){
@@ -12,14 +12,14 @@
           if (ze.isDirectory())           continue;
           src=new IOStream(is,ze.getName());
           src.length(ze.getSize());
-          parseResource(b);
+          parseResource(builder);
         }
       }
      }
  else     if (name.endsWith(IO.GZSUFFIX)) {
       try (final GZIPInputStream is=new GZIPInputStream(in)){
-        src=new IOStream(is,io.name().replaceAll("\\..*",IO.XMLSUFFIX));
-        parseResource(b);
+        src=new IOStream(is,input.name().replaceAll("\\..*",IO.XMLSUFFIX));
+        parseResource(builder);
       }
      }
  else {
@@ -28,13 +28,13 @@
           if (ze.isDirectory())           continue;
           src=new IOStream(is,ze.getName());
           src.length(ze.getSize());
-          parseResource(b);
+          parseResource(builder);
         }
       }
      }
   }
  else {
-    src=io;
-    parseResource(b);
+    src=input;
+    parseResource(builder);
   }
 }

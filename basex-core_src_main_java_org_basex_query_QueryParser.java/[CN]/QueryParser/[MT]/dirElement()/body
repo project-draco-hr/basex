@@ -2,8 +2,8 @@
   final int s=sc.ns.size();
   final byte[] nse=sc.elemNS;
   final int npos=names.size();
-  final QNm tag=new QNm(qName(TAGNAME));
-  names.add(new QNmCheck(tag));
+  final QNm name=new QNm(qName(ELEMNAME));
+  names.add(new QNmCheck(name));
   consumeWS();
   final Atts ns=new Atts();
   final ExprList cont=new ExprList();
@@ -106,15 +106,15 @@
  else {
     check('>');
     while (curr() != '<' || next() != '/') {
-      final Expr e=dirElemContent(tag.string());
+      final Expr e=dirElemContent(name.string());
       if (e == null)       continue;
       add(cont,e);
     }
     pos+=2;
-    final byte[] close=qName(TAGNAME);
+    final byte[] close=qName(ELEMNAME);
     consumeWS();
     check('>');
-    if (!eq(tag.string(),close))     throw error(TAGWRONG,tag.string(),close);
+    if (!eq(name.string(),close))     throw error(TAGWRONG,name.string(),close);
   }
   assignURI(npos);
   if (atts != null) {
@@ -127,5 +127,5 @@
   }
   sc.ns.size(s);
   sc.elemNS=nse;
-  return new CElem(sc,info(),tag,ns,cont.finish());
+  return new CElem(sc,info(),name,ns,cont.finish());
 }

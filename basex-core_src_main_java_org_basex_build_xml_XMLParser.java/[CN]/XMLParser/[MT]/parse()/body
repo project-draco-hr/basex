@@ -3,7 +3,7 @@
   while (true) {
     if (scanner.type == Type.TEXT) {
       final byte[] text=scanner.token.finish();
-      if (!tags.isEmpty() || fragment || !ws(text)) {
+      if (!elms.isEmpty() || fragment || !ws(text)) {
         if (chops.peek())         scanner.token.trim();
         builder.text(scanner.token.finish());
       }
@@ -19,12 +19,12 @@
     }
  else     if (scanner.type != Type.DTD) {
       if (!fragment && closed)       throw new BuildException(MOREROOTS,det());
-      if (!parseTag())       break;
+      if (!parseElement())       break;
       continue;
     }
     if (!scanner.more())     break;
   }
   scanner.close();
   builder.encoding(scanner.encoding);
-  if (!tags.isEmpty())   throw new BuildException(DOCOPEN,det(),tags.pop());
+  if (!elms.isEmpty())   throw new BuildException(DOCOPEN,det(),elms.pop());
 }

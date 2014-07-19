@@ -1,12 +1,12 @@
 {
-  if (comma.get(level))   print(',');
- else   comma.set(level,true);
-  if (level > 0) {
-    indent(level);
-    final byte[] ptype=types.get(level - 1);
+  if (comma.get(lvl))   print(',');
+ else   comma.set(lvl,true);
+  if (lvl > 0) {
+    indent(lvl);
+    final byte[] ptype=types.get(lvl - 1);
     if (eq(ptype,OBJECT)) {
-      if (atts && !eq(tag,PAIR))       error("<%> found, <%> expected",tag,PAIR);
-      if (key == null)       error("<%> has no name attribute",tag);
+      if (atts && !eq(elem,PAIR))       error("<%> found, <%> expected",elem,PAIR);
+      if (key == null)       error("<%> has no name attribute",elem);
       print('"');
       final byte[] name=atts ? key : XMLToken.decode(key,lax);
       if (name == null)       error("Name of element <%> is invalid",key);
@@ -16,18 +16,18 @@
     }
  else     if (eq(ptype,ARRAY)) {
       if (atts) {
-        if (!eq(tag,ITEM))         error("<%> found, <%> expected",tag,ITEM);
-        if (key != null)         error("<%> must have no name attribute",tag);
+        if (!eq(elem,ITEM))         error("<%> found, <%> expected",elem,ITEM);
+        if (key != null)         error("<%> must have no name attribute",elem);
       }
  else {
-        if (!eq(tag,VALUE))         error("<%> found, <%> expected",tag,VALUE);
+        if (!eq(elem,VALUE))         error("<%> found, <%> expected",elem,VALUE);
       }
     }
  else {
-      error("<%> is typed as \"%\" and cannot be nested",tags.get(level - 1),ptype);
+      error("<%> is typed as \"%\" and cannot be nested",elems.get(lvl - 1),ptype);
     }
   }
-  byte[] type=types.get(level);
+  byte[] type=types.get(lvl);
   if (type == null) {
     if (key != null) {
       final int tl=typeCache.length;
@@ -36,7 +36,7 @@
       }
     }
     if (type == null)     type=STRING;
-    types.set(level,type);
+    types.set(lvl,type);
   }
   if (eq(type,OBJECT)) {
     print('{');
@@ -44,7 +44,7 @@
  else   if (eq(type,ARRAY)) {
     print('[');
   }
- else   if (level == 0 && spec == JsonSpec.RFC4627) {
+ else   if (lvl == 0 && spec == JsonSpec.RFC4627) {
     error("<%> must be typed as \"%\" or \"%\"",JSON,OBJECT,ARRAY);
   }
 }
