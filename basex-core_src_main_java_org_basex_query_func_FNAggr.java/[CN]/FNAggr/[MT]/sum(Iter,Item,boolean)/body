@@ -1,17 +1,15 @@
 {
   Item rs=it.type.isUntyped() ? Dbl.get(it.string(info),info) : it;
-  final boolean n=rs instanceof ANum;
-  final boolean dtd=!n && rs.type == DTD;
-  final boolean ymd=!n && !dtd && rs.type == YMD;
-  if (!n && (!(rs instanceof Dur) || rs.type == DUR))   throw SUMTYPE.get(info,this,rs.type);
+  final boolean num=rs instanceof ANum, dtd=rs.type == DTD, ymd=rs.type == YMD;
+  if (!num && (!(rs instanceof Dur) || rs.type == DUR))   throw SUMTYPE.get(info,rs.type,rs);
   int c=1;
   for (Item i; (i=iter.next()) != null; ) {
     if (i.type.isNumberOrUntyped()) {
-      if (!n)       throw FUNDUR.get(info,this,i.type);
+      if (!num)       throw SUMDUR.get(info,i.type,i);
     }
  else {
-      if (n)       throw FUNNUM.get(info,this,i.type);
-      if (dtd && i.type != DTD || ymd && i.type != YMD)       throw FUNCMP.get(info,this,it.type,i.type);
+      if (num)       throw SUMNUM.get(info,i.type,i);
+      if (dtd && i.type != DTD || ymd && i.type != YMD)       throw SUMDUR.get(info,i.type,i);
     }
     rs=Calc.PLUS.ev(info,rs,i);
     ++c;

@@ -3,9 +3,8 @@
     op=op.swap();
     qc.compInfo(OPTSWAP,this);
   }
-  final Expr e1=exprs[0];
-  final Expr e2=exprs[1];
-  type=SeqType.get(AtomType.BLN,e1.size() == 1 && e2.size() == 1 ? Occ.ONE : Occ.ZERO_ONE);
+  final Expr e1=exprs[0], e2=exprs[1];
+  seqType=SeqType.get(AtomType.BLN,e1.size() == 1 && e2.size() == 1 ? Occ.ONE : Occ.ZERO_ONE);
   Expr e=this;
   if (oneIsEmpty()) {
     e=optPre(null,qc);
@@ -21,7 +20,7 @@
     e=Pos.get(op,e2,e,info);
     if (e != this)     qc.compInfo(OPTWRITE,this);
   }
- else   if (e1.type().eq(SeqType.BLN) && (op == OpV.EQ && e2 == Bln.FALSE || op == OpV.NE && e2 == Bln.TRUE)) {
+ else   if (e1.seqType().eq(SeqType.BLN) && (op == OpV.EQ && e2 == Bln.FALSE || op == OpV.NE && e2 == Bln.TRUE)) {
     e=Function.NOT.get(null,info,e1);
   }
   return e;
