@@ -1,0 +1,13 @@
+{
+  final Value synonyms=nodes("*:synonym",value);
+  if (synonyms.isEmpty())   return;
+  final ThesNode term=node(text("*:term",value));
+  for (  final Item synonym : synonyms) {
+    final ThesNode sterm=node(text("*:term",synonym));
+    final byte[] rs=text("*:relationship",synonym);
+    term.add(sterm,rs);
+    final byte[] srs=RSHIPS.get(rs);
+    if (srs != null)     sterm.add(term,srs);
+    build(synonyms);
+  }
+}

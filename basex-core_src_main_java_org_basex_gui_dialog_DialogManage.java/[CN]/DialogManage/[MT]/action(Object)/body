@@ -1,7 +1,7 @@
 {
   final Context ctx=gui.context;
   if (refresh) {
-    choice.setData(ctx.databases.list().toArray());
+    choice.setData(ctx.databases.list().finish());
     choice.requestFocusInWindow();
     refresh=false;
   }
@@ -77,9 +77,9 @@
     for (    final String d : dbs)     active|=ctx.globalopts.dbexists(d);
     drop.setEnabled(active);
     backup.setEnabled(active);
-    final StringList names=ctx.databases.backups(db);
-    active=!names.isEmpty();
-    backups.setData(names.toArray());
+    final String[] names=ctx.databases.backups(db).finish();
+    active=names.length != 0;
+    backups.setData(names);
     backups.setEnabled(active);
     restore.setEnabled(active);
     delete.setEnabled(active);

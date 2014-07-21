@@ -15,7 +15,7 @@
     final Performance perf=new Performance();
     final Data data=context.data();
     if (gopts.get(GUIOptions.FILTERRT) && data != null && !context.root())     context.invalidate();
-    final Nodes current=context.current();
+    final DBNodes current=context.current();
     command=cmd;
     final ArrayOutput ao=new ArrayOutput();
     ao.setLimit(gopts.get(GUIOptions.MAXTEXT));
@@ -49,8 +49,8 @@
       }
     }
  else {
-      final Result result=cmd.result();
-      Nodes nodes=result instanceof Nodes && result.size() != 0 ? (Nodes)result : null;
+      final Result result=cmd.finish();
+      DBNodes nodes=result instanceof DBNodes && result.size() != 0 ? (DBNodes)result : null;
       if (context.data() != data) {
         notify.init();
       }
@@ -60,17 +60,17 @@
       }
  else       if (result != null) {
         final boolean flt=gopts.get(GUIOptions.FILTERRT);
-        final Nodes nd=context.current();
-        if (flt || nd != null && !nd.sameAs(current)) {
-          if (nodes != null)           notify.context((Nodes)result,flt,null);
+        final DBNodes curr=context.current();
+        if (flt || curr != null && !curr.equals(current)) {
+          if (nodes != null)           notify.context(nodes,flt,null);
         }
  else         if (context.marked != null) {
-          Nodes m=context.marked;
+          DBNodes m=context.marked;
           if (nodes != null) {
             m=nodes;
           }
  else           if (m.size() != 0) {
-            m=new Nodes(data);
+            m=new DBNodes(data);
           }
           if (context.marked != m)           notify.mark(m,null);
         }
