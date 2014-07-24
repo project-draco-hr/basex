@@ -1,17 +1,9 @@
 {
-  if (!meta.options.get(MainOptions.AUTOFLUSH) || closed)   return;
-  try {
-    write();
-    table.flush();
-    texts.flush();
-    values.flush();
-    if (txtindex != null)     ((DiskValues)txtindex).flush();
-    if (atvindex != null)     ((DiskValues)atvindex).flush();
-  }
- catch (  final IOException ex) {
-    Util.stack(ex);
-  }
- finally {
-    table.lock(false);
+  final IOFile uf=updateFile();
+  if (!uf.exists())   throw Util.notExpected("Database '%': lock file does not exist.",meta.name);
+  if (!uf.delete())   throw Util.notExpected("Database '%': could not delete lock file.",meta.name);
+  if (!closed) {
+    flush(meta.options.get(MainOptions.AUTOFLUSH));
+    if (!table.lock(false))     throw Util.notExpected("Database '%': could not unlock.",meta.name);
   }
 }

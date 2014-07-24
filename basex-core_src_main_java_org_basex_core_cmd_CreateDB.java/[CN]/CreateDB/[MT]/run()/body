@@ -32,13 +32,14 @@
       final Open open=new Open(name);
       if (!open.run(context))       return error(open.info());
       final Data data=context.data();
+      if (!startUpdate())       return false;
       try {
         if (data.meta.createtext)         create(IndexType.TEXT,data,this);
         if (data.meta.createattr)         create(IndexType.ATTRIBUTE,data,this);
         if (data.meta.createftxt)         create(IndexType.FULLTEXT,data,this);
       }
   finally {
-        data.finishUpdate();
+        finishUpdate();
       }
     }
     if (options.get(MainOptions.CREATEONLY))     new Close().run(context);

@@ -5,12 +5,15 @@
   int i=0;
   try {
     for (    final Data data : datas) {
-      if (!data.startUpdate())       throw BXDB_OPENED.get(null,data.meta.name);
+      data.startUpdate();
       i++;
     }
     for (    final DataUpdates up : dbUpdates.values())     up.apply();
   }
-  finally {
+ catch (  final IOException ex) {
+    throw BXDB_LOCK.get(null,ex);
+  }
+ finally {
     for (    final Data data : datas) {
       if (i-- > 0)       data.finishUpdate();
     }

@@ -13,7 +13,7 @@
   if (data.inMemory())   return error(NO_MAINMEM);
   final IOFile file=data.meta.binary(path);
   if (path.isEmpty() || path.endsWith(".") || file == null || file.isDir())   return error(NAME_INVALID_X,create ? path : args[0]);
-  if (!data.startUpdate())   return error(DB_PINNED_X,data.meta.name);
+  if (lock && !startUpdate())   return false;
   try {
     store(in,file);
     return info(QUERY_EXECUTED_X_X,"",perf);
@@ -23,6 +23,6 @@
     return error(FILE_NOT_SAVED_X,file);
   }
  finally {
-    data.finishUpdate();
+    if (lock)     finishUpdate();
   }
 }

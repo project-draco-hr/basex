@@ -16,8 +16,14 @@
     throw new XMLDBException(ErrorCodes.INVALID_RESOURCE,ex.getMessage());
   }
   final Data data=ctx.data();
-  if (!data.startUpdate())   throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_LOCK);
-  data.insert(data.meta.size,-1,new DataClip(md));
-  ctx.invalidate();
-  data.finishUpdate();
+  try {
+    data.startUpdate();
+    data.insert(data.meta.size,-1,new DataClip(md));
+    ctx.invalidate();
+    data.finishUpdate();
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_LOCK);
+  }
 }

@@ -8,13 +8,14 @@
   if (path == null || path.isEmpty())   return error(NO_DIR_ALLOWED_X,args[0]);
   final Data data=context.data();
   final IntList pre=data.resources.docs(path,true);
-  if (!data.startUpdate())   return error(DB_PINNED_X,data.meta.name);
+  if (!startUpdate())   return false;
   try {
     final boolean ok;
     final IOFile file=data.meta.binary(path);
     if (file != null && file.exists()) {
       final Store store=new Store(path);
       store.setInput(in);
+      store.lock=false;
       ok=store.run(context) || error(store.info());
     }
  else {
@@ -32,6 +33,6 @@
     return ok && info(RES_REPLACED_X_X,1,perf);
   }
   finally {
-    data.finishUpdate();
+    finishUpdate();
   }
 }
