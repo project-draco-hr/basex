@@ -33,20 +33,8 @@
     if (p != iPred)     newPreds.add(indexStep.preds[p]);
   }
   final Test test=InvDocTest.get(rt);
-  boolean inv=true;
-  if (test == Test.DOC && data.meta.uptodate) {
-    int s=0;
-    for (; s <= iStep; s++) {
-      final Step step=axisStep(s);
-      if (step.test.kind != Kind.NAME || step.axis != Axis.CHILD || s != iStep && step.preds.length > 0)       break;
-      final int name=data.elmindex.id(step.test.name.local());
-      final ArrayList<PathNode> pn=data.paths.desc(name,Data.ELEM);
-      if (pn.size() != 1 || pn.get(0).level() != s + 1)       break;
-    }
-    inv=s <= iStep;
-  }
   final ExprList invSteps=new ExprList();
-  if (inv) {
+  if (test != Test.DOC || !data.meta.uptodate || predSteps(data,iStep)) {
     for (int s=iStep; s >= 0; s--) {
       final Axis ax=axisStep(s).axis.invert();
       if (s == 0) {
