@@ -3,8 +3,9 @@
   final QueryContext query=new QueryContext(ctx);
   try {
     query.parse(input,file.path(),null);
-    final StaticFuncCall sfc=new StaticFuncCall(func.name,new Expr[0],func.sc,func.info).init(func);
-    final MainModule mm=new MainModule(sfc,new VarScope(func.sc),null,func.sc);
+    final StaticFunc sf=find(query,func);
+    final StaticFuncCall sfc=new StaticFuncCall(sf.name,new Expr[0],sf.sc,sf.info).init(sf);
+    final MainModule mm=new MainModule(sfc,new VarScope(sf.sc),null,sf.sc);
     query.mainModule(mm);
     query.compile();
     final Iter iter=query.iter();
