@@ -33,19 +33,10 @@
     path=get(info,root,stps);
     break;
   }
-  if (data.nspaces.size() == 0) {
-    LOOP:     for (int s=0; s < path.steps.length; s++) {
-      final Step st=path.axisStep(s);
-      if (st == null || st.axis != CHILD)       break;
-      if (st.test.kind == Kind.WILDCARD || st.test.kind == null)       continue;
-      if (st.test.kind != Kind.NAME)       break;
-      final int name=data.elmindex.id(st.test.name.local());
-      for (      final PathNode pn : data.paths.desc(name,Data.ELEM)) {
-        if (pn.level() == s + 1)         continue LOOP;
-      }
-      qc.compInfo(OPTPATH,path);
-      return Empty.SEQ;
-    }
+  final ArrayList<PathNode> nodes=pathNodes(qc);
+  if (nodes != null && nodes.isEmpty()) {
+    qc.compInfo(OPTPATH,path);
+    return Empty.SEQ;
   }
   return path;
 }
