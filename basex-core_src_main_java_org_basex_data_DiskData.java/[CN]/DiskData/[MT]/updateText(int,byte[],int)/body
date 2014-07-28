@@ -3,28 +3,27 @@
   if (meta.updindex) {
     final int id=id(pre);
     final byte[] oldval=text(pre,text);
-    final DiskValues index=(DiskValues)(text ? txtindex : atvindex);
+    final DiskValues index=(DiskValues)(text ? textIndex : attrIndex);
     if (index != null && kind != DOC)     index.replace(oldval,value,id);
   }
   final DataAccess store=text ? texts : values;
   final long len=store.length();
   final long v=toSimpleInt(value);
-  final boolean vn=v != Integer.MIN_VALUE;
-  final byte[] vl=vn ? null : COMP.get().pack(value);
-  final long old=textOff(pre);
-  final long off;
-  if (num(old)) {
-    off=len;
-  }
- else {
-    final int l=vn ? 0 : vl.length + Num.length(vl.length);
-    off=store.free(old & IO.OFFCOMP - 1,l);
-  }
-  if (vn) {
+  if (v != Integer.MIN_VALUE) {
     textOff(pre,v | IO.OFFNUM);
   }
  else {
-    store.writeToken(off,vl);
-    textOff(pre,vl == value ? off : off | IO.OFFCOMP);
+    final byte[] val=COMP.get().pack(value);
+    final long old=textOff(pre);
+    final long off;
+    if (num(old)) {
+      off=len;
+    }
+ else {
+      final int vl=val.length;
+      off=store.free(old & IO.OFFCOMP - 1,vl + Num.length(vl));
+    }
+    store.writeToken(off,val);
+    textOff(pre,val == value ? off : off | IO.OFFCOMP);
   }
 }

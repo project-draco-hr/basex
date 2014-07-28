@@ -1,24 +1,26 @@
 {
-  if (!(meta.textindex || meta.attrindex))   return;
-  txts=new TokenObjMap<>();
-  atvs=new TokenObjMap<>();
-  final int l=pre + size;
-  for (int p=pre; p < l; ++p) {
-    final int k=kind(p);
-    final boolean isAttr=k == ATTR;
-    if (meta.attrindex && isAttr || meta.textindex && (k == TEXT || k == COMM || k == PI)) {
-      final byte[] key=text(p,!isAttr);
-      if (key.length <= meta.maxlen) {
-        final TokenObjMap<IntList> m=isAttr ? atvs : txts;
-        IntList ids=m.get(key);
-        if (ids == null) {
-          ids=new IntList(1);
-          m.put(key,ids);
+  final boolean textI=meta.textindex, attrI=meta.attrindex;
+  if (textI || attrI) {
+    txtBuffer=new TokenObjMap<>();
+    atvBuffer=new TokenObjMap<>();
+    final int l=pre + size;
+    for (int p=pre; p < l; ++p) {
+      final int k=kind(p);
+      final boolean text=k == TEXT || k == COMM || k == PI;
+      if (textI && text || attrI && k == ATTR) {
+        final byte[] key=text(p,text);
+        if (key.length <= meta.maxlen) {
+          final TokenObjMap<IntList> m=text ? txtBuffer : atvBuffer;
+          IntList ids=m.get(key);
+          if (ids == null) {
+            ids=new IntList(1);
+            m.put(key,ids);
+          }
+          ids.add(id(p));
         }
-        ids.add(id(p));
       }
     }
+    if (!txtBuffer.isEmpty())     ((DiskValues)textIndex).delete(txtBuffer);
+    if (!atvBuffer.isEmpty())     ((DiskValues)attrIndex).delete(atvBuffer);
   }
-  if (!txts.isEmpty())   ((DiskValues)txtindex).delete(txts);
-  if (!atvs.isEmpty())   ((DiskValues)atvindex).delete(atvs);
 }

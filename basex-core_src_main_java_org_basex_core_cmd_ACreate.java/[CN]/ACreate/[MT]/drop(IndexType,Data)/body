@@ -1,21 +1,19 @@
 {
-  String pat=null;
-switch (index) {
-case TEXT:
-    data.meta.textindex=false;
-  pat=DATATXT;
-break;
-case ATTRIBUTE:
-data.meta.attrindex=false;
-pat=DATAATV;
-break;
-case FULLTEXT:
-data.meta.ftxtindex=false;
-pat=DATAFTX;
-break;
-default :
-}
-data.closeIndex(index);
-data.meta.dirty=true;
-return pat == null || data.meta.drop(pat + '.');
+  data.meta.dirty=true;
+  final boolean ok=data.dropIndex(type);
+  if (ok) {
+    if (type == IndexType.TEXT) {
+      data.meta.textindex=false;
+    }
+ else     if (type == IndexType.ATTRIBUTE) {
+      data.meta.attrindex=false;
+    }
+ else     if (type == IndexType.FULLTEXT) {
+      data.meta.ftxtindex=false;
+    }
+ else {
+      throw Util.notExpected();
+    }
+  }
+  return ok;
 }

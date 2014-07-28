@@ -1,17 +1,12 @@
 {
-  meta=new MetaData(opts);
+  meta=new MetaData(options);
   table=new TableMemAccess(meta);
-  if (meta.updindex) {
-    idmap=new IdPreMap(meta.lastid);
-    txtindex=txt == null ? new UpdatableMemValues(this) : txt;
-    atvindex=atv == null ? new UpdatableMemValues(this) : atv;
-  }
- else {
-    txtindex=txt == null ? new MemValues(this) : txt;
-    atvindex=atv == null ? new MemValues(this) : atv;
-  }
-  elmindex=elm == null ? new Names(meta) : elm;
-  atnindex=att == null ? new Names(meta) : att;
-  paths=ps == null ? new PathSummary(this) : ps;
-  nspaces=ns == null ? new Namespaces() : ns;
+  final boolean up=meta.updindex;
+  if (up)   idmap=new IdPreMap(meta.lastid);
+  this.textIndex=txtindex == null ? new MemValues(this,up) : txtindex;
+  this.attrIndex=atvindex == null ? new MemValues(this,up) : atvindex;
+  this.elemNames=elmindex == null ? new Names(meta) : elmindex;
+  this.attrNames=atnindex == null ? new Names(meta) : atnindex;
+  this.paths=paths == null ? new PathSummary(this) : paths;
+  this.nspaces=nspaces == null ? new Namespaces() : nspaces;
 }
