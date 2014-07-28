@@ -1,10 +1,12 @@
 {
   final TokenBuilder entry=new TokenBuilder();
   data=!header;
-  for (char ch; (ch=consume()) != 0; ) {
+  int ch=input.read();
+  while (ch != -1) {
     if (quoted) {
       if (ch == '"') {
-        if (!consume('"')) {
+        ch=input.read();
+        if (ch != '"') {
           quoted=false;
           continue;
         }
@@ -26,6 +28,7 @@
  else {
       entry.add(XMLToken.valid(ch) ? ch : '?');
     }
+    ch=input.read();
   }
   record(entry,!entry.isEmpty());
 }
