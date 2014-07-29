@@ -1,29 +1,24 @@
 {
-  final int s=size.get();
-  final int last=s - 1;
-  final TokenList allkeys=new TokenList(map).sort(true);
-  final TokenList nkeys=new TokenList(map.size());
+  final TokenList newKeys=new TokenList();
   int p=0;
-  for (  final byte[] key : allkeys) {
-    p=get(key,p,s);
-    if (p < 0) {
-      p=-(p + 1);
-      nkeys.add(key);
+  final int sz=size.get();
+  for (  final byte[] key : new TokenList(map).sort(true)) {
+    p=get(key,p,sz);
+    if (p >= 0) {
+      appendIds(key,compact(map.get(key)),p++);
     }
  else {
-      appendIds(p++,key,diffs(map.get(key)));
+      p=-(p + 1);
+      newKeys.add(key);
     }
   }
-  for (int j=nkeys.size() - 1, i=last, pos=s + j; j >= 0; --j) {
-    final byte[] key=nkeys.get(j);
-    final int in=-(1 + get(key,0,i + 1));
-    if (in < 0)     throw Util.notExpected("Key should not exist: '" + string(key) + '\'');
-    while (i >= in) {
-      idxr.write5(pos * 5L,idxr.read5(i * 5L));
-      ctext.put(pos--,ctext.get(i--));
-    }
-    idxr.write5(pos * 5L,idxl.appendNums(diffs(map.get(key))));
-    ctext.put(pos--,key);
+  final int ns=newKeys.size();
+  for (int j=ns - 1, i=sz - 1, index=sz + j; j >= 0; --j) {
+    final byte[] key=newKeys.get(j);
+    final int ps=-(1 + get(key,0,i + 1));
+    if (ps < 0)     throw Util.notExpected("Key should not exist: '%'",key);
+    while (i >= ps)     writeRef(index--,i--);
+    writeList(key,compact(map.get(key)),index--,idxl.length());
   }
-  size.set(s + nkeys.size());
+  size.set(sz + ns);
 }

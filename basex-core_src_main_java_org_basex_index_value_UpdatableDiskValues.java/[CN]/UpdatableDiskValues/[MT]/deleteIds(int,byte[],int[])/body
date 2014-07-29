@@ -1,20 +1,23 @@
 {
-  final long pos=idxr.read5(ix * 5L);
-  final int numold=idxl.readNum(pos);
-  if (numold == ids.length) {
+  final long pos=idxr.read5(index * 5L);
+  final int oldSize=idxl.readNum(pos);
+  free.add(oldSize,pos);
+  final int delSize=ids.length;
+  final int newSize=oldSize - delSize;
+  if (newSize == 0) {
     cache.delete(key);
-    return 0;
   }
-  final int[] nids=new int[numold - ids.length];
-  for (int i=0, j=0, cid=0, pid=0; i < nids.length; ) {
-    cid+=idxl.readNum();
-    if (j < ids.length && ids[j] == cid)     ++j;
  else {
-      nids[i++]=cid - pid;
-      pid=cid;
+    final int[] nids=new int[newSize];
+    for (int i=0, j=0, cid=0, pid=0; i < newSize; ) {
+      cid+=idxl.readNum();
+      if (j < delSize && ids[j] == cid)       ++j;
+ else {
+        nids[i++]=cid - pid;
+        pid=cid;
+      }
     }
+    writeList(key,nids,index,pos);
   }
-  idxl.writeNums(pos,nids);
-  cache.add(key,nids.length,pos + Num.length(nids.length));
-  return nids.length;
+  return newSize;
 }
