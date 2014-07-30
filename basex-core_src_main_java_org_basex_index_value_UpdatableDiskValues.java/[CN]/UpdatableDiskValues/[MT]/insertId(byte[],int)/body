@@ -2,30 +2,30 @@
   int index=get(key);
   if (index < 0) {
     index=-(index + 1);
-    final int sz=size.get();
+    final int sz=size();
     for (int i=sz; i > index; --i)     writeRef(i,i - 1);
-    writeList(key,new int[]{id},index,idxl.length());
-    size.set(sz + 1);
+    writeList(key,new IntList(1).add(1),index);
+    size(sz + 1);
   }
  else {
     final long pos=idxr.read5(index * 5L);
     final int num=idxl.readNum(pos);
     final int newSize=num + 1;
-    final int[] nids=new int[newSize];
+    final IntList newIds=new IntList(newSize);
     boolean notadded=true;
-    int cid=0;
-    for (int i=0, j=-1; i < num; ++i) {
+    int prevId=0;
+    for (int i=0; i < num; ++i) {
       int v=idxl.readNum();
-      if (notadded && id < cid + v) {
-        nids[++j]=id - cid;
+      if (notadded && id < prevId + v) {
+        newIds.add(id);
         notadded=false;
-        v-=id - cid;
-        cid=id;
+        v-=id - prevId;
+        prevId=id;
       }
-      nids[++j]=v;
-      cid+=v;
+      newIds.add(id);
+      prevId+=v;
     }
-    if (notadded)     nids[newSize - 1]=id - cid;
-    writeList(key,nids,index,pos);
+    if (notadded)     newIds.add(id);
+    writeList(key,newIds,index);
   }
 }
