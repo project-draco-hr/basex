@@ -1,0 +1,40 @@
+{
+  String name=MetaData.normPath(args[0]);
+  if (name == null)   return error(NAME_INVALID_X,args[0]);
+  final IO io;
+  try {
+    io=sourceToIO(name);
+  }
+ catch (  final IOException ex) {
+    return error(Util.message(ex));
+  }
+  if (io == null)   return error(RES_NOT_FOUND);
+  if (!io.exists())   return in != null ? error(RES_NOT_FOUND) : error(RES_NOT_FOUND_X,context.user.has(Perm.CREATE) ? io : args[1]);
+  if (!name.endsWith("/") && (io.isDir() || io.isArchive()))   name+='/';
+  String target="";
+  final int s=name.lastIndexOf('/');
+  if (s != -1) {
+    target=name.substring(0,s);
+    name=name.substring(s + 1);
+  }
+  if (name.isEmpty())   name=io.name();
+ else   io.name(name);
+  if (name.isEmpty())   return error(NAME_INVALID_X,name);
+  try {
+    final Data data=context.data();
+    final Parser parser=new DirParser(io,context,data.meta.path);
+    parser.target(target);
+    if (cache(parser)) {
+      clipDB=context.globalopts.random(data.meta.name);
+      build=new DiskBuilder(clipDB,parser,context);
+    }
+ else {
+      build=new MemBuilder(name,parser);
+    }
+    clip=new DataClip(build.build());
+    return info(parser.info() + RES_ADDED_X,name,perf);
+  }
+ catch (  final IOException ex) {
+    return error(Util.message(ex));
+  }
+}
