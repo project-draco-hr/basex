@@ -7,5 +7,36 @@
       deleteKeys(tmp);
     }
   }
-  insertId(key,id);
+  int index=get(key);
+  if (index < 0) {
+    index=-(index + 1);
+    final int sz=size();
+    final byte[] tmp=idxr.readBytes(0,sz * 5);
+    for (int i=sz; i > index; --i)     copy(tmp,i,i - 1);
+    idxr.cursor(0);
+    idxr.writeBytes(tmp,0,sz * 5);
+    writeIds(key,new IntList(1).add(id),index);
+    size(sz + 1);
+  }
+ else {
+    final long off=idxr.read5(index * 5L);
+    final int num=idxl.readNum(off);
+    final int newSize=num + 1;
+    final IntList newIds=new IntList(newSize);
+    boolean notadded=true;
+    int prevId=0;
+    for (int i=0; i < num; ++i) {
+      int v=idxl.readNum();
+      if (notadded && id < prevId + v) {
+        newIds.add(id);
+        notadded=false;
+        v-=id - prevId;
+        prevId=id;
+      }
+      newIds.add(id);
+      prevId+=v;
+    }
+    if (notadded)     newIds.add(id);
+    writeIds(key,newIds,index);
+  }
 }
