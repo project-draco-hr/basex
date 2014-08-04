@@ -8,17 +8,10 @@
       final Step curr=(Step)step;
       if (curr.simple(DESCORSELF,false)) {
         final Expr next=steps[s + 1];
-        if (next instanceof Step) {
-          final Step stp=(Step)next;
-          if (stp.axis == CHILD && !stp.has(Flag.FCS)) {
-            stp.axis=DESC;
-            opt=true;
-            continue;
-          }
-          if (stp.axis == ATTR && !stp.has(Flag.FCS)) {
-            curr.test=new NameTest(false);
-            opt=true;
-          }
+        if (simpleChild(next)) {
+          ((Step)next).axis=DESC;
+          opt=true;
+          continue;
         }
         Expr e=mergeList(next);
         if (e != null) {
@@ -26,7 +19,7 @@
           opt=true;
           continue;
         }
-        if (next instanceof Filter) {
+        if (next instanceof Filter && !next.has(Flag.FCS)) {
           final Filter f=(Filter)next;
           e=mergeList(f.root);
           if (e != null) {
