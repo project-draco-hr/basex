@@ -54,21 +54,7 @@
           }
         }
  catch (        final QueryException ex) {
-          final QNm name=ex.qname();
-          if (code == null || !eq(code,name.local())) {
-            final FElem error;
-            final boolean fail=Err.UNIT_ASSERT.eq(name);
-            if (fail) {
-              failures++;
-              error=new FElem(FAILURE);
-            }
- else {
-              errors++;
-              error=new FElem(ERROR);
-            }
-            addError(ex,error,fail);
-            testcase.add(error);
-          }
+          addError(ex,testcase,code);
         }
       }
  else {
@@ -82,21 +68,14 @@
     for (    final StaticFunc sf : afterModule)     eval(sf);
   }
  catch (  final QueryException ex) {
-    final FElem error;
     if (current == null) {
-      error=new FElem(ERROR);
-      try {
-        addError(ex,error,true);
-      }
- catch (      final QueryException ignored) {
-      }
+      addError(ex,suite,null);
     }
  else {
-      error=new FElem(TESTCASE).add(NAME,current.name.local());
-      error.add(TIME,time(perf));
+      final FElem tc=new FElem(TESTINIT).add(NAME,current.name.local()).add(TIME,time(perf));
+      suite.add(tc);
+      addError(ex,tc,null);
     }
-    suite.add(error);
-    errors++;
   }
  finally {
     qc.close();
