@@ -14,7 +14,13 @@
   if ((m & LITERAL) != 0)   return Pattern.compile(string(regex),m);
   try {
     final RegExParser parser=new RegExParser(regex,strip,(m & DOTALL) != 0,(m & MULTILINE) != 0);
-    return Pattern.compile(parser.parse().toString(),m);
+    final String string=parser.parse().toString();
+    final Pattern pattern=Pattern.compile(string,m);
+    if (check) {
+      final Pattern p=(pattern.flags() & Pattern.MULTILINE) == 0 ? pattern : Pattern.compile(pattern.pattern());
+      if (p.matcher("").matches())       throw REGROUP.get(ii);
+    }
+    return pattern;
   }
  catch (  final ParseException pe) {
     throw REGPAT.get(ii,pe.getMessage());
