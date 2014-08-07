@@ -9,7 +9,12 @@
       final TokenBuilder tb=new TokenBuilder();
       for (      final Item it : val) {
         if (!tb.isEmpty())         tb.add(1);
-        tb.add(it.type instanceof NodeType ? it.serialize().toArray() : it.string(null));
+        if (it.type instanceof NodeType) {
+          tb.add(it.serialize(SerializerOptions.get(false)).toArray());
+        }
+ else {
+          tb.add(it.string(null));
+        }
         if (it.type != tp)         tb.add(2).add(it.type.toString());
       }
       v=tb.toString();
