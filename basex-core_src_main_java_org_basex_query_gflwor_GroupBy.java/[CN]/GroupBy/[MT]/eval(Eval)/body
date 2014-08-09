@@ -37,7 +37,12 @@
         final Item[] key=new Item[nonOcc];
         int p=0, hash=1;
         for (        final Spec spec : specs) {
-          final Item ki=spec.item(qc,info), atom=ki == null ? null : StandardFunc.atom(ki,info);
+          Value v=spec.item(qc,info);
+          if (v != null) {
+            v=v.atomValue(info);
+            if (!(v instanceof Item))             throw SEQFOUND.get(info,v);
+          }
+          final Item atom=(Item)v;
           if (!spec.occluded) {
             key[p++]=atom;
             hash=31 * hash + (atom == null || spec.coll != null ? 0 : atom.hash(info));

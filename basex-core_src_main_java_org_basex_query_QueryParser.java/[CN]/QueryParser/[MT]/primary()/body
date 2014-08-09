@@ -16,7 +16,14 @@
   e=compConstructor();
   if (e != null)   return e;
   if (wsConsumeWs(ORDERED,BRACE1,INCOMPLETE) || wsConsumeWs(UNORDERED,BRACE1,INCOMPLETE))   return enclosed(NOENCLEXPR);
-  if (wsConsumeWs(MAPSTR,BRACE1,INCOMPLETE) || curr('{'))   return new LitMap(info(),keyValues());
+  if (wsConsumeWs(MAPSTR,BRACE1,INCOMPLETE) || curr('{'))   return new CMap(info(),keyValues());
+  if (wsConsumeWs(BR1))   return new CArray(info(),false,values());
+  if (wsConsumeWs(ARRAYSTR,BRACE1,INCOMPLETE)) {
+    wsCheck(BRACE1);
+    final Expr a=expr();
+    wsCheck(BRACE2);
+    return a == null ? new CArray(info(),true) : new CArray(info(),true,a);
+  }
   if (c == '.' && !digit(next())) {
     if (next() == '.')     return null;
     consume('.');

@@ -2,17 +2,18 @@
   while (true) {
     final Item it1=iter1.next(), it2=iter2.next();
     if (it1 == null || it2 == null)     return it1 == null && it2 == null;
-    if (it1 instanceof FItem || it2 instanceof FItem) {
-      if (it1 instanceof Map && it2 instanceof Map) {
-        if (!((Map)it1).deep(info,(Map)it2,coll))         return false;
-        continue;
-      }
-      throw FICMP.get(info,it1 instanceof FItem ? it1.type : it2.type);
+    if (it1 instanceof FItem) {
+      if (((FItem)it1).deep(it2,info,coll))       continue;
+      return false;
+    }
+    if (it2 instanceof FItem) {
+      if (((FItem)it2).deep(it1,info,coll))       continue;
+      return false;
     }
     if (it1 == it2)     continue;
     if (!(it1 instanceof ANode || it2 instanceof ANode)) {
-      if (!it1.equiv(it2,coll,info))       return false;
-      continue;
+      if (it1.equiv(it2,coll,info))       continue;
+      return false;
     }
     Type t1=it1.type, t2=it2.type;
     if (t1 != t2)     return false;

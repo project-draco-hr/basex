@@ -1,19 +1,15 @@
 {
-  final FItem zipper=checkArity(2,2,qc);
-  final Iter xs=exprs[0].iter(qc);
-  final Iter ys=exprs[1].iter(qc);
+  final FItem fun=checkArity(2,2,qc);
+  final Iter ir1=exprs[0].iter(qc), ir2=exprs[1].iter(qc);
   return new Iter(){
-    /** 
- * Results. 
- */
-    Iter zs=Empty.ITER;
+    Iter ir=Empty.ITER;
     @Override public Item next() throws QueryException {
       do {
-        final Item it=zs.next();
+        final Item it=ir.next();
         if (it != null)         return it;
-        final Item x=xs.next(), y=ys.next();
+        final Item x=ir1.next(), y=ir2.next();
         if (x == null || y == null)         return null;
-        zs=zipper.invokeValue(qc,info,x,y).iter();
+        ir=fun.invokeValue(qc,info,x,y).iter();
       }
  while (true);
     }
