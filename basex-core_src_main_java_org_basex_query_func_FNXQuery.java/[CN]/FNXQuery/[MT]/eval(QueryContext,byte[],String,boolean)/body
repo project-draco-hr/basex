@@ -1,10 +1,10 @@
 {
-  final HashMap<String,Value> bindings=bindings(1,qc);
+  final HashMap<String,Value> bindings=toBindings(1,qc);
   final QueryContext qctx=qc.proc(new QueryContext(qc));
   final Timer to=new Timer(true);
   final Perm tmp=qc.context.user.perm;
   if (exprs.length > 2) {
-    final Options opts=checkOptions(2,Q_OPTIONS,new XQueryOptions(),qc);
+    final Options opts=toOptions(2,Q_OPTIONS,new XQueryOptions(),qc);
     qc.context.user.perm=Perm.get(opts.get(XQueryOptions.PERMISSION));
     Performance.gc(2);
     final long mb=opts.get(XQueryOptions.MEMORY);
@@ -54,7 +54,7 @@
     throw BXXQ_STOPPED.get(info);
   }
 catch (  final QueryException ex) {
-    throw ex.err() == BASX_PERM ? BXXQ_PERM.get(info,ex.getLocalizedMessage()) : ex;
+    throw ex.err() == BASX_PERM_X ? BXXQ_PERM_X.get(info,ex.getLocalizedMessage()) : ex;
   }
  finally {
     qc.context.user.perm=tmp;

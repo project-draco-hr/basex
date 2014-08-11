@@ -1,6 +1,6 @@
 {
   skipWs();
-  final QNm qnm=eQName(QNAMEINV,sc.xquery3() ? XQURI : URICHECK);
+  final QNm qnm=eQName(QNAME_X,sc.xquery3() ? XQURI : URICHECK);
   final byte[] val=stringLiteral();
   final String name=string(qnm.local());
   if (sc.xquery3() && eq(qnm.uri(),OUTPUTURI)) {
@@ -8,13 +8,13 @@
     if (qc.serialOpts == null) {
       qc.serialOpts=qc.context.options.get(MainOptions.SERIALIZER);
     }
-    if (!decl.add("S " + name))     throw error(OUTDUPL,name);
+    if (!decl.add("S " + name))     throw error(OUTDUPL_X,name);
     try {
       qc.serialOpts.assign(name,string(val));
     }
  catch (    final BaseXException ex) {
-      for (      final Option<?> o : qc.serialOpts)       if (o.name().equals(name))       throw error(SERANY,ex);
-      throw error(OUTINVALID,ex);
+      for (      final Option<?> o : qc.serialOpts)       if (o.name().equals(name))       throw error(SER_X,ex);
+      throw error(OUTINVALID_X,ex);
     }
     if (name.equals(SerializerOptions.PARAMETER_DOCUMENT.name())) {
       final IO io=IO.get(string(resolvedUri(val).string()));
@@ -22,22 +22,22 @@
         final InputInfo info=info();
         FuncOptions.serializer(new DBNode(io).children().next(),qc.serialOpts,info);
         final HashMap<String,String> free=qc.serialOpts.free();
-        if (!free.isEmpty())         throw SERWHICH.get(info,free.keySet().iterator().next());
+        if (!free.isEmpty())         throw SEROPTION_X.get(info,free.keySet().iterator().next());
         final StringOption cm=SerializerOptions.USE_CHARACTER_MAPS;
-        if (!qc.serialOpts.get(cm).isEmpty())         throw SERWHICH.get(info,cm.name());
+        if (!qc.serialOpts.get(cm).isEmpty())         throw SEROPTION_X.get(info,cm.name());
       }
  catch (      final IOException ex) {
-        throw error(OUTDOC,val);
+        throw error(OUTDOC_X,val);
       }
     }
   }
  else   if (sc.xquery3() && eq(qnm.uri(),XQURI)) {
-    throw error(DECLOPTION,qnm);
+    throw error(DECLOPTION_X,qnm);
   }
  else   if (eq(qnm.uri(),DBURI)) {
     final String ukey=name.toUpperCase(Locale.ENGLISH);
     final Option<?> opt=qc.context.options.option(ukey);
-    if (opt == null)     throw error(BASX_OPTIONS,ukey);
+    if (opt == null)     throw error(BASX_OPTIONS_X,ukey);
     qc.staticOpts.put(opt,qc.context.options.get(opt));
     qc.tempOpts.add(name).add(string(val));
   }
@@ -49,7 +49,7 @@
       for (      final byte[] lock : split(val,','))       qc.writeLocks.add(DBLocking.USER_PREFIX + string(lock).trim());
     }
  else {
-      throw error(BASX_OPTIONS,name);
+      throw error(BASX_OPTIONS_X,name);
     }
   }
 }

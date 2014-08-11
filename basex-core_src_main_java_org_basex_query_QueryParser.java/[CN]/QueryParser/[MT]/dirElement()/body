@@ -2,7 +2,7 @@
   final int s=sc.ns.size();
   final byte[] nse=sc.elemNS;
   final int npos=names.size();
-  final QNm name=new QNm(qName(ELEMNAME));
+  final QNm name=new QNm(qName(ELEMNAME_X));
   names.add(new QNmCheck(name));
   consumeWS();
   final Atts ns=new Atts();
@@ -17,7 +17,7 @@
     check('=');
     consumeWS();
     final char delim=consume();
-    if (!quote(delim))     throw error(NOQUOTE,found());
+    if (!quote(delim))     throw error(NOQUOTE_X,found());
     final TokenBuilder tb=new TokenBuilder();
     boolean simple=true;
     do {
@@ -45,7 +45,7 @@
           tb.add('}');
         }
  else         if (ch == '<' || ch == 0) {
-          throw error(NOQUOTE,found());
+          throw error(NOQUOTE_X,found());
         }
  else         if (ch == '\n' || ch == '\t') {
           tb.add(' ');
@@ -70,23 +70,23 @@
       final byte[] pref=pr ? local(atn) : EMPTY;
       final byte[] uri=attv.isEmpty() ? EMPTY : ((Str)attv.get(0)).string();
       if (eq(pref,XML) && eq(uri,XMLURI)) {
-        if (xmlDecl)         throw error(DUPLNSDEF,XML);
+        if (xmlDecl)         throw error(DUPLNSDEF_X,XML);
         xmlDecl=true;
       }
  else {
-        if (!Uri.uri(uri).isValid())         throw error(INVURI,uri);
+        if (!Uri.uri(uri).isValid())         throw error(INVURI_X,uri);
         if (pr) {
           if (uri.length == 0)           throw error(NSEMPTYURI);
-          if (eq(pref,XML,XMLNS))           throw error(BINDXML,pref);
-          if (eq(uri,XMLURI))           throw error(BINDXMLURI,uri,XML);
-          if (eq(uri,XMLNSURI))           throw error(BINDXMLURI,uri,XMLNS);
+          if (eq(pref,XML,XMLNS))           throw error(BINDXML_X,pref);
+          if (eq(uri,XMLURI))           throw error(BINDXMLURI_X_X,uri,XML);
+          if (eq(uri,XMLNSURI))           throw error(BINDXMLURI_X_X,uri,XMLNS);
           sc.ns.add(pref,uri);
         }
  else {
-          if (eq(uri,XMLURI))           throw error(XMLNSDEF,uri);
+          if (eq(uri,XMLURI))           throw error(XMLNSDEF_X,uri);
           sc.elemNS=uri;
         }
-        if (ns.contains(pref))         throw error(DUPLNSDEF,pref);
+        if (ns.contains(pref))         throw error(DUPLNSDEF_X,pref);
         ns.add(pref,uri);
       }
     }
@@ -110,17 +110,17 @@
       add(cont,e);
     }
     pos+=2;
-    final byte[] close=qName(ELEMNAME);
+    final byte[] close=qName(ELEMNAME_X);
     consumeWS();
     check('>');
-    if (!eq(name.string(),close))     throw error(TAGWRONG,name.string(),close);
+    if (!eq(name.string(),close))     throw error(TAGWRONG_X_X,name.string(),close);
   }
   assignURI(npos);
   if (atts != null) {
     final int as=atts.size();
     for (int a=0; a < as - 1; a++) {
       for (int b=a + 1; b < as; b++) {
-        if (atts.get(a).eq(atts.get(b)))         throw error(ATTDUPL,atts.get(a));
+        if (atts.get(a).eq(atts.get(b)))         throw error(ATTDUPL_X,atts.get(a));
       }
     }
   }

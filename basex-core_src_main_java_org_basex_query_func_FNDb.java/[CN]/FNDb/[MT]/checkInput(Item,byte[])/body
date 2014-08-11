@@ -1,7 +1,7 @@
 {
   final NewInput ni=new NewInput();
   if (in instanceof ANode) {
-    if (endsWith(path,'.') || endsWith(path,'/'))     throw RESINV.get(info,path);
+    if (endsWith(path,'.') || endsWith(path,'/'))     throw RESINV_X.get(info,path);
     ANode nd=(ANode)in;
     byte[] name=path;
     if (name.length == 0) {
@@ -9,21 +9,21 @@
       final Data d=nd.data();
       final int i=d == null || d.inMemory() ? lastIndexOf(name,'/') : indexOf(name,'/');
       if (i != -1)       name=substring(name,i + 1);
-      if (name.length == 0)       throw RESINV.get(info,name);
+      if (name.length == 0)       throw RESINV_X.get(info,name);
     }
     if (nd.type != NodeType.DOC) {
-      if (nd.type == NodeType.ATT)       throw UPDOCTYPE.get(info,nd);
+      if (nd.type == NodeType.ATT)       throw UPDOCTYPE_X.get(info,nd);
       nd=new FDoc(name).add(nd);
     }
     ni.node=nd;
     ni.path=name;
     return ni;
   }
-  if (!in.type.isStringOrUntyped())   throw STRNODTYPE.get(info,in.type,in);
+  if (!in.type.isStringOrUntyped())   throw STRNOD_X_X.get(info,in.type,in);
   final QueryInput qi=new QueryInput(string(in.string(info)));
-  if (!qi.input.exists())   throw WHICHRES.get(info,qi.original);
+  if (!qi.input.exists())   throw WHICHRES_X.get(info,qi.original);
   String name=string(path);
-  if (name.endsWith("."))   throw RESINV.get(info,path);
+  if (name.endsWith("."))   throw RESINV_X.get(info,path);
   if (!name.endsWith("/") && (qi.input.isDir() || qi.input.isArchive()))   name+="/";
   String target="";
   final int s=name.lastIndexOf('/');
@@ -33,7 +33,7 @@
   }
   if (!name.isEmpty())   qi.input.name(name);
  else   if (!(qi.input instanceof IOContent))   name=qi.input.name();
-  if (name.isEmpty())   throw RESINV.get(info,path);
+  if (name.isEmpty())   throw RESINV_X.get(info,path);
   ni.io=qi.input;
   ni.dbname=token(name);
   ni.path=token(target);

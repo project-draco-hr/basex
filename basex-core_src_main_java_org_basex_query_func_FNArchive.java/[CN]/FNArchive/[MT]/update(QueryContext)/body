@@ -1,10 +1,8 @@
 {
-  final B64 archive=(B64)checkType(checkItem(exprs[0],qc),AtomType.B64);
+  final B64 archive=toB64(exprs[0],qc,false);
   final TokenObjMap<Item[]> hm=new TokenObjMap<>();
-  final Iter entr=qc.iter(exprs[1]);
-  final Iter cont=qc.iter(exprs[2]);
-  int e=0;
-  int c=0;
+  final Iter entr=qc.iter(exprs[1]), cont=qc.iter(exprs[2]);
+  int e=0, c=0;
   Item en, cn;
   while (true) {
     en=entr.next();
@@ -18,11 +16,11 @@
  while (cont.next() != null);
   if (en != null)   do   e++;
  while (entr.next() != null);
-  if (e != c)   throw ARCH_DIFF.get(info,e,c);
+  if (e != c)   throw ARCH_DIFF_X_X.get(info,e,c);
   final ArchiveIn in=ArchiveIn.get(archive.input(info),info);
   final ArchiveOut out=ArchiveOut.get(in.format(),info);
   try {
-    if (in instanceof GZIPIn)     throw ARCH_MODIFY.get(info,in.format().toUpperCase(Locale.ENGLISH));
+    if (in instanceof GZIPIn)     throw ARCH_MODIFY_X.get(info,in.format().toUpperCase(Locale.ENGLISH));
     while (in.more())     if (!hm.contains(token(in.entry().getName())))     out.write(in);
     for (    final byte[] h : hm) {
       if (h == null)       continue;
@@ -31,7 +29,7 @@
     }
   }
  catch (  final IOException ex) {
-    throw ARCH_FAIL.get(info,ex);
+    throw ARCH_FAIL_X.get(info,ex);
   }
  finally {
     in.close();

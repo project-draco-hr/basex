@@ -1,21 +1,22 @@
 {
-  final Expr e=exprs.length == 0 ? checkCtx(qc) : exprs[0];
 switch (func) {
 case POSITION:
-    return Int.get(qc.pos);
+    ctxValue(qc);
+  return Int.get(qc.pos);
 case LAST:
-  return Int.get(qc.size);
+ctxValue(qc);
+return Int.get(qc.size);
 case STRING:
-return string(e,ii,qc);
+return string(qc,ii);
 case NUMBER:
-return number(qc.iter(e),qc);
+return number(qc);
 case STRING_LENGTH:
-return Int.get(len(checkEStr(exprs.length == 0 ? string(e,ii,qc) : e,qc)));
+return Int.get(length(exprs.length == 0 ? string(qc,ii).string(ii) : toToken(arg(0,qc),qc,true)));
 case NORMALIZE_SPACE:
-return Str.get(norm(checkEStr(e,qc)));
+return Str.get(normalize(toToken(arg(0,qc),qc,true)));
 case NAMESPACE_URI_FROM_QNAME:
-final Item it=e.item(qc,info);
-return it == null ? null : Uri.uri(checkQNm(it,qc,sc).uri());
+final QNm qnm=toQNm(arg(0,qc),qc,sc,true);
+return qnm == null ? null : Uri.uri(qnm.uri());
 default :
 return super.item(qc,ii);
 }

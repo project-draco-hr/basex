@@ -4,12 +4,14 @@
     qc.compInfo(OPTSWAP,this);
   }
   final Expr e1=exprs[0], e2=exprs[1];
+  final SeqType st1=e1.seqType(), st2=e2.seqType();
+  atomic=st1.zeroOrOne() && !st1.mayBeArray() && st2.zeroOrOne()&& !st2.mayBeArray();
   Expr e=this;
   if (oneIsEmpty()) {
     e=optPre(Bln.FALSE,qc);
   }
  else   if (allAreValues()) {
-    e=preEval(qc);
+    return preEval(qc);
   }
  else   if (e1.isFunction(Function.COUNT)) {
     e=compCount(op.op);
@@ -17,8 +19,7 @@
   }
  else   if (e1.isFunction(Function.POSITION)) {
     if (e2 instanceof RangeSeq && op.op == OpV.EQ) {
-      final long p1=((Value)e2).itemAt(0).itr(info);
-      final long p2=p1 + e2.size() - 1;
+      final long p1=((Value)e2).itemAt(0).itr(info), p2=p1 + e2.size() - 1;
       e=Pos.get(p1,p2,info);
     }
  else {
@@ -35,9 +36,6 @@
     if (e == this)     e=CmpSR.get(this);
     if (e != this)     qc.compInfo(OPTWRITE,this);
   }
-  if (e != this)   return e;
-  final SeqType st1=e1.seqType(), st2=e2.seqType();
-  atomic=st1.zeroOrOne() && !st1.mayBeArray() && st2.zeroOrOne()&& !st2.mayBeArray();
-  if (atomic)   qc.compInfo(OPTATOMIC,this);
-  return this;
+  if (e == this && atomic)   qc.compInfo(OPTATOMIC,this);
+  return e;
 }

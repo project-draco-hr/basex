@@ -1,13 +1,12 @@
 {
   checkCreate(qc);
-  final Item req=exprs[0].item(qc,info);
-  final ANode request=req == null ? null : checkNode(req);
-  final byte[] href=exprs.length >= 2 ? checkEStr(exprs[1].item(qc,info)) : null;
+  final ANode request=toNode(exprs[0].item(qc,info));
+  final byte[] href=exprs.length >= 2 ? toToken(exprs[1],qc,true) : null;
   ValueBuilder cache=null;
   if (exprs.length == 3) {
     final Iter bodies=exprs[2].iter(qc);
     cache=new ValueBuilder();
-    for (Item i; (i=bodies.next()) != null; )     cache.add(i);
+    for (Item body; (body=bodies.next()) != null; )     cache.add(body);
   }
   return new HTTPClient(info,qc.context.options).sendRequest(href,request,cache);
 }

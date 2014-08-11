@@ -1,11 +1,11 @@
 {
   final ClientSession cs=session(qc,false);
-  final String query=Token.string(checkStr(exprs[1],qc));
+  final String query=Token.string(toToken(exprs[1],qc));
   final ValueBuilder vb=new ValueBuilder();
   ClientQuery cq=null;
   try {
     cq=cs.query(query);
-    for (    final Map.Entry<String,Value> binding : bindings(2,qc).entrySet()) {
+    for (    final Map.Entry<String,Value> binding : toBindings(2,qc).entrySet()) {
       final String k=binding.getKey();
       final Value value=binding.getValue();
       if (k.isEmpty())       cq.context(value);
@@ -26,10 +26,10 @@ catch (  final BaseXException ex) {
       final QueryException exc=get(m.group(1),m.group(2),info);
       throw exc == null ? new QueryException(info,new QNm(m.group(1)),m.group(2)) : exc;
     }
-    throw BXCL_QUERY.get(info,ex);
+    throw BXCL_QUERY_X.get(info,ex);
   }
 catch (  final IOException ex) {
-    throw BXCL_COMM.get(info,ex);
+    throw BXCL_COMM_X.get(info,ex);
   }
  finally {
     if (cq != null)     try {
