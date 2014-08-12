@@ -1,26 +1,5 @@
 {
   cond=cond.compile(qc,scp);
   for (  final SwitchCase sc : cases)   sc.compile(qc,scp);
-  Expr ex=this;
-  if (cond.isValue()) {
-    final Item it=cond.atomItem(qc,info);
-    LOOP:     for (    final SwitchCase sc : cases) {
-      final int sl=sc.exprs.length;
-      for (int e=1; e < sl; e++) {
-        if (!sc.exprs[e].isValue())         break LOOP;
-        final Item cs=sc.exprs[e].item(qc,info);
-        if (it == cs || cs != null && it != null && it.equiv(cs,null,info)) {
-          ex=sc.exprs[0];
-          break LOOP;
-        }
-      }
-      if (sl == 1)       ex=sc.exprs[0];
-    }
-  }
-  if (ex != this)   return optPre(ex,qc);
-  seqType=cases[0].exprs[0].seqType();
-  for (int c=1; c < cases.length; c++) {
-    seqType=seqType.union(cases[c].exprs[0].seqType());
-  }
-  return ex;
+  return optimize(qc,scp);
 }

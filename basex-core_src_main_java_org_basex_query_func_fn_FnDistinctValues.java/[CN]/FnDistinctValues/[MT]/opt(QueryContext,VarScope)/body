@@ -1,9 +1,10 @@
 {
   final SeqType st=exprs[0].seqType();
-  final Type t=st.type;
-  if (func == Function.DISTINCT_VALUES && exprs.length == 1) {
-    seqType=t instanceof NodeType ? SeqType.get(AtomType.ATM,st.occ) : st;
-    return cmpDist(qc);
+  if (st.type instanceof NodeType) {
+    seqType=SeqType.get(AtomType.ATM,st.occ);
   }
-  return this;
+ else   if (!st.mayBeArray()) {
+    seqType=st;
+  }
+  return exprs.length == 1 ? cmpDist(qc) : this;
 }
