@@ -1,0 +1,22 @@
+{
+  double v=value;
+  if (v == .0 || v == -.0 || Double.isNaN(v) || Double.isInfinite(v))   return v;
+  if (!e & s == 0) {
+    if (v >= -.5 && v < .0)     return -.0;
+    if (v > Long.MIN_VALUE && v < Long.MAX_VALUE)     return Math.round(v);
+  }
+  final boolean n=v < 0;
+  final double f=Math.pow(10,s + 1);
+  v=(n ? -v : v) * f;
+  if (Double.isInfinite(v)) {
+    final int m=e ? BigDecimal.ROUND_HALF_EVEN : BigDecimal.ROUND_HALF_UP;
+    v=new BigDecimal(value).setScale(s,m).doubleValue();
+  }
+ else {
+    final double r=v % 10;
+    v+=r < 5 ? -r : (e ? r > 5 : r >= 5) ? 10 - r : e ? v % 20 == 15 ? 5 : -5 : 0;
+    v/=f;
+    if (n)     v=-v;
+  }
+  return v;
+}

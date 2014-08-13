@@ -1,24 +1,4 @@
 {
-  double v=value;
-  if (Double.isNaN(v) || Double.isInfinite(v) || value == 0.0)   return this;
-  if (!even) {
-    if (v == -0.0)     return this;
-    if (scale == 0) {
-      if (v >= -0.5 && v < 0.0)       return Dbl.get(-0.0);
-      if (v > Long.MIN_VALUE && v < Long.MAX_VALUE)       return Dbl.get(Math.round(v));
-    }
-  }
-  final double f=Math.pow(10,scale + 1);
-  v=Math.abs(v * f);
-  if (Double.isInfinite(v)) {
-    final int m=even ? BigDecimal.ROUND_HALF_EVEN : BigDecimal.ROUND_HALF_UP;
-    v=new BigDecimal(value).setScale(scale,m).doubleValue();
-  }
- else {
-    final double r=v % 10;
-    v+=r < 5 ? -r : (even ? r > 5 : r >= 5) ? (10 - r) : even ? (v % 20 == 15 ? 5 : -5) : 0;
-    v/=f;
-    if (value < 0)     v=-v;
-  }
+  final double v=rnd(scale,even);
   return v == value ? this : Dbl.get(v);
 }
