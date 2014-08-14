@@ -1,0 +1,26 @@
+{
+  boolean changed=false;
+  for (int c=0; c < clauses.size(); c++) {
+    final Clause clause=clauses.get(c);
+    if (clause instanceof Let) {
+      final Let lt=(Let)clause;
+      if (removingVar(lt.var,c + 1,qc) && !lt.has(Flag.NDT) && !lt.has(Flag.UPD)) {
+        lt.var.checkType(lt.expr,lt.info);
+        clauses.remove(c);
+        changed=true;
+      }
+    }
+ else     if (clause instanceof For) {
+      final For f=(For)clause;
+      if (removingVar(f.score,c,qc)) {
+        f.score=null;
+        changed=true;
+      }
+      if (removingVar(f.pos,c,qc)) {
+        f.pos=null;
+        changed=true;
+      }
+    }
+  }
+  return changed;
+}

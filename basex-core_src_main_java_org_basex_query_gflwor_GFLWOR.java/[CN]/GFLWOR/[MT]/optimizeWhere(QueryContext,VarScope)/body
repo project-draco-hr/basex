@@ -1,14 +1,14 @@
 {
-  boolean change=false;
+  boolean changed=false;
   for (int i=0; i < clauses.size(); i++) {
-    final Clause c=clauses.get(i);
-    if (!(c instanceof Where) || c.has(Flag.NDT) || c.has(Flag.UPD))     continue;
-    final Where wh=(Where)c;
-    if (wh.pred.isValue()) {
-      if (!(wh.pred instanceof Bln))       wh.pred=Bln.get(wh.pred.ebv(qc,wh.info).bool(wh.info));
-      if (!((Item)wh.pred).bool(null))       break;
+    final Clause clause=clauses.get(i);
+    if (!(clause instanceof Where) || clause.has(Flag.NDT) || clause.has(Flag.UPD))     continue;
+    final Where wh=(Where)clause;
+    if (wh.expr.isValue()) {
+      if (!(wh.expr instanceof Bln))       wh.expr=Bln.get(wh.expr.ebv(qc,wh.info).bool(wh.info));
+      if (!((Item)wh.expr).bool(null))       break;
       clauses.remove(i--);
-      change=true;
+      changed=true;
     }
  else {
       int insert=-1;
@@ -19,15 +19,15 @@
       }
       if (insert >= 0) {
         clauses.add(insert,clauses.remove(i));
-        change=true;
+        changed=true;
       }
       final int newPos=insert < 0 ? i : insert;
       for (int b4=newPos; --b4 >= 0; ) {
         final Clause before=clauses.get(b4);
-        if (before instanceof For && ((For)before).toPred(qc,scp,wh.pred)) {
+        if (before instanceof For && ((For)before).toPredicate(qc,scp,wh.expr)) {
           clauses.remove(newPos);
           i--;
-          change=true;
+          changed=true;
         }
  else         if (before instanceof Where) {
           continue;
@@ -36,6 +36,6 @@
       }
     }
   }
-  if (change)   qc.compInfo(QueryText.OPTWHERE2);
-  return change;
+  if (changed)   qc.compInfo(QueryText.OPTWHERE2);
+  return changed;
 }

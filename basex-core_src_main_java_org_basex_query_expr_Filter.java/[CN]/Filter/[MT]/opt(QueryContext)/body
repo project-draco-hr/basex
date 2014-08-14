@@ -16,11 +16,10 @@
   }
   if (!super.has(Flag.FCS))   return new IterFilter(this);
   final boolean iter=posIterator();
-  if (preds.length == 1 && (last || pos != null) && root.isValue()) {
+  if (preds.length == 1 && root.isValue()) {
     final Value v=(Value)root;
-    final long from=last ? v.size() - 1 : pos.min - 1;
-    final long len=last ? 1 : pos.max - from;
-    return optPre(SubSeq.get(v,from,len),qc);
+    if (last)     return optPre(SubSeq.get(v,v.size() - 1,1),qc);
+    if (pos != null)     return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
   }
   boolean off=false;
   if (preds.length == 1) {

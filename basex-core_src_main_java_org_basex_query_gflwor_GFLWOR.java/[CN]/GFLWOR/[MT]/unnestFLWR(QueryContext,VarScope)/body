@@ -1,27 +1,27 @@
 {
-  boolean change=false, thisRound;
+  boolean changed=false, thisRound;
   do {
     thisRound=false;
     final ListIterator<Clause> iter=clauses.listIterator();
     while (iter.hasNext()) {
-      final Clause cl=iter.next();
-      final boolean isFor=cl instanceof For, isLet=cl instanceof Let;
+      final Clause clause=iter.next();
+      final boolean isFor=clause instanceof For, isLet=clause instanceof Let;
       if (isFor) {
-        final For fr=(For)cl;
+        final For fr=(For)clause;
         if (!fr.empty && fr.pos == null && fr.expr instanceof GFLWOR) {
           final GFLWOR fl=(GFLWOR)fr.expr;
           if (fl.isFLWR()) {
             qc.compInfo(QueryText.OPTFLAT,this);
             iter.remove();
-            for (            final Clause c : fl.clauses)             iter.add(c);
+            for (            final Clause cls : fl.clauses)             iter.add(cls);
             fr.expr=fl.ret;
             iter.add(fr);
-            thisRound=change=true;
+            thisRound=changed=true;
           }
         }
       }
       if (!thisRound && (isFor || isLet)) {
-        final Expr e=isFor ? ((For)cl).expr : ((Let)cl).expr;
+        final Expr e=isFor ? ((For)clause).expr : ((Let)clause).expr;
         if (e instanceof GFLWOR) {
           final GFLWOR fl=(GFLWOR)e;
           final LinkedList<Clause> cls=fl.clauses;
@@ -30,15 +30,15 @@
             do             iter.add(cls.removeFirst());
  while (!cls.isEmpty() && cls.getFirst() instanceof Let);
             final Expr rest=fl.clauses.isEmpty() ? fl.ret : fl.optimize(qc,scp);
-            if (isFor)             ((For)cl).expr=rest;
- else             ((Let)cl).expr=rest;
-            iter.add(cl);
-            thisRound=change=true;
+            if (isFor)             ((For)clause).expr=rest;
+ else             ((Let)clause).expr=rest;
+            iter.add(clause);
+            thisRound=changed=true;
           }
         }
       }
     }
   }
  while (thisRound);
-  return change;
+  return changed;
 }
