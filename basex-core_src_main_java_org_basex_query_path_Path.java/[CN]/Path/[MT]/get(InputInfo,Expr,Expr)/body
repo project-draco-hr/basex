@@ -29,11 +29,8 @@
     }
     stps.add(step);
   }
-  boolean axes=true, map=true;
+  boolean axes=true;
   final Expr[] st=stps.finish();
-  for (  final Expr step : st) {
-    axes&=step instanceof Step;
-    map&=step instanceof MapStep && !step.has(Flag.FCS);
-  }
-  return map ? new MapPath(info,rt,st) : axes ? iterative(rt,st) ? new IterPath(info,rt,st) : new CachedPath(info,rt,st) : new MixedPath(info,rt,st);
+  for (  final Expr step : st)   axes&=step instanceof Step;
+  return axes ? iterative(rt,st) ? new IterPath(info,rt,st) : new CachedPath(info,rt,st) : new MixedPath(info,rt,st);
 }
