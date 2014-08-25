@@ -1,6 +1,6 @@
 {
+  if (path(root,preds))   return ((AxisPath)root).addPreds(preds).optimize(qc,scp);
   if (root.isEmpty())   return optPre(qc);
-  if (root instanceof AxisPath && !super.has(Flag.FCS))   return ((Path)root.copy(qc,scp)).addPreds(qc,scp,preds).compile(qc,scp);
   final Value cv=qc.value;
   try {
     qc.value=null;
@@ -22,7 +22,7 @@
       if (size == 0)       return optPre(qc);
       seqType=SeqType.get(st.type,size);
     }
-    if (!super.has(Flag.FCS))     return new IterFilter(this);
+    if (!super.has(Flag.FCS))     return copy(new IterFilter(info,root,preds));
     final boolean iter=posIterator();
     if (preds.length == 1 && root.isValue()) {
       final Value v=(Value)root;
@@ -36,7 +36,7 @@
       off=pt.type.isNumber() && pt.zeroOrOne() && !p.has(Flag.CTX)&& !p.has(Flag.NDT);
       if (off)       seqType=SeqType.get(seqType.type,Occ.ZERO_ONE);
     }
-    return off || iter ? new IterPosFilter(this,off) : this;
+    return off || iter ? copy(new IterPosFilter(info,off,root,preds)) : get(info,root,preds);
   }
   finally {
     qc.value=cv;
