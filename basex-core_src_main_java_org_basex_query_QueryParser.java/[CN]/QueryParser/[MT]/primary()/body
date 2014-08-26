@@ -10,24 +10,21 @@
   if (sc.xquery3()) {
     final Expr e=functionItem();
     if (e != null)     return e;
+    if (wsConsumeWs(MAPSTR,CURLY1,INCOMPLETE) || curr('{'))     return new CMap(info(),keyValues());
+    if (wsConsumeWs(SQUARE1))     return new CArray(info(),false,values());
+    if (wsConsumeWs(ARRAYSTR,CURLY1,INCOMPLETE)) {
+      wsCheck(CURLY1);
+      final Expr a=expr();
+      wsCheck(CURLY2);
+      return a == null ? new CArray(info(),true) : new CArray(info(),true,a);
+    }
+    if (wsConsumeWs(QUESTION))     return new Lookup(info(),keySpecifier());
   }
   Expr e=functionCall();
   if (e != null)   return e;
   e=compConstructor();
   if (e != null)   return e;
   if (wsConsumeWs(ORDERED,CURLY1,INCOMPLETE) || wsConsumeWs(UNORDERED,CURLY1,INCOMPLETE))   return enclosed(NOENCLEXPR);
-  if (wsConsumeWs(MAPSTR,CURLY1,INCOMPLETE) || curr('{'))   return new CMap(info(),keyValues());
-  if (wsConsumeWs(SQUARE1))   return new CArray(info(),false,values());
-  if (wsConsumeWs(ARRAYSTR,CURLY1,INCOMPLETE)) {
-    wsCheck(CURLY1);
-    final Expr a=expr();
-    wsCheck(CURLY2);
-    return a == null ? new CArray(info(),true) : new CArray(info(),true,a);
-  }
-  if (wsConsumeWs(QUESTION)) {
-    keySpecifier();
-    return Empty.SEQ;
-  }
   if (c == '.' && !digit(next())) {
     if (next() == '.')     return null;
     consume('.');
