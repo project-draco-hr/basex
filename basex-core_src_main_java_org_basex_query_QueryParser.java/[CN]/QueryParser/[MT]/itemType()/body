@@ -1,8 +1,8 @@
 {
   skipWs();
-  if (consume(PAR1)) {
+  if (consume(PAREN1)) {
     final SeqType ret=itemType();
-    wsCheck(PAR2);
+    wsCheck(PAREN2);
     return ret;
   }
   final Ann ann=sc.xquery3() && curr('%') ? annotations() : null;
@@ -11,7 +11,7 @@
   final boolean func=curr('(');
   Type t=null;
   if (func) {
-    consume(PAR1);
+    consume(PAREN1);
     if (name.eq(AtomType.ITEM.name))     t=AtomType.ITEM;
     if (t == null)     t=NodeType.find(name);
     if (t == null) {
@@ -26,7 +26,7 @@
     if (t == null)     throw error(TYPEUNKNOWN_X,name.prefixId(XML));
   }
   if (ann != null)   throw error(NOANN);
-  if (!func || wsConsume(PAR2))   return t.seqType();
-  if (!(t instanceof NodeType))   wsCheck(PAR2);
+  if (!func || wsConsume(PAREN2))   return t.seqType();
+  if (!(t instanceof NodeType))   wsCheck(PAREN2);
   return SeqType.get(t,Occ.ONE,kindTest((NodeType)t));
 }
