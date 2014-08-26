@@ -1,0 +1,26 @@
+{
+  final long mn=toLong(min,qc), mx=toLong(max,qc);
+  mtc.sort();
+  final FTMatch match=new FTMatch();
+  FTStringMatch last=null, first=null;
+  for (  final FTStringMatch sm : mtc) {
+    if (sm.exclude) {
+      match.add(sm);
+    }
+ else {
+      if (first == null) {
+        first=sm;
+      }
+ else {
+        final int d=pos(sm.start,lex) - pos(last.end,lex) - 1;
+        if (d < mn || d > mx)         return false;
+      }
+      last=sm;
+    }
+  }
+  first.end=last.end;
+  mtc.reset();
+  mtc.add(first);
+  mtc.add(match);
+  return true;
+}

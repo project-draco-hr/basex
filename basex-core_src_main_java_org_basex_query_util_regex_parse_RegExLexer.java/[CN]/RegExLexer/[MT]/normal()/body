@@ -1,0 +1,42 @@
+{
+  final int curr=next();
+  if (curr == -1)   return 0;
+switch (curr) {
+case '^':
+    return LINE_START;
+case '$':
+  return LINE_END;
+case '?':
+return Q_MARK;
+case '*':
+return STAR;
+case '+':
+return PLUS;
+case '.':
+return WILDCARD;
+case '|':
+return OR;
+case '(':
+final int p=pos, ts=tb.size();
+if (next() == '?' && next() == ':') return NPAR_OPEN;
+pos=p;
+tb.size(ts);
+return PAR_OPEN;
+case ')':
+return PAR_CLOSE;
+case '{':
+state=-1;
+return QUANT_OPEN;
+case '\\':
+return escape();
+case '[':
+state++;
+first=1;
+return BR_OPEN;
+case ']':
+case '}':
+throw error("",curr);
+}
+if (curr >= '0' && curr <= '9') return DIGIT;
+return CHAR;
+}
