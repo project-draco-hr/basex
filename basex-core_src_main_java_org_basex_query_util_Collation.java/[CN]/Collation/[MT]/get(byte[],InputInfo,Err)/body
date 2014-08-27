@@ -1,0 +1,43 @@
+{
+  final int q=Token.indexOf(uri,'?');
+  final byte[] base=q == -1 ? uri : substring(uri,0,q);
+  final String args=q == -1 ? "" : string(replace(substring(uri,q + 1),'&',';'));
+  final Options opts;
+  final boolean uca=eq(UCA,base);
+  if (uca) {
+    opts=new UCAOptions();
+  }
+ else   if (eq(URL,base)) {
+    opts=new CollationOptions();
+  }
+ else {
+    throw err.get(info,uri);
+  }
+  final boolean nomercy=!uca || args.contains("fallback=no");
+  for (  final String param : args.split(";")) {
+    final String[] kv=param.split("=");
+    if (kv.length != 2)     return null;
+    final String key=kv[0], val=kv[1];
+    try {
+      opts.assign(key,val);
+    }
+ catch (    final BaseXException ex) {
+      if (nomercy || key.equals(UCAOptions.FALLBACK.name()))       throw err.get(info,uri);
+      ;
+    }
+  }
+  if (uca) {
+    if (nomercy)     throw err.get(info,uri);
+    return null;
+  }
+  if (locales == null) {
+    locales=new HashMap<>();
+    for (    final Locale l : Locale.getAvailableLocales())     locales.put(l.toString().replace('_','-'),l);
+  }
+  final Locale locale=locales.get(opts.get(CollationOptions.LANG));
+  if (locale == null)   throw err.get(info,uri);
+  final Collator coll=Collator.getInstance(locale);
+  if (opts.contains(CollationOptions.STRENGTH))   coll.setStrength(opts.get(CollationOptions.STRENGTH).value);
+  if (opts.contains(CollationOptions.DECOMPOSITION))   coll.setDecomposition(opts.get(CollationOptions.DECOMPOSITION).value);
+  return coll;
+}

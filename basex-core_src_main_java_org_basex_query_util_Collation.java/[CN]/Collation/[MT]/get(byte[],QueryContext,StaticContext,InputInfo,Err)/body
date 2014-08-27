@@ -1,23 +1,24 @@
 {
   if (uri == null)   return sc.collation;
-  byte[] args=uri;
-  final Uri u=Uri.uri(args);
-  if (!u.isValid())   throw INVURI_X.get(info,args);
-  if (!u.isAbsolute() && !Token.startsWith(args,'?')) {
-    args=sc.baseURI().resolve(u,info).string();
+  byte[] url=uri;
+  final Uri u=Uri.uri(url);
+  if (!u.isValid())   throw INVURI_X.get(info,url);
+  if (!u.isAbsolute()) {
+    if (Token.startsWith(url,'?')) {
+      url=concat(URL,url);
+    }
+ else {
+      url=sc.baseURI().resolve(u,info).string();
+    }
   }
-  if (eq(COLLATIONURI,args))   return null;
-  if (Token.startsWith(args,URL))   args=substring(args,URL.length);
-  if (Token.startsWith(args,'?'))   args=substring(args,1);
-  args=replace(args,'&',';');
-  final byte[] full=new TokenBuilder(URL).add('?').add(args).finish();
+  if (eq(COLLATIONURI,url))   return null;
   if (qc.collations == null)   qc.collations=new TokenObjMap<>();
-  Collation coll=qc.collations.get(full);
+  Collation coll=qc.collations.get(url);
   if (coll == null) {
-    final Collator cl=get(args);
-    if (cl == null)     throw err.get(info,uri);
-    coll=new Collation(cl,full);
-    qc.collations.put(full,coll);
+    final Collator cl=get(url,info,err);
+    if (cl == null)     return null;
+    coll=new Collation(get(url,info,err),url);
+    qc.collations.put(url,coll);
   }
   return coll;
 }
