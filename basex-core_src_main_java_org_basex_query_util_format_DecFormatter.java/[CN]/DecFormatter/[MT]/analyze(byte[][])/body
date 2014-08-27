@@ -5,10 +5,13 @@
     final Picture pic=new Picture();
     int p=0;
     boolean act=false;
+    int exp=-1;
     final int[] opt=new int[2];
-    for (int i=0; i < pt.length; i+=cl(pt,i)) {
+    final int pl=pt.length;
+    for (int i=0, cl; i < pl; i+=cl) {
       final int ch=ch(pt,i);
-      final boolean a=contains(active,ch);
+      cl=cl(pt,i);
+      boolean active=contains(actives,ch);
       if (ch == decimal) {
         ++p;
         act=false;
@@ -16,20 +19,30 @@
  else       if (ch == optional) {
         opt[p]++;
       }
- else       if (ch == grouping) {
-        if (p == 0) {
-          pic.group[p]=Array.add(pic.group[p],pic.min[p] + opt[p]);
+ else       if (ch == exponent) {
+        boolean e=true;
+        for (int c=i + cl; c < pl && e; c+=cl(pt,c))         e=contains(digits,ch(pt,c));
+        if (e && i + cl < pl) {
+          exp=0;
+        }
+ else {
+          pic.xyzfix[p == 0 && act ? p + 1 : p].add(ch);
+          active=false;
         }
       }
+ else       if (ch == grouping) {
+        if (p == 0)         pic.group[p]=Array.add(pic.group[p],pic.min[p] + opt[p]);
+      }
  else       if (contains(digits,ch)) {
-        pic.min[p]++;
+        if (exp == -1)         pic.min[p]++;
+ else         exp++;
       }
  else {
         pic.pc|=ch == percent;
         pic.pm|=ch == permille;
-        pic.fix[p == 0 && act ? p + 1 : p].add(ch);
+        pic.xyzfix[p == 0 && act ? p + 1 : p].add(ch);
       }
-      act|=a;
+      act|=active;
     }
     final int[] igp=pic.group[0];
     final int igl=igp.length;
@@ -41,6 +54,7 @@
       if (reg)       pic.group[0]=new int[]{i};
     }
     pic.maxFrac=pic.min[1] + opt[1];
+    pic.minExp=Math.max(0,exp);
     pics[s]=pic;
   }
   return pics;

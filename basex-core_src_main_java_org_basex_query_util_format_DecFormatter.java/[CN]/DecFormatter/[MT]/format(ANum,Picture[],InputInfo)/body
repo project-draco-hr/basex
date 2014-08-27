@@ -6,6 +6,7 @@
   final TokenBuilder res=new TokenBuilder();
   final TokenBuilder intgr=new TokenBuilder();
   final TokenBuilder fract=new TokenBuilder();
+  int exp=0;
   if (d == Double.POSITIVE_INFINITY || d == Double.NEGATIVE_INFINITY) {
     intgr.add(inf);
   }
@@ -13,6 +14,22 @@
     ANum num=it;
     if (pic.pc)     num=(ANum)Calc.MULT.ev(ii,num,Int.get(100));
     if (pic.pm)     num=(ANum)Calc.MULT.ev(ii,num,Int.get(1000));
+    if (pic.minExp != 0) {
+      final String s=(num instanceof Dbl || num instanceof Flt ? Dec.get(num.dbl(ii)) : num).abs().toString();
+      final int sep=s.indexOf('.');
+      final int i=sep == -1 ? s.length() : sep;
+      final int m=pic.min[0];
+      double n=1;
+      exp=i - m;
+      if (exp > 0) {
+        for (int a=exp; a-- > 0; )         n*=10;
+        num=(ANum)Calc.DIV.ev(ii,num,Dec.get(n));
+      }
+ else {
+        for (int a=-exp; a-- > 0; )         n*=10;
+        num=(ANum)Calc.MULT.ev(ii,num,Dec.get(n));
+      }
+    }
     num=num.round(pic.maxFrac,true).abs();
     final String s=(num instanceof Dbl || num instanceof Flt ? Dec.get(num.dbl(ii)) : num).toString();
     final int sep=s.indexOf('.');
@@ -42,7 +59,16 @@
     }
   }
   if (neg && pics.length != 2)   res.add(minus);
-  res.add(pic.fix[0].toArray()).add(intgr.finish());
+  res.add(pic.xyzfix[0].toArray()).add(intgr.finish());
   if (!fract.isEmpty())   res.add(decimal).add(fract.finish());
-  return res.add(pic.fix[1].toArray()).finish();
+  res.add(pic.xyzfix[1].toArray());
+  if (pic.minExp != 0) {
+    res.add(exponent);
+    if (exp < 0)     res.add(minus);
+    final String s=Integer.toString(Math.abs(exp));
+    final int sl=s.length();
+    for (int i=sl; i < pic.minExp; i++)     res.add(zero);
+    for (int i=0; i < sl; i++)     res.add(zero + s.charAt(i) - '0');
+  }
+  return res.finish();
 }
