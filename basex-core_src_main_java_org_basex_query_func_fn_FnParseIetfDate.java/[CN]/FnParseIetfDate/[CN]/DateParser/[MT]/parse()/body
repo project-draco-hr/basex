@@ -6,9 +6,11 @@
   addNumber(tb,day,2).add('T');
   addNumber(tb,hours,2).add(':');
   addNumber(tb,minutes,2).add(':');
-  final int sec=(int)seconds;
+  final int sec=seconds.intValue();
   addNumber(tb,sec,2);
-  if (sec != seconds)   tb.add('.').addExt(seconds - sec);
+  if (seconds.scale() > 0) {
+    tb.add(seconds.subtract(BigDecimal.valueOf(sec)).toString().substring(1));
+  }
   if (zone != 0) {
     tb.add(zone < 0 ? '-' : '+');
     addNumber(tb,Math.abs(zone / 60),2).add(':');
@@ -17,5 +19,10 @@
  else {
     tb.add('Z');
   }
-  return new Dtm(tb.finish(),info);
+  try {
+    return new Dtm(tb.finish(),info);
+  }
+ catch (  final QueryException ex) {
+    throw Err.IETF_INIT_X.get(info,ex);
+  }
 }
