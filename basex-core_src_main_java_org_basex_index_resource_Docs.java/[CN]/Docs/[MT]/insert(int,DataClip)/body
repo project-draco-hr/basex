@@ -9,15 +9,15 @@
   final int[] pres=il.finish();
   final int ps=pres.length;
   final IntList docs=docs();
-  final TokenList paths=paths();
   int i=docs.sortedIndexOf(pre);
   if (i < 0)   i=-i - 1;
-  docs.insert(i,pres);
-  docs.move(clip.size(),i + ps);
-  final byte[][] t=new byte[ps][];
-  for (int j=0; j < t.length; j++) {
-    t[j]=normalize(src.text(pres[j] - pre,true));
+  if (pathIndex) {
+    final TokenList paths=paths();
+    final byte[][] tmp=new byte[ps][];
+    for (int t=0; t < ps; t++)     tmp[t]=normalize(clip.data.text(pres[t] - pre,true));
+    paths.insert(i,tmp);
   }
-  paths.insert(i,t);
-  pathOrder=null;
+  docs.insert(i,pres);
+  docs.incFrom(clip.size(),i + ps);
+  update();
 }
