@@ -1,0 +1,16 @@
+{
+  final Array value=toArray(exprs[0],qc);
+  final int sz=value.arraySize();
+  final ValueList vl=new ValueList(sz);
+  if (exprs.length > 1) {
+    final FItem key=checkArity(exprs[1],1,qc);
+    for (    final Value v : value.members())     vl.add(key.invokeValue(qc,info,v));
+  }
+ else {
+    for (    final Value v : value.members())     vl.add(v);
+  }
+  final Integer[] order=FnSort.sort(vl,this);
+  final ValueList tmp=new ValueList(sz);
+  for (int r=0; r < sz; r++)   tmp.add(value.get(order[r]));
+  return tmp.array();
+}

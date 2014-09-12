@@ -1,3 +1,31 @@
 {
-  return value(qc).iter();
+  final Value value=exprs[0].value(qc);
+  final int sz=(int)value.size();
+  final ValueList vl=new ValueList(sz);
+  if (exprs.length > 1) {
+    final FItem key=checkArity(exprs[1],1,qc);
+    for (    final Value v : value)     vl.add(key.invokeValue(qc,info,v));
+  }
+ else {
+    for (    final Value v : value)     vl.add(v);
+  }
+  final Integer[] order=sort(vl,this);
+  return new ValueIter(){
+    int c;
+    @Override public Item get(    final long i){
+      return value.itemAt(order[(int)i]);
+    }
+    @Override public Item next(){
+      return c < sz ? get(c++) : null;
+    }
+    @Override public long size(){
+      return sz;
+    }
+    @Override public Value value(){
+      final ValueBuilder vb=new ValueBuilder(sz);
+      for (int r=0; r < sz; r++)       vb.add(get(r));
+      return vb.value();
+    }
+  }
+;
 }
