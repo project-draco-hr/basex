@@ -1,7 +1,15 @@
 {
   final int ch=iter.curr();
   if (quote != 0) {
-    if (ch == quote)     quote=0;
+    if (back) {
+      back=false;
+    }
+ else     if (ch == quote) {
+      quote=0;
+    }
+ else {
+      back=ch == '\\';
+    }
     return STRING;
   }
   if (comment1 == 0 && ch == '/') {
@@ -29,7 +37,13 @@
     var=false;
     return COMMENT;
   }
-  if (ch == '"' || ch == '\'') {
+  if (back) {
+    back=false;
+  }
+ else   if (ch == '\\') {
+    back=true;
+  }
+ else   if (ch == '"' || ch == '\'') {
     quote=ch;
     return STRING;
   }
@@ -43,7 +57,6 @@
   }
   if (Token.digit(ch))   return FUNCTION;
   if (!XMLToken.isNCStartChar(ch))   return COMMENT;
-  final String word=iter.nextString();
-  if (KEYWORDS.contains(word))   return KEYWORD;
+  if (KEYWORDS.contains(iter.nextString()))   return KEYWORD;
   return plain;
 }
