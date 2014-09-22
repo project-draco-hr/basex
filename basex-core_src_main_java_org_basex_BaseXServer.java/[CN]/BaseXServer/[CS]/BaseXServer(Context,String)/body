@@ -8,13 +8,13 @@
   final InetAddress addr=host.isEmpty() ? null : InetAddress.getByName(host);
   if (service) {
     start(port,args);
-    Util.outln(SRV_STARTED_PORT_X,port);
+    if (!quiet)     Util.outln(SRV_STARTED_PORT_X,port);
     Performance.sleep(1000);
     return;
   }
-  if (stopped) {
+  if (stop) {
     stop(port,eport);
-    Util.outln(SRV_STOPPED_PORT_X,port);
+    if (!quiet)     Util.outln(SRV_STOPPED_PORT_X,port);
     Performance.sleep(1000);
     return;
   }
@@ -26,21 +26,11 @@
     esocket=new ServerSocket();
     esocket.setReuseAddress(true);
     esocket.bind(new InetSocketAddress(addr,eport));
-    stop=stopFile(port);
-    context.log.writeServer(OK,Util.info(SRV_STARTED_PORT_X,port));
-    Runtime.getRuntime().addShutdownHook(new Thread(){
-      @Override public void run(){
-        context.log.writeServer(OK,Util.info(SRV_STOPPED_PORT_X,port));
-        Util.outln(SRV_STOPPED_PORT_X,port);
-      }
-    }
-);
-    new Thread(this).start();
-    while (!running)     Performance.sleep(10);
-    Util.outln(S_CONSOLE + Util.info(SRV_STARTED_PORT_X,port),S_SERVER);
+    stopFile=stopFile(port);
   }
  catch (  final IOException ex) {
     context.log.writeError(ex);
     throw ex;
   }
+  new Thread(this).start();
 }
