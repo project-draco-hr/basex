@@ -38,10 +38,15 @@
       Options.setSystem(GlobalOptions.PASSWORD,Util.password());
     }
   }
-  jetty.start();
-  for (  final Connector c : jetty.getConnectors()) {
-    Util.outln(startX,c.getPort());
+  try {
+    jetty.start();
   }
+ catch (  final BindException ex) {
+    throw new IOException(HTTP + ' ' + SRV_RUNNING,ex);
+  }
+  final IOException ex=HTTPContext.exception();
+  if (ex != null)   throw HTTPContext.exception();
+  for (  final Connector c : jetty.getConnectors())   Util.outln(startX,c.getPort());
   HTTPContext.init(wac.getServletContext());
   final int stop=gopts.get(GlobalOptions.STOPPORT);
   if (stop >= 0)   new StopServer(gopts.get(GlobalOptions.SERVERHOST),stop).start();

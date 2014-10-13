@@ -1,15 +1,4 @@
 {
-  final GlobalOptions gopts=context.globalopts;
-  final int port=gopts.get(GlobalOptions.SERVERPORT);
-  context.log.writeServer(OK,Util.info(SRV_STARTED_PORT_X,port));
-  if (!quiet)   Util.outln(S_CONSOLE + Util.info(SRV_STARTED_PORT_X,port),S_SERVER);
-  Runtime.getRuntime().addShutdownHook(new Thread(){
-    @Override public void run(){
-      context.log.writeServer(OK,Util.info(SRV_STOPPED_PORT_X,port));
-      if (!quiet)       Util.outln(SRV_STOPPED_PORT_X,port);
-    }
-  }
-);
   running=true;
   while (running) {
     try {
@@ -21,7 +10,7 @@
         quit();
       }
  else {
-        final long ka=gopts.get(GlobalOptions.KEEPALIVE) * 1000L;
+        final long ka=context.globalopts.get(GlobalOptions.KEEPALIVE) * 1000L;
         if (ka > 0) {
           final long ms=System.currentTimeMillis();
           for (          final ClientListener cs : context.sessions) {
@@ -29,7 +18,7 @@
           }
         }
         final ClientListener cl=new ClientListener(s,context,this);
-        final long to=gopts.get(GlobalOptions.KEEPALIVE) * 1000L;
+        final long to=context.globalopts.get(GlobalOptions.KEEPALIVE) * 1000L;
         if (to > 0) {
           cl.auth.schedule(new TimerTask(){
             @Override public void run(){
