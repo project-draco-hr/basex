@@ -1,0 +1,39 @@
+{
+  tb.add('"');
+  for (int i=0; i < value.length; i+=Token.cl(value,i)) {
+    final int cp=Token.cp(value,i);
+switch (cp) {
+case '\\':
+case '"':
+      tb.add('\\').add(cp);
+    break;
+case '\b':
+  tb.add("\\b");
+break;
+case '\f':
+tb.add("\\f");
+break;
+case '\t':
+tb.add("\\t");
+break;
+case '\r':
+tb.add("\\r");
+break;
+case '\n':
+tb.add("\\n");
+break;
+default :
+if (Character.isISOControl(cp)) {
+tb.add('\\').add('u');
+for (int j=4; --j >= 0; ) {
+final int hex=cp >>> (j << 2) & 0xF;
+tb.add(hex + (hex > 9 ? 'A' - 10 : '0'));
+}
+}
+ else {
+tb.add(cp);
+}
+}
+}
+tb.add('"');
+}
