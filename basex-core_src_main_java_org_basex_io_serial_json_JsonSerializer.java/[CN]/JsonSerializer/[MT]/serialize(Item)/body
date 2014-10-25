@@ -1,0 +1,71 @@
+{
+  if (sep)   print(' ');
+  if (lvl == 0)   openResult();
+  try {
+    if (item instanceof Map) {
+      lvl++;
+      print('{');
+      boolean s=false;
+      final TokenSet set=nodups ? new TokenSet() : null;
+      final Map map=(Map)item;
+      for (      final Item key : map.keys()) {
+        final byte[] name=key.string(null);
+        if (set != null) {
+          if (set.contains(name))           throw SERDUPL_X.getIO(name);
+          set.put(name);
+        }
+        if (s)         print(',');
+        indent();
+        string(name);
+        print(':');
+        print(' ');
+        final Value v=map.get(key,null);
+        if (v.size() > 1)         throw BXJS_SERIAL_X.getIO("Map value has more than one item.");
+        sep=false;
+        serialize(v.isEmpty() ? null : (Item)v);
+        s=true;
+      }
+      lvl--;
+      indent();
+      print('}');
+    }
+ else     if (item instanceof Array) {
+      lvl++;
+      print('[');
+      boolean s=false;
+      for (      final Value v : ((Array)item).members()) {
+        if (s)         print(',');
+        indent();
+        if (v.size() > 1)         throw BXJS_SERIAL_X.getIO("Array member has more than one item.");
+        sep=false;
+        serialize(v.isEmpty() ? null : (Item)v);
+        s=true;
+      }
+      lvl--;
+      indent();
+      print(']');
+    }
+ else     if (item instanceof ANode) {
+      serialize((ANode)item);
+    }
+ else     if (item == null) {
+      print(NULL);
+    }
+ else     if (item.type.isNumber()) {
+      final byte[] str=item.string(null);
+      if (eq(str,NAN,INF,NINF))       throw SERNUMBER_X.getIO(str);
+      print(str);
+    }
+ else     if (item.type == AtomType.BLN) {
+      print(item.string(null));
+    }
+ else {
+      string(item.string(null));
+    }
+  }
+ catch (  final QueryException ex) {
+    throw new QueryIOException(ex);
+  }
+  sep=true;
+  if (lvl == 0)   closeResult();
+}

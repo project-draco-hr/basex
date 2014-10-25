@@ -2,29 +2,28 @@
   if (comma.get(lvl))   print(',');
  else   comma.set(lvl,true);
   if (lvl > 0) {
-    indent(lvl);
+    indent();
     final byte[] ptype=types.get(lvl - 1);
     if (eq(ptype,OBJECT)) {
-      if (atts && !eq(elem,PAIR))       error("<%> found, <%> expected",elem,PAIR);
-      if (key == null)       error("<%> has no name attribute",elem);
+      if (atts && !eq(elem,PAIR))       throw error("<%> found, <%> expected",elem,PAIR);
+      if (key == null)       throw error("<%> has no name attribute",elem);
       print('"');
       final byte[] name=atts ? key : XMLToken.decode(key,lax);
-      if (name == null)       error("Name of element <%> is invalid",key);
+      if (name == null)       throw error("Name of element <%> is invalid",key);
       print(name);
       print("\":");
-      if (indent)       print(' ');
     }
  else     if (eq(ptype,ARRAY)) {
       if (atts) {
-        if (!eq(elem,ITEM))         error("<%> found, <%> expected",elem,ITEM);
-        if (key != null)         error("<%> must have no name attribute",elem);
+        if (!eq(elem,ITEM))         throw error("<%> found, <%> expected",elem,ITEM);
+        if (key != null)         throw error("<%> must have no name attribute",elem);
       }
  else {
-        if (!eq(elem,VALUE))         error("<%> found, <%> expected",elem,VALUE);
+        if (!eq(elem,VALUE))         throw error("<%> found, <%> expected",elem,VALUE);
       }
     }
  else {
-      error("<%> is typed as \"%\" and cannot be nested",elems.get(lvl - 1),ptype);
+      throw error("<%> is typed as \"%\" and cannot be nested",elems.get(lvl - 1),ptype);
     }
   }
   byte[] type=types.get(lvl);
