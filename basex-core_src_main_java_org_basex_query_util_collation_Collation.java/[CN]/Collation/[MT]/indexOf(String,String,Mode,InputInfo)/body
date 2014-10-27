@@ -12,9 +12,20 @@
     }
  while (c != cs);
     final int s=i.getOffset();
-    if (startsWith(i,is) && (!ends || next(i) == -1))     return start ? s - 1 : i.getOffset();
+    if (startsWith(i,is)) {
+      if (mode == Mode.INDEX_AFTER) {
+        return i.getOffset();
+      }
+ else       if (mode == Mode.ENDS_WITH) {
+        if (next(i) == -1)         return s - 1;
+      }
+ else {
+        return s - 1;
+      }
+    }
     i.setOffset(s);
     is.reset();
   }
- while (true);
+ while (mode != Mode.STARTS_WITH);
+  return -1;
 }
