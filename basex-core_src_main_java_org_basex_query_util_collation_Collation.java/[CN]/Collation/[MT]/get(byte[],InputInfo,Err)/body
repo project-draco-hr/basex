@@ -1,35 +1,22 @@
 {
+  if (eq(NOCASE,uri))   return new NoCaseCollation();
   final int q=Token.indexOf(uri,'?');
   final byte[] base=q == -1 ? uri : substring(uri,0,q);
   final String args=q == -1 ? "" : string(replace(substring(uri,q + 1),'&',';'));
   final CollationOptions opts;
-  final boolean uca=eq(UCA,base);
-  if (uca) {
+  if (eq(UCA,base) && UCAOptions.ACTIVE) {
     opts=new UCAOptions();
   }
  else   if (eq(URL,base)) {
     opts=new BaseXCollationOptions();
   }
  else {
-    throw err.get(info,uri);
+    throw err.get(info,Util.inf("Unknown collation '%'",uri));
   }
-  String fail=null;
-  for (  final String param : args.split(";")) {
-    final String[] kv=param.split("=");
-    if (kv.length != 2)     return null;
-    final String key=kv[0], val=kv[1];
-    try {
-      opts.assign(key,val);
-    }
- catch (    final BaseXException ex) {
-      fail=key;
-    }
+  try {
+    return opts.get(args).uri(uri);
   }
-  if (fail != null && (!uca || fail.equals(UCAOptions.FALLBACK.name()) || opts.get(UCAOptions.FALLBACK) == YesNo.NO))   throw err.get(info,uri);
-  ;
-  final Locale locale=Locales.map.get(opts.get(BaseXCollationOptions.LANG));
-  if (locale == null)   throw err.get(info,uri);
-  final Collator coll=Collator.getInstance(locale);
-  if (!opts.assign(coll))   throw err.get(info,uri);
-  return coll;
+ catch (  final IllegalArgumentException ex) {
+    throw err.get(info,ex);
+  }
 }
