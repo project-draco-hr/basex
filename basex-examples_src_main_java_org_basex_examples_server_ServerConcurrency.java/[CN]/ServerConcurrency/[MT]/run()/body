@@ -3,25 +3,25 @@
   System.out.println("\n* Start server.");
   BaseXServer server=new BaseXServer();
   System.out.println("\n* Create a client session.");
-  ClientSession session=new ClientSession("localhost",1984,"admin","admin",System.out);
-  System.out.println("\n* Create a database.");
-  send("CREATE DB input src/main/resources/xml/input.xml",session);
-  System.out.println("\n* Run one reader and two writers threads.");
-  ClientExample reader1=new ClientExample("//li");
-  ClientExample writer1=new ClientExample("insert node " + "<li>new node</li> as last into /html/body//ul");
-  ClientExample writer2=new ClientExample("insert node " + "<new>One more</new> as last into /html/body");
-  Thread.sleep(2000);
-  System.out.println("\n* Stop client threads.");
-  reader1.stop();
-  writer1.stop();
-  writer2.stop();
-  Thread.sleep(1000);
-  System.out.println("\n* Show modified database contents:");
-  send("XQUERY //li",session);
-  System.out.println("\n* Drop the database.");
-  send("DROP DB input",session);
-  System.out.println("\n* Close the client session.");
-  session.close();
-  System.out.println("\n* Stop server.");
+  try (ClientSession session=new ClientSession("localhost",1984,"admin","admin",System.out)){
+    System.out.println("\n* Create a database.");
+    send("CREATE DB input src/main/resources/xml/input.xml",session);
+    System.out.println("\n* Run one reader and two writers threads.");
+    ClientExample reader1=new ClientExample("//li");
+    ClientExample writer1=new ClientExample("insert node " + "<li>new node</li> as last into /html/body//ul");
+    ClientExample writer2=new ClientExample("insert node " + "<new>One more</new> as last into /html/body");
+    Thread.sleep(2000);
+    System.out.println("\n* Stop client threads.");
+    reader1.stop();
+    writer1.stop();
+    writer2.stop();
+    Thread.sleep(1000);
+    System.out.println("\n* Show modified database contents:");
+    send("XQUERY //li",session);
+    System.out.println("\n* Drop the database.");
+    send("DROP DB input",session);
+    System.out.println("\n* Close the client session.");
+  }
+   System.out.println("\n* Stop server.");
   server.stop();
 }

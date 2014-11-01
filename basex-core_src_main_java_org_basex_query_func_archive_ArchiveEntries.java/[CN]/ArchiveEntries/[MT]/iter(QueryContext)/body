@@ -1,8 +1,7 @@
 {
   final B64 archive=toB64(exprs[0],qc,false);
   final ValueBuilder vb=new ValueBuilder();
-  final ArchiveIn in=ArchiveIn.get(archive.input(info),info);
-  try {
+  try (final ArchiveIn in=ArchiveIn.get(archive.input(info),info)){
     while (in.more()) {
       final ZipEntry ze=in.entry();
       if (ze.isDirectory())       continue;
@@ -20,8 +19,5 @@
   }
  catch (  final IOException ex) {
     throw ARCH_FAIL_X.get(info,ex);
-  }
- finally {
-    in.close();
   }
 }

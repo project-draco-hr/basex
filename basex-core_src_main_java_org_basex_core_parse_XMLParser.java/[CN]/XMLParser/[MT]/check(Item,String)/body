@@ -30,10 +30,11 @@
     tb.add("[node()]");
     if (!n)     tb.add("[not(*)]");
   }
-  final QueryProcessor qp=new QueryProcessor(tb.toString(),ctx).context(root);
-  qp.bind("A",ma.value()).bind("O",oa.value());
-  if (!qp.execute().toString().isEmpty())   return true;
-  final TokenBuilder syntax=new TokenBuilder();
+  try (final QueryProcessor qp=new QueryProcessor(tb.toString(),ctx).context(root)){
+    qp.bind("A",ma.value()).bind("O",oa.value());
+    if (!qp.execute().toString().isEmpty())     return true;
+  }
+   final TokenBuilder syntax=new TokenBuilder();
   final byte[] nm=((ANode)root).qname().string();
   syntax.reset().add('<').add(nm);
   for (  final Item i : ma) {

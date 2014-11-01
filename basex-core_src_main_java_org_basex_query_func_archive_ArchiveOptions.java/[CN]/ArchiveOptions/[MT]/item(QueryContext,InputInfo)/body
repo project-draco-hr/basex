@@ -2,8 +2,7 @@
   final B64 archive=toB64(exprs[0],qc,false);
   String format=null;
   int level=-1;
-  final ArchiveIn arch=ArchiveIn.get(archive.input(info),info);
-  try {
+  try (final ArchiveIn arch=ArchiveIn.get(archive.input(info),info)){
     format=arch.format();
     while (arch.more()) {
       final ZipEntry ze=arch.entry();
@@ -14,9 +13,6 @@
   }
  catch (  final IOException ex) {
     throw ARCH_FAIL_X.get(info,ex);
-  }
- finally {
-    arch.close();
   }
   final FElem e=new FElem(Q_OPTIONS).declareNS();
   if (format != null)   e.add(new FElem(Q_FORMAT).add(VALUE,format));

@@ -15,8 +15,7 @@
   ctx.options.set(MainOptions.LANGUAGE,m.language.toString());
   ctx.options.set(MainOptions.STOPWORDS,m.stopwords);
   try (final DiskBuilder builder=new DiskBuilder(tname,new DBParser(old,cmd),ctx)){
-    final DiskData d=builder.build();
-    try {
+    try (final DiskData d=builder.build()){
       if (m.createtext)       create(IndexType.TEXT,d,cmd);
       if (m.createattr)       create(IndexType.ATTRIBUTE,d,cmd);
       if (m.createftxt)       create(IndexType.FULLTEXT,d,cmd);
@@ -31,10 +30,7 @@
       final IOFile upd=old.updateFile();
       if (upd.exists())       upd.copyTo(d.updateFile());
     }
-  finally {
-      d.close();
-    }
-  }
+   }
    Close.close(data,ctx);
   if (!DropDB.drop(m.name,ctx))   throw new BaseXException(DB_NOT_DROPPED_X,m.name);
   if (!AlterDB.alter(tname,m.name,ctx))   throw new BaseXException(DB_NOT_RENAMED_X,tname);

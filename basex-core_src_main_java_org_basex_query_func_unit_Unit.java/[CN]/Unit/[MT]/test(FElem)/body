@@ -6,8 +6,7 @@
   final ArrayList<StaticFunc> afterModule=new ArrayList<>(0);
   final ArrayList<StaticFunc> test=new ArrayList<>(0);
   final Performance perf=new Performance();
-  final QueryContext qc=new QueryContext(ctx);
-  try {
+  try (final QueryContext qc=new QueryContext(ctx)){
     input=string(file.read());
     qc.parse(input,file.path(),null);
     for (    final StaticFunc sf : qc.funcs.funcs()) {
@@ -76,9 +75,6 @@
       suite.add(tc);
       addError(ex,tc,null);
     }
-  }
- finally {
-    qc.close();
   }
   if (suite.hasChildren()) {
     suite.add(TIME,time(perf));

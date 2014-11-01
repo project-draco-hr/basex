@@ -1,6 +1,6 @@
 {
   super("Window " + (count + 1));
-  final JPanel buttons=new JPanel();
+  JPanel buttons=new JPanel();
   buttons.setLayout(new FlowLayout());
   buttons.setOpaque(false);
   final JTextArea area=new JTextArea();
@@ -10,7 +10,7 @@
   final EventNotifier en=new EventNotifier(){
     @Override public void notify(    final String value){
       Color c=Color.WHITE;
-      final String tmp=value.replaceAll("\"","");
+      String tmp=value.replaceAll("\"","");
       if (tmp.equals(RED)) {
         c=Color.RED;
       }
@@ -21,10 +21,10 @@
         c=Color.YELLOW;
       }
       main.setBackground(c);
-      try {
-        area.setText(session.query("/").execute());
+      try (final ClientQuery cq=session.query("/")){
+        area.setText(cq.execute());
       }
- catch (      final IOException ex) {
+ catch (      IOException ex) {
         ex.printStackTrace();
       }
     }
@@ -38,10 +38,12 @@
     b.addActionListener(new ActionListener(){
       @Override public void actionPerformed(      final ActionEvent e){
         try {
-          final String query="let $color := '" + color + "' return "+ "(replace value of node /Application/Background with $color,"+ " db:event('"+ NAME+ "', $color))";
-          session.query(query).execute();
-        }
- catch (        final IOException ex) {
+          String query="let $color := '" + color + "' return "+ "(replace value of node /Application/Background with $color,"+ " db:event('"+ NAME+ "', $color))";
+          try (ClientQuery cq=session.query(query)){
+            cq.execute();
+          }
+         }
+ catch (        IOException ex) {
           ex.printStackTrace();
         }
         en.notify(b.getText());
