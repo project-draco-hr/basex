@@ -1,5 +1,12 @@
 {
-  final int pl=preds.length;
-  for (int p=0; p < pl; ++p)   preds[p]=preds[p].compile(qc,scp).optimizeEbv(qc,scp);
-  return this;
+  final Value init=qc.value;
+  if (init != null && init.isEmpty())   qc.value=null;
+  try {
+    final int pl=preds.length;
+    for (int p=0; p < pl; ++p)     preds[p]=preds[p].compile(qc,scp).optimizeEbv(qc,scp);
+    return this;
+  }
+  finally {
+    qc.value=init;
+  }
 }
