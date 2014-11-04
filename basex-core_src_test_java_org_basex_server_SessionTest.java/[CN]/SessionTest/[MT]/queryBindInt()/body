@@ -1,10 +1,10 @@
 {
-  Query query=session.query("declare variable $a as xs:integer external; $a");
-  query.bind("a","5","xs:integer");
-  assertEqual("5",query.next());
-  query.close();
-  query=session.query("declare variable $a external; $a");
-  query.bind("a",Int.get(1),"xs:integer");
-  assertEqual("1",query.next());
-  query.close();
-}
+  try (Query query=session.query("declare variable $a as xs:integer external; $a")){
+    query.bind("a","5","xs:integer");
+    assertEqual("5",query.next());
+  }
+   try (Query query=session.query("declare variable $a external; $a")){
+    query.bind("a",Int.get(1),"xs:integer");
+    assertEqual("1",query.next());
+  }
+ }
