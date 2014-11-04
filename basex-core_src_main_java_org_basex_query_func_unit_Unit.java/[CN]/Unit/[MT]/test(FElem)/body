@@ -1,28 +1,37 @@
 {
   final FElem suite=new FElem(TESTSUITE).add(NAME,file.url());
-  final ArrayList<StaticFunc> before=new ArrayList<>(0);
-  final ArrayList<StaticFunc> after=new ArrayList<>(0);
   final ArrayList<StaticFunc> beforeModule=new ArrayList<>(0);
   final ArrayList<StaticFunc> afterModule=new ArrayList<>(0);
+  final ArrayList<StaticFunc> before=new ArrayList<>(0);
+  final ArrayList<StaticFunc> after=new ArrayList<>(0);
+  final ArrayList<QNm> beforeFilter=new ArrayList<>();
+  final ArrayList<QNm> afterFilter=new ArrayList<>();
   final ArrayList<StaticFunc> test=new ArrayList<>(0);
   final Performance perf=new Performance();
   try (final QueryContext qc=new QueryContext(ctx)){
     input=string(file.read());
     qc.parse(input,file.path(),null);
     for (    final StaticFunc sf : qc.funcs.funcs()) {
-      final Ann ann=sf.ann;
-      final int as=ann.size();
+      final int as=sf.ann.size();
       boolean xq=false;
       for (int a=0; !xq && a < as; a++) {
-        xq|=eq(ann.names[a].uri(),QueryText.UNIT_URI);
+        xq|=eq(sf.ann.names[a].uri(),QueryText.UNIT_URI);
       }
       if (!xq)       continue;
       if (sf.ann.contains(Ann.Q_PRIVATE))       throw UNIT_PRIVATE_X.get(null,sf.name.local());
       if (sf.args.length > 0)       throw UNIT_ARGS_X.get(null,sf.name.local());
-      if (indexOf(sf,BEFORE) != -1)       before.add(sf);
-      if (indexOf(sf,AFTER) != -1)       after.add(sf);
       if (indexOf(sf,BEFORE_MODULE) != -1)       beforeModule.add(sf);
       if (indexOf(sf,AFTER_MODULE) != -1)       afterModule.add(sf);
+      int i=indexOf(sf,BEFORE);
+      if (i != -1) {
+        before.add(sf);
+        beforeFilter.add(name(sf,i));
+      }
+      i=indexOf(sf,AFTER);
+      if (i != -1) {
+        after.add(sf);
+        afterFilter.add(name(sf,i));
+      }
       if (indexOf(sf,TEST) != -1)       test.add(sf);
     }
     for (    final StaticFunc sf : beforeModule)     eval(sf);
@@ -44,9 +53,17 @@
       final int skip=indexOf(sf,IGNORE);
       if (skip == -1) {
         try {
-          for (          final StaticFunc fn : before)           eval(fn);
+          int l=before.size();
+          for (int i=0; i < l; i++) {
+            final QNm name=beforeFilter.get(i);
+            if (name == null || name.eq(sf.name))             eval(before.get(i));
+          }
           eval(sf);
-          for (          final StaticFunc fn : after)           eval(fn);
+          l=after.size();
+          for (int i=0; i < l; i++) {
+            final QNm name=afterFilter.get(i);
+            if (name == null || name.eq(sf.name))             eval(after.get(i));
+          }
           if (code != null) {
             failures++;
             testcase.add(new FElem(FAILURE).add(new FElem(EXPECTED).add(code)));
