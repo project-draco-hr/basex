@@ -1,12 +1,9 @@
 {
   if (path != null) {
-    for (int s=0; s < path.size; s++) {
-      final Matcher m=TEMPLATE.matcher(path.segment[s]);
-      if (m.find()) {
-        final QNm qnm=new QNm(token(m.group(1)),function.sc);
-        if (function.sc.elemNS != null && eq(qnm.uri(),function.sc.elemNS))         qnm.uri(EMPTY);
-        bind(qnm,arg,new Atm(http.segment(s)));
-      }
+    for (    final Entry<QNm,String> entry : path.values(http).entrySet()) {
+      final QNm qnm=new QNm(entry.getKey().string(),function.sc);
+      if (function.sc.elemNS != null && eq(qnm.uri(),function.sc.elemNS))       qnm.uri(EMPTY);
+      bind(qnm,arg,new Atm(entry.getValue()));
     }
   }
   if (requestBody != null) {

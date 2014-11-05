@@ -1,0 +1,21 @@
+{
+  final HTTPAccept[] accepts=http.accepts();
+  double bestQf=0;
+  RestXqFunction best=list.get(0);
+  for (  final RestXqFunction rxf : list) {
+    if (best.compareTo(rxf) != 0)     break;
+    for (    final String p : rxf.produces) {
+      for (      final HTTPAccept accept : accepts) {
+        final double qf=accept.qf;
+        if (MimeTypes.matches(p,accept.type)) {
+          if (bestQf == qf)           return null;
+          if (bestQf < qf) {
+            bestQf=qf;
+            best=rxf;
+          }
+        }
+      }
+    }
+  }
+  return best;
+}
