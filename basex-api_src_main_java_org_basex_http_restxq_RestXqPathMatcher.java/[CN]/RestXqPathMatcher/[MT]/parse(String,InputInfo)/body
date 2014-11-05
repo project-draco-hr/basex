@@ -1,0 +1,55 @@
+{
+  if (path.isEmpty())   return EMPTY;
+  final ArrayList<QNm> vars=new ArrayList<>();
+  final StringBuilder result=new StringBuilder();
+  final StringBuilder literals=new StringBuilder();
+  final TokenBuilder variable=new TokenBuilder();
+  final StringBuilder regex=new StringBuilder();
+  final BitSet varsPos=new BitSet();
+  int segment=0;
+  final CharIterator i=new CharIterator(path);
+  if (path.charAt(0) == '/')   i.next();
+  literals.append('/');
+  while (i.hasNext()) {
+    char ch=i.next();
+    if (ch == '{') {
+      decodeAndEscape(literals,result);
+      if (!i.hasNext() || i.nextNonWS() != '$')       throw error(info,INV_TEMPLATE,path);
+      regex.append("[^/]+?");
+      int braces=1;
+      while (i.hasNext()) {
+        ch=i.nextNonWS();
+        if (ch == '=') {
+          regex.setLength(0);
+          addRegex(i,regex);
+          if (regex.length() == 0)           throw error(info,INV_TEMPLATE,path);
+          break;
+        }
+ else         if (ch == '{') {
+          ++braces;
+          variable.add(ch);
+        }
+ else         if (ch == '}' && --braces == 0) {
+          break;
+        }
+ else {
+          variable.add(ch);
+        }
+      }
+      final byte[] var=variable.toArray();
+      if (!XMLToken.isQName(var))       throw error(info,INV_VARNAME,variable);
+      vars.add(new QNm(var));
+      variable.reset();
+      varsPos.set(segment);
+      result.append('(').append(regex).append(')');
+      regex.setLength(0);
+    }
+ else {
+      if (ch == '/')       ++segment;
+      literals.append(ch);
+    }
+  }
+  decodeAndEscape(literals,result);
+  final BigInteger vp=varsPos.cardinality() == 0 ? ZERO : new BigInteger(varsPos.toByteArray());
+  return new RestXqPathMatcher(result.toString(),vars,segment + 1,vp);
+}
