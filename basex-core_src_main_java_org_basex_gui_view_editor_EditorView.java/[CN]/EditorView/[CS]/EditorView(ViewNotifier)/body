@@ -78,7 +78,7 @@
       }
 ;
       final StringList opened=new StringList();
-      for (      final EditorArea ea : editors())       opened.add(ea.file.path());
+      for (      final EditorArea ea : editors())       opened.add(ea.file().path());
       final StringList hst=new StringList(HISTORY);
       final StringList all=new StringList(gui.gopts.get(GUIOptions.EDITOR));
       final int fl=Math.min(all.size(),e == null ? HISTORY : HISTCOMP);
@@ -155,6 +155,13 @@
     @Override public void run(){
       for (      final String file : gui.gopts.get(GUIOptions.OPEN)) {
         open(new IOFile(file),false,false);
+      }
+      for (      final Component c : tabs.getComponents()) {
+        if (!(c instanceof EditorArea))         continue;
+        final EditorArea ea=(EditorArea)c;
+        if (!ea.opened())         continue;
+        project.changeRoot(ea.file().parent(),false);
+        break;
       }
     }
   }
