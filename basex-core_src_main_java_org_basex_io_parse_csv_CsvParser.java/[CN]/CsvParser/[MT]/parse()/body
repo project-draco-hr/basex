@@ -4,7 +4,11 @@
   int ch=input.read();
   while (ch != -1) {
     if (quoted) {
-      if (ch == '"') {
+      if (ch == '\\') {
+        ch=bs();
+        if (ch == -1)         break;
+      }
+ else       if (ch == '"') {
         ch=input.read();
         if (ch != '"') {
           quoted=false;
@@ -26,6 +30,8 @@
       data=true;
     }
  else {
+      if (ch == '\\')       ch=bs();
+      if (ch == -1)       break;
       entry.add(XMLToken.valid(ch) ? ch : '?');
     }
     ch=input.read();
