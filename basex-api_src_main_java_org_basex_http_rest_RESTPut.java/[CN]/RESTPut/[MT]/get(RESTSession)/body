@@ -1,6 +1,7 @@
 {
   final HTTPContext http=rs.http;
-  if (http.depth() == 0)   throw HTTPCode.NO_PATH.get();
+  final String db=http.db();
+  if (db.isEmpty())   throw HTTPCode.NO_PATH.get();
   RESTCmd.parseOptions(rs);
   boolean xml=true;
   final InputStream is=http.req.getInputStream();
@@ -27,8 +28,8 @@
     xml=false;
   }
   if (parser != null)   rs.context.options.set(MainOptions.PARSER,parser);
-  final String db=http.db();
-  if (http.depth() == 1) {
+  final String path=http.dbpath();
+  if (path.isEmpty()) {
     if (xml) {
       rs.add(new CreateDB(db),is);
     }
@@ -39,7 +40,6 @@
   }
  else {
     rs.add(new Open(db));
-    final String path=http.dbpath();
     if (xml) {
       rs.add(new Replace(path),is);
     }
