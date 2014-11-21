@@ -27,18 +27,21 @@
     seqType=SeqType.get(st.type,size);
   }
   if (!super.has(Flag.FCS))   return copy(new IterFilter(info,root,preds));
-  final boolean iter=posIterator();
-  if (preds.length == 1 && root.isValue()) {
-    final Value v=(Value)root;
-    if (last)     return optPre(SubSeq.get(v,v.size() - 1,1),qc);
-    if (pos != null)     return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
-  }
-  boolean off=false;
+  boolean iter=false, index=false;
   if (preds.length == 1) {
+    iter=posIterator();
+    if (root.isValue()) {
+      final Value v=(Value)root;
+      if (last)       return optPre(SubSeq.get(v,v.size() - 1,1),qc);
+      if (pos != null)       return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
+    }
     final Expr p=preds[0];
     final SeqType pt=p.seqType();
-    off=pt.type.isNumber() && pt.zeroOrOne() && !p.has(Flag.CTX)&& !p.has(Flag.NDT);
-    if (off)     seqType=SeqType.get(seqType.type,Occ.ZERO_ONE);
+    if (pt.type.isNumber() && pt.zeroOrOne() && !p.has(Flag.CTX)&& !p.has(Flag.NDT)) {
+      seqType=SeqType.get(seqType.type,Occ.ZERO_ONE);
+      index=true;
+    }
   }
-  return off || iter ? copy(new IterPosFilter(info,off,root,preds)) : get(info,root,preds);
+  if (index || iter)   return copy(new IterPosFilter(info,index,root,preds));
+  return get(info,root,preds);
 }
