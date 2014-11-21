@@ -1,5 +1,14 @@
 {
   if (!sub.next(qc))   return false;
-  for (  final Let let : lets)   qc.set(let.var,let.score ? score(let.expr.iter(qc)) : qc.value(let.expr),let.info);
+  for (  final Let let : lets) {
+    final boolean s=qc.scoring;
+    try {
+      qc.scoring=let.scoring;
+      qc.set(let.var,let.scoring ? score(let.expr.iter(qc)) : qc.value(let.expr),let.info);
+    }
+  finally {
+      qc.scoring=s;
+    }
+  }
   return true;
 }

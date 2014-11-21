@@ -1,44 +1,44 @@
 {
-  if (path(root,preds))   return ((AxisPath)root).addPreds(preds).optimize(qc,scp);
   if (root.isEmpty())   return optPre(qc);
   final Value cv=qc.value;
   try {
-    qc.value=null;
+    qc.value=Path.initial(qc,root);
     final Expr e=super.optimize(qc,scp);
     if (e != this)     return e;
-    if (preds.length == 0)     return root;
-    final SeqType st=root.seqType();
-    final long s=root.size();
-    if (s == -1) {
-      seqType=SeqType.get(st.type,st.zeroOrOne() ? Occ.ZERO_ONE : Occ.ZERO_MORE);
-    }
- else {
-      if (pos != null) {
-        size=Math.max(0,s + 1 - pos.min) - Math.max(0,s - pos.max);
-      }
- else       if (last) {
-        size=s > 0 ? 1 : 0;
-      }
-      if (size == 0)       return optPre(qc);
-      seqType=SeqType.get(st.type,size);
-    }
-    if (!super.has(Flag.FCS))     return copy(new IterFilter(info,root,preds));
-    final boolean iter=posIterator();
-    if (preds.length == 1 && root.isValue()) {
-      final Value v=(Value)root;
-      if (last)       return optPre(SubSeq.get(v,v.size() - 1,1),qc);
-      if (pos != null)       return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
-    }
-    boolean off=false;
-    if (preds.length == 1) {
-      final Expr p=preds[0];
-      final SeqType pt=p.seqType();
-      off=pt.type.isNumber() && pt.zeroOrOne() && !p.has(Flag.CTX)&& !p.has(Flag.NDT);
-      if (off)       seqType=SeqType.get(seqType.type,Occ.ZERO_ONE);
-    }
-    return off || iter ? copy(new IterPosFilter(info,off,root,preds)) : get(info,root,preds);
   }
   finally {
     qc.value=cv;
   }
+  if (preds.length == 0)   return root;
+  if (path(root,preds))   return ((AxisPath)root).addPreds(preds).optimize(qc,scp);
+  final SeqType st=root.seqType();
+  final long s=root.size();
+  if (s == -1) {
+    seqType=SeqType.get(st.type,st.zeroOrOne() ? Occ.ZERO_ONE : Occ.ZERO_MORE);
+  }
+ else {
+    if (pos != null) {
+      size=Math.max(0,s + 1 - pos.min) - Math.max(0,s - pos.max);
+    }
+ else     if (last) {
+      size=s > 0 ? 1 : 0;
+    }
+    if (size == 0)     return optPre(qc);
+    seqType=SeqType.get(st.type,size);
+  }
+  if (!super.has(Flag.FCS))   return copy(new IterFilter(info,root,preds));
+  final boolean iter=posIterator();
+  if (preds.length == 1 && root.isValue()) {
+    final Value v=(Value)root;
+    if (last)     return optPre(SubSeq.get(v,v.size() - 1,1),qc);
+    if (pos != null)     return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
+  }
+  boolean off=false;
+  if (preds.length == 1) {
+    final Expr p=preds[0];
+    final SeqType pt=p.seqType();
+    off=pt.type.isNumber() && pt.zeroOrOne() && !p.has(Flag.CTX)&& !p.has(Flag.NDT);
+    if (off)     seqType=SeqType.get(seqType.type,Occ.ZERO_ONE);
+  }
+  return off || iter ? copy(new IterPosFilter(info,off,root,preds)) : get(info,root,preds);
 }

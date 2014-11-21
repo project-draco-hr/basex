@@ -4,6 +4,7 @@
   for (ANode n; (n=ai.next()) != null; ) {
     if (test.eq(n))     nc.add(n.finish());
   }
+  final boolean scoring=qc.scoring;
   for (  final Expr p : preds) {
     qc.size=nc.size();
     qc.pos=1;
@@ -12,8 +13,9 @@
       qc.value=nc.get(n);
       final Item i=p.test(qc,info);
       if (i != null) {
-        nc.get(n).score(i.score());
-        nc.nodes[c++]=nc.get(n);
+        final ANode node=nc.get(n);
+        if (scoring)         node.score(i.score());
+        nc.nodes[c++]=node;
       }
       qc.pos++;
     }
