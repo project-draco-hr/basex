@@ -3,10 +3,14 @@
     final Expr pr=preds[p];
     if (pr instanceof CmpG || pr instanceof CmpV) {
       final Cmp cmp=(Cmp)pr;
-      if (cmp.exprs[0].isFunction(Function.POSITION) && cmp.exprs[1].isFunction(Function.LAST)) {
-        if (cmp instanceof CmpG && ((CmpG)cmp).op == OpG.EQ || cmp instanceof CmpV && ((CmpV)cmp).op == OpV.EQ) {
-          qc.compInfo(OPTWRITE,pr);
-          preds[p]=cmp.exprs[1];
+      if (cmp.exprs[0].isFunction(Function.POSITION)) {
+        final Expr e2=cmp.exprs[1];
+        final SeqType st2=e2.seqType();
+        if (e2.isFunction(Function.LAST) || st2.one() && st2.type.isNumber()) {
+          if (cmp instanceof CmpG && ((CmpG)cmp).op == OpG.EQ || cmp instanceof CmpV && ((CmpV)cmp).op == OpV.EQ) {
+            qc.compInfo(OPTWRITE,pr);
+            preds[p]=e2;
+          }
         }
       }
     }
@@ -28,7 +32,7 @@
       final ANum it=(ANum)pr;
       final long i=it.itr();
       if (i == it.dbl()) {
-        preds[p]=Pos.get(i,i,info);
+        preds[p]=Pos.get(i,info);
       }
  else {
         qc.compInfo(OPTREMOVE,this,pr);
