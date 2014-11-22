@@ -1,13 +1,17 @@
 {
   try {
-    for (int i=0; i < TESTS.length; i++) {
-      final FTBitapSearch s=searches[i];
-      for (int j=0; j < TESTS[i].expected.length; j++) {
-        if (!s.hasNext())         fail("Test " + i + ": expected "+ TESTS[i].expected.length+ " hits, got only "+ (j + 1));
+    final int tl=TESTS.length;
+    for (int t=0; t < tl; t++) {
+      final FTBitapSearch s=searches[t];
+      final TestData test=TESTS[t];
+      final int el=test.expected.length;
+      for (int e=0; e < el; e++) {
+        final int exp=test.expected[e];
+        if (!s.hasNext())         fail("Test " + t + ": expected "+ el+ " hits, got only "+ (e + 1));
         final int pos=s.next();
-        if (pos != TESTS[i].expected[j])         fail("Test " + i + ", result "+ j+ ": expected "+ TESTS[i].expected[j]+ ", got "+ pos);
+        if (pos != exp)         fail("Test " + t + ", result "+ e+ ": expected "+ exp+ ", got "+ pos);
       }
-      if (s.hasNext())       fail("Test " + i + ": expected "+ TESTS[i].expected.length+ " hits, got more!");
+      if (s.hasNext())       fail("Test " + t + ": expected "+ el+ " hits, got more!");
     }
   }
  catch (  final QueryException ex) {

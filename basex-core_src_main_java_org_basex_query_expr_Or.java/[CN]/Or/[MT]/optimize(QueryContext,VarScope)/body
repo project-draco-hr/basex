@@ -1,6 +1,6 @@
 {
   final int es=exprs.length;
-  final ExprList el=new ExprList(es);
+  final ExprList list=new ExprList(es);
   for (int i=0; i < es; i++) {
     Expr e=exprs[i];
     if (e instanceof CmpG) {
@@ -16,12 +16,12 @@
       }
     }
     if (e == Bln.TRUE)     return optPre(Bln.TRUE,qc);
-    if (e != Bln.FALSE)     el.add(e);
+    if (e != Bln.FALSE)     list.add(e);
   }
-  if (el.isEmpty())   return optPre(Bln.FALSE,qc);
-  if (exprs.length != el.size()) {
+  if (list.isEmpty())   return optPre(Bln.FALSE,qc);
+  if (exprs.length != list.size()) {
     qc.compInfo(OPTWRITE,this);
-    exprs=el.finish();
+    exprs=list.finish();
   }
   compFlatten(qc);
   boolean not=true;
@@ -33,8 +33,9 @@
   }
   if (not) {
     qc.compInfo(OPTWRITE,this);
-    final Expr[] inner=new Expr[exprs.length];
-    for (int i=0; i < inner.length; i++)     inner[i]=((Arr)exprs[i]).exprs[0];
+    final int el=exprs.length;
+    final Expr[] inner=new Expr[el];
+    for (int e=0; e < el; e++)     inner[e]=((Arr)exprs[e]).exprs[0];
     final Expr and=new And(info,inner).optimize(qc,scp);
     return Function.NOT.get(null,info,and).optimize(qc,scp);
   }

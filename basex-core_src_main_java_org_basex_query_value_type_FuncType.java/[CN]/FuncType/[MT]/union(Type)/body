@@ -1,11 +1,13 @@
 {
   if (!(t instanceof FuncType))   return AtomType.ITEM;
   final FuncType ft=(FuncType)t;
-  if (this == ANY_FUN || ft == ANY_FUN || argTypes.length != ft.argTypes.length)   return ANY_FUN;
-  final SeqType[] arg=new SeqType[argTypes.length];
-  for (int i=0; i < arg.length; i++) {
-    arg[i]=argTypes[i].intersect(ft.argTypes[i]);
-    if (arg[i] == null)     return ANY_FUN;
+  if (this == ANY_FUN || ft == ANY_FUN)   return ANY_FUN;
+  final int al=argTypes.length;
+  if (al != ft.argTypes.length)   return ANY_FUN;
+  final SeqType[] arg=new SeqType[al];
+  for (int a=0; a < al; a++) {
+    arg[a]=argTypes[a].intersect(ft.argTypes[a]);
+    if (arg[a] == null)     return ANY_FUN;
   }
   return get(ann.intersect(ft.ann),retType.union(ft.retType),arg);
 }

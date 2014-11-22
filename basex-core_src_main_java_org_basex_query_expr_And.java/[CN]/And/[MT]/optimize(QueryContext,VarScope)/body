@@ -1,6 +1,6 @@
 {
   final int es=exprs.length;
-  final ExprList el=new ExprList(es);
+  final ExprList list=new ExprList(es);
   for (int i=0; i < es; i++) {
     Expr e=exprs[i];
     if (e instanceof Pos) {
@@ -33,11 +33,11 @@
       }
     }
     if (e == Bln.FALSE)     return optPre(Bln.FALSE,qc);
-    if (e != Bln.TRUE)     el.add(e);
+    if (e != Bln.TRUE)     list.add(e);
   }
-  if (el.isEmpty())   return optPre(Bln.TRUE,qc);
-  if (es != el.size())   qc.compInfo(OPTWRITE,this);
-  exprs=el.finish();
+  if (list.isEmpty())   return optPre(Bln.TRUE,qc);
+  if (es != list.size())   qc.compInfo(OPTWRITE,this);
+  exprs=list.finish();
   compFlatten(qc);
   boolean not=true;
   for (  final Expr e : exprs) {
@@ -48,8 +48,9 @@
   }
   if (not) {
     qc.compInfo(OPTWRITE,this);
-    final Expr[] inner=new Expr[exprs.length];
-    for (int i=0; i < inner.length; i++)     inner[i]=((Arr)exprs[i]).exprs[0];
+    final int el=exprs.length;
+    final Expr[] inner=new Expr[el];
+    for (int e=0; e < el; e++)     inner[e]=((Arr)exprs[e]).exprs[0];
     final Expr or=new Or(info,inner).optimize(qc,scp);
     return Function.NOT.get(null,info,or).optimize(qc,scp);
   }
