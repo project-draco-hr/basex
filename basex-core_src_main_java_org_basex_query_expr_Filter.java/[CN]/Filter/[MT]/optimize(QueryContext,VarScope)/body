@@ -35,11 +35,24 @@
       if (last)       return optPre(SubSeq.get(v,v.size() - 1,1),qc);
       if (pos != null)       return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
     }
-    final Expr p=preds[0];
-    final SeqType pt=p.seqType();
-    if (pt.type.isNumber() && pt.zeroOrOne() && !p.has(Flag.CTX)&& !p.has(Flag.NDT)) {
+    final Expr pred=preds[0];
+    if (num(pred)) {
       seqType=SeqType.get(seqType.type,Occ.ZERO_ONE);
       index=true;
+    }
+ else     if (pred instanceof CmpG) {
+      final CmpG cmp=(CmpG)pred;
+      if (cmp.exprs[0].isFunction(Function.POSITION)) {
+        final Expr e2=cmp.exprs[1];
+        if (e2 instanceof Range) {
+          final Range r=(Range)e2;
+          if (num(r.exprs[0]) && num(r.exprs[1])) {
+            qc.compInfo(QueryText.OPTWRITE,this);
+            final Expr[] args={root,r.exprs[0],r.exprs[1],Bln.TRUE};
+            return Function.SUBSEQUENCE.get(null,info,args);
+          }
+        }
+      }
     }
   }
   if (index || iter)   return copy(new IterPosFilter(info,index,root,preds));
