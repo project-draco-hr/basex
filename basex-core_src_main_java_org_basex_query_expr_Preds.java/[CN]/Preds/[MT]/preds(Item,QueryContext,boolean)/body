@@ -2,12 +2,14 @@
   if (preds.length == 0)   return true;
   final Value cv=qc.value;
   try {
+    double s=0;
     for (    final Expr p : preds) {
       qc.value=it;
       final Item i=p.test(qc,info);
       if (i == null)       return false;
-      if (scoring)       it.score(i.score());
+      if (scoring)       s+=i.score();
     }
+    if (scoring)     it.score(Scoring.avg(s,preds.length));
     return true;
   }
   finally {

@@ -36,8 +36,10 @@
     if (e != Bln.TRUE)     list.add(e);
   }
   if (list.isEmpty())   return optPre(Bln.TRUE,qc);
-  if (es != list.size())   qc.compInfo(OPTWRITE,this);
-  exprs=list.finish();
+  if (es != list.size()) {
+    qc.compInfo(OPTWRITE,this);
+    exprs=list.finish();
+  }
   compFlatten(qc);
   boolean not=true;
   for (  final Expr e : exprs) {
@@ -51,8 +53,8 @@
     final int el=exprs.length;
     final Expr[] inner=new Expr[el];
     for (int e=0; e < el; e++)     inner[e]=((Arr)exprs[e]).exprs[0];
-    final Expr or=new Or(info,inner).optimize(qc,scp);
-    return Function.NOT.get(null,info,or).optimize(qc,scp);
+    final Expr ex=new Or(info,inner).optimize(qc,scp);
+    return Function.NOT.get(null,info,ex).optimize(qc,scp);
   }
   return exprs.length == 1 ? compBln(exprs[0],info) : this;
 }
