@@ -12,10 +12,12 @@
   }
   if ((f instanceof Map || f instanceof Array) && allAreValues())   return optPre(value(qc),qc);
   if (f instanceof XQFunctionExpr) {
-    if (!(f instanceof FuncItem && comesFrom((FuncItem)f)) && !updating) {
+    final XQFunctionExpr fe=(XQFunctionExpr)f;
+    if (!(f instanceof FuncItem && comesFrom((FuncItem)f))) {
+      if (!sc.mixUpdates && updating != fe.annotations().contains(Ann.Q_UPDATING))       throw (updating ? UPFUNCNOTUP : UPFUNCUP).get(info);
       final Expr[] args=Arrays.copyOf(exprs,ar);
-      final Expr inl=((XQFunctionExpr)f).inlineExpr(args,qc,scp,info);
-      if (inl != null)       return inl;
+      final Expr in=fe.inlineExpr(args,qc,scp,info);
+      if (in != null)       return in;
     }
   }
  else   if (f instanceof Item && !(f instanceof FItem)) {
