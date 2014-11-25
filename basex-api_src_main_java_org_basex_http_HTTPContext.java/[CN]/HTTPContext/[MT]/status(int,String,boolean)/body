@@ -8,7 +8,12 @@
     }
  else {
       res.setStatus(code);
-      if (message != null)       res.getOutputStream().write(token(message));
+      if (message != null) {
+        res.setContentType(TEXT_PLAIN);
+        final ArrayOutput ao=new ArrayOutput();
+        ao.write(token(message));
+        res.getOutputStream().write(ao.normalize().finish());
+      }
     }
   }
  catch (  final IllegalStateException ex) {

@@ -21,7 +21,11 @@
     proc=new ProcessBuilder(args).start();
   }
  catch (  final IOException ex) {
-    result.error.add(Util.message(ex));
+    try {
+      result.error.write(token(Util.message(ex)));
+    }
+ catch (    final IOException ignored) {
+    }
     result.code=9999;
     return result;
   }
@@ -35,7 +39,11 @@
     errt.join();
   }
  catch (  final InterruptedException ex) {
-    result.error.add(Util.message(ex));
+    try {
+      result.error.write(token(Util.message(ex)));
+    }
+ catch (    final IOException ignored) {
+    }
   }
   result.code=proc.exitValue();
   return result;
