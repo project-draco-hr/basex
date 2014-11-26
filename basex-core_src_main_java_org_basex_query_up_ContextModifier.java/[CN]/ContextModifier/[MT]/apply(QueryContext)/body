@@ -1,0 +1,22 @@
+{
+  for (  final NameUpdates up : nameUpdates.values())   up.apply(true);
+  final Set<Data> datas=new HashSet<>();
+  for (  final Data data : dbUpdates.keySet())   datas.add(data);
+  int i=0;
+  try {
+    for (    final Data data : datas) {
+      data.startUpdate(qc.context.options);
+      i++;
+    }
+    for (    final DataUpdates up : dbUpdates.values())     up.apply(qc);
+  }
+ catch (  final IOException ex) {
+    throw BXDB_LOCK_X.get(null,ex);
+  }
+ finally {
+    for (    final Data data : datas) {
+      if (i-- > 0)       data.finishUpdate(qc.context.options);
+    }
+  }
+  for (  final NameUpdates up : nameUpdates.values())   up.apply(false);
+}

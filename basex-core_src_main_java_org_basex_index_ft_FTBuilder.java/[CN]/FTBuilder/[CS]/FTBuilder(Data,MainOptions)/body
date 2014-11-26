@@ -1,0 +1,13 @@
+{
+  super(data,options.get(MainOptions.FTINDEXSPLITSIZE));
+  tree=new FTIndexTrees(data.meta.maxlen);
+  final FTOpt fto=new FTOpt();
+  fto.set(FTFlag.DC,options.get(MainOptions.DIACRITICS));
+  fto.set(FTFlag.ST,options.get(MainOptions.STEMMING));
+  fto.cs=options.get(MainOptions.CASESENS) ? FTCase.SENSITIVE : FTCase.INSENSITIVE;
+  fto.sw=new StopWords(data,options);
+  fto.ln=Language.get(options);
+  if (!Tokenizer.supportFor(fto.ln))   throw new BaseXException(NO_TOKENIZER_X,fto.ln);
+  if (options.get(MainOptions.STEMMING) && !Stemmer.supportFor(fto.ln))   throw new BaseXException(NO_STEMMER_X,fto.ln);
+  lex=new FTLexer(fto);
+}

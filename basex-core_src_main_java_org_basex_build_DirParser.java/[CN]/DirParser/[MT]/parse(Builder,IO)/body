@@ -10,15 +10,15 @@
       try (final TarInputStream is=new TarInputStream(in)){
         for (TarEntry ze; (ze=is.getNextEntry()) != null; ) {
           if (ze.isDirectory())           continue;
-          src=new IOStream(is,ze.getName());
-          src.length(ze.getSize());
+          source=new IOStream(is,ze.getName());
+          source.length(ze.getSize());
           parseResource(builder);
         }
       }
      }
  else     if (name.endsWith(IO.GZSUFFIX)) {
       try (final GZIPInputStream is=new GZIPInputStream(in)){
-        src=new IOStream(is,input.name().replaceAll("\\..*",IO.XMLSUFFIX));
+        source=new IOStream(is,input.name().replaceAll("\\..*",IO.XMLSUFFIX));
         parseResource(builder);
       }
      }
@@ -26,15 +26,15 @@
       try (final ZipInputStream is=new ZipInputStream(in)){
         for (ZipEntry ze; (ze=is.getNextEntry()) != null; ) {
           if (ze.isDirectory())           continue;
-          src=new IOStream(is,ze.getName());
-          src.length(ze.getSize());
+          source=new IOStream(is,ze.getName());
+          source.length(ze.getSize());
           parseResource(builder);
         }
       }
      }
   }
  else {
-    src=input;
+    source=input;
     parseResource(builder);
   }
 }
