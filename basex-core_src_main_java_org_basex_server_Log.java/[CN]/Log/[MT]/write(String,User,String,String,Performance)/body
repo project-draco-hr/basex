@@ -14,16 +14,13 @@
       start=nstart;
     }
     final int ml=sopts.get(StaticOptions.LOGMSGMAXLEN);
-    final TokenBuilder tb=new TokenBuilder(DateTime.format(date,DateTime.TIME));
-    for (    final Object s : str) {
-      tb.add('\t');
-      final String st;
-      if (s == null)       st=REQUEST;
- else       if (s instanceof Boolean)       st=(Boolean)s ? OK : ERROR;
- else       if (s instanceof Throwable)       st=Util.message((Throwable)s);
- else       st=s.toString();
-      tb.add(chop(token(st.replaceAll("\\s+"," ").trim()),ml));
-    }
+    final TokenBuilder tb=new TokenBuilder();
+    tb.add(DateTime.format(date,DateTime.TIME));
+    tb.add('\t').add(address);
+    tb.add('\t').add(user == null ? Text.S_ADMIN : user.name);
+    tb.add('\t').add(type);
+    tb.add('\t').add(chop(normalize(token(info)),ml));
+    if (perf != null)     tb.add('\t').add(perf.toString());
     tb.add(Prop.NL);
     fos.write(tb.finish());
     fos.flush();

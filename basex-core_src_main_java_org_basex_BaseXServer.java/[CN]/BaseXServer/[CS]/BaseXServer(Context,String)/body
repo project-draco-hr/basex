@@ -29,17 +29,17 @@
     stopFile=stopFile(port);
   }
  catch (  final IOException ex) {
-    context.log.writeError(ex);
+    context.log.writeServer(LogType.ERROR,Util.message(ex));
     throw ex;
   }
   new Thread(this).start();
   do   Thread.yield();
  while (!running);
-  context.log.writeServer(OK,Util.info(SRV_STARTED_PORT_X,port));
+  context.log.writeServer(LogType.OK,Util.info(SRV_STARTED_PORT_X,port));
   if (!quiet)   Util.outln(S_CONSOLE + Util.info(SRV_STARTED_PORT_X,port),S_SERVER);
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      context.log.writeServer(OK,Util.info(SRV_STOPPED_PORT_X,port));
+      context.log.writeServer(LogType.OK,Util.info(SRV_STOPPED_PORT_X,port));
       Util.outln(SRV_STOPPED_PORT_X,port);
     }
   }
