@@ -4,20 +4,26 @@
   int ch=input.read();
   while (ch != -1) {
     if (quoted) {
-      if (backslash) {
+      if (backslashes) {
         if (ch == '\\') {
           ch=bs();
           if (ch == -1)           break;
         }
-      }
- else       if (ch == '"') {
-        ch=input.read();
-        if (ch != '"') {
+ else         if (ch == '"') {
           quoted=false;
           continue;
         }
       }
-      entry.add(XMLToken.valid(ch) ? ch : '?');
+ else {
+        if (ch == '"') {
+          ch=input.read();
+          if (ch != '"') {
+            quoted=false;
+            continue;
+          }
+        }
+      }
+      add(entry,ch);
     }
  else     if (quotes && ch == '"') {
       quoted=true;
@@ -32,11 +38,11 @@
       data=true;
     }
  else {
-      if (backslash) {
+      if (backslashes) {
         if (ch == '\\')         ch=bs();
         if (ch == -1)         break;
       }
-      entry.add(XMLToken.valid(ch) ? ch : '?');
+      add(entry,ch);
     }
     ch=input.read();
   }
