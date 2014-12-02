@@ -1,32 +1,32 @@
 {
+  final byte[] val=norm(value);
+  final int vl=val.length;
   if (ftp == null) {
-    final int bl=value.length;
     if (cdata.isEmpty() || elems.isEmpty() || !cdata.contains(elems.peek())) {
-      for (int k=0; k < bl; k+=cl(value,k))       encode(cp(value,k));
+      for (int k=0; k < vl; k+=cl(val,k))       encode(cp(val,k));
     }
  else {
       print(CDATA_O);
       int c=0;
-      final int vl=value.length;
-      for (int k=0; k < vl; k+=cl(value,k)) {
-        final int ch=cp(value,k);
-        if (ch == ']') {
+      for (int k=0; k < vl; k+=cl(val,k)) {
+        final int cp=cp(val,k);
+        if (cp == ']') {
           ++c;
         }
  else {
-          if (c > 1 && ch == '>') {
+          if (c > 1 && cp == '>') {
             print(CDATA_C);
             print(CDATA_O);
           }
           c=0;
         }
-        printChar(ch);
+        printChar(cp);
       }
       print(CDATA_C);
     }
   }
  else {
-    final FTLexer lex=new FTLexer().all().init(value);
+    final FTLexer lex=new FTLexer().all().init(val);
     while (lex.hasNext()) {
       final FTSpan span=lex.next();
       if (!span.del && ftp.contains(span.pos))       print((char)TokenBuilder.MARK);

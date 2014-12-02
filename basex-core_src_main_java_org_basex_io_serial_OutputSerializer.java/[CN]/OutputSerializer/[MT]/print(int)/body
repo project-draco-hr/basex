@@ -1,11 +1,16 @@
 {
   if (utf8) {
-    out.print(ch);
+    out.print(cp);
   }
  else {
     encbuffer.reset();
     encoder.reset();
-    final ByteBuffer bb=encoder.encode(CharBuffer.wrap(encbuffer.add(ch).toString()));
-    out.write(bb.array(),0,bb.limit());
+    try {
+      final ByteBuffer bb=encoder.encode(CharBuffer.wrap(encbuffer.add(cp).toString()));
+      out.write(bb.array(),0,bb.limit());
+    }
+ catch (    final UnmappableCharacterException ex) {
+      throw SERMAP_X_X.getIO(Integer.toHexString(cp),encoding);
+    }
   }
 }

@@ -21,7 +21,6 @@
     encbuffer=new TokenBuilder();
   }
   indents=opts.get(INDENTS);
-  format=opts.yes(FORMAT);
   tab=opts.yes(TABULATOR) ? '\t' : ' ';
   wPre=token(opts.get(WRAP_PREFIX));
   wrap=wPre.length != 0;
@@ -33,8 +32,8 @@
   escuri=opts.yes(ESCAPE_URI_ATTRIBUTES);
   content=opts.yes(INCLUDE_CONTENT_TYPE);
   undecl=opts.yes(UNDECLARE_PREFIXES);
-  indent=opts.yes(INDENT) && format;
-  webdav="webdav".equals(maps);
+  indent=opts.yes(INDENT);
+  webdav=maps.equals("webdav");
   if (!webdav && !maps.isEmpty())   throw SERMAP_X.getIO(maps);
   if (docsys.isEmpty())   docsys=null;
   if (docpub.isEmpty())   docpub=null;
@@ -62,6 +61,20 @@
       if (c.length != 0)       suppress.add(c);
     }
   }
+  final String norm=opts.get(NORMALIZATION_FORM);
+  final Form frm;
+  if (norm.equals(Text.NONE)) {
+    frm=null;
+  }
+ else {
+    try {
+      frm=Form.valueOf(norm);
+    }
+ catch (    final IllegalArgumentException ex) {
+      throw SERNORM_X.getIO(norm);
+    }
+  }
+  form=frm;
   final boolean html=this instanceof HTMLSerializer;
   final boolean xml=this instanceof XMLSerializer || this instanceof XHTMLSerializer;
   if (xml || html) {
