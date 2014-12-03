@@ -1,15 +1,15 @@
 {
   final byte[] uri=name.uri();
   final boolean java=startsWith(uri,JAVAPREF);
-  final String local=camelCase(string(name.local()));
-  final String path=camelCase(toPath(java ? substring(uri,JAVAPREF.length) : uri));
+  final String local=Strings.camelCase(string(name.local()));
+  final String path=Strings.camelCase(toPath(java ? substring(uri,JAVAPREF.length) : uri));
   final ModuleLoader modules=qc.resources.modules();
   final Object jm=modules.findImport(path);
   if (jm != null) {
     final Method meth=getModMethod(jm,path,local,args.length,qc,ii);
     if (meth != null)     return new JavaModuleFunc(sc,ii,jm,meth,args);
   }
-  if (!qc.context.user.has(Perm.ADMIN))   return null;
+  if (!qc.context.user().has(Perm.ADMIN))   return null;
   try {
     return new JavaFunc(sc,ii,modules.findClass(path),local,args);
   }

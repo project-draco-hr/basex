@@ -6,23 +6,26 @@
   final StringBuilder uri=new StringBuilder(req.getRequestURL());
   final String qs=req.getQueryString();
   if (qs != null)   uri.append('?').append(qs);
-  context.log.write(address(),context.user,LogType.REQUEST,'[' + method + "] "+ uri,null);
-  res.setCharacterEncoding(UTF8);
+  context.log.write(address(),context.user(),LogType.REQUEST,'[' + method + "] "+ uri,null);
+  res.setCharacterEncoding(Strings.UTF8);
   path=decode(normalize(req.getPathInfo()));
   final StaticOptions mprop=context().soptions;
   user=servlet.user != null ? servlet.user : mprop.get(StaticOptions.USER);
-  pass=servlet.pass != null ? servlet.pass : mprop.get(StaticOptions.PASSWORD);
-  final String auth=req.getHeader(AUTHORIZATION);
-  if (auth != null) {
-    final String[] values=auth.split(" ");
-    if (values[0].equals(BASIC)) {
-      final String[] cred=org.basex.util.Base64.decode(values[1]).split(":",2);
-      if (cred.length != 2)       throw new LoginException(NOPASSWD);
+  password=servlet.pass != null ? servlet.pass : mprop.get(StaticOptions.PASSWORD);
+  auth=servlet.auth != null ? authMethod(servlet.auth) : mprop.get(StaticOptions.AUTHMETHOD);
+  final String value=req.getHeader(AUTHORIZATION);
+  if (value != null) {
+    if (authMethod(value.split(" ",2)[0]) == AuthMethod.BASIC) {
+      final String[] cred=org.basex.util.Base64.decode(authDetails()).split(":",2);
+      if (cred.length != 2)       throw new LoginException(NOCREDS);
       user=cred[0];
-      pass=cred[1];
+      password=cred[1];
     }
  else {
-      throw new LoginException(WHICHAUTH,values[0]);
+      final HashMap<String,String> map=digestHeaders();
+      user=map.get("username");
+      password=map.get("response");
+      if (user == null || password == null)       throw new LoginException(NOCREDS);
     }
   }
 }

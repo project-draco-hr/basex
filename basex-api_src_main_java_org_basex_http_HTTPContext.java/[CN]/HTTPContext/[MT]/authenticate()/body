@@ -1,10 +1,27 @@
 {
   final byte[] address=token(req.getRemoteAddr());
   try {
-    if (user == null || user.isEmpty() || pass == null || pass.isEmpty())     throw new LoginException(NOPASSWD);
+    if (user == null || user.isEmpty() || password == null || password.isEmpty())     throw new LoginException(NOCREDS);
     final Context ctx=new Context(context(),null);
-    ctx.user=ctx.users.get(user);
-    if (ctx.user == null || !ctx.user.password.equals(md5(pass)))     throw new LoginException();
+    final User us=ctx.users.get(user);
+    if (us == null)     throw new LoginException();
+    if (auth == AuthMethod.BASIC) {
+      if (!us.matches(password))       throw new LoginException();
+    }
+ else {
+      final HashMap<String,String> map=digestHeaders();
+      final String qop=map.get("qop");
+      final String digest=ctx.user().code(Code.DIGEST);
+      final StringBuilder sresponse=new StringBuilder(digest + ":" + map.get("nonce")+ ":");
+      if (qop != null && !qop.isEmpty()) {
+        sresponse.append(map.get("nc") + ":" + map.get("cnonce")+ ":"+ qop+ ":");
+      }
+      String ha2=map.get("uri");
+      if ("auth-int".equals(qop))       ha2+=Strings.md5(params.body().toString());
+      sresponse.append(Strings.md5(method + ":" + ha2));
+      if (!Strings.md5(sresponse.toString()).equals(map.get("response")))       status(SC_UNAUTHORIZED,null,false);
+    }
+    ctx.user(us);
     context.blocker.remove(address);
     return ctx;
   }

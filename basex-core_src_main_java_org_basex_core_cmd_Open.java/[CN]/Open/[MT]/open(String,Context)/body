@@ -1,14 +1,22 @@
 {
 synchronized (ctx.dbs) {
     Data data=ctx.dbs.pin(name);
-    if (data == null) {
-      if (!ctx.soptions.dbexists(name))       throw new BaseXException(dbnf(name));
-      data=new DiskData(name,ctx);
-      ctx.dbs.add(data);
+    if (data != null) {
+      if (!ctx.perm(Perm.READ,data.meta)) {
+        ctx.dbs.unpin(data);
+        throw new BaseXException(PERM_REQUIRED_X,Perm.READ);
+      }
     }
-    if (!ctx.perm(Perm.READ,data.meta)) {
-      Close.close(data,ctx);
-      throw new BaseXException(PERM_REQUIRED_X,Perm.READ);
+ else {
+      if (!ctx.soptions.dbexists(name))       throw new BaseXException(dbnf(name));
+      final MetaData meta=new MetaData(name,ctx);
+      if (meta.updateFile().exists())       throw new BaseXException(Text.DB_UPDATED_X,meta.name);
+      try (final DataInput in=new DataInput(meta.dbfile(DATAINF))){
+        meta.read(in);
+        if (!ctx.perm(Perm.READ,meta))         throw new BaseXException(PERM_REQUIRED_X,Perm.READ);
+        data=new DiskData(meta,in);
+      }
+       ctx.dbs.add(data);
     }
     return data;
   }

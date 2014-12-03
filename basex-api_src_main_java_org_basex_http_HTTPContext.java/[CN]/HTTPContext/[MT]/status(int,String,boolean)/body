@@ -2,7 +2,16 @@
   try {
     log(code,message);
     res.resetBuffer();
-    if (code == SC_UNAUTHORIZED)     res.setHeader(WWW_AUTHENTICATE,BASIC);
+    if (code == SC_UNAUTHORIZED) {
+      final StringBuilder header=new StringBuilder(auth.name());
+      if (auth == AuthMethod.DIGEST) {
+        header.append(auth + " realm=\"").append(Prop.NAME).append("\",");
+        header.append("qop=\"auth,auth-int\",");
+        header.append("nonce=\"").append(Strings.md5(Long.toString(System.nanoTime())));
+        header.append("\"");
+      }
+      res.setHeader(WWW_AUTHENTICATE,header.toString());
+    }
     if (error && code >= SC_BAD_REQUEST) {
       res.sendError(code,message);
     }
