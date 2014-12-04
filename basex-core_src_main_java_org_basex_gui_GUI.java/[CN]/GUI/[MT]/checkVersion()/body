@@ -1,28 +1,34 @@
 {
-  final Version disk=new Version(gopts.get(GUIOptions.UPDATEVERSION));
-  final Version used=new Version(Prop.VERSION.replaceAll(" .*",""));
-  if (disk.compareTo(used) < 0) {
-    gopts.set(GUIOptions.UPDATEVERSION,used.toString());
-    gopts.write();
-  }
+  if (Strings.contains(Prop.VERSION,' '))   return;
+  final Thread t=new Thread(){
+    @Override public void run(){
+      final Version disk=new Version(gopts.get(GUIOptions.UPDATEVERSION));
+      final Version used=new Version(Prop.VERSION);
+      if (disk.compareTo(used) < 0) {
+        writeVersion(used);
+      }
  else {
-    try {
-      final String page=Token.string(new IOUrl(Prop.VERSION_URL).read());
-      final Matcher m=Pattern.compile("^(Version )?([\\w\\d.]*?)( .*|$)",Pattern.DOTALL).matcher(page);
-      if (m.matches()) {
-        final Version latest=new Version(m.group(2));
-        if (disk.compareTo(latest) < 0) {
-          if (BaseXDialog.confirm(this,Util.info(H_NEW_VERSION,Prop.NAME,latest))) {
-            BaseXDialog.browse(this,Prop.UPDATE_URL);
-          }
+        try {
+          final String page=Token.string(new IOUrl(Prop.VERSION_URL).read());
+          final Matcher m=Pattern.compile("^(Version )?([\\w\\d.]*?)( .*|$)",Pattern.DOTALL).matcher(page);
+          if (m.matches()) {
+            final Version latest=new Version(m.group(2));
+            if (disk.compareTo(latest) < 0) {
+              if (BaseXDialog.confirm(GUI.this,Util.info(H_NEW_VERSION,Prop.NAME,latest))) {
+                BaseXDialog.browse(GUI.this,Prop.UPDATE_URL);
+              }
  else {
-            gopts.set(GUIOptions.UPDATEVERSION,latest.toString());
-            gopts.write();
+                writeVersion(latest);
+              }
+            }
           }
+        }
+ catch (        final Exception ex) {
         }
       }
     }
- catch (    final Exception ex) {
-    }
   }
+;
+  t.setDaemon(true);
+  SwingUtilities.invokeLater(t);
 }
