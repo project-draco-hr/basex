@@ -1,14 +1,14 @@
 {
   try {
-    final String ts=Long.toString(System.nanoTime());
+    final String nonce=Long.toString(System.nanoTime());
     final byte[] address=socket.getInetAddress().getAddress();
     out=PrintOutput.get(socket.getOutputStream());
-    out.print(ts);
+    out.print(Prop.NAME + ':' + nonce);
     send(true);
     in=new BufferInput(socket.getInputStream());
-    final String us=in.readString(), md5pwts=in.readString();
+    final String us=in.readString(), hash=in.readString();
     final User user=context.users.get(us);
-    running=user != null && Strings.md5(user.code(Code.MD5) + ts).equals(md5pwts);
+    running=user != null && Strings.md5(user.code(Algorithm.DIGEST,Code.HASH) + nonce).equals(hash);
     if (running) {
       context.user(user);
       send(true);
