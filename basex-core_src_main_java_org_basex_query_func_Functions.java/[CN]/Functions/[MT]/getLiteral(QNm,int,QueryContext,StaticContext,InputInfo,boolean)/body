@@ -4,8 +4,9 @@
     final VarScope scp=new VarScope(sc);
     final Var[] args={scp.newLocal(qc,new QNm(ITEMM,""),SeqType.AAT_ZO,true)};
     final Expr e=new Cast(sc,ii,new VarRef(ii,args[0]),type.seqType());
-    final FuncType tp=FuncType.get(e.seqType(),SeqType.AAT_ZO);
-    return new FuncItem(sc,new Ann(),name,args,tp,e,scp.stackSize());
+    final Ann ann=new Ann();
+    final FuncType ft=FuncType.get(ann,args,e.seqType());
+    return closureOrFItem(ann,name,args,ft,e,scp,sc,ii,runtime,false);
   }
   final Function fn=get().getBuiltIn(name,arity,ii);
   if (fn != null) {
@@ -20,18 +21,29 @@
       calls[i]=new VarRef(ii,args[i]);
     }
     final StandardFunc sf=fn.get(sc,ii,calls);
-    if (sf.has(Flag.UPD)) {
+    final boolean upd=sf.has(Flag.UPD);
+    if (upd) {
       qc.updating();
       ann.add(Ann.Q_UPDATING,Empty.SEQ,ii);
     }
-    if (!sf.has(Flag.CTX) && !sf.has(Flag.FCS))     return new FuncItem(sc,ann,name,args,ft,sf,scp.stackSize());
+    if (!sf.has(Flag.CTX) && !sf.has(Flag.FCS))     return closureOrFItem(ann,name,args,fn.type(arity,ann),sf,scp,sc,ii,runtime,upd);
     return new FuncLit(ann,name,args,sf,ft,scp,sc,ii);
   }
   final StaticFunc sf=qc.funcs.get(name,arity,ii,true);
   if (sf != null) {
-    final FuncItem fi=getUser(sf,qc,sc,ii);
-    if (fi.annotations().contains(Ann.Q_UPDATING))     qc.updating();
-    return fi;
+    final FuncType ft=sf.funcType();
+    final VarScope scp=new VarScope(sc);
+    final Var[] args=new Var[arity];
+    final Expr[] calls=new Expr[arity];
+    for (int a=0; a < arity; a++) {
+      args[a]=scp.newLocal(qc,sf.argName(a),ft.argTypes[a],true);
+      calls[a]=new VarRef(ii,args[a]);
+    }
+    final boolean upd=sf.updating;
+    final TypedFunc tf=qc.funcs.getFuncRef(sf.name,calls,sc,ii);
+    final Expr f=closureOrFItem(tf.ann,sf.name,args,ft,tf.fun,scp,sc,ii,runtime,upd);
+    if (upd)     qc.updating();
+    return f;
   }
   final VarScope scp=new VarScope(sc);
   final FuncType jt=FuncType.arity(arity);
