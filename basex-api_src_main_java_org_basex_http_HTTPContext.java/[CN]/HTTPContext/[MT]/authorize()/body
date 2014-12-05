@@ -1,0 +1,19 @@
+{
+  final String value=req.getHeader(AUTHORIZATION);
+  if (value != null) {
+    final String meth=Strings.split(value,' ',2)[0];
+    final AuthMethod am=StaticOptions.AUTHMETHOD.get(meth);
+    if (am == null)     throw new BaseXException(WHICHAUTH,meth);
+    if (am == AuthMethod.BASIC) {
+      final String[] cred=Strings.split(org.basex.util.Base64.decode(authDetails()),':',2);
+      if (cred.length != 2)       throw new BaseXException(INVALIDCREDS);
+      user=cred[0];
+      password=cred[1];
+    }
+ else {
+      final HashMap<String,String> map=digestHeaders();
+      user=map.get(USERNAME);
+      password=map.get(RESPONSE);
+    }
+  }
+}

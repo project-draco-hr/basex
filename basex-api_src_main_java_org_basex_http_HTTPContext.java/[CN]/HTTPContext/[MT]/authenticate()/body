@@ -1,13 +1,13 @@
 {
   final byte[] address=token(req.getRemoteAddr());
   try {
-    if (user == null || user.isEmpty() || password == null || password.isEmpty())     throw new LoginException(NOCREDS);
+    if (user == null || user.isEmpty())     throw new LoginException(INVALIDCREDS);
     final Context ctx=new Context(context(),null);
     final User us=ctx.users.get(user);
     if (us == null)     throw new LoginException();
     ctx.user(us);
     if (auth == AuthMethod.BASIC) {
-      if (!us.matches(password))       throw new LoginException();
+      if (password == null || !us.matches(password))       throw new LoginException();
     }
  else {
       final HashMap<String,String> map=digestHeaders();
@@ -22,9 +22,7 @@
         sresponse.append(':' + map.get(NC) + ':'+ map.get(CNONCE)+ ':'+ qop);
       }
       sresponse.append(':' + ha2);
-      if (!Strings.md5(sresponse.toString()).equals(map.get(RESPONSE))) {
-        throw new LoginException();
-      }
+      if (!Strings.md5(sresponse.toString()).equals(password))       throw new LoginException();
     }
     context.blocker.remove(address);
     return ctx;
