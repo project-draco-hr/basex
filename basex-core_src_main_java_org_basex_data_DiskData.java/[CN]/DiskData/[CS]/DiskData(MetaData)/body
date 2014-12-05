@@ -1,0 +1,27 @@
+{
+  this.meta=meta;
+  if (updateFile().exists())   throw new BaseXException(Text.DB_UPDATED_X,meta.name);
+  try (final DataInput in=new DataInput(meta.dbfile(DATAINF))){
+    meta.read(in);
+    while (true) {
+      final String k=string(in.readToken());
+      if (k.isEmpty())       break;
+      if (k.equals(DBTAGS))       elemNames=new Names(in,meta);
+ else       if (k.equals(DBATTS))       attrNames=new Names(in,meta);
+ else       if (k.equals(DBPATH))       paths=new PathSummary(this,in);
+ else       if (k.equals(DBNS))       nspaces=new Namespaces(in);
+ else       if (k.equals(DBDOCS))       resources.read(in);
+    }
+  }
+   init();
+  if (meta.updindex) {
+    idmap=new IdPreMap(meta.dbfile(DATAIDP));
+    if (meta.textindex)     textIndex=new UpdatableDiskValues(this,true);
+    if (meta.attrindex)     attrIndex=new UpdatableDiskValues(this,false);
+  }
+ else {
+    if (meta.textindex)     textIndex=new DiskValues(this,true);
+    if (meta.attrindex)     attrIndex=new DiskValues(this,false);
+  }
+  if (meta.ftxtindex)   ftxtIndex=new FTIndex(this);
+}

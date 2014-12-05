@@ -1,0 +1,15 @@
+{
+synchronized (context.dbs) {
+    Data data=context.dbs.pin(name);
+    if (data == null) {
+      if (!context.soptions.dbexists(name))       throw new BaseXException(dbnf(name));
+      data=new DiskData(new MetaData(name,options,context.soptions));
+      context.dbs.add(data);
+    }
+    if (!context.perm(Perm.READ,data.meta)) {
+      Close.close(data,context);
+      throw new BaseXException(PERM_REQUIRED_X,Perm.READ);
+    }
+    return data;
+  }
+}

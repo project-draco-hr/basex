@@ -8,6 +8,15 @@
     dbUpdates.set(i,null);
   }
   for (  final Put put : puts.values())   put.apply();
+  final MainOptions opts=qc.context.options;
+  if (data.meta.autoopt) {
+    try {
+      Optimize.optimize(data,opts,null);
+    }
+ catch (    final IOException ex) {
+      throw UPDBOPTERR_X.get(null,ex);
+    }
+  }
   final String original=data.meta.original;
   if (data.inMemory() && !original.isEmpty() && data != qc.context.data()) {
     if (writeback) {
@@ -15,8 +24,7 @@
         Export.export(data,original,qc.context.options,null);
       }
  catch (      final IOException ex) {
-        Util.debug(ex);
-        throw UPPUTERR_X.get(null,original);
+        throw UPDBOPTERR_X.get(null,ex);
       }
     }
  else {

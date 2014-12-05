@@ -45,7 +45,12 @@
     md.ndocs.set(n);
     md.uptodate=true;
   }
-  optimize(IndexType.ATTRIBUTE,data,options,md.createattr,md.attrindex,rebuild,cmd);
-  optimize(IndexType.TEXT,data,options,md.createtext,md.textindex,rebuild,cmd);
-  optimize(IndexType.FULLTEXT,data,options,md.createftxt,md.ftxtindex,rebuild || rebuildFT,cmd);
+  final boolean autoopt=options.get(MainOptions.AUTOOPTIMIZE);
+  if (autoopt != md.autoopt) {
+    md.autoopt=autoopt;
+    md.dirty=true;
+  }
+  optimize(IndexType.ATTRIBUTE,data,options,md.createattr,md.attrindex,enforce,cmd);
+  optimize(IndexType.TEXT,data,options,md.createtext,md.textindex,enforce,cmd);
+  optimize(IndexType.FULLTEXT,data,options,md.createftxt,md.ftxtindex,enforceFT,cmd);
 }
