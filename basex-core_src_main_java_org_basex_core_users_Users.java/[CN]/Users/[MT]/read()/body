@@ -1,0 +1,26 @@
+{
+  if (file == null || !file.exists())   return;
+  try {
+    final byte[] io=file.read();
+    final IOContent content=new IOContent(io,file.path());
+    if (startsWith(io,'<')) {
+      final MainOptions options=new MainOptions(false);
+      options.set(MainOptions.INTPARSE,true);
+      final ANode doc=new DBNode(Parser.singleParser(content,options,""));
+      for (      final ANode user : children(children(doc,USERS).next(),USER)) {
+        try {
+          list.add(new User(user,global));
+        }
+ catch (        final BaseXException ex) {
+          Util.errln(file.name() + ": " + ex.getLocalizedMessage());
+        }
+      }
+    }
+ else {
+      read(new DataInput(content));
+    }
+  }
+ catch (  final IOException ex) {
+    Util.errln(ex);
+  }
+}

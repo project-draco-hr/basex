@@ -11,12 +11,10 @@ synchronized (ctx.dbs) {
       if (!ctx.soptions.dbexists(name))       throw new BaseXException(dbnf(name));
       final MetaData meta=new MetaData(name,ctx);
       if (meta.updateFile().exists())       throw new BaseXException(Text.DB_UPDATED_X,meta.name);
-      try (final DataInput in=new DataInput(meta.dbfile(DATAINF))){
-        meta.read(in);
-        if (!ctx.perm(Perm.READ,meta))         throw new BaseXException(PERM_REQUIRED_X,Perm.READ);
-        data=new DiskData(meta,in);
-      }
-       ctx.dbs.add(data);
+      meta.users.read();
+      if (!ctx.perm(Perm.READ,meta))       throw new BaseXException(PERM_REQUIRED_X,Perm.READ);
+      data=new DiskData(meta);
+      ctx.dbs.add(data);
     }
     return data;
   }
