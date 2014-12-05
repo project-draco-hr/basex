@@ -11,11 +11,17 @@
   sin=socket.getInputStream();
   final BufferInput bi=new BufferInput(sin);
   final String[] response=Strings.split(bi.readString(),':');
+  final String code, nonce;
+  if (response.length > 1) {
+    code=username + ':' + response[0]+ ':'+ password;
+    nonce=response[1];
+  }
+ else {
+    code=password;
+    nonce=response[0];
+  }
   sout=PrintOutput.get(socket.getOutputStream());
   send(username);
-  final int rl=response.length;
-  final String code=rl == 1 ? password : (username + ':' + response[0]+ ':'+ password);
-  final String nonce=response[rl - 1];
   send(Strings.md5(Strings.md5(code) + nonce));
   sout.flush();
   if (!ok(bi))   throw new LoginException();
