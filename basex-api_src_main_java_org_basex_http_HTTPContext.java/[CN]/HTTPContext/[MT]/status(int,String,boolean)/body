@@ -1,6 +1,6 @@
 {
   try {
-    log(code,message);
+    log(code,info);
     res.resetBuffer();
     if (code == SC_UNAUTHORIZED) {
       final StringBuilder header=new StringBuilder(auth.toString());
@@ -13,14 +13,14 @@
       res.setHeader(WWW_AUTHENTICATE,header.toString());
     }
     if (error && code >= SC_BAD_REQUEST) {
-      res.sendError(code,message);
+      res.sendError(code,info);
     }
  else {
       res.setStatus(code);
-      if (message != null) {
+      if (info != null) {
         res.setContentType(TEXT_PLAIN);
         final ArrayOutput ao=new ArrayOutput();
-        ao.write(token(message));
+        ao.write(token(info));
         res.getOutputStream().write(ao.normalize().finish());
       }
     }
