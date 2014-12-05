@@ -15,17 +15,16 @@
   auth=servlet.auth != null ? authMethod(servlet.auth) : mprop.get(StaticOptions.AUTHMETHOD);
   final String value=req.getHeader(AUTHORIZATION);
   if (value != null) {
-    if (authMethod(value.split(" ",2)[0]) == AuthMethod.BASIC) {
-      final String[] cred=org.basex.util.Base64.decode(authDetails()).split(":",2);
+    if (authMethod(Strings.split(value,' ',2)[0]) == AuthMethod.BASIC) {
+      final String[] cred=Strings.split(org.basex.util.Base64.decode(authDetails()),':',2);
       if (cred.length != 2)       throw new LoginException(NOCREDS);
       user=cred[0];
       password=cred[1];
     }
  else {
       final HashMap<String,String> map=digestHeaders();
-      user=map.get("username");
-      password=map.get("response");
-      if (user == null || password == null)       throw new LoginException(NOCREDS);
+      user=map.get(USERNAME);
+      password=map.get(RESPONSE);
     }
   }
 }

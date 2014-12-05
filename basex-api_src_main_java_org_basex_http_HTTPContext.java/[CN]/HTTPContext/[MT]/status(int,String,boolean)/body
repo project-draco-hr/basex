@@ -3,12 +3,12 @@
     log(code,message);
     res.resetBuffer();
     if (code == SC_UNAUTHORIZED) {
-      final StringBuilder header=new StringBuilder(auth.name());
+      final StringBuilder header=new StringBuilder(auth.toString());
       if (auth == AuthMethod.DIGEST) {
-        header.append(auth + " realm=\"").append(Prop.NAME).append("\",");
-        header.append("qop=\"auth,auth-int\",");
-        header.append("nonce=\"").append(Strings.md5(Long.toString(System.nanoTime())));
-        header.append("\"");
+        header.append(" " + REALM + "=\"").append(Prop.NAME).append("\",");
+        header.append(QOP + "=\"" + AUTH+ ','+ AUTH_INT+ "\",");
+        header.append(NONCE + "=\"").append(Strings.md5(Long.toString(System.nanoTime())));
+        header.append('"');
       }
       res.setHeader(WWW_AUTHENTICATE,header.toString());
     }
