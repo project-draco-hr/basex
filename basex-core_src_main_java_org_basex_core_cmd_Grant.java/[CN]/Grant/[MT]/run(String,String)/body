@@ -1,9 +1,11 @@
 {
-  if (user.equals(UserText.ADMIN))   return !info(ADMIN_STATIC_X);
+  if (name.equals(UserText.ADMIN))   return !info(ADMIN_STATIC);
+  final Users users=context.users;
+  final User user=users.get(name);
   if (db == null) {
-    context.users.get(user).perm(prm);
-    context.users.write();
-    return info(GRANTED_X_X,args[0],user);
+    users.perm(user,prm);
+    users.write();
+    return info(GRANTED_X_X,args[0],name);
   }
   final Data data;
   try {
@@ -13,14 +15,14 @@
     return !info(Util.message(ex));
   }
   if (!startUpdate(data))   return false;
-  final User us=data.meta.users.get(user);
+  final User us=data.meta.users.get(name);
   if (us == null) {
-    data.meta.users.add(new User(context.users.get(user).name(),prm));
+    data.meta.users.add(new User(name,prm));
   }
  else {
     us.perm(prm);
   }
   if (!finishUpdate(data))   return false;
   Close.close(data,context);
-  return info(GRANTED_ON_X_X_X,args[0],user,db);
+  return info(GRANTED_ON_X_X_X,args[0],name,db);
 }

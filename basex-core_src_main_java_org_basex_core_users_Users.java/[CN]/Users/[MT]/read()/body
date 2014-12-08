@@ -7,12 +7,18 @@
       final MainOptions options=new MainOptions(false);
       options.set(MainOptions.INTPARSE,true);
       final ANode doc=new DBNode(Parser.singleParser(content,options,""));
-      for (      final ANode user : children(children(doc,USERS).next(),USER)) {
-        try {
-          list.add(new User(user,global));
-        }
- catch (        final BaseXException ex) {
-          Util.errln(file.name() + ": " + ex.getLocalizedMessage());
+      final ANode users=children(doc,USERS).next();
+      if (users == null) {
+        Util.errln(file.name() + ": Missing 'users' root element.");
+      }
+ else {
+        for (        final ANode user : children(users,USER)) {
+          try {
+            list.add(new User(user,global));
+          }
+ catch (          final BaseXException ex) {
+            Util.errln(file.name() + ": " + ex.getLocalizedMessage());
+          }
         }
       }
     }

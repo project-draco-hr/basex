@@ -3,15 +3,18 @@
   perm=attribute(name,user,PERMISSION,Perm.values());
   if (!global)   return;
   for (  final ANode password : children(user,PASSWORD)) {
-    final Algorithm algo=attribute(name,password,ALGORITHM,Algorithm.values());
     final EnumMap<Code,String> ec=new EnumMap<>(Code.class);
+    final Algorithm algo=attribute(name,password,ALGORITHM,Algorithm.values());
+    if (passwords.containsKey(algo))     throw new BaseXException(name + ": " + algo+ " occurs more than once.");
+    passwords.put(algo,ec);
     for (    final ANode code : children(password,null)) {
-      ec.put(value(name,code.qname().id(),algo.codes),string(code.string()));
+      final Code cd=value(name,code.qname().id(),algo.codes);
+      if (ec.containsKey(cd))       throw new BaseXException(name + ", " + algo+ ": "+ code+ " occurs more than once.");
+      ec.put(cd,string(code.string()));
     }
     for (    final Code code : algo.codes) {
       if (ec.get(code) == null)       throw new BaseXException(name + ", " + algo+ ": "+ code+ " missing.");
     }
-    passwords.put(algo,ec);
   }
   for (  final Algorithm algo : Algorithm.values()) {
     if (passwords.get(algo) == null)     throw new BaseXException(name + ": " + algo+ " missing.");
