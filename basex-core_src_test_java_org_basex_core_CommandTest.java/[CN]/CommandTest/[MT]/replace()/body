@@ -1,5 +1,5 @@
 {
-  final String count="count(db:open('" + NAME + "'))";
+  final String count=COUNT.args(_DB_OPEN.args(NAME));
   no(new Replace(FILE,"xxx"));
   ok(new CreateDB(NAME,FILE));
   assertEquals("1",ok(new XQuery(count)));
@@ -9,10 +9,10 @@
   assertEquals("1",ok(new XQuery(count)));
   no(new Replace(FN,""));
   assertEquals("1",ok(new XQuery(count)));
-  ok(new XQuery("db:store('" + NAME + "', 'a', 'a')"));
+  ok(new XQuery(_DB_STORE.args(NAME,"a","a")));
   ok(new Replace("a","<b/>"));
-  assertFalse(ok(new XQuery("db:open('" + NAME + "')")).isEmpty());
-  ok(new XQuery("db:retrieve('" + NAME + "', 'a')"));
+  assertFalse(ok(new XQuery(_DB_OPEN.args(NAME))).isEmpty());
+  ok(new XQuery(_DB_RETRIEVE.args(NAME,"a")));
   no(new Replace(FN,"<a>"));
   assertEquals("1",ok(new XQuery(count)));
 }
