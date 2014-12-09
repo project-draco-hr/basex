@@ -3,27 +3,23 @@
   try {
     final byte[] io=file.read();
     final IOContent content=new IOContent(io,file.path());
-    if (startsWith(io,'<')) {
-      final MainOptions options=new MainOptions(false);
-      options.set(MainOptions.INTPARSE,true);
-      final ANode doc=new DBNode(Parser.singleParser(content,options,""));
-      final ANode users=children(doc,USERS).next();
-      if (users == null) {
-        Util.errln(file.name() + ": Missing 'users' root element.");
-      }
- else {
-        for (        final ANode user : children(users,USER)) {
-          try {
-            list.add(new User(user,global));
-          }
- catch (          final BaseXException ex) {
-            Util.errln(file.name() + ": " + ex.getLocalizedMessage());
-          }
-        }
-      }
+    if (!startsWith(io,'<'))     return;
+    final MainOptions options=new MainOptions(false);
+    options.set(MainOptions.INTPARSE,true);
+    final ANode doc=new DBNode(Parser.singleParser(content,options,""));
+    final ANode root=children(doc,USERS).next();
+    if (root == null) {
+      Util.errln(file.name() + ": Missing 'users' root element.");
     }
  else {
-      read(new DataInput(content));
+      for (      final ANode child : children(root,USER)) {
+        try {
+          users.add(new User(child));
+        }
+ catch (        final BaseXException ex) {
+          Util.errln(file.name() + ": " + ex.getLocalizedMessage());
+        }
+      }
     }
   }
  catch (  final IOException ex) {

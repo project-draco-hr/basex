@@ -1,10 +1,9 @@
 {
   checkAdmin(qc);
-  final User user=toUser(exprs[0],qc);
-  final String perm=Token.string(toToken(exprs[1],qc));
+  final User user=checkSessions(toUser(0,qc),qc);
+  final Perm perm=toPerm(1,qc);
+  final String db=toDB(2,qc);
   if (user.name().equals(UserText.ADMIN))   throw BXUS_ADMIN.get(info);
-  final Perm p=Perm.get(perm);
-  if (p == null)   throw BXUS_PERM_X.get(info,perm);
-  qc.resources.updates().add(new Grant(user,p,qc,ii),qc);
+  qc.resources.updates().add(new Grant(user,perm,db,qc,ii),qc);
   return null;
 }
