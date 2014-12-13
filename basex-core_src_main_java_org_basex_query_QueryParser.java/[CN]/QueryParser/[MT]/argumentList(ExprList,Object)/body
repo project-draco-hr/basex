@@ -3,13 +3,15 @@
   if (!wsConsume(PAREN2)) {
     int i=args.size();
     do {
-      if (wsConsume(QUESTION)) {
+      final Expr e=single();
+      if (e != null) {
+        args.add(e);
+      }
+ else       if (wsConsume(QUESTION)) {
         holes=holes == null ? new int[]{i} : Array.add(holes,i);
       }
  else {
-        final Expr e=single();
-        if (e == null)         throw error(FUNCMISS_X,name);
-        args.add(e);
+        throw error(FUNCMISS_X,name);
       }
       i++;
     }

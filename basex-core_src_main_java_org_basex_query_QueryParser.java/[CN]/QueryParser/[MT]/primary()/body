@@ -22,7 +22,11 @@
     wsCheck(CURLY2);
     return a == null ? new CArray(info(),true) : new CArray(info(),true,a);
   }
-  if (wsConsumeWs(QUESTION))   return new Lookup(info(),keySpecifier());
+  final int ip=pos;
+  if (consume(QUESTION)) {
+    if (!wsConsume(COMMA) && !consume(PAREN2))     return new Lookup(info(),keySpecifier());
+    pos=ip;
+  }
   if (c == '.' && !digit(next())) {
     if (next() == '.')     return null;
     consume('.');
