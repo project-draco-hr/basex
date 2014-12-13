@@ -13,19 +13,19 @@
   }
   tested++;
   final XdmValue expected=new XQuery("*:result/*[1]",ctx).context(test).value();
-  QT3Env e=null;
+  QT3Env env=null;
   final XdmValue ienv=new XQuery("*:environment[*]",ctx).context(test).value();
-  if (ienv.size() != 0)   e=new QT3Env(ctx,ienv);
+  if (ienv.size() != 0)   env=new QT3Env(ctx,ienv);
   boolean base=true;
-  if (e == null) {
-    final String env=asString("*:environment/@ref",test);
-    if (!env.isEmpty()) {
-      e=envs(envs,env);
-      if (e == null) {
-        e=envs(genvs,env);
+  if (env == null) {
+    final String e=asString("*:environment[1]/@ref",test);
+    if (!e.isEmpty()) {
+      env=envs(envs,e);
+      if (env == null) {
+        env=envs(genvs,e);
         base=false;
       }
-      if (e == null)       Util.errln("%: environment '%' not found.",name,env);
+      if (env == null)       Util.errln("%: environment '%' not found.",name,e);
     }
   }
   final Performance perf=new Performance();
@@ -38,14 +38,14 @@
     string=string(new IOFile(baseDir,qfile).read());
   }
   if (verbose)   Util.outln(name);
-  if (e != null) {
-    for (    final HashMap<String,String> par : e.params) {
+  if (env != null) {
+    for (    final HashMap<String,String> par : env.params) {
       final String decl=par.get(DECLARED);
       if (decl == null || decl.equals("false")) {
         string="declare variable $" + par.get(NNAME) + " external;"+ string;
       }
     }
-    for (    final HashMap<String,String> src : e.sources) {
+    for (    final HashMap<String,String> src : env.sources) {
       final String role=src.get(ROLE);
       if (role != null && role.startsWith("$")) {
         string="declare variable " + role + " external;"+ string;
@@ -65,14 +65,14 @@
   }
   final QT3Result result=new QT3Result();
   try {
-    if (e != null) {
-      for (      final HashMap<String,String> ns : e.namespaces) {
+    if (env != null) {
+      for (      final HashMap<String,String> ns : env.namespaces) {
         query.namespace(ns.get(PREFIX),ns.get(URI));
       }
-      for (      final HashMap<String,String> par : e.params) {
+      for (      final HashMap<String,String> par : env.params) {
         query.bind(par.get(NNAME),new XQuery(par.get(SELECT),ctx).value());
       }
-      for (      final HashMap<String,String> src : e.sources) {
+      for (      final HashMap<String,String> src : env.sources) {
         final String file=file(base,src.get(FILE));
         query.addDocument(src.get(URI),file);
         final String role=src.get(ROLE);
@@ -81,18 +81,18 @@
         if (role.equals("."))         query.context(doc);
  else         query.bind(role,doc);
       }
-      for (      final HashMap<String,String> src : e.resources) {
+      for (      final HashMap<String,String> src : env.resources) {
         query.addResource(src.get(URI),file(base,src.get(FILE)),src.get(Prop.ENCODING));
       }
-      query.addCollection(e.collURI,e.collSources.toArray());
-      if (e.collContext) {
-        query.context(query.collection(e.collURI));
+      query.addCollection(env.collURI,env.collSources.toArray());
+      if (env.collContext) {
+        query.context(query.collection(env.collURI));
       }
-      if (e.context != null) {
-        query.context(e.context);
+      if (env.context != null) {
+        query.context(env.context);
       }
-      if (e.baseURI != null)       query.baseURI(e.baseURI);
-      for (      final Map.Entry<QName,HashMap<String,String>> df : e.decFormats.entrySet()) {
+      if (env.baseURI != null)       query.baseURI(env.baseURI);
+      for (      final Map.Entry<QName,HashMap<String,String>> df : env.decFormats.entrySet()) {
         query.decimalFormat(df.getKey(),df.getValue());
       }
     }
