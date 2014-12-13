@@ -100,7 +100,7 @@
     result.sprop=query.serializer();
   }
  catch (  final XQueryException ex) {
-    result.err=ex;
+    result.xqerror=ex;
     result.value=null;
   }
 catch (  final Throwable ex) {
@@ -122,8 +122,8 @@ catch (  final Throwable ex) {
     if (result.error != null) {
       res=result.error.toString();
     }
- else     if (result.err != null) {
-      res=result.err.getCode() + ": " + result.err.getLocalizedMessage();
+ else     if (result.xqerror != null) {
+      res=result.xqerror.getCode() + ": " + result.xqerror.getLocalizedMessage();
     }
  else {
       result.sprop.set(SerializerOptions.OMIT_XML_DECLARATION,"yes");
@@ -135,8 +135,7 @@ catch (  final Throwable ex) {
     err=true;
   }
 catch (  final Throwable ex) {
-    res="Unexpected: " + ex.toString();
-    err=true;
+    res=result.value.toString();
   }
   tmp.add(err ? "Error : " : "Result: ").add(noComments(res)).add(NL);
   if (exp == null) {
