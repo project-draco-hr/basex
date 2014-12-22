@@ -4,11 +4,34 @@
   seqType=FuncType.get(ann,args,rt).seqType();
   size=1;
   try {
-    for (    final Entry<Var,Value> e : staticBindings()) {
+    final Iterator<Entry<Var,Expr>> cls=nonLocal.entrySet().iterator();
+    Map<Var,Expr> add=null;
+    while (cls.hasNext()) {
+      final Entry<Var,Expr> e=cls.next();
       final Var v=e.getKey();
-      final Expr inlined=expr.inline(qc,scope,v,v.checkType(e.getValue(),qc,info,true));
-      if (inlined != null)       expr=inlined;
+      final Expr c=e.getValue();
+      if (c instanceof Value) {
+        final Expr inlined=expr.inline(qc,scope,v,v.checkType((Value)c,qc,info,true));
+        if (inlined != null)         expr=inlined;
+        cls.remove();
+      }
+ else       if (c instanceof Closure) {
+        final Closure cl=(Closure)c;
+        if (!cl.has(Flag.NDT) && cl.nonLocal.size() < 5 && expr.count(v) != VarUsage.MORE_THAN_ONCE && cl.exprSize() < qc.context.options.get(MainOptions.INLINELIMIT)) {
+          qc.compInfo(OPTINLINE,e);
+          for (          final Entry<Var,Expr> e2 : cl.nonLocal.entrySet()) {
+            final Var v2=e2.getKey(), v2c=scope.newCopyOf(qc,v2);
+            if (add == null)             add=new HashMap<>();
+            add.put(v2c,e2.getValue());
+            e2.setValue(new VarRef(cl.info,v2c));
+          }
+          final Expr inlined=expr.inline(qc,scope,v,cl);
+          if (inlined != null)           expr=inlined;
+          cls.remove();
+        }
+      }
     }
+    if (add != null)     nonLocal.putAll(add);
   }
  catch (  final QueryException qe) {
     expr=FnError.get(qe,ret != null ? ret : expr.seqType());
