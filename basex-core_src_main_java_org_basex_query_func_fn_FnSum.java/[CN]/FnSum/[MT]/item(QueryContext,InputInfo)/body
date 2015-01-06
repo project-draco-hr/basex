@@ -8,6 +8,17 @@
     }
   }
   final Iter iter=exprs[0].atomIter(qc,ii);
+  Item def=null;
+  if (exprs.length == 2) {
+    def=exprs[1].atomItem(qc,ii);
+    if (def != null) {
+      if (def.type.isUntyped())       def=Dbl.get(def.dbl(info));
+ else       if (!(def instanceof ANum) && !(def instanceof Dur))       throw SUM_X_X.get(info,def.type,def);
+    }
+  }
+ else {
+    def=Int.get(0);
+  }
   final Item it=iter.next();
-  return it != null ? sum(iter,it,false) : exprs.length == 2 ? exprs[1].atomItem(qc,ii) : Int.get(0);
+  return it != null ? sum(iter,it,false) : def;
 }
