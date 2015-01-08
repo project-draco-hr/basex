@@ -5,10 +5,10 @@
     backups.add(db);
   }
  else {
-    final String regex=db.replaceAll("([" + REGEXCHARS + "])","\\\\$1") + DateTime.PATTERN + IO.ZIPSUFFIX;
+    final Pattern regex=regex(db,DateTime.PATTERN + '\\' + IO.ZIPSUFFIX);
     for (    final IOFile f : soptions.dbpath().children()) {
       final String n=f.name();
-      if (n.matches(regex))       backups.add(n.substring(0,n.lastIndexOf('.')));
+      if (regex.matcher(n).matches())       backups.add(n.substring(0,n.lastIndexOf('.')));
     }
   }
   return backups.sort(Prop.CASE,false);
