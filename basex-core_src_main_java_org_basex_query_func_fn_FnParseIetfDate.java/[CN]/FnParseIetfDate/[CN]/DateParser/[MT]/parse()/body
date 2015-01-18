@@ -11,10 +11,11 @@
   if (seconds.scale() > 0) {
     tb.add(seconds.subtract(BigDecimal.valueOf(sec)).toString().substring(1));
   }
-  if (zone != 0) {
-    tb.add(zone < 0 ? '-' : '+');
-    addNumber(tb,Math.abs(zone / 60),2).add(':');
-    addNumber(tb,Math.abs(zone % 60),2);
+  final int z=zone == null ? 0 : zone;
+  if (z != 0) {
+    tb.add(z < 0 ? '-' : '+');
+    addNumber(tb,Math.abs(z / 60),2).add(':');
+    addNumber(tb,Math.abs(z % 60),2);
   }
  else {
     tb.add('Z');
@@ -23,6 +24,6 @@
     return new Dtm(tb.finish(),info);
   }
  catch (  final QueryException ex) {
-    throw QueryError.IETF_INIT_X.get(info,ex);
+    throw QueryError.IETF_INV_X.get(info,original);
   }
 }
