@@ -12,46 +12,44 @@
     input=string(file.read());
     qc.parse(input,file.path(),null);
     for (    final StaticFunc sf : qc.funcs.funcs()) {
-      final int as=sf.ann.size();
+      final AnnList anns=sf.anns;
       boolean xq=false;
-      for (int a=0; !xq && a < as; a++) {
-        xq|=eq(sf.ann.names[a].uri(),QueryText.UNIT_URI);
-      }
+      for (      final Ann ann : anns)       xq|=eq(ann.sig.uri,QueryText.UNIT_URI);
       if (!xq)       continue;
-      if (sf.ann.contains(Ann.Q_PRIVATE))       throw UNIT_PRIVATE_X.get(null,sf.name.local());
+      if (anns.contains(PRIVATE))       throw UNIT_PRIVATE_X.get(null,sf.name.local());
       if (sf.args.length > 0)       throw UNIT_ARGS_X.get(null,sf.name.local());
-      if (indexOf(sf,BEFORE_MODULE) != -1)       beforeModule.add(sf);
-      if (indexOf(sf,AFTER_MODULE) != -1)       afterModule.add(sf);
-      int i=indexOf(sf,BEFORE);
-      if (i != -1) {
+      if (anns.contains(_UNIT_BEFORE_MODULE))       beforeModule.add(sf);
+      if (anns.contains(_UNIT_AFTER_MODULE))       afterModule.add(sf);
+      final Ann b=anns.get(_UNIT_BEFORE);
+      if (b != null) {
         before.add(sf);
-        beforeFilter.add(name(sf,i));
+        beforeFilter.add(name(sf,b));
       }
-      i=indexOf(sf,AFTER);
-      if (i != -1) {
+      final Ann a=anns.get(_UNIT_AFTER);
+      if (a != null) {
         after.add(sf);
-        afterFilter.add(name(sf,i));
+        afterFilter.add(name(sf,a));
       }
-      if (indexOf(sf,TEST) != -1)       test.add(sf);
+      if (anns.contains(_UNIT_TEST))       test.add(sf);
     }
     for (    final StaticFunc sf : beforeModule)     eval(sf);
     for (    final StaticFunc sf : test) {
-      final Value values=sf.ann.values[indexOf(sf,TEST)];
-      final long vs=values.size();
+      final AnnList anns=sf.anns;
+      final Ann ann=anns.get(_UNIT_TEST);
+      final Item[] args=ann.args;
+      final int vs=args.length;
       byte[] code=null;
-      if (vs != 0) {
-        if (vs == 2 && eq(EXPECTED,values.itemAt(0).string(null))) {
-          code=values.itemAt(1).string(null);
-        }
- else {
-          throw UNIT_ANN_X_X.get(null,'%',sf.ann.names[0]);
-        }
+      if (vs == 2 && eq(EXPECTED,args[0].string(null))) {
+        code=args[1].string(null);
+      }
+ else       if (vs != 0) {
+        throw BASX_ANNNUM_X_X_X.get(ann.info,ann,vs,vs == 1 ? "" : "s");
       }
       final FElem testcase=new FElem(TESTCASE).add(NAME,sf.name.local());
       tests++;
       final Performance perf2=new Performance();
-      final int skip=indexOf(sf,IGNORE);
-      if (skip == -1) {
+      final Ann ignore=anns.get(Annotation._UNIT_IGNORE);
+      if (ignore == null) {
         try {
           int l=before.size();
           for (int i=0; i < l; i++) {
@@ -74,8 +72,7 @@
         }
       }
  else {
-        final Value sv=sf.ann.values[skip];
-        testcase.add(SKIPPED,sv.isEmpty() ? EMPTY : sv.itemAt(0).string(null));
+        testcase.add(SKIPPED,ignore.args.length == 0 ? EMPTY : ignore.args[0].string(null));
         skipped++;
       }
       testcase.add(TIME,time(perf2));

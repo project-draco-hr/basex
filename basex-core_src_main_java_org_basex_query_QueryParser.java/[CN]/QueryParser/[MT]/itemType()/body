@@ -5,7 +5,7 @@
     wsCheck(PAREN2);
     return ret;
   }
-  final Ann ann=curr('%') ? annotations() : null;
+  final AnnList anns=annotations(false).check(false);
   final QNm name=eQName(TYPEINVALID,null);
   skipWs();
   final boolean func=curr('(');
@@ -16,7 +16,7 @@
     if (t == null)     t=NodeType.find(name);
     if (t == null) {
       t=FuncType.find(name);
-      if (t != null)       return functionTest(ann,t).seqType();
+      if (t != null)       return functionTest(anns,t).seqType();
     }
     if (t == null)     throw error(WHICHTYPE_X,name.prefixId(XML));
   }
@@ -25,7 +25,7 @@
     t=AtomType.find(name,false);
     if (t == null)     throw error(TYPEUNKNOWN_X,name.prefixId(XML));
   }
-  if (ann != null)   throw error(NOANN);
+  if (!anns.isEmpty())   throw error(NOANN);
   if (!func || wsConsume(PAREN2))   return t.seqType();
   if (!(t instanceof NodeType))   wsCheck(PAREN2);
   return SeqType.get(t,Occ.ONE,kindTest((NodeType)t));

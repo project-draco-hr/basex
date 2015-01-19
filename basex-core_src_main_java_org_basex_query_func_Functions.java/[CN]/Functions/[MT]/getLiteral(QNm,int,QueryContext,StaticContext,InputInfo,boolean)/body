@@ -4,15 +4,15 @@
     final VarScope scp=new VarScope(sc);
     final Var[] args={scp.newLocal(qc,new QNm(ITEMM,""),SeqType.AAT_ZO,true)};
     final Expr e=new Cast(sc,ii,new VarRef(ii,args[0]),type.seqType());
-    final Ann ann=new Ann();
-    final FuncType ft=FuncType.get(ann,args,e.seqType());
-    return closureOrFItem(ann,name,args,ft,e,scp,sc,ii,runtime,false);
+    final AnnList anns=new AnnList();
+    final FuncType ft=FuncType.get(anns,args,e.seqType());
+    return closureOrFItem(anns,name,args,ft,e,scp,sc,ii,runtime,false);
   }
   final Function fn=get().getBuiltIn(name,arity,ii);
   if (fn != null) {
-    final Ann ann=new Ann();
+    final AnnList anns=new AnnList();
     final VarScope scp=new VarScope(sc);
-    final FuncType ft=fn.type(arity,ann);
+    final FuncType ft=fn.type(arity,anns);
     final QNm[] argNames=fn.argNames(arity);
     final Var[] args=new Var[arity];
     final Expr[] calls=new Expr[arity];
@@ -24,10 +24,10 @@
     final boolean upd=sf.has(Flag.UPD);
     if (upd) {
       qc.updating();
-      ann.add(Ann.Q_UPDATING,Empty.SEQ,ii);
+      anns.add(new Ann(ii,Annotation.UPDATING));
     }
-    if (!sf.has(Flag.CTX) && !sf.has(Flag.FCS))     return closureOrFItem(ann,name,args,fn.type(arity,ann),sf,scp,sc,ii,runtime,upd);
-    return new FuncLit(ann,name,args,sf,ft,scp,sc,ii);
+    if (!sf.has(Flag.CTX) && !sf.has(Flag.FCS))     return closureOrFItem(anns,name,args,fn.type(arity,anns),sf,scp,sc,ii,runtime,upd);
+    return new FuncLit(anns,name,args,sf,ft,scp,sc,ii);
   }
   final StaticFunc sf=qc.funcs.get(name,arity,ii,true);
   if (sf != null) {
@@ -41,7 +41,7 @@
     }
     final boolean upd=sf.updating;
     final TypedFunc tf=qc.funcs.getFuncRef(sf.name,calls,sc,ii);
-    final Expr f=closureOrFItem(tf.ann,sf.name,args,ft,tf.fun,scp,sc,ii,runtime,upd);
+    final Expr f=closureOrFItem(tf.anns,sf.name,args,ft,tf.fun,scp,sc,ii,runtime,upd);
     if (upd)     qc.updating();
     return f;
   }
@@ -55,5 +55,5 @@
     refs[v]=new VarRef(ii,vs[v]);
   }
   final Expr jm=JavaMapping.get(name,refs,qc,sc,ii);
-  return jm == null ? null : new FuncLit(new Ann(),name,vs,jm,jt,scp,sc,ii);
+  return jm == null ? null : new FuncLit(new AnnList(),name,vs,jm,jt,scp,sc,ii);
 }
