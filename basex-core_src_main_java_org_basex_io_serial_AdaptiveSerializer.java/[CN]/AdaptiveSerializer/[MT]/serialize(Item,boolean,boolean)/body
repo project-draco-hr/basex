@@ -1,0 +1,27 @@
+{
+  if (sep)   xml.printChars(itemsep);
+  if (item instanceof FItem) {
+    if (item instanceof Map || item instanceof Array) {
+      json.serialize(item);
+      json.reset();
+    }
+ else {
+      final FItem fi=(FItem)item;
+      final TokenBuilder tb=new TokenBuilder("function ");
+      final QNm fn=fi.funcName();
+      if (fn == null)       tb.add("(anonymous)");
+ else       tb.add(fn.string());
+      xml.out.print(tb.add('#').addInt(fi.arity()).finish());
+    }
+  }
+ else {
+    if (item instanceof ANode) {
+      xml.serialize((ANode)item);
+    }
+ else {
+      xml.serialize(item,atts,iter);
+    }
+    xml.reset();
+  }
+  sep=true;
+}

@@ -1,17 +1,17 @@
 {
-  if (comma.get(lvl))   print(',');
- else   comma.set(lvl,true);
-  if (lvl > 0) {
+  if (comma.get(level))   out.print(',');
+ else   comma.set(level,true);
+  if (level > 0) {
     indent();
-    final byte[] ptype=types.get(lvl - 1);
+    final byte[] ptype=types.get(level - 1);
     if (eq(ptype,OBJECT)) {
       if (atts && !eq(elem,PAIR))       throw error("<%> found, <%> expected",elem,PAIR);
       if (key == null)       throw error("<%> has no name attribute",elem);
-      print('"');
+      out.print('"');
       final byte[] name=atts ? key : XMLToken.decode(key,lax);
       if (name == null)       throw error("Name of element <%> is invalid",key);
-      print(name);
-      print("\":");
+      out.print(name);
+      out.print("\":");
     }
  else     if (eq(ptype,ARRAY)) {
       if (atts) {
@@ -23,10 +23,10 @@
       }
     }
  else {
-      throw error("<%> is typed as \"%\" and cannot be nested",elems.get(lvl - 1),ptype);
+      throw error("<%> is typed as \"%\" and cannot be nested",elems.get(level - 1),ptype);
     }
   }
-  byte[] type=types.get(lvl);
+  byte[] type=types.get(level);
   if (type == null) {
     if (key != null) {
       final int tl=typeCache.length;
@@ -35,12 +35,12 @@
       }
     }
     if (type == null)     type=STRING;
-    types.set(lvl,type);
+    types.set(level,type);
   }
   if (eq(type,OBJECT)) {
-    print('{');
+    out.print('{');
   }
  else   if (eq(type,ARRAY)) {
-    print('[');
+    out.print('[');
   }
 }
