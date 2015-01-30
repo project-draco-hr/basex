@@ -63,7 +63,7 @@
     if (file == null)     break;
     query.addModule(uri.getString(),baseDir + file.getString());
   }
-  final QT3Result result=new QT3Result();
+  final QT3Result returned=new QT3Result();
   try {
     if (env != null) {
       for (      final HashMap<String,String> ns : env.namespaces) {
@@ -96,15 +96,15 @@
         query.decimalFormat(df.getKey(),df.getValue());
       }
     }
-    result.value=query.value();
-    result.sprop=query.serializer();
+    returned.value=query.value();
+    returned.sprop=query.serializer();
   }
  catch (  final XQueryException ex) {
-    result.xqerror=ex;
-    result.value=null;
+    returned.xqerror=ex;
+    returned.value=null;
   }
 catch (  final Throwable ex) {
-    result.error=ex;
+    returned.error=ex;
     Util.errln("Query: " + name);
     ex.printStackTrace();
   }
@@ -112,22 +112,22 @@ catch (  final Throwable ex) {
     final long l=perf.time();
     if (l > 100000000)     slow.put(-l,name);
   }
-  final String exp=test(result,expected);
+  final String exp=test(returned,expected);
   final TokenBuilder tmp=new TokenBuilder();
   tmp.add(name).add(NL);
   tmp.add(noComments(string)).add(NL);
-  boolean err=result.value == null;
+  boolean err=returned.value == null;
   String res;
   try {
-    if (result.error != null) {
-      res=result.error.toString();
+    if (returned.error != null) {
+      res=returned.error.toString();
     }
- else     if (result.xqerror != null) {
-      res=result.xqerror.getCode() + ": " + result.xqerror.getLocalizedMessage();
+ else     if (returned.xqerror != null) {
+      res=returned.xqerror.getCode() + ": " + returned.xqerror.getLocalizedMessage();
     }
  else {
-      result.sprop.set(SerializerOptions.OMIT_XML_DECLARATION,"yes");
-      res=serialize(result.value,result.sprop);
+      returned.sprop.set(SerializerOptions.OMIT_XML_DECLARATION,"yes");
+      res=serialize(returned.value,returned.sprop);
     }
   }
  catch (  final XQueryException ex) {
@@ -135,7 +135,7 @@ catch (  final Throwable ex) {
     err=true;
   }
 catch (  final Throwable ex) {
-    res=result.value.toString();
+    res=returned.value.toString();
   }
   tmp.add(err ? "Error : " : "Result: ").add(noComments(res)).add(NL);
   if (exp == null) {
