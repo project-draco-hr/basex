@@ -10,7 +10,8 @@
     qc.value=cv;
   }
   if (preds.length == 0)   return root;
-  if (path(root,preds))   return ((AxisPath)root).addPreds(preds).optimize(qc,scp);
+  final Path p=path(root,preds);
+  if (p != null)   return p.optimize(qc,scp);
   final SeqType st=root.seqType();
   final long s=root.size();
   if (s == -1) {
@@ -25,6 +26,11 @@
     }
     if (size == 0)     return optPre(qc);
     seqType=SeqType.get(st.type,size);
+  }
+  if (root instanceof Context || root instanceof Value && root.data() != null) {
+    final Path ip=Path.get(info,root,Step.get(info,SELF,Test.NOD,preds));
+    final Expr ie=ip.index(qc,Path.initial(qc,root));
+    if (ie != ip)     return ie;
   }
   if (!super.has(Flag.FCS))   return copy(new IterFilter(info,root,preds));
   boolean iter=false, index=false;

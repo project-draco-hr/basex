@@ -1,4 +1,5 @@
 {
+  if (rt == null)   return this;
   final Data data=rt.data();
   if (data == null)   return this;
   IndexInfo index=null;
@@ -26,12 +27,7 @@
   }
   if (index == null || index.costs > data.meta.size)   return this;
   qc.compInfo(index.info);
-  final Step indexStep=index.step;
-  final int pl=indexStep.preds.length;
-  final ExprList newPreds=new ExprList(pl - 1);
-  for (int p=0; p < pl; p++) {
-    if (p != iPred)     newPreds.add(indexStep.preds[p]);
-  }
+  final ExprList newPreds=new ExprList();
   final Test test=InvDocTest.get(rt);
   final ExprList invSteps=new ExprList();
   if (test != Test.DOC || !data.meta.uptodate || predSteps(data,iStep)) {
@@ -47,6 +43,11 @@
     }
   }
   if (!invSteps.isEmpty())   newPreds.add(get(info,null,invSteps.finish()));
+  final Step indexStep=index.step;
+  final int pl=indexStep.preds.length;
+  for (int p=0; p < pl; p++) {
+    if (p != iPred)     newPreds.add(indexStep.preds[p]);
+  }
   final ExprList resultSteps=new ExprList();
   final Expr resultRoot;
   if (index.expr instanceof Path) {
