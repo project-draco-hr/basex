@@ -1,11 +1,4 @@
 {
   final TrieNode del=root.delete(key.hash(ii),key,0,ii);
-  if (del == root)   return this;
-  if (del == null)   return EMPTY;
-  int t=dt;
-  if (key instanceof ADate) {
-    final boolean tz=((ADate)key).zon() != Short.MAX_VALUE;
-    t+=tz ? -1 : +1;
-  }
-  return new Map(del,t);
+  return del == root ? this : del == null ? EMPTY : new Map(del,dt + (key instanceof ADate ? ((ADate)key).tzDefined() ? -1 : 1 : 0));
 }
