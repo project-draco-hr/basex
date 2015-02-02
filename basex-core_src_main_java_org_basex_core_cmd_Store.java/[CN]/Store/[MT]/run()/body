@@ -13,15 +13,17 @@
   final IOFile file=data.meta.binary(path);
   if (path.isEmpty() || path.endsWith(".") || file == null)   return error(PATH_INVALID_X,create ? path : args[0]);
   if (lock && !startUpdate())   return false;
+  boolean ok=true;
   try {
     store(in,file);
-    return info(QUERY_EXECUTED_X_X,"",perf);
+    ok=info(QUERY_EXECUTED_X_X,"",perf);
   }
  catch (  final IOException ex) {
     Util.debug(ex);
-    return error(FILE_NOT_SAVED_X,file);
+    ok=error(FILE_NOT_SAVED_X,file);
   }
  finally {
-    if (lock && !finishUpdate())     return false;
+    if (lock)     ok&=finishUpdate();
   }
+  return ok;
 }
