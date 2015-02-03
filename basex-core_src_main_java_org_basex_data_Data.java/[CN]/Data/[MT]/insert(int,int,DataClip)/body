@@ -33,7 +33,7 @@ switch (kind) {
 case DOC:
       nspaces.prepare();
     doc(pre,ssize,data.text(spre,true));
-  meta.ndocs.incrementAndGet();
+  ++meta.ndocs;
 preStack.push(pre);
 break;
 case ELEM:
@@ -50,8 +50,8 @@ ne=true;
 }
 }
 }
-byte[] nm=data.name(spre,kind);
-elem(dist,elemNames.index(nm,null,false),data.attSize(spre,kind),ssize,nspaces.uri(nm,true),ne);
+final byte[] en=data.name(spre,kind);
+elem(dist,elemNames.index(en,null,false),data.attSize(spre,kind),ssize,nspaces.uri(en,true),ne);
 preStack.push(pre);
 break;
 case TEXT:
@@ -60,13 +60,13 @@ case PI:
 text(pre,dist,data.text(spre,true),kind);
 break;
 case ATTR:
-nm=data.name(spre,kind);
-final byte[] attPref=prefix(nm);
+final byte[] an=data.name(spre,kind);
+final byte[] attPref=prefix(an);
 if (data.nsFlag(spre) && nsScope.get(attPref) == null) {
 nspaces.add(nsPre,preStack.isEmpty() ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(spre,kind)),this);
 flagPres.add(nsPre);
 }
-attr(pre,dist,attrNames.index(nm,null,false),data.text(spre,false),nspaces.uri(nm,false),false);
+attr(pre,dist,attrNames.index(an,null,false),data.text(spre,false),nspaces.uri(an,false),false);
 break;
 }
 Namespaces.incrementPre(nsNodesShift,1);

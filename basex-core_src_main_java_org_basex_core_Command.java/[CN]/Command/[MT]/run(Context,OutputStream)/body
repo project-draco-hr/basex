@@ -7,13 +7,14 @@
     abort();
     return error(INTERRUPTED);
   }
-catch (  final Throwable ex) {
+catch (  final OutOfMemoryError ex) {
     Performance.gc(2);
     abort();
-    if (ex instanceof OutOfMemoryError) {
-      Util.debug(ex);
-      return error(OUT_OF_MEM + (perm == Perm.CREATE ? H_OUT_OF_MEM : ""));
-    }
+    Util.debug(ex);
+    return error(OUT_OF_MEM + (perm == Perm.CREATE ? H_OUT_OF_MEM : ""));
+  }
+catch (  final Throwable ex) {
+    abort();
     return error(Util.bug(ex) + Prop.NL + info);
   }
  finally {

@@ -3,13 +3,13 @@
   if (!(type instanceof FuncType))   throw Util.notExpected("Closure was not compiled: %",this);
   final FuncType ft=(FuncType)type;
   final Expr body;
-  if (!nonLocal.isEmpty()) {
-    final LinkedList<GFLWOR.Clause> cls=new LinkedList<>();
-    for (    final Entry<Var,Expr> e : nonLocal.entrySet())     cls.add(new Let(e.getKey(),e.getValue().value(qc),false,ii));
-    body=new GFLWOR(ii,cls,expr);
+  if (nonLocal.isEmpty()) {
+    body=expr;
   }
  else {
-    body=expr;
+    final LinkedList<Clause> cls=new LinkedList<>();
+    for (    final Entry<Var,Expr> e : nonLocal.entrySet())     cls.add(new Let(e.getKey(),e.getValue().value(qc),false,ii));
+    body=new GFLWOR(ii,cls,expr);
   }
   final SeqType argType=body.seqType();
   final Expr checked;
@@ -27,7 +27,7 @@
   }
  else {
     if (argType.type.instanceOf(ret.type) && !body.has(Flag.NDT) && !body.has(Flag.UPD)) {
-      final SeqType.Occ occ=argType.occ.intersect(ret.occ);
+      final Occ occ=argType.occ.intersect(ret.occ);
       if (occ == null)       throw INVTREAT_X_X.get(info,argType,ret);
     }
     checked=new TypeCheck(sc,info,body,ret,true);

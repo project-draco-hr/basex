@@ -2,5 +2,16 @@
   final byte[] b=tok(dbl);
   if (b != null)   return b;
   final double a=Math.abs(dbl);
-  return chopNumber(token(a >= 1e-6 && a < 1e6 ? DD.format(dbl) : SD.format(dbl)));
+  final String s;
+  if (a >= 1e-6 && a < 1e6) {
+synchronized (DD) {
+      s=DD.format(dbl);
+    }
+  }
+ else {
+synchronized (SD) {
+      s=SD.format(dbl);
+    }
+  }
+  return chopNumber(token(s));
 }
