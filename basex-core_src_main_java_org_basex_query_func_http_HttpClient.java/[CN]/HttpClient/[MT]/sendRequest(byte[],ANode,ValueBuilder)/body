@@ -2,7 +2,7 @@
   try {
     if (request == null) {
       if (href == null || href.length == 0)       throw HC_PARAMS.get(info);
-      final HttpURLConnection conn=openConnection(string(href));
+      final HttpURLConnection conn=connect(string(href),null);
       try {
         return new HttpResponse(info,options).getResponse(conn,Bln.FALSE.string(),null);
       }
@@ -13,19 +13,19 @@
     final HttpRequest r=new HttpRequestParser(info).parse(request,bodies);
     final byte[] dest=href == null ? r.attrs.get(HREF) : href;
     if (dest == null)     throw HC_URL.get(info);
-    final HttpURLConnection conn=openConnection(string(dest));
+    HttpURLConnection conn=null;
     try {
-      setConnectionProps(conn,r);
-      setRequestHeaders(conn,r);
+      conn=connect(string(dest),r);
+      authenticate(conn,r);
       if (r.bodyContent.size() != 0 || !r.parts.isEmpty()) {
         setContentType(conn,r);
         setRequestContent(conn.getOutputStream(),r);
       }
-      final byte[] mt=r.attrs.get(OVERRIDE_MEDIA_TYPE);
-      return new HttpResponse(info,options).getResponse(conn,r.attrs.get(STATUS_ONLY),mt == null ? null : string(mt));
+      final byte[] m=r.attrs.get(OVERRIDE_MEDIA_TYPE), s=r.attrs.get(STATUS_ONLY);
+      return new HttpResponse(info,options).getResponse(conn,s,m == null ? null : string(m));
     }
   finally {
-      conn.disconnect();
+      if (conn != null)       conn.disconnect();
     }
   }
  catch (  final IOException ex) {

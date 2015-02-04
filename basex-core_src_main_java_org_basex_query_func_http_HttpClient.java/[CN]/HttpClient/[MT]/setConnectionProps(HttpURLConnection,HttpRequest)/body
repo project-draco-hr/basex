@@ -1,12 +1,14 @@
 {
-  conn.setDoOutput(true);
   final String method=string(r.attrs.get(METHOD)).toUpperCase(Locale.ENGLISH);
+  final HTTPMethod mth=HTTPMethod.get(method);
+  if (mth == HTTPMethod.POST || mth == HTTPMethod.PUT)   conn.setDoOutput(true);
   try {
     final Field f=conn.getClass().getSuperclass().getDeclaredField("method");
     f.setAccessible(true);
     f.set(conn,method);
   }
  catch (  final Throwable th) {
+    Util.debug(th);
     conn.setRequestMethod(method);
   }
   final byte[] timeout=r.attrs.get(TIMEOUT);
