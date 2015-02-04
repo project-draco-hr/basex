@@ -1,9 +1,11 @@
 {
-  final HttpURLConnection conn=connection(url,r);
-  if (r != null) {
-    final byte[] sendAuth=r.attrs.get(SEND_AUTHORIZATION);
+  final HttpURLConnection conn=connection(url,request);
+  if (request != null) {
+    final byte[] sendAuth=request.attrs.get(SEND_AUTHORIZATION);
     if (sendAuth != null && Bln.parse(sendAuth,info)) {
-      conn.setRequestProperty(AUTHORIZATION,encodeCredentials(string(r.attrs.get(USERNAME)),string(r.attrs.get(PASSWORD))));
+      final String user=string(request.attrs.get(USERNAME));
+      final String pass=string(request.attrs.get(PASSWORD));
+      conn.setRequestProperty(AUTHORIZATION,BASIC + ' ' + org.basex.util.Base64.encode(user + ':' + pass));
     }
   }
   return conn;

@@ -1,34 +1,25 @@
 {
+  HttpURLConnection conn=null;
   try {
-    if (request == null) {
-      if (href == null || href.length == 0)       throw HC_PARAMS.get(info);
-      final HttpURLConnection conn=connect(string(href),null);
-      try {
-        return new HttpResponse(info,options).getResponse(conn,Bln.FALSE.string(),null);
-      }
-  finally {
-        conn.disconnect();
-      }
+    byte[] mediaType=null;
+    HttpRequest req=null;
+    boolean body=true;
+    byte[] url=href;
+    if (request != null) {
+      req=new HttpRequestParser(info).parse(request,bodies);
+      mediaType=req.attrs.get(OVERRIDE_MEDIA_TYPE);
+      final byte[] status=req.attrs.get(STATUS_ONLY);
+      if (status != null && Bln.parse(status,info))       body=false;
+      if (url == null)       url=req.attrs.get(HREF);
     }
-    final HttpRequest r=new HttpRequestParser(info).parse(request,bodies);
-    final byte[] dest=href == null ? r.attrs.get(HREF) : href;
-    if (dest == null)     throw HC_URL.get(info);
-    HttpURLConnection conn=null;
-    try {
-      conn=connect(string(dest),r);
-      authenticate(conn,r);
-      if (r.bodyContent.size() != 0 || !r.parts.isEmpty()) {
-        setContentType(conn,r);
-        setRequestContent(conn.getOutputStream(),r);
-      }
-      final byte[] m=r.attrs.get(OVERRIDE_MEDIA_TYPE), s=r.attrs.get(STATUS_ONLY);
-      return new HttpResponse(info,options).getResponse(conn,s,m == null ? null : string(m));
-    }
-  finally {
-      if (conn != null)       conn.disconnect();
-    }
+    if (url == null || url.length == 0)     throw HC_URL.get(info);
+    conn=connect(string(url),req);
+    return new HttpResponse(info,options).getResponse(conn,body,mediaType);
   }
  catch (  final IOException ex) {
     throw HC_ERROR_X.get(info,ex);
+  }
+ finally {
+    if (conn != null)     conn.disconnect();
   }
 }

@@ -1,12 +1,31 @@
 {
-  final URLConnection conn=new IOUrl(url).connection();
-  if (!(conn instanceof HttpURLConnection))   throw HC_ERROR_X.get(info,"Invalid URL: " + url);
-  final HttpURLConnection uc=(HttpURLConnection)conn;
-  if (r != null) {
-    setConnectionProps(uc,r);
-    for (    final byte[] headers : r.headers) {
-      conn.addRequestProperty(string(headers),string(r.headers.get(headers)));
+  final URLConnection uc=new IOUrl(url).connection();
+  if (!(uc instanceof HttpURLConnection))   throw HC_ERROR_X.get(info,"Invalid URL: " + url);
+  final HttpURLConnection conn=(HttpURLConnection)uc;
+  if (request != null) {
+    final String method=string(request.attrs.get(METHOD)).toUpperCase(Locale.ENGLISH);
+    final HTTPMethod mth=HTTPMethod.get(method);
+    if (mth == HTTPMethod.POST || mth == HTTPMethod.PUT)     conn.setDoOutput(true);
+    try {
+      final Field f=conn.getClass().getSuperclass().getDeclaredField("method");
+      f.setAccessible(true);
+      f.set(conn,method);
+    }
+ catch (    final Throwable th) {
+      Util.debug(th);
+      conn.setRequestMethod(method);
+    }
+    final byte[] timeout=request.attrs.get(TIMEOUT);
+    if (timeout != null)     conn.setConnectTimeout(Integer.parseInt(string(timeout)));
+    final byte[] redirect=request.attrs.get(FOLLOW_REDIRECT);
+    if (redirect != null)     setFollowRedirects(Bln.parse(redirect,info));
+    for (    final byte[] headers : request.headers) {
+      conn.addRequestProperty(string(headers),string(request.headers.get(headers)));
+    }
+    if (request.bodyContent.size() != 0 || !request.parts.isEmpty()) {
+      setContentType(conn,request);
+      setRequestContent(conn.getOutputStream(),request);
     }
   }
-  return uc;
+  return conn;
 }
