@@ -14,8 +14,10 @@
   if (p != null)   return p.optimize(qc,scp);
   final SeqType st=root.seqType();
   final long s=root.size();
+  final boolean iter=posIterator();
   if (s == -1) {
-    seqType=SeqType.get(st.type,st.zeroOrOne() ? Occ.ZERO_ONE : Occ.ZERO_MORE);
+    final boolean zo=last || pos != null && pos.min == pos.max;
+    seqType=st.withOcc(zo ? Occ.ZERO_ONE : Occ.ZERO_MORE);
   }
  else {
     if (pos != null) {
@@ -25,7 +27,7 @@
       size=s > 0 ? 1 : 0;
     }
     if (size == 0)     return optPre(qc);
-    seqType=SeqType.get(st.type,size);
+    seqType=st.withSize(size);
   }
   if (root instanceof Context || root instanceof Value && root.data() != null) {
     final Path ip=Path.get(info,root,Step.get(info,SELF,Test.NOD,preds));
@@ -33,9 +35,8 @@
     if (ie != ip)     return ie;
   }
   if (!super.has(Flag.FCS))   return copy(new IterFilter(info,root,preds));
-  boolean iter=false, index=false;
+  boolean index=false;
   if (preds.length == 1) {
-    iter=posIterator();
     if (root.isValue()) {
       final Value v=(Value)root;
       if (last)       return optPre(SubSeq.get(v,v.size() - 1,1),qc);
