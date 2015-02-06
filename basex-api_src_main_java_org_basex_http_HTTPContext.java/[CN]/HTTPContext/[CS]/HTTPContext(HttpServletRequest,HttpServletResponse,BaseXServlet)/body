@@ -10,7 +10,9 @@
   res.setCharacterEncoding(Strings.UTF8);
   path=decode(normalize(req.getPathInfo()));
   final StaticOptions mprop=context().soptions;
-  user=servlet.user != null ? servlet.user : mprop.get(StaticOptions.USER);
+  username=servlet.user != null ? servlet.user : mprop.get(StaticOptions.USER);
   password=servlet.pass != null ? servlet.pass : mprop.get(StaticOptions.PASSWORD);
-  auth=servlet.auth != null ? servlet.auth : mprop.get(StaticOptions.AUTHMETHOD);
+  final String value=req.getHeader(AUTHORIZATION);
+  final String am=value == null ? AuthMethod.BASIC.toString() : Strings.split(value,' ',2)[0];
+  auth=StaticOptions.AUTHMETHOD.get(am) == AuthMethod.DIGEST ? AuthMethod.DIGEST : servlet.auth != null ? servlet.auth : mprop.get(StaticOptions.AUTHMETHOD);
 }

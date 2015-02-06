@@ -1,15 +1,15 @@
 {
-  String mt;
-  final byte[] contTypeHdr=request.headers.get(lc(token(CONTENT_TYPE)));
-  if (contTypeHdr != null) {
-    mt=string(contTypeHdr);
+  String ct;
+  final String contType=request.headers.get(lc(token(CONTENT_TYPE)));
+  if (contType != null) {
+    ct=contType;
   }
  else {
-    mt=string(request.payloadAttrs.get(MEDIA_TYPE));
+    ct=request.payloadAttrs.get(SerializerOptions.MEDIA_TYPE.name());
     if (request.isMultipart) {
-      final byte[] b=request.payloadAttrs.get(BOUNDARY);
-      mt=new TokenBuilder().add(mt).add("; ").add(BOUNDARY).add('=').add(b != null ? b : DEFAULT_BOUND).toString();
+      final String b=request.payloadAttrs.get(BOUNDARY);
+      ct=new TokenBuilder().add(ct).add("; ").add(BOUNDARY).add('=').add(b.isEmpty() ? DEFAULT_BOUNDARY : b).toString();
     }
   }
-  conn.setRequestProperty(CONTENT_TYPE,mt);
+  conn.setRequestProperty(CONTENT_TYPE,ct);
 }
