@@ -13,8 +13,9 @@
   final Path p=path(root,preds);
   if (p != null)   return p.optimize(qc,scp);
   final SeqType st=root.seqType();
+  final boolean last=preds.length == 1 && preds[0].isFunction(Function.LAST);
+  final Pos pos=posIterator();
   final long s=root.size();
-  final boolean iter=posIterator();
   if (s == -1) {
     final boolean zo=last || pos != null && pos.min == pos.max;
     seqType=st.withOcc(zo ? Occ.ZERO_ONE : Occ.ZERO_MORE);
@@ -34,34 +35,27 @@
     final Expr ie=ip.index(qc,Path.initial(qc,root));
     if (ie != ip)     return ie;
   }
-  if (!super.has(Flag.FCS))   return copy(new IterFilter(info,root,preds));
-  boolean index=false;
+  if (!super.has(Flag.FCS))   return copyType(new IterFilter(info,root,preds));
+  Expr e=this;
   if (preds.length == 1) {
     if (root.isValue()) {
       final Value v=(Value)root;
       if (last)       return optPre(SubSeq.get(v,v.size() - 1,1),qc);
       if (pos != null)       return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
     }
-    final Expr pred=preds[0];
-    if (num(pred)) {
-      seqType=SeqType.get(seqType.type,Occ.ZERO_ONE);
-      index=true;
+    if (last) {
+      e=Function._BASEX_LAST_FROM.get(null,info,root).optimize(qc,scp);
     }
- else     if (pred instanceof CmpG) {
-      final CmpG cmp=(CmpG)pred;
-      if (cmp.exprs[0].isFunction(Function.POSITION)) {
-        final Expr e2=cmp.exprs[1];
-        if (e2 instanceof Range) {
-          final Range r=(Range)e2;
-          if (num(r.exprs[0]) && num(r.exprs[1])) {
-            qc.compInfo(QueryText.OPTWRITE,this);
-            final Expr[] args={root,r.exprs[0],r.exprs[1],Bln.TRUE};
-            return Function.SUBSEQUENCE.get(null,info,args);
-          }
-        }
-      }
+ else     if (pos != null) {
+      e=pos.min == pos.max ? Function._BASEX_ITEM_AT.get(null,info,root,Int.get(pos.min)) : Function.SUBSEQUENCE.get(null,info,root,Int.get(pos.min),Int.get(pos.max),Bln.TRUE);
+    }
+ else     if (num(preds[0])) {
+      e=Function._BASEX_ITEM_AT.get(null,info,root,preds[0]);
     }
   }
-  if (index || iter)   return copy(new IterPosFilter(info,index,root,preds));
+  if (e != this) {
+    qc.compInfo(QueryText.OPTWRITE,this);
+    return e.optimize(qc,scp);
+  }
   return get(info,root,preds);
 }

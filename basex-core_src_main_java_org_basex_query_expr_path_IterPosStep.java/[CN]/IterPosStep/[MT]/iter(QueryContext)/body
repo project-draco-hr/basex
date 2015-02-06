@@ -6,30 +6,14 @@
     @Override public ANode next() throws QueryException {
       if (skip)       return null;
       if (ai == null)       ai=axis.iter(checkNode(qc));
-      ANode lnode=null;
-      while (true) {
+      for (ANode node; (node=ai.next()) != null; ) {
         qc.checkStop();
-        final ANode node=ai.next();
-        if (node == null) {
-          skip=last;
-          return lnode;
-        }
-        if (!test.eq(node))         continue;
-        final long cp=qc.pos, cs=qc.size;
-        qc.size=0;
-        qc.pos=++cpos;
-        try {
-          if (preds(node,qc)) {
-            skip=pos != null && pos.skip(qc);
-            return node.finish();
-          }
-          if (last)           lnode=node.finish();
-        }
-  finally {
-          qc.pos=cp;
-          qc.size=cs;
+        if (test.eq(node) && pos.matches(++cpos)) {
+          if (pos.skip(cpos))           skip=true;
+          return node.finish();
         }
       }
+      return null;
     }
   }
 ;
