@@ -1,12 +1,15 @@
 {
-  final IntSet alreadyUpdatedNodes=new IntSet();
+  final IntSet updatedNodes=new IntSet();
+  int shifts=0;
+  for (  final StructuralUpdate update : struct)   shifts+=update.accumulatedShifts;
+  if (shifts == 0)   return;
   for (  final StructuralUpdate update : struct) {
-    int newPreOfAffectedNode=update.preOfAffectedNode + update.accumulatedShifts;
-    while (newPreOfAffectedNode < data.meta.size) {
-      if (alreadyUpdatedNodes.contains(newPreOfAffectedNode))       break;
-      data.dist(newPreOfAffectedNode,data.kind(newPreOfAffectedNode),calculateNewDistance(newPreOfAffectedNode));
-      alreadyUpdatedNodes.add(newPreOfAffectedNode);
-      newPreOfAffectedNode+=data.size(newPreOfAffectedNode,data.kind(newPreOfAffectedNode));
+    int pre=update.preOfAffectedNode + update.accumulatedShifts;
+    while (pre < data.meta.size && !updatedNodes.contains(pre)) {
+      final int kind=data.kind(pre);
+      data.dist(pre,kind,calculateNewDistance(pre,kind));
+      updatedNodes.add(pre);
+      pre+=data.size(pre,kind);
     }
   }
 }
