@@ -1,8 +1,10 @@
 {
   final int el=exprs.length;
   if (el == 0) {
-    final TokenList tl=new TokenList();
-    for (    final String s : qc.context.databases.listDBs())     tl.add(s);
+    final Context ctx=qc.context;
+    final StringList dbs=ctx.filter(Perm.READ,ctx.databases.listDBs());
+    final TokenList tl=new TokenList(dbs.size());
+    for (    final String name : dbs)     tl.add(name);
     return StrSeq.get(tl).iter();
   }
   final Data data=checkData(qc);

@@ -1,11 +1,10 @@
 {
   final String name=args[0];
   if (!Databases.validName(name,true))   return error(NAME_INVALID_X,name);
-  final StringList dbs=context.databases.listDBs(name);
+  final StringList dbs=context.filter(Perm.READ,context.databases.listDBs(name));
   if (dbs.isEmpty())   return error(DB_NOT_FOUND_X,name);
   boolean ok=true;
   for (  final String db : dbs) {
-    if (!soptions.dbpath(db).isDir())     continue;
     if (MetaData.file(soptions.dbpath(db),DATAUPD).exists()) {
       info(DB_UPDATED_X,db);
       ok=false;
