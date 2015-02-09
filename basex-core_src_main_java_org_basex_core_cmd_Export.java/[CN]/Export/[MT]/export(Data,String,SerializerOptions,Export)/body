@@ -1,7 +1,6 @@
 {
   final IOFile root=new IOFile(path);
   root.md();
-  final HashSet<String> exported=new HashSet<String>();
   final IntList il=data.resources.docs();
   final IOFile bin;
   final StringList desc;
@@ -17,31 +16,31 @@
     export.progPos=0;
     export.progSize=il.size() + desc.size();
   }
+  final HashSet<String> exported=new HashSet<>();
   final int is=il.size();
   for (int i=0; i < is; i++) {
     final int pre=il.get(i);
-    final IO f=root.merge(Token.string(data.text(pre,true)));
+    final IOFile fl=root.resolve(Token.string(data.text(pre,true)));
     if (export != null) {
       export.checkStop();
-      export.progFile=f;
+      export.progFile=fl;
       export.progPos++;
     }
-    final IOFile dir=new IOFile(f.dirPath());
-    if (!dir.exists())     dir.md();
-    final PrintOutput po=new PrintOutput(unique(exported,f.path()));
-    final Serializer ser=Serializer.get(po,sopts);
-    ser.serialize(new DBNode(data,pre));
-    ser.close();
-    po.close();
-  }
+    fl.parent().md();
+    try (final PrintOutput po=new PrintOutput(unique(exported,fl.path()))){
+      try (final Serializer ser=Serializer.get(po,sopts)){
+        ser.serialize(new DBNode(data,pre));
+      }
+     }
+   }
   for (  final String s : desc) {
-    final IOFile f=new IOFile(root.path(),s);
+    final IOFile fl=new IOFile(root.path(),s);
     if (export != null) {
       export.checkStop();
-      export.progFile=f;
+      export.progFile=fl;
       export.progPos++;
     }
-    final String u=unique(exported,f.path());
+    final String u=unique(exported,fl.path());
     new IOFile(bin,s).copyTo(new IOFile(u));
   }
 }

@@ -3,19 +3,18 @@
   final InputStream s=cl.getResourceAsStream(FILE);
   if (s == null)   throw new IOException("WebDAV module not found");
   final byte[] module=new IOStream(s).read();
-  final QueryProcessor qp=new QueryProcessor(query.toString(),http.context());
-  try {
+  try (final QueryProcessor qp=new QueryProcessor(query.toString(),HTTPContext.context())){
     for (    final Entry<String,Object> entry : query.entries()) {
       qp.bind(entry.getKey(),entry.getValue());
     }
-    qp.ctx.parseLibrary(string(module),FILE,qp.sc);
-    final Result r=qp.execute();
-    final int n=(int)r.size();
-    final StringList items=new StringList(n);
-    for (int i=0; i < n; i++) {
-      final ArrayOutput ao=new ArrayOutput();
-      r.serialize(Serializer.get(ao),0);
+    qp.qc.parseLibrary(string(module),FILE,qp.sc);
+    final StringList items=new StringList();
+    final ArrayOutput ao=new ArrayOutput();
+    final Serializer ser=qp.getSerializer(ao);
+    for (    final Item it : qp.value()) {
+      ser.serialize(it);
       items.add(ao.toString());
+      ao.reset();
     }
     return items;
   }
@@ -25,8 +24,5 @@
 catch (  final Exception ex) {
     Util.debug(ex);
     throw new BaseXException(ex);
-  }
- finally {
-    qp.close();
   }
 }

@@ -47,14 +47,15 @@
       if (sc != ServerCmd.COMMAND)       continue;
       try {
         command=new CommandParser(cmd,context).parseSingle();
-        log(command,null);
+        log(LogType.REQUEST,command.toString(true));
       }
  catch (      final QueryException ex) {
         final String msg=ex.getMessage();
-        log(cmd,null);
-        log(msg,false);
+        log(LogType.REQUEST,cmd);
+        log(LogType.ERROR,msg);
         out.write(0);
-        out.writeString(msg);
+        out.print(msg);
+        out.write(0);
         send(false);
         continue;
       }
@@ -78,7 +79,7 @@
     }
   }
  catch (  final IOException ex) {
-    log(ex,false);
+    log(LogType.ERROR,Util.message(ex));
     command=null;
     quit();
   }

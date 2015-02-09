@@ -2,20 +2,20 @@
   final int p=pos;
   if (wsConsumeWs(UPDATING)) {
     final Expr func=primary();
-    if (wsConsume(PAR1)) {
+    if (wsConsume(PAREN1)) {
       final InputInfo ii=info();
       final ExprList argList=new ExprList();
-      if (!wsConsume(PAR2)) {
+      if (!wsConsume(PAREN2)) {
         do {
           final Expr e=single();
-          if (e == null)           throw error(FUNCMISS,func);
+          if (e == null)           throw error(FUNCMISS_X,func);
           argList.add(e);
         }
  while (wsConsume(COMMA));
-        if (!wsConsume(PAR2))         throw error(FUNCMISS,func);
+        if (!wsConsume(PAREN2))         throw error(FUNCMISS_X,func);
       }
-      ctx.updating(true);
-      return new DynFuncCall(ii,true,func,argList.finish());
+      qc.updating();
+      return new DynFuncCall(ii,sc,true,func,argList.finish());
     }
   }
   pos=p;

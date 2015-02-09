@@ -1,23 +1,23 @@
 {
-  final byte[] uri=qname.uri();
+  final byte[] uri=name.uri();
   final boolean java=startsWith(uri,JAVAPREF);
-  final String name=camelCase(string(qname.local()));
-  final String path=camelCase(toPath(java ? substring(uri,JAVAPREF.length) : uri));
-  final ModuleLoader modules=ctx.modules();
+  final String local=Strings.camelCase(string(name.local()));
+  final String path=Strings.camelCase(toPath(java ? substring(uri,JAVAPREF.length) : uri));
+  final ModuleLoader modules=qc.resources.modules();
   final Object jm=modules.findImport(path);
   if (jm != null) {
-    final Method meth=getModMethod(jm,path,name,args.length,ctx,ii);
-    if (meth != null)     return new JavaModuleFunc(sctx,ii,jm,meth,args);
+    final Method meth=getModMethod(jm,path,local,args.length,qc,ii);
+    if (meth != null)     return new JavaModuleFunc(sc,ii,jm,meth,args);
   }
-  if (!ctx.context.user.has(Perm.ADMIN))   return null;
+  if (!qc.context.user().has(Perm.ADMIN))   return null;
   try {
-    return new JavaFunc(sctx,ii,modules.findClass(path),name,args);
+    return new JavaFunc(sc,ii,modules.findClass(path),local,args);
   }
  catch (  final ClassNotFoundException ex) {
-    if (java)     throw FUNCJAVA.get(ii,path);
+    if (java)     throw FUNCJAVA_X.get(ii,path);
   }
 catch (  final Throwable th) {
-    throw JAVAINIT.get(ii,th);
+    throw JAVAINIT_X.get(ii,th);
   }
   return null;
 }

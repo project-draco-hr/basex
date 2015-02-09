@@ -1,0 +1,13 @@
+{
+  final byte[] pat=toToken(pattern,qc);
+  final byte[] mod=modifier != null ? toToken(modifier,qc) : null;
+  final TokenBuilder tb=new TokenBuilder(pat);
+  if (mod != null)   tb.add(0).add(mod);
+  final byte[] key=tb.finish();
+  Pattern p=patterns.get(key);
+  if (p == null) {
+    p=RegExParser.parse(pat,mod,info,check);
+    patterns.put(key,p);
+  }
+  return p;
+}

@@ -1,0 +1,62 @@
+{
+  final int ch=iter.curr();
+  if (quote != 0) {
+    if (back) {
+      back=false;
+    }
+ else     if (ch == quote) {
+      quote=0;
+    }
+ else {
+      back=ch == '\\';
+    }
+    return STRING;
+  }
+  if (comment1 == 0 && ch == '/') {
+    comment1++;
+  }
+ else   if (comment1 == 1) {
+    comment1=ch == '*' ? 2 : 0;
+  }
+ else   if (comment1 == 2 && ch == '*') {
+    comment1++;
+  }
+ else   if (comment1 == 3) {
+    comment1=ch == '/' ? 0 : 2;
+  }
+  if (comment2 == 0 && ch == '/') {
+    comment2++;
+  }
+ else   if (comment2 == 1) {
+    comment2=ch == '/' ? 2 : 0;
+  }
+ else   if (comment2 == 2 && ch == '\n') {
+    comment2=0;
+  }
+  if (comment1 != 0 || comment2 != 0) {
+    var=false;
+    return COMMENT;
+  }
+  if (back) {
+    back=false;
+  }
+ else   if (ch == '\\') {
+    back=true;
+  }
+ else   if (ch == '"' || ch == '\'') {
+    quote=ch;
+    return STRING;
+  }
+  if (ch == '$') {
+    var=true;
+    return VARIABLE;
+  }
+  if (var) {
+    var=XMLToken.isNCStartChar(ch);
+    return VARIABLE;
+  }
+  if (Token.digit(ch))   return FUNCTION;
+  if (!XMLToken.isNCStartChar(ch))   return COMMENT;
+  if (KEYWORDS.contains(iter.nextString()))   return KEYWORD;
+  return plain;
+}

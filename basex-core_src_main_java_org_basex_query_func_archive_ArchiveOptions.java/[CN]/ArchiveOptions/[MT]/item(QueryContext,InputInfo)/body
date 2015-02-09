@@ -1,0 +1,24 @@
+{
+  final B64 archive=toB64(exprs[0],qc,false);
+  final String format;
+  int level=-1;
+  try (final ArchiveIn arch=ArchiveIn.get(archive.input(info),info)){
+    format=arch.format();
+    while (arch.more()) {
+      final ZipEntry ze=arch.entry();
+      if (ze.isDirectory())       continue;
+      level=ze.getMethod();
+      break;
+    }
+  }
+ catch (  final IOException ex) {
+    throw ARCH_FAIL_X.get(info,ex);
+  }
+  final FElem e=new FElem(Q_OPTIONS).declareNS();
+  if (format != null)   e.add(new FElem(Q_FORMAT).add(VALUE,format));
+  if (level >= 0) {
+    final String lvl=level == 8 ? DEFLATE : level == 0 ? STORED : UNKNOWN;
+    e.add(new FElem(Q_ALGORITHM).add(VALUE,lvl));
+  }
+  return e;
+}

@@ -33,7 +33,7 @@ switch (kind) {
 case DOC:
       nspaces.prepare();
     doc(pre,ssize,data.text(spre,true));
-  meta.ndocs++;
+  ++meta.ndocs;
 preStack.push(pre);
 break;
 case ELEM:
@@ -41,7 +41,8 @@ nspaces.prepare();
 boolean ne=false;
 if (data.nsFlag(spre)) {
 final Atts at=data.ns(spre);
-for (int a=0; a < at.size(); ++a) {
+final int as=at.size();
+for (int a=0; a < as; a++) {
 final byte[] old=nsScope.get(at.name(a));
 if (old == null || !eq(old,at.value(a))) {
 nspaces.add(at.name(a),at.value(a),pre);
@@ -49,8 +50,8 @@ ne=true;
 }
 }
 }
-byte[] nm=data.name(spre,kind);
-elem(dist,tagindex.index(nm,null,false),data.attSize(spre,kind),ssize,nspaces.uri(nm,true),ne);
+final byte[] en=data.name(spre,kind);
+elem(dist,elemNames.index(en,null,false),data.attSize(spre,kind),ssize,nspaces.uri(en,true),ne);
 preStack.push(pre);
 break;
 case TEXT:
@@ -59,13 +60,13 @@ case PI:
 text(pre,dist,data.text(spre,true),kind);
 break;
 case ATTR:
-nm=data.name(spre,kind);
-final byte[] attPref=prefix(nm);
+final byte[] an=data.name(spre,kind);
+final byte[] attPref=prefix(an);
 if (data.nsFlag(spre) && nsScope.get(attPref) == null) {
 nspaces.add(nsPre,preStack.isEmpty() ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(spre,kind)),this);
 flagPres.add(nsPre);
 }
-attr(pre,dist,atnindex.index(nm,null,false),data.text(spre,false),nspaces.uri(nm,false),false);
+attr(pre,dist,attrNames.index(an,null,false),data.text(spre,false),nspaces.uri(an,false),false);
 break;
 }
 Namespaces.incrementPre(nsNodesShift,1);
@@ -74,7 +75,8 @@ while (!preStack.isEmpty()) nspaces.close(preStack.pop());
 nspaces.setCurrent(nsRoot);
 if (bp != 0) insert(tpre + c - 1 - (c - 1) % buf);
 buffer(1);
-for (int f=0; f < flagPres.size(); f++) {
+final int fs=flagPres.size();
+for (int f=0; f < fs; f++) {
 final int fl=flagPres.get(f);
 table.write2(fl,1,name(fl) | 1 << 15);
 }
@@ -86,7 +88,7 @@ p=parent(p,k);
 }
 if (meta.updindex) {
 idmap.insert(tpre,id(tpre),size);
-indexEnd();
+indexAdd();
 }
 if (!cache) updateDist(tpre + size,size);
 }

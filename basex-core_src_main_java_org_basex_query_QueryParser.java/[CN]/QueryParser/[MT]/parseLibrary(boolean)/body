@@ -5,7 +5,7 @@
     wsCheck(MODULE);
     wsCheck(NSPACE);
     skipWs();
-    final byte[] pref=ncName(NONAME);
+    final byte[] pref=ncName(NONAME_X);
     wsCheck(IS);
     final byte[] uri=stringLiteral();
     if (uri.length == 0)     throw error(NSMODURI);
@@ -14,13 +14,14 @@
     namespaces.put(pref,uri);
     wsCheck(";");
     final IO base=sc.baseIO();
-    final byte[] p=token(base == null ? "" : base.path());
-    ctx.modParsed.put(p,uri);
-    ctx.modStack.push(p);
+    final byte[] path=token(base == null ? "" : base.path());
+    qc.modParsed.put(path,uri);
+    qc.modStack.push(path);
     prolog1();
+    importModules();
     prolog2();
     finish(null,check);
-    ctx.modStack.pop();
+    qc.modStack.pop();
     return new LibraryModule(module,moduleDoc,sc);
   }
  catch (  final QueryException ex) {

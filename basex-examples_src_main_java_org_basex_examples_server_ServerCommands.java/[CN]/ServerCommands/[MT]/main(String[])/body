@@ -2,27 +2,30 @@
   System.out.println("=== ServerCommands ===");
   BaseXServer server=new BaseXServer();
   System.out.println("\n* Create a client session.");
-  session=new ClientSession("localhost",1984,"admin","admin");
-  System.out.println("\n* Create a database.");
-  session.execute(new CreateDB("input","src/main/resources/xml/input.xml"));
-  System.out.println("\n* Run a query:");
-  System.out.println(session.query("//li").execute());
-  System.out.println("\n* Run a query (faster):");
-  session.setOutputStream(System.out);
-  session.query("//li").execute();
-  System.out.println();
-  session.setOutputStream(null);
-  System.out.println("\n\n* Run a buggy query: ");
-  try {
-    session.execute(new XQuery("///"));
+  try (ClientSession session=new ClientSession("localhost",1984,"admin","admin")){
+    System.out.println("\n* Create a database.");
+    session.execute(new CreateDB("input","src/main/resources/xml/input.xml"));
+    System.out.println("\n* Run a query:");
+    try (ClientQuery query=session.query("//li")){
+      System.out.println(query.execute());
+    }
+     System.out.println("\n* Run a query (faster):");
+    session.setOutputStream(System.out);
+    try (ClientQuery query=session.query("//li")){
+      query.execute();
+    }
+     System.out.println();
+    session.setOutputStream(null);
+    System.out.println("\n\n* Run a buggy query: ");
+    try {
+      session.execute(new XQuery("///"));
+    }
+ catch (    final BaseXException ex) {
+      System.out.println(ex.getMessage());
+    }
+    System.out.println("\n* Close and drop the database.");
+    session.execute(new DropDB("input"));
   }
- catch (  final BaseXException ex) {
-    System.out.println(ex.getMessage());
-  }
-  System.out.println("\n* Close and drop the database.");
-  session.execute(new DropDB("input"));
-  System.out.println("\n* Close the client session.");
-  session.close();
-  System.out.println("\n* Stop the server.");
+   System.out.println("\n* Stop the server.");
   server.stop();
 }

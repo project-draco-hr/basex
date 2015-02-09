@@ -1,0 +1,22 @@
+{
+  Expr e=unary();
+  if (e != null) {
+    while (wsConsume(ARROW)) {
+      final Expr ex=wsConsume(PAREN1) ? parenthesized() : curr() == '$' ? resolveVar(varName(),info()) : eQName(ARROWSPEC,sc.funcNS);
+      wsCheck(PAREN1);
+      if (ex instanceof QNm) {
+        final QNm name=(QNm)ex;
+        if (keyword(name))         throw error(RESERVED_X,name.local());
+        e=function(name,e);
+      }
+ else {
+        final InputInfo ii=info();
+        final ExprList argList=new ExprList(e);
+        final int[] holes=argumentList(argList,e);
+        final Expr[] args=argList.finish();
+        e=holes == null ? new DynFuncCall(ii,sc,false,ex,args) : new PartFunc(sc,ii,ex,args,holes);
+      }
+    }
+  }
+  return e;
+}

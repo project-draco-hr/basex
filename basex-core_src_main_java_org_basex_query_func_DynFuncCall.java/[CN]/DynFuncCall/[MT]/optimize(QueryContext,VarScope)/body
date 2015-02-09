@@ -1,19 +1,27 @@
 {
-  final int ar=expr.length - 1;
-  final Expr f=expr[ar];
-  final Type t=f.type().type;
+  final int ar=exprs.length - 1;
+  final Expr f=exprs[ar];
+  final Type t=f.seqType().type;
   if (t instanceof FuncType) {
     final FuncType ft=(FuncType)t;
-    if (ft.args != null && ft.args.length != ar)     throw INVARITY.get(info,f,ar);
-    if (ft.ret != null)     type=ft.ret;
-  }
-  if (f instanceof XQFunctionExpr) {
-    if (allAreValues() && f instanceof Map)     return optPre(value(ctx),ctx);
-    if (!(f instanceof FuncItem && comesFrom((FuncItem)f)) && !updating) {
-      final Expr[] args=Arrays.copyOf(expr,expr.length - 1);
-      final Expr inl=((XQFunctionExpr)f).inlineExpr(args,ctx,scp,info);
-      if (inl != null)       return inl;
+    if (ft.argTypes != null && ft.argTypes.length != ar) {
+      final Expr e=f instanceof FuncItem ? ((FuncItem)f).expr : f;
+      throw INVARITY_X_X_X_X.get(info,e,ar,ar == 1 ? "" : "s",ft.argTypes.length);
     }
+    if (ft.retType != null)     seqType=ft.retType;
+  }
+  if ((f instanceof Map || f instanceof Array) && allAreValues())   return optPre(value(qc),qc);
+  if (f instanceof XQFunctionExpr) {
+    final XQFunctionExpr fe=(XQFunctionExpr)f;
+    if (!(f instanceof FuncItem && comesFrom((FuncItem)f))) {
+      if (!sc.mixUpdates && updating != fe.annotations().contains(Annotation.UPDATING))       throw (updating ? UPFUNCNOTUP : UPFUNCUP).get(info);
+      final Expr[] args=Arrays.copyOf(exprs,ar);
+      final Expr in=fe.inlineExpr(args,qc,scp,info);
+      if (in != null)       return in;
+    }
+  }
+ else   if (f instanceof Item && !(f instanceof FItem)) {
+    throw INVFUNCITEM_X.get(info,((Item)f).type,f);
   }
   return this;
 }

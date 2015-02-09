@@ -1,26 +1,8 @@
 {
-  final LookAndFeelInfo[] lafis=UIManager.getInstalledLookAndFeels();
-  final String laf=opts.get(GUIOptions.LOOKANDFEEL);
   try {
     Toolkit.getDefaultToolkit().setDynamicLayout(true);
-    if (laf.equals("Metal")) {
-      final UIDefaults def=UIManager.getDefaults();
-      for (      final Object k : def.keySet()) {
-        final Object v=def.get(k);
-        if (v instanceof Font)         def.put(k,((Font)v).deriveFont(Font.PLAIN));
-      }
-    }
- else     if (laf.isEmpty()) {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
- else {
-      for (      final LookAndFeelInfo lafi : lafis) {
-        if (lafi.getName().equals(laf)) {
-          UIManager.setLookAndFeel(lafi.getClassName());
-          break;
-        }
-      }
-    }
+    final String laf=opts.get(GUIOptions.LOOKANDFEEL);
+    UIManager.setLookAndFeel(laf.isEmpty() ? UIManager.getSystemLookAndFeelClassName() : laf);
   }
  catch (  final Exception ex) {
     Util.stack(ex);

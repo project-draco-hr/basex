@@ -5,17 +5,17 @@
   while (pos < length) {
     int ch=consume();
     if (ch == '"') {
-      if (hi != 0)       tb.add(hi);
+      if (hi != 0)       add(hi);
       skipWs();
-      return tb.finish();
+      return tb.toArray();
     }
     if (ch == '\\') {
       if (!unescape) {
         if (hi != 0) {
-          tb.add(hi);
+          add(hi);
           hi=0;
         }
-        tb.addByte((byte)'\\');
+        add('\\');
       }
       final int n=consume();
 switch (n) {
@@ -52,11 +52,11 @@ if (x >= '0' && x <= '9') ch=16 * ch + x - '0';
 }
 }
  else {
-tb.addByte((byte)'u');
+add('u');
 for (int i=0; i < 4; i++) {
 final char x=consume();
 if (x >= '0' && x <= '9' || x >= 'a' && x <= 'f' || x >= 'A' && x <= 'F') {
-if (i < 3) tb.addByte((byte)x);
+if (i < 3) add(x);
  else ch=x;
 }
  else throw error("Illegal hexadecimal digit: '%'",x);
@@ -67,16 +67,16 @@ default :
 throw error("Unknown character escape: '\\%'",n);
 }
 }
- else if (spec != JsonSpec.LIBERAL && ch <= 0x1F) {
+ else if (!liberal && ch <= 0x1F) {
 throw error("Non-escaped control character: '\\%'",CTRL[ch]);
 }
 if (hi != 0) {
 if (ch >= 0xDC00 && ch <= 0xDFFF) ch=(hi - 0xD800 << 10) + ch - 0xDC00 + 0x10000;
- else tb.add(hi);
+ else add(hi);
 hi=0;
 }
 if (ch >= 0xD800 && ch <= 0xDBFF) hi=(char)ch;
- else tb.add(ch);
+ else add(ch);
 }
 throw eof(" in string literal");
 }

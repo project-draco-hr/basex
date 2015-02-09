@@ -1,0 +1,81 @@
+{
+  return new Eval(){
+    /** 
+ * Groups to iterate over. 
+ */
+    private Group[] groups;
+    /** 
+ * Current position. 
+ */
+    private int pos;
+    @Override public boolean next(    final QueryContext qc) throws QueryException {
+      if (groups == null)       groups=init(qc);
+      if (pos == groups.length)       return false;
+      final Group curr=groups[pos];
+      groups[pos++]=null;
+      int p=0;
+      for (      final Spec spec : specs) {
+        if (!spec.occluded) {
+          final Item key=curr.key[p++];
+          qc.set(spec.var,key == null ? Empty.SEQ : key,info);
+        }
+      }
+      final int pl=post.length;
+      for (int i=0; i < pl; i++)       qc.set(post[i],curr.ngv[i].value(),info);
+      return true;
+    }
+    /** 
+ * Builds up the groups.
+ * @param qc query context
+ * @throws QueryException query exception
+ */
+    private Group[] init(    final QueryContext qc) throws QueryException {
+      final ArrayList<Group> grps=new ArrayList<>();
+      final IntObjMap<Group> map=new IntObjMap<>();
+      final Collation[] colls=new Collation[nonOcc];
+      int c=0;
+      for (      final Spec spec : specs) {
+        if (!spec.occluded)         colls[c++]=spec.coll;
+      }
+      while (sub.next(qc)) {
+        final Item[] key=new Item[nonOcc];
+        int p=0, hash=1;
+        for (        final Spec spec : specs) {
+          final Item atom=spec.atomItem(qc,info);
+          if (!spec.occluded) {
+            key[p++]=atom;
+            hash=31 * hash + (atom == null || spec.coll != null ? 0 : atom.hash(info));
+          }
+          qc.set(spec.var,atom == null ? Empty.SEQ : atom,info);
+        }
+        final Group fst;
+        Group grp=null;
+        for (Group g=fst=map.get(hash); g != null; g=g.next) {
+          if (eq(key,g.key,colls)) {
+            grp=g;
+            break;
+          }
+        }
+        final int pl=preExpr.length;
+        if (grp == null) {
+          final ValueBuilder[] ngs=new ValueBuilder[pl];
+          final int nl=ngs.length;
+          for (int n=0; n < nl; n++)           ngs[n]=new ValueBuilder();
+          grp=new Group(key,ngs);
+          grps.add(grp);
+          if (fst == null) {
+            map.put(hash,grp);
+          }
+ else {
+            final Group nxt=fst.next;
+            fst.next=grp;
+            grp.next=nxt;
+          }
+        }
+        for (int g=0; g < pl; g++)         grp.ngv[g].add(preExpr[g].value(qc));
+      }
+      return grps.toArray(new Group[grps.size()]);
+    }
+  }
+;
+}

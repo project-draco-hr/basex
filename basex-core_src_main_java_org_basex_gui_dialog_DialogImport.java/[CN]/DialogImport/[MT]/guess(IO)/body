@@ -1,8 +1,6 @@
 {
   if (!in.exists() || in instanceof IOUrl)   return null;
-  BufferInput ti=null;
-  try {
-    ti=new BufferInput(in);
+  try (final BufferInput ti=new BufferInput(in)){
     int b=ti.read();
     if (b == '<')     return MainParser.XML;
     for (int c=0; b >= 0 && ++c < IO.BLOCKSIZE; ) {
@@ -12,13 +10,6 @@
     return MainParser.TEXT;
   }
  catch (  final IOException ignored) {
-  }
- finally {
-    if (ti != null)     try {
-      ti.close();
-    }
- catch (    final IOException ignored) {
-    }
   }
   return null;
 }

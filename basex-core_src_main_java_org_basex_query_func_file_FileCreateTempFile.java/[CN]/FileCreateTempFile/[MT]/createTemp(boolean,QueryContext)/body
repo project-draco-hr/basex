@@ -1,0 +1,25 @@
+{
+  final String pref=string(toToken(exprs[0],qc));
+  final String suf=exprs.length > 1 ? string(toToken(exprs[1],qc)) : "";
+  final Path root;
+  if (exprs.length > 2) {
+    root=toPath(2,qc);
+    if (Files.isRegularFile(root))     throw FILE_NO_DIR_X.get(info,root);
+  }
+ else {
+    root=Paths.get(Prop.TMP);
+  }
+  final Random rnd=new Random();
+  Path file;
+  do {
+    file=root.resolve(pref + rnd.nextLong() + suf);
+  }
+ while (Files.exists(file));
+  if (dir) {
+    Files.createDirectory(file);
+  }
+ else {
+    Files.createFile(file);
+  }
+  return get(file,dir);
+}

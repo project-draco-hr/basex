@@ -3,14 +3,14 @@
   while (running) {
     try {
       final Socket s=socket.accept();
-      if (stop.exists()) {
-        if (!stop.delete()) {
-          context.log.writeServer(ERROR + COL + Util.info(FILE_NOT_DELETED_X,stop));
+      if (stopFile.exists()) {
+        if (!stopFile.delete()) {
+          context.log.writeServer(LogType.ERROR,Util.info(FILE_NOT_DELETED_X,stopFile));
         }
         quit();
       }
  else {
-        final long ka=context.globalopts.get(GlobalOptions.KEEPALIVE) * 1000L;
+        final long ka=context.soptions.get(StaticOptions.KEEPALIVE) * 1000L;
         if (ka > 0) {
           final long ms=System.currentTimeMillis();
           for (          final ClientListener cs : context.sessions) {
@@ -18,7 +18,7 @@
           }
         }
         final ClientListener cl=new ClientListener(s,context,this);
-        final long to=context.globalopts.get(GlobalOptions.KEEPALIVE) * 1000L;
+        final long to=context.soptions.get(StaticOptions.KEEPALIVE) * 1000L;
         if (to > 0) {
           cl.auth.schedule(new TimerTask(){
             @Override public void run(){
@@ -36,7 +36,7 @@
     }
 catch (    final Throwable ex) {
       Util.errln(ex);
-      context.log.writeError(ex);
+      context.log.writeServer(LogType.ERROR,Util.message(ex));
       break;
     }
   }

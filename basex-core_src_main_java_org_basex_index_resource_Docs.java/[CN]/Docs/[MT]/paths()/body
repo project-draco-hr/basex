@@ -1,4 +1,11 @@
 {
+  if (pathList == null && pathIndex) {
+    try (final DataInput in=new DataInput(data.meta.dbfile(DATAPTH))){
+      pathList=new TokenList(in.readTokens());
+    }
+ catch (    final IOException ignore) {
+    }
+  }
   if (pathList == null) {
     final IntList docs=docs();
     final int ds=docs.size();
@@ -6,7 +13,9 @@
     for (int d=0; d < ds; d++) {
       paths.add(normalize(data.text(docs.get(d),true)));
     }
+    pathIndex=true;
     pathList=paths;
+    update();
   }
   return pathList;
 }

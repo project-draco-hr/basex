@@ -1,15 +1,30 @@
 {
   final TokenBuilder entry=new TokenBuilder();
   data=!header;
-  for (char ch; (ch=consume()) != 0; ) {
+  int ch=input.read();
+  while (ch != -1) {
     if (quoted) {
-      if (ch == '"') {
-        if (!consume('"')) {
+      if (backslashes) {
+        if (ch == '\\') {
+          ch=bs();
+          if (ch == -1)           break;
+        }
+ else         if (ch == '"') {
           quoted=false;
+          ch=input.read();
           continue;
         }
       }
-      entry.add(XMLToken.valid(ch) ? ch : '?');
+ else {
+        if (ch == '"') {
+          ch=input.read();
+          if (ch != '"') {
+            quoted=false;
+            continue;
+          }
+        }
+      }
+      add(entry,ch);
     }
  else     if (quotes && ch == '"') {
       quoted=true;
@@ -24,8 +39,13 @@
       data=true;
     }
  else {
-      entry.add(XMLToken.valid(ch) ? ch : '?');
+      if (backslashes) {
+        if (ch == '\\')         ch=bs();
+        if (ch == -1)         break;
+      }
+      add(entry,ch);
     }
+    ch=input.read();
   }
   record(entry,!entry.isEmpty());
 }

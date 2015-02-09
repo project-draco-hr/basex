@@ -1,26 +1,26 @@
 {
   if (compiled)   return;
   compiling=compiled=true;
-  final Value cv=ctx.value;
-  ctx.value=null;
+  final Value cv=qc.value;
+  qc.value=null;
   try {
-    expr=expr.compile(ctx,scope);
+    expr=expr.compile(qc,scope);
     if (declType != null) {
-      if ((declType.type == AtomType.BLN || declType.type == AtomType.FLT || declType.type == AtomType.DBL || declType.type == AtomType.QNM || declType.type == AtomType.URI) && declType.eq(expr.type())) {
-        ctx.compInfo(OPTCAST,declType);
+      if ((declType.type == AtomType.BLN || declType.type == AtomType.FLT || declType.type == AtomType.DBL || declType.type == AtomType.QNM || declType.type == AtomType.URI) && declType.eq(expr.seqType())) {
+        qc.compInfo(OPTCAST,declType);
       }
  else {
-        expr=new TypeCheck(sc,info,expr,declType,true).optimize(ctx,scope);
+        expr=new TypeCheck(sc,info,expr,declType,true).optimize(qc,scope);
       }
     }
   }
  catch (  final QueryException qe) {
-    expr=FNInfo.error(qe,expr.type());
+    expr=FnError.get(qe,expr.seqType());
   }
  finally {
     scope.cleanUp(this);
-    ctx.value=cv;
+    qc.value=cv;
   }
-  expr.markTailCalls(ctx);
+  expr.markTailCalls(qc);
   compiling=false;
 }

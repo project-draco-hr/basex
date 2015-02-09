@@ -1,0 +1,13 @@
+{
+  final String file=string(toToken(exprs[0],qc));
+  final IOFile path=new IOFile(file);
+  if (!path.exists())   throw ZIP_NOTFOUND_X.get(info,file);
+  try (final ZipFile zf=new ZipFile(file)){
+    final FElem root=new FElem(Q_FILE).declareNS().add(HREF,path.path());
+    createEntries(paths(zf).iterator(),root,"");
+    return root;
+  }
+ catch (  final IOException ex) {
+    throw ZIP_FAIL_X.get(info,ex);
+  }
+}

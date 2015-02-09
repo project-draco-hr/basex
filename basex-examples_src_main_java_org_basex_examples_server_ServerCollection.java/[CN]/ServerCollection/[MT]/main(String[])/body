@@ -2,21 +2,23 @@
   System.out.println("=== ServerCollection ===");
   System.out.println("\n* Start server.");
   BaseXServer server=new BaseXServer();
-  session=new ClientSession("localhost",1984,"admin","admin");
-  System.out.println("\n* Create a Collection.");
-  session.execute("CREATE DB input");
-  System.out.println("\n* Adding 50 documents");
-  for (int i=0; i < 50; i++) {
-    String path="/book/chapters/" + i + "/Chapter-"+ i+ ".xml";
-    add(path,XML_1 + i + XML_2);
+  try (ClientSession session=new ClientSession("localhost",1984,"admin","admin")){
+    System.out.println("\n* Create a Collection.");
+    session.execute("CREATE DB input");
+    System.out.println("\n* Adding 50 documents");
+    String xml1="<text version=\"draft\"><title>Chapter ";
+    String xml2="</title></text>";
+    for (int i=0; i < 50; i++) {
+      String path="/book/chapters/" + i + "/Chapter-"+ i+ ".xml";
+      add(session,path,xml1 + i + xml2);
+    }
+    String path="/book/chapters/0/Chapter-test.xml";
+    add(session,path,xml1 + "test" + xml2);
+    find(session);
+    System.out.println("\n* Modifying documents in folder /book/chapters/0:");
+    modify(session);
+    session.execute("DROP DB input");
   }
-  String path="/book/chapters/0/Chapter-test.xml";
-  add(path,XML_1 + "test" + XML_2);
-  find();
-  System.out.println("\n* Modifying documents in folder /book/chapters/0:");
-  modify();
-  session.execute("DROP DB input");
-  session.close();
-  System.out.println("\n* Stop server.");
+   System.out.println("\n* Stop server.");
   server.stop();
 }

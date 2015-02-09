@@ -1,18 +1,15 @@
 {
-  final QueryProcessor qp=new QueryProcessor(query,context);
-  try {
+  try (final QueryProcessor qp=new QueryProcessor(query,context)){
     final ArrayOutput ao=new ArrayOutput();
-    final Serializer ser=qp.getSerializer(ao);
-    qp.execute().serialize(ser);
-    ser.close();
-    return ao.toString().replaceAll("(\\r|\\n)\\s*","");
+    try (final Serializer ser=qp.getSerializer(ao)){
+      qp.execute().serialize(ser);
+    }
+     return ao.toString().replaceAll("(\\r|\\n)\\s*","");
   }
  catch (  final Exception ex) {
+    ex.printStackTrace();
     final AssertionError err=new AssertionError("Query failed:\n" + query);
     err.initCause(ex);
     throw err;
-  }
- finally {
-    qp.close();
   }
 }

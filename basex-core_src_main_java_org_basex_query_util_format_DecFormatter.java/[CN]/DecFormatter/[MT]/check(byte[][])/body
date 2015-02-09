@@ -1,24 +1,36 @@
 {
   for (  final byte[] pt : patterns) {
-    boolean frac=false, pas=false, act=false;
+    boolean frac=false, pas=false, act=false, exp=false;
     boolean dg=false, opt1=false, opt2=false;
     int cl, pc=0, pm=0, ls=0;
-    for (int i=0; i < pt.length; i+=cl) {
+    final int pl=pt.length;
+    for (int i=0; i < pl; i+=cl) {
       final int ch=ch(pt,i);
       cl=cl(pt,i);
-      final boolean a=contains(active,ch);
+      boolean active=contains(actives,ch);
+      final boolean digit=contains(digits,ch);
+      if (exp && !digit)       return false;
       if (ch == decimal) {
         if (frac)         return false;
         frac=true;
       }
  else       if (ch == grouping) {
-        if (i == 0 && frac || ls == decimal || i + cl < pt.length ? ch(pt,i + cl) == decimal : !frac)         return false;
+        if (i == 0 && frac || ls == decimal || i + cl < pl ? ch(pt,i + cl) == decimal : !frac)         return false;
+      }
+ else       if (ch == exponent) {
+        if (contains(actives,ls) && contains(actives,ch(pt,i + cl))) {
+          if (exp)           return false;
+          exp=true;
+        }
+ else {
+          active=false;
+        }
       }
  else       if (ch == percent) {
-        if (++pc > 1)         return false;
+        ++pc;
       }
  else       if (ch == permille) {
-        if (++pm > 1)         return false;
+        ++pm;
       }
  else       if (ch == optional) {
         if (frac) {
@@ -29,16 +41,16 @@
           opt1=true;
         }
       }
- else       if (contains(digits,ch)) {
+ else       if (digit) {
         if (frac && opt2)         return false;
         dg=true;
       }
-      if (a && pas && act)       return false;
-      if (act)       pas|=!a;
-      act|=a;
+      if (active && pas && act)       return false;
+      if (act)       pas|=!active;
+      act|=active;
       ls=ch;
     }
-    if (pc + pm > 1)     return false;
+    if (pc + pm > (exp ? 0 : 1))     return false;
     if (!opt1 && !opt2 && !dg)     return false;
   }
   return true;

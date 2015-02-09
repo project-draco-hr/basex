@@ -1,0 +1,13 @@
+{
+  Long off=null;
+  final Entry<Integer,LinkedList<Long>> entry=free.ceilingEntry(size);
+  if (entry != null) {
+    final int slotSize=entry.getKey();
+    final LinkedList<Long> offsets=entry.getValue();
+    off=offsets.pop();
+    if (offsets.isEmpty())     free.remove(slotSize);
+    if (slotSize < size)     throw Util.notExpected("Free slot is too small: % < %",slotSize,size);
+    if (slotSize > size)     add(size - slotSize,off + slotSize);
+  }
+  return off == null ? offset : off;
+}

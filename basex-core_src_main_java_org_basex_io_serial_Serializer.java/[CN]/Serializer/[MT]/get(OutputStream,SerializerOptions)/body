@@ -1,23 +1,38 @@
 {
-  if (sopts == null)   return get(os);
-switch (sopts.get(SerializerOptions.METHOD)) {
+  final SerializerOptions so=sopts == null ? SerializerOptions.get(true) : sopts;
+  final String enc=Strings.normEncoding(so.get(SerializerOptions.ENCODING),true);
+  final PrintOutput po;
+  if (enc == Strings.UTF8) {
+    po=PrintOutput.get(os);
+  }
+ else {
+    try {
+      po=new EncoderOutput(os,Charset.forName(enc));
+    }
+ catch (    final Exception ex) {
+      throw SERENCODING_X.getIO(enc);
+    }
+  }
+  final int limit=so.get(SerializerOptions.LIMIT);
+  if (limit != -1)   po.setLimit(so.get(SerializerOptions.LIMIT));
+switch (so.get(SerializerOptions.METHOD)) {
 case XHTML:
-    return new XHTMLSerializer(os,sopts);
+    return new XHTMLSerializer(po,so);
 case HTML:
-  return new HTMLSerializer(os,sopts);
+  return new HTMLSerializer(po,so);
 case TEXT:
-return new TextSerializer(os,sopts);
+return new TextSerializer(po,so);
 case RAW:
-return new RawSerializer(os,sopts);
+return new RawSerializer(po,so);
 case CSV:
-final CsvOptions copts=sopts.get(SerializerOptions.CSV);
-final CsvFormat cform=copts.get(CsvOptions.FORMAT);
-return cform == CsvFormat.MAP ? new CsvMapSerializer(os,sopts) : new CsvDirectSerializer(os,sopts);
+final CsvOptions copts=so.get(SerializerOptions.CSV);
+return copts.get(CsvOptions.FORMAT) == CsvFormat.MAP ? new CsvMapSerializer(po,so) : new CsvDirectSerializer(po,so);
 case JSON:
-final JsonSerialOptions jopts=sopts.get(SerializerOptions.JSON);
-final JsonFormat jform=jopts.get(JsonOptions.FORMAT);
-return jform == JsonFormat.JSONML ? new JsonMLSerializer(os,sopts) : jform == JsonFormat.MAP ? new JsonMapSerializer(os,sopts) : new JsonNodeSerializer(os,sopts);
+final JsonSerialOptions jopts=so.get(SerializerOptions.JSON);
+return jopts.get(JsonOptions.FORMAT) == JsonFormat.JSONML ? new JsonMLSerializer(po,so) : new JsonNodeSerializer(po,so);
+case XML:
+return new XMLSerializer(po,so);
 default :
-return new XMLSerializer(os,sopts);
+return new AdaptiveSerializer(po,so);
 }
 }

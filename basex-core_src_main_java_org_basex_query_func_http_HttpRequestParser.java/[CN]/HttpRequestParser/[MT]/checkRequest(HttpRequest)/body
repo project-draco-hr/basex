@@ -1,0 +1,28 @@
+{
+  final String mth=req.attribute(Request.METHOD);
+  if (mth == null)   throw HC_REQ_X.get(info,"Missing attribute: " + Request.METHOD);
+  req.attributes.put(Request.METHOD,mth.toUpperCase(Locale.ENGLISH));
+  final String sendAuth=req.attribute(Request.SEND_AUTHORIZATION);
+  if (sendAuth != null && Strings.yes(sendAuth)) {
+    final String us=req.attribute(Request.USERNAME);
+    if (us == null)     throw HC_REQ_X.get(info,"Missing attribute: " + Request.USERNAME);
+    final String pw=req.attribute(Request.PASSWORD);
+    if (pw == null)     throw HC_REQ_X.get(info,"Missing attribute: " + Request.PASSWORD);
+    final String am=req.attribute(Request.AUTH_METHOD);
+    if (am != null && !am.isEmpty()) {
+      req.authMethod=StaticOptions.AUTHMETHOD.get(am);
+      if (req.authMethod == null)       throw HC_REQ_X.get(info,"Invalid authentication method: " + am);
+    }
+  }
+ else {
+    req.attributes.remove(Request.USERNAME);
+    req.attributes.remove(Request.PASSWORD);
+    req.attributes.remove(Request.AUTH_METHOD);
+  }
+  final String timeout=req.attribute(Request.TIMEOUT);
+  if (timeout != null && Strings.toInt(timeout) < 0)   throw HC_REQ_X.get(info,"Invalid timeout: " + timeout);
+  for (  final Request r : new Request[]{Request.FOLLOW_REDIRECT,Request.STATUS_ONLY,Request.SEND_AUTHORIZATION}) {
+    final String s=req.attribute(r);
+    if (s != null && !Strings.eq(s,Text.TRUE,Text.FALSE))     throw HC_REQ_X.get(info,"Value of '" + r + "' attribute is no boolean: "+ s);
+  }
+}

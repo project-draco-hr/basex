@@ -1,22 +1,20 @@
 {
   String plan=null;
-  QueryProcessor qp=new QueryProcessor(query,context);
   try {
-    ArrayOutput ao=qp.execute().serialize();
-    if (result != null)     assertEquals(result,ao.toString().replaceAll("\\r?\\n",""));
-    plan=qp.plan().serialize().toString();
-    qp.close();
-    qp=new QueryProcessor(plan + "/descendant-or-self::*" + "[self::"+ Util.className(ValueAccess.class)+ "|self::"+ Util.className(FTIndexAccess.class)+ ']',context);
-    ao=qp.execute().serialize();
-    assertFalse("No index used:\nQuery: " + query + "\nInfo: "+ qp.info()+ "\nPlan: "+ plan,ao.toString().isEmpty());
-  }
+    try (QueryProcessor qp=new QueryProcessor(query,context)){
+      final String string=qp.execute().serialize();
+      if (result != null)       assertEquals(result,normNL(string));
+      plan=qp.plan().serialize().toString();
+    }
+     try (QueryProcessor qp=new QueryProcessor(plan + "/descendant-or-self::*" + "[self::"+ Util.className(ValueAccess.class)+ "|self::"+ Util.className(FTIndexAccess.class)+ ']',context)){
+      final String string=qp.execute().serialize();
+      assertFalse("No index used:\n- Query: " + query + "\n- Plan: "+ plan+ "\n- "+ qp.info().trim(),string.isEmpty());
+    }
+   }
  catch (  final QueryException ex) {
-    fail(Util.message(ex) + "\nQuery: " + query+ "\nPlan: "+ plan);
+    fail(Util.message(ex) + "\n- Query: " + query+ "\n- Plan: "+ plan);
   }
 catch (  final IOException ex) {
     fail(Util.message(ex));
-  }
- finally {
-    qp.close();
   }
 }

@@ -1,11 +1,14 @@
 {
+  boolean ok=true;
   if (file.exists()) {
-    boolean ok=true;
     if (isDir())     for (    final IOFile ch : children())     ok&=ch.delete();
-    for (int i=0; i < 5; i++) {
-      if (file.delete() && !file.exists())       return ok;
-      Performance.sleep(i * 10L);
+    try {
+      Files.delete(toPath());
+    }
+ catch (    final IOException ex) {
+      Util.debug(ex);
+      return false;
     }
   }
-  return false;
+  return ok;
 }

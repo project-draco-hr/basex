@@ -1,12 +1,43 @@
 {
-  final int p=get(o);
+  final int p=get(old);
   if (p >= 0) {
     final int[] tmp={id};
-    if (deleteIds(p,o,tmp) == 0) {
-      cache.delete(o);
+    if (deleteIds(p,old,tmp)) {
       tmp[0]=p;
       deleteKeys(tmp);
     }
   }
-  insertId(n,id);
+  final IntList newIds;
+  int index=get(key);
+  if (index < 0) {
+    newIds=new IntList(1).add(id);
+    index=-(index + 1);
+    final int sz=size() + 1;
+    final byte[] tmp=idxr.readBytes(0,sz * 5);
+    for (int i=sz - 1; i > index; --i)     copy(tmp,i,i - 1);
+    idxr.cursor(0);
+    idxr.writeBytes(tmp,0,sz * 5);
+    size(sz);
+  }
+ else {
+    final long off=idxr.read5(index * 5L);
+    final int num=idxl.readNum(off);
+    final int newSize=num + 1;
+    newIds=new IntList(newSize);
+    boolean notadded=true;
+    int prevId=0;
+    for (int i=0; i < num; ++i) {
+      int v=idxl.readNum();
+      if (notadded && id < prevId + v) {
+        newIds.add(id);
+        notadded=false;
+        v-=id - prevId;
+        prevId=id;
+      }
+      newIds.add(id);
+      prevId+=v;
+    }
+    if (notadded)     newIds.add(id);
+  }
+  writeIds(key,newIds,index);
 }

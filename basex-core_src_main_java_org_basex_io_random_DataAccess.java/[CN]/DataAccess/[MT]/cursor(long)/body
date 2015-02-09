@@ -1,13 +1,13 @@
 {
-  off=(int)(p & IO.BLOCKSIZE - 1);
-  final long b=p - off;
+  off=(int)(pos & IO.BLOCKSIZE - 1);
+  final long b=pos - off;
   if (!bm.cursor(b))   return;
   final Buffer bf=bm.current();
   try {
     if (bf.dirty)     writeBlock(bf);
     bf.pos=b;
-    file.seek(bf.pos);
-    if (bf.pos < file.length())     file.readFully(bf.data,0,(int)Math.min(len - bf.pos,IO.BLOCKSIZE));
+    raf.seek(bf.pos);
+    if (bf.pos < raf.length())     raf.readFully(bf.data,0,(int)Math.min(length - bf.pos,IO.BLOCKSIZE));
   }
  catch (  final IOException ex) {
     Util.stack(ex);

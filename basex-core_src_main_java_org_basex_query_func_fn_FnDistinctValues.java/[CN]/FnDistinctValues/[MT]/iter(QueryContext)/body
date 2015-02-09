@@ -1,0 +1,16 @@
+{
+  final Collation coll=toCollation(1,qc);
+  if (exprs[0] instanceof RangeSeq)   return exprs[0].iter(qc);
+  return new Iter(){
+    final ItemSet set=coll == null ? new HashItemSet() : new CollationItemSet(coll);
+    final Iter ir=exprs[0].atomIter(qc,info);
+    @Override public Item next() throws QueryException {
+      while (true) {
+        final Item it=ir.next();
+        if (it == null)         return null;
+        if (set.add(it,info))         return it;
+      }
+    }
+  }
+;
+}

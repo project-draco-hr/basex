@@ -2,23 +2,24 @@
   if (tdata.rows == null)   return;
   if (moveC != -1) {
     final int x=e.getX();
-    final double p=(double)(x - mouseX) / (getWidth() - BaseXScrollBar.SIZE);
+    final double p=(double)(x - mouseX) / (getWidth() - view.scroll.getWidth());
     final double[] ww=new double[tdata.cols.length];
-    for (int w=0; w < ww.length; ++w)     ww[w]=tdata.cols[w].width;
+    final int wl=ww.length;
+    for (int w=0; w < wl; ++w)     ww[w]=tdata.cols[w].width;
     if (e.isShiftDown()) {
       ww[moveC - 1]+=p;
       ww[moveC]-=p;
     }
  else {
       for (int i=0; i < moveC; ++i)       ww[i]+=p / moveC;
-      for (int i=moveC; i < ww.length; ++i)       ww[i]-=p / (ww.length - moveC);
+      for (int i=moveC; i < wl; ++i)       ww[i]-=p / (wl - moveC);
     }
     for (    final double w : ww)     if (w < 0.0001)     return;
     mouseX=x;
-    for (int w=0; w < ww.length; ++w)     tdata.cols[w].width=ww[w];
+    for (int w=0; w < wl; ++w)     tdata.cols[w].width=ww[w];
   }
  else   if (clickCol != -1) {
-    int c=tdata.column(getWidth() - BaseXScrollBar.SIZE,e.getX());
+    int c=tdata.column(getWidth() - view.scroll.getWidth(),e.getX());
     if (c == -1)     c=tdata.cols.length;
     if (c != clickCol || header != header(e.getY()))     clickCol=-1;
   }

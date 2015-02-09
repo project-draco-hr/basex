@@ -1,0 +1,18 @@
+{
+  final byte[] val=toEmptyToken(exprs[0],qc);
+  if (exprs.length < 2)   return StrSeq.get(split(normalize(val),' '));
+  final Pattern p=pattern(exprs[1],exprs.length == 3 ? exprs[2] : null,qc,true);
+  if (p.matcher("").matches())   throw REGROUP.get(info);
+  final TokenList tl=new TokenList();
+  final String str=string(val);
+  if (!str.isEmpty()) {
+    final Matcher m=p.matcher(str);
+    int s=0;
+    while (m.find()) {
+      tl.add(str.substring(s,m.start()));
+      s=m.end();
+    }
+    tl.add(str.substring(s,str.length()));
+  }
+  return StrSeq.get(tl);
+}

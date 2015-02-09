@@ -1,15 +1,16 @@
 {
   String arg=in.readString();
-  String err=null;
+  String error=null;
   try {
-    final QueryListener qp;
+    final ServerQuery qp;
     final StringBuilder info=new StringBuilder();
     if (sc == ServerCmd.QUERY) {
       final String query=arg;
-      qp=new QueryListener(query,context);
+      qp=new ServerQuery(query,context);
       arg=Integer.toString(id++);
       queries.put(arg,qp);
-      out.writeString(arg);
+      out.print(arg);
+      out.write(0);
       info.append(query);
     }
  else {
@@ -59,18 +60,19 @@
       out.write(0);
     }
     out.write(0);
-    log(new StringBuilder(sc.toString()).append('[').append(arg).append("] ").append(info),true);
+    log(LogType.OK,sc.toString() + '[' + arg+ "] "+ info);
   }
  catch (  final Throwable ex) {
-    err=Util.message(ex);
-    log(sc + "[" + arg+ ']',null);
-    log(err,false);
+    error=Util.message(ex);
+    log(LogType.REQUEST,sc + "[" + arg+ ']');
+    log(LogType.ERROR,error);
     queries.remove(arg);
   }
-  if (err != null) {
+  if (error != null) {
     out.write(0);
     out.write(1);
-    out.writeString(err);
+    out.print(error);
+    out.write(0);
   }
   out.flush();
 }

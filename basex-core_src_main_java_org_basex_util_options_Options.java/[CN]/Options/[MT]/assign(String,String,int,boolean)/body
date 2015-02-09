@@ -12,13 +12,13 @@
       v=!b;
     }
  else {
-      v=Util.yes(val);
-      if (!v && !Util.no(val))       throw new BaseXException(Text.OPT_BOOLEAN,option.name());
+      v=Strings.yes(val);
+      if (!v && !Strings.no(val))       throw new BaseXException(Text.OPT_BOOLEAN,option.name());
     }
     put(option,v);
   }
  else   if (option instanceof NumberOption) {
-    final int v=toInt(val);
+    final int v=Strings.toInt(val);
     if (v == MIN_VALUE)     throw new BaseXException(Text.OPT_NUMBER,option.name());
     put(option,v);
   }
@@ -37,15 +37,14 @@
     put(option,o);
   }
  else   if (option instanceof NumbersOption) {
-    final int v=toInt(val);
+    final int v=Strings.toInt(val);
     if (v == MIN_VALUE)     throw new BaseXException(Text.OPT_NUMBER,option.name());
     int[] ii=(int[])get(option);
     if (num == -1) {
       if (ii == null)       ii=new int[0];
       final IntList il=new IntList(ii.length + 1);
       for (      final int i : ii)       il.add(i);
-      il.add(v);
-      put(option,il.toArray());
+      put(option,il.add(v).finish());
     }
  else {
       if (num < 0 || num >= ii.length)       throw new BaseXException(Text.OPT_OFFSET,option.name());
@@ -58,11 +57,10 @@
       if (ss == null)       ss=new String[0];
       final StringList sl=new StringList(ss.length + 1);
       for (      final String s : ss)       sl.add(s);
-      sl.add(val);
-      put(option,sl.toArray());
+      put(option,sl.add(val).finish());
     }
  else     if (num == 0) {
-      final int v=toInt(val);
+      final int v=Strings.toInt(val);
       if (v == MIN_VALUE)       throw new BaseXException(Text.OPT_NUMBER,option.name());
       values.put(name,new String[v]);
     }

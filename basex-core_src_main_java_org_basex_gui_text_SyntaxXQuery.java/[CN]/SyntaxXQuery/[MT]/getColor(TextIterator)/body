@@ -16,7 +16,10 @@
  else   if (comment == 3 && ch != ':') {
     comment=ch == ')' ? 0 : 2;
   }
-  if (comment != 0)   return COMMENT;
+  if (comment != 0) {
+    var=false;
+    return COMMENT;
+  }
   if (ch == '"' || ch == '\'') {
     quote=ch;
     return STRING;
@@ -29,18 +32,8 @@
     var=XMLToken.isChar(ch);
     return VARIABLE;
   }
-  if (!XMLToken.isNCChar(ch)) {
-    fun=false;
-    return COMMENT;
-  }
-  final String word=iter.nextString();
-  final boolean keys=KEYWORDS.contains(word);
-  final boolean func=FUNCTIONS.contains(word);
-  if (fun && func)   return FUNCTION;
-  if (keys)   return KEYWORD;
-  if (func) {
-    fun=true;
-    return FUNCTION;
-  }
+  if (Token.digit(ch))   return FUNCTION;
+  if (!XMLToken.isNCChar(ch))   return COMMENT;
+  if (KEYWORDS.contains(iter.nextString()))   return KEYWORD;
   return plain;
 }

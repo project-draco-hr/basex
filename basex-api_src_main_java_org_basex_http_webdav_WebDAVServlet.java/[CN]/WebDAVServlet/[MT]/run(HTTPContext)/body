@@ -1,14 +1,14 @@
 {
-  final BXResourceFactory resources=new BXResourceFactory(http);
-  final HttpManager manager=new HttpManager(resources);
-  final Request request=new BXServletRequest(http.req);
-  final Response response=new BXServletResponse(http.res);
+  final BXServletRequest request=new BXServletRequest(http.req);
+  final Auth a=request.getAuthorization();
+  if (a != null)   http.credentials(a.getUser(),a.getPassword());
+  resources.init(http);
+  final BXServletResponse response=new BXServletResponse(http.res);
   try {
     manager.process(request,response);
   }
   finally {
+    response.close();
     resources.close();
-    http.res.getOutputStream().flush();
-    http.res.flushBuffer();
   }
 }

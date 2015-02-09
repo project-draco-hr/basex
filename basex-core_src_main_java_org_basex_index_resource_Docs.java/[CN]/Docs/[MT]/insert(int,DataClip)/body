@@ -1,21 +1,23 @@
 {
-  final IntList pres=new IntList();
+  final IntList il=new IntList();
+  final Data src=clip.data;
   for (int dpre=clip.start; dpre < clip.end; ) {
-    final int k=clip.data.kind(dpre);
-    if (k == Data.DOC)     pres.add(pre + dpre);
-    dpre+=clip.data.size(dpre,k);
+    final int k=src.kind(dpre);
+    if (k == Data.DOC)     il.add(pre + dpre);
+    dpre+=src.size(dpre,k);
   }
-  final int[] presA=pres.toArray();
+  final int[] pres=il.finish();
+  final int ps=pres.length;
   final IntList docs=docs();
-  final TokenList paths=paths();
   int i=docs.sortedIndexOf(pre);
   if (i < 0)   i=-i - 1;
-  docs.insert(i,presA);
-  docs.move(clip.size(),i + pres.size());
-  final byte[][] t=new byte[presA.length][];
-  for (int j=0; j < t.length; j++) {
-    t[j]=normalize(clip.data.text(presA[j] - pre,true));
+  if (pathIndex) {
+    final TokenList paths=paths();
+    final byte[][] tmp=new byte[ps][];
+    for (int t=0; t < ps; t++)     tmp[t]=normalize(clip.data.text(pres[t] - pre,true));
+    paths.insert(i,tmp);
   }
-  paths.insert(i,t);
-  pathOrder=null;
+  docs.insert(i,pres);
+  docs.incFrom(clip.size(),i + ps);
+  update();
 }

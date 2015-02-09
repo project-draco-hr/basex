@@ -1,10 +1,15 @@
 {
-  final long l=Token.toLong(val);
-  if (l != Long.MIN_VALUE)   return l;
-  try {
-    return Long.parseLong(Token.string(val).trim());
+  final byte[] val=Token.trim(value);
+  boolean valid=true;
+  for (  final byte v : val) {
+    if (!Token.digit(v) && v != '+' && v != '-') {
+      valid=false;
+      break;
+    }
   }
- catch (  final NumberFormatException ex) {
-    throw FUNCAST.get(ii,NUMS[0].type,chop(val));
+  if (valid) {
+    final long l=Token.toLong(val);
+    if (l != Long.MIN_VALUE || Token.eq(val,Token.MINLONG))     return l;
   }
+  throw funCastError(ii,AtomType.INT,val);
 }

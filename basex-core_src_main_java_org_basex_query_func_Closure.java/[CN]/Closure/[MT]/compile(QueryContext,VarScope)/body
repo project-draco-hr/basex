@@ -2,19 +2,19 @@
   if (compiled)   return this;
   compiled=true;
   for (  final Entry<Var,Expr> e : nonLocal.entrySet()) {
-    final Expr bound=e.getValue().compile(ctx,scp);
+    final Expr bound=e.getValue().compile(qc,scp);
     e.setValue(bound);
-    e.getKey().refineType(bound.type(),ctx,info);
+    e.getKey().refineType(bound.seqType(),qc,info);
   }
   try {
-    expr=expr.compile(ctx,scope);
+    expr=expr.compile(qc,scope);
   }
  catch (  final QueryException qe) {
-    expr=FNInfo.error(qe,ret != null ? ret : expr.type());
+    expr=FnError.get(qe,ret != null ? ret : expr.seqType());
   }
  finally {
     scope.cleanUp(this);
   }
-  expr.markTailCalls(ctx);
-  return optimize(ctx,scp);
+  expr.markTailCalls(qc);
+  return optimize(qc,scp);
 }

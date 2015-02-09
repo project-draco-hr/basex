@@ -1,0 +1,12 @@
+{
+  final int len=refs.length;
+  for (int r=refs.length; --r >= 0; ) {
+    if (!used.get(refs[r].var.id))     refs=Array.delete(refs,r);
+  }
+  if (refs.length == used.cardinality())   return refs.length != len;
+  outer:   for (int id=used.nextSet(0); id >= 0; id=used.nextSet(id + 1)) {
+    for (    final VarRef ref : refs)     if (ref.var.id == id)     continue outer;
+    refs=Array.add(refs,new VarRef(info,decl.get(id)));
+  }
+  return true;
+}

@@ -1,0 +1,22 @@
+{
+  close();
+  final MainOptions opts=new MainOptions(qc.context.options);
+  options.assignTo(opts);
+  try {
+    final Data data=CreateDB.create(name,Parser.emptyParser(opts),qc.context,opts);
+    if (add.data != null) {
+      data.startUpdate(opts);
+      try {
+        data.insert(data.meta.size,-1,new DataClip(add.data));
+        Optimize.optimize(data,opts,null);
+      }
+  finally {
+        data.finishUpdate(opts);
+      }
+    }
+    Close.close(data,qc.context);
+  }
+ catch (  final IOException ex) {
+    throw UPDBOPTERR_X.get(info,ex);
+  }
+}

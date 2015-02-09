@@ -1,25 +1,23 @@
 {
   super(md);
-  final DataInput in=new DataInput(meta.dbfile(DATATBL + 'i'));
-  final int b=in.readNum();
-  blocks=b;
-  final int u=in.readNum();
-  final boolean regular=u == 0 || u == Integer.MAX_VALUE;
-  if (regular) {
-    used=u == 0 ? 0 : b;
-  }
+  try (final DataInput in=new DataInput(meta.dbfile(DATATBL + 'i'))){
+    final int b=in.readNum();
+    blocks=b;
+    final int u=in.readNum();
+    final boolean regular=u == 0 || u == Integer.MAX_VALUE;
+    if (regular) {
+      used=u == 0 ? 0 : b;
+    }
  else {
-    used=u;
-    fpres=in.readNums();
-    pages=in.readNums();
+      used=u;
+      fpres=in.readNums();
+      pages=in.readNums();
+    }
+    if (!regular) {
+      final int psize=in.readNum();
+      usedPages=new BitArray(in.readLongs(psize),used);
+    }
   }
-  if (!regular) {
-    final int psize=in.readNum();
-    usedPages=new BitArray(in.readLongs(psize),used);
-  }
-  in.close();
-  file=new RandomAccessFile(meta.dbfile(DATATBL).file(),"rw");
-  if (lock)   exclusiveLock();
- else   sharedLock();
-  if (fl == null)   throw new BaseXException(Text.DB_PINNED_X,md.name);
+   file=new RandomAccessFile(meta.dbfile(DATATBL).file(),"rw");
+  if (!lock(write))   throw new BaseXException(Text.DB_PINNED_X,md.name);
 }

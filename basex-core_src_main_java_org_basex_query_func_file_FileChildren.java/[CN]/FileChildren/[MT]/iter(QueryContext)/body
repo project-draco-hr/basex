@@ -1,0 +1,19 @@
+{
+  checkCreate(qc);
+  try {
+    final TokenList children=new TokenList();
+    try (DirectoryStream<Path> paths=Files.newDirectoryStream(toPath(0,qc))){
+      for (      final Path child : paths)       children.add(get(child,Files.isDirectory(child)).string());
+    }
+     return StrSeq.get(children).iter();
+  }
+ catch (  final NoSuchFileException|NotDirectoryException ex) {
+    throw FILE_NO_DIR_X.get(info,ex);
+  }
+catch (  final AccessDeniedException ex) {
+    throw FILE_IE_ERROR_ACCESS_X.get(info,ex);
+  }
+catch (  final IOException ex) {
+    throw FILE_IO_ERROR_X.get(info,ex);
+  }
+}

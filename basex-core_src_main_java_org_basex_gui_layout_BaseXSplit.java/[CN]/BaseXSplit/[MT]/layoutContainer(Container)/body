@@ -1,22 +1,23 @@
 {
-  final Component[] c=getComponents();
+  final Component[] comps=getComponents();
+  final int cl=comps.length;
   final int w=getWidth(), h=getHeight();
-  final int panels=c.length + 1 >> 1;
+  final int panels=comps.length + 1 >> 1;
   if (propSize == null) {
     propSize=new double[panels];
-    for (int n=0; n < c.length; ++n) {
-      if ((n & 1) == 0)       propSize[n >> 1]=1d / panels;
+    for (int c=0; c < cl; ++c) {
+      if ((c & 1) == 0)       propSize[c >> 1]=1d / panels;
     }
   }
-  int n=panels - 1;
-  for (  final double d : propSize)   if (d == 0)   n--;
-  final int sz=(horiz ? w : h) - n * BaseXSplitSep.SIZE;
+  int c=panels - 1;
+  for (  final double d : propSize)   if (d == 0)   c--;
+  final int sz=(horiz ? w : h) - c * BaseXSplitSep.SIZE;
   double posD=0;
   boolean invisible=false;
-  for (n=0; n < c.length; ++n) {
+  for (c=0; c < cl; c++) {
     final int size;
-    if ((n & 1) == 0) {
-      size=(int)(propSize[n >> 1] * sz);
+    if ((c & 1) == 0) {
+      size=(int)(propSize[c >> 1] * sz);
       invisible=size == 0;
     }
  else {
@@ -24,10 +25,10 @@
     }
     final int pos=(int)posD;
     if (horiz) {
-      c[n].setBounds(pos,0,size,h);
+      comps[c].setBounds(pos,0,size,h);
     }
  else {
-      c[n].setBounds(0,pos,w,size);
+      comps[c].setBounds(0,pos,w,size);
     }
     posD+=size;
   }

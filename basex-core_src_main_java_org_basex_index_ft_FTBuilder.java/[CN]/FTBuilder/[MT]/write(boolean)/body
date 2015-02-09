@@ -1,40 +1,36 @@
 {
   writeIndex(partial);
   if (!partial)   return;
-  final DataOutput outX=new DataOutput(data.meta.dbfile(DATAFTX + 'x'));
-  final DataOutput outY=new DataOutput(data.meta.dbfile(DATAFTX + 'y'));
-  final DataOutput outZ=new DataOutput(data.meta.dbfile(DATAFTX + 'z'));
-  final IntList ind=new IntList();
-  final FTList[] v=new FTList[splits];
-  for (int b=0; b < splits; ++b)   v[b]=new FTList(data,b);
-  final IntList il=new IntList();
-  while (check(v)) {
-    il.reset();
-    int m=0;
-    il.add(m);
-    for (int i=0; i < splits; ++i) {
-      if (m == i || v[i].tok.length == 0)       continue;
-      final int l=v[i].tok.length - v[m].tok.length;
-      final int d=diff(v[m].tok,v[i].tok);
-      if (l < 0 || l == 0 && d > 0 || v[m].tok.length == 0) {
-        m=i;
-        il.reset();
-        il.add(m);
+  try (final DataOutput outX=new DataOutput(data.meta.dbfile(DATAFTX + 'x'));final DataOutput outY=new DataOutput(data.meta.dbfile(DATAFTX + 'y'));final DataOutput outZ=new DataOutput(data.meta.dbfile(DATAFTX + 'z'))){
+    final IntList ind=new IntList();
+    final FTList[] v=new FTList[splits];
+    for (int b=0; b < splits; ++b)     v[b]=new FTList(data,b);
+    final IntList il=new IntList();
+    while (check(v)) {
+      il.reset();
+      int m=0;
+      il.add(m);
+      for (int i=0; i < splits; ++i) {
+        if (m == i || v[i].tok.length == 0)         continue;
+        final int l=v[i].tok.length - v[m].tok.length;
+        final int d=diff(v[m].tok,v[i].tok);
+        if (l < 0 || l == 0 && d > 0 || v[m].tok.length == 0) {
+          m=i;
+          il.reset();
+          il.add(m);
+        }
+ else         if (d == 0 && v[i].tok.length > 0) {
+          il.add(i);
+        }
       }
- else       if (d == 0 && v[i].tok.length > 0) {
-        il.add(i);
+      if (ind.isEmpty() || ind.get(ind.size() - 2) < v[m].tok.length) {
+        ind.add(v[m].tok.length);
+        ind.add((int)outY.size());
       }
+      outY.writeBytes(v[m].tok);
+      outY.write5(outZ.size());
+      outY.write4(merge(outZ,il,v));
     }
-    if (ind.isEmpty() || ind.get(ind.size() - 2) < v[m].tok.length) {
-      ind.add(v[m].tok.length);
-      ind.add((int)outY.size());
-    }
-    outY.writeBytes(v[m].tok);
-    outY.write5(outZ.size());
-    outY.write4(merge(outZ,il,v));
+    writeInd(outX,ind,ind.get(ind.size() - 2) + 1,(int)outY.size());
   }
-  writeInd(outX,ind,ind.get(ind.size() - 2) + 1,(int)outY.size());
-  outX.close();
-  outY.close();
-  outZ.close();
-}
+ }

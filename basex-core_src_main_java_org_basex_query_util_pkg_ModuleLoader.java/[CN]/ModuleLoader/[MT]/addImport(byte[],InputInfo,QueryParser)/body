@@ -19,7 +19,7 @@
   String uriPath=uri2path(string(java ? substring(uri,JAVAPREF.length) : uri));
   if (uriPath == null)   return false;
   if (!java) {
-    final String path=context.globalopts.get(GlobalOptions.REPOPATH) + uriPath;
+    final String path=context.soptions.get(StaticOptions.REPOPATH) + uriPath;
     for (    final String suf : IO.XQSUFFIXES) {
       final IOFile file=new IOFile(path + suf);
       if (file.exists()) {
@@ -29,9 +29,24 @@
     }
   }
   uriPath=capitalize(uriPath);
-  final String path=context.globalopts.get(GlobalOptions.REPOPATH) + uriPath;
+  final String path=context.soptions.get(StaticOptions.REPOPATH) + uriPath;
   final IOFile file=new IOFile(path + IO.JARSUFFIX);
   if (file.exists())   addURL(file);
-  addJava(uriPath,ii);
+  final String cp=Strings.camelCase(uriPath.replace('/','.').substring(1));
+  final Class<?> clz;
+  try {
+    clz=findClass(cp);
+  }
+ catch (  final ClassNotFoundException ex) {
+    if (java)     throw WHICHCLASS_X.get(ii,ex.getMessage());
+    return false;
+  }
+catch (  final Throwable th) {
+    throw MODINITERR_X.get(ii,th);
+  }
+  final Object jm=Reflect.get(clz);
+  if (jm == null)   throw INSTERR_X.get(ii,cp);
+  if (javaModules == null)   javaModules=new HashSet<>();
+  javaModules.add(jm);
   return true;
 }

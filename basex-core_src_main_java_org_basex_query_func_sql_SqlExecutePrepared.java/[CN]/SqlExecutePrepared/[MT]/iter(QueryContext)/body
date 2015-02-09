@@ -1,0 +1,22 @@
+{
+  checkCreate(qc);
+  final int id=(int)toLong(exprs[0],qc);
+  long c=0;
+  ANode params=null;
+  if (exprs.length > 1) {
+    params=toElem(exprs[1],qc);
+    if (!params.qname().eq(Q_PARAMETERS))     throw INVALIDOPTION_X.get(info,params.qname().local());
+    c=countParams(params);
+  }
+  final Object obj=jdbc(qc).get(id);
+  if (!(obj instanceof PreparedStatement))   throw BXSQ_STATE_X.get(info,id);
+  try {
+    final PreparedStatement stmt=(PreparedStatement)obj;
+    if (c != stmt.getParameterMetaData().getParameterCount())     throw BXSQ_PARAMS.get(info);
+    if (params != null)     setParameters(params.children(),stmt);
+    return stmt.execute() ? iter(stmt,false) : Empty.ITER;
+  }
+ catch (  final SQLException ex) {
+    throw BXSQ_ERROR_X.get(info,ex);
+  }
+}

@@ -2,8 +2,8 @@
   super(args);
   parseArgs();
   context=HTTPContext.init();
-  final GlobalOptions gopts=context.globalopts;
-  final String webapp=gopts.get(GlobalOptions.WEBPATH);
+  final StaticOptions sopts=context.soptions;
+  final String webapp=sopts.get(StaticOptions.WEBPATH);
   final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
   jetty.setHandler(wac);
@@ -32,19 +32,24 @@
     Performance.sleep(1000);
     return;
   }
-  if (!Options.getSystem(GlobalOptions.USER).isEmpty()) {
-    while (Options.getSystem(GlobalOptions.PASSWORD).isEmpty()) {
+  if (!Options.getSystem(StaticOptions.USER).isEmpty()) {
+    while (Options.getSystem(StaticOptions.PASSWORD).isEmpty()) {
       Util.out(PASSWORD + COLS);
-      Options.setSystem(GlobalOptions.PASSWORD,Util.password());
+      Options.setSystem(StaticOptions.PASSWORD,Util.password());
     }
   }
-  jetty.start();
-  for (  final Connector c : jetty.getConnectors()) {
-    Util.outln(startX,c.getPort());
+  try {
+    jetty.start();
   }
+ catch (  final BindException ex) {
+    throw new IOException(HTTP + ' ' + SRV_RUNNING,ex);
+  }
+  final IOException ex=HTTPContext.exception();
+  if (ex != null)   throw HTTPContext.exception();
+  for (  final Connector c : jetty.getConnectors())   Util.outln(startX,c.getPort());
   HTTPContext.init(wac.getServletContext());
-  final int stop=gopts.get(GlobalOptions.STOPPORT);
-  if (stop >= 0)   new StopServer(gopts.get(GlobalOptions.SERVERHOST),stop).start();
+  final int stop=sopts.get(StaticOptions.STOPPORT);
+  if (stop >= 0)   new StopServer(sopts.get(StaticOptions.SERVERHOST),stop).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       for (      final Connector c : jetty.getConnectors()) {
@@ -53,7 +58,7 @@
       final Log l=context.log;
       if (l != null) {
         for (        final Connector c : jetty.getConnectors()) {
-          l.writeServer(OK,Util.info(stopX,c.getPort()));
+          l.writeServer(LogType.OK,Util.info(stopX,c.getPort()));
         }
       }
       context.close();
@@ -61,6 +66,6 @@
   }
 );
   for (  final Connector c : jetty.getConnectors()) {
-    context.log.writeServer(OK,Util.info(startX,c.getPort()));
+    context.log.writeServer(LogType.OK,Util.info(startX,c.getPort()));
   }
 }

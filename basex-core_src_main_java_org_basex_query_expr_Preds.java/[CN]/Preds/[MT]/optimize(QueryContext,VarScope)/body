@@ -1,37 +1,53 @@
 {
-  for (int p=0; p < preds.length; ++p) {
-    Expr pr=Pos.get(OpV.EQ,preds[p],preds[p],info);
-    if (pr instanceof CmpG || pr instanceof CmpV) {
-      final Cmp cmp=(Cmp)pr;
-      if (cmp.expr[0].isFunction(Function.POSITION) && cmp.expr[1].isFunction(Function.LAST)) {
-        if (cmp instanceof CmpG && ((CmpG)cmp).op == OpG.EQ || cmp instanceof CmpV && ((CmpV)cmp).op == OpV.EQ) {
-          ctx.compInfo(OPTWRITE,pr);
-          pr=cmp.expr[1];
+  for (int p=0; p < preds.length; p++) {
+    final Expr pred=preds[p];
+    if (pred instanceof CmpG || pred instanceof CmpV) {
+      final Cmp cmp=(Cmp)pred;
+      if (cmp.exprs[0].isFunction(Function.POSITION)) {
+        final Expr e2=cmp.exprs[1];
+        final SeqType st2=e2.seqType();
+        if (e2.isFunction(Function.LAST) || st2.one() && st2.type.isNumber()) {
+          if (cmp instanceof CmpG && ((CmpG)cmp).op == OpG.EQ || cmp instanceof CmpV && ((CmpV)cmp).op == OpV.EQ) {
+            qc.compInfo(OPTWRITE,pred);
+            preds[p]=e2;
+          }
         }
       }
     }
-    if (pr.isValue()) {
-      if (!pr.ebv(ctx,info).bool(info)) {
-        ctx.compInfo(OPTREMOVE,this,pr);
+ else     if (pred instanceof And) {
+      if (!pred.has(Flag.FCS)) {
+        qc.compInfo(OPTPRED,pred);
+        final Expr[] and=((Arr)pred).exprs;
+        final int m=and.length - 1;
+        final ExprList el=new ExprList(preds.length + m);
+        for (        final Expr e : Arrays.asList(preds).subList(0,p))         el.add(e);
+        for (        final Expr a : and) {
+          el.add(Function.BOOLEAN.get(null,info,a).optimizeEbv(qc,scp));
+        }
+        for (        final Expr e : Arrays.asList(preds).subList(p + 1,preds.length))         el.add(e);
+        preds=el.finish();
+      }
+    }
+ else     if (pred instanceof ANum) {
+      final ANum it=(ANum)pred;
+      final long i=it.itr();
+      if (i == it.dbl()) {
+        preds[p]=Pos.get(i,info);
+      }
+ else {
+        qc.compInfo(OPTREMOVE,this,pred);
         return Empty.SEQ;
       }
-      ctx.compInfo(OPTREMOVE,this,pr);
-      preds=Array.delete(preds,p--);
     }
- else     if (pr instanceof And && !pr.has(Flag.FCS)) {
-      ctx.compInfo(OPTPRED,pr);
-      final Expr[] and=((Arr)pr).expr;
-      final int m=and.length - 1;
-      final ExprList tmp=new ExprList(preds.length + m);
-      for (      final Expr e : Arrays.asList(preds).subList(0,p))       tmp.add(e);
-      for (      final Expr a : and) {
-        tmp.add(Function.BOOLEAN.get(null,info,a).compEbv(ctx));
+ else     if (pred.isValue()) {
+      if (pred.ebv(qc,info).bool(info)) {
+        qc.compInfo(OPTREMOVE,this,pred);
+        preds=Array.delete(preds,p--);
       }
-      for (      final Expr e : Arrays.asList(preds).subList(p + 1,preds.length))       tmp.add(e);
-      preds=tmp.finish();
-    }
  else {
-      preds[p]=pr;
+        qc.compInfo(OPTREMOVE,this,pred);
+        return Empty.SEQ;
+      }
     }
   }
   return this;

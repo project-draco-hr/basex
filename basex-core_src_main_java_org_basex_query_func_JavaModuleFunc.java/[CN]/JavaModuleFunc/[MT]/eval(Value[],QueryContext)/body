@@ -2,12 +2,12 @@
   if (module instanceof QueryModule) {
     final QueryModule mod=(QueryModule)module;
     mod.staticContext=sc;
-    mod.queryContext=ctx;
+    mod.queryContext=qc;
   }
   final Object[] args=JavaFunc.args(params,vTypes,vals,true);
   if (args != null) {
     try {
-      return mth.invoke(module,args);
+      return method.invoke(module,args);
     }
  catch (    final Exception ex) {
       Throwable e=ex;
@@ -15,13 +15,13 @@
         Util.debug(e);
         e=e.getCause();
       }
-      throw e instanceof QueryException ? ((QueryException)e).info(info) : JAVAERR.get(info,e);
+      throw e instanceof QueryException ? ((QueryException)e).info(info) : JAVAERROR_X.get(info,e);
     }
   }
   final TokenBuilder expect=new TokenBuilder();
-  for (  final Class<?> c : mth.getParameterTypes()) {
+  for (  final Class<?> c : method.getParameterTypes()) {
     if (!expect.isEmpty())     expect.add(", ");
     expect.add(Util.className(c));
   }
-  throw JAVAMOD.get(info,mth.getName() + '(' + expect+ ')',mth.getName() + '(' + foundArgs(vals)+ ')');
+  throw JAVAARGS_X_X.get(info,method.getName() + '(' + expect+ ')',method.getName() + '(' + foundArgs(vals)+ ')');
 }

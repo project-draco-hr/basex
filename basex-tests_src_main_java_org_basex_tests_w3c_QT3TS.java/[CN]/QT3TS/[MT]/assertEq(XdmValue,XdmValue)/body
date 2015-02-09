@@ -1,10 +1,10 @@
 {
+  final String exp=expected.getString();
   try {
-    final XdmItem exp=new XQuery(expect.getString(),ctx).next();
-    final XdmItem res=value instanceof XdmItem ? (XdmItem)value : null;
-    return exp.equal(res) ? null : exp.toString();
+    final String qu="declare variable $returned external; $returned eq " + exp;
+    return new XQuery(qu,ctx).bind("$returned",returned).value().getBoolean() ? null : exp;
   }
  catch (  final XQueryException err) {
-    return expect.getString().equals(value.getString()) ? null : err.getException().getMessage();
+    return err.getCode().equals("FOAR0002") && exp.equals(expected.getString()) ? null : err.getException().getMessage();
   }
 }

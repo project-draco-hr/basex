@@ -1,16 +1,26 @@
 {
   if (preds.length == 0)   return true;
-  final Value cv=ctx.value;
+  final Value cv=qc.value;
   try {
-    for (    final Expr p : preds) {
-      ctx.value=it;
-      final Item i=p.test(ctx,info);
-      if (i == null)       return false;
-      it.score(i.score());
+    if (qc.scoring) {
+      double s=0;
+      for (      final Expr p : preds) {
+        qc.value=it;
+        final Item i=p.test(qc,info);
+        if (i == null)         return false;
+        s+=i.score();
+      }
+      it.score(Scoring.avg(s,preds.length));
+    }
+ else {
+      for (      final Expr p : preds) {
+        qc.value=it;
+        if (p.test(qc,info) == null)         return false;
+      }
     }
     return true;
   }
   finally {
-    ctx.value=cv;
+    qc.value=cv;
   }
 }

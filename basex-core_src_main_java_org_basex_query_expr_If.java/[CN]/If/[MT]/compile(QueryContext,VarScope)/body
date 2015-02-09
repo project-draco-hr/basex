@@ -1,14 +1,14 @@
 {
-  cond=cond.compile(ctx,scp).compEbv(ctx);
-  if (cond.isValue())   return optPre(eval(ctx).compile(ctx,scp),ctx);
-  final int es=expr.length;
+  cond=cond.compile(qc,scp).optimizeEbv(qc,scp);
+  if (cond.isValue())   return optPre(eval(qc).compile(qc,scp),qc);
+  final int es=exprs.length;
   for (int e=0; e < es; e++) {
     try {
-      expr[e]=expr[e].compile(ctx,scp);
+      exprs[e]=exprs[e].compile(qc,scp);
     }
  catch (    final QueryException ex) {
-      expr[e]=FNInfo.error(ex,type);
+      exprs[e]=FnError.get(ex,seqType);
     }
   }
-  return optimize(ctx,scp);
+  return optimize(qc,scp);
 }

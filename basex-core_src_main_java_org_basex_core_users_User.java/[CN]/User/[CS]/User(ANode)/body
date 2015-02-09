@@ -1,0 +1,26 @@
+{
+  name=string(attribute("Root",user,NAME));
+  perm=attribute(name,user,PERMISSION,Perm.values());
+  for (  final ANode password : children(user,PASSWORD)) {
+    final EnumMap<Code,String> ec=new EnumMap<>(Code.class);
+    final Algorithm algo=attribute(name,password,ALGORITHM,Algorithm.values());
+    if (passwords.containsKey(algo))     throw new BaseXException(name + ": Algorithm \"" + algo+ "\" supplied more than once.");
+    passwords.put(algo,ec);
+    for (    final ANode code : children(password,null)) {
+      final Code cd=value(name,code.qname().id(),algo.codes);
+      if (ec.containsKey(cd))       throw new BaseXException(name + ", " + algo+ ": Code \""+ code+ "\" supplied more than once.");
+      ec.put(cd,string(code.string()));
+    }
+    for (    final Code code : algo.codes) {
+      if (ec.get(code) == null)       throw new BaseXException(name + ", " + algo+ ": Code \""+ code+ "\" missing.");
+    }
+  }
+  for (  final Algorithm algo : Algorithm.values()) {
+    if (passwords.get(algo) == null)     throw new BaseXException(name + ": Algorithm \"" + algo+ "\" missing.");
+  }
+  for (  final ANode database : children(user,DATABASE)) {
+    final String nm=string(attribute(name,database,PATTERN));
+    final Perm prm=attribute(name,database,PERMISSION,Perm.values());
+    locals.put(nm,prm);
+  }
+}

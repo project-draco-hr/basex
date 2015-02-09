@@ -1,33 +1,34 @@
 {
-  final Iter t=ctx.iter(expr[0]);
+  final Iter t=qc.iter(exprs[0]);
   final Item i=t.next();
-  if (i == null)   throw UPSEQEMP.get(info,Util.className(this));
+  if (i == null)   throw UPSEQEMP_X.get(info,Util.className(this));
   if (t.next() != null)   throw UPWRTRGTYP.get(info);
   final CNode ex;
   if (i.type == NodeType.ELM) {
-    ex=new CElem(sc,info,expr[1],null);
+    ex=new CElem(sc,info,exprs[1],null);
   }
  else   if (i.type == NodeType.ATT) {
-    ex=new CAttr(sc,info,false,expr[1],Empty.SEQ);
+    ex=new CAttr(sc,info,false,exprs[1],Empty.SEQ);
   }
  else   if (i.type == NodeType.PI) {
-    ex=new CPI(sc,info,expr[1],Empty.SEQ);
+    ex=new CPI(sc,info,exprs[1],Empty.SEQ);
   }
  else {
     throw UPWRTRGTYP.get(info);
   }
-  final QNm rename=ex.item(ctx,info).qname();
+  final QNm rename=ex.item(qc,info).qname();
   final ANode targ=(ANode)i;
   if (targ.type == NodeType.ELM || targ.type == NodeType.ATT) {
     final byte[] rp=rename.prefix();
     final byte[] ru=rename.uri();
-    final Atts at=targ.nsScope();
+    final Atts at=targ.nsScope(sc);
     final int as=at.size();
     for (int a=0; a < as; a++) {
       if (eq(at.name(a),rp) && !eq(at.value(a),ru))       throw UPNSCONFL.get(info);
     }
   }
-  final DBNode dbn=ctx.updates.determineDataRef(targ,ctx);
-  ctx.updates.add(new RenameNode(dbn.pre,dbn.data,info,rename),ctx);
+  final Updates updates=qc.resources.updates();
+  final DBNode dbn=updates.determineDataRef(targ,qc);
+  updates.add(new RenameNode(dbn.pre,dbn.data,info,rename),qc);
   return null;
 }

@@ -1,0 +1,14 @@
+{
+  final ValueBuilder vb=new ValueBuilder(Math.max(1,(int)value.size()));
+  for (  final Item item : value) {
+    if (item instanceof FItem)     throw SessionErrors.functionItem();
+    final Data d=item.data();
+    if (d != null && !d.inMemory()) {
+      vb.add(((ANode)item).dbCopy(queryContext.context.options));
+    }
+ else {
+      vb.add(item);
+    }
+  }
+  session().setAttribute(key.toJava(),vb.value());
+}

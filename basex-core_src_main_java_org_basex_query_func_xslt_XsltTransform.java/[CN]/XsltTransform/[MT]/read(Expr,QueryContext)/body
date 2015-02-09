@@ -1,0 +1,15 @@
+{
+  final Item it=toItem(ex,qc);
+  if (it instanceof ANode) {
+    try {
+      final IO io=new IOContent(it.serialize(SerializerOptions.get(false)).finish());
+      io.name(string(((ANode)it).baseURI()));
+      return io;
+    }
+ catch (    final QueryIOException e) {
+      e.getCause(info);
+    }
+  }
+  if (it.type.isStringOrUntyped())   return checkPath(it,qc);
+  throw STRNOD_X_X.get(info,it.type,it);
+}

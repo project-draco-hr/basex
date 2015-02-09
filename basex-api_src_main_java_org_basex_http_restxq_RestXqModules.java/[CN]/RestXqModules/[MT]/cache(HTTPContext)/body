@@ -1,9 +1,11 @@
 {
   if (restxq == null) {
-    final File fl=new File(http.context().globalopts.get(GlobalOptions.RESTXQPATH));
-    restxq=fl.isAbsolute() ? new IOFile(fl) : new IOFile(http.context().globalopts.get(GlobalOptions.WEBPATH),fl.getPath());
+    final StaticOptions sopts=HTTPContext.context().soptions;
+    final String webpath=sopts.get(StaticOptions.WEBPATH);
+    final String rxqpath=sopts.get(StaticOptions.RESTXQPATH);
+    restxq=new IOFile(webpath).resolve(rxqpath);
   }
-  final HashMap<String,RestXqModule> cache=new HashMap<String,RestXqModule>();
+  final HashMap<String,RestXqModule> cache=new HashMap<>();
   cache(http,restxq,cache);
   modules=cache;
 }

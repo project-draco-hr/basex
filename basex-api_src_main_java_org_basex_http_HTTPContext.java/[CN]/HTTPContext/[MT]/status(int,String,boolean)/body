@@ -1,17 +1,31 @@
 {
   try {
-    log(message,code);
+    log(code,info);
     res.resetBuffer();
-    if (code == SC_UNAUTHORIZED)     res.setHeader(WWW_AUTHENTICATE,BASIC);
+    if (code == SC_UNAUTHORIZED) {
+      final StringBuilder header=new StringBuilder(auth.toString());
+      if (auth == AuthMethod.DIGEST) {
+        header.append(" " + Request.REALM + "=\"").append(Prop.NAME).append("\",");
+        header.append(Request.QOP).append("=\"").append(AUTH).append(',');
+        header.append(AUTH_INT).append("\",").append(Request.NONCE + "=\"");
+        header.append(Strings.md5(Long.toString(System.nanoTime()))).append('"');
+      }
+      res.setHeader(WWW_AUTHENTICATE,header.toString());
+    }
     if (error && code >= SC_BAD_REQUEST) {
-      res.sendError(code,message);
+      res.sendError(code,info);
     }
  else {
       res.setStatus(code);
-      if (message != null)       res.getOutputStream().write(token(message));
+      if (info != null) {
+        res.setContentType(TEXT_PLAIN);
+        final ArrayOutput ao=new ArrayOutput();
+        ao.write(token(info));
+        res.getOutputStream().write(ao.normalize().finish());
+      }
     }
   }
  catch (  final IllegalStateException ex) {
-    log(Util.message(ex),SC_INTERNAL_SERVER_ERROR);
+    log(SC_INTERNAL_SERVER_ERROR,Util.message(ex));
   }
 }

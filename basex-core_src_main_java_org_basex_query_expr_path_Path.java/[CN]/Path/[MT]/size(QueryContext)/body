@@ -1,0 +1,25 @@
+{
+  final Value rt=initial(qc);
+  if (rt == null || rt.type != NodeType.DOC)   return -1;
+  final Data data=rt.data();
+  if (data == null || !data.meta.uptodate || data.meta.ndocs != rt.size())   return -1;
+  ArrayList<PathNode> nodes=data.paths.root();
+  long m=1;
+  final int sl=steps.length;
+  for (int s=0; s < sl; s++) {
+    final Step curr=axisStep(s);
+    if (curr != null) {
+      nodes=curr.nodes(nodes,data);
+      if (nodes == null)       return -1;
+    }
+ else     if (s + 1 == sl) {
+      m=steps[s].size();
+    }
+ else {
+      return -1;
+    }
+  }
+  long sz=0;
+  for (  final PathNode pn : nodes)   sz+=pn.stats.count;
+  return sz * m;
+}

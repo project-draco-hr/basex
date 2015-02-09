@@ -1,9 +1,12 @@
 {
-  final int ar=expr.length - 1;
-  final Item it=checkItem(expr[ar],ctx);
-  if (!(it instanceof FItem))   throw INVFUNCITEM.get(info,it.type);
-  final FItem fit=(FItem)it;
-  if (fit.arity() != ar)   throw INVARITY.get(info,fit,ar);
-  if (updating != fit.annotations().contains(Ann.Q_UPDATING))   throw (updating ? UPFUNCNOTUP : UPFUNCUP).get(info);
-  return fit;
+  final int ar=exprs.length - 1;
+  final Item it=toItem(exprs[ar],qc);
+  if (!(it instanceof FItem))   throw INVFUNCITEM_X.get(info,it.type,it);
+  final FItem f=(FItem)it;
+  if (f.arity() != ar) {
+    final Expr e=f instanceof FuncItem ? ((FuncItem)f).expr : f;
+    throw INVARITY_X_X_X_X.get(info,e,ar,ar == 1 ? "" : "s",f.arity());
+  }
+  if (!sc.mixUpdates && updating != f.annotations().contains(Annotation.UPDATING))   throw (updating ? UPFUNCNOTUP : UPFUNCUP).get(info);
+  return f;
 }

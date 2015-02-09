@@ -1,9 +1,9 @@
 {
   size=0;
   boolean ne=false;
-  for (  final Expr e : expr) {
+  for (  final Expr e : exprs) {
     final long c=e.size();
-    ne|=c > 0 || e.type().occ.min == 1;
+    ne|=c > 0 || e.seqType().occ.min == 1;
     if (c == -1) {
       size=-1;
       break;
@@ -13,13 +13,13 @@
     }
   }
   if (size >= 0) {
-    if (size == 0 && !has(Flag.NDT) && !has(Flag.UPD))     return optPre(null,ctx);
+    if (size == 0 && !has(Flag.NDT) && !has(Flag.UPD))     return optPre(qc);
     if (allAreValues() && size <= MAX_MAT_SIZE) {
       Type all=null;
-      final Value[] vs=new Value[expr.length];
+      final Value[] vs=new Value[exprs.length];
       int c=0;
-      for (      final Expr e : expr) {
-        final Value v=e.value(ctx);
+      for (      final Expr e : exprs) {
+        final Value v=e.value(qc);
         if (c == 0)         all=v.type;
  else         if (all != v.type)         all=null;
         vs[c++]=v;
@@ -40,20 +40,20 @@
         for (int i=0; i < c; i++)         vb.add(vs[i]);
         val=vb.value();
       }
-      return optPre(val,ctx);
+      return optPre(val,qc);
     }
   }
   if (size == 0) {
-    type=SeqType.EMP;
+    seqType=SeqType.EMP;
   }
  else {
     final Occ o=size == 1 ? Occ.ONE : size < 0 && !ne ? Occ.ZERO_MORE : Occ.ONE_MORE;
-    SeqType t=null;
-    for (    final Expr e : expr) {
-      final SeqType st=e.type();
-      if (!e.isEmpty() && st.occ != Occ.ZERO)       t=t == null ? st : t.union(st);
+    SeqType st=null;
+    for (    final Expr e : exprs) {
+      final SeqType et=e.seqType();
+      if (et.occ != Occ.ZERO)       st=st == null ? et : st.union(et);
     }
-    type=SeqType.get(t == null ? AtomType.ITEM : t.type,o);
+    seqType=SeqType.get(st == null ? AtomType.ITEM : st.type,o);
   }
   return this;
 }

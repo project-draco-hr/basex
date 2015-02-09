@@ -1,38 +1,12 @@
 {
-  super(in);
-  ctx=c;
-  final MainOptions opts=c.context.options;
+  super(query);
+  this.qc=qc;
+  final MainOptions opts=qc.context.options;
   final String bi=path != null ? path : opts.get(MainOptions.QUERYPATH);
-  sc=sctx != null ? sctx : new StaticContext(opts.get(MainOptions.XQUERY3));
-  if (!bi.isEmpty())   sc.baseURI(bi);
-  final String bind=opts.get(MainOptions.BINDINGS).trim();
-  final StringBuilder key=new StringBuilder();
-  final StringBuilder val=new StringBuilder();
-  boolean first=true;
-  final int sl=bind.length();
-  for (int s=0; s < sl; s++) {
-    final char ch=bind.charAt(s);
-    if (first) {
-      if (ch == '=') {
-        first=false;
-      }
- else {
-        key.append(ch);
-      }
-    }
- else {
-      if (ch == ',') {
-        if (s + 1 == sl || bind.charAt(s + 1) != ',') {
-          bind(key,val);
-          key.setLength(0);
-          val.setLength(0);
-          first=true;
-          continue;
-        }
-        s++;
-      }
-      val.append(ch);
-    }
+  final StaticContext sctx=sc != null ? sc : new StaticContext(qc.context);
+  if (!bi.isEmpty())   sctx.baseURI(bi);
+  this.sc=sctx;
+  for (  final Entry<String,String> entry : QueryProcessor.bindings(opts).entrySet()) {
+    qc.bind(entry.getKey(),new Atm(entry.getValue()),sc);
   }
-  bind(key,val);
 }

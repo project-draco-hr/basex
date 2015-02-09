@@ -1,45 +1,42 @@
 {
-  Value val=root.value(ctx);
-  final Value cv=ctx.value;
-  final long cs=ctx.size;
-  final long cp=ctx.pos;
+  Value val=root.value(qc);
+  final Value cv=qc.value;
+  final long cs=qc.size;
+  final long cp=qc.pos;
   try {
     final ValueBuilder vb=new ValueBuilder();
     Expr p=preds[0];
     long is=val.size();
-    ctx.size=is;
-    ctx.pos=1;
+    qc.size=is;
+    qc.pos=1;
     for (int s=0; s < is; ++s) {
       final Item it=val.itemAt(s);
-      ctx.value=it;
-      final Item i=p.test(ctx,info);
-      if (i != null) {
-        it.score(i.score());
-        vb.add(it);
-      }
-      ctx.pos++;
+      qc.value=it;
+      final Item i=p.test(qc,info);
+      if (i != null)       vb.add(it);
+      qc.pos++;
     }
     val=null;
     final int pl=preds.length;
     for (int i=1; i < pl; i++) {
       is=vb.size();
       p=preds[i];
-      ctx.size=is;
-      ctx.pos=1;
+      qc.size=is;
+      qc.pos=1;
       int c=0;
       for (int s=0; s < is; ++s) {
         final Item it=vb.get(s);
-        ctx.value=it;
-        if (p.test(ctx,info) != null)         vb.set(it,c++);
-        ctx.pos++;
+        qc.value=it;
+        if (p.test(qc,info) != null)         vb.set(c++,it);
+        qc.pos++;
       }
       vb.size(c);
     }
     return vb;
   }
   finally {
-    ctx.value=cv;
-    ctx.size=cs;
-    ctx.pos=cp;
+    qc.value=cv;
+    qc.size=cs;
+    qc.pos=cp;
   }
 }

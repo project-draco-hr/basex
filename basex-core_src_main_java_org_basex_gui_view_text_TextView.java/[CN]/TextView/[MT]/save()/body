@@ -8,9 +8,7 @@
   final int mh=opts.get(MainOptions.MAXHITS);
   opts.set(MainOptions.MAXHITS,-1);
   opts.set(MainOptions.CACHEQUERY,false);
-  PrintOutput out=null;
-  try {
-    out=new PrintOutput(file.toString());
+  try (final PrintOutput out=new PrintOutput(file.toString())){
     if (cmd != null) {
       cmd.execute(gui.context,out);
     }
@@ -26,11 +24,6 @@
     BaseXDialog.error(gui,Util.info(FILE_NOT_SAVED_X,file));
   }
  finally {
-    if (out != null)     try {
-      out.close();
-    }
- catch (    final IOException ignored) {
-    }
     opts.set(MainOptions.MAXHITS,mh);
     opts.set(MainOptions.CACHEQUERY,true);
     gui.cursor(CURSORARROW,true);

@@ -1,0 +1,22 @@
+{
+  if (root != null)   root=root.compile(qc,scp);
+  if (steps.length == 0)   return root == null ? new Context(info) : root;
+  final Value init=qc.value, cv=initial(qc);
+  qc.value=cv;
+  final boolean doc=cv != null && cv.type == NodeType.DOC;
+  try {
+    final int sl=steps.length;
+    for (int s=0; s < sl; s++) {
+      final Expr e=steps[s];
+      final boolean as=e instanceof Step;
+      if (as && s == 0 && doc)       cv.type=NodeType.NOD;
+      steps[s]=e.compile(qc,scp);
+      if (!as)       qc.value=null;
+    }
+  }
+  finally {
+    if (doc)     cv.type=NodeType.DOC;
+    qc.value=init;
+  }
+  return optimize(qc,scp);
+}

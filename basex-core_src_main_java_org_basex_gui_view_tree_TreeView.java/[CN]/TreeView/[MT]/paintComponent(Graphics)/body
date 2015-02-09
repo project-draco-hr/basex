@@ -3,20 +3,21 @@
   final Data data=c.data();
   if (data == null)   return;
   if (showAttsChanged())   paintType=Refresh.INIT;
-  if (slimToTextChanged() && paintType == Refresh.VOID)   paintType=Refresh.RESIZE;
+ else   if (slimToTextChanged() && paintType == Refresh.VOID)   paintType=Refresh.RESIZE;
   super.paintComponent(g);
   gui.painting=true;
-  final Nodes nodes=gui.context.current();
+  final DBNodes nodes=gui.context.current();
   roots=nodes.pres;
-  if (roots.length == 0)   return;
-  for (int i=0; !showAtts && i < roots.length; ++i) {
+  final int rl=roots.length;
+  if (rl == 0)   return;
+  for (int i=0; !showAtts && i < rl; ++i) {
     if (roots[i] >= data.meta.size)     break;
     if (data.kind(roots[i]) == Data.ATTR) {
       drawMessage(g,NO_ATTS);
       return;
     }
   }
-  smooth(g);
+  BaseXLayout.antiAlias(g);
   g.setFont(font);
   fontHeight=g.getFontMetrics().getHeight();
   if (paintType == Refresh.INIT) {

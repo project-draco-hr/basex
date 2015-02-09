@@ -1,24 +1,26 @@
 {
-  final int o=(int)ctx.output.size();
-  if (ctx.updates == null)   ctx.updates=new Updates();
-  final ContextModifier tmp=ctx.updates.mod;
+  final int o=(int)qc.resources.output.size();
+  final Updates updates=qc.resources.updates();
+  final ContextModifier tmp=updates.mod;
   final TransformModifier pu=new TransformModifier();
-  ctx.updates.mod=pu;
+  updates.mod=pu;
   try {
     for (    final Let fo : copies) {
-      final Iter ir=ctx.iter(fo.expr);
+      final Iter ir=qc.iter(fo.expr);
       Item i=ir.next();
-      if (!(i instanceof ANode) || ir.next() != null)       throw UPCOPYMULT.get(fo.info,fo.var.name);
-      i=((ANode)i).dbCopy(ctx.context.options);
-      ctx.set(fo.var,i,info);
+      if (!(i instanceof ANode) || ir.next() != null)       throw UPCOPYMULT_X.get(fo.info,fo.var.name);
+      i=((ANode)i).dbCopy(qc.context.options);
+      qc.set(fo.var,i,info);
       pu.addData(i.data());
     }
-    ctx.value(expr[0]);
-    ctx.updates.apply();
-    return ctx.value(expr[1]);
+    final Value v=qc.value(exprs[0]);
+    if (!v.isEmpty())     throw BASEX_MOD.get(info);
+    updates.prepare(qc);
+    updates.apply(qc);
+    return qc.value(exprs[1]);
   }
   finally {
-    ctx.output.size(o);
-    ctx.updates.mod=tmp;
+    qc.resources.output.size(o);
+    updates.mod=tmp;
   }
 }

@@ -1,18 +1,15 @@
 {
   final byte[] str=ncName(INVALPI);
-  if (eq(lc(str),XML))   throw error(PIXML,str);
+  if (eq(lc(str),XML))   throw error(PIXML_X,str);
   final boolean space=skipWs();
   final TokenBuilder tb=new TokenBuilder();
   do {
-    while (not('?')) {
-      if (!space)       throw error(PIWRONG);
-      tb.add(consume());
-    }
-    consume();
-    if (consume('>')) {
+    final char ch=consumeContent();
+    if (ch == '?' && consume('>')) {
       return new CPI(sc,info(),Str.get(str),Str.get(tb.finish()));
     }
-    tb.add('?');
+    if (!space)     throw error(PIWRONG);
+    tb.add(ch);
   }
  while (true);
 }

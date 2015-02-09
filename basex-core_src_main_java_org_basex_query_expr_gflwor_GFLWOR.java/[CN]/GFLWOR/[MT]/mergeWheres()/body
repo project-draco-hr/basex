@@ -1,0 +1,28 @@
+{
+  Where before=null;
+  final Iterator<Clause> iter=clauses.iterator();
+  while (iter.hasNext()) {
+    final Clause clause=iter.next();
+    if (clause instanceof Where) {
+      final Where wh=(Where)clause;
+      if (wh.expr == Bln.FALSE)       return;
+      if (before != null) {
+        iter.remove();
+        final Expr e=before.expr;
+        if (e instanceof And) {
+          final And and=(And)e;
+          and.exprs=Array.add(and.exprs,wh.expr);
+        }
+ else {
+          before.expr=new And(before.info,e,wh.expr);
+        }
+      }
+ else {
+        before=wh;
+      }
+    }
+ else {
+      before=null;
+    }
+  }
+}

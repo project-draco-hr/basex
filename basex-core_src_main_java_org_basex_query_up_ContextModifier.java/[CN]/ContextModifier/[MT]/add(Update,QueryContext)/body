@@ -1,0 +1,36 @@
+{
+  if (update instanceof DataUpdate) {
+    final DataUpdate dataUp=(DataUpdate)update;
+    final Data data=dataUp.data();
+    DataUpdates ups=dbUpdates.get(data);
+    if (ups == null) {
+      ups=new DataUpdates(data,qc);
+      dbUpdates.put(data,ups);
+    }
+    if (tmp == null)     tmp=new MemData(qc.context.options);
+    ups.add(dataUp,tmp);
+  }
+ else   if (update instanceof NameUpdate) {
+    final NameUpdate nameUp=(NameUpdate)update;
+    final String name=nameUp.name();
+    NameUpdates ups=nameUpdates.get(name);
+    if (ups == null) {
+      ups=new NameUpdates();
+      nameUpdates.put(name,ups);
+    }
+    ups.add(nameUp);
+  }
+ else   if (update instanceof UserUpdate) {
+    final UserUpdate userUp=(UserUpdate)update;
+    final String name=userUp.name();
+    UserUpdates ups=userUpdates.get(name);
+    if (ups == null) {
+      ups=new UserUpdates();
+      userUpdates.put(name,ups);
+    }
+    ups.add(userUp);
+  }
+ else {
+    throw Util.notExpected("Unknown update type: " + update);
+  }
+}

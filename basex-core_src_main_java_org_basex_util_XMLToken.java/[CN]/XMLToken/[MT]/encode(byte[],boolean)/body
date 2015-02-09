@@ -1,21 +1,22 @@
 {
-  final byte[] name=lax ? trim(nm) : nm;
-  if (name.length == 0)   return UNDERSCORE;
-  for (int i=0; i < name.length; i+=cl(name,i)) {
-    int cp=cp(name,i);
-    if (cp == '_' || !(i == 0 ? isNCStartChar(cp) : isNCChar(cp))) {
-      final TokenBuilder tb=new TokenBuilder(name.length << 1).add(name,0,i);
-      for (int j=i; j < name.length; j+=cl(name,j)) {
-        cp=cp(name,j);
+  final byte[] nm=lax ? trim(name) : name;
+  final int nl=nm.length;
+  if (nl == 0)   return UNDERSCORE;
+  for (int n=0; n < nl; n+=cl(nm,n)) {
+    int cp=cp(nm,n);
+    if (cp == '_' || (n == 0 ? !isNCStartChar(cp) : !isNCChar(cp))) {
+      final TokenBuilder tb=new TokenBuilder(nl << 1).add(nm,0,n);
+      for (int m=n; m < nl; m+=cl(nm,m)) {
+        cp=cp(nm,m);
         if (lax) {
           final boolean nc=isNCChar(cp);
-          if (j == 0 && nc && !isNCStartChar(cp))           tb.add('_');
+          if (m == 0 && nc && !isNCStartChar(cp))           tb.add('_');
           tb.add(nc ? cp : '_');
         }
  else         if (cp == '_') {
           tb.add('_').add('_');
         }
- else         if (j == 0 ? isNCStartChar(cp) : isNCChar(cp)) {
+ else         if (m == 0 ? isNCStartChar(cp) : isNCChar(cp)) {
           tb.add(cp);
         }
  else         if (cp < 0x10000) {
@@ -30,5 +31,5 @@
       return tb.finish();
     }
   }
-  return name;
+  return nm;
 }

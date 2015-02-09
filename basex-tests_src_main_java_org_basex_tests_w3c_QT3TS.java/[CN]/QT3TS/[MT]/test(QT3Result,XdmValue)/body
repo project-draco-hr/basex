@@ -1,16 +1,19 @@
 {
   final String type=expected.getName().getLocalPart();
-  final XdmValue value=result.value;
+  final XdmValue value=returned.value;
   try {
     String msg;
     if (type.equals("error")) {
-      msg=assertError(result,expected);
+      msg=assertError(returned,expected);
+    }
+ else     if (type.equals("assert-serialization-error")) {
+      msg=assertSerializationError(returned,expected,returned.sprop);
     }
  else     if (type.equals("all-of")) {
-      msg=allOf(result,expected);
+      msg=allOf(returned,expected);
     }
  else     if (type.equals("any-of")) {
-      msg=anyOf(result,expected);
+      msg=anyOf(returned,expected);
     }
  else     if (value != null) {
       if (type.equals("assert")) {
@@ -38,10 +41,7 @@
         msg=assertXML(value,expected);
       }
  else       if (type.equals("serialization-matches")) {
-        msg=serializationMatches(value,expected,result.sprop);
-      }
- else       if (type.equals("assert-serialization-error")) {
-        msg=assertSerializationError(value,expected,result.sprop);
+        msg=serializationMatches(value,expected,returned.sprop);
       }
  else       if (type.equals("assert-string-value")) {
         msg=assertStringValue(value,expected);

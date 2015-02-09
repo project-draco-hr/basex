@@ -1,16 +1,7 @@
 {
-  final QueryContext qc=parseModule(http);
-  try {
-    for (    final StaticFunc uf : qc.funcs.funcs()) {
-      if (func.function.info.equals(uf.info)) {
-        final RestXqFunction rxf=new RestXqFunction(uf,qc,this);
-        rxf.parse();
-        new RestXqResponse(rxf,qc,http,error).create();
-        break;
-      }
-    }
+  try (final QueryContext qc=qc()){
+    final RestXqFunction rxf=new RestXqFunction(find(qc,func.function),qc,this);
+    rxf.parse();
+    RestXqResponse.create(rxf,qc,http,error);
   }
-  finally {
-    qc.close();
-  }
-}
+ }

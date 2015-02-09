@@ -11,7 +11,7 @@
       f.setFeature("http://xml.org/sax/features/use-entity-resolver2",false);
       f.setNamespaceAware(true);
       f.setValidating(false);
-      f.setXIncludeAware(true);
+      f.setXIncludeAware(options.get(MainOptions.XINCLUDE));
       r=f.newSAXParser().getXMLReader();
     }
     saxh=new SAXHandler(builder,options.get(MainOptions.CHOP),options.get(MainOptions.STRIPNS));
@@ -37,15 +37,10 @@ catch (  final Exception ex) {
   }
  finally {
     if (is != null) {
-      try {
-        final Reader r=is.getCharacterStream();
-        if (r != null)         r.close();
-        final InputStream ist=is.getByteStream();
-        if (ist != null)         ist.close();
+      try (final Reader r=is.getCharacterStream()){
       }
- catch (      final IOException ex) {
-        Util.debug(ex);
+       try (final InputStream ist=is.getByteStream()){
       }
-    }
+     }
   }
 }

@@ -1,11 +1,61 @@
 {
-  final Value cv=ctx.value;
+  if (root.isEmpty())   return optPre(qc);
+  final Value cv=qc.value;
   try {
-    if (root.isEmpty())     return optPre(null,ctx);
-    if (root instanceof AxisPath && !super.has(Flag.FCS))     return ((Path)root.copy(ctx,scp)).addPreds(ctx,scp,preds);
-    return preds.length == 0 ? root : opt(ctx);
+    qc.value=Path.initial(qc,root);
+    final Expr e=super.optimize(qc,scp);
+    if (e != this)     return e;
   }
   finally {
-    ctx.value=cv;
+    qc.value=cv;
   }
+  if (preds.length == 0)   return root;
+  final Path p=path(root,preds);
+  if (p != null)   return p.optimize(qc,scp);
+  final SeqType st=root.seqType();
+  final boolean last=preds.length == 1 && preds[0].isFunction(Function.LAST);
+  final Pos pos=posIterator();
+  final long s=root.size();
+  if (s == -1) {
+    final boolean zo=last || pos != null && pos.min == pos.max;
+    seqType=st.withOcc(zo ? Occ.ZERO_ONE : Occ.ZERO_MORE);
+  }
+ else {
+    if (pos != null) {
+      size=Math.max(0,s + 1 - pos.min) - Math.max(0,s - pos.max);
+    }
+ else     if (last) {
+      size=s > 0 ? 1 : 0;
+    }
+    if (size == 0)     return optPre(qc);
+    seqType=st.withSize(size);
+  }
+  if (root instanceof Context || root instanceof Value && root.data() != null) {
+    final Path ip=Path.get(info,root,Step.get(info,SELF,Test.NOD,preds));
+    final Expr ie=ip.index(qc,Path.initial(qc,root));
+    if (ie != ip)     return ie;
+  }
+  if (!super.has(Flag.FCS))   return copyType(new IterFilter(info,root,preds));
+  Expr e=this;
+  if (preds.length == 1) {
+    if (root.isValue()) {
+      final Value v=(Value)root;
+      if (last)       return optPre(SubSeq.get(v,v.size() - 1,1),qc);
+      if (pos != null)       return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
+    }
+    if (last) {
+      e=Function._BASEX_LAST_FROM.get(null,info,root).optimize(qc,scp);
+    }
+ else     if (pos != null) {
+      e=pos.min == pos.max ? Function._BASEX_ITEM_AT.get(null,info,root,Int.get(pos.min)) : Function.SUBSEQUENCE.get(null,info,root,Int.get(pos.min),Int.get(pos.max),Bln.TRUE);
+    }
+ else     if (num(preds[0])) {
+      e=Function._BASEX_ITEM_AT.get(null,info,root,preds[0]);
+    }
+  }
+  if (e != this) {
+    qc.compInfo(QueryText.OPTWRITE,this);
+    return e.optimize(qc,scp);
+  }
+  return get(info,root,preds);
 }

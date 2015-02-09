@@ -1,0 +1,20 @@
+{
+  final ArrayList<Path> children=new ArrayList<>();
+  try (DirectoryStream<Path> paths=Files.newDirectoryStream(dir)){
+    for (    final Path child : paths)     children.add(child);
+  }
+ catch (  final IOException ex) {
+    if (index == dir.getNameCount())     throw ex;
+  }
+  if (rec) {
+    for (    final Path child : children) {
+      if (Files.isDirectory(child))       list(index,child,list,true,pat);
+    }
+  }
+  for (  final Path child : children) {
+    if (pat == null || pat.matcher(child.getFileName().toString()).matches()) {
+      final Path path=child.subpath(index,child.getNameCount());
+      list.add(get(path,Files.isDirectory(child)).string());
+    }
+  }
+}
