@@ -1,6 +1,6 @@
 {
   for (int p=0; p < preds.length; p++) {
-    final Expr pred=preds[p];
+    Expr pred=preds[p];
     if (pred instanceof CmpG || pred instanceof CmpV) {
       final Cmp cmp=(Cmp)pred;
       if (cmp.exprs[0].isFunction(Function.POSITION)) {
@@ -31,13 +31,10 @@
  else     if (pred instanceof ANum) {
       final ANum it=(ANum)pred;
       final long i=it.itr();
-      if (i == it.dbl()) {
-        preds[p]=Pos.get(i,info);
-      }
- else {
-        qc.compInfo(OPTREMOVE,this,pred);
-        return Empty.SEQ;
-      }
+      if (i != it.dbl())       return optPre(qc);
+      pred=Pos.get(i,info);
+      if (!(pred instanceof Pos))       return optPre(qc);
+      preds[p]=pred;
     }
  else     if (pred.isValue()) {
       if (pred.ebv(qc,info).bool(info)) {
@@ -45,8 +42,7 @@
         preds=Array.delete(preds,p--);
       }
  else {
-        qc.compInfo(OPTREMOVE,this,pred);
-        return Empty.SEQ;
+        return optPre(qc);
       }
     }
   }

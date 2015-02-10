@@ -9,51 +9,77 @@
   finally {
     qc.value=cv;
   }
-  if (preds.length == 0)   return root;
-  final Path p=path(root,preds);
-  if (p != null)   return p.optimize(qc,scp);
   final SeqType st=root.seqType();
-  final boolean last=preds.length == 1 && preds[0].isFunction(Function.LAST);
-  final Pos pos=posIterator();
-  final long s=root.size();
-  if (s == -1) {
-    final boolean zo=last || pos != null && pos.min == pos.max;
-    seqType=st.withOcc(zo ? Occ.ZERO_ONE : Occ.ZERO_MORE);
+  long max=root.size();
+  boolean exact=max != -1;
+  if (!exact)   max=Long.MAX_VALUE;
+  for (  final Expr pred : preds) {
+    if (pred.isFunction(Function.LAST)) {
+      max=Math.min(max,1);
+    }
+ else     if (pred instanceof Pos) {
+      final Pos pos=(Pos)pred;
+      if (max != Long.MAX_VALUE)       max=Math.max(0,max - pos.min + 1);
+      max=Math.min(max,pos.max - pos.min + 1);
+    }
+ else {
+      exact=false;
+    }
+  }
+  if (max == 0)   return optPre(qc);
+  if (exact) {
+    seqType=st.withSize(size);
+    size=max;
   }
  else {
-    if (pos != null) {
-      size=Math.max(0,s + 1 - pos.min) - Math.max(0,s - pos.max);
-    }
- else     if (last) {
-      size=s > 0 ? 1 : 0;
-    }
-    if (size == 0)     return optPre(qc);
-    seqType=st.withSize(size);
+    seqType=st.withOcc(max == 1 ? Occ.ZERO_ONE : Occ.ZERO_MORE);
+    size=-1;
   }
+  final Expr ex=path(root,preds);
+  if (ex != null)   return ex.optimize(qc,scp);
   if (root instanceof Context || root instanceof Value && root.data() != null) {
     final Path ip=Path.get(info,root,Step.get(info,SELF,Test.NOD,preds));
     final Expr ie=ip.index(qc,Path.initial(qc,root));
     if (ie != ip)     return ie;
   }
   if (!super.has(Flag.FCS))   return copyType(new IterFilter(info,root,preds));
-  Expr e=this;
-  if (preds.length == 1) {
-    if (root.isValue()) {
-      final Value v=(Value)root;
-      if (last)       return optPre(SubSeq.get(v,v.size() - 1,1),qc);
-      if (pos != null)       return optPre(SubSeq.get(v,pos.min - 1,pos.max - pos.min + 1),qc);
-    }
+  Expr e=root;
+  boolean opt=false;
+  final int pl=preds.length;
+  for (int p=0; p < pl; p++) {
+    final Expr pred=preds[p];
+    final Pos pos=pred instanceof Pos ? (Pos)pred : null;
+    final boolean last=pred.isFunction(Function.LAST);
     if (last) {
-      e=Function._BASEX_LAST_FROM.get(null,info,root).optimize(qc,scp);
+      if (e.isValue()) {
+        e=SubSeq.get((Value)e,e.size() - 1,1);
+      }
+ else {
+        e=Function._BASEX_LAST_FROM.get(null,info,e);
+      }
+      opt=true;
     }
  else     if (pos != null) {
-      e=pos.min == pos.max ? Function._BASEX_ITEM_AT.get(null,info,root,Int.get(pos.min)) : Function.SUBSEQUENCE.get(null,info,root,Int.get(pos.min),Int.get(pos.max),Bln.TRUE);
+      if (e.isValue()) {
+        e=SubSeq.get((Value)e,pos.min - 1,pos.max - pos.min + 1);
+      }
+ else       if (pos.min == pos.max) {
+        e=Function._BASEX_ITEM_AT.get(null,info,e,Int.get(pos.min));
+      }
+ else {
+        e=Function._BASEX_ITEM_RANGE.get(null,info,e,Int.get(pos.min),Int.get(pos.max));
+      }
+      opt=true;
     }
- else     if (num(preds[0])) {
-      e=Function._BASEX_ITEM_AT.get(null,info,root,preds[0]);
+ else     if (num(pred)) {
+      e=Function._BASEX_ITEM_AT.get(null,info,e,pred);
+      opt=true;
+    }
+ else {
+      e=e instanceof Filter ? ((Filter)e).addPred(pred) : Filter.get(info,e,pred);
     }
   }
-  if (e != this) {
+  if (opt) {
     qc.compInfo(QueryText.OPTWRITE,this);
     return e.optimize(qc,scp);
   }
