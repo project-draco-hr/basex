@@ -1,21 +1,22 @@
 {
-  if (preds.length == 0)   return true;
+  final int pl=preds.length;
+  if (pl == 0)   return true;
   final Value cv=qc.value;
   try {
     if (qc.scoring) {
       double s=0;
-      for (      final Expr p : preds) {
-        qc.value=it;
-        final Item i=p.test(qc,info);
-        if (i == null)         return false;
-        s+=i.score();
+      for (      final Expr pred : preds) {
+        qc.value=item;
+        final Item it=pred.test(qc,info);
+        if (it == null)         return false;
+        s+=it.score();
       }
-      it.score(Scoring.avg(s,preds.length));
+      item.score(Scoring.avg(s,pl));
     }
  else {
-      for (      final Expr p : preds) {
-        qc.value=it;
-        if (p.test(qc,info) == null)         return false;
+      for (      final Expr pred : preds) {
+        qc.value=item;
+        if (pred.test(qc,info) == null)         return false;
       }
     }
     return true;

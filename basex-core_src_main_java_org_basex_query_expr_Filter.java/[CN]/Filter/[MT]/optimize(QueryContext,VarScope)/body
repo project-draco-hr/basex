@@ -9,32 +9,8 @@
   finally {
     qc.value=cv;
   }
-  final SeqType st=root.seqType();
-  long max=root.size();
-  boolean exact=max != -1;
-  if (!exact)   max=Long.MAX_VALUE;
-  for (  final Expr pred : preds) {
-    if (pred.isFunction(Function.LAST)) {
-      max=Math.min(max,1);
-    }
- else     if (pred instanceof Pos) {
-      final Pos pos=(Pos)pred;
-      if (max != Long.MAX_VALUE)       max=Math.max(0,max - pos.min + 1);
-      max=Math.min(max,pos.max - pos.min + 1);
-    }
- else {
-      exact=false;
-    }
-  }
-  if (max == 0)   return optPre(qc);
-  if (exact) {
-    seqType=st.withSize(size);
-    size=max;
-  }
- else {
-    seqType=st.withOcc(max == 1 ? Occ.ZERO_ONE : Occ.ZERO_MORE);
-    size=-1;
-  }
+  seqType(root.seqType(),root.size());
+  if (size == 0)   return optPre(qc);
   final Expr ex=path(root,preds);
   if (ex != null)   return ex.optimize(qc,scp);
   if (root instanceof Context || root instanceof Value && root.data() != null) {

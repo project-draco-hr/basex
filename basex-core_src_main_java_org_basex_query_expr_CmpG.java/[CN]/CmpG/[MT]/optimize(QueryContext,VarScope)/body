@@ -1,7 +1,7 @@
 {
   if (swap()) {
-    op=op.swap();
     qc.compInfo(OPTSWAP,this);
+    op=op.swap();
   }
   final Expr e1=exprs[0], e2=exprs[1];
   final SeqType st1=e1.seqType();
@@ -35,5 +35,10 @@
     atomic=true;
     qc.compInfo(OPTATOMIC,this);
   }
-  return allAreValues() ? preEval(qc) : this;
+  if (allAreValues())   return preEval(qc);
+  if (op == OpG.EQ && e1.sameAs(e2) && !e1.has(Flag.NDT) && !e1.has(Flag.UPD) && (!e1.has(Flag.CTX) || qc.value != null)) {
+    final SeqType st=e1.seqType();
+    if (st.occ.min > 0 && st.type.isStringOrUntyped())     return optPre(Bln.TRUE,qc);
+  }
+  return this;
 }
