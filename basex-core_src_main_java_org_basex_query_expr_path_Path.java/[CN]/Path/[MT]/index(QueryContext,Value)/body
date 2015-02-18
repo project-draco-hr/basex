@@ -58,6 +58,10 @@
  else {
     resultRoot=index.expr;
   }
+  if (index.costs == 1) {
+    if (resultRoot instanceof IndexAccess)     ((IndexAccess)resultRoot).size(1);
+ else     ((ParseExpr)resultRoot).seqType(resultRoot.seqType().withOcc(Occ.ZERO_ONE));
+  }
   if (!newPreds.isEmpty()) {
     int ls=resultSteps.size() - 1;
     final Step step;
@@ -71,5 +75,5 @@
     resultSteps.set(ls,step.addPreds(newPreds.finish()));
   }
   for (int s=iStep + 1; s < sl; s++)   resultSteps.add(steps[s]);
-  return get(info,resultRoot,resultSteps.finish());
+  return resultSteps.isEmpty() ? resultRoot : get(info,resultRoot,resultSteps.finish());
 }

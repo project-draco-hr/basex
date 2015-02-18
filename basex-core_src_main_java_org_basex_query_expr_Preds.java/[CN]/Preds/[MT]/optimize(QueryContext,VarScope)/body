@@ -1,10 +1,10 @@
 {
   for (int p=0; p < preds.length; p++) {
-    final Expr pred=preds[p];
+    Expr pred=preds[p];
     if (pred instanceof CmpG || pred instanceof CmpV) {
       final Cmp cmp=(Cmp)pred;
-      if (cmp.exprs[0].isFunction(Function.POSITION)) {
-        final Expr e2=cmp.exprs[1];
+      final Expr e1=cmp.exprs[0], e2=cmp.exprs[1];
+      if (e1.isFunction(Function.POSITION)) {
         final SeqType st2=e2.seqType();
         if (e2.isFunction(Function.LAST) || st2.one() && st2.type.isNumber()) {
           if (cmp instanceof CmpG && ((CmpG)cmp).op == OpG.EQ || cmp instanceof CmpV && ((CmpV)cmp).op == OpV.EQ) {
@@ -31,13 +31,10 @@
  else     if (pred instanceof ANum) {
       final ANum it=(ANum)pred;
       final long i=it.itr();
-      if (i == it.dbl()) {
-        preds[p]=Pos.get(i,info);
-      }
- else {
-        qc.compInfo(OPTREMOVE,this,pred);
-        return Empty.SEQ;
-      }
+      if (i != it.dbl())       return optPre(qc);
+      pred=Pos.get(i,info);
+      if (!(pred instanceof Pos))       return optPre(qc);
+      preds[p]=pred;
     }
  else     if (pred.isValue()) {
       if (pred.ebv(qc,info).bool(info)) {
@@ -45,8 +42,7 @@
         preds=Array.delete(preds,p--);
       }
  else {
-        qc.compInfo(OPTREMOVE,this,pred);
-        return Empty.SEQ;
+        return optPre(qc);
       }
     }
   }

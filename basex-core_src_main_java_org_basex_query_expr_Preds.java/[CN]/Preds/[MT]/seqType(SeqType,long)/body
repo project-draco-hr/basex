@@ -1,0 +1,25 @@
+{
+  boolean exact=s != -1;
+  long max=exact ? s : Long.MAX_VALUE;
+  for (  final Expr pred : preds) {
+    if (pred.isFunction(Function.LAST)) {
+      max=Math.min(max,1);
+    }
+ else     if (pred instanceof Pos) {
+      final Pos pos=(Pos)pred;
+      if (max != Long.MAX_VALUE)       max=Math.max(0,max - pos.min + 1);
+      max=Math.min(max,pos.max - pos.min + 1);
+    }
+ else {
+      exact=false;
+    }
+  }
+  if (exact || max == 0) {
+    seqType=st.withSize(max);
+    size=max;
+  }
+ else {
+    seqType=st.withOcc(max == 1 ? Occ.ZERO_ONE : Occ.ZERO_MORE);
+    size=-1;
+  }
+}
