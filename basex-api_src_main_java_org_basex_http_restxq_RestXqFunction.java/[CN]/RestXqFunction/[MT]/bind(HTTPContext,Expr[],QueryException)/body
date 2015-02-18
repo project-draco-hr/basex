@@ -6,16 +6,17 @@
       bind(qnm,arg,new Atm(entry.getValue()));
     }
   }
+  final MainOptions options=http.context(false).options;
   if (requestBody != null) {
     try {
-      bind(requestBody,arg,http.params.content());
+      bind(requestBody,arg,HttpPayload.value(http.params.body(),options,http.contentType()));
     }
  catch (    final IOException ex) {
       throw error(INPUT_CONV,ex);
     }
   }
   for (  final RestXqParam rxp : queryParams)   bind(rxp,arg,http.params.query().get(rxp.key));
-  for (  final RestXqParam rxp : formParams)   bind(rxp,arg,http.params.form().get(rxp.key));
+  for (  final RestXqParam rxp : formParams)   bind(rxp,arg,http.params.form(options).get(rxp.key));
   for (  final RestXqParam rxp : headerParams) {
     final TokenList tl=new TokenList();
     final Enumeration<?> en=http.req.getHeaders(rxp.key);

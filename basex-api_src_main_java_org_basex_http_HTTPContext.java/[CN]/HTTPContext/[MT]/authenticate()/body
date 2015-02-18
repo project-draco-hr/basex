@@ -2,10 +2,8 @@
   final byte[] address=token(req.getRemoteAddr());
   try {
     if (username == null || username.isEmpty())     throw new LoginException(NOUSERNAME);
-    final Context ctx=new Context(context(),null);
-    final User us=ctx.users.get(username);
+    final User us=context.users.get(username);
     if (us == null)     throw new LoginException();
-    ctx.user(us);
     if (auth == AuthMethod.BASIC) {
       if (password == null || !us.matches(password))       throw new LoginException();
     }
@@ -29,7 +27,7 @@
       if (!Strings.md5(rsp.toString()).equals(password))       throw new LoginException();
     }
     context.blocker.remove(address);
-    return ctx;
+    return us;
   }
  catch (  final LoginException ex) {
     context.blocker.delay(address);
