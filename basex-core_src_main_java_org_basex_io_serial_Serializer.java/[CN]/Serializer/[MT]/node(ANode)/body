@@ -15,10 +15,10 @@
       preparePi(node.name(),node.string());
     }
  else     if (type == NodeType.ATT) {
-      attribute(node.name(),node.string());
+      attribute(node.name(),node.string(),true);
     }
  else     if (type == NodeType.NSP) {
-      namespace(node.name(),node.string());
+      namespace(node.name(),node.string(),true);
     }
  else     if (type == NodeType.DOC) {
       openDoc(node.baseURI());
@@ -29,14 +29,14 @@
       final QNm name=node.qname();
       openElement(name.string());
       final Atts nsp=node.namespaces();
-      for (int p=nsp.size() - 1; p >= 0; p--)       namespace(nsp.name(p),nsp.value(p));
-      namespace(name.prefix(),name.uri());
+      for (int p=nsp.size() - 1; p >= 0; p--)       namespace(nsp.name(p),nsp.value(p),false);
+      namespace(name.prefix(),name.uri(),false);
       final boolean i=indent;
       AxisMoreIter ai=node.attributes();
       for (ANode nd; (nd=ai.next()) != null; ) {
         final byte[] n=nd.name();
         final byte[] v=nd.string();
-        attribute(n,v);
+        attribute(n,v,false);
         if (eq(n,XML_SPACE) && indent)         indent=eq(v,DEFAULT);
       }
       ai=node.children();
