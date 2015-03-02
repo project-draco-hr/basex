@@ -1,18 +1,21 @@
 {
+  if (item == null)   return;
   final TokenBuilder tb=new TokenBuilder();
-  if (item != null) {
-    try {
-      final boolean map=item instanceof Map;
+  try {
+    if (item instanceof Map) {
+      options.parse((Map)item);
+    }
+ else {
       if (test == null) {
-        if (map)         throw MAP_X_X.get(info,item.type,item);
+        throw MAP_X_X.get(info,item.type,item);
       }
- else       if (!test.eq(item) && !(item instanceof Map)) {
+ else       if (!test.eq(item)) {
         throw ELMMAP_X_X_X.get(info,root.prefixId(XML),item.type,item);
       }
-      options.parse(tb.add(optString(item)).toString());
+      options.parse(tb.add(optString((ANode)item)).toString());
     }
- catch (    final BaseXException ex) {
-      throw error.get(info,ex);
-    }
+  }
+ catch (  final BaseXException ex) {
+    throw error.get(info,ex);
   }
 }
