@@ -1,11 +1,14 @@
 {
-  final IOFile root=new IOFile(session.context.soptions.get(StaticOptions.WEBPATH));
+  final Context context=session.context;
+  final String webpath=context.soptions.get(StaticOptions.WEBPATH);
+  final String rpath=context.soptions.get(StaticOptions.RESTPATH);
+  final IOFile root=new IOFile(webpath).resolve(rpath);
   final IOFile file=new IOFile(root,path);
   if (!file.exists() || file.isDir() || !file.path().startsWith(root.path()))   throw HTTPCode.NOT_FOUND_X.get(Util.info(RES_NOT_FOUND_X,path));
   final String input=file.string();
   if (file.hasSuffix(IO.BXSSUFFIX)) {
     try {
-      for (      final Command cmd : new CommandParser(input,session.context).parse())       session.add(cmd);
+      for (      final Command cmd : new CommandParser(input,context).parse())       session.add(cmd);
     }
  catch (    final QueryException ex) {
       throw new IOException(ex);
