@@ -1,30 +1,30 @@
 {
   final Collation coll=toCollation(1,qc);
   final Iter iter=exprs[0].atomIter(qc,info);
-  Item rs=iter.next();
-  if (rs == null)   return null;
-  cmp.eval(rs,rs,coll,sc,info);
-  if (rs instanceof AStr) {
+  Item curr=iter.next();
+  if (curr == null)   return null;
+  cmp.eval(curr,curr,coll,sc,info);
+  if (curr instanceof AStr) {
     for (Item it; (it=iter.next()) != null; ) {
-      if (!(it instanceof AStr))       throw EXPTYPE_X_X_X.get(info,rs.type,it.type,it);
-      final Type rt=rs.type, ri=it.type;
-      if (cmp.eval(rs,it,coll,sc,info))       rs=it;
-      if (rt != ri && rs.type == URI)       rs=STR.cast(rs,qc,sc,info);
+      if (!(it instanceof AStr))       throw EXPTYPE_X_X_X.get(info,curr.type,it.type,it);
+      final Type rt=curr.type, ri=it.type;
+      if (cmp.eval(curr,it,coll,sc,info))       curr=it;
+      if (rt != ri && curr.type == URI)       curr=STR.cast(curr,qc,sc,info);
     }
-    return rs;
+    return curr;
   }
-  if (rs instanceof ADate || rs instanceof Dur || rs instanceof Bin|| rs.type == BLN) {
+  if (curr instanceof ADate || curr instanceof Dur || curr instanceof Bin|| curr.type == BLN) {
     for (Item it; (it=iter.next()) != null; ) {
-      if (rs.type != it.type)       throw EXPTYPE_X_X_X.get(info,rs.type,it.type,it);
-      if (cmp.eval(rs,it,coll,sc,info))       rs=it;
+      if (curr.type != it.type)       throw EXPTYPE_X_X_X.get(info,curr.type,it.type,it);
+      if (cmp.eval(curr,it,coll,sc,info))       curr=it;
     }
-    return rs;
+    return curr;
   }
-  if (rs.type.isUntyped())   rs=DBL.cast(rs,qc,sc,info);
+  if (curr.type.isUntyped())   curr=DBL.cast(curr,qc,sc,info);
   for (Item it; (it=iter.next()) != null; ) {
-    final Type t=numType(rs,it);
-    if (cmp.eval(rs,it,coll,sc,info) || Double.isNaN(it.dbl(info)))     rs=it;
-    if (rs.type != t)     rs=(Item)t.cast(rs,qc,sc,info);
+    final Type type=numType(curr,it);
+    if (cmp.eval(curr,it,coll,sc,info) || Double.isNaN(it.dbl(info)))     curr=it;
+    if (type != null)     curr=(Item)type.cast(curr,qc,sc,info);
   }
-  return rs;
+  return curr;
 }
