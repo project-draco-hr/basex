@@ -8,6 +8,7 @@
     final boolean v;
     if (item.type.isStringOrUntyped()) {
       v=Strings.yes(string(item.string(null)));
+      if (!v && !Strings.no(string(item.string(null))))       throw new BaseXException(Text.OPT_BOOLEAN,option.name());
     }
  else     if (item instanceof Bln) {
       v=((Bln)item).bool(null);
@@ -47,14 +48,15 @@
  else   if (option instanceof OptionsOption) {
     final Options o=((OptionsOption<?>)option).newInstance();
     if (item instanceof Map) {
-      o.parse((Map)item);
+      o.parse((Map)item,error);
     }
  else {
       throw new BaseXException(Text.OPT_MAP,option.name());
     }
     put(option,o);
   }
- else   if (option instanceof MapOption) {
+ else   if (option instanceof FuncOption) {
+    if (!(item instanceof FuncItem))     throw new BaseXException(Text.OPT_FUNC,option.name());
     put(option,item);
   }
  else {
