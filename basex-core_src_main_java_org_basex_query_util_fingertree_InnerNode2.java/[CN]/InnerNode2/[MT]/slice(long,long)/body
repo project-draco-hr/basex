@@ -1,0 +1,14 @@
+{
+  if (start >= l) {
+    return new PartialInnerNode<>(len == r - l ? child1 : child1.slice(start - l,len));
+  }
+  if (start + len <= l) {
+    return new PartialInnerNode<>(len == l ? child0 : child0.slice(start,len));
+  }
+  final long inL=l - start, inR=len - inL;
+  final NodeLike<N,E> left=inL == l ? child0 : child0.slice(start,inL);
+  final NodeLike<N,E> right=inR == r - l ? child1 : child1.slice(0,inR);
+  if (left instanceof Node && right instanceof Node)   return new InnerNode2<>((Node<N,E>)left,(Node<N,E>)right);
+  final NodeLike<N,E>[] res=left.concat(right);
+  return res[1] == null ? new PartialInnerNode<>(res[0]) : new InnerNode2<>((Node<N,E>)res[0],(Node<N,E>)res[1]);
+}

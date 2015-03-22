@@ -1,0 +1,60 @@
+{
+  final InnerNode<N,E> left=(InnerNode<N,E>)siblings[0], right=(InnerNode<N,E>)siblings[2];
+  @SuppressWarnings("unchecked") final Node<N,E>[] sub=(Node<N,E>[])siblings;
+  final Node<N,E> a, b, c, d;
+  if (pos <= l) {
+    sub[0]=null;
+    sub[2]=child1;
+    child0.insert(sub,pos,val);
+    a=sub[1];
+    b=sub[2];
+    c=sub[3] == null ? child2 : sub[3];
+    d=sub[3] == null ? null : child2;
+  }
+ else   if (pos <= m) {
+    sub[0]=child0;
+    sub[2]=child2;
+    child1.insert(sub,pos - l,val);
+    a=sub[0];
+    b=sub[1];
+    c=sub[2];
+    d=sub[3];
+  }
+ else {
+    sub[0]=child1;
+    sub[2]=null;
+    child2.insert(sub,pos - m,val);
+    a=child0;
+    b=sub[0];
+    c=sub[1];
+    d=sub[2];
+  }
+  if (d == null) {
+    siblings[0]=left;
+    siblings[1]=new InnerNode3<>(a,b,c);
+    siblings[2]=right;
+    siblings[3]=null;
+    return false;
+  }
+  if (left != null && left instanceof InnerNode2) {
+    final InnerNode2<N,E> deep2=(InnerNode2<N,E>)left;
+    siblings[0]=new InnerNode3<>(deep2.child0,deep2.child1,a);
+    siblings[1]=new InnerNode3<>(b,c,d);
+    siblings[2]=right;
+    siblings[3]=null;
+    return false;
+  }
+  if (right != null && right instanceof InnerNode2) {
+    final InnerNode2<N,E> deep2=(InnerNode2<N,E>)right;
+    siblings[0]=left;
+    siblings[1]=new InnerNode3<>(a,b,c);
+    siblings[2]=new InnerNode3<>(d,deep2.child0,deep2.child1);
+    siblings[3]=null;
+    return false;
+  }
+  siblings[0]=left;
+  siblings[1]=new InnerNode2<>(a,b);
+  siblings[2]=new InnerNode2<>(c,d);
+  siblings[3]=right;
+  return true;
+}

@@ -1,0 +1,25 @@
+{
+  nodes=new InnerNode[8];
+  poss=new int[8];
+  rootSize=start.size();
+  index=reverse ? rootSize : 0;
+  top=-1;
+  Node<?,E> curr=start;
+  while (curr instanceof InnerNode) {
+    final InnerNode<?,E> inner=(InnerNode<?,E>)curr;
+    final int idx=reverse ? inner.arity() - 1 : 0;
+    if (++top == nodes.length) {
+      InnerNode<?,E>[] newNodes=new InnerNode[2 * top];
+      System.arraycopy(nodes,0,newNodes,0,top);
+      nodes=newNodes;
+      int[] newPoss=new int[2 * top];
+      System.arraycopy(poss,0,newPoss,0,top);
+      poss=newPoss;
+    }
+    nodes[top]=inner;
+    poss[top]=idx;
+    curr=inner.getSub(idx);
+  }
+  leaf=(Node<E,E>)curr;
+  leafPos=reverse ? curr.arity() : 0;
+}

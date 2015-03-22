@@ -1,0 +1,26 @@
+{
+  if (pos < leftSize)   return new TreeSlice<>(removeLeft(pos));
+  final long rightStart=leftSize + middle.size();
+  if (pos >= rightStart)   return new TreeSlice<>(removeRight(pos - rightStart));
+  final TreeSlice<Node<N,E>,E> slice=middle.remove(pos - leftSize);
+  if (slice.isTree()) {
+    final FingerTree<Node<N,E>,E> newMiddle=slice.getTree();
+    return slice.setTree(new Deep<>(left,leftSize,newMiddle,right,size - 1));
+  }
+  final Node<N,E> node=(Node<N,E>)((PartialInnerNode<N,E>)slice.getPartial()).sub;
+  if (left.length < right.length) {
+    final Node<N,E>[] newLeft=slice(left,0,left.length + 1);
+    newLeft[left.length]=node;
+    return slice.setTree(Deep.get(newLeft,leftSize + node.size(),right,size - 1));
+  }
+  if (right.length < 4) {
+    @SuppressWarnings("unchecked") final Node<N,E>[] newRight=new Node[right.length + 1];
+    newRight[0]=node;
+    System.arraycopy(right,0,newRight,1,right.length);
+    return slice.setTree(Deep.get(left,leftSize,newRight,size - 1));
+  }
+  final Node<N,E>[] newLeft=slice(left,0,3);
+  final Node<Node<N,E>,E> newMid=new InnerNode3<>(left[3],node,right[0]);
+  final Node<N,E>[] newRight=slice(right,1,right.length);
+  return slice.setTree(Deep.get(newLeft,new Single<>(newMid),newRight,size - 1));
+}

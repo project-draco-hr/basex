@@ -1,0 +1,28 @@
+{
+  if (n == 1)   return new Single<>(nodes[0]);
+  if (n < 7) {
+    final int mid=n / 2;
+    @SuppressWarnings("unchecked") final Node<N,E>[] left=new Node[mid], right=new Node[n - mid];
+    System.arraycopy(nodes,0,left,0,mid);
+    System.arraycopy(nodes,mid,right,0,n - mid);
+    return Deep.get(left,right,size);
+  }
+  final int k=n == 7 ? 2 : 3;
+  @SuppressWarnings("unchecked") final Node<N,E>[] left=new Node[k], right=new Node[k];
+  System.arraycopy(nodes,0,left,0,k);
+  System.arraycopy(nodes,n - k,right,0,k);
+  final long leftSize=Deep.size(left), rightSize=Deep.size(right);
+  int remaining=n - 2 * k;
+  int i=k, j=0;
+  @SuppressWarnings("unchecked") final Node<Node<N,E>,E>[] outNodes=(Node<Node<N,E>,E>[])nodes;
+  while (remaining > 4 || remaining == 3) {
+    outNodes[j++]=new InnerNode3<>(nodes[i++],nodes[i++],nodes[i++]);
+    remaining-=3;
+  }
+  while (remaining > 0) {
+    outNodes[j++]=new InnerNode2<>(nodes[i++],nodes[i++]);
+    remaining-=2;
+  }
+  final FingerTree<Node<N,E>,E> middle=buildTree(outNodes,j,size - leftSize - rightSize);
+  return new Deep<>(left,leftSize,middle,right,size);
+}

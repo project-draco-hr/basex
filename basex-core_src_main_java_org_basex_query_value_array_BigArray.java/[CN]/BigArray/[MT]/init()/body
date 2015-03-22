@@ -1,0 +1,26 @@
+{
+  if (right.length > MIN_DIGIT) {
+    return new BigArray(left,middle,slice(right,0,right.length - 1));
+  }
+  if (middle.isEmpty()) {
+    final int l=left.length, r=right.length, n=l + r - 1;
+    if (n <= MAX_SMALL) {
+      final Value[] out=new Value[n];
+      System.arraycopy(left,0,out,0,l);
+      System.arraycopy(right,0,out,l,r - 1);
+      return new SmallArray(out);
+    }
+    final int ll=n / 2, rl=n - ll, move=l - ll;
+    final Value[] newLeft=new Value[ll], newRight=new Value[rl];
+    System.arraycopy(left,0,newLeft,0,ll);
+    System.arraycopy(left,ll,newRight,0,move);
+    System.arraycopy(right,0,newRight,move,r - 1);
+    return new BigArray(newLeft,newRight);
+  }
+  final Value[] ls=((LeafNode)middle.last()).values, rs=right;
+  final int ll=ls.length, rl=rs.length, n=ll + rl - 1;
+  final Value[] newRight=new Value[n];
+  System.arraycopy(ls,0,newRight,0,ll);
+  System.arraycopy(rs,0,newRight,ll,rl - 1);
+  return new BigArray(left,middle.init(),newRight);
+}

@@ -1,0 +1,69 @@
+{
+  long pos=index;
+  FingerTree<?,E> curr=this;
+  int level=0;
+  final Node<?,E> digit;
+  while (true) {
+    if (curr instanceof Single) {
+      digit=((Single<?,E>)curr).elem;
+      break;
+    }
+    final Deep<?,E> deep=(Deep<?,E>)curr;
+    if (pos < deep.leftSize) {
+      Node<?,E> nd=null;
+      for (int i=0; i < deep.left.length; i++) {
+        nd=deep.left[i];
+        final long s=nd.size();
+        if (pos < s)         break;
+        pos-=s;
+      }
+      digit=nd;
+      break;
+    }
+    pos-=deep.leftSize;
+    final long mSize=deep.middle.size();
+    if (pos >= mSize) {
+      pos-=mSize;
+      Node<?,E> nd=null;
+      for (int i=0; i < deep.right.length; i++) {
+        nd=deep.right[i];
+        final long s=nd.size();
+        if (pos < s)         break;
+        pos-=s;
+      }
+      digit=nd;
+      break;
+    }
+    curr=deep.middle;
+    level++;
+  }
+  Node<?,?> nd=digit;
+  for (; level > 0; level--) {
+    if (nd instanceof InnerNode2) {
+      final InnerNode2<?,?> deep=(InnerNode2<?,?>)nd;
+      if (pos < deep.l) {
+        nd=deep.child0;
+      }
+ else {
+        nd=deep.child1;
+        pos-=deep.l;
+      }
+    }
+ else {
+      final InnerNode3<?,?> deep=(InnerNode3<?,?>)nd;
+      if (pos < deep.l) {
+        nd=deep.child0;
+      }
+ else       if (pos < deep.m) {
+        nd=deep.child1;
+        pos-=deep.l;
+      }
+ else {
+        nd=deep.child2;
+        pos-=deep.m;
+      }
+    }
+  }
+  @SuppressWarnings("unchecked") final E res=((Node<E,E>)nd).getSub((int)pos);
+  return res;
+}
