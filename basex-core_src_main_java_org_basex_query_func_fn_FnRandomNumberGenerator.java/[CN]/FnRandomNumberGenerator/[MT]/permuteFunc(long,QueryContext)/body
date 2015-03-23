@@ -1,0 +1,22 @@
+{
+  return RuntimeExpr.funcItem(new RuntimeExpr(info){
+    @Override public Value value(    final QueryContext qc) throws QueryException {
+      final Value value=qc.get(params[0]);
+      final int sz=(int)value.size();
+      final Item[] items=new Item[sz];
+      value.writeTo(items,0);
+      long s=seed;
+      for (int i=sz; --i >= 1; ) {
+        s=next(s);
+        final int j=(int)((s >>> 16) % (i + 1));
+        if (i != j) {
+          final Item item=items[i];
+          items[i]=items[j];
+          items[j]=item;
+        }
+      }
+      return Seq.get(items);
+    }
+  }
+,1,sc,qctx);
+}
