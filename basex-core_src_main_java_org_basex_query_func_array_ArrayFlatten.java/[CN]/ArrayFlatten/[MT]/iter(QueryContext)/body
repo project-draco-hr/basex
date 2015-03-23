@@ -1,6 +1,31 @@
 {
-  final ValueBuilder vb=new ValueBuilder();
-  final Iter ir=qc.iter(exprs[0]);
-  for (Item it; (it=ir.next()) != null; )   vb.addFlattened(it);
-  return vb;
+  return new Iter(){
+    @SuppressWarnings("unchecked") private Iterator<Value>[] iters=new Iterator[2];
+    private int p=-1;
+    private Iter curr=qc.iter(exprs[0]);
+    @Override public Item next() throws QueryException {
+      for (; ; ) {
+        final Item it=curr.next();
+        if (it != null) {
+          if (!(it instanceof Array))           return it;
+          final Array arr=(Array)it;
+          if (++p == iters.length) {
+            @SuppressWarnings("unchecked") final Iterator<Value>[] temp=new Iterator[2 * p];
+            System.arraycopy(iters,0,temp,0,p);
+            iters=temp;
+          }
+          iters[p]=arr.members();
+        }
+ else         if (p < 0) {
+          return null;
+        }
+        while (!iters[p].hasNext()) {
+          iters[p]=null;
+          if (--p < 0)           return null;
+        }
+        curr=iters[p].next().iter();
+      }
+    }
+  }
+;
 }

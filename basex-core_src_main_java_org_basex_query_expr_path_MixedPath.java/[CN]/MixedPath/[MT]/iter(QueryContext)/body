@@ -1,6 +1,24 @@
 {
-  final Value v=root != null ? qc.value(root) : ctxValue(qc);
-  Iter res=v.iter();
+  Iter iter;
+  long sz;
+  if (root != null) {
+    final Iter rt=qc.iter(root);
+    final long s=rt.size();
+    if (s >= 0) {
+      iter=rt;
+      sz=s;
+    }
+ else {
+      final Value val=rt.value();
+      iter=val.iter();
+      sz=val.size();
+    }
+  }
+ else {
+    final Value rt=ctxValue(qc);
+    iter=rt.iter();
+    sz=rt.size();
+  }
   final Value cv=qc.value;
   final long cs=qc.size;
   final long cp=qc.pos;
@@ -8,38 +26,38 @@
     final int sl=steps.length;
     for (int s=0; s < sl; s++) {
       final Expr step=steps[s];
-      final ValueBuilder vb=new ValueBuilder();
-      qc.size=res.size();
+      final ItemList cache=new ItemList();
+      qc.size=sz;
       qc.pos=1;
-      int nodes=0;
-      for (Item it; (it=res.next()) != null; ) {
+      long nodes=0;
+      for (Item it; (it=iter.next()) != null; ) {
         if (!(it instanceof ANode))         throw PATHNODE_X_X_X.get(info,step,it.type,it);
         qc.value=it;
         final Iter ir=qc.iter(step);
         for (Item i; (i=ir.next()) != null; ) {
           if (i instanceof ANode)           nodes++;
-          vb.add(i);
+          cache.add(i);
         }
         qc.pos++;
       }
-      final long vs=vb.size();
+      final long vs=cache.size();
       if (nodes < vs) {
         if (nodes > 0)         throw EVALNODESVALS.get(info);
         if (s + 1 < sl) {
-          final Item it=vb.get(0);
+          final Item it=cache.get(0);
           throw PATHNODE_X_X_X.get(info,steps[s + 1],it.type,it);
         }
       }
       if (nodes == vs) {
         final NodeSeqBuilder nc=new NodeSeqBuilder().check();
-        for (Item it; (it=vb.next()) != null; )         nc.add((ANode)it);
-        res=nc.value().cache();
+        for (        final Item nd : cache)         nc.add((ANode)nd);
+        iter=nc;
       }
  else {
-        res=vb;
+        iter=cache.iter();
       }
     }
-    return res;
+    return iter;
   }
   finally {
     qc.value=cv;

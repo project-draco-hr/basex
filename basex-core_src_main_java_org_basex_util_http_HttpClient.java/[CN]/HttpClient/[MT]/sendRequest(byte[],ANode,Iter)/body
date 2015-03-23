@@ -1,0 +1,23 @@
+{
+  final HttpRequest req=new HttpRequestParser(info).parse(request,bodies);
+  HttpURLConnection conn=null;
+  try {
+    final String mediaType=req.attribute(OVERRIDE_MEDIA_TYPE);
+    final String status=req.attribute(STATUS_ONLY);
+    final boolean body=status == null || !Strings.yes(status);
+    final String url=href == null || href.length == 0 ? req.attribute(HREF) : string(href);
+    if (url == null || url.isEmpty())     throw HC_URL.get(info);
+    conn=connect(url,req);
+    if (req.bodyContent.size() != 0 || !req.parts.isEmpty()) {
+      setContentType(conn,req);
+      setRequestContent(conn.getOutputStream(),req);
+    }
+    return new HttpResponse(info,options).getResponse(conn,body,mediaType).iter();
+  }
+ catch (  final IOException ex) {
+    throw HC_ERROR_X.get(info,ex);
+  }
+ finally {
+    if (conn != null)     conn.disconnect();
+  }
+}

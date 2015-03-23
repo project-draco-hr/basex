@@ -4,13 +4,13 @@
   if (range == ALL)   return exprs[0].value(qc);
   final long start=range[0], len=range[1];
   final Iter iter=qc.iter(exprs[0]);
-  if (iter instanceof ValueIter)   return sub((ValueIter)iter,start,len);
+  if (iter instanceof ValueIter)   return eval(((ValueIter)iter).value(),start,len);
   final long max=iter.size();
   if (max >= 0) {
     final long s=Math.max(1,start) - 1;
     final long l=Math.min(max - s,len + Math.min(0,start - 1));
     if (s >= max || l <= 0)     return Empty.SEQ;
-    final ValueBuilder vb=new ValueBuilder(Math.max((int)l,1));
+    final ValueBuilder vb=new ValueBuilder();
     for (long i=0; i < l; i++)     vb.add(iter.get(s + i));
     return vb.value();
   }

@@ -2,7 +2,7 @@
   int max=context.options.get(MainOptions.MAXHITS);
   if (max < 0)   max=Integer.MAX_VALUE;
   final Iter ir=iter();
-  final ValueBuilder vb=new ValueBuilder();
+  final ItemList cache;
   Item it;
   final Data data=resources.globalData();
   if (serialOpts == null && data != null) {
@@ -13,13 +13,19 @@
       if (pres.size() < max)       pres.add(((DBNode)it).pre);
     }
     final int ps=pres.size();
-    if (it == null || ps == max)     return ps == 0 ? vb : new DBNodes(data,ftPosData,pres.finish());
-    for (int p=0; p < ps; ++p)     vb.add(new DBNode(data,pres.get(p)));
-    vb.add(it);
+    if (it == null || ps == max) {
+      return ps == 0 ? new ItemList(0) : new DBNodes(data,ftPosData,pres.finish());
+    }
+    cache=new ItemList();
+    for (int p=0; p < ps; ++p)     cache.add(new DBNode(data,pres.get(p)));
+    cache.add(it);
+  }
+ else {
+    cache=new ItemList();
   }
   while ((it=ir.next()) != null) {
     checkStop();
-    if (vb.size() < max)     vb.add(it.materialize(null));
+    if (cache.size() < max)     cache.add(it.materialize(null));
   }
-  return vb;
+  return cache;
 }

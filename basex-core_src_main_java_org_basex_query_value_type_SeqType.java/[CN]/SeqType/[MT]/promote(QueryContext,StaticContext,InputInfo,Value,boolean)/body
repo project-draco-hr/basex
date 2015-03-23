@@ -2,20 +2,20 @@
   final int n=(int)value.size();
   if (!occ.check(n))   throw INVPROMOTE_X_X_X.get(ii,value.seqType(),withOcc(Occ.ONE),value);
   if (n == 0)   return Empty.SEQ;
-  ValueBuilder vb=null;
+  ItemList buffer=null;
   for (int i=0; i < n; i++) {
     final Item it=value.itemAt(i);
     if (instance(it,true)) {
       if (i == 0 && value.homogeneous())       return value;
-      if (vb != null)       vb.add(it);
+      if (buffer != null)       buffer.add(it);
     }
  else {
-      if (vb == null) {
-        vb=new ValueBuilder(new Item[n],0);
-        for (int j=0; j < i; j++)         vb.add(value.itemAt(j));
+      if (buffer == null) {
+        buffer=new ItemList(n);
+        for (int j=0; j < i; j++)         buffer.add(value.itemAt(j));
       }
-      promote(qc,sc,ii,it,opt,vb);
+      promote(qc,sc,ii,it,opt,buffer);
     }
   }
-  return vb != null ? Seq.get(vb.items(),(int)vb.size(),type) : value;
+  return buffer != null ? buffer.value(type) : value;
 }
