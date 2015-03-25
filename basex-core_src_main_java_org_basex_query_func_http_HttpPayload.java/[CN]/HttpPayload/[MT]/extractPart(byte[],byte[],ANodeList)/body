@@ -1,7 +1,7 @@
 {
   final byte[] line=readLine();
   if (line == null || eq(line,end))   return false;
-  String ctype=TEXT_PLAIN, enc=null, ct=ctype;
+  String ctype=TEXT_PLAIN, enc=null;
   for (byte[] l=line; l != null && l.length > 0; ) {
     final int pos=indexOf(l,':');
     if (pos > 0) {
@@ -10,7 +10,6 @@
       if (eq(lc(key),CONTENT_TYPE_LC)) {
         ctype=string(val);
         enc=charset(ctype);
-        ct=contentType(ctype);
       }
       if (val.length != 0 && parts != null)       parts.add(new FElem(Q_HEADER).add(NAME,key).add(VALUE,val));
     }
@@ -18,6 +17,6 @@
   }
   if (parts != null)   parts.add(new FElem(Q_BODY).add(SerializerOptions.MEDIA_TYPE.name(),ctype));
   final byte[] pl=extractPart(sep,end,enc);
-  if (payloads != null)   payloads.add(parse(pl,ct));
+  if (payloads != null)   payloads.add(parse(pl,ctype));
   return true;
 }
