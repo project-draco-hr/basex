@@ -1,26 +1,26 @@
 {
-  String method=payloadAtts.get(SerializerOptions.METHOD.name());
+  String method=atts.get(SerializerOptions.METHOD.name());
   if (method == null) {
-    final String type=payloadAtts.get(SerializerOptions.MEDIA_TYPE.name());
-    if (Strings.eq(type,APP_HTML_XML)) {
+    final MediaType type=new MediaType(atts.get(SerializerOptions.MEDIA_TYPE.name()));
+    if (type.is(MediaType.APPLICATION_HTML_XML)) {
       method=SerialMethod.XHTML.toString();
     }
- else     if (Strings.eq(type,TEXT_HTML)) {
+ else     if (type.is(MediaType.TEXT_HTML)) {
       method=SerialMethod.HTML.toString();
     }
- else     if (isXML(type)) {
+ else     if (type.isXML()) {
       method=SerialMethod.XML.toString();
     }
- else     if (isText(type)) {
+ else     if (type.isText()) {
       method=SerialMethod.TEXT.toString();
     }
  else {
       method=SerialMethod.XML.toString();
     }
   }
-  final String src=payloadAtts.get(SRC);
+  final String src=atts.get(SRC);
   if (src == null) {
-    write(payload,payloadAtts,method,out);
+    write(payload,atts,method,out);
   }
  else {
     final IOUrl io=new IOUrl(src);
@@ -29,7 +29,7 @@
     }
  else {
       final ValueBuilder vb=new ValueBuilder().add(Str.get(new TextInput(io).content()));
-      write(vb,payloadAtts,method,out);
+      write(vb,atts,method,out);
     }
   }
 }

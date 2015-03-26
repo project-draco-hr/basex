@@ -1,0 +1,19 @@
+{
+  final FElem body;
+  if (type.isMultipart()) {
+    final byte[] boundary=boundary(type);
+    if (boundary == null)     throw HC_REQ_X.get(info,"No separation boundary specified");
+    body=new FElem(Q_MULTIPART).add(BOUNDARY,boundary);
+    final ANodeList parts=new ANodeList();
+    extractParts(concat(DASHES,boundary),parts);
+    for (    final ANode node : parts)     body.add(node);
+  }
+ else {
+    body=new FElem(Q_BODY);
+    if (payloads != null) {
+      final byte[] pl=(type.isXML() || type.isText() ? new NewlineInput(input).encoding(type.parameters().get(CHARSET)) : new BufferInput(input)).content();
+      payloads.add(parse(pl,type));
+    }
+  }
+  return body.add(SerializerOptions.MEDIA_TYPE.name(),type.type());
+}
