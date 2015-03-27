@@ -1,0 +1,109 @@
+{
+  if (pos < 0)   throw new IndexOutOfBoundsException("first index < 0: " + pos);
+  if (len < 0)   throw new IndexOutOfBoundsException("length < 0: " + len);
+  final long midSize=middle.size(), size=left.length + midSize + right.length;
+  if (len > size - pos)   throw new IndexOutOfBoundsException("end out of bounds: " + (pos + len) + " > "+ size);
+  if (len == 0)   return Array.empty();
+  if (len == size)   return this;
+  final long end=pos + len;
+  if (end <= left.length) {
+    final int p=(int)pos, n=(int)len;
+    if (len <= MAX_SMALL)     return new SmallArray(slice(left,p,p + n));
+    final int mid=p + n / 2;
+    return new BigArray(slice(left,p,mid),slice(left,mid,p + n));
+  }
+  final long rightOffset=left.length + midSize;
+  if (pos >= rightOffset) {
+    final int p=(int)(pos - rightOffset), n=(int)len;
+    if (len <= MAX_SMALL)     return new SmallArray(slice(right,p,p + n));
+    final int mid=p + n / 2;
+    return new BigArray(slice(right,p,mid),slice(right,mid,p + n));
+  }
+  final int inLeft=pos < left.length ? (int)(left.length - pos) : 0, inRight=end > rightOffset ? (int)(end - rightOffset) : 0;
+  if (inLeft >= MIN_DIGIT && inRight >= MIN_DIGIT) {
+    final Value[] newLeft=inLeft == left.length ? left : slice(left,(int)pos,left.length);
+    final Value[] newRight=inRight == right.length ? right : slice(right,0,inRight);
+    return new BigArray(newLeft,middle,newRight);
+  }
+  if (middle.isEmpty()) {
+    final Value[] out;
+    if (inLeft == 0) {
+      out=inRight == right.length ? right : slice(right,0,inRight);
+    }
+ else     if (inRight == 0) {
+      out=inLeft == left.length ? left : slice(left,left.length - inLeft,left.length);
+    }
+ else {
+      out=slice(left,left.length - inLeft,left.length + inRight);
+      System.arraycopy(right,0,out,inLeft,inRight);
+    }
+    return fromMerged(out);
+  }
+  final long inMiddle=len - inLeft - inRight;
+  final FingerTree<Value,Value> mid;
+  if (inMiddle == midSize) {
+    mid=middle;
+  }
+ else {
+    final long off=pos < left.length ? 0 : pos - left.length;
+    final TreeSlice<Value,Value> slice=middle.slice(off,inMiddle);
+    if (!slice.isTree()) {
+      final Value[] single=((PartialLeafNode)slice.getPartial()).elems;
+      if (inLeft > 0) {
+        final Value[] out=slice(left,(int)pos,left.length + single.length);
+        System.arraycopy(single,0,out,inLeft,single.length);
+        return fromMerged(out);
+      }
+      if (inRight > 0) {
+        final Value[] out=slice(single,0,single.length + inRight);
+        System.arraycopy(right,0,out,single.length,inRight);
+        return fromMerged(out);
+      }
+      return new SmallArray(single);
+    }
+    mid=slice.getTree();
+  }
+  final int off=left.length - inLeft;
+  final Value[] newLeft;
+  final FingerTree<Value,Value> mid1;
+  if (inLeft >= MIN_DIGIT) {
+    newLeft=inLeft == left.length ? left : slice(left,off,left.length);
+    mid1=mid;
+  }
+ else {
+    final Value[] head=((LeafNode)mid.head()).values;
+    if (inLeft == 0) {
+      newLeft=head;
+    }
+ else {
+      newLeft=slice(head,-inLeft,head.length);
+      System.arraycopy(left,off,newLeft,0,inLeft);
+    }
+    mid1=mid.tail();
+  }
+  final Value[] newRight;
+  final FingerTree<Value,Value> newMiddle;
+  if (inRight >= MIN_DIGIT) {
+    newMiddle=mid1;
+    newRight=inRight == right.length ? right : slice(right,0,inRight);
+  }
+ else   if (!mid1.isEmpty()) {
+    final Value[] last=((LeafNode)mid1.last()).values;
+    newMiddle=mid1.init();
+    if (inRight == 0) {
+      newRight=last;
+    }
+ else {
+      newRight=slice(last,0,last.length + inRight);
+      System.arraycopy(right,0,newRight,last.length,inRight);
+    }
+  }
+ else {
+    if (inRight == 0)     return fromMerged(newLeft);
+    final int n=newLeft.length + inRight;
+    final Value[] out=slice(newLeft,0,n);
+    System.arraycopy(right,0,out,newLeft.length,inRight);
+    return fromMerged(out);
+  }
+  return new BigArray(newLeft,newMiddle,newRight);
+}

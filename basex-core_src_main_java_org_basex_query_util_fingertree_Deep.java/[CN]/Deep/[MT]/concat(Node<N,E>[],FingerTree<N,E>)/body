@@ -1,0 +1,29 @@
+{
+  final Deep<N,E> lft=(Deep<N,E>)addAll(nodes,false);
+  if (!(other instanceof Deep)) {
+    return other instanceof Single ? lft.snoc(((Single<N,E>)other).elem) : lft;
+  }
+  final Deep<N,E> rght=(Deep<N,E>)other;
+  Node<N,E>[] as=lft.right, bs=rght.left;
+  final int l=as.length, n=l + bs.length, k=(n + 2) / 3;
+  @SuppressWarnings("unchecked") final Node<Node<N,E>,E>[] out=new Node[k];
+  int p=0;
+  for (int i=0; i < k; i++) {
+    final int rest=n - p;
+    final Node<N,E> x=p < l ? as[p] : bs[p - l];
+    p++;
+    final Node<N,E> y=p < l ? as[p] : bs[p - l];
+    p++;
+    if (rest > 4 || rest == 3) {
+      final Node<N,E> z=p < l ? as[p] : bs[p - l];
+      out[i]=new InnerNode3<>(x,y,z);
+      p++;
+    }
+ else {
+      out[i]=new InnerNode2<>(x,y);
+    }
+  }
+  final FingerTree<Node<N,E>,E> newMid=lft.middle.concat(out,rght.middle);
+  final long newSize=lft.leftSize + newMid.size() + rght.rightSize();
+  return new Deep<>(lft.left,lft.leftSize,newMid,rght.right,newSize);
+}

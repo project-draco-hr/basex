@@ -1,0 +1,18 @@
+{
+  if (index <= 0)   throw new NoSuchElementException();
+  index--;
+  if (leafPos <= 0) {
+    while (poss[top] <= 0)     top--;
+    poss[top]--;
+    Node<?,E> sub=nodes[top].getSub(poss[top]);
+    while (sub instanceof InnerNode) {
+      ++top;
+      nodes[top]=(InnerNode<?,E>)sub;
+      poss[top]=sub.arity() - 1;
+      sub=nodes[top].getSub(poss[top]);
+    }
+    leaf=(Node<E,E>)sub;
+    leafPos=sub.arity();
+  }
+  return leaf.getSub(--leafPos);
+}

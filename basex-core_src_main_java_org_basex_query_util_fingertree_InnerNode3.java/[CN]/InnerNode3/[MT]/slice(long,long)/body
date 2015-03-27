@@ -1,0 +1,31 @@
+{
+  final long end=start + len;
+  if (start < l) {
+    final long in0=Math.min(l - start,len);
+    final NodeLike<N,E> slice0=in0 == l ? child0 : child0.slice(start,in0);
+    if (end <= m) {
+      if (end <= l)       return new PartialInnerNode<>(slice0);
+      final NodeLike<N,E> slice1=end == m ? child1 : child1.slice(0,end - l);
+      if (slice0 instanceof Node && slice1 instanceof Node)       return new InnerNode2<>((Node<N,E>)slice0,(Node<N,E>)slice1);
+      NodeLike<N,E>[] merged=slice0.concat(slice1);
+      return merged[1] == null ? new PartialInnerNode<>(merged[0]) : new InnerNode2<>((Node<N,E>)merged[0],(Node<N,E>)merged[1]);
+    }
+    final long in2=end - m;
+    final NodeLike<N,E> slice2=in2 == r - m ? child2 : child2.slice(0,in2);
+    @SuppressWarnings("unchecked") final NodeLike<N,E>[] ns=new NodeLike[3];
+    int p0=slice0.append(ns,0), p1=child1.append(ns,p0), p2=slice2.append(ns,p1);
+    return p2 == 1 ? new PartialInnerNode<>(ns[0]) : p2 == 2 ? new InnerNode2<>((Node<N,E>)ns[0],(Node<N,E>)ns[1]) : new InnerNode3<>((Node<N,E>)ns[0],(Node<N,E>)ns[1],(Node<N,E>)ns[2]);
+  }
+  if (start < m) {
+    final long in1=Math.min(m - start,len);
+    final NodeLike<N,E> slice1=in1 == m - l ? child1 : child1.slice(start - l,in1);
+    if (end <= m)     return new PartialInnerNode<>(slice1);
+    final long in2=end - m;
+    final NodeLike<N,E> slice2=in2 == r - m ? child2 : child2.slice(0,in2);
+    if (slice1 instanceof Node && slice2 instanceof Node)     return new InnerNode2<>((Node<N,E>)slice1,(Node<N,E>)slice2);
+    NodeLike<N,E>[] merged=slice1.concat(slice2);
+    return merged[1] == null ? new PartialInnerNode<>(merged[0]) : new InnerNode2<>((Node<N,E>)merged[0],(Node<N,E>)merged[1]);
+  }
+  final NodeLike<N,E> slice2=r - m == len ? child2 : child2.slice(start - m,len);
+  return new PartialInnerNode<>(slice2);
+}

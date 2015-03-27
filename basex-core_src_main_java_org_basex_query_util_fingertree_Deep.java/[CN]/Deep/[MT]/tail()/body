@@ -1,0 +1,14 @@
+{
+  final long fstSize=left[0].size();
+  final long newSize=size - fstSize;
+  if (left.length > 1) {
+    return new Deep<>(slice(left,1,left.length),leftSize - fstSize,middle,right,newSize);
+  }
+  if (middle.isEmpty()) {
+    if (right.length == 1)     return new Single<>(right[0]);
+    final int mid=right.length / 2;
+    return Deep.get(slice(right,0,mid),slice(right,mid,right.length),newSize);
+  }
+  final InnerNode<N,E> head=(InnerNode<N,E>)middle.head();
+  return new Deep<>(head.copyChildren(),head.size(),middle.tail(),right,newSize);
+}
