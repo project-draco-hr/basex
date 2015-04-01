@@ -7,8 +7,8 @@
   final Item[] ls=big.left, rs=big.right;
   final FingerTree<Item,Item> midTree=big.middle;
   if (midTree.isEmpty()) {
-    for (    final Item l : big.left)     add(l);
-    for (    final Item r : big.right)     add(r);
+    for (    final Item l : ls)     add(l);
+    for (    final Item r : rs)     add(r);
     return this;
   }
   if (tree.isEmpty()) {
@@ -29,18 +29,18 @@
     for (int i=0; i < rs.length; i++)     add(rs[i]);
     return this;
   }
-  final int inMiddle=inRight + big.left.length, leaves=(inMiddle + TreeSeq.MAX_LEAF - 1) / TreeSeq.MAX_LEAF, leafSize=(inMiddle + leaves - 1) / leaves;
+  final int inMiddle=inRight + ls.length, leaves=(inMiddle + TreeSeq.MAX_LEAF - 1) / TreeSeq.MAX_LEAF, leafSize=(inMiddle + leaves - 1) / leaves;
   for (int i=0, l=0; l < leaves; l++) {
     final int inLeaf=Math.min(leafSize,inMiddle - i);
     final Item[] leaf=new Item[inLeaf];
     for (int p=0; p < inLeaf; p++) {
-      leaf[p]=i < inRight ? vals[(mid + i) % CAP] : big.left[i - inRight];
+      leaf[p]=i < inRight ? vals[(mid + i) % CAP] : ls[i - inRight];
       i++;
     }
     tree.append(new LeafNode(leaf));
   }
-  tree.append(big.middle);
+  tree.append(midTree);
   inRight=0;
-  for (  final Item r : big.right)   add(r);
+  for (  final Item r : rs)   add(r);
   return this;
 }

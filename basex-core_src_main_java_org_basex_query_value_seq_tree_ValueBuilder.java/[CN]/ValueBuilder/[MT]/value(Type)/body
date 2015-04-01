@@ -4,13 +4,8 @@
   final int start=(mid - inLeft + CAP) % CAP;
   if (n == 1)   return vals[start];
   if (n <= TreeSeq.MAX_SMALL) {
-    final Item[] small=new Item[n];
-    for (int i=0; i < n; i++)     small[i]=vals[(start + i) % CAP];
-    return new SmallSeq(small,ret);
+    return new SmallSeq(items(start,n),ret);
   }
-  final int a=tree.isEmpty() ? n / 2 : inLeft, b=n - a;
-  final Item[] ls=new Item[a], rs=new Item[b];
-  for (int i=0; i < a; i++)   ls[i]=vals[(start + i) % CAP];
-  for (int i=a; i < n; i++)   rs[i - a]=vals[(start + i) % CAP];
-  return new BigSeq(ls,tree.freeze(),rs,ret);
+  final int ll=tree.isEmpty() ? n / 2 : inLeft;
+  return new BigSeq(items(start,ll),tree.freeze(),items(start + ll,n - ll),ret);
 }
