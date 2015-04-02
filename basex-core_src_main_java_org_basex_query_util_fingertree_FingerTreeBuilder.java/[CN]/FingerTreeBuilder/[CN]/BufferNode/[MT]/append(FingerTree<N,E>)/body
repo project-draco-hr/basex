@@ -1,9 +1,9 @@
 {
-  if (!(tree instanceof Deep)) {
-    if (tree instanceof Single)     append(((Single<N,E>)tree).elem);
+  if (!(tree instanceof DeepTree)) {
+    if (tree instanceof SingletonTree)     append(((SingletonTree<N,E>)tree).elem);
     return;
   }
-  final Deep<N,E> deep=(Deep<N,E>)tree;
+  final DeepTree<N,E> deep=(DeepTree<N,E>)tree;
   final Node<N,E>[] ls=deep.left, rs=deep.right;
   final int ll=ls.length, rl=rs.length;
   final FingerTree<Node<N,E>,E> mid=deep.middle;
@@ -14,7 +14,7 @@
  else   if (middle == null) {
     final int n=inLeft + inRight;
     final Node<N,E>[] buff=new Node[n + ll];
-    for (int i=0; i < n; i++)     buff[i]=nodes[(midPos - inLeft + i + CAP) & MASK];
+    copyInto(midPos - inLeft,buff,0,n);
     System.arraycopy(ls,0,buff,n,ll);
     inLeft=inRight=0;
     middle=mid;
@@ -22,29 +22,19 @@
     for (int i=0; i < rl; i++)     append(rs[i]);
   }
  else {
-    final int k=inRight + ll;
-    final Node<N,E>[] buff=new Node[k];
-    for (int i=0; i < inRight; i++) {
-      final int j=(midPos + i) & MASK;
-      buff[i]=nodes[j];
-      nodes[j]=null;
-    }
+    final int n=inRight + ll;
+    final Node<N,E>[] buff=new Node[n];
+    copyInto(midPos,buff,0,inRight);
     System.arraycopy(ls,0,buff,inRight,ll);
     inRight=0;
-    for (int i=0; i < k; ) {
-      final int rest=k - i;
-      if (rest > 4 || rest == 3) {
-        final Node<Node<N,E>,E> sub=new InnerNode3<>(buff[i],buff[i + 1],buff[i + 2]);
-        if (middle == null)         middle=new BufferNode<>(sub);
- else         midBuffer().append(sub);
-        i+=3;
-      }
- else {
-        final Node<Node<N,E>,E> sub=new InnerNode2<>(buff[i],buff[i + 1]);
-        if (middle == null)         middle=new BufferNode<>(sub);
- else         midBuffer().append(sub);
-        i+=2;
-      }
+    for (int k=(n + NODE_SIZE - 1) / NODE_SIZE, p=0; k > 0; k--) {
+      final int inNode=(n - p + k - 1) / k;
+      final Node<N,E>[] out=new Node[inNode];
+      System.arraycopy(buff,p,out,0,inNode);
+      final Node<Node<N,E>,E> sub=new InnerNode<>(out);
+      if (middle == null)       middle=new BufferNode<>(sub);
+ else       midBuffer().append(sub);
+      p+=inNode;
     }
     if (middle == null)     middle=mid;
  else     midBuffer().append(mid);

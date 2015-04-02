@@ -1,20 +1,17 @@
 {
-  if (inRight < 4) {
-    nodes[(midPos + inRight) & MASK]=node;
+  if (inRight < MAX_DIGIT) {
+    nodes[(midPos + inRight) % CAP]=node;
     inRight++;
   }
- else   if (middle == null && inLeft < 4) {
-    midPos=(midPos + 1) & MASK;
-    nodes[(midPos + inRight - 1) & MASK]=node;
+ else   if (middle == null && inLeft < MAX_DIGIT) {
+    midPos=(midPos + 1) % CAP;
+    nodes[(midPos + inRight - 1) % CAP]=node;
     inLeft++;
   }
  else {
-    final int r0=midPos, r1=(r0 + 1) & MASK, r2=(r1 + 1) & MASK, r3=(r2 + 1) & MASK;
-    final Node<Node<N,E>,E> next=new InnerNode3<>(nodes[r0],nodes[r1],nodes[r2]);
-    nodes[r0]=nodes[r3];
-    nodes[r1]=node;
-    nodes[r2]=null;
-    nodes[r3]=null;
+    final Node<Node<N,E>,E> next=new InnerNode<>(copy(midPos,inRight - 1));
+    nodes[midPos]=nodes[(midPos + inRight - 1) % CAP];
+    nodes[(midPos + 1) % CAP]=node;
     inRight=2;
     if (middle == null)     middle=new BufferNode<>(next);
  else     midBuffer().append(next);

@@ -1,17 +1,17 @@
 {
   if (tree.isEmpty())   return Collections.emptyListIterator();
-  if (tree instanceof Single)   return get(tree.head(),start);
-  final Deep<?,E> root=(Deep<?,E>)tree;
+  if (tree instanceof SingletonTree)   return get(tree.head(),start);
+  final DeepTree<?,E> root=(DeepTree<?,E>)tree;
   final long n=root.size;
   final long index=Math.max(0,Math.min(start,n));
-  @SuppressWarnings("unchecked") Deep<?,E>[] trees=new Deep[8];
+  @SuppressWarnings("unchecked") DeepTree<?,E>[] trees=new DeepTree[8];
   trees[0]=root;
   int tTop=0;
   int deepPos;
   Node<?,E> node;
   long pos=Math.min(index,n - 1);
   for (; ; ) {
-    final Deep<?,E> curr=trees[tTop];
+    final DeepTree<?,E> curr=trees[tTop];
     if (pos < curr.leftSize) {
       final Node<?,E>[] left=curr.left;
       int i=0;
@@ -40,13 +40,13 @@
       deepPos=i + 1;
       break;
     }
-    if (mid instanceof Single) {
+    if (mid instanceof SingletonTree) {
       node=mid.head();
       deepPos=0;
       break;
     }
     if (++tTop == trees.length)     trees=Arrays.copyOf(trees,2 * tTop);
-    trees[tTop]=(Deep<?,E>)mid;
+    trees[tTop]=(DeepTree<?,E>)mid;
   }
   return new FingerTreeIterator<>(n,index,trees,tTop,deepPos,node,pos);
 }

@@ -4,11 +4,11 @@
   int level=0;
   final Node<?,E> digit;
   while (true) {
-    if (curr instanceof Single) {
-      digit=((Single<?,E>)curr).elem;
+    if (curr instanceof SingletonTree) {
+      digit=((SingletonTree<?,E>)curr).elem;
       break;
     }
-    final Deep<?,E> deep=(Deep<?,E>)curr;
+    final DeepTree<?,E> deep=(DeepTree<?,E>)curr;
     if (pos < deep.leftSize) {
       Node<?,E> nd=null;
       for (int i=0; i < deep.left.length; i++) {
@@ -39,30 +39,12 @@
   }
   Node<?,?> nd=digit;
   for (; level > 0; level--) {
-    if (nd instanceof InnerNode2) {
-      final InnerNode2<?,?> deep=(InnerNode2<?,?>)nd;
-      if (pos < deep.l) {
-        nd=deep.child0;
-      }
- else {
-        nd=deep.child1;
-        pos-=deep.l;
-      }
-    }
- else {
-      final InnerNode3<?,?> deep=(InnerNode3<?,?>)nd;
-      if (pos < deep.l) {
-        nd=deep.child0;
-      }
- else       if (pos < deep.m) {
-        nd=deep.child1;
-        pos-=deep.l;
-      }
- else {
-        nd=deep.child2;
-        pos-=deep.m;
-      }
-    }
+    final InnerNode<?,?> deep=(InnerNode<?,?>)nd;
+    final long[] bounds=deep.bounds;
+    int p=0;
+    while (pos >= bounds[p])     p++;
+    if (p > 0)     pos-=bounds[p - 1];
+    nd=deep.children[p];
   }
   @SuppressWarnings("unchecked") final E res=((Node<E,E>)nd).getSub((int)pos);
   return res;

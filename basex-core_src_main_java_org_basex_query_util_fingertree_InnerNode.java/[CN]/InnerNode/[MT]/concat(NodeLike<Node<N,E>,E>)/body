@@ -1,0 +1,34 @@
+{
+  if (other instanceof Node) {
+    @SuppressWarnings("unchecked") final NodeLike<Node<N,E>,E>[] out=new NodeLike[]{this,other};
+    return out;
+  }
+  final int n=children.length;
+  final NodeLike<N,E> single=((PartialInnerNode<N,E>)other).sub;
+  final NodeLike<N,E>[] res=children[n - 1].concat(single);
+  @SuppressWarnings("unchecked") final NodeLike<Node<N,E>,E>[] out=(NodeLike<Node<N,E>,E>[])res;
+  if (res[1] == null) {
+    final Node<N,E>[] ch=children.clone();
+    ch[n - 1]=(Node<N,E>)res[0];
+    out[0]=new InnerNode<>(ch);
+    return out;
+  }
+  if (n < FingerTree.MAX_ARITY) {
+    @SuppressWarnings("unchecked") final Node<N,E>[] ch=new Node[n + 1];
+    System.arraycopy(children,0,ch,0,n - 1);
+    ch[n - 1]=(Node<N,E>)res[0];
+    ch[n]=(Node<N,E>)res[1];
+    out[0]=new InnerNode<>(ch);
+    out[1]=null;
+    return out;
+  }
+  final int ll=(n + 1) / 2, rl=n + 1 - ll;
+  @SuppressWarnings("unchecked") final Node<N,E>[] ls=new Node[ll], rs=new Node[rl];
+  System.arraycopy(children,0,ls,0,ll);
+  System.arraycopy(children,ll,rs,0,rl - 2);
+  rs[rl - 2]=(Node<N,E>)res[0];
+  rs[rl - 1]=(Node<N,E>)res[1];
+  out[0]=new InnerNode<>(ls);
+  out[1]=new InnerNode<>(rs);
+  return out;
+}
