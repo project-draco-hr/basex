@@ -10,21 +10,22 @@
     i++;
   }
   final int n=arr.length;
-  final Node<N,E>[] res=arr[i].remove(i == 0 ? null : arr[i - 1],i == n - 1 ? null : arr[i + 1],off);
-  if (res[1] != null) {
+  final NodeLike<N,E>[] res=arr[i].remove(i == 0 ? null : arr[i - 1],i == n - 1 ? null : arr[i + 1],off);
+  final Node<N,E> l=(Node<N,E>)res[0], m=(Node<N,E>)res[1], r=(Node<N,E>)res[2];
+  if (m != null) {
     final Node<N,E>[] out=arr.clone();
-    if (i > 0)     out[i - 1]=res[0];
-    out[i]=res[1];
-    if (i < n - 1)     out[i + 1]=res[2];
+    if (i > 0)     out[i - 1]=l;
+    out[i]=m;
+    if (i < n - 1)     out[i + 1]=r;
     return out;
   }
   @SuppressWarnings("unchecked") final Node<N,E>[] out=new Node[n - 1];
   if (i > 0) {
     System.arraycopy(arr,0,out,0,i - 1);
-    out[i - 1]=res[0];
+    out[i - 1]=l;
   }
   if (i < n - 1) {
-    out[i]=res[2];
+    out[i]=r;
     System.arraycopy(arr,i + 2,out,i + 1,n - i - 2);
   }
   return out;

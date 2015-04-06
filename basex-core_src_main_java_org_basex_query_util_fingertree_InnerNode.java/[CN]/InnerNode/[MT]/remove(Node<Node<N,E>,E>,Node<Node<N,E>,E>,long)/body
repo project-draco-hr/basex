@@ -3,9 +3,9 @@
   final int n=bounds.length;
   while (pos >= bounds[i])   i++;
   final long off=i == 0 ? pos : pos - bounds[i - 1];
-  final Node<N,E>[] res=children[i].remove(i == 0 ? null : children[i - 1],i == n - 1 ? null : children[i + 1],off);
-  @SuppressWarnings("unchecked") final Node<Node<N,E>,E>[] out=(Node<Node<N,E>,E>[])res;
-  final Node<N,E> l=res[0], m=res[1], r=res[2];
+  final NodeLike<N,E>[] res=children[i].remove(i == 0 ? null : children[i - 1],i == n - 1 ? null : children[i + 1],off);
+  @SuppressWarnings("unchecked") final NodeLike<Node<N,E>,E>[] out=(NodeLike<Node<N,E>,E>[])res;
+  final Node<N,E> l=(Node<N,E>)res[0], m=(Node<N,E>)res[1], r=(Node<N,E>)res[2];
   if (m != null) {
     final Node<N,E>[] ch=children.clone();
     if (i > 0)     ch[i - 1]=l;
@@ -64,8 +64,9 @@
     ls[a]=single;
     out[0]=new InnerNode<>(ls);
     out[2]=right;
+    return out;
   }
- else {
+  if (right != null) {
     final Node<N,E>[] ch=((InnerNode<N,E>)right).children;
     final int a=ch.length;
     @SuppressWarnings("unchecked") final Node<N,E>[] rs=new Node[a + 1];
@@ -73,6 +74,10 @@
     System.arraycopy(ch,0,rs,1,a);
     out[0]=left;
     out[2]=new InnerNode<>(rs);
+    return out;
   }
+  out[0]=null;
+  out[1]=new PartialInnerNode<>(single);
+  out[2]=null;
   return out;
 }
