@@ -51,10 +51,11 @@
  else {
       final Result result=cmd.finish();
       DBNodes nodes=result instanceof DBNodes && result.size() != 0 ? (DBNodes)result : null;
+      final boolean updated=cmd.updated(context);
       if (context.data() != data) {
         notify.init();
       }
- else       if (cmd.updated(context)) {
+ else       if (updated) {
         notify.update();
         if (nodes == null)         nodes=context.current();
       }
@@ -82,7 +83,7 @@
           if (!text.visible() && ao.size() != 0)           GUIMenuCmd.C_SHOWRESULT.execute(this);
           text.setText(ao);
         }
-        text.cacheText(ao,cmd,result);
+        if (!updated)         text.cache(ao,cmd,result);
       }
     }
   }
