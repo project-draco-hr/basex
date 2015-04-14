@@ -1,0 +1,34 @@
+{
+  final AtomicInteger counter=new AtomicInteger();
+  final Exception[] error=new Exception[1];
+  final int runs=250;
+  try {
+    new CreateDB("store").execute(context);
+    new CreateUser("user","").execute(context);
+    new Grant("write","user").execute(context);
+    for (int d=0; d < runs; d++) {
+      new Grant("write","user","doc" + d).execute(context);
+      new Thread(){
+        @Override public void run(){
+          try (Session session=new LocalSession(context,"user","")){
+            session.execute(new Open("store"));
+            counter.incrementAndGet();
+          }
+ catch (          Exception ex) {
+            error[0]=ex;
+          }
+        }
+      }
+.start();
+    }
+  }
+  finally {
+    while (counter.get() < runs && error[0] == null)     Thread.yield();
+    new DropDB("store").execute(context);
+    new DropUser("user").execute(context);
+    if (error[0] != null) {
+      error[0].printStackTrace();
+      fail(error[0].toString());
+    }
+  }
+}
