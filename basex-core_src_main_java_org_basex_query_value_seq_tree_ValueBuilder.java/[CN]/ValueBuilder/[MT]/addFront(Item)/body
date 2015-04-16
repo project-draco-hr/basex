@@ -1,0 +1,23 @@
+{
+  if (inLeft < TreeSeq.MAX_DIGIT) {
+    vals[(mid - inLeft + CAP - 1) % CAP]=elem;
+    inLeft++;
+  }
+ else   if (tree.isEmpty() && inRight < TreeSeq.MAX_DIGIT) {
+    mid=(mid + CAP - 1) % CAP;
+    vals[(mid - inLeft + CAP) % CAP]=elem;
+    inRight++;
+  }
+ else {
+    tree.prepend(new LeafNode(items(mid - NODE_SIZE,NODE_SIZE)));
+    final int rest=inLeft - NODE_SIZE;
+    final int p0=(mid - inLeft + CAP) % CAP;
+    for (int i=0; i < rest; i++) {
+      final int from=(p0 + i) % CAP, to=(from + NODE_SIZE) % CAP;
+      vals[to]=vals[from];
+    }
+    vals[(mid - rest + CAP - 1) % CAP]=elem;
+    inLeft=rest + 1;
+  }
+  return this;
+}

@@ -1,26 +1,20 @@
 {
-  if (l < 4) {
-    nodes[(m - l + 7) & 7]=node;
-    l++;
+  if (inLeft < MAX_DIGIT) {
+    nodes[(midPos - inLeft - 1 + CAP) % CAP]=node;
+    inLeft++;
   }
- else   if (sub == null && r < 4) {
-    m=(m + 7) & 7;
-    nodes[(m - l + 8) & 7]=node;
-    r++;
+ else   if (middle == null && inRight < MAX_DIGIT) {
+    midPos=(midPos - 1 + CAP) % CAP;
+    nodes[(midPos - inLeft + CAP) % CAP]=node;
+    inRight++;
   }
  else {
-    final int l3=(m + 7) & 7, l2=(l3 + 7) & 7, l1=(l2 + 7) & 7, l0=(l1 + 7) & 7;
-    final Node<Node<N,E>,E> next=new InnerNode3<>(nodes[l1],nodes[l2],nodes[l3]);
-    nodes[l3]=nodes[l0];
-    nodes[l2]=node;
-    nodes[l1]=null;
-    nodes[l0]=null;
-    l=2;
-    if (sub == null) {
-      sub=new BufferNode<>(next);
-    }
- else {
-      sub.prepend(next);
-    }
+    final int l=(midPos - inLeft + CAP) % CAP;
+    final Node<Node<N,E>,E> next=new InnerNode<>(copy(l + 1,inLeft - 1));
+    nodes[(midPos - 1 + CAP) % CAP]=nodes[l];
+    nodes[(midPos - 2 + CAP) % CAP]=node;
+    inLeft=2;
+    if (middle == null)     middle=new BufferNode<>(next);
+ else     midBuffer().prepend(next);
   }
 }

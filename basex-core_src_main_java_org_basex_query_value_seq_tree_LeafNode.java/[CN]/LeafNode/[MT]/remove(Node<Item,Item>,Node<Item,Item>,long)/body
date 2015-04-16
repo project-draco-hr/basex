@@ -1,0 +1,66 @@
+{
+  final int p=(int)pos, n=values.length;
+  @SuppressWarnings("unchecked") final NodeLike<Item,Item>[] out=new NodeLike[]{left,null,right};
+  if (n > TreeSeq.MIN_LEAF) {
+    final Item[] vals=new Item[n - 1];
+    System.arraycopy(values,0,vals,0,p);
+    System.arraycopy(values,p + 1,vals,p,n - 1 - p);
+    out[1]=new LeafNode(vals);
+    return out;
+  }
+  final LeafNode leftLeaf=(LeafNode)left;
+  if (leftLeaf != null && leftLeaf.arity() > TreeSeq.MIN_LEAF) {
+    final Item[] lvals=leftLeaf.values;
+    final int l=lvals.length, diff=l - TreeSeq.MIN_LEAF, move=(diff + 1) / 2;
+    final int ll=l - move, rl=n - 1 + move;
+    final Item[] newLeft=new Item[ll], newRight=new Item[rl];
+    System.arraycopy(lvals,0,newLeft,0,ll);
+    System.arraycopy(lvals,ll,newRight,0,move);
+    System.arraycopy(values,0,newRight,move,p);
+    System.arraycopy(values,p + 1,newRight,move + p,n - 1 - p);
+    out[0]=new LeafNode(newLeft);
+    out[1]=new LeafNode(newRight);
+    return out;
+  }
+  final LeafNode rightLeaf=(LeafNode)right;
+  if (rightLeaf != null && rightLeaf.arity() > TreeSeq.MIN_LEAF) {
+    final Item[] rvals=rightLeaf.values;
+    final int r=rvals.length, diff=r - TreeSeq.MIN_LEAF, move=(diff + 1) / 2;
+    final int ll=n - 1 + move, rl=r - move;
+    final Item[] newLeft=new Item[ll], newRight=new Item[rl];
+    System.arraycopy(values,0,newLeft,0,p);
+    System.arraycopy(values,p + 1,newLeft,p,n - 1 - p);
+    System.arraycopy(rvals,0,newLeft,n - 1,move);
+    System.arraycopy(rvals,move,newRight,0,rl);
+    out[1]=new LeafNode(newLeft);
+    out[2]=new LeafNode(newRight);
+    return out;
+  }
+  if (left != null) {
+    final Item[] lvals=((LeafNode)left).values;
+    final int l=lvals.length, r=values.length;
+    final Item[] vals=new Item[l + r - 1];
+    System.arraycopy(lvals,0,vals,0,l);
+    System.arraycopy(values,0,vals,l,p);
+    System.arraycopy(values,p + 1,vals,l + p,r - 1 - p);
+    out[0]=new LeafNode(vals);
+    out[1]=null;
+    return out;
+  }
+  if (right != null) {
+    final Item[] rvals=((LeafNode)right).values;
+    final int l=values.length, r=rvals.length;
+    final Item[] vals=new Item[l - 1 + r];
+    System.arraycopy(values,0,vals,0,p);
+    System.arraycopy(values,p + 1,vals,p,l - 1 - p);
+    System.arraycopy(rvals,0,vals,l - 1,r);
+    out[1]=null;
+    out[2]=new LeafNode(vals);
+    return out;
+  }
+  final Item[] vals=new Item[n - 1];
+  System.arraycopy(values,0,vals,0,p);
+  System.arraycopy(values,p + 1,vals,p,n - 1 - p);
+  out[1]=new PartialLeafNode(vals);
+  return out;
+}

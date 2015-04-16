@@ -1,0 +1,24 @@
+{
+  if (pos < 0)   throw new IndexOutOfBoundsException("negative index: " + pos);
+  if (pos > size())   throw new IndexOutOfBoundsException("position too big: " + pos);
+  final int l=left.length;
+  if (pos <= l) {
+    final int p=(int)pos;
+    final Item[] temp=slice(left,0,l + 1);
+    System.arraycopy(temp,p,temp,p + 1,l - p);
+    temp[p]=val;
+    if (l < MAX_DIGIT)     return new BigSeq(temp,middle,right,null);
+    final int m=(l + 1) / 2;
+    return new BigSeq(slice(temp,0,m),middle.cons(new LeafNode(slice(temp,m,l + 1))),right,null);
+  }
+  final long midSize=middle.size();
+  if (pos - l < midSize)   return new BigSeq(left,middle.insert(pos - l,val),right,null);
+  final int r=right.length;
+  final int p=(int)(pos - l - midSize);
+  final Item[] temp=slice(right,0,r + 1);
+  System.arraycopy(temp,p,temp,p + 1,r - p);
+  temp[p]=val;
+  if (r < MAX_DIGIT)   return new BigSeq(left,middle,temp,null);
+  final int m=(r + 1) / 2;
+  return new BigSeq(left,middle.snoc(new LeafNode(slice(temp,0,m))),slice(temp,m,r + 1),null);
+}

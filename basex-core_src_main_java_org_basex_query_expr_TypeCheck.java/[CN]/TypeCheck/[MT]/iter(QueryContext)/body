@@ -4,7 +4,7 @@
     /** 
  * Item cache. 
  */
-    final ValueBuilder vb=new ValueBuilder();
+    final ItemList cache=new ItemList();
     /** 
  * Item cache index. 
  */
@@ -15,20 +15,20 @@
     int i;
     @Override public Item next() throws QueryException {
       final SeqType st=seqType;
-      while (c == vb.size()) {
+      while (c == cache.size()) {
         qc.checkStop();
-        vb.size(0);
+        cache.size(0);
         c=0;
         final Item it=iter.next();
         if (it == null || st.instance(it,true)) {
-          vb.add(it);
+          cache.add(it);
         }
  else {
-          st.promote(qc,sc,info,it,false,vb);
+          st.promote(qc,sc,info,it,false,cache);
         }
       }
-      final Item it=vb.get(c);
-      vb.set(c++,null);
+      final Item it=cache.get(c);
+      cache.set(c++,null);
       if (it == null && i < st.occ.min || i > st.occ.max)       throw INVPROMOTE_X_X.get(info,expr.seqType(),st);
       i++;
       return it;

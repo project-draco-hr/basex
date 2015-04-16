@@ -1,0 +1,12 @@
+{
+  if (exprs[0] == Str.WC)   return wildCard(qc);
+  if (exprs[0] instanceof Item)   return lookup((Item)exprs[0],qc);
+  final ValueBuilder vb=new ValueBuilder();
+  final Iter iter=exprs.length == 1 ? ctxValue(qc).iter() : qc.iter(exprs[1]);
+  for (Item ctx; (ctx=iter.next()) != null; ) {
+    final Iter keys=exprs[0].iter(qc);
+    final FItem f=mapOrArray(ctx);
+    for (Item k; (k=keys.next()) != null; )     vb.add(f.invokeValue(qc,info,k));
+  }
+  return vb.value();
+}

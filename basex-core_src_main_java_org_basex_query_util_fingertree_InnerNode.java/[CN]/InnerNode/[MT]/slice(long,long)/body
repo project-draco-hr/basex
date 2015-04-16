@@ -1,0 +1,26 @@
+{
+  int p=0;
+  while (start >= bounds[p])   p++;
+  final long off=p == 0 ? start : start - bounds[p - 1], end=start + len - 1;
+  final int l=p;
+  while (end >= bounds[p])   p++;
+  final int r=p;
+  final Node<N,E> first=children[l];
+  final long inFst=Math.min(bounds[l] - start,len);
+  final NodeLike<N,E> fst=inFst == first.size() ? first : first.slice(off,inFst);
+  if (l == r)   return new PartialInnerNode<>(fst);
+  final NodeLike<N,E>[] buffer=new NodeLike[r - l + 1];
+  buffer[0]=fst;
+  int inBuffer=1;
+  for (int i=l + 1; i < r; i++)   inBuffer=children[i].append(buffer,inBuffer);
+  final Node<N,E> last=children[r];
+  final long inLst=start + len - bounds[r - 1];
+  final NodeLike<N,E> lst=inLst == last.size() ? last : last.slice(0,inLst);
+  inBuffer=lst.append(buffer,inBuffer);
+  if (inBuffer == 1) {
+    return new PartialInnerNode<>(buffer[0]);
+  }
+  final Node<N,E>[] subs=new Node[inBuffer];
+  System.arraycopy(buffer,0,subs,0,inBuffer);
+  return new InnerNode<>(subs);
+}

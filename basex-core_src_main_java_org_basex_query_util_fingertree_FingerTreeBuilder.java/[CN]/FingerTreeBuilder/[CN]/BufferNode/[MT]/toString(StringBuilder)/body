@@ -1,24 +1,31 @@
 {
   boolean first=true;
-  for (int i=0; i < l; i++) {
-    final Node<N,E> node=nodes[(m - l + i + 8) & 7];
-    for (    final E elem : node) {
+  for (int i=0; i < inLeft; i++) {
+    final Node<N,E> node=nodes[(midPos - inLeft + i + CAP) % CAP];
+    final Iterator<E> iter=FingerTreeIterator.get(node,0);
+    while (iter.hasNext()) {
       if (first)       first=false;
  else       sb.append(", ");
-      sb.append(elem);
+      sb.append(iter.next());
     }
   }
-  if (sub != null) {
-    if (first)     first=false;
- else     sb.append(", ");
-    sub.toString(sb);
+  if (!(middle == null)) {
+    if (middle instanceof BufferNode) {
+      ((BufferNode<?,?>)middle).toString(sb.append(", "));
+    }
+ else {
+      final FingerTree<?,?> tree=(FingerTree<?,?>)middle;
+      final Iterator<?> iter=tree.iterator();
+      while (iter.hasNext())       sb.append(", ").append(iter.next());
+    }
   }
-  for (int i=0; i < r; i++) {
-    final Node<N,E> node=nodes[(m + i) & 7];
-    for (    final E elem : node) {
+  for (int i=0; i < inRight; i++) {
+    final Node<N,E> node=nodes[(midPos + i) % CAP];
+    final Iterator<E> iter=FingerTreeIterator.get(node,0);
+    while (iter.hasNext()) {
       if (first)       first=false;
  else       sb.append(", ");
-      sb.append(elem);
+      sb.append(iter.next());
     }
   }
 }

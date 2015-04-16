@@ -7,9 +7,9 @@
  catch (  final IOException ex) {
     Util.debug(ex);
   }
-  final ValueBuilder vb=new ValueBuilder();
+  final ItemList res=new ItemList();
   final FElem response=new FElem(Q_RESPONSE).declareNS();
-  vb.add(response);
+  res.add(response);
   final String msg=conn.getResponseMessage();
   response.add(STATUS,token(conn.getResponseCode()));
   response.add(MESSAGE,msg == null ? "" : msg);
@@ -27,11 +27,11 @@
       final String ctype=conn.getContentType();
       final MediaType type=error || mtype == null ? ctype == null ? MediaType.TEXT_PLAIN : new MediaType(ctype) : new MediaType(mtype);
       response.add(hp.parse(type));
-      if (body)       vb.add(hp.payloads());
+      if (body)       res.add(hp.payloads());
     }
   finally {
       is.close();
     }
   }
-  return vb;
+  return res;
 }

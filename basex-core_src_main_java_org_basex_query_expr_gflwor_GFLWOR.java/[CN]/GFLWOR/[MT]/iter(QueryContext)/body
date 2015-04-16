@@ -1,19 +1,9 @@
 {
-  Eval e=new Eval(){
-    /** 
- * First-evaluation flag. 
- */
-    private boolean first=true;
-    @Override public boolean next(    final QueryContext q){
-      if (!first)       return false;
-      first=false;
-      return true;
-    }
-  }
-;
-  for (  final Clause cls : clauses)   e=cls.eval(e);
-  final Eval ev=e;
   return new Iter(){
+    /** 
+ * Clause evaluator. 
+ */
+    private final Eval ev=newEval();
     /** 
  * Return iterator. 
  */
@@ -24,7 +14,7 @@
     private boolean drained;
     @Override public Item next() throws QueryException {
       if (drained)       return null;
-      while (true) {
+      for (; ; ) {
         final Item it=sub.next();
         qc.checkStop();
         if (it != null)         return it;
