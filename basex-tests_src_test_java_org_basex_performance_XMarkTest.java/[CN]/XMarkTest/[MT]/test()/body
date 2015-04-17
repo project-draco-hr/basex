@@ -1,0 +1,33 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(DB + " (" + FACTOR+ "x)").add(Prop.NL);
+  try (final ClientSession cs=createClient()){
+    cs.execute(new Open(DB));
+    System.out.println("Test runs...");
+    for (int i=1; i <= 20; i++) {
+      if (RUNS[i - 1] > 0) {
+        try (final ClientQuery cq=cs.query(QUERIES[i - 1])){
+          cq.execute();
+        }
+       }
+    }
+    System.out.println("Real runs...");
+    final Performance p=new Performance();
+    for (int i=1; i <= 20; i++) {
+      tb.add(String.format("%02d",i)).add("  ");
+      try (final ClientQuery cq=cs.query(QUERIES[i - 1])){
+        final int run=RUNS[i - 1];
+        final int runs=run < 0 ? -run : FACTOR * RUNS[i - 1];
+        for (int r=0; r < runs; r++)         cq.execute();
+        final String time=p.getTime(runs).replaceAll(" .*","");
+        System.out.println(i + ": " + runs * Double.parseDouble(time));
+        tb.add(time);
+      }
+       tb.add(Prop.NL);
+    }
+  }
+   System.out.println(tb);
+  final IOFile file=new IOFile(Prop.TMP,"XMark");
+  file.md();
+  new IOFile(file,DB + "-" + FACTOR+ ".graph").write(tb.finish());
+}
