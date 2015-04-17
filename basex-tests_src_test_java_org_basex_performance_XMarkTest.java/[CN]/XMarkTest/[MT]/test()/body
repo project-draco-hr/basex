@@ -1,0 +1,44 @@
+{
+  final TokenBuilder tb=new TokenBuilder().add(DB).add(Prop.NL);
+  try (final ClientSession cs=createClient()){
+    cs.execute(new Open(DB));
+    System.out.println("Warming up...");
+    for (int i=1; i <= 20; i++) {
+      if (!EXCLUDE.contains(i)) {
+        try (final ClientQuery cq=cs.query(QUERIES[i - 1])){
+          final Performance p=new Performance();
+          cq.execute();
+          System.out.println(i + ": " + p);
+        }
+       }
+    }
+    System.out.println(Prop.NL + "Testing...");
+    for (int i=1; i <= 20; i++) {
+      tb.add(String.format("%02d",i)).add("  ");
+      final BigDecimal max=BigDecimal.valueOf(MAX);
+      try (final ClientQuery cq=cs.query(QUERIES[i - 1])){
+        if (EXCLUDE.contains(i)) {
+          tb.add("1000000");
+        }
+ else {
+          double min=Double.MAX_VALUE;
+          BigDecimal total=BigDecimal.valueOf(0);
+          int r=0;
+          while (total.compareTo(max) < 0) {
+            final Performance p=new Performance();
+            cq.execute();
+            final double t=Double.parseDouble(p.getTime().replaceAll(" .*",""));
+            total=total.add(BigDecimal.valueOf(t));
+            min=Math.min(min,t);
+            r++;
+          }
+          tb.add(Double.toString(min));
+          System.out.println(i + ": " + min+ " ("+ r+ " runs, stopped at "+ total+ " ms)");
+        }
+      }
+       tb.add(Prop.NL);
+    }
+  }
+   DIR.md();
+  FILE.write(tb.finish());
+}
