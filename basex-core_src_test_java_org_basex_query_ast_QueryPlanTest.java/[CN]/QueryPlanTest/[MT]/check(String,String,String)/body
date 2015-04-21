@@ -2,14 +2,14 @@
   try (final QueryProcessor qp=new QueryProcessor(qu,context)){
     qp.compile();
     final FDoc plan=qp.plan();
-    if (res != null)     assertEquals(res,normNL(qp.execute()));
+    if (res != null)     assertEquals(res,normNL(qp.value().serialize().toString()));
     for (    final String p : pr) {
       if (new QueryProcessor(p,context).context(plan).value() != Bln.TRUE) {
         fail(NL + "- Query: " + qu+ NL+ "- Check: "+ p+ NL+ "- Plan: "+ plan.serialize());
       }
     }
   }
- catch (  final QueryException|QueryIOException ex) {
+ catch (  final Exception ex) {
     final AssertionError err=new AssertionError(Util.message(ex));
     err.initCause(ex);
     throw err;

@@ -1,11 +1,23 @@
 {
   final String start=args[0];
   final String end=args[1];
-  final DBNodes nodes=start != null && toInt(start) == Integer.MIN_VALUE ? dbNodes() : null;
+  DBNodes nodes=null;
+  if (start != null && toInt(start) == Integer.MIN_VALUE) {
+    try {
+      final Value value=qp(args[0],context).value();
+      if (value instanceof DBNodes)       nodes=(DBNodes)value;
+    }
+ catch (    final QueryException ex) {
+      error(Util.message(ex));
+    }
+ finally {
+      closeQp();
+    }
+  }
   final Data data=context.data();
   if (nodes != null) {
     final Table table=th();
-    for (    final int n : nodes.pres)     table(table,data,n);
+    for (    final int pre : nodes.pres())     table(table,data,pre);
     out.print(table.finish());
   }
  else {

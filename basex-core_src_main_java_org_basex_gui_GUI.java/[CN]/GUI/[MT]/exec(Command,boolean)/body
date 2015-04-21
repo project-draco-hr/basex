@@ -19,6 +19,7 @@
     command=cmd;
     final ArrayOutput ao=new ArrayOutput();
     ao.setLimit(gopts.get(GUIOptions.MAXTEXT));
+    cmd.maxResults(gopts.get(GUIOptions.MAXRESULTS));
     updating=cmd.updating(context);
     if (edit)     editor.start();
     if (cmd.newData(context))     notify.init();
@@ -49,7 +50,7 @@
       }
     }
  else {
-      final Result result=cmd.finish();
+      final Value result=cmd.finish();
       DBNodes nodes=result instanceof DBNodes && result.size() != 0 ? (DBNodes)result : null;
       final boolean updated=cmd.updated(context);
       if (context.data() != data) {
@@ -62,7 +63,7 @@
  else       if (result != null) {
         final boolean flt=gopts.get(GUIOptions.FILTERRT);
         final DBNodes curr=context.current();
-        if (flt || curr != null && !curr.equals(current)) {
+        if (flt || curr != null && !curr.sameAs(current)) {
           if (nodes != null)           notify.context(nodes,flt,null);
         }
  else         if (context.marked != null) {
