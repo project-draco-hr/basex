@@ -1,0 +1,42 @@
+{
+  if (sub == null)   throw new NoSuchElementException();
+  final E out=sub.next();
+  if (sub.hasNext())   return out;
+  sub=null;
+  final BufferNode<?,E> buffer=stack[top];
+  poss[top]++;
+  if (poss[top] < 0) {
+    sub=new FingerTreeIterator<>(buffer.get(poss[top]),0);
+    return out;
+  }
+  if (poss[top] == 0) {
+    final Object mid=buffer.middle;
+    if (mid != null) {
+      if (mid instanceof FingerTree) {
+        sub=((FingerTree<?,E>)mid).iterator();
+      }
+ else {
+        final BufferNode<?,E> buff=(BufferNode<?,E>)mid;
+        if (++top == stack.length) {
+          stack=Arrays.copyOf(stack,2 * top);
+          poss=Arrays.copyOf(poss,2 * top);
+        }
+        stack[top]=buff;
+        poss[top]=-buff.inLeft;
+        sub=new FingerTreeIterator<>(buff.get(poss[top]),0);
+      }
+      return out;
+    }
+    poss[top]++;
+  }
+  if (poss[top] <= buffer.inRight) {
+    sub=new FingerTreeIterator<>(buffer.get(poss[top] - 1),0);
+    return out;
+  }
+  stack[top]=null;
+  if (--top >= 0) {
+    sub=new FingerTreeIterator<>(stack[top].get(0),0);
+    poss[top]++;
+  }
+  return out;
+}
