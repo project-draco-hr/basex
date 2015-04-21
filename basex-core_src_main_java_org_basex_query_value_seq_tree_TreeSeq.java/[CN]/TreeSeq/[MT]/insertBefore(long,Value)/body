@@ -1,25 +1,26 @@
 {
   final long n=val.size();
-  if (n < 2)   return n == 0 ? this : insert(pos,(Item)val);
+  if (n == 0)   return this;
+  if (n == 1)   return insert(pos,(Item)val);
   final long l=pos, r=size - pos;
   if (val instanceof TreeSeq && (l == 0 || r == 0)) {
     final TreeSeq other=(TreeSeq)val;
     return l == 0 ? other.concat(this) : concat(other);
   }
-  final TreeSeqBuilder vb=new TreeSeqBuilder();
+  final TreeSeqBuilder tsb=new TreeSeqBuilder();
   if (l < MAX_SMALL) {
-    vb.add(val);
-    for (long i=l; --i >= 0; )     vb.addFront(itemAt(i));
+    tsb.add(val);
+    for (long i=l; --i >= 0; )     tsb.addFront(itemAt(i));
   }
  else {
-    vb.add(subSeq(0,l));
-    vb.add(val);
+    tsb.add(subSeq(0,l));
+    tsb.add(val);
   }
   if (r < MAX_SMALL) {
-    for (long i=size - r; i < size; i++)     vb.add(itemAt(i));
+    for (long i=size - r; i < size; i++)     tsb.add(itemAt(i));
   }
  else {
-    vb.add(subSeq(pos,r));
+    tsb.add(subSeq(pos,r));
   }
-  return vb.value();
+  return tsb.seq();
 }
