@@ -1,5 +1,5 @@
 {
-  final IO io=sc.io(string(path));
+  final IO io=sc.resolve(string(path),string(uri));
   final byte[] p=token(io.path());
   final byte[] u=qc.modParsed.get(p);
   if (u != null) {
@@ -15,7 +15,7 @@
     throw error(WHICHMODFILE_X,qc.context.user().has(Perm.ADMIN) ? io.path() : io.name());
   }
   qc.modStack.push(p);
-  final StaticContext sub=new StaticContext(qc.context);
+  final StaticContext sub=new StaticContext(qc);
   final LibraryModule lib=new QueryParser(qu,io.path(),qc,sub).parseLibrary(false);
   final byte[] muri=lib.name.uri();
   if (!eq(uri,muri))   throw error(WRONGMODULE_X_X,muri,file);
