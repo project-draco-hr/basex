@@ -8,18 +8,13 @@
  * Return iterator. 
  */
     private Iter sub=Empty.ITER;
-    /** 
- * If the iterator has been emptied. 
- */
-    private boolean drained;
     @Override public Item next() throws QueryException {
-      if (drained)       return null;
       for (; ; ) {
         final Item it=sub.next();
         qc.checkStop();
         if (it != null)         return it;
         if (!ev.next(qc)) {
-          drained=true;
+          sub=null;
           return null;
         }
         sub=ret.iter(qc);
