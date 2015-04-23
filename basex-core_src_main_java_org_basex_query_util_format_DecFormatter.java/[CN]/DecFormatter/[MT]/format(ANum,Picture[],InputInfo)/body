@@ -3,12 +3,12 @@
   if (Double.isNaN(d))   return nan;
   final boolean neg=d < 0 || d == 0 && Double.doubleToLongBits(d) == Long.MIN_VALUE;
   final Picture pic=pics[neg && pics.length == 2 ? 1 : 0];
-  final TokenBuilder res=new TokenBuilder();
-  final TokenBuilder intgr=new TokenBuilder();
-  final TokenBuilder fract=new TokenBuilder();
+  final IntList res=new IntList();
+  final IntList intgr=new IntList();
+  final IntList fract=new IntList();
   int exp=0;
   if (d == Double.POSITIVE_INFINITY || d == Double.NEGATIVE_INFINITY) {
-    intgr.add(inf);
+    intgr.add(new TokenParser(inf).toArray());
   }
  else {
     ANum num=it;
@@ -70,5 +70,5 @@
     for (int i=sl; i < pic.minExp; i++)     res.add(zero);
     for (int i=0; i < sl; i++)     res.add(zero + s.charAt(i) - '0');
   }
-  return res.finish();
+  return new TokenBuilder(res.finish()).finish();
 }
