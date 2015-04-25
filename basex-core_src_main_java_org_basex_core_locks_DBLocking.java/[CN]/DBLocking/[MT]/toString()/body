@@ -5,7 +5,9 @@
   sb.append(ind + "Transactions running: " + transactions+ NL);
   sb.append(ind + "Transaction queue: " + queue+ NL);
   sb.append(ind + "Held locks by object:" + NL);
-  for (  final Entry<String,ReentrantReadWriteLock> e : locks.entrySet())   sb.append(ind + ind + e.getKey()+ " -> "+ e.getValue()+ NL);
+synchronized (locks) {
+    for (    final Entry<String,ReentrantReadWriteLock> e : locks.entrySet())     sb.append(ind + ind + e.getKey()+ " -> "+ e.getValue()+ NL);
+  }
   sb.append(ind + "Held write locks by transaction:" + NL);
   for (  final Long thread : writeLocked.keySet())   sb.append(ind + ind + thread+ " -> "+ writeLocked.get(thread)+ NL);
   sb.append(ind + "Held read locks by transaction:" + NL);
