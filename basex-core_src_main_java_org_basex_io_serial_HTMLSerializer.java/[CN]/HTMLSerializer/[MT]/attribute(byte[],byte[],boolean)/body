@@ -1,9 +1,12 @@
 {
   if (!standalone)   out.print(' ');
   out.print(name);
-  final byte[] nm=concat(lc(elem),COLON,lc(name));
-  if (BOOLEAN.contains(nm) && eq(name,value))   return;
-  final byte[] val=escuri && URIS.contains(nm) ? escape(value) : value;
+  byte[] val=value;
+  if (!BOOLEAN.isEmpty() || !URIS.isEmpty()) {
+    final byte[] nm=concat(lc(elem.local()),ATT,lc(name));
+    if (BOOLEAN.contains(nm) && eq(name,val))     return;
+    if (escuri && URIS.contains(nm))     val=escape(val);
+  }
   out.print(ATT1);
   final int vl=val.length;
   for (int v=0; v < vl; v+=cl(val,v)) {
