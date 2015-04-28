@@ -1,28 +1,21 @@
 {
-  return new AxisIter(){
-    /** 
- * Iterator. 
- */
-    private AxisMoreIter[] nm=new AxisMoreIter[1];
-    /** 
- * Iterator Level. 
- */
-    private int l;
+  return new BasicNodeIter(){
+    private final Stack<BasicNodeIter> iters=new Stack<>();
+    private ANode last;
     @Override public ANode next(){
-      if (nm[0] == null)       nm[0]=self ? self() : children();
-      if (l < 0)       return null;
-      final ANode node=nm[l].next();
-      if (node != null) {
-        final AxisMoreIter ch=node.children();
-        if (ch.more()) {
-          if (l + 1 == nm.length)           nm=Array.copy(nm,new AxisMoreIter[l + 1 << 1]);
-          nm[++l]=ch;
-        }
- else {
-          while (!nm[l].more())           if (l-- <= 0)           break;
+      final BasicNodeIter iter=last != null ? last.children() : self ? self() : children();
+      last=iter.next();
+      if (last == null) {
+        while (!iters.isEmpty()) {
+          last=iters.peek().next();
+          if (last != null)           break;
+          iters.pop();
         }
       }
-      return node;
+ else {
+        iters.add(iter);
+      }
+      return last;
     }
   }
 ;
