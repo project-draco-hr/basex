@@ -9,17 +9,13 @@
       final Perm perm=Perm.get(opts.get(XQueryOptions.PERMISSION).toString());
       if (!user.has(perm))       throw BXXQ_PERM2_X.get(info,perm);
       user.perm(perm,null);
-      Performance.gc(2);
       final long mb=opts.get(XQueryOptions.MEMORY);
       if (mb != 0) {
         final long limit=Performance.memory() + (mb << 20);
         to=new Timer(true);
         to.schedule(new TimerTask(){
           @Override public void run(){
-            if (Performance.memory() > limit) {
-              Performance.gc(1);
-              if (Performance.memory() > limit)               qctx.stop();
-            }
+            if (Performance.memory() > limit)             qctx.stop();
           }
         }
 ,500,500);
