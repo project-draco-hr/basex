@@ -3,7 +3,7 @@
     final String flags=asString("@flags",expected);
     final XdmValue ret=XdmValue.get(Str.get(serialize(result)));
     final String qu="declare variable $returned external;" + "declare variable $expected external;" + "matches($returned, string($expected), '" + flags + "')";
-    return new XQuery(qu,ctx).bind("returned",ret).bind("expected",expected).value().getBoolean() ? null : expected.getString();
+    return environment(new XQuery(qu,ctx),result.env).bind("returned",ret).bind("expected",expected).value().getBoolean() ? null : expected.getString();
   }
  catch (  final Exception err) {
     return Util.info("% (found: %)",expected.getString(),err);

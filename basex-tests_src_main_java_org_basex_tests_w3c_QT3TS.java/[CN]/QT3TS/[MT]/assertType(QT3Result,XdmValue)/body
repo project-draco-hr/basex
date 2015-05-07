@@ -1,0 +1,12 @@
+{
+  final String exp=expected.getString();
+  try {
+    final String qu="declare variable $returned external; $returned instance of " + exp;
+    final XQuery query=environment(new XQuery(qu,ctx),result.env);
+    final XdmValue returned=result.value;
+    return query.bind("returned",returned).value().getBoolean() ? null : Util.info("Type '%' (found: '%')",exp,returned.getType().toString());
+  }
+ catch (  final XQueryException ex) {
+    return ex.getException().getMessage();
+  }
+}
