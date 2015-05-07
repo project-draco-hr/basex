@@ -7,10 +7,11 @@
       final byte[] key=!liberal || curr() == '"' ? string() : unquoted();
       final boolean dupl=set.contains(key);
       if (dupl && duplicates == JsonDuplicates.REJECT)       throw error(BXJS_DUPLICATE_X,"Key '%' occurs more than once.",key);
-      conv.openPair(key);
+      final boolean add=!(dupl && duplicates == JsonDuplicates.USE_FIRST);
+      conv.openPair(key,add);
       consumeWs(':',true);
       value();
-      conv.closePair(!dupl || duplicates == JsonDuplicates.USE_LAST);
+      conv.closePair(add);
       set.put(key);
     }
  while (consumeWs(',',false) && !(liberal && curr() == '}'));
