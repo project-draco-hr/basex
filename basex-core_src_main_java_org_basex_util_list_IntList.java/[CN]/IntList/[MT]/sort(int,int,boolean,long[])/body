@@ -1,0 +1,49 @@
+{
+  if (e < 7) {
+    for (int i=s; i < e + s; ++i) {
+      for (int j=i; j > s; j--) {
+        final long h=t[j - 1] - t[j];
+        if (f ? h < 0 : h > 0)         break;
+        s(j,j - 1,t);
+      }
+    }
+    return;
+  }
+  int m=s + (e >> 1);
+  if (e > 7) {
+    int l=s;
+    int n=s + e - 1;
+    if (e > 40) {
+      final int k=e >>> 3;
+      l=m(l,l + k,l + (k << 1));
+      m=m(m - k,m,m + k);
+      n=m(n - (k << 1),n - k,n);
+    }
+    m=m(l,m,n);
+  }
+  final long v=t[m];
+  int a=s, b=a, c=s + e - 1, d=c;
+  while (true) {
+    while (b <= c) {
+      final long h=t[b] - v;
+      if (f ? h > 0 : h < 0)       break;
+      if (h == 0)       s(a++,b,t);
+      ++b;
+    }
+    while (c >= b) {
+      final long h=t[c] - v;
+      if (f ? h < 0 : h > 0)       break;
+      if (h == 0)       s(c,d--,t);
+      --c;
+    }
+    if (b > c)     break;
+    s(b++,c--,t);
+  }
+  final int n=s + e;
+  int k=Math.min(a - s,b - a);
+  s(s,b - k,k,t);
+  k=Math.min(d - c,n - d - 1);
+  s(b,n - k,k,t);
+  if ((k=b - a) > 1)   sort(s,k,f,t);
+  if ((k=d - c) > 1)   sort(n - k,k,f,t);
+}
