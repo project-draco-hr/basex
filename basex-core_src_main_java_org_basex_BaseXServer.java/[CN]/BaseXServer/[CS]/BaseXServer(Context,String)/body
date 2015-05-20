@@ -2,8 +2,6 @@
   super(args,ctx);
   final StaticOptions sopts=context.soptions;
   final int port=sopts.get(StaticOptions.SERVERPORT);
-  final int eport=sopts.get(StaticOptions.EVENTPORT);
-  if (port == eport)   throw new BaseXException(PORT_TWICE_X,port);
   final String host=sopts.get(StaticOptions.SERVERHOST);
   final InetAddress addr=host.isEmpty() ? null : InetAddress.getByName(host);
   if (service) {
@@ -13,7 +11,7 @@
     return;
   }
   if (stop) {
-    stop(port,eport);
+    stop(port);
     if (!quiet)     Util.outln(SRV_STOPPED_PORT_X,port);
     Performance.sleep(1000);
     return;
@@ -23,9 +21,6 @@
     socket=new ServerSocket();
     socket.setReuseAddress(true);
     socket.bind(new InetSocketAddress(addr,port));
-    esocket=new ServerSocket();
-    esocket.setReuseAddress(true);
-    esocket.bind(new InetSocketAddress(addr,eport));
     stopFile=stopFile(port);
   }
  catch (  final IOException ex) {
