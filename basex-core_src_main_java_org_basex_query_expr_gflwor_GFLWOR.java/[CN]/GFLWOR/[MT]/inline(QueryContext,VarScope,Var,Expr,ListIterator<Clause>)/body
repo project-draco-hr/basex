@@ -1,6 +1,5 @@
 {
   boolean changed=false;
-  final ListIterator<Clause> iter=clauses.listIterator(pos);
   while (iter.hasNext()) {
     final Clause clause=iter.next();
     try {
@@ -11,7 +10,8 @@
       }
     }
  catch (    final QueryException qe) {
-      return clauseError(qe,iter.previousIndex() + 1);
+      iter.remove();
+      return clauseError(qe,iter);
     }
   }
   try {
@@ -22,7 +22,7 @@
     }
   }
  catch (  final QueryException qe) {
-    return clauseError(qe,clauses.size());
+    return clauseError(qe,iter);
   }
   return changed;
 }
