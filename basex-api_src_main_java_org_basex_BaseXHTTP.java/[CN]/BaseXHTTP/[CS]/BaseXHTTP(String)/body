@@ -23,8 +23,8 @@
     Performance.sleep(1000);
     return;
   }
+  final Connector connector=jetty.getConnectors()[0];
   if (service) {
-    final Connector connector=jetty.getConnectors()[0];
     start(connector.getPort(),connector instanceof SslSelectChannelConnector,args);
     for (    final Connector c : jetty.getConnectors()) {
       Util.outln(startX,c.getPort());
@@ -42,7 +42,7 @@
     jetty.start();
   }
  catch (  final BindException ex) {
-    throw new IOException(HTTP + ' ' + SRV_RUNNING,ex);
+    throw new IOException(Util.info(HTTP + ' ' + SRV_RUNNING_X,connector.getPort()),ex);
   }
   final IOException ex=HTTPContext.exception();
   if (ex != null)   throw HTTPContext.exception();
