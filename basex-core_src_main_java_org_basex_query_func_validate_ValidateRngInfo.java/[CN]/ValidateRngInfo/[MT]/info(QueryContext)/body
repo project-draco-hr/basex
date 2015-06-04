@@ -1,0 +1,37 @@
+{
+  checkCreate(qc);
+  return process(new Validate(){
+    @Override void process(    final ErrorHandler handler) throws IOException, SAXException, QueryException {
+      final IO in=read(toNodeOrAtomItem(exprs[0],qc),qc,null);
+      IO schema=read(toNodeOrAtomItem(exprs[1],qc),qc,null);
+      tmp=createTmp(schema);
+      if (tmp != null)       schema=tmp;
+      try {
+        final Class<?> pmb=Class.forName("com.thaiopensource.util.PropertyMapBuilder");
+        final Class<?> vd=Class.forName("com.thaiopensource.validate.ValidationDriver");
+        final Class<?> vp=Class.forName("com.thaiopensource.validate.ValidateProperty");
+        final Class<?> pi=Class.forName("com.thaiopensource.util.PropertyId");
+        final Class<?> pm=Class.forName("com.thaiopensource.util.PropertyMap");
+        final Object ehInstance=vp.getField("ERROR_HANDLER").get(null);
+        final Object pmbInstance=pmb.newInstance();
+        pi.getMethod("put",pmb,Object.class).invoke(ehInstance,pmbInstance,handler);
+        final Object pmInstance=pmb.getMethod("toPropertyMap").invoke(pmbInstance);
+        final Object vdInstance=vd.getConstructor(pm).newInstance(pmInstance);
+        final Method vdLs=vd.getMethod("loadSchema",InputSource.class);
+        final Object loaded=vdLs.invoke(vdInstance,schema.inputSource());
+        if (!Boolean.TRUE.equals(loaded))         return;
+        final Method vdV=vd.getMethod("validate",InputSource.class);
+        vdV.invoke(vdInstance,in.inputSource());
+      }
+ catch (      final Exception ex) {
+        Throwable e=ex;
+        while (e.getCause() != null) {
+          Util.debug(e);
+          e=e.getCause();
+        }
+        throw BXVA_RNG_X.get(info,e);
+      }
+    }
+  }
+);
+}
