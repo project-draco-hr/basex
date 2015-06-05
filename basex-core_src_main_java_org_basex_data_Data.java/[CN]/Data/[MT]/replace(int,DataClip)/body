@@ -6,7 +6,7 @@
   final int tsize=size(tpre,tkind);
   final int tpar=parent(tpre,tkind);
   final int diff=size - tsize;
-  buffer(size);
+  bufferSize(size);
   resources.replace(tpre,tsize,source);
   if (meta.updindex) {
     indexDelete(tpre,tsize);
@@ -47,13 +47,13 @@ break;
 }
 }
 if (meta.updindex) {
-indexAdd();
 idmap.delete(tpre,id(tpre),-tsize);
 idmap.insert(tpre,meta.lastid - size + 1,size);
+indexAdd();
 }
 table.replace(tpre,buffer(),tsize);
-buffer(1);
-if (diff == 0) return;
+bufferSize(1);
+if (diff != 0) {
 int p=tpar;
 while (p >= 0) {
 final int k=kind(p);
@@ -61,6 +61,7 @@ size(p,k,size(p,k) + diff);
 p=parent(p,k);
 }
 if (!cache) updateDist(tpre + size,diff);
+}
 int spre=source.start;
 if (data.kind(spre) == ATTR) {
 int d=0;
