@@ -1,0 +1,15 @@
+{
+  if (Files.isDirectory(src)) {
+    Files.createDirectory(trg);
+    try (DirectoryStream<Path> paths=Files.newDirectoryStream(src)){
+      for (      final Path p : paths)       relocate(p,trg.resolve(p.getFileName()),copy);
+    }
+     if (!copy)     Files.delete(src);
+  }
+ else   if (copy) {
+    Files.copy(src,trg,StandardCopyOption.REPLACE_EXISTING);
+  }
+ else {
+    Files.move(src,trg,StandardCopyOption.REPLACE_EXISTING);
+  }
+}
