@@ -1,0 +1,29 @@
+{
+  final Random rnd=new Random(0);
+  int cap=1000;
+  final StringList words=new StringList(cap);
+  for (int w=0; w < cap; w++) {
+    final int r=1 + rnd.nextInt(10);
+    final TokenBuilder tmp=new TokenBuilder(r);
+    for (int i=0; i < r; i++)     tmp.add('A' + rnd.nextInt(26));
+    words.add(tmp.toString());
+  }
+  for (int r=0; r < RUNS; r++) {
+    final String path="doc" + rnd.nextInt(DOCS);
+    final TokenBuilder doc=new TokenBuilder("<xml>");
+    final int offset=rnd.nextInt(cap - DOCS);
+    for (int i=0; i < DOCS; i++)     doc.add("<a>").add(words.get(offset + i)).add("</a>");
+    doc.add("</xml>");
+    new Replace(path,doc.toString()).execute(context);
+    for (int d=0; d < DOCS; d++) {
+      final String word=words.get(offset + d);
+      final String query=_DB_OPEN.args(NAME,path) + "//a[text() = '" + word+ "']";
+      final String expected="<a>" + word + "</a>";
+      final String result=new XQuery(query).execute(context);
+      if (!result.startsWith(expected)) {
+        final TokenBuilder tmp=new TokenBuilder("\nExpected: " + expected + "\nResult: "+ result+ "\nRun: "+ r+ "\nDoc: "+ d+ "\nQuery: "+ query+ "\nDocument: "+ doc);
+        fail(tmp.toString());
+      }
+    }
+  }
+}
