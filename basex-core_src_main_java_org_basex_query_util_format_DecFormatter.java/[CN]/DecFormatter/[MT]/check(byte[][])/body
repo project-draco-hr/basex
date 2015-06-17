@@ -1,8 +1,8 @@
 {
   for (  final byte[] pt : patterns) {
     boolean frac=false, pas=false, act=false, exp=false;
-    boolean dg=false, opt1=false, opt2=false;
-    int cl, pc=0, pm=0, ls=0;
+    boolean dg=false, opt1=false, opt2=false, per=false;
+    int cl, ls=0;
     final int pl=pt.length;
     for (int i=0; i < pl; i+=cl) {
       final int ch=ch(pt,i);
@@ -19,18 +19,16 @@
       }
  else       if (ch == exponent) {
         if (contains(actives,ls) && contains(actives,ch(pt,i + cl))) {
-          if (exp)           return false;
+          if (exp || per)           return false;
           exp=true;
         }
  else {
           active=false;
         }
       }
- else       if (ch == percent) {
-        ++pc;
-      }
- else       if (ch == permille) {
-        ++pm;
+ else       if (ch == percent || ch == permille) {
+        if (per || exp)         return false;
+        per=true;
       }
  else       if (ch == optional) {
         if (frac) {
@@ -50,7 +48,6 @@
       act|=active;
       ls=ch;
     }
-    if (pc + pm > (exp ? 0 : 1))     return false;
     if (!opt1 && !opt2 && !dg)     return false;
   }
   return true;
