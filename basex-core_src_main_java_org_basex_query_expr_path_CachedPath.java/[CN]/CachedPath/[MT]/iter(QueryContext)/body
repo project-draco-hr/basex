@@ -1,33 +1,25 @@
 {
-  final Value cv=qc.value;
-  ANodeList nl=clist;
-  if (nl == null || cv != cvalue) {
-    final long cp=qc.pos, cs=qc.size;
-    final Value r=root != null ? qc.value(root) : cv;
-    nl=new ANodeList().check();
-    try {
-      if (r != null) {
-        final Iter ir=qc.iter(r);
-        for (Item it; (it=ir.next()) != null; ) {
-          if (root != null && !(it instanceof ANode))           throw PATHNODE_X_X_X.get(info,steps[0],it.type,it);
-          qc.value=it;
-          iter(0,nl,qc);
-        }
+  final long cp=qc.pos, cs=qc.size;
+  final Value cv=qc.value, r=root != null ? qc.value(root) : cv;
+  final ANodeList list=new ANodeList().check();
+  try {
+    if (r != null) {
+      final Iter ir=qc.iter(r);
+      for (Item it; (it=ir.next()) != null; ) {
+        if (root != null && !(it instanceof ANode))         throw PATHNODE_X_X_X.get(info,steps[0],it.type,it);
+        qc.value=it;
+        iter(0,list,qc);
       }
+    }
  else {
-        qc.value=null;
-        iter(0,nl,qc);
-      }
-    }
-  finally {
-      qc.value=cv;
-      qc.size=cs;
-      qc.pos=cp;
-    }
-    if (cache) {
-      clist=nl;
-      cvalue=cv;
+      qc.value=null;
+      iter(0,list,qc);
     }
   }
-  return nl.iter();
+  finally {
+    qc.value=cv;
+    qc.size=cs;
+    qc.pos=cp;
+  }
+  return list.iter();
 }
