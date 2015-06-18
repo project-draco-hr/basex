@@ -1,7 +1,7 @@
 {
   for (  final byte[] pt : patterns) {
     boolean frac=false, pas=false, act=false, exp=false;
-    boolean dg=false, opt1=false, opt2=false, per=false;
+    boolean dig=false, opt1=false, opt2=false, per=false;
     int cl, ls=0;
     final int pl=pt.length;
     for (int i=0; i < pl; i+=cl) {
@@ -15,7 +15,7 @@
         frac=true;
       }
  else       if (ch == grouping) {
-        if (i == 0 && frac || ls == decimal || i + cl < pl ? ch(pt,i + cl) == decimal : !frac)         return false;
+        if (i == 0 && frac || ls == decimal || ls == grouping || i + cl < pl ? ch(pt,i + cl) == decimal : !frac)         return false;
       }
  else       if (ch == exponent) {
         if (contains(actives,ls) && contains(actives,ch(pt,i + cl))) {
@@ -35,20 +35,20 @@
           opt2=true;
         }
  else {
-          if (dg)           return false;
+          if (dig)           return false;
           opt1=true;
         }
       }
  else       if (digit) {
         if (frac && opt2)         return false;
-        dg=true;
+        dig=true;
       }
       if (active && pas && act)       return false;
       if (act)       pas|=!active;
       act|=active;
       ls=ch;
     }
-    if (!opt1 && !opt2 && !dg)     return false;
+    if (!opt1 && !opt2 && !dig)     return false;
   }
   return true;
 }
