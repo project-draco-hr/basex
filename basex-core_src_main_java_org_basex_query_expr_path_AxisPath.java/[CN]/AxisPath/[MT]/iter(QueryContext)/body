@@ -1,0 +1,22 @@
+{
+  if (state == Caching.CACHED) {
+    if (!sameContext(qc)) {
+      cached=null;
+      state=Caching.DISABLED;
+    }
+  }
+ else   if (state == Caching.READY) {
+    if (sameContext(qc)) {
+      cached=nodeIter(qc).value();
+      state=Caching.CACHED;
+    }
+ else {
+      state=Caching.DISABLED;
+    }
+  }
+ else   if (state == Caching.ENABLED) {
+    cvalue=qc.value instanceof DBNode ? ((DBNode)qc.value).copy() : qc.value;
+    state=Caching.READY;
+  }
+  return cached == null ? nodeIter(qc) : cached.iter();
+}
