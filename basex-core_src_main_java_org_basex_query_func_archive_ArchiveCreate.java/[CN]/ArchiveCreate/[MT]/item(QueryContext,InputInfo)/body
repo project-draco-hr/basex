@@ -1,35 +1,27 @@
 {
-  final Iter entr=qc.iter(exprs[0]), cont=qc.iter(exprs[1]);
-  final Options opts=toOptions(2,Q_OPTIONS,new ArchOptions(),qc);
+  final Iter entries=qc.iter(exprs[0]), contents=qc.iter(exprs[1]);
+  final ArchOptions opts=toOptions(2,Q_OPTIONS,new ArchOptions(),qc);
   final String format=opts.get(ArchOptions.FORMAT);
+  final int level=level(opts);
   try (final ArchiveOut out=ArchiveOut.get(format.toLowerCase(Locale.ENGLISH),info)){
-    final String alg=opts.get(ArchOptions.ALGORITHM);
-    int level=ZipEntry.DEFLATED;
-    if (alg != null) {
-      if (format.equals(ZIP) && !Strings.eq(alg,STORED,DEFLATE) || format.equals(GZIP) && !Strings.eq(alg,DEFLATE)) {
-        throw ARCH_SUPP_X_X.get(info,ArchOptions.ALGORITHM.name(),alg);
-      }
-      if (Strings.eq(alg,STORED))       level=ZipEntry.STORED;
- else       if (Strings.eq(alg,DEFLATE))       level=ZipEntry.DEFLATED;
-    }
     out.level(level);
     try {
-      Item en, cn;
       int e=0, c=0;
       while (true) {
-        en=entr.next();
-        cn=cont.next();
-        if (en == null || cn == null)         break;
+        final Item en=entries.next(), cn=contents.next();
+        if (en == null || cn == null) {
+          if (cn != null)           do           c++;
+ while (contents.next() != null);
+          if (en != null)           do           e++;
+ while (entries.next() != null);
+          if (e != c)           throw ARCH_DIFF_X_X.get(info,e,c);
+          break;
+        }
         if (out instanceof GZIPOut && c > 0)         throw ARCH_ONE_X.get(info,format.toUpperCase(Locale.ENGLISH));
         add(checkElemToken(en),cn,out,level,qc);
         e++;
         c++;
       }
-      if (cn != null)       do       c++;
- while (cont.next() != null);
-      if (en != null)       do       e++;
- while (entr.next() != null);
-      if (e != c)       throw ARCH_DIFF_X_X.get(info,e,c);
     }
  catch (    final IOException ex) {
       throw ARCH_FAIL_X.get(info,ex);
