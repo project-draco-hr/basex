@@ -14,19 +14,23 @@
     ANum num=it;
     if (pic.pc)     num=(ANum)Calc.MULT.ev(ii,num,Int.get(100));
     if (pic.pm)     num=(ANum)Calc.MULT.ev(ii,num,Int.get(1000));
-    if (pic.minExp != 0) {
-      final String s=(num instanceof Dbl || num instanceof Flt ? Dec.get(num.dbl(ii)) : num).abs().toString();
-      final int sep=s.indexOf('.');
-      exp=(sep == -1 ? s.length() : sep) - pic.min[0];
-      if (exp > 0) {
-        double n=1;
-        for (int a=exp; a-- > 0; )         n*=10;
-        num=(ANum)Calc.DIV.ev(ii,num,Dec.get(n));
+    if (pic.minExp != 0 && d != 0) {
+      BigDecimal dec=num.dec(ii).abs().stripTrailingZeros();
+      int scl=0;
+      if (dec.compareTo(BigDecimal.ONE) >= 0) {
+        scl=dec.setScale(0,RoundingMode.HALF_DOWN).precision();
       }
  else {
-        double n=1;
-        for (int a=-exp; a-- > 0; )         n*=10;
-        num=(ANum)Calc.MULT.ev(ii,num,Dec.get(n));
+        while (dec.compareTo(BigDecimal.ONE) < 0) {
+          dec=dec.multiply(BigDecimal.TEN);
+          scl--;
+        }
+        scl++;
+      }
+      exp=scl - Math.max(1,pic.min[0]);
+      if (exp != 0) {
+        final BigDecimal n=BigDecimal.TEN.pow(Math.abs(exp));
+        num=(ANum)Calc.MULT.ev(ii,num,Dec.get(exp > 0 ? BigDecimal.ONE.divide(n) : n));
       }
     }
     num=num.round(pic.maxFrac,true).abs();
