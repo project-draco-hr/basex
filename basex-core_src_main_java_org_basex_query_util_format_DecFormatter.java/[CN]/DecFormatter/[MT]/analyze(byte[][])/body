@@ -1,15 +1,15 @@
 {
-  final int pl=patterns.length;
-  final Picture[] pics=new Picture[pl];
-  for (int p=0; p < pl; p++) {
+  final int picL=patterns.length;
+  final Picture[] pics=new Picture[picL];
+  for (int p=0; p < picL; p++) {
     final byte[] pt=patterns[p];
     final Picture pic=new Picture();
     int pos=0;
     boolean act=false;
     int exp=-1;
     final int[] opt=new int[2];
-    final int ptl=pt.length;
-    for (int i=0, cl; i < ptl; i+=cl) {
+    final int pl=pt.length;
+    for (int i=0, cl; i < pl; i+=cl) {
       final int ch=ch(pt,i);
       cl=cl(pt,i);
       boolean active=contains(actives,ch);
@@ -21,13 +21,10 @@
         opt[pos]++;
       }
  else       if (ch == exponent) {
-        boolean e=true;
-        for (int c=i + cl; c < ptl && e; c+=cl(pt,c))         e=contains(digits,ch(pt,c));
-        if (e && i + cl < ptl) {
+        if (act && containsActive(pt,i + cl)) {
           exp=0;
         }
  else {
-          pic.xyzfix[pos == 0 && act ? pos + 1 : pos].add(ch);
           active=false;
         }
       }
@@ -38,12 +35,14 @@
         if (exp == -1)         pic.min[pos]++;
  else         exp++;
       }
+      if (active) {
+        act=true;
+      }
  else {
         pic.pc|=ch == percent;
         pic.pm|=ch == permille;
-        pic.xyzfix[pos == 0 && act ? pos + 1 : pos].add(ch);
+        pic.prefSuf[pos == 0 && act ? pos + 1 : pos].add(ch);
       }
-      act|=active;
     }
     final int[] igp=pic.group[0];
     final int igl=igp.length;

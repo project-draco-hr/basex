@@ -3,11 +3,9 @@
   if (Double.isNaN(d))   return nan;
   final boolean neg=d < 0 || d == 0 && Double.doubleToLongBits(d) == Long.MIN_VALUE;
   final Picture pic=pics[neg && pics.length == 2 ? 1 : 0];
-  final IntList res=new IntList();
-  final IntList intgr=new IntList();
-  final IntList fract=new IntList();
+  final IntList res=new IntList(), intgr=new IntList(), fract=new IntList();
   int exp=0;
-  if (d == Double.POSITIVE_INFINITY || d == Double.NEGATIVE_INFINITY) {
+  if (Double.isInfinite(d)) {
     intgr.add(new TokenParser(inf).toArray());
   }
  else {
@@ -27,7 +25,7 @@
         }
         scl++;
       }
-      exp=scl - Math.max(1,pic.min[0]);
+      exp=scl - pic.min[0];
       if (exp != 0) {
         final BigDecimal n=BigDecimal.TEN.pow(Math.abs(exp));
         num=(ANum)Calc.MULT.ev(ii,num,Dec.get(exp > 0 ? BigDecimal.ONE.divide(n) : n));
@@ -62,9 +60,8 @@
     }
   }
   if (neg && pics.length != 2)   res.add(minus);
-  res.add(pic.xyzfix[0].toArray()).add(intgr.finish());
+  res.add(pic.prefSuf[0].toArray()).add(intgr.finish());
   if (!fract.isEmpty())   res.add(decimal).add(fract.finish());
-  res.add(pic.xyzfix[1].toArray());
   if (pic.minExp != 0) {
     res.add(exponent);
     if (exp < 0)     res.add(minus);
@@ -73,5 +70,6 @@
     for (int i=sl; i < pic.minExp; i++)     res.add(zero);
     for (int i=0; i < sl; i++)     res.add(zero + s.charAt(i) - '0');
   }
+  res.add(pic.prefSuf[1].toArray());
   return new TokenBuilder(res.finish()).finish();
 }
