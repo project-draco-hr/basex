@@ -1,0 +1,29 @@
+{
+  final ANode n=node.attributes().next();
+  if (n != null)   throw error.get(info,Util.info("Invalid attribute: '%'",n.name()));
+  final TokenBuilder tb=new TokenBuilder();
+  for (  final ANode child : node.children()) {
+    if (child.type != NodeType.ELM)     continue;
+    final QNm qn=child.qname();
+    if (!eq(qn.uri(),root.uri())) {
+      if (qn.uri().length == 0)       throw error.get(info,Util.info("Element has no namespace: '%'",qn));
+      continue;
+    }
+    byte[] v=null;
+    if (hasElements(child)) {
+      v=token(optString(child,error));
+    }
+ else {
+      for (      final ANode attr : child.attributes()) {
+        if (eq(attr.name(),VALUE)) {
+          v=attr.string();
+        }
+ else {
+        }
+      }
+      if (v == null)       v=child.string();
+    }
+    tb.add(string(qn.local())).add('=').add(string(v).trim().replace(",",",,")).add(',');
+  }
+  return tb.toString();
+}
