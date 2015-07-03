@@ -1,16 +1,13 @@
 {
-  for (  final ANode item : node.attributes()) {
-    final byte[] name=lc(item.name());
-    if (idref ? contains(name,IDREF) : contains(name,ID) && !contains(name,IDREF)) {
-      for (      final byte[] val : split(normalize(item.string()),' ')) {
-        if (ids.contains(val)) {
-          list.add(idref ? item.finish() : node);
+  for (  final ANode attr : node.attributes()) {
+    if (isId(attr,idref)) {
+      for (      final byte[] val : split(normalize(attr.string()),' ')) {
+        if (idSet.contains(val)) {
+          results.add(idref ? attr.finish() : node);
           break;
         }
       }
     }
   }
-  for (  final ANode item : node.children()) {
-    add(ids,list,item.finish(),idref);
-  }
+  for (  final ANode child : node.children())   add(idSet,results,child,idref);
 }

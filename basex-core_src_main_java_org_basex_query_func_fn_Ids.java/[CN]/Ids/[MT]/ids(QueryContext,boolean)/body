@@ -1,5 +1,19 @@
 {
-  final ANodeList list=new ANodeList().check();
-  add(ids(exprs[0].atomIter(qc,info)),list,checkRoot(toNode(arg(1,qc),qc)),idref);
-  return list.iter();
+  final TokenSet idSet=ids(exprs[0].atomIter(qc,info));
+  final ANode root=checkRoot(toNode(arg(1,qc),qc));
+  final Data data=root.data();
+  if (idref || data == null) {
+    final ANodeList list=new ANodeList().check();
+    add(idSet,list,root,idref);
+    return list.iter();
+  }
+  final TokenList idList=new TokenList(idSet.size());
+  for (  final byte[] id : idSet)   idList.add(id);
+  final Value ids=StrSeq.get(idList);
+  final ValueAccess va=new ValueAccess(info,ids,false,null,new IndexContext(data,false));
+  final ANodeList results=new ANodeList();
+  for (  final ANode attr : va.iter(qc)) {
+    if (isId(attr,idref))     results.add(attr.parent());
+  }
+  return results.iter();
 }
