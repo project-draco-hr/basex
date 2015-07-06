@@ -5,11 +5,16 @@
   final IOFile dbpath=qc.context.soptions.dbpath();
   return new Iter(){
     int up=-1;
-    @Override public Item next(){
+    @Override public Item next() throws QueryException {
       if (++up >= backups.size())       return null;
       final String backup=backups.get(up);
       final long length=new IOFile(dbpath,backup + IO.ZIPSUFFIX).length();
-      return new FElem(BACKUP).add(backup).add(SIZE,token(length));
+      final String db=Databases.name(backup);
+      final Date date=Databases.date(backup);
+      final String ymd=DateTime.format(date,DateTime.DATE);
+      final String hms=DateTime.format(date,DateTime.TIME);
+      final Dtm dtm=new Dtm(token(ymd + 'T' + hms),info);
+      return new FElem(BACKUP).add(backup).add(DATABASE,db).add(DATE,dtm.string(info)).add(SIZE,token(length));
     }
   }
 ;
