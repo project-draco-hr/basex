@@ -1,15 +1,12 @@
 {
   if (Token.eq(pref,Token.XML))   return 0;
-  final NSNode nd=current.find(par,data);
-  final NSNode t=new NSNode(pre);
-  final int k=prefs.put(pref);
-  final int v=uris.put(uri);
-  if (nd.pr == pre) {
-    nd.add(k,v);
+  final int prefId=prefs.put(pref), uriId=uris.put(uri);
+  NSNode nd=cursor.find(par,data);
+  if (nd.pre() != pre) {
+    final NSNode child=new NSNode(pre);
+    nd.add(child);
+    nd=child;
   }
- else {
-    t.add(k,v);
-    nd.add(t);
-  }
-  return v;
+  nd.add(prefId,uriId);
+  return uriId;
 }

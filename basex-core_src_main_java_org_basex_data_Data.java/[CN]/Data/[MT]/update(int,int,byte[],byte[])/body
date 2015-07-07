@@ -4,12 +4,12 @@
     updateText(pre,trim(concat(name,SPACE,atom(pre))),PI);
   }
  else {
-    final int ouri=nspaces.uri(name,pre,this);
-    final boolean ne=ouri == 0 && uri.length != 0;
-    final int npre=kind == ATTR ? parent(pre,kind) : pre;
-    final int nuri=ne ? nspaces.add(npre,npre,prefix(name),uri,this) : ouri != 0 && eq(nspaces.uri(ouri),uri) ? ouri : 0;
-    table.write1(pre,kind == ELEM ? 3 : 11,nuri);
+    final int oldUriId=nspaces.uriId(name,pre,this);
+    final boolean nsFlag=oldUriId == 0 && uri.length != 0;
+    final int nsPre=kind == ATTR ? parent(pre,kind) : pre;
+    final int uriId=nsFlag ? nspaces.add(nsPre,nsPre,prefix(name),uri,this) : oldUriId != 0 && eq(nspaces.uri(oldUriId),uri) ? oldUriId : 0;
+    table.write1(pre,kind == ELEM ? 3 : 11,uriId);
     table.write2(pre,1,(nsFlag(pre) ? 1 << 15 : 0) | (kind == ELEM ? elemNames : attrNames).index(name,null,false));
-    table.write2(npre,1,(ne || nsFlag(npre) ? 1 << 15 : 0) | name(npre));
+    table.write2(nsPre,1,(nsFlag || nsFlag(nsPre) ? 1 << 15 : 0) | nameId(nsPre));
   }
 }
