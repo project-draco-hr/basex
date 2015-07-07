@@ -63,7 +63,15 @@ case ATTR:
 final byte[] an=data.name(spre,kind);
 final byte[] attPref=prefix(an);
 if (data.nsFlag(spre) && nsScope.get(attPref) == null) {
-nspaces.add(nsPre,preStack.isEmpty() ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(spre,kind)),this);
+final byte[] attUri=data.nspaces.uri(data.uri(spre,kind));
+if (preStack.isEmpty()) {
+nspaces.prepare();
+nspaces.add(attPref,attUri,nsPre);
+preStack.push(nsPre);
+}
+ else {
+nspaces.add(nsPre,preStack.peek(),attPref,attUri,this);
+}
 flagPres.add(nsPre);
 }
 attr(pre,dist,attrNames.index(an,null,false),data.text(spre,false),nspaces.uri(an,false),false);
