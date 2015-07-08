@@ -5,10 +5,7 @@
   final int sCount=source.size();
   final int bSize=Math.min(sCount,IO.BLOCKSIZE >> IO.NODEPOWER);
   bufferSize(bSize);
-  final TokenMap nsScope=nspaces.scope(par,this);
-  final IntList preStack=new IntList();
-  final NSNode nsCursor=nspaces.cursor();
-  final List<NSNode> nsNodeCache=nspaces.cache(pre);
+  final NSScope nsScope=new NSScope(pre,par,this);
   final Data sdata=source.data;
   int c=0, sTopPre=source.start;
   for (int sPre=sTopPre; sPre < source.end; ++sPre, ++c) {
@@ -16,58 +13,45 @@
     final int sKind=sdata.kind(sPre);
     final int sSize=sdata.size(sPre,sKind);
     final int sPar=sdata.parent(sPre,sKind);
-    final int cPre=pre + c, cDist;
+    final int nPre=pre + c, nDist;
     if (sPre == sTopPre) {
-      cDist=cPre - par;
+      nDist=nPre - par;
       sTopPre+=sSize;
     }
  else {
-      cDist=sPre - sPar;
+      nDist=sPre - sPar;
     }
-    final int nsPre=sKind == DOC ? -1 : cPre - cDist;
-    if (c == 0)     nspaces.root(nsPre,this);
-    while (!preStack.isEmpty() && preStack.peek() > nsPre)     nspaces.close(preStack.pop());
+    final int nsPre=sKind == DOC ? -1 : nPre - nDist;
+    nsScope.loop(nsPre,c);
 switch (sKind) {
 case DOC:
-      nspaces.open();
-    doc(cPre,sSize,sdata.text(sPre,true));
+      nsScope.open(nPre);
+    doc(nPre,sSize,sdata.text(sPre,true));
   ++meta.ndocs;
-preStack.push(cPre);
 break;
 case ELEM:
-final Atts nsp=new Atts();
-if (sdata.nsFlag(sPre)) {
-final Atts sNsp=sdata.namespaces(sPre);
-final int as=sNsp.size();
-for (int a=0; a < as; a++) {
-final byte[] prefix=sNsp.name(a), uri=sNsp.value(a), ancUri=nsScope.get(prefix);
-if (ancUri == null || !eq(ancUri,uri)) nsp.add(prefix,uri);
-}
-}
-nspaces.open(cPre,nsp);
+final boolean nsFlag=nsScope.open(nPre,sdata.namespaces(sPre));
 final byte[] en=sdata.name(sPre,sKind);
-elem(cDist,elemNames.index(en,null,false),sdata.attSize(sPre,sKind),sSize,nspaces.uriId(en,true),!nsp.isEmpty());
-preStack.push(cPre);
+elem(nDist,elemNames.index(en,null,false),sdata.attSize(sPre,sKind),sSize,nspaces.uriId(en,true),nsFlag);
 break;
 case TEXT:
 case COMM:
 case PI:
-text(cPre,cDist,sdata.text(sPre,true),sKind);
+text(nPre,nDist,sdata.text(sPre,true),sKind);
 break;
 case ATTR:
-final byte[] an=sdata.name(sPre,sKind), prefix=prefix(an);
-if (sdata.nsFlag(sPre) && nsScope.get(prefix) == null) {
-final byte[] attUri=sdata.nspaces.uri(sdata.uriId(sPre,sKind));
-nspaces.add(nsPre,-1,prefix,attUri,this);
-table.write2(nsPre,1,nameId(nsPre) | 1 << 15);
+final byte[] an=sdata.name(sPre,sKind);
+if (sdata.nsFlag(sPre)) {
+final byte[] uri=sdata.nspaces.uri(sdata.uriId(sPre,sKind));
+if (nsScope.openAttr(nsPre,prefix(an),uri)) {
+table.write2(nsPre,1,1 << 15 | nameId(nsPre));
 }
-attr(cPre,cDist,attrNames.index(an,null,false),sdata.text(sPre,false),nspaces.uriId(an,false),false);
-break;
 }
-for (final NSNode node : nsNodeCache) node.incrementPre(1);
+attr(nPre,nDist,attrNames.index(an,null,false),sdata.text(sPre,false),nspaces.uriId(an,false),false);
 }
-while (!preStack.isEmpty()) nspaces.close(preStack.pop());
-nspaces.current(nsCursor);
+nsScope.shift(1);
+}
+nsScope.close();
 if (bp != 0) insert(pre + c - 1 - (c - 1) % bSize);
 bufferSize(1);
 int cPre=par;
