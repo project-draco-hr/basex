@@ -1,19 +1,17 @@
 {
-  final int tPre=data.meta.size;
+  final int last=data.meta.size;
   final Atts ns=par == -1 ? node.nsScope(null) : node.namespaces();
-  data.nspaces.open(tPre,ns);
+  data.nspaces.open(last,ns);
   final QNm qname=node.qname();
   final int size=size(node,false), asize=size(node,true);
   final int nameId=data.elemNames.index(qname.string(),null,false);
   final int uriId=data.nspaces.uriId(qname.uri());
   data.elem(pre - par,nameId,asize,size,uriId,!ns.isEmpty());
-  data.insert(tPre);
+  data.insert(last);
   int cPre=pre + 1;
-  BasicNodeIter iter=node.attributes();
-  for (ANode ch; (ch=iter.next()) != null; )   cPre=addAttr(ch,cPre,pre);
-  iter=node.children();
-  for (ANode ch; (ch=iter.next()) != null; )   cPre=addNode(ch,cPre,pre,node);
-  data.nspaces.close(tPre);
-  if (size != cPre - pre)   data.size(tPre,Data.ELEM,cPre - pre);
+  for (  final ANode attr : node.attributes())   cPre=addAttr(attr,cPre,pre);
+  for (  final ANode child : node.children())   cPre=addNode(child,cPre,pre,node);
+  data.nspaces.close(last);
+  if (size != cPre - pre)   data.size(last,Data.ELEM,cPre - pre);
   return cPre;
 }
