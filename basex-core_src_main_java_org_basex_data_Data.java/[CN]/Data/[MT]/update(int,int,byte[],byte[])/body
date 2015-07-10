@@ -4,10 +4,11 @@
     updateText(pre,trim(concat(name,SPACE,atom(pre))),PI);
   }
  else {
-    final int oldUriId=nspaces.uriId(name,pre,this);
+    final byte[] prefix=prefix(name);
+    final int oldUriId=nspaces.uriIdForPrefix(prefix,pre,this);
     final boolean nsFlag=oldUriId == 0 && uri.length != 0;
     final int nsPre=kind == ATTR ? parent(pre,kind) : pre;
-    final int uriId=nsFlag ? nspaces.add(nsPre,nsPre,prefix(name),uri,this) : oldUriId != 0 && eq(nspaces.uri(oldUriId),uri) ? oldUriId : 0;
+    final int uriId=nsFlag ? nspaces.add(nsPre,nsPre,prefix,uri,this) : oldUriId != 0 && eq(nspaces.uri(oldUriId),uri) ? oldUriId : 0;
     table.write1(pre,kind == ELEM ? 3 : 11,uriId);
     final int nameId=(kind == ELEM ? elemNames : attrNames).index(name,null,false);
     table.write2(pre,1,(nsFlag(pre) ? 1 << 15 : 0) | nameId);

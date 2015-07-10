@@ -5,7 +5,7 @@
   final int sCount=source.size();
   final int bSize=Math.min(sCount,IO.BLOCKSIZE >> IO.NODEPOWER);
   bufferSize(bSize);
-  final NSScope nsScope=new NSScope(pre,par,this);
+  final NSScope nsScope=new NSScope(pre,this);
   final Data sdata=source.data;
   int c=0, sTopPre=source.start;
   for (int sPre=sTopPre; sPre < source.end; ++sPre, ++c) {
@@ -32,7 +32,7 @@ break;
 case ELEM:
 final boolean nsFlag=nsScope.open(nPre,sdata.namespaces(sPre));
 final byte[] en=sdata.name(sPre,sKind);
-elem(nDist,elemNames.index(en,null,false),sdata.attSize(sPre,sKind),sSize,nspaces.uriId(en,true),nsFlag);
+elem(nDist,elemNames.index(en,null,false),sdata.attSize(sPre,sKind),sSize,nspaces.uriIdForPrefix(prefix(en),true),nsFlag);
 break;
 case TEXT:
 case COMM:
@@ -41,13 +41,11 @@ text(nPre,nDist,sdata.text(sPre,true),sKind);
 break;
 case ATTR:
 final byte[] an=sdata.name(sPre,sKind);
-if (sdata.nsFlag(sPre)) {
-final byte[] uri=sdata.nspaces.uri(sdata.uriId(sPre,sKind));
-if (nsScope.openAttr(nsPre,prefix(an),uri)) {
+final int uriId=sdata.uriId(sPre,sKind);
+if (uriId != 0 && nsScope.openAttr(nsPre,prefix(an),sdata.nspaces.uri(uriId))) {
 table.write2(nsPre,1,1 << 15 | nameId(nsPre));
 }
-}
-attr(nPre,nDist,attrNames.index(an,null,false),sdata.text(sPre,false),nspaces.uriId(an,false),false);
+attr(nPre,nDist,attrNames.index(an,null,false),sdata.text(sPre,false),nspaces.uriIdForPrefix(prefix(an),false));
 }
 nsScope.shift(1);
 }
