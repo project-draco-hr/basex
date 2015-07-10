@@ -4,13 +4,20 @@
     updateText(pre,trim(concat(name,SPACE,atom(pre))),PI);
   }
  else {
-    final int oldUriId=nspaces.uriId(name,pre,this);
-    final boolean nsFlag=oldUriId == 0 && uri.length != 0;
+    final byte[] prefix=prefix(name);
+    final int oldUriId=nspaces.uriIdForPrefix(prefix,pre,this);
+    final boolean nsFlag=oldUriId == 0 && uri.length != 0 && !eq(prefix,XML);
     final int nsPre=kind == ATTR ? parent(pre,kind) : pre;
-    final int uriId=nsFlag ? nspaces.add(nsPre,nsPre,prefix(name),uri,this) : oldUriId != 0 && eq(nspaces.uri(oldUriId),uri) ? oldUriId : 0;
-    table.write1(pre,kind == ELEM ? 3 : 11,uriId);
-    final int nameId=(kind == ELEM ? elemNames : attrNames).index(name,null,false);
-    table.write2(pre,1,(nsFlag(pre) ? 1 << 15 : 0) | nameId);
-    table.write2(nsPre,1,(nsFlag || nsFlag(nsPre) ? 1 << 15 : 0) | nameId(nsPre));
+    final int uriId=nsFlag ? nspaces.add(nsPre,prefix,uri,this) : oldUriId != 0 && eq(nspaces.uri(oldUriId),uri) ? oldUriId : 0;
+    if (kind == ATTR) {
+      table.write1(pre,11,uriId);
+      table.write2(pre,1,attrNames.index(name,null,false));
+      if (nsFlag)       table.write2(nsPre,1,1 << 15 | nameId(nsPre));
+    }
+ else {
+      table.write1(pre,3,uriId);
+      final int nameId=elemNames.index(name,null,false);
+      table.write2(nsPre,1,(nsFlag || nsFlag(nsPre) ? 1 << 15 : 0) | nameId);
+    }
   }
 }
