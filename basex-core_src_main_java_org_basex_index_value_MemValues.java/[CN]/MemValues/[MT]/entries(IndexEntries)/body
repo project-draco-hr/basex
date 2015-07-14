@@ -1,15 +1,17 @@
 {
   final byte[] prefix=entries.get();
   return new EntryIterator(){
+    final int s=values.size();
     int c;
     @Override public byte[] next(){
-      while (++c < size) {
-        if (startsWith(keys[c],prefix))         return keys[c];
+      while (++c < s) {
+        final byte[] key=values.key(c);
+        if (startsWith(key,prefix) && ids.get(c).length > 0)         return key;
       }
       return null;
     }
     @Override public int count(){
-      return len[c];
+      return len.get(c);
     }
   }
 ;

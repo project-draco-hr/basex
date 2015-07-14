@@ -1,22 +1,19 @@
 {
-  orig=ex;
-  Step s=step;
-  if (!(ex instanceof ContextValue)) {
-    if (!(ex instanceof AxisPath))     return false;
-    final AxisPath path=(AxisPath)ex;
-    if (path.root != null)     return false;
-    s=path.step(path.steps.length - 1);
-  }
+  pred=pr;
+  final Step last=lastStep();
+  if (last == null)   return false;
   final Data data=ic.data;
-  final boolean elem=s.test.type == NodeType.ELM;
+  final boolean elem=last.test.type == NodeType.ELM;
   if (elem) {
-    if (!data.meta.uptodate || !data.nspaces.isEmpty() || s.test.kind != Kind.NAME)     return false;
-    test=(NameTest)s.test;
+    if (!(data.meta.uptodate && data.nspaces.isEmpty() && last.test.kind == Kind.NAME))     return false;
+    test=(NameTest)last.test;
     final Stats stats=data.elemNames.stat(data.elemNames.id(test.name.local()));
     if (stats == null || !stats.isLeaf())     return false;
   }
-  if (ft)   return (elem || s.test.type == NodeType.TXT) && data.meta.ftxtindex;
-  text=(elem || s.test.type == NodeType.TXT) && data.meta.textindex;
-  attr=!text && s.test.type == NodeType.ATT && data.meta.attrindex;
-  return text || attr;
+  text=elem || last.test.type == NodeType.TXT;
+  final IndexNames in=new IndexNames(ft ? data.meta.ftinclude : text ? data.meta.textinclude : data.meta.attrinclude);
+  if (!in.contains(qname()))   return false;
+  if (ft)   return text && data.meta.ftindex;
+  if (text)   return data.meta.textindex;
+  return last.test.type == NodeType.ATT && data.meta.attrindex;
 }

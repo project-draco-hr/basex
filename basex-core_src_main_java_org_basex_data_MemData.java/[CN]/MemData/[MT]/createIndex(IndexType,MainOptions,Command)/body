@@ -1,3 +1,17 @@
 {
-  values(type == IndexType.TEXT).create(type);
+  final IndexBuilder ib;
+switch (type) {
+case TEXT:
+    ib=new MemValuesBuilder(this,options,true);
+  break;
+case ATTRIBUTE:
+ib=new MemValuesBuilder(this,options,false);
+break;
+case FULLTEXT:
+throw new BaseXException(NO_MAINMEM);
+default :
+throw Util.notExpected();
+}
+if (cmd != null) cmd.proc(ib);
+set(type,ib.build());
 }

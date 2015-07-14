@@ -1,19 +1,9 @@
 {
-  abort();
-  final Performance perf=Prop.debug ? new Performance() : null;
   Util.debug(det());
-  final int k=text ? Data.TEXT : Data.ATTR;
   for (pre=0; pre < size; ++pre) {
-    if ((pre & 0x0FFF) == 0) {
-      check();
-      if (split()) {
-        writeIndex(true);
-        index=new IndexTree();
-        finishSplit();
-      }
-    }
-    if (data.kind(pre) == k && data.textLen(pre,text) <= data.meta.maxlen) {
-      index.index(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre);
+    if ((pre & 0x0FFF) == 0)     check();
+    if (indexEntry() && data.textLen(pre,text) <= data.meta.maxlen) {
+      index.add(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre);
       count++;
     }
   }
@@ -23,8 +13,6 @@
     Performance.gc(1);
     merge();
   }
-  if (text)   data.meta.textindex=true;
- else   data.meta.attrindex=true;
-  finishIndex(perf);
+  finishIndex();
   return data.meta.updindex ? new UpdatableDiskValues(data,text) : new DiskValues(data,text);
 }
