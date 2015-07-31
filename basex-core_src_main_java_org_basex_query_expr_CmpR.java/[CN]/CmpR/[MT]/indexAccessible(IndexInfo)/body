@@ -3,15 +3,16 @@
   if (!mni || !mxi || data.inMemory()|| !ii.check(expr,false))   return false;
   final Stats key=key(ii,ii.text);
   if (key == null)   return false;
-  final NumericRange nr=new NumericRange(ii.text,Math.max(min,key.min),Math.min(max,key.max));
+  final NumericRange nr=new NumericRange(ii,Math.max(min,key.min),Math.min(max,key.max));
   if (nr.min > nr.max || nr.max < key.min || nr.min > key.max) {
     ii.costs=0;
     return true;
   }
+  ii.costs=data.costs(nr);
+  if (ii.costs == -1)   return false;
   final int mnl=min >= 0 && (long)min == min ? token(min).length : -1;
   final int mxl=max >= 0 && (long)max == max ? token(max).length : -1;
   if (mnl != mxl || mnl == -1)   return false;
-  ii.costs=Math.max(2,data.meta.size / 3);
   if (min == Double.NEGATIVE_INFINITY && max == Double.POSITIVE_INFINITY || token((int)nr.min).length != token((int)nr.max).length)   return false;
   final TokenBuilder tb=new TokenBuilder();
   tb.add(mni ? '[' : '(').addExt(min).add(',').addExt(max).add(mxi ? ']' : ')');

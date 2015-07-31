@@ -1,25 +1,24 @@
 {
-  final byte k=token.type() == IndexType.TEXT ? Data.TEXT : Data.ATTR;
-  final int i=id(token.get());
-  if (i > 0) {
-    final int[] pres=updindex ? data.pre(ids[i],0,len[i]) : ids[i];
-    final int s=updindex ? pres.length : len[i];
-    if (s > 0) {
-      return new IndexIterator(){
-        int p;
-        @Override public boolean more(){
-          return p < s;
-        }
-        @Override public int pre(){
-          while (more() && data.kind(pres[p++]) != k)           ;
-          return pres[p - 1];
-        }
-        @Override public int size(){
-          return s;
-        }
+  final int id=values.id(token.get());
+  if (id > 0) {
+    final int s=len.get(id);
+    final int[] tmp=ids.get(id);
+    final IntList pres=new IntList(s);
+    for (int i=0; i < s; ++i)     pres.add(data.pre(tmp[i]));
+    pres.sort();
+    return new IndexIterator(){
+      int p=-1;
+      @Override public boolean more(){
+        return ++p < s;
       }
-;
+      @Override public int pre(){
+        return pres.get(p);
+      }
+      @Override public int size(){
+        return s;
+      }
     }
+;
   }
   return IndexIterator.EMPTY;
 }

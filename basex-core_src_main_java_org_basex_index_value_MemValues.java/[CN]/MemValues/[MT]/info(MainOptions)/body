@@ -1,8 +1,12 @@
 {
-  final TokenBuilder tb=new TokenBuilder(LI_STRUCTURE).add(HASH).add(NL);
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(LI_STRUCTURE).add(HASH).add(NL);
+  tb.add(LI_NAMES).add(text ? data.meta.textinclude : data.meta.attrinclude).add(NL);
   final IndexStats stats=new IndexStats(options.get(MainOptions.MAXSTAT));
-  for (int m=1; m < size; m++) {
-    if (stats.adding(len[m]))     stats.add(key(m));
+  final int s=values.size();
+  for (int c=1; c < s; c++) {
+    final int oc=len.get(c);
+    if (stats.adding(oc))     stats.add(values.key(c),oc);
   }
   stats.print(tb);
   return tb.finish();

@@ -1,5 +1,5 @@
 {
-  final String geo;
+  String geo="";
   try {
     geo=new GMLWriter().write(geometry).replaceAll("^<gml:(.*?)>","<gml:$1 xmlns:gml='" + string(URI) + "'>");
   }
@@ -7,8 +7,8 @@
     throw GeoErrors.gmlWriterErr(ex);
   }
   try {
-    final IO io=new IOContent(geo);
-    return new DBNode(MemBuilder.build(new XMLParser(io,queryContext.context.options)));
+    final XMLParser parser=new XMLParser(new IOContent(geo),queryContext.context.options);
+    return new DBNode(MemBuilder.build(parser));
   }
  catch (  final IOException ex) {
     throw IOERR_X.get(null,ex);

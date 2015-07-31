@@ -21,14 +21,12 @@
   try (final DiskBuilder builder=new DiskBuilder(tname,parser,sopts,options)){
     final DiskData dt=builder.build();
     try {
-      if (ometa.createtext)       create(IndexType.TEXT,dt,options,cmd);
-      if (ometa.createattr)       create(IndexType.ATTRIBUTE,dt,options,cmd);
-      if (ometa.createftxt)       create(IndexType.FULLTEXT,dt,options,cmd);
       dt.meta.createtext=ometa.createtext;
       dt.meta.createattr=ometa.createattr;
       dt.meta.createftxt=ometa.createftxt;
       dt.meta.filesize=ometa.filesize;
       dt.meta.dirty=true;
+      CreateIndex.create(dt,options,cmd);
       final IOFile bin=data.meta.binaries();
       if (bin.exists())       bin.rename(dt.meta.binaries());
       final IOFile upd=odata.meta.updateFile();

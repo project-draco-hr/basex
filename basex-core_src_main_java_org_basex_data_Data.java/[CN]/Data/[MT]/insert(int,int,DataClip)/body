@@ -1,7 +1,5 @@
 {
   meta.update();
-  if (meta.updindex)   indexBegin();
-  resources.insert(pre,source);
   final int sCount=source.size();
   final int bSize=Math.min(sCount,IO.BLOCKSIZE >> IO.NODEPOWER);
   bufferSize(bSize);
@@ -26,7 +24,7 @@
 switch (sKind) {
 case DOC:
       nsScope.open(nPre);
-    doc(nPre,sSize,sdata.text(sPre,true));
+    doc(sSize,sdata.text(sPre,true));
   ++meta.ndocs;
 break;
 case ELEM:
@@ -39,7 +37,7 @@ break;
 case TEXT:
 case COMM:
 case PI:
-text(nPre,nDist,sdata.text(sPre,true),sKind);
+text(nDist,sdata.text(sPre,true),sKind);
 break;
 case ATTR:
 {
@@ -53,7 +51,7 @@ uriId=nspaces.add(nsPre,prefix,uri,this);
 table.write2(nsPre,1,1 << 15 | nameId(nsPre));
 }
 }
-attr(nPre,nDist,attrNames.index(name,null,false),sdata.text(sPre,false),uriId);
+attr(nDist,attrNames.index(name,null,false),sdata.text(sPre,false),uriId);
 }
 }
 nsScope.shift(1);
@@ -67,9 +65,6 @@ final int cKind=kind(cPre);
 size(cPre,cKind,size(cPre,cKind) + sCount);
 cPre=parent(cPre,cKind);
 }
-if (meta.updindex) {
-idmap.insert(pre,id(pre),sCount);
-indexAdd();
-}
-if (!cache) updateDist(pre + sCount,sCount);
+indexAdd(pre,id(pre),sCount,source);
+updateDist(pre + sCount,sCount);
 }

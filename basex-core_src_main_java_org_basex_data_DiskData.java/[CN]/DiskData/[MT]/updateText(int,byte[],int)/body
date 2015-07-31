@@ -1,25 +1,24 @@
 {
-  final boolean text=kind != ATTR;
-  final ValueIndex index=text ? textIndex : attrIndex;
-  if (index != null && kind != DOC)   index.replace(text(pre,text),value,id(pre));
-  final DataAccess store=text ? texts : values;
-  final long len=store.length();
+  indexDelete(pre,-1,1);
+  final DataAccess store=kind == ATTR ? values : texts;
+  final long oldRef=textRef(pre);
   final long v=toSimpleInt(value);
-  if (v == Integer.MIN_VALUE) {
+  if (v != Integer.MIN_VALUE) {
+    if (!number(oldRef))     store.free(oldRef & IO.OFFCOMP - 1,0);
+    textRef(pre,v | IO.OFFNUM);
+  }
+ else {
     final byte[] val=COMPRESS.get().pack(value);
-    final long old=textOff(pre);
     final long off;
-    if (number(old)) {
-      off=len;
+    if (number(oldRef)) {
+      off=store.length();
     }
  else {
       final int vl=val.length;
-      off=store.free(old & IO.OFFCOMP - 1,vl + Num.length(vl));
+      off=store.free(oldRef & IO.OFFCOMP - 1,vl + Num.length(vl));
     }
     store.writeToken(off,val);
-    textOff(pre,val == value ? off : off | IO.OFFCOMP);
+    textRef(pre,val == value ? off : off | IO.OFFCOMP);
   }
- else {
-    textOff(pre,v | IO.OFFNUM);
-  }
+  indexAdd(pre,-1,1,null);
 }

@@ -2,8 +2,8 @@
   if (cmp != null) {
     final int ll=LABELS.length;
     for (int l=0; l < ll; l++) {
-      if (cmp != indxs[l])       continue;
-      final String label=indxs[l].getText();
+      if (cmp != buttons[l])       continue;
+      final String label=buttons[l].getText();
       final Command cmd;
       if (label.equals(OPTIMIZE)) {
         cmd=new Optimize();
@@ -13,7 +13,7 @@
       }
  else {
         cmd=new CreateIndex(TYPES[l]);
-        ft.setOptions();
+        for (        final DialogIndex di : creations)         if (di != null)         di.setOptions();
       }
       infos[l].setText(PLEASE_WAIT_D);
       DialogProgress.execute(this,cmd);
@@ -23,27 +23,22 @@
   resources.action(cmp);
   add.action(cmp);
   final Data data=gui.context.data();
-  final boolean[] val={true,true,true,data.meta.textindex,data.meta.attrindex,data.meta.ftxtindex};
+  final boolean[] exists={true,true,true,data.meta.textindex,data.meta.attrindex,data.meta.ftindex};
   if (cmp == this) {
-    final boolean utd=data.meta.uptodate;
+    final boolean outdated=!data.meta.uptodate;
     final int ll=LABELS.length;
     for (int l=0; l < ll; ++l) {
-      final boolean struct=l < 3;
-      String lbl=LABELS[l];
-      if (struct && !utd)       lbl+=" (" + OUT_OF_DATE + ')';
-      labels[l].setText(lbl);
-      if (indxs[l] != null) {
-        indxs[l].setText(struct ? OPTIMIZE : val[l] ? DROP : CREATE);
-        if (struct)         indxs[l].setEnabled(!utd);
+      final boolean stats=l < 3;
+      labels[l].setText(stats && outdated ? LABELS[l] + " (" + OUT_OF_DATE+ ')' : LABELS[l]);
+      if (buttons[l] != null) {
+        buttons[l].setText(stats ? OPTIMIZE : exists[l] ? DROP : CREATE);
+        if (stats)         buttons[l].setEnabled(outdated);
       }
+      add(l,creations[l] == null || exists[l] ? null : creations[l]);
     }
-    tabFT.removeAll();
-    final int f=5;
-    panels[f].removeAll();
-    add(f,tabFT,val[f] ? null : ft);
-    panels[f].revalidate();
-    panels[f].repaint();
     updateInfo();
   }
-  ft.action(true);
+  for (  final DialogIndex di : creations) {
+    if (di != null)     di.action(true);
+  }
 }

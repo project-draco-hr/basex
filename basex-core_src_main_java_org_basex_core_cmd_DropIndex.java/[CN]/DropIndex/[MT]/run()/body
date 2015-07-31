@@ -11,7 +11,6 @@
     type=IndexType.ATTRIBUTE;
   }
  else   if (ci == CmdIndex.FULLTEXT) {
-    if (data.inMemory())     return error(NO_MAINMEM);
     data.meta.createftxt=false;
     type=IndexType.FULLTEXT;
   }
@@ -21,9 +20,13 @@
   if (!startUpdate())   return false;
   boolean ok=true;
   try {
-    ok=drop(type,data) ? info(INDEX_DROPPED_X_X,type,perf) : error(INDEX_NOT_DROPPED_X,type);
+    drop(type,data);
+    ok=info(INDEX_DROPPED_X_X,type,perf);
   }
-  finally {
+ catch (  final IOException ex) {
+    ok=error(Util.message(ex));
+  }
+ finally {
     ok&=finishUpdate();
   }
   return ok;

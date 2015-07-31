@@ -5,11 +5,7 @@
   final int tSize=size(pre,tKind);
   final int tPar=parent(pre,tKind);
   bufferSize(sCount);
-  resources.replace(pre,tSize,source);
-  if (meta.updindex) {
-    indexDelete(pre,tSize);
-    indexBegin();
-  }
+  indexDelete(pre,id(pre),tSize);
   final Data sData=source.data;
   int sTopPre=source.start;
   for (int sPre=source.start; sPre < source.end; ++sPre) {
@@ -27,7 +23,7 @@
     }
 switch (sKind) {
 case DOC:
-      doc(cPre,sSize,sData.text(sPre,true));
+      doc(sSize,sData.text(sPre,true));
     ++meta.ndocs;
   break;
 case ELEM:
@@ -37,18 +33,13 @@ break;
 case TEXT:
 case COMM:
 case PI:
-text(cPre,cDist,sData.text(sPre,true),sKind);
+text(cDist,sData.text(sPre,true),sKind);
 break;
 case ATTR:
 final byte[] an=sData.name(sPre,sKind);
-attr(cPre,cDist,attrNames.index(an,null,false),sData.text(sPre,false),nspaces.uriIdForPrefix(prefix(an),false));
+attr(cDist,attrNames.index(an,null,false),sData.text(sPre,false),nspaces.uriIdForPrefix(prefix(an),false));
 break;
 }
-}
-if (meta.updindex) {
-idmap.delete(pre,id(pre),-tSize);
-idmap.insert(pre,meta.lastid - sCount + 1,sCount);
-indexAdd();
 }
 table.replace(pre,buffer(),tSize);
 bufferSize(1);
@@ -60,7 +51,7 @@ final int k=kind(p);
 size(p,k,size(p,k) + diff);
 p=parent(p,k);
 }
-if (!cache) updateDist(pre + sCount,diff);
+updateDist(pre + sCount,diff);
 }
 int sPre=source.start;
 if (sData.kind(sPre) == ATTR) {
@@ -68,4 +59,5 @@ int d=0;
 while (sPre < source.end && sData.kind(sPre++) == ATTR) d++;
 if (d > 1) attSize(tPar,kind(tPar),d + attSize(tPar,ELEM) - 1);
 }
+indexAdd(pre,meta.lastid - sCount + 1,sCount,source);
 }
