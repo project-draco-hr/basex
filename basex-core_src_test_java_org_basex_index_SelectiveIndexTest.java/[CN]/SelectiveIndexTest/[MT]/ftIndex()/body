@@ -1,0 +1,15 @@
+{
+  context.options.set(MainOptions.FTINDEX,true);
+  try {
+    for (    final Map.Entry<String,Integer> entry : FILTERS.entrySet()) {
+      context.options.set(MainOptions.FTINCLUDE,entry.getKey());
+      new CreateDB(NAME,FILE).execute(context);
+      final int size=context.data().ftxtIndex.size();
+      assertEquals("FTIndex: \"" + entry.getKey() + "\": ",entry.getValue().intValue(),size);
+    }
+  }
+  finally {
+    context.options.set(MainOptions.FTINDEX,false);
+    context.options.set(MainOptions.FTINCLUDE,"");
+  }
+}
