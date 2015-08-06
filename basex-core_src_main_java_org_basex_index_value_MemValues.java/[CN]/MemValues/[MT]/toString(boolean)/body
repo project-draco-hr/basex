@@ -1,0 +1,24 @@
+{
+  final int sz=values.size();
+  final TokenBuilder tb=new TokenBuilder();
+  tb.add(text ? "TEXT" : "ATTRIBUTE").add(" INDEX, '").add(data.meta.name).add("':\n");
+  if (sz != 0) {
+    for (int m=1; m <= sz; m++) {
+      final int oc=len.get(m);
+      if (oc == 0)       continue;
+      final int[] pos=ids.get(m);
+      tb.add("  ").addInt(m);
+      if (all)       tb.add(", key: \"").add(data.text(data.pre(pos[0]),text)).add('"');
+      tb.add(", ids");
+      if (all)       tb.add("/pres");
+      tb.add(": ");
+      for (int n=0; n < oc; n++) {
+        if (n != 0)         tb.add(",");
+        tb.addInt(pos[n]);
+        if (all)         tb.add('/').addInt(data.pre(pos[n]));
+      }
+      tb.add("\n");
+    }
+  }
+  return tb.toString();
+}

@@ -1,15 +1,21 @@
 {
+  if (vals.length == 0)   return;
   final int id=values.id(key), vl=vals.length;
-  final int l=id < len.size() ? len.get(id) : 0, s=l + vl;
-  int[] tmp=id < len.size() ? ids.get(id) : null;
+  while (ids.size() < id + 1)   ids.add(null);
+  if (len.size() < id + 1)   len.set(id,0);
+  final int l=len.get(id), s=l + vl;
+  int[] tmp=ids.get(id);
   if (tmp == null) {
     tmp=vals;
   }
  else {
-    if (l >= tmp.length)     tmp=Arrays.copyOf(tmp,Array.newSize(l));
+    if (tmp.length < s)     tmp=Arrays.copyOf(tmp,Array.newSize(s));
     System.arraycopy(vals,0,tmp,l,vl);
+    if (tmp[l - 1] > vals[0]) {
+      if (orders == null)       orders=new BoolList(values.size());
+      orders.set(id,true);
+    }
   }
-  while (id + 1 > ids.size())   ids.add(null);
   ids.set(id,tmp);
   len.set(id,s);
 }
