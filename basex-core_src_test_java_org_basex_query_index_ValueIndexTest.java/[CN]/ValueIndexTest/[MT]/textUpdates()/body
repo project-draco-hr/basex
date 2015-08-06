@@ -1,22 +1,22 @@
 {
   if (((Boolean)mainmem).booleanValue())   return;
-  context.options.set(MainOptions.UPDINDEX,true);
-  context.options.set(MainOptions.TEXTINCLUDE,"a");
-  new CreateDB(NAME,"<x><a>text</a><b>TEXT</b></x>").execute(context);
+  set(MainOptions.UPDINDEX,true);
+  set(MainOptions.TEXTINCLUDE,"a");
+  execute(new CreateDB(NAME,"<x><a>text</a><b>TEXT</b></x>"));
   check("count(//a[text() = 'text'])","1","exists(//ValueAccess)");
   check("count(//b[text() = 'TEXT'])","1","empty(//ValueAccess)");
-  new XQuery("replace value of node x/a with 'TEXT'").execute(context);
+  query("replace value of node x/a with 'TEXT'");
   check("count(//a[text() = 'TEXT'])","1","exists(//ValueAccess)");
-  new XQuery("rename node x/a as 'b'").execute(context);
+  query("rename node x/a as 'b'");
   check("//a[text() = 'TEXT']","","exists(//Empty)");
   check("count(//b[text() = 'TEXT'])","2","empty(ValueAccess)");
-  new XQuery("x/b/(rename node . as 'a')").execute(context);
+  query("x/b/(rename node . as 'a')");
   check("count(//a[text() = 'TEXT'])","2","exists(//ValueAccess)");
   check("count(//b[text() = 'TEXT'])","0","empty(//ValueAccess)");
-  new XQuery("x/a/(replace value of node . with 'text')").execute(context);
+  query("x/a/(replace value of node . with 'text')");
   check("count(//a[text() = 'text'])","2","exists(//ValueAccess)");
-  new XQuery("delete node x/a[1]").execute(context);
+  query("delete node x/a[1]");
   check("count(//a[text() = 'text'])","1","exists(//ValueAccess)");
-  new XQuery("delete node x/a[1]").execute(context);
+  query("delete node x/a[1]");
   check("//a[text() = 'text']","","exists(//Empty)");
 }

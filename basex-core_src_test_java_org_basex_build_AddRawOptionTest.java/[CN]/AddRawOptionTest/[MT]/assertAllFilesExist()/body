@@ -1,11 +1,6 @@
 {
-  final HashSet<String> files=new HashSet<>();
-  try (final Session session=new LocalSession(context)){
-    try (final Query q=session.query(Function._DB_LIST.args(NAME))){
-      while (q.more())       files.add(q.next());
-    }
-   }
-   assertFalse("No files were imported",files.isEmpty());
+  final StringList files=new StringList(query(Function._DB_LIST.args(NAME)).split(Prop.NL));
+  assertFalse("No files were imported",files.isEmpty());
   for (  final IOFile f : FILES) {
     final String fname=f.name();
     assertTrue("File " + fname + " is not imported",files.contains(fname));
