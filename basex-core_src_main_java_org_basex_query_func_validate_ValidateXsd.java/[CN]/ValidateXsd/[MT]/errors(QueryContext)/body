@@ -1,0 +1,22 @@
+{
+  checkCreate(qc);
+  return process(new Validation(){
+    @Override void process(    final ErrorHandler handler) throws IOException, SAXException, QueryException {
+      final IO in=read(toNodeOrAtomItem(exprs[0],qc),qc,null);
+      final SchemaFactory sf=SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      final Schema s;
+      if (exprs.length < 2) {
+        s=sf.newSchema();
+      }
+ else {
+        final IO schema=prepare(read(toNodeOrAtomItem(exprs[1],qc),qc,null),handler);
+        s=sf.newSchema(new URL(schema.url()));
+      }
+      final Validator v=s.newValidator();
+      v.setErrorHandler(handler);
+      final String url=in.url();
+      v.validate(url.isEmpty() ? new StreamSource(in.inputStream()) : new StreamSource(url));
+    }
+  }
+);
+}
