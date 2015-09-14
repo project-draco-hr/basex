@@ -1,6 +1,6 @@
 {
   query(COUNT.args(COLLECTION.args(NAME)),"1");
-  query(_DB_ADD.args(NAME,FILE));
+  query(_DB_ADD.args(NAME,XML));
   query(COUNT.args(COLLECTION.args(NAME)),"2");
   query(_DB_ADD.args(NAME,"\"<root/>\"","t1.xml"));
   query(COUNT.args(COLLECTION.args(NAME + "/t1.xml") + "/root"),"1");
@@ -8,9 +8,9 @@
   query(COUNT.args(COLLECTION.args(NAME + "/t2.xml") + "/root"),"1");
   query(_DB_ADD.args(NAME," <root/>","test/t3.xml"));
   query(COUNT.args(COLLECTION.args(NAME + "/test/t3.xml") + "/root"),"1");
-  query(_DB_ADD.args(NAME,FILE,"in/"));
+  query(_DB_ADD.args(NAME,XML,"in/"));
   query(COUNT.args(COLLECTION.args(NAME + "/in/input.xml") + "/html"),"1");
-  query(_DB_ADD.args(NAME,FILE,"test/t4.xml"));
+  query(_DB_ADD.args(NAME,XML,"test/t4.xml"));
   query(COUNT.args(COLLECTION.args(NAME + "/test/t4.xml") + "/html"),"1");
   query(_DB_ADD.args(NAME,FLDR,"test/dir"));
   query(COUNT.args(COLLECTION.args(NAME + "/test/dir")),NFLDR);
@@ -22,4 +22,14 @@
   query(_DB_OPEN.args(NAME,"chop.xml"),"<a/>");
   query(_DB_ADD.args(NAME," '<a> </a>'","nochop.xml"," map { 'chop':false() }"));
   query(_DB_OPEN.args(NAME,"nochop.xml"),"<a> </a>");
+  query(_DB_ADD.args(NAME,CSV,"csv.xml"," map { 'parser':'csv','csvparser': 'header=true' }"));
+  query(EXISTS.args(_DB_OPEN.args(NAME,"csv.xml") + "//City"),"true");
+  query(_DB_ADD.args(NAME,CSV,"csv.xml"," map { 'parser':'csv','csvparser': map { 'header': 'true' } }"));
+  query(EXISTS.args(_DB_OPEN.args(NAME,"csv.xml") + "//City"),"true");
+  query(_DB_ADD.args(NAME,CSV,"csv.xml"," map { 'parser':'csv','csvparser': map { 'header': true() } }"));
+  query(EXISTS.args(_DB_OPEN.args(NAME,"csv.xml") + "//City"),"true");
+  error(_DB_ADD.args(NAME,CSV,"csv.xml"," map { 'parser':('csv','html') }"),INVALIDOPT_X);
+  error(_DB_ADD.args(NAME,CSV,"csv.xml"," map { 'parser':'csv','csvparser': map { 'header': ('true','false') } }"),INVALIDOPT_X);
+  error(_DB_ADD.args(NAME,CSV,"csv.xml"," map { 'parser':'csv','csvparser': map { 'headr': 'true' } }"),BASX_WHICH_X);
+  error(_DB_ADD.args(NAME,CSV,"csv.xml"," map { 'parser':'csv','csvparser': 'headr=true' }"),BASX_WHICH_X);
 }
