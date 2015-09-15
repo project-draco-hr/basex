@@ -1,0 +1,19 @@
+{
+  try {
+    final WebDAVService service=SERVICES.get();
+    final HttpServletRequest r=service.http.req;
+    Path p=Path.path(dbpath);
+    if (!r.getContextPath().isEmpty())     p=p.getStripFirst();
+    if (!r.getServletPath().isEmpty())     p=p.getStripFirst();
+    if (p.isRoot())     return new WebDAVRoot(service);
+    final String db=p.getFirst();
+    return p.getLength() > 1 ? service.resource(db,p.getStripFirst().toString()) : service.dbExists(db) ? new WebDAVDatabase(new WebDAVMetaData(db,service.timestamp(db)),service) : null;
+  }
+ catch (  final LoginException ex) {
+    return WebDAVNotAuthorized.NOAUTH;
+  }
+catch (  final Exception ex) {
+    Util.errln(ex);
+  }
+  return null;
+}
