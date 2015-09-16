@@ -3,13 +3,29 @@
   return process(new Validation(){
     @Override void process(    final ErrorHandler handler) throws IOException, SAXException, QueryException {
       final IO in=read(toNodeOrAtomItem(exprs[0],qc),qc,null);
-      final SchemaFactory sf=SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+      final Item sch=exprs.length < 2 ? null : toNodeOrAtomItem(exprs[1].item(qc,info));
+      String ns=XMLConstants.W3C_XML_SCHEMA_NS_URI;
+      String version=VERSION_10;
+      if (exprs.length > 2) {
+        version=Token.string(toToken(exprs[2],qc));
+        if (version.equals(VERSION_11)) {
+          ns=XSD11_URI;
+          String factory=null;
+          for (          final String f : XSD11_FACTORIES)           if (Reflect.find(f) != null)           factory=f;
+          if (factory == null)           throw BXVA_XSDVERSION_X.get(info,VERSION_11);
+          System.setProperty(XSD11_PATH + ':' + ns,factory);
+        }
+ else         if (!version.equals(VERSION_10)) {
+          throw BXVA_XSDVERSION_X.get(info,VERSION_11);
+        }
+      }
+      final SchemaFactory sf=SchemaFactory.newInstance(ns);
       final Schema s;
-      if (exprs.length < 2) {
+      if (sch == null) {
         s=sf.newSchema();
       }
  else {
-        final IO schema=prepare(read(toNodeOrAtomItem(exprs[1],qc),qc,null),handler);
+        final IO schema=prepare(read(sch,qc,null),handler);
         s=sf.newSchema(new URL(schema.url()));
       }
       final Validator v=s.newValidator();
