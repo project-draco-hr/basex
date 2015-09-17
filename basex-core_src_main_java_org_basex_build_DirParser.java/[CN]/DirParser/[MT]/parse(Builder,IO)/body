@@ -26,7 +26,8 @@
       try (final ZipInputStream is=new ZipInputStream(in)){
         for (ZipEntry ze; (ze=is.getNextEntry()) != null; ) {
           if (ze.isDirectory())           continue;
-          source=new IOStream(is,ze.getName());
+          final String path=ze.getName();
+          source=new IOStream(is,archiveName ? (name + '/' + path) : path);
           source.length(ze.getSize());
           parseResource(builder);
         }
