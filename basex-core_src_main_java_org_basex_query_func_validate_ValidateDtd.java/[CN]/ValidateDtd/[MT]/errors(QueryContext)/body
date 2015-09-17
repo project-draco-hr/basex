@@ -3,11 +3,11 @@
   return process(new Validation(){
     @Override void process(    final ErrorHandler handler) throws IOException, ParserConfigurationException, SAXException, QueryException {
       final Item it=toNodeOrAtomItem(exprs[0],qc);
+      final IO path=exprs.length < 2 ? null : checkPath(toEmptyToken(exprs[1],qc));
       SerializerOptions sp=null;
-      if (exprs.length > 1) {
+      if (path != null) {
         sp=new SerializerOptions();
-        final IO schema=prepare(checkPath(exprs[1],qc),handler);
-        sp.set(SerializerOptions.DOCTYPE_SYSTEM,schema.url());
+        sp.set(SerializerOptions.DOCTYPE_SYSTEM,prepare(path,handler).url());
       }
       final IO in=read(it,qc,sp);
       final SAXParserFactory sf=SAXParserFactory.newInstance();
