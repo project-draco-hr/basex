@@ -15,14 +15,12 @@
     }
   }
   final Data data=context.data();
+  final DataPrinter dp=new DataPrinter(data);
   if (nodes != null) {
-    final Table table=th();
-    for (    final int pre : nodes.pres())     table(table,data,pre);
-    out.print(table.finish());
+    for (    final int pre : nodes.pres())     dp.add(pre);
   }
  else {
-    int ps=0;
-    int pe=1000;
+    int ps=0, pe=1000;
     if (!start.isEmpty()) {
       if (!end.isEmpty()) {
         ps=toInt(start);
@@ -33,7 +31,8 @@
         pe=ps + 1;
       }
     }
-    out.print(table(data,ps,pe));
+    dp.add(ps,pe);
   }
+  out.print(dp.finish());
   return true;
 }

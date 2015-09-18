@@ -5,7 +5,12 @@
   if (!startUpdate())   return false;
   boolean ok=true;
   try {
-    optimize(data,options,this);
+    final boolean autoopt=options.get(MainOptions.AUTOOPTIMIZE);
+    if (autoopt != data.meta.autoopt) {
+      data.meta.autoopt=autoopt;
+      data.meta.dirty=true;
+    }
+    optimize(data,this);
     ok=info(DB_OPTIMIZED_X,meta.name,perf);
   }
  catch (  final IOException ex) {
