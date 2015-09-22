@@ -6,11 +6,10 @@
   @SuppressWarnings("unchecked") final NodeLike<N,E>[] buffer=new NodeLike[2 * MAX_DIGIT + 1];
   int inBuffer=splitDigit(left,from,inLeft,buffer,0);
   if (inLeft == len) {
-    final int n=inBuffer;
-    if (n == 1)     return new TreeSlice<>(buffer[0]);
-    final int mid1=n / 2;
-    final Node<N,E>[] ls=slice(buffer,0,mid1), rs=slice(buffer,mid1,n);
-    return new TreeSlice<>(DeepTree.get(ls,rs,len));
+    if (inBuffer == 1)     return new TreeSlice<>(buffer[0]);
+    final int mid1=inBuffer / 2;
+    final Node<N,E>[] ls=slice(buffer,0,mid1), rs=slice(buffer,mid1,inBuffer);
+    return new TreeSlice<>(get(ls,rs,len));
   }
   final long inMiddle=len - inLeft - inRight;
   final FingerTree<Node<N,E>,E> mid;
@@ -72,5 +71,5 @@
     mid3=mid2.init();
     newRight=slice(buffer,0,inBuffer);
   }
-  return slice.setTree(DeepTree.get(newLeft,mid3,newRight,len));
+  return slice.setTree(get(newLeft,mid3,newRight,len));
 }

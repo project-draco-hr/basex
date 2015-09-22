@@ -2,18 +2,18 @@
   final long n=val.size();
   if (n == 0)   return this;
   if (n == 1)   return insert(pos,(Item)val);
-  final long l=pos, r=size - pos;
-  if (val instanceof TreeSeq && (l == 0 || r == 0)) {
+  final long r=size - pos;
+  if (val instanceof TreeSeq && (pos == 0 || r == 0)) {
     final TreeSeq other=(TreeSeq)val;
-    return l == 0 ? other.concat(this) : concat(other);
+    return pos == 0 ? other.concat(this) : concat(other);
   }
   final TreeSeqBuilder tsb=new TreeSeqBuilder();
-  if (l < MAX_SMALL) {
+  if (pos < MAX_SMALL) {
     tsb.add(val);
-    for (long i=l; --i >= 0; )     tsb.addFront(itemAt(i));
+    for (long i=pos; --i >= 0; )     tsb.addFront(itemAt(i));
   }
  else {
-    tsb.add(subSeq(0,l));
+    tsb.add(subSeq(0,pos));
     tsb.add(val);
   }
   if (r < MAX_SMALL) {

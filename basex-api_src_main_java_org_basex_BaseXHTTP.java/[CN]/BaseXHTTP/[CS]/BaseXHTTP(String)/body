@@ -32,7 +32,8 @@
     Performance.sleep(1000);
     return;
   }
-  String user=Prop.get(StaticOptions.USER), pw=Prop.get(StaticOptions.PASSWORD);
+  final String user=Prop.get(StaticOptions.USER);
+  String pw=Prop.get(StaticOptions.PASSWORD);
   if (user != null && !user.isEmpty()) {
     while (pw == null || pw.isEmpty()) {
       Util.out(PASSWORD + COLS);
@@ -47,7 +48,7 @@
     throw new IOException(Util.info(HTTP + ' ' + SRV_RUNNING_X,connector.getPort()),ex);
   }
   final IOException ex=HTTPContext.exception();
-  if (ex != null)   throw HTTPContext.exception();
+  if (ex != null)   throw ex;
   for (  final Connector c : jetty.getConnectors())   Util.outln(startX,c.getPort());
   HTTPContext.init(wac.getServletContext());
   final int stop=sopts.get(StaticOptions.STOPPORT);
