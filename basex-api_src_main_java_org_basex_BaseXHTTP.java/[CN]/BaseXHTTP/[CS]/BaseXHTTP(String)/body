@@ -7,10 +7,12 @@
   final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
   jetty.setHandler(wac);
+  final Connector[] conns=jetty.getConnectors();
+  if (conns == null || conns.length == 0)   throw new BaseXException("No Jetty connector defined in " + JETTYCONF + ".");
   if (httpPort != 0) {
-    for (    final Connector c : jetty.getConnectors()) {
-      if (c instanceof SelectChannelConnector) {
-        c.setPort(httpPort);
+    for (    final Connector conn : conns) {
+      if (conn instanceof SelectChannelConnector) {
+        conn.setPort(httpPort);
         break;
       }
     }
@@ -19,15 +21,15 @@
   final String stopX=HTTP + ' ' + SRV_STOPPED_PORT_X;
   if (stopped) {
     stop();
-    for (    final Connector c : jetty.getConnectors())     Util.outln(stopX,c.getPort());
+    for (    final Connector conn : conns)     Util.outln(stopX,conn.getPort());
     Performance.sleep(1000);
     return;
   }
-  final Connector connector=jetty.getConnectors()[0];
+  final Connector conn1=conns[0];
   if (service) {
-    start(connector.getPort(),connector instanceof SslSelectChannelConnector,args);
-    for (    final Connector c : jetty.getConnectors()) {
-      Util.outln(startX,c.getPort());
+    start(conn1.getPort(),conn1 instanceof SslSelectChannelConnector,args);
+    for (    final Connector conn : conns) {
+      Util.outln(startX,conn.getPort());
     }
     Performance.sleep(1000);
     return;
@@ -45,30 +47,31 @@
     jetty.start();
   }
  catch (  final BindException ex) {
-    throw new IOException(Util.info(HTTP + ' ' + SRV_RUNNING_X,connector.getPort()),ex);
+    Util.debug(ex);
+    throw new BaseXException(HTTP + ' ' + SRV_RUNNING_X,conn1.getPort());
   }
   final IOException ex=HTTPContext.exception();
   if (ex != null)   throw ex;
-  for (  final Connector c : jetty.getConnectors())   Util.outln(startX,c.getPort());
+  for (  final Connector conn : conns)   Util.outln(startX,conn.getPort());
   HTTPContext.init(wac.getServletContext());
   final int stop=sopts.get(StaticOptions.STOPPORT);
   if (stop >= 0)   new StopServer(sopts.get(StaticOptions.SERVERHOST),stop).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      for (      final Connector c : jetty.getConnectors()) {
-        Util.outln(stopX,c.getPort());
+      for (      final Connector conn : conns) {
+        Util.outln(stopX,conn.getPort());
       }
       final Log l=context.log;
       if (l != null) {
-        for (        final Connector c : jetty.getConnectors()) {
-          l.writeServer(LogType.OK,Util.info(stopX,c.getPort()));
+        for (        final Connector conn : conns) {
+          l.writeServer(LogType.OK,Util.info(stopX,conn.getPort()));
         }
       }
       context.close();
     }
   }
 );
-  for (  final Connector c : jetty.getConnectors()) {
-    context.log.writeServer(LogType.OK,Util.info(startX,c.getPort()));
+  for (  final Connector conn : conns) {
+    context.log.writeServer(LogType.OK,Util.info(startX,conn.getPort()));
   }
 }
