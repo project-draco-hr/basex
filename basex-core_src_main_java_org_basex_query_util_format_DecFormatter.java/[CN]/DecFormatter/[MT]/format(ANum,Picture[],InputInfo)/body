@@ -1,17 +1,17 @@
 {
-  final double d=it.dbl(ii);
+  final double d=item.dbl(ii);
   if (Double.isNaN(d))   return nan;
   final boolean neg=d < 0 || d == 0 && Double.doubleToLongBits(d) == Long.MIN_VALUE;
   final Picture pic=pics[neg && pics.length == 2 ? 1 : 0];
   final IntList res=new IntList(), intgr=new IntList(), fract=new IntList();
   int exp=0;
-  if (Double.isInfinite(d)) {
+  ANum num=item;
+  if (pic.pc)   num=(ANum)Calc.MULT.ev(ii,num,Int.get(100));
+  if (pic.pm)   num=(ANum)Calc.MULT.ev(ii,num,Int.get(1000));
+  if (Double.isInfinite(num.dbl(ii))) {
     intgr.add(new TokenParser(inf).toArray());
   }
  else {
-    ANum num=it;
-    if (pic.pc)     num=(ANum)Calc.MULT.ev(ii,num,Int.get(100));
-    if (pic.pm)     num=(ANum)Calc.MULT.ev(ii,num,Int.get(1000));
     if (pic.minExp != 0 && d != 0) {
       BigDecimal dec=num.dec(ii).abs().stripTrailingZeros();
       int scl=0;
