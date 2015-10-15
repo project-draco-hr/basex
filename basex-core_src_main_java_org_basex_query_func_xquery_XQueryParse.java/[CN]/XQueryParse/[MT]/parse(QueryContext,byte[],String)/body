@@ -1,9 +1,10 @@
 {
-  boolean compile=false, plan=true;
+  boolean compile=false, plan=true, pass=false;
   if (exprs.length > 1) {
     final Options opts=toOptions(1,Q_OPTIONS,new XQueryOptions(),qc);
     compile=opts.get(XQueryOptions.COMPILE);
     plan=opts.get(XQueryOptions.PLAN);
+    pass=opts.get(XQueryOptions.PASS);
   }
   try (final QueryContext qctx=new QueryContext(qc.context)){
     final StaticScope ss=qctx.parse(string(query),path,null);
@@ -24,6 +25,7 @@
     return root;
   }
  catch (  final QueryException ex) {
-    throw ex.info(info);
+    if (!pass)     ex.info(info);
+    throw ex;
   }
 }
