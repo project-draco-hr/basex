@@ -16,43 +16,30 @@
           tb.add(high);
           high=0;
         }
-        tb.add('\\');
       }
-      final int n=consume();
-switch (n) {
-case '/':
+      ch=consume();
+switch (ch) {
 case '\\':
+case '/':
 case '"':
-        ch=n;
-      break;
+        break;
 case 'b':
-    ch=escape ? 'b' : '\b';
-  break;
+      ch='\b';
+    break;
 case 'f':
-ch=escape ? 'f' : '\f';
-break;
-case 't':
-ch=escape ? 't' : '\t';
-break;
-case 'r':
-ch=escape ? 'r' : '\r';
+  ch='\f';
 break;
 case 'n':
-ch=escape ? 'n' : '\n';
+ch='\n';
+break;
+case 'r':
+ch='\r';
+break;
+case 't':
+ch='\t';
 break;
 case 'u':
 if (pos + 4 >= length) throw eof(", expected four-digit hex value");
-if (escape) {
-tb.add('u');
-for (int i=0; i < 4; i++) {
-final char x=consume();
-if (x >= '0' && x <= '9' || x >= 'a' && x <= 'f' || x >= 'A' && x <= 'F') {
-tb.add(x);
-}
- else throw error("Illegal hexadecimal digit: '%'",x);
-}
-continue;
-}
 ch=0;
 for (int i=0; i < 4; i++) {
 final char x=consume();
@@ -63,7 +50,7 @@ if (x >= '0' && x <= '9') ch=16 * ch + x - '0';
 }
 break;
 default :
-throw error("Unknown character escape: '\\%'",n);
+throw error("Unknown character escape: '\\%'",ch);
 }
 }
  else if (!liberal && ch <= 0x1F) {
