@@ -5,8 +5,9 @@
     final InputInfo ii=info();
     return localVars.resolve(varName(),ii);
   }
-  if (next() != '#' && consume('('))   return parenthesized();
-  if (c == '<')   return constructor();
+  if (c == '(' && next() != '#')   return parenthesized();
+  if (c == '<')   return dirConstructor();
+  if (c == '`')   return stringConstructor();
   Expr e=functionItem();
   if (e != null)   return e;
   e=functionCall();
@@ -27,10 +28,12 @@
     if (!wsConsume(COMMA) && !consume(PAREN2))     return new Lookup(info(),sc,keySpecifier());
     pos=ip;
   }
-  if (c == '.' && !digit(next())) {
+  if (c == '.') {
     if (next() == '.')     return null;
-    consume('.');
-    return new ContextValue(info());
+    if (!digit(next())) {
+      consume();
+      return new ContextValue(info());
+    }
   }
   return literal();
 }
