@@ -1,9 +1,9 @@
 {
   final int s=sc.ns.size();
   final byte[] nse=sc.elemNS;
-  final int npos=names.size();
+  final int npos=qnames.size();
   final QNm name=new QNm(qName(ELEMNAME_X));
-  names.add(new QNmCheck(name));
+  qnames.add(name);
   consumeWS();
   final Atts ns=new Atts();
   final ExprList cont=new ExprList();
@@ -94,7 +94,7 @@
       final QNm attn=new QNm(atn);
       if (atts == null)       atts=new ArrayList<>(1);
       atts.add(attn);
-      names.add(new QNmCheck(attn,false));
+      qnames.add(attn,false);
       add(cont,new CAttr(sc,info(),false,attn,attv.finish()));
     }
     if (!consumeWS())     break;
@@ -114,7 +114,7 @@
     check('>');
     if (!eq(name.string(),close))     throw error(TAGWRONG_X_X,name.string(),close);
   }
-  assignURI(npos);
+  qnames.assignURI(this,npos);
   if (atts != null) {
     final int as=atts.size();
     for (int a=0; a < as - 1; a++) {

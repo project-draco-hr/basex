@@ -1,0 +1,22 @@
+{
+  final TreeMap<String,Pkg> map=new TreeMap<>();
+  final EXPathRepo repo=context.repo.reset();
+  final HashSet<String> cache=new HashSet<>();
+  for (  final Pkg pkg : repo.pkgDict().values()) {
+    map.put(pkg.id(),pkg);
+    cache.add(pkg.dir());
+  }
+  for (  final IOFile ch : repo.path().children("^[^.].*")) {
+    final String dir=ch.name();
+    if (!ch.isDir()) {
+      add(dir.replaceAll("\\..*","").replace('/','.'),dir,map);
+    }
+ else     if (!cache.contains(dir)) {
+      for (      final String s : ch.descendants()) {
+        if (new IOFile(s).name().startsWith("."))         continue;
+        add(dir + '.' + s.replaceAll("\\..*","").replace('/','.'),dir + '/' + s,map);
+      }
+    }
+  }
+  return new ArrayList<>(map.values());
+}

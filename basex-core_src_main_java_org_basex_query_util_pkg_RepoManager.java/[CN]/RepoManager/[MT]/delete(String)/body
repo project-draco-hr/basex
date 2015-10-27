@@ -1,23 +1,22 @@
 {
-  boolean found=false;
-  final Repo repo=context.repo;
-  final TokenMap dict=repo.pkgDict();
-  final byte[] pp=token(pkg);
-  for (  final byte[] nextPkg : dict) {
-    if (nextPkg == null)     continue;
-    if (eq(nextPkg,pp) || eq(Package.name(nextPkg),pp)) {
-      final byte[] primPkg=primary(nextPkg);
-      if (primPkg != null)       throw BXRE_DEP_X_X.get(info,string(primPkg),pkg);
-      final IOFile f=repo.path(string(dict.get(nextPkg)));
-      repo.delete(new PkgParser(info).parse(new IOFile(f,DESCRIPTOR)));
-      if (!f.delete())       throw BXRE_DELETE_X.get(info,f);
-      found=true;
+  final EXPathRepo repo=context.repo;
+  final ArrayList<Pkg> delete=new ArrayList<>();
+  for (  final Pkg pkg : repo.pkgDict().values()) {
+    if (pkg.name().equals(name) || pkg.id().equals(name)) {
+      final String dep=primary(pkg);
+      if (dep != null)       throw BXRE_DEP_X_X.get(info,dep,name);
+      delete.add(pkg);
     }
   }
-  final IOFile file=file(pkg,repo);
+  for (  final Pkg pkg : delete) {
+    repo.delete(pkg);
+    final IOFile dir=repo.path(pkg.dir());
+    if (!dir.delete())     throw BXRE_DELETE_X.get(info,dir);
+  }
+  final IOFile file=find(name);
   if (file != null) {
     if (!file.delete())     throw BXRE_DELETE_X.get(info,file);
     return;
   }
-  if (!found)   throw BXRE_WHICH_X.get(info,pkg);
+  if (delete.isEmpty())   throw BXRE_WHICH_X.get(info,name);
 }

@@ -1,19 +1,19 @@
 {
   if (!wsConsumeWs(COPY,DOLLAR,INCOMPLETE))   return null;
-  final int s=openSubScope();
+  final int s=localVars.openScope();
   Let[] fl={};
   do {
     final QNm name=varName();
     wsCheck(ASSIGN);
     final Expr e=check(single(),INCOMPLETE);
-    fl=Array.add(fl,new Let(addVar(name,SeqType.NOD,false),e,false,info()));
+    fl=Array.add(fl,new Let(localVars.add(name,SeqType.NOD,false),e,false,info()));
   }
  while (wsConsumeWs(COMMA));
   wsCheck(MODIFY);
   final Expr m=check(single(),INCOMPLETE);
   wsCheck(RETURN);
   final Expr r=check(single(),INCOMPLETE);
-  closeSubScope(s);
+  localVars.closeScope(s);
   qc.updating();
   return new Transform(info(),fl,m,r);
 }

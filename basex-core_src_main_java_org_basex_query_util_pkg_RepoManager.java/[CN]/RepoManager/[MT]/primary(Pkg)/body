@@ -1,0 +1,15 @@
+{
+  final String id=p.id();
+  final EXPathRepo repo=context.repo;
+  final HashMap<String,Pkg> dict=repo.pkgDict();
+  for (  final Pkg pkg : dict.values()) {
+    if (!pkg.id().equals(id)) {
+      final IOFile desc=new IOFile(repo.path(pkg.dir()),DESCRIPTOR);
+      final String n=p.name();
+      for (      final PkgDep dep : new PkgParser(info).parse(desc).dep) {
+        if (n.equals(dep.name))         return pkg.name();
+      }
+    }
+  }
+  return null;
+}

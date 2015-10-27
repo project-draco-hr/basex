@@ -6,7 +6,7 @@
   wsCheck(PAREN2);
   TypeCase[] cases={};
   final ArrayList<SeqType> types=new ArrayList<>();
-  final int s=openSubScope();
+  final int s=localVars.openScope();
   boolean cs;
   do {
     types.clear();
@@ -17,7 +17,7 @@
     }
     Var var=null;
     if (curr('$')) {
-      var=addVar(varName(),null,false);
+      var=localVars.add(varName(),null,false);
       if (cs)       wsCheck(AS);
     }
     if (cs) {
@@ -27,7 +27,7 @@
     wsCheck(RETURN);
     final Expr ret=check(single(),NOTYPESWITCH);
     cases=Array.add(cases,new TypeCase(info(),var,types.toArray(new SeqType[types.size()]),ret));
-    closeSubScope(s);
+    localVars.closeScope(s);
   }
  while (cs);
   if (cases.length == 1)   throw error(NOTYPESWITCH);

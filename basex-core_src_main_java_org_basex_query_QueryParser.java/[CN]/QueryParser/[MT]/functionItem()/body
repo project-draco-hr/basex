@@ -5,12 +5,12 @@
   if (wsConsume(FUNCTION) && wsConsume(PAREN1)) {
     if (anns.contains(Annotation.PRIVATE) || anns.contains(Annotation.PUBLIC))     throw error(INVISIBLE);
     final HashMap<Var,Expr> nonLocal=new HashMap<>();
-    pushVarContext(nonLocal);
+    localVars.pushContext(nonLocal);
     final Var[] args=paramList();
     wsCheck(PAREN2);
     final SeqType type=optAsType();
     final Expr body=enclosed(NOFUNBODY);
-    final VarScope scope=popVarContext();
+    final VarScope scope=localVars.popContext();
     return new Closure(info(),type,args,body,anns,nonLocal,sc,scope);
   }
   if (!anns.isEmpty())   throw error(NOANN);

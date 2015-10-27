@@ -1,5 +1,5 @@
 {
-  final int s=openSubScope();
+  final int s=localVars.openScope();
   final LinkedList<Clause> clauses=initialClause(null);
   if (clauses == null)   return null;
   final TokenObjMap<Var> curr=new TokenObjMap<>();
@@ -32,7 +32,7 @@
       final Var[] ngrp=new Var[ng.size()];
       for (int i=ng.size(); --i >= 0; ) {
         final VarRef v=ng.get(i);
-        final Var nv=addVar(v.var.name,null,false);
+        final Var nv=localVars.add(v.var.name,null,false);
         if (v.seqType().one())         nv.refineType(SeqType.get(v.seqType().type,Occ.ONE_MORE),qc,info());
         ngrp[i]=nv;
         curr.put(nv.name.id(),nv);
@@ -57,7 +57,7 @@
       clauses.add(new OrderBy(vs,ob,ob[0].info));
     }
     if (wsConsumeWs(COUNT,DOLLAR,NOCOUNT)) {
-      final Var v=addVar(varName(),SeqType.ITR,false);
+      final Var v=localVars.add(varName(),SeqType.ITR,false);
       curr.put(v.name.id(),v);
       clauses.add(new Count(v,info()));
     }
@@ -65,6 +65,6 @@
  while (size < clauses.size());
   if (!wsConsumeWs(RETURN))   throw alter == null ? error(FLWORRETURN) : error();
   final Expr ret=check(single(),NORETURN);
-  closeSubScope(s);
+  localVars.closeScope(s);
   return new GFLWOR(clauses.get(0).info,clauses,ret);
 }

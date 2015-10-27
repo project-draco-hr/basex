@@ -1,0 +1,15 @@
+{
+  final HashSet<String> ids=repo.nsDict().get(comp.uri);
+  if (ids == null)   return false;
+  for (  final String id : ids) {
+    if (id != null && !Pkg.name(id).equals(name)) {
+      final String pkgDir=repo.pkgDict().get(id).dir();
+      final IO pkgDesc=new IOFile(repo.path(pkgDir),DESCRIPTOR);
+      final Pkg pkg=new PkgParser(info).parse(pkgDesc);
+      for (      final PkgComponent nextComp : pkg.comps) {
+        if (nextComp.name().equals(comp.name()))         return true;
+      }
+    }
+  }
+  return false;
+}

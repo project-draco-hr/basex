@@ -4,12 +4,12 @@
   if (keyword(name))   throw error(RESERVED_X,name.local());
   wsCheck(PAREN1);
   if (module != null && !eq(name.uri(),module.uri()))   throw error(MODULENS_X,name);
-  pushVarContext(null);
+  localVars.pushContext(null);
   final Var[] args=paramList();
   wsCheck(PAREN2);
   final SeqType type=optAsType();
   if (anns.contains(Annotation.UPDATING))   qc.updating();
   final Expr expr=wsConsumeWs(EXTERNAL) ? null : enclosed(NOFUNBODY);
-  final VarScope scope=popVarContext();
+  final VarScope scope=localVars.popContext();
   funcs.add(qc.funcs.declare(anns,name,args,type,expr,sc,scope,currDoc.toString(),ii));
 }
