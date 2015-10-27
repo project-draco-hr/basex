@@ -1,3 +1,12 @@
 {
-  return t instanceof ArrayType ? retType.instanceOf(((ArrayType)t).retType) : super.instanceOf(t);
+  if (t == AtomType.ITEM || t == ANY_ARRAY || t == ANY_FUN)   return true;
+  if (!(t instanceof FuncType) || t instanceof MapType)   return false;
+  final FuncType ft=(FuncType)t;
+  final int al=argTypes.length;
+  if (al != ft.argTypes.length || !retType.instanceOf(ft.retType))   return false;
+  if (t instanceof ArrayType)   return true;
+  for (int a=0; a < al; a++) {
+    if (!argTypes[a].instanceOf(ft.argTypes[a]))     return false;
+  }
+  return true;
 }

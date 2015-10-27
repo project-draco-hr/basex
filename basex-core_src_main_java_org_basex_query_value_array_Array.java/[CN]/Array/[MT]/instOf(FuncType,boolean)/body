@@ -1,0 +1,12 @@
+{
+  if (tp instanceof MapType)   return false;
+  final SeqType[] at=tp.argTypes;
+  if (at != null && (at.length != 1 || !at[0].instanceOf(SeqType.ITR)))   return false;
+  final boolean array=tp instanceof ArrayType;
+  SeqType ret=tp.retType;
+  if (ret == null || ret.eq(SeqType.ITEM_ZM))   return true;
+  for (  final Value val : members()) {
+    if (!ret.instance(val))     return false;
+  }
+  return (one || array || ret.mayBeZero());
+}
