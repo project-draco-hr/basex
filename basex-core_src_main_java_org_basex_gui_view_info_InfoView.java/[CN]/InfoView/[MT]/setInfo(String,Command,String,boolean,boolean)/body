@@ -1,4 +1,5 @@
 {
+  final TokenBuilder tb=new TokenBuilder(text);
   final StringList eval=new StringList(1);
   final StringList comp=new StringList(1);
   final StringList plan=new StringList(1);
@@ -49,25 +50,25 @@
         final Pattern p=Pattern.compile(STOPPED_AT + "(.*)" + COL);
         final Matcher m=p.matcher(split[s]);
         if (m.find()) {
-          final TokenBuilder tb=new TokenBuilder();
-          tb.add(STOPPED_AT).uline().add(m.group(1)).uline().add(COL);
-          split[s]=tb.toString();
+          final TokenBuilder tmp=new TokenBuilder();
+          tmp.add(STOPPED_AT).uline().add(m.group(1)).uline().add(COL);
+          split[s]=tmp.toString();
         }
         error.add(split[s]);
       }
     }
  else     if (line.equals(STACK_TRACE + COL)) {
       while (++s < sl && !split[s].isEmpty()) {
-        final TokenBuilder tb=new TokenBuilder();
+        final TokenBuilder tmp=new TokenBuilder();
         final String sp=split[s].replaceAll("<.*","");
         final boolean last=!sp.equals(split[s]);
         if (sp.startsWith(LI)) {
-          tb.add(LI).uline().add(sp.substring(2)).uline();
+          tmp.add(LI).uline().add(sp.substring(2)).uline();
         }
  else {
-          tb.add(sp);
+          tmp.add(sp);
         }
-        stack.add(tb.toString());
+        stack.add(tmp.toString());
         if (last)         break;
       }
     }
@@ -77,32 +78,39 @@
   }
   stat=times;
   strings=timings;
-  if (clear || !times.isEmpty() || !ok)   text.reset();
+  final boolean test=cmd instanceof Test, query=cmd instanceof AQuery;
+  if (clear || !times.isEmpty() || !(ok || test)) {
+    tb.reset();
+  }
+ else   if (test) {
+    eval.add(tb.toString().trim());
+    tb.reset();
+  }
   String inf=null;
-  if (!(cmd instanceof AQuery)) {
+  if (!query) {
     if (cmd != null)     command.add(cmd.toString());
     if (ok && !info.isEmpty()) {
       if (reset)       result.add(info.trim());
  else       if (cmd == null)       inf=info.trim();
     }
   }
-  add(COMMAND + COL,command);
-  add(Text.ERROR + COL,error);
-  add(STACK_TRACE + COL,stack);
-  add(EVALUATING + COL,eval);
-  add(COMPILING + COL,comp);
-  add(QUERY + COL,origqu);
-  add(OPTIMIZED_QUERY + COL,optqu);
-  add(RESULT + COL,result);
-  add(TIMING + COL,timings);
-  add(QUERY_PLAN + COL,plan);
-  if (inf != null)   text.add(inf).nline();
-  changed=true;
+  add(STACK_TRACE + COL,stack,tb);
+  add(EVALUATING + COL,eval,tb);
+  add(COMMAND + COL,command,tb);
+  add(Text.ERROR + COL,error,tb);
+  add(COMPILING + COL,comp,tb);
+  add(QUERY + COL,origqu,tb);
+  add(OPTIMIZED_QUERY + COL,optqu,tb);
+  add(RESULT + COL,result,tb);
+  add(TIMING + COL,timings,tb);
+  add(QUERY_PLAN + COL,plan,tb);
+  if (inf != null)   tb.add(inf).nline();
   clear=reset;
   String total=time;
   if (!times.isEmpty()) {
     total=Performance.getTime(times.get(times.size() - 1) * 10000L * runs,runs);
   }
   if (total != null)   timer.setText(TOTAL_TIME_CC + total);
+  text=tb.finish();
   repaint();
 }
