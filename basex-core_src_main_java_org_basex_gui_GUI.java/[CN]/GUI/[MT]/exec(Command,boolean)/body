@@ -43,15 +43,18 @@
     info.setInfo(inf,cmd,time,ok,true);
     final boolean stopped=inf.endsWith(INTERRUPTED);
     if (edit)     editor.info(cause,stopped,true);
+    final Value result=cmd.finish();
+    DBNodes nodes=result instanceof DBNodes && !result.isEmpty() ? (DBNodes)result : null;
+    if (!text.visible() && ao.size() != 0 && nodes == null) {
+      GUIMenuCmd.C_SHOWRESULT.execute(this);
+    }
     if (!ok && !stopped) {
       text.setText(ao);
-      if ((!edit || inf.startsWith(S_BUGINFO)) && !info.visible()) {
+      if (!info.visible() && (!edit || inf.startsWith(S_BUGINFO))) {
         GUIMenuCmd.C_SHOWINFO.execute(this);
       }
     }
  else {
-      final Value result=cmd.finish();
-      DBNodes nodes=result instanceof DBNodes && result.size() != 0 ? (DBNodes)result : null;
       final boolean updated=cmd.updated(context);
       if (context.data() != data) {
         notify.init();
@@ -80,10 +83,7 @@
       if (thread == threadID && !stopped) {
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
-        if (nodes == null) {
-          if (!text.visible() && ao.size() != 0)           GUIMenuCmd.C_SHOWRESULT.execute(this);
-          text.setText(ao);
-        }
+        if (nodes == null)         text.setText(ao);
         if (!updated)         text.cache(ao,cmd,result);
       }
     }
