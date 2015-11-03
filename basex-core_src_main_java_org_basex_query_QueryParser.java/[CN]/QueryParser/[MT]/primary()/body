@@ -14,7 +14,11 @@
   if (e != null)   return e;
   e=compConstructor();
   if (e != null)   return e;
-  if (wsConsumeWs(ORDERED,CURLY1,INCOMPLETE) || wsConsumeWs(UNORDERED,CURLY1,INCOMPLETE))   return enclosed(NOENCLEXPR);
+  final int p=pos;
+  if (wsConsumeWs(ORDERED) || wsConsumeWs(UNORDERED)) {
+    if (curr('{'))     return enclosedExpr();
+    pos=p;
+  }
   if (wsConsumeWs(MAPSTR,CURLY1,INCOMPLETE))   return new CMap(info(),keyValues());
   if (wsConsumeWs(SQUARE1))   return new CArray(info(),false,values());
   if (wsConsumeWs(ARRAYSTR,CURLY1,INCOMPLETE)) {

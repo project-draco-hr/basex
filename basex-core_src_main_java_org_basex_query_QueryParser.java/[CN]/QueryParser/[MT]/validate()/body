@@ -1,19 +1,14 @@
 {
   final int i=pos;
   if (!wsConsumeWs(VALIDATE))   return;
-  boolean brace=true;
-  if (consume(CURLY1)) {
-    brace=false;
+  if (consume(TYPE))   qnames.add(eQName(QNAME_X,SKIPCHECK));
+  consume(STRICT);
+  consume(LAX);
+  skipWs();
+  if (curr('{')) {
+    enclosedExpr();
+    throw error(IMPLVAL);
   }
- else   if (consume(TYPE)) {
-    qnames.add(eQName(QNAME_X,SKIPCHECK));
-  }
- else   if (!consume(STRICT) && !consume(LAX)) {
-    pos=i;
-    return;
-  }
-  if (brace)   wsCheck(CURLY1);
-  check(single(),NOVALIDATE);
-  wsCheck(CURLY2);
-  throw error(IMPLVAL);
+  pos=i;
+  return;
 }

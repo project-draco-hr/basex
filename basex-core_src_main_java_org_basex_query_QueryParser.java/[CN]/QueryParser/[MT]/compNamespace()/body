@@ -3,15 +3,12 @@
   final Expr name;
   final byte[] str=ncName(null);
   if (str.length == 0) {
-    if (!wsConsume(CURLY1))     return null;
-    name=check(expr(),NSWRONG);
-    wsCheck(CURLY2);
+    if (!curr('{'))     return null;
+    name=enclosedExpr();
   }
  else {
     name=Str.get(str);
   }
-  if (!wsConsume(CURLY1))   return null;
-  final Expr e=expr();
-  wsCheck(CURLY2);
-  return new CNSpace(sc,info(),name,e == null ? Empty.SEQ : e);
+  skipWs();
+  return curr('{') ? new CNSpace(sc,info(),name,enclosedExpr()) : null;
 }
