@@ -10,6 +10,7 @@
       continue;
     }
     byte[] v=null;
+    final String name=string(qn.local());
     if (hasElements(child)) {
       v=token(optString(child,error));
     }
@@ -17,13 +18,16 @@
       for (      final ANode attr : child.attributes()) {
         if (eq(attr.name(),VALUE)) {
           v=attr.string();
+          if (name.equals(SerializerOptions.CDATA_SECTION_ELEMENTS.name())) {
+            v=resolve(child,v);
+          }
         }
  else {
         }
       }
       if (v == null)       v=child.string();
     }
-    tb.add(string(qn.local())).add('=').add(string(v).trim().replace(",",",,")).add(',');
+    tb.add(name).add('=').add(string(v).trim().replace(",",",,")).add(',');
   }
   return tb.toString();
 }
