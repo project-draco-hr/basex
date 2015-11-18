@@ -1,15 +1,12 @@
 {
   for (  final Command cmd : cmds)   run(cmd);
   final HTTPContext http=session.http;
+  final SerializerOptions sopts=http.sopts();
   if (run(query(_DB_EXISTS)).equals(Text.TRUE)) {
     final boolean raw=run(query(_DB_IS_RAW)).equals(Text.TRUE);
-    if (raw) {
-      final SerializerOptions sopts=http.sopts();
-      sopts.set(SerializerOptions.METHOD,SerialMethod.RAW);
-      sopts.set(SerializerOptions.MEDIA_TYPE,run(query(_DB_CONTENT_TYPE)));
-    }
+    if (raw)     sopts.set(SerializerOptions.MEDIA_TYPE,run(query(_DB_CONTENT_TYPE)));
     http.initResponse();
-    context.options.set(MainOptions.SERIALIZER,http.sopts());
+    context.options.set(MainOptions.SERIALIZER,sopts);
     run(query(raw ? _DB_RETRIEVE : _DB_OPEN),http.res.getOutputStream());
   }
  else {
@@ -18,7 +15,7 @@
     el.add(RESTText.NAME,http.db()).add(RESTText.RESOURCES,token(table.contents.size()));
     list(table,el,RESTText.Q_RESOURCE,0);
     http.initResponse();
-    try (final Serializer ser=Serializer.get(http.res.getOutputStream(),http.sopts())){
+    try (final Serializer ser=Serializer.get(http.res.getOutputStream(),sopts)){
       ser.serialize(el);
     }
    }

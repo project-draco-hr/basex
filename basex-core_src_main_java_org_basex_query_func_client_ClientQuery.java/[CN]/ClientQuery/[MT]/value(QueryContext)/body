@@ -5,13 +5,16 @@
   final ValueBuilder vb=new ValueBuilder();
   try (org.basex.api.client.ClientQuery cq=cs.query(query)){
     for (    final Entry<String,Value> binding : toBindings(2,qc).entrySet()) {
-      final String k=binding.getKey();
+      final String key=binding.getKey();
       final Value value=binding.getValue();
-      if (k.isEmpty())       cq.context(value);
- else       cq.bind(k,value);
+      if (key.isEmpty())       cq.context(value);
+ else       cq.bind(key,value);
     }
+    cq.cache(true);
     while (cq.more()) {
       final String result=cq.next();
+      final Type tp=cq.type();
+      if (tp instanceof FuncType)       throw BXCL_FITEM_X.get(info,result);
       vb.add(cq.type().castString(result,qc,sc,info));
     }
     return vb.value();

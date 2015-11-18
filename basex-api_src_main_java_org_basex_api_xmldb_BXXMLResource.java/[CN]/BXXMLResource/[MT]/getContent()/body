@@ -1,18 +1,20 @@
 {
   if (content == null) {
+    System.out.println("!");
     try {
       final ArrayOutput ao=new ArrayOutput();
-      final Serializer ser=Serializer.get(ao);
-      if (data != null) {
-        ser.serialize(new DBNode(data,pre));
-      }
- else       if (item != null) {
-        ser.serialize(item);
-      }
+      try (final Serializer ser=Serializer.get(ao,SerializerMode.NOINDENT.get())){
+        if (data != null) {
+          ser.serialize(new DBNode(data,pre));
+        }
+ else         if (item != null) {
+          ser.serialize(item);
+        }
  else {
-        return null;
+          return null;
+        }
       }
-      content=ao.toArray();
+       content=ao.toArray();
     }
  catch (    final IOException ex) {
       throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ex.getMessage());

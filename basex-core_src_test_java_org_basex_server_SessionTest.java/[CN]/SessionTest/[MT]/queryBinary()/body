@@ -4,17 +4,17 @@
   final byte[] tmp={0,1,2,127,0,-1,-2,-128};
   session.store("X",new ArrayInput(tmp));
   final String retr=_DB_RETRIEVE.args(NAME,"X");
-  session.execute("xquery " + RAW + retr+ ','+ retr);
-  assertTrue(eq(out.toArray(),concat(tmp,tmp)));
+  session.execute("xquery " + retr + ','+ retr);
+  assertArrayEquals(concat(tmp,token(Prop.NL),tmp),out.toArray());
   out.reset();
-  session.query(RAW + retr + ','+ retr).execute();
-  assertTrue(eq(out.toArray(),concat(tmp,tmp)));
+  session.query(retr + ',' + retr).execute();
+  assertArrayEquals(concat(tmp,token(Prop.NL),tmp),out.toArray());
   out.reset();
-  final Query q=session.query(RAW + retr + ','+ retr);
+  final Query q=session.query(retr + ',' + retr);
   q.next();
-  assertTrue(eq(out.toArray(),tmp));
+  assertArrayEquals(tmp,out.toArray());
   out.reset();
   q.next();
-  assertTrue(eq(out.toArray(),tmp));
+  assertArrayEquals(tmp,out.toArray());
   assertNull(q.next());
 }

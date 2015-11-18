@@ -1,17 +1,13 @@
 {
   if (it instanceof ANode) {
-    final ArrayOutput ao=new ArrayOutput();
-    Serializer.get(ao,sopts).serialize(it);
-    final IOContent io=new IOContent(ao.finish());
+    final IOContent io=new IOContent(it.serialize(sopts).finish());
     io.name(string(((ANode)it).baseURI()));
     return io;
   }
   if (it.type.isStringOrUntyped()) {
     IO io=checkPath(it,qc);
     if (sopts != null) {
-      final ArrayOutput ao=new ArrayOutput();
-      Serializer.get(ao,sopts).serialize(new DBNode(io));
-      io=new IOContent(ao.finish());
+      io=new IOContent(new DBNode(io).serialize(sopts).finish());
       io.name(io.path());
     }
     return io;

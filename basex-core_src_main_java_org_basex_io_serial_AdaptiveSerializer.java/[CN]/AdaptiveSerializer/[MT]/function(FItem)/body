@@ -1,13 +1,15 @@
 {
-  if (item instanceof Map || item instanceof Array) {
-    json.function(item);
-    json.reset();
+  if (item instanceof Array) {
+    array((Array)item);
+  }
+ else   if (item instanceof Map) {
+    map((Map)item);
   }
  else {
-    final TokenBuilder tb=new TokenBuilder("function ");
+    final TokenBuilder tb=new TokenBuilder();
     final QNm fn=item.funcName();
-    if (fn == null)     tb.add("(anonymous)");
- else     tb.add(fn.string());
-    xml.out.print(tb.add('#').addInt(item.arity()).finish());
+    if (fn == null)     tb.add("(anonymous-function)");
+ else     tb.add(fn.prefixId());
+    printChars(tb.add('#').addInt(item.arity()).finish());
   }
 }

@@ -1,0 +1,32 @@
+{
+  tb.add("map{");
+  int c=0;
+  for (  final Item key : keys()) {
+    if (c++ > 0)     tb.add(',');
+    if (indent) {
+      tb.add('\n');
+      indent(tb,level + 1);
+    }
+    tb.add(key.toString()).add(':');
+    if (indent)     tb.add(' ');
+    final Value v=get(key,ii);
+    final boolean par=v.size() != 1;
+    if (par)     tb.add('(');
+    int cc=0;
+    for (    final Item it : v) {
+      if (cc++ > 0) {
+        tb.add(',');
+        if (indent)         tb.add(' ');
+      }
+      if (it instanceof Map)       ((Map)it).string(indent,tb,level + 1,ii);
+ else       if (it instanceof Array)       ((Array)it).string(indent,tb,level,ii);
+ else       tb.add(it.toString());
+    }
+    if (par)     tb.add(')');
+  }
+  if (indent) {
+    tb.add('\n');
+    indent(tb,level);
+  }
+  tb.add('}');
+}

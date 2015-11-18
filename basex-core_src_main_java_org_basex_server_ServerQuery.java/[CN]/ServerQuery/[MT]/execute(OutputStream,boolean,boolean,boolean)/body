@@ -1,0 +1,48 @@
+{
+  try {
+    ctx.register(parse());
+    qp.compile();
+    final QueryInfo qi=qp.qc.info;
+    qi.compiling=perf.time();
+    final Iter ir=qp.iter();
+    qi.evaluating=perf.time();
+    int c=0;
+    final PrintOutput po=PrintOutput.get(encode ? new ServerOutput(out) : out);
+    final SerializerOptions sopts=full ? SerializerMode.API.get() : qp.qc.serParams();
+    try (final Serializer ser=Serializer.get(po,sopts)){
+      for (Item it; (it=ir.next()) != null; ) {
+        if (iter) {
+          if (full)           po.write(it.xdmInfo());
+ else           po.write(it.typeId().asByte());
+          ser.reset();
+          ser.serialize(it);
+          po.flush();
+          out.write(0);
+        }
+ else {
+          ser.serialize(it);
+        }
+        c++;
+      }
+    }
+     qi.serializing=perf.time();
+    info=qi.toString(qp,po.size(),c,ctx.options.get(MainOptions.QUERYINFO));
+  }
+ catch (  final QueryException|ProcException ex) {
+    throw new BaseXException(ex);
+  }
+catch (  final StackOverflowError ex) {
+    Util.debug(ex);
+    throw new BaseXException(BASX_STACKOVERFLOW.desc);
+  }
+ finally {
+    if (qp != null) {
+      qp.close();
+      if (parsed) {
+        ctx.unregister(qp);
+        parsed=false;
+      }
+      qp=null;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  final TokenBuilder tb=new TokenBuilder().add('[');
+  int c=0;
+  for (  final Value val : item.members()) {
+    if (c++ > 0) {
+      tb.add(',');
+      if (indent)       tb.add(' ');
+    }
+    final long vs=val.size();
+    if (vs != 1)     tb.add('(');
+    for (int i=0, cc=0; i < vs; i++, cc++) {
+      if (cc > 0) {
+        tb.add(',');
+        if (indent)         tb.add(' ');
+      }
+      printChars(tb.next());
+      more=false;
+      serialize(val.itemAt(i));
+    }
+    if (vs != 1)     tb.add(')');
+  }
+  printChars(tb.add(']').finish());
+}

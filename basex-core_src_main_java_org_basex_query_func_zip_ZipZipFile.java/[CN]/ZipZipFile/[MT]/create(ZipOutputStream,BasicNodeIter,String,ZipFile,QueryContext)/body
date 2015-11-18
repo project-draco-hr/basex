@@ -44,7 +44,8 @@
             zos.write((hex ? new Hex(bytes) : new B64(bytes)).toJava());
           }
  else {
-            try (final Serializer ser=Serializer.get(zos,so(node))){
+            final ArrayOutput ao=new ArrayOutput();
+            try (final Serializer ser=Serializer.get(ao,sopts(node))){
               do {
                 ser.serialize(DataBuilder.stripNS(n,ZIP_URI,qc.context));
               }
@@ -53,6 +54,7 @@
  catch (            final QueryIOException ex) {
               throw ex.getCause(info);
             }
+            zos.write(ao.finish());
           }
         }
       }
