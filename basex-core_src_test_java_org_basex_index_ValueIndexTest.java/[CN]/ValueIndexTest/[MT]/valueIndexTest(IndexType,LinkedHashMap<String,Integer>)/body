@@ -1,0 +1,15 @@
+{
+  boolean text=IndexType.TEXT == indexType;
+  ValueIndex index=text ? context.data().textIndex : context.data().attrIndex;
+  for (  final Entry<String,Integer> entry : tokens.entrySet()) {
+    byte[] token=token(entry.getKey());
+    IndexIterator it=index.iter(new IndexEntries(token,indexType));
+    long count=0;
+    while (it.more()) {
+      int pre=it.pre();
+      assertEquals("Wrong result returned!",entry.getKey(),string(context.data().text(pre,text)));
+      count++;
+    }
+    assertEquals("Wrong number of nodes returned: \"" + entry.getKey() + "\": ",(long)entry.getValue(),count);
+  }
+}
