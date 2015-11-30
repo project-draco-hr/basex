@@ -1,10 +1,10 @@
 {
-  b.checkStop();
+  builder.checkStop();
   final long l=source.length();
-  if (l != -1)   b.meta.filesize+=l;
+  if (l != -1)   builder.meta.filesize+=l;
+  final String name=source.name();
   String targ=target;
   String path=source.path();
-  final String name=source.name();
   if (path.endsWith('/' + name)) {
     path=path.substring(0,path.length() - name.length());
     if (path.startsWith(root))     path=path.substring(root.length());
@@ -12,7 +12,7 @@
   }
   boolean exclude=false;
   if (filter != null) {
-    final String nm=Prop.CASE ? source.name() : source.name().toLowerCase(Locale.ENGLISH);
+    final String nm=Prop.CASE ? name : name.toLowerCase(Locale.ENGLISH);
     exclude=!filter.matcher(nm).matches();
   }
   if (exclude) {
@@ -33,7 +33,7 @@
         try {
           if (!(source instanceof IOContent || dtd)) {
             in=new IOContent(source.read());
-            in.name(source.name());
+            in.name(name);
           }
           parser=Parser.singleParser(in,options,targ);
           MemBuilder.build("",parser);
@@ -46,7 +46,7 @@
       }
       if (ok) {
         parser=Parser.singleParser(in,options,targ);
-        parser.parse(b);
+        parser.parse(builder);
       }
       parser=null;
       if (Prop.debug && (++c & 0x3FF) == 0)       Util.err(";");

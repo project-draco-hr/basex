@@ -10,7 +10,7 @@
       try (final TarInputStream is=new TarInputStream(in)){
         for (TarEntry ze; (ze=is.getNextEntry()) != null; ) {
           if (ze.isDirectory())           continue;
-          source=new IOStream(is,ze.getName());
+          source=newStream(is,ze.getName(),input);
           source.length(ze.getSize());
           parseResource(builder);
         }
@@ -18,7 +18,7 @@
      }
  else     if (name.endsWith(IO.GZSUFFIX)) {
       try (final GZIPInputStream is=new GZIPInputStream(in)){
-        source=new IOStream(is,input.name().replaceAll("\\..*",IO.XMLSUFFIX));
+        source=newStream(is,input.name().replaceAll("\\..*",IO.XMLSUFFIX),input);
         parseResource(builder);
       }
      }
@@ -26,8 +26,7 @@
       try (final ZipInputStream is=new ZipInputStream(in)){
         for (ZipEntry ze; (ze=is.getNextEntry()) != null; ) {
           if (ze.isDirectory())           continue;
-          final String path=ze.getName();
-          source=new IOStream(is,archiveName ? (input.name() + '/' + path) : path);
+          source=newStream(is,ze.getName(),input);
           source.length(ze.getSize());
           parseResource(builder);
         }
