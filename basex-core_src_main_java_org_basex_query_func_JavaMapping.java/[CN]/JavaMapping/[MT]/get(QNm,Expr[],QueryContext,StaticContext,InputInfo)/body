@@ -1,23 +1,26 @@
 {
-  final String uri=string(name.uri());
-  final boolean java=uri.startsWith(JAVAPREF);
-  final String local=Strings.camelCase(string(name.local()));
-  final String path=Strings.camelCase(toPath(java ? uri.substring(JAVAPREF.length()) : uri));
+  final String name=Strings.camelCase(string(qname.local()));
+  final String uri=string(qname.uri());
+  final boolean prefix=uri.startsWith(JAVAPREF);
+  final String pth=prefix ? uri.substring(JAVAPREF.length()) : uri;
+  final String dirp=ModuleLoader.uri2path(pth);
+  final String path=dirp == null ? pth : ModuleLoader.capitalize(dirp).replace('/','.').substring(1);
   final ModuleLoader modules=qc.resources.modules();
   final Object jm=modules.findImport(path);
   if (jm != null) {
-    final Method meth=getModMethod(jm,path,local,args.length,qc,ii);
-    if (meth != null)     return new JavaModuleFunc(sc,ii,jm,meth,args);
+    final Method mth=moduleMethod(jm,path,name,args.length,qc,ii);
+    if (mth != null)     return new JavaModuleFunc(sc,ii,jm,mth,args);
   }
   if (!qc.context.user().has(Perm.ADMIN))   return null;
   try {
-    return new JavaFunc(sc,ii,modules.findClass(path),local,args);
+    final Class<?> clazz=modules.findClass(path);
+    if (name.equals(NEW) || exists(clazz,name))     return new JavaFunc(sc,ii,clazz,name,args);
   }
  catch (  final ClassNotFoundException ex) {
-    if (java)     throw FUNCJAVA_X.get(ii,path);
   }
 catch (  final Throwable th) {
     throw JAVAINIT_X.get(ii,th);
   }
+  if (prefix)   throw FUNCJAVA_X.get(ii,path);
   return null;
 }
