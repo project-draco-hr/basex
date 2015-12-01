@@ -1,0 +1,7 @@
+{
+  query("for $f in (prof:void#1(?), error#0) let $ignore := $f() return ()","");
+  query("try {" + "  let $f := error#0 let $err := non-deterministic $f() return ()" + "} catch * { 'ERR' }","ERR");
+  query("try {" + "  for $f in (prof:void#1(?), error#0)" + "  let $err := non-deterministic $f() return ()"+ "} catch * { 'ERR' }","ERR");
+  query("try {" + "  let $f := error#0 let $err := $f() return ()" + "} catch * { 'ERR' }","ERR");
+  query("try {" + "  let $f := function() { fn:error(()) }" + "  let $e := $f()"+ "  return ()"+ "} catch * { 'ERR' }","ERR");
+}

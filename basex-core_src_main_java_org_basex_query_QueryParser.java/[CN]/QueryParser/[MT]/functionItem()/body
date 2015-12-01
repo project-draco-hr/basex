@@ -3,7 +3,7 @@
   final int ip=pos;
   final AnnList anns=annotations(false).check(false);
   if (wsConsume(FUNCTION) && wsConsume(PAREN1)) {
-    if (anns.contains(Annotation.PRIVATE) || anns.contains(Annotation.PUBLIC))     throw error(INVISIBLE);
+    if (anns.contains(Annotation.PRIVATE) || anns.contains(Annotation.PUBLIC))     throw error(NOVISALLOWED);
     final HashMap<Var,Expr> nonLocal=new HashMap<>();
     localVars.pushContext(nonLocal);
     final Var[] args=paramList();
@@ -11,6 +11,9 @@
     final SeqType type=optAsType();
     final Expr body=enclosedExpr();
     final VarScope scope=localVars.popContext();
+    final boolean upd=body.has(Flag.UPD), updAnn=anns.contains(Annotation.UPDATING);
+    if (upd && !updAnn)     anns.add(new Ann(info(),Annotation.UPDATING));
+    if (!upd && updAnn)     anns.delete(Annotation.UPDATING);
     return new Closure(info(),type,args,body,anns,nonLocal,sc,scope);
   }
   if (!anns.isEmpty())   throw error(NOANN);

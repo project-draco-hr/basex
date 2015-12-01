@@ -15,7 +15,13 @@
         final ExprList argList=new ExprList(e);
         final int[] holes=argumentList(argList,e);
         final Expr[] args=argList.finish();
-        e=holes == null ? new DynFuncCall(ii,sc,false,ex,args) : new PartFunc(sc,ii,ex,args,holes);
+        if (holes == null) {
+          if (sc.mixUpdates)           qc.updating();
+          e=new DynFuncCall(ii,sc,ex,args);
+        }
+ else {
+          e=new PartFunc(sc,ii,ex,args,holes);
+        }
       }
     }
   }

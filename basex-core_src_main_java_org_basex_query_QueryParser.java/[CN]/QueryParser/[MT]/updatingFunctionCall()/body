@@ -1,6 +1,7 @@
 {
   final int p=pos;
-  if (wsConsumeWs(UPDATING)) {
+  final boolean upd=wsConsumeWs(UPDATING), ndt=wsConsumeWs(NON_DETERMINISTIC);
+  if (upd || ndt) {
     final Expr func=primary();
     if (wsConsume(PAREN1)) {
       final InputInfo ii=info();
@@ -8,14 +9,16 @@
       if (!wsConsume(PAREN2)) {
         do {
           final Expr e=single();
-          if (e == null)           throw error(FUNCMISS_X,func);
+          if (e == null)           throw funcMiss(func);
           argList.add(e);
         }
  while (wsConsume(COMMA));
-        if (!wsConsume(PAREN2))         throw error(FUNCMISS_X,func);
+        if (!wsConsume(PAREN2))         throw funcMiss(func);
       }
-      qc.updating();
-      return new DynFuncCall(ii,sc,true,func,argList.finish());
+      if (!(func instanceof Item) || func instanceof FItem) {
+        if (upd || sc.mixUpdates)         qc.updating();
+        return new DynFuncCall(ii,sc,upd,ndt,func,argList.finish());
+      }
     }
   }
   pos=p;
