@@ -1,12 +1,12 @@
 {
   final String file=files.getText();
   final String content=contents.getText();
-  if (!force && lastFiles.equals(file) && lastContents.equals(content))   return;
-  lastFiles=file;
-  lastContents=content;
+  if (!force && fileFilter.equals(file) && contentFilter.equals(content))   return;
+  fileFilter=file;
+  contentFilter=content;
   ++threadID;
-  final boolean list=!file.isEmpty() || !content.isEmpty();
-  if (list) {
+  final boolean filter=!file.isEmpty() || !content.isEmpty();
+  if (filter) {
     final Thread t=new Thread(){
       @Override public void run(){
         filter(file,content,threadID);
@@ -16,5 +16,5 @@
     t.setDaemon(true);
     t.start();
   }
-  project.showList(list);
+  project.showList(filter);
 }
