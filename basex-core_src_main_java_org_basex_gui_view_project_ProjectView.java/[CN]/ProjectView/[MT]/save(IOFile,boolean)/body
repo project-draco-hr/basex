@@ -1,5 +1,12 @@
 {
-  refresh(file);
-  if (rename)   reset();
-  refresh();
+  final Thread t=new Thread(){
+    @Override public void run(){
+      final IOFile path=file.normalize();
+      if (path.path().startsWith(root.file.path()))       refreshTree(path);
+      refresh(rename,true);
+    }
+  }
+;
+  t.setDaemon(true);
+  t.start();
 }

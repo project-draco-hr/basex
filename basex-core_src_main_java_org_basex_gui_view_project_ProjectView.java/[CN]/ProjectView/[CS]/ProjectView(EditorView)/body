@@ -1,6 +1,5 @@
 {
   super(ev.gui);
-  editor=ev;
   setLayout(new BorderLayout());
   tree=new ProjectTree(this);
   final String proj=gui.gopts.get(GUIOptions.PROJECTPATH);
@@ -11,19 +10,19 @@
   BaseXLayout.addInteraction(list,gui);
   final BaseXBack back=new BaseXBack().layout(new BorderLayout(2,2));
   back.setBorder(new CompoundBorder(new MatteBorder(0,0,1,0,GUIConstants.gray),BaseXLayout.border(3,1,3,2)));
-  path=new BaseXTextField(gui);
-  path.setText(root.file.path());
-  path.setEnabled(false);
+  rootPath=new BaseXTextField(gui);
+  rootPath.setText(root.file.path());
+  rootPath.setEnabled(false);
   final BaseXButton browse=new BaseXButton(DOTS,gui);
   browse.setMargin(new Insets(0,2,0,2));
   browse.setToolTipText(CHOOSE_DIR + DOTS);
   browse.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      change();
+      changeRoot();
     }
   }
 );
-  back.add(path,BorderLayout.CENTER);
+  back.add(rootPath,BorderLayout.CENTER);
   back.add(browse,BorderLayout.EAST);
   back.add(filter,BorderLayout.SOUTH);
   final JScrollPane lscroll=new JScrollPane(list);
@@ -42,4 +41,10 @@
   last=tree;
   tree.addFocusListener(lastfocus);
   list.addFocusListener(lastfocus);
+  addComponentListener(new ComponentAdapter(){
+    @Override public void componentResized(    final ComponentEvent e){
+      refresh(false,false);
+    }
+  }
+);
 }
