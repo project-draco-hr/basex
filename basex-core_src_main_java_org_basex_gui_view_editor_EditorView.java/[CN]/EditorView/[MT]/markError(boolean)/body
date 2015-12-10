@@ -1,0 +1,30 @@
+{
+  InputInfo ii=inputInfo;
+  final String path;
+  final boolean error=ii == null;
+  if (error) {
+    final StringList errors=project.errors();
+    if (errors.isEmpty())     return;
+    path=errors.get(0);
+  }
+ else {
+    path=ii.path();
+  }
+  if (path == null)   return;
+  final IOFile file=new IOFile(path);
+  EditorArea edit=find(file,false);
+  if (jump) {
+    if (edit == null) {
+      edit=open(file,error,true);
+      if (error)       ii=inputInfo;
+    }
+    if (edit != null)     tabs.setSelectedComponent(edit);
+  }
+  if (edit == null || ii == null)   return;
+  final int ep=pos(edit.last,ii.line(),ii.column());
+  edit.error(ep);
+  if (jump) {
+    edit.setCaret(ep);
+    posCode.invokeLater();
+  }
+}
