@@ -1,7 +1,7 @@
 {
   final long id=++parseId;
   final HashSet<String> parsed=new HashSet<>();
-  final StringList errs=new StringList();
+  final TreeMap<String,InputInfo> errs=new TreeMap<>();
   final ProjectCache pc=cache(root);
   final StringList mods=new StringList(), lmods=new StringList();
   for (  final String path : pc) {
@@ -21,7 +21,9 @@
         for (        final byte[] mod : qc.modParsed)         parsed.add(Token.string(mod));
       }
  catch (      final QueryException ex) {
-        errs.add(path);
+        final InputInfo ii=ex.info();
+        errs.put(path,ii);
+        parsed.add(ii.path());
       }
     }
  catch (    final IOException ex) {

@@ -25,8 +25,21 @@
   }
  else {
     zoomStep=ZOOMSIZE;
-    final Thread t=new Thread(this);
-    t.setDaemon(true);
-    t.start();
+    new GUIThread(){
+      @Override public void run(){
+        focused=null;
+        while (zoomStep > 1) {
+          Performance.sleep(zoomSpeed);
+          --zoomStep;
+          repaint();
+        }
+        while (gui.painting)         Performance.sleep(zoomSpeed);
+        zoomStep=0;
+        gui.updating=false;
+        focus();
+        repaint();
+      }
+    }
+.start();
   }
 }

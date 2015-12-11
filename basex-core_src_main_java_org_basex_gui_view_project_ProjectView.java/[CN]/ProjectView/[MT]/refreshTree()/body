@@ -1,13 +1,17 @@
 {
-  final StringList sl=files.errors();
+  final TreeMap<String,InputInfo> errs=files.errors();
+  final String[] paths=errs.keySet().toArray(new String[errs.size()]);
   final Enumeration<?> en=root.depthFirstEnumeration();
   while (en.hasMoreElements()) {
     final ProjectNode node=(ProjectNode)en.nextElement();
     if (node.file == null)     continue;
     final String path=node.file.path();
     boolean found=false;
-    for (int s=0; s < sl.size() && !found; s++) {
-      if (sl.get(s).startsWith(path))       found=true;
+    for (    final String p : paths) {
+      if (p.startsWith(path)) {
+        found=true;
+        break;
+      }
     }
     node.error=found;
   }
