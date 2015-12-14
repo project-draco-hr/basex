@@ -3,8 +3,20 @@
   for (pre=0; pre < size; ++pre) {
     if ((pre & 0x0FFF) == 0)     check();
     if (indexEntry() && data.textLen(pre,text) <= data.meta.maxlen) {
-      index.add(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre);
-      count++;
+      if (tokenize) {
+        byte[] token=data.text(pre,text);
+        int pos=0;
+        for (        final byte[] tok : Token.split(normalize(token),' ')) {
+          if (tok.length <= data.meta.maxlen) {
+            index.add(tok,data.meta.updindex ? data.id(pre) : pre,pos++);
+            count++;
+          }
+        }
+      }
+ else {
+        index.add(data.text(pre,text),data.meta.updindex ? data.id(pre) : pre,0);
+        count++;
+      }
     }
   }
   writeIndex(splits > 0);
@@ -14,5 +26,5 @@
     merge();
   }
   finishIndex();
-  return data.meta.updindex ? new UpdatableDiskValues(data,text) : new DiskValues(data,text);
+  return data.meta.updindex ? new UpdatableDiskValues(data,text,tokenize) : new DiskValues(data,text,tokenize);
 }
