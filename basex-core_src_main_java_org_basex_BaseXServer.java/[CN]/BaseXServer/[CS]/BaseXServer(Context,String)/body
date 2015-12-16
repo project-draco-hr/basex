@@ -30,12 +30,17 @@
   new Thread(this).start();
   do   Thread.yield();
  while (!running);
-  if (!quiet)   Util.outln(S_CONSOLE + Util.info(SRV_STARTED_PORT_X,port),S_SERVER);
-  context.log.writeServer(LogType.OK,Util.info(SRV_STARTED_PORT_X,port));
+  final String startX=Util.info(SRV_STARTED_PORT_X,port);
+  if (!quiet) {
+    if (!daemon)     Util.outln(header());
+    Util.outln(startX);
+  }
+  context.log.writeServer(LogType.OK,startX);
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      context.log.writeServer(LogType.OK,Util.info(SRV_STOPPED_PORT_X,port));
-      Util.outln(SRV_STOPPED_PORT_X,port);
+      final String stopX=Util.info(SRV_STOPPED_PORT_X,port);
+      if (!quiet)       Util.outln(stopX);
+      context.log.writeServer(LogType.OK,stopX);
     }
   }
 );
