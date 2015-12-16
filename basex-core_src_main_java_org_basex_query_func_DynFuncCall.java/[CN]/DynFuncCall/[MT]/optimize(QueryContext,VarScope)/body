@@ -1,12 +1,12 @@
 {
-  final int ar=exprs.length - 1;
-  final Expr f=exprs[ar];
+  final Expr f=body();
   final Type t=f.seqType().type;
+  final int last=exprs.length - 1;
   if (t instanceof FuncType) {
     final FuncType ft=(FuncType)t;
-    if (ft.argTypes != null && ft.argTypes.length != ar) {
+    if (ft.argTypes != null && ft.argTypes.length != last) {
       final Expr e=f instanceof FuncItem ? ((FuncItem)f).expr : f;
-      throw INVARITY_X_X_X_X.get(info,e,ar,ar == 1 ? "" : "s",ft.argTypes.length);
+      throw INVARITY_X_X_X_X.get(info,e,last,last == 1 ? "" : "s",ft.argTypes.length);
     }
     if (ft.retType != null)     seqType=ft.retType;
   }
@@ -15,7 +15,7 @@
     final XQFunctionExpr fe=(XQFunctionExpr)f;
     if (!(f instanceof FuncItem && comesFrom((FuncItem)f))) {
       if (!sc.mixUpdates && upd != fe.annotations().contains(Annotation.UPDATING))       throw (upd ? FUNCNOTUP : FUNCUP).get(info);
-      final Expr[] args=Arrays.copyOf(exprs,ar);
+      final Expr[] args=Arrays.copyOf(exprs,last);
       final Expr in=fe.inlineExpr(args,qc,scp,info);
       if (in != null)       return in;
     }
