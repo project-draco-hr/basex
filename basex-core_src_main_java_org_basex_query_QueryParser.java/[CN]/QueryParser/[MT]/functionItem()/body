@@ -4,14 +4,14 @@
   final AnnList anns=annotations(false).check(false);
   if (wsConsume(FUNCTION) && wsConsume(PAREN1)) {
     if (anns.contains(Annotation.PRIVATE) || anns.contains(Annotation.PUBLIC))     throw error(NOVISALLOWED);
-    final HashMap<Var,Expr> nonLocal=new HashMap<>();
-    localVars.pushContext(nonLocal);
+    final HashMap<Var,Expr> global=new HashMap<>();
+    localVars.pushContext(global);
     final Var[] args=paramList();
     wsCheck(PAREN2);
     final SeqType type=optAsType();
     final Expr body=enclosedExpr();
     final VarScope scope=localVars.popContext();
-    return new Closure(info(),type,args,body,anns,nonLocal,sc,scope);
+    return new Closure(info(),type,args,body,anns,global,sc,scope);
   }
   if (!anns.isEmpty())   throw error(NOANN);
   pos=ip;

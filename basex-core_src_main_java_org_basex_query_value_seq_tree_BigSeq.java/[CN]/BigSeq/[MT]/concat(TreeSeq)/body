@@ -1,13 +1,13 @@
 {
-  final Type retType=type == seq.type ? type : null;
+  final Type tp=type == seq.type ? type : null;
   if (seq instanceof SmallSeq) {
     final Item[] newRight=concat(right,((SmallSeq)seq).elems);
     final int r=newRight.length;
-    if (r <= MAX_DIGIT)     return new BigSeq(left,middle,newRight,retType);
+    if (r <= MAX_DIGIT)     return new BigSeq(left,middle,newRight,tp);
     final int mid=r / 2;
     final Item[] leaf=slice(newRight,0,mid);
     final FingerTree<Item,Item> newMid=middle.snoc(new LeafNode(leaf));
-    return new BigSeq(left,newMid,slice(newRight,mid,r),retType);
+    return new BigSeq(left,newMid,slice(newRight,mid,r),tp);
   }
   final BigSeq bigOther=(BigSeq)seq;
   final Item[] ls=right, rs=bigOther.left;
@@ -21,5 +21,5 @@
     for (int j=0; j < curr; j++, p++)     arr[j]=p < l ? ls[p] : rs[p - l];
     midNodes[i]=new LeafNode(arr);
   }
-  return new BigSeq(left,middle.concat(midNodes,n,bigOther.middle),bigOther.right,retType);
+  return new BigSeq(left,middle.concat(midNodes,n,bigOther.middle),bigOther.right,tp);
 }

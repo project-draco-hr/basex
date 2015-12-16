@@ -8,13 +8,13 @@
       final Expr e=f instanceof FuncItem ? ((FuncItem)f).expr : f;
       throw INVARITY_X_X_X_X.get(info,e,last,last == 1 ? "" : "s",ft.argTypes.length);
     }
-    if (ft.retType != null)     seqType=ft.retType;
+    if (ft.type != null)     seqType=ft.type;
   }
   if ((f instanceof Map || f instanceof Array) && allAreValues())   return optPre(value(qc),qc);
   if (f instanceof XQFunctionExpr) {
     final XQFunctionExpr fe=(XQFunctionExpr)f;
     if (!(f instanceof FuncItem && comesFrom((FuncItem)f))) {
-      if (!sc.mixUpdates && upd != fe.annotations().contains(Annotation.UPDATING))       throw (upd ? FUNCNOTUP : FUNCUP).get(info);
+      checkUpdating(fe);
       final Expr[] args=Arrays.copyOf(exprs,last);
       final Expr in=fe.inlineExpr(args,qc,scp,info);
       if (in != null)       return in;

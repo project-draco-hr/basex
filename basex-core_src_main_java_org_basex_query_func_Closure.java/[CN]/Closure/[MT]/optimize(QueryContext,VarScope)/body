@@ -1,10 +1,10 @@
 {
   final SeqType r=expr.seqType();
-  final SeqType rt=updating ? SeqType.EMP : ret == null || r.instanceOf(ret) ? r : ret;
+  final SeqType rt=type == null || r.instanceOf(type) ? r : type;
   seqType=FuncType.get(anns,rt,args).seqType();
   size=1;
   try {
-    final Iterator<Entry<Var,Expr>> cls=nonLocal.entrySet().iterator();
+    final Iterator<Entry<Var,Expr>> cls=global.entrySet().iterator();
     Map<Var,Expr> add=null;
     while (cls.hasNext()) {
       final Entry<Var,Expr> e=cls.next();
@@ -17,9 +17,9 @@
       }
  else       if (c instanceof Closure) {
         final Closure cl=(Closure)c;
-        if (!cl.has(Flag.NDT) && cl.nonLocal.size() < 5 && expr.count(v) != VarUsage.MORE_THAN_ONCE && cl.exprSize() < qc.context.options.get(MainOptions.INLINELIMIT)) {
+        if (!cl.has(Flag.NDT) && cl.global.size() < 5 && expr.count(v) != VarUsage.MORE_THAN_ONCE && cl.exprSize() < qc.context.options.get(MainOptions.INLINELIMIT)) {
           qc.compInfo(OPTINLINE,e);
-          for (          final Entry<Var,Expr> e2 : cl.nonLocal.entrySet()) {
+          for (          final Entry<Var,Expr> e2 : cl.global.entrySet()) {
             final Var v2=e2.getKey(), v2c=scope.newCopyOf(qc,v2);
             if (add == null)             add=new HashMap<>();
             add.put(v2c,e2.getValue());
@@ -31,13 +31,13 @@
         }
       }
     }
-    if (add != null)     nonLocal.putAll(add);
+    if (add != null)     global.putAll(add);
   }
  catch (  final QueryException qe) {
-    expr=FnError.get(qe,ret != null ? ret : expr.seqType());
+    expr=FnError.get(qe,type != null ? type : expr.seqType());
   }
  finally {
     scope.cleanUp(this);
   }
-  return nonLocal.isEmpty() ? preEval(qc) : this;
+  return global.isEmpty() ? preEval(qc) : this;
 }

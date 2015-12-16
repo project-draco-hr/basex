@@ -7,7 +7,7 @@
       final Item[] newLeft=new Item[l - 1];
       System.arraycopy(left,0,newLeft,0,p);
       System.arraycopy(left,p + 1,newLeft,p,newLeft.length - p);
-      return new BigSeq(newLeft,middle,right,ret);
+      return new BigSeq(newLeft,middle,right,type);
     }
     if (middle.isEmpty()) {
       final int r=right.length, n=l - 1 + r;
@@ -15,7 +15,7 @@
       System.arraycopy(left,0,vals,0,p);
       System.arraycopy(left,p + 1,vals,p,l - 1 - p);
       System.arraycopy(right,0,vals,l - 1,r);
-      return fromMerged(vals,ret);
+      return fromMerged(vals,type);
     }
     final Item[] head=((LeafNode)middle.head()).values;
     final int r=head.length, n=l - 1 + r;
@@ -26,13 +26,13 @@
       System.arraycopy(left,p + 1,newLeft,p,l - 1 - p);
       System.arraycopy(head,0,newLeft,l - 1,move);
       final Item[] newHead=slice(head,move,r);
-      return new BigSeq(newLeft,middle.replaceHead(new LeafNode(newHead)),right,ret);
+      return new BigSeq(newLeft,middle.replaceHead(new LeafNode(newHead)),right,type);
     }
     final Item[] newLeft=new Item[n];
     System.arraycopy(left,0,newLeft,0,p);
     System.arraycopy(left,p + 1,newLeft,p,l - 1 - p);
     System.arraycopy(head,0,newLeft,l - 1,r);
-    return new BigSeq(newLeft,middle.tail(),right,ret);
+    return new BigSeq(newLeft,middle.tail(),right,type);
   }
   final long midSize=middle.size(), rightOffset=left.length + midSize;
   if (pos >= rightOffset) {
@@ -41,7 +41,7 @@
       final Item[] newRight=new Item[r - 1];
       System.arraycopy(right,0,newRight,0,p);
       System.arraycopy(right,p + 1,newRight,p,r - 1 - p);
-      return new BigSeq(left,middle,newRight,ret);
+      return new BigSeq(left,middle,newRight,type);
     }
     if (middle.isEmpty()) {
       final int l=left.length, n=l + r - 1;
@@ -49,7 +49,7 @@
       System.arraycopy(left,0,vals,0,l);
       System.arraycopy(right,0,vals,l,p);
       System.arraycopy(right,p + 1,vals,l + p,r - 1 - p);
-      return fromMerged(vals,ret);
+      return fromMerged(vals,type);
     }
     final Item[] last=((LeafNode)middle.last()).values;
     final int l=last.length, n=l + r - 1;
@@ -60,17 +60,17 @@
       System.arraycopy(last,l - move,newRight,0,move);
       System.arraycopy(right,0,newRight,move,p);
       System.arraycopy(right,p + 1,newRight,move + p,r - 1 - p);
-      return new BigSeq(left,middle.replaceLast(new LeafNode(newLast)),newRight,ret);
+      return new BigSeq(left,middle.replaceLast(new LeafNode(newLast)),newRight,type);
     }
     final Item[] newRight=new Item[n];
     System.arraycopy(last,0,newRight,0,l);
     System.arraycopy(right,0,newRight,l,p);
     System.arraycopy(right,p + 1,newRight,l + p,r - 1 - p);
-    return new BigSeq(left,middle.init(),newRight,ret);
+    return new BigSeq(left,middle.init(),newRight,type);
   }
   final TreeSlice<Item,Item> slice=middle.remove(pos - left.length);
   if (slice.isTree()) {
-    return new BigSeq(left,slice.getTree(),right,ret);
+    return new BigSeq(left,slice.getTree(),right,type);
   }
   final Item[] mid=((PartialLeafNode)slice.getPartial()).elems;
   final int l=left.length, m=mid.length, r=right.length;
@@ -79,20 +79,20 @@
     final Item[] newLeft=slice(left,0,l - move);
     final Item[] newMid=slice(left,l - move,l + m);
     System.arraycopy(mid,0,newMid,move,m);
-    return new BigSeq(newLeft,FingerTree.singleton(new LeafNode(newMid)),right,ret);
+    return new BigSeq(newLeft,FingerTree.singleton(new LeafNode(newMid)),right,type);
   }
   if (r > MIN_DIGIT) {
     final int move=(r - MIN_DIGIT + 1) / 2;
     final Item[] newMid=slice(mid,0,m + move);
     System.arraycopy(right,0,newMid,m,move);
     final Item[] newRight=slice(right,move,r);
-    return new BigSeq(left,FingerTree.singleton(new LeafNode(newMid)),newRight,ret);
+    return new BigSeq(left,FingerTree.singleton(new LeafNode(newMid)),newRight,type);
   }
   final int ml=m / 2, mr=m - ml;
   final Item[] newLeft=slice(left,0,l + ml);
   System.arraycopy(mid,0,newLeft,l,ml);
   final Item[] newRight=slice(right,-mr,r);
   System.arraycopy(mid,ml,newRight,0,mr);
-  final Type rt=ret;
+  final Type rt=type;
   return new BigSeq(newLeft,FingerTree.<Item>empty(),newRight,rt);
 }

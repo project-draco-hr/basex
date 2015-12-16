@@ -1,7 +1,7 @@
 {
   if (expr.has(Flag.CTX))   return null;
   qc.compInfo(OPTINLINE,this);
-  final LinkedList<Clause> cls=exprs.length == 0 && nonLocal.isEmpty() ? null : new LinkedList<Clause>();
+  final LinkedList<Clause> cls=exprs.length == 0 && global.isEmpty() ? null : new LinkedList<Clause>();
   final IntObjMap<Var> vs=new IntObjMap<>();
   final int al=args.length;
   for (int a=0; a < al; a++) {
@@ -9,11 +9,11 @@
     vs.put(old.id,v);
     cls.add(new Let(v,exprs[a],false,ii).optimize(qc,scp));
   }
-  for (  final Entry<Var,Expr> e : nonLocal.entrySet()) {
+  for (  final Entry<Var,Expr> e : global.entrySet()) {
     final Var old=e.getKey(), v=scp.newCopyOf(qc,old);
     vs.put(old.id,v);
     cls.add(new Let(v,e.getValue(),false,ii).optimize(qc,scp));
   }
-  final Expr cpy=expr.copy(qc,scp,vs), rt=ret == null ? cpy : new TypeCheck(sc,ii,cpy,ret,true).optimize(qc,scp);
+  final Expr cpy=expr.copy(qc,scp,vs), rt=type == null ? cpy : new TypeCheck(sc,ii,cpy,type,true).optimize(qc,scp);
   return cls == null ? rt : new GFLWOR(ii,cls,rt).optimize(qc,scp);
 }

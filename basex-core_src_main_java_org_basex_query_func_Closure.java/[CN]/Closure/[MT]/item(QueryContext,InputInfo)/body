@@ -1,36 +1,36 @@
 {
-  final Type type=seqType().type;
-  if (!(type instanceof FuncType))   throw Util.notExpected("Closure was not compiled: %",this);
-  final FuncType ft=(FuncType)type;
+  final Type tp=seqType().type;
+  if (!(tp instanceof FuncType))   throw Util.notExpected("Closure was not compiled: %",this);
+  final FuncType ft=(FuncType)tp;
   final Expr body;
-  if (nonLocal.isEmpty()) {
+  if (global.isEmpty()) {
     body=expr;
   }
  else {
     final LinkedList<Clause> cls=new LinkedList<>();
-    for (    final Entry<Var,Expr> e : nonLocal.entrySet())     cls.add(new Let(e.getKey(),e.getValue().value(qc),false,ii));
+    for (    final Entry<Var,Expr> e : global.entrySet())     cls.add(new Let(e.getKey(),e.getValue().value(qc),false,ii));
     body=new GFLWOR(ii,cls,expr);
   }
   final SeqType argType=body.seqType();
   final Expr checked;
-  if (ret == null || argType.instanceOf(ret)) {
+  if (type == null || argType.instanceOf(type)) {
     checked=body;
   }
- else   if (body instanceof FuncItem && ret.type instanceof FuncType) {
-    if (!ret.occ.check(1))     throw INVPROMOTE_X_X.get(info,argType,ret);
+ else   if (body instanceof FuncItem && type.type instanceof FuncType) {
+    if (!type.occ.check(1))     throw INVPROMOTE_X_X.get(info,argType,type);
     final FuncItem fi=(FuncItem)body;
-    checked=fi.coerceTo((FuncType)ret.type,qc,info,true);
+    checked=fi.coerceTo((FuncType)type.type,qc,info,true);
   }
  else   if (body.isValue()) {
     final Value val=(Value)body;
-    checked=ret.instance(val) ? val : ret.promote(qc,sc,info,val,false);
+    checked=type.instance(val) ? val : type.promote(qc,sc,info,val,false);
   }
  else {
-    if (argType.type.instanceOf(ret.type) && !body.has(Flag.NDT) && !body.has(Flag.UPD)) {
-      final Occ occ=argType.occ.intersect(ret.occ);
-      if (occ == null)       throw INVPROMOTE_X_X.get(info,argType,ret);
+    if (argType.type.instanceOf(type.type) && !body.has(Flag.NDT) && !body.has(Flag.UPD)) {
+      final Occ occ=argType.occ.intersect(type.occ);
+      if (occ == null)       throw INVPROMOTE_X_X.get(info,argType,type);
     }
-    checked=new TypeCheck(sc,info,body,ret,true);
+    checked=new TypeCheck(sc,info,body,type,true);
   }
   return new FuncItem(sc,anns,name,args,ft,checked,scope.stackSize());
 }
