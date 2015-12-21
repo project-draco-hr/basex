@@ -1,10 +1,15 @@
 {
   final String name=Strings.camelCase(string(qname.local()));
   final String uri=string(qname.uri());
-  final boolean prefix=uri.startsWith(JAVAPREF);
-  final String pth=prefix ? uri.substring(JAVAPREF.length()) : uri;
-  final String dirp=ModuleLoader.uri2path(pth);
-  final String path=dirp == null ? pth : ModuleLoader.capitalize(dirp).replace('/','.').substring(1);
+  final boolean java=uri.startsWith(JAVAPREF);
+  String path=uri;
+  if (java) {
+    path=uri.substring(JAVAPREF.length());
+  }
+ else {
+    final String uriPath=ModuleLoader.uri2path(path);
+    if (uriPath != null)     path=ModuleLoader.capitalize(uriPath).replace('/','.').substring(1);
+  }
   final ModuleLoader modules=qc.resources.modules();
   final Object jm=modules.findImport(path);
   if (jm != null) {
@@ -21,6 +26,6 @@
 catch (  final Throwable th) {
     throw JAVAINIT_X.get(ii,th);
   }
-  if (prefix)   throw FUNCJAVA_X.get(ii,path);
+  if (java)   throw FUNCJAVA_X.get(ii,path);
   return null;
 }
