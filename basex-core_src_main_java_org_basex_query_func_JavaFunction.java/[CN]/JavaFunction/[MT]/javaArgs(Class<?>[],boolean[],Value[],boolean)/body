@@ -1,17 +1,24 @@
 {
   final int s=stat ? 0 : 1, al=args.length - s;
-  if (al != params.length)   return null;
-  final boolean[] vType=vTypes == null ? values(params) : vTypes;
+  if (al != pTypes.length)   return null;
+  final boolean[] vType=vTypes == null ? values(pTypes) : vTypes;
   final Object[] vals=new Object[al];
   for (int a=0; a < al; a++) {
-    final Class<?> param=params[a];
+    final Class<?> param=pTypes[a];
     final Value arg=args[s + a];
     if (arg.type.instanceOf(type(param))) {
       vals[a]=arg.toJava();
     }
  else {
       vals[a]=arg instanceof Jav || !vType[a] ? arg.toJava() : arg;
-      if (!param.isInstance(vals[a]))       return null;
+      if (!param.isInstance(vals[a])) {
+        if (arg.isEmpty() && !param.isPrimitive()) {
+          vals[a]=null;
+        }
+ else {
+          return null;
+        }
+      }
     }
   }
   return vals;

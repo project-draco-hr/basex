@@ -2,15 +2,14 @@
   try {
     return method.equals(NEW) ? constructor(args) : method(args,qc);
   }
- catch (  final InvocationTargetException ex) {
-    final Throwable cause=ex.getCause();
-    throw cause instanceof QueryException ? ((QueryException)cause).info(info) : JAVAERROR_X.get(info,cause);
-  }
-catch (  final QueryException ex) {
+ catch (  final QueryException ex) {
     throw ex;
   }
+catch (  final InvocationTargetException ex) {
+    final Throwable cause=ex.getCause();
+    throw cause instanceof QueryException ? ((QueryException)cause).info(info) : JAVAERROR_X.get(info,name(),foundArgs(args),cause);
+  }
 catch (  final Throwable ex) {
-    Util.debug(ex);
-    throw JAVACALL_X_X.get(info,name(),foundArgs(args));
+    throw JAVAERROR_X.get(info,name(),foundArgs(args),ex);
   }
 }
