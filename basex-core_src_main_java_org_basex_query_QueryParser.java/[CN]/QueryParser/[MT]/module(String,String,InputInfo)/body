@@ -3,7 +3,7 @@
   final byte[] p=token(io.path());
   final byte[] u=qc.modParsed.get(p);
   if (u != null) {
-    if (!uri.equals(string(u)))     throw error(WRONGMODULE_X_X,uri,qc.context.user().has(Perm.ADMIN) ? io.path() : io.name());
+    if (!uri.equals(string(u)))     throw WRONGMODULE_X_X_X.get(info,io.name(),uri,u);
     return;
   }
   qc.modParsed.put(p,token(uri));
@@ -12,13 +12,13 @@
     qu=string(io.read());
   }
  catch (  final IOException ex) {
-    throw error(WHICHMODFILE_X,qc.context.user().has(Perm.ADMIN) ? io.path() : io.name());
+    throw error(WHICHMODFILE_X,io);
   }
   qc.modStack.push(p);
   final StaticContext sub=new StaticContext(qc);
   final LibraryModule lib=new QueryParser(qu,io.path(),qc,sub).parseLibrary(false);
   final byte[] muri=lib.name.uri();
-  if (!uri.equals(string(muri)))   throw error(WRONGMODULE_X_X,muri,file);
+  if (!uri.equals(string(muri)))   throw WRONGMODULE_X_X_X.get(info,io.name(),uri,muri);
   if (sub.contextType != null) {
     if (sc.contextType == null) {
       sc.contextType=sub.contextType;

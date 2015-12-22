@@ -2,23 +2,25 @@
   final String name=Strings.camelCase(string(qname.local()));
   final String uri=string(qname.uri());
   final boolean java=uri.startsWith(JAVAPREF);
-  String path=uri;
+  String className=uri;
   if (java) {
-    path=uri.substring(JAVAPREF.length());
+    className=uri.substring(JAVAPREF.length());
   }
  else {
-    final String uriPath=ModuleLoader.uri2path(path);
-    if (uriPath != null)     path=ModuleLoader.capitalize(uriPath).replace('/','.').substring(1);
+    className=Strings.className(Strings.uri2path(uri));
   }
   final ModuleLoader modules=qc.resources.modules();
-  final Object jm=modules.findImport(path);
-  if (jm != null) {
-    final Method mth=moduleMethod(jm,path,name,args.length,qc,ii);
-    if (mth != null)     return new JavaModuleFunc(sc,ii,jm,mth,args);
+  final Object module=modules.findModule(className);
+  if (module != null) {
+    final Method meth=moduleMethod(module,name,args.length,qc,ii);
+    if (meth != null) {
+      final Requires req=meth.getAnnotation(Requires.class);
+      final Perm perm=req == null ? Perm.ADMIN : Perm.get(req.value().name().toLowerCase(Locale.ENGLISH));
+      return new JavaModuleFunc(sc,ii,module,meth,args,perm);
+    }
   }
-  if (!qc.context.user().has(Perm.ADMIN))   return null;
   try {
-    final Class<?> clazz=modules.findClass(path);
+    final Class<?> clazz=modules.findClass(className);
     if (name.equals(NEW) || exists(clazz,name))     return new JavaFunc(sc,ii,clazz,name,args);
   }
  catch (  final ClassNotFoundException ex) {
@@ -26,6 +28,6 @@
 catch (  final Throwable th) {
     throw JAVAINIT_X.get(ii,th);
   }
-  if (java)   throw FUNCJAVA_X.get(ii,path);
+  if (java)   throw FUNCJAVA_X.get(ii,className);
   return null;
 }

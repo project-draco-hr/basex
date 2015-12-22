@@ -1,0 +1,17 @@
+{
+  Method meth=null;
+  final Class<?> clz=module.getClass();
+  for (  final Method m : clz.getMethods()) {
+    if (m.getName().equals(name) && m.getParameterTypes().length == arity) {
+      if (meth != null)       throw JAVAAMBIG_X.get(ii,"Q{" + clz.getName() + '}'+ name+ '#'+ arity);
+      meth=m;
+    }
+  }
+  if (meth == null)   throw FUNCJAVA_X.get(ii,clz.getName() + ':' + name);
+  final Lock lock=meth.getAnnotation(Lock.class);
+  if (lock != null) {
+    for (    final String read : lock.read())     qc.readLocks.add(DBLocking.MODULE_PREFIX + read);
+    for (    final String write : lock.write())     qc.writeLocks.add(DBLocking.MODULE_PREFIX + write);
+  }
+  return meth;
+}
