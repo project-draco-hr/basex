@@ -1,17 +1,15 @@
 {
   final byte[] local=name.local(), uri=name.uri();
   final Levenshtein ls=new Levenshtein();
-  for (  final byte[] key : this) {
-    final int i=indexOf(key,'}');
-    if (eq(uri,substring(key,2,i)) && ls.similar(local,substring(key,i + 1)))     return similarError(name,ii,key);
-  }
-  for (  final byte[] key : this) {
-    final int i=indexOf(key,'}');
-    if (eq(local,substring(key,i + 1)))     return similarError(name,ii,key);
-  }
-  for (  final byte[] key : this) {
-    final int i=indexOf(key,'}');
-    if (eq(uri,substring(key,2,i)) && startsWith(substring(key,i + 1),local))     return similarError(name,ii,key);
+  for (int mode=0; mode < 3; mode++) {
+    for (    final byte[] key : this) {
+      final int i=indexOf(key,'}');
+      final byte[] slocal=substring(key,i + 1), suri=substring(key,2,i);
+      if (mode == 0 ? eq(uri,suri) && ls.similar(local,slocal) : mode == 1 ? eq(local,substring(key,i + 1)) : eq(uri,substring(key,2,i)) && startsWith(substring(key,i + 1),local)) {
+        final QNm sim=new QNm(slocal,suri);
+        return FUNCSIMILAR_X_X.get(ii,name.prefixId(),sim.prefixId());
+      }
+    }
   }
   return null;
 }

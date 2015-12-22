@@ -4,7 +4,7 @@
     mod.staticContext=sc;
     mod.queryContext=qc;
   }
-  final Object[] jargs=javaArgs(params,vTypes,vals,true);
+  final Object[] jargs=javaArgs(params,vTypes,args,true);
   if (jargs != null) {
     try {
       return method.invoke(module,jargs);
@@ -16,8 +16,7 @@
         e=e.getCause();
       }
       if (e instanceof QueryException)       throw ((QueryException)e).info(info);
-      Util.stack(e);
-      throw JAVAERROR_X.get(info,Util.className(e) + ": " + e.getMessage());
+      throw JAVAERROR_X_X_X.get(info,name(),foundArgs(args),e);
     }
   }
   final TokenBuilder expect=new TokenBuilder();
@@ -25,5 +24,5 @@
     if (!expect.isEmpty())     expect.add(", ");
     expect.add(Util.className(param));
   }
-  throw JAVAARGS_X_X.get(info,method.getName() + '(' + expect+ ')',method.getName() + '(' + foundArgs(vals)+ ')');
+  throw JAVAARGS_X_X.get(info,method.getName() + '(' + expect+ ')',method.getName() + '(' + foundArgs(args)+ ')');
 }
