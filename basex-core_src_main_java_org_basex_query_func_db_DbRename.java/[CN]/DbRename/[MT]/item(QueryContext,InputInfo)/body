@@ -8,14 +8,17 @@
   for (int i=0; i < is; i++) {
     final int pre=il.get(i);
     final String trg=Rename.target(data,pre,source,target);
-    if (trg.isEmpty() || trg.endsWith("/") || trg.endsWith("."))     throw BXDB_RENAME_X.get(info,trg);
+    if (trg.isEmpty() || trg.endsWith("/") || trg.endsWith("."))     throw BXDB_PATH_X.get(info,trg);
     updates.add(new ReplaceValue(pre,data,info,token(trg)),qc);
   }
   if (!data.inMemory()) {
     final IOFile src=data.meta.binary(source);
     final IOFile trg=data.meta.binary(target);
-    if (src == null || trg == null)     throw UPDBRENAME_X.get(info,src);
-    updates.add(new DBRename(data,src.path(),trg.path(),info),qc);
+    if (src == null || trg == null)     throw BXDB_PATH_X.get(info,src);
+    if (!src.eq(trg)) {
+      rename(data,src,trg,qc);
+      updates.add(new DBDelete(data,source,ii),qc);
+    }
   }
   return null;
 }
