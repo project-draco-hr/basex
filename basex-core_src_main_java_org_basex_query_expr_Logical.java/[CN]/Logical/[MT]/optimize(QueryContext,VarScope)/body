@@ -1,0 +1,18 @@
+{
+  final boolean and=this instanceof And;
+  final int es=exprs.length;
+  final ExprList el=new ExprList(es);
+  for (  final Expr e : exprs) {
+    final Expr ex=e.optimizeEbv(qc,scp);
+    if (ex.isValue()) {
+      qc.compInfo(OPTREMOVE,this,e);
+      if (ex.ebv(qc,info).bool(info) ^ and)       return Bln.get(!and);
+    }
+ else {
+      el.add(ex);
+    }
+  }
+  if (el.isEmpty())   return Bln.get(and);
+  exprs=el.finish();
+  return this;
+}
