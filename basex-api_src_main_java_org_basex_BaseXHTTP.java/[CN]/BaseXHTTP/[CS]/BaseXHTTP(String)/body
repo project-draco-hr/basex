@@ -19,20 +19,16 @@
   }
   final String startX=HTTP + ' ' + SRV_STARTED_PORT_X;
   final String stopX=HTTP + ' ' + SRV_STOPPED_PORT_X;
-  if (stopped) {
+  if (stop) {
     stop();
-    if (!quiet) {
-      for (      final Connector conn : conns)       Util.outln(stopX,conn.getPort());
-    }
+    if (!quiet)     for (    final Connector conn : conns)     Util.outln(stopX,conn.getPort());
     Performance.sleep(1000);
     return;
   }
   final Connector conn1=conns[0];
   if (service) {
     start(conn1.getPort(),conn1 instanceof SslSelectChannelConnector,args);
-    if (!quiet) {
-      for (      final Connector conn : conns)       Util.outln(startX,conn.getPort());
-    }
+    if (!quiet)     for (    final Connector conn : conns)     Util.outln(startX,conn.getPort());
     Performance.sleep(1000);
     return;
   }
@@ -59,8 +55,8 @@
     for (    final Connector conn : conns)     Util.outln(startX,conn.getPort());
   }
   HTTPContext.init(wac.getServletContext());
-  final int stop=sopts.get(StaticOptions.STOPPORT);
-  if (stop >= 0)   new StopServer(sopts.get(StaticOptions.SERVERHOST),stop).start();
+  final int port=sopts.get(StaticOptions.STOPPORT);
+  if (port >= 0)   new StopServer(sopts.get(StaticOptions.SERVERHOST),port).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
       if (!quiet) {
