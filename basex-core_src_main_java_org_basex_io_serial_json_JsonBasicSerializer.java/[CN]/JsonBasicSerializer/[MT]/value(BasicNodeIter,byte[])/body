@@ -1,13 +1,13 @@
 {
-  byte[] value=null;
+  TokenBuilder tb=null;
   for (ANode child; (child=iter.next()) != null; ) {
     if (child.type == NodeType.TXT) {
-      if (value != null)       throw error("Element '%' has more than one child.",type);
-      value=child.string();
+      if (tb == null)       tb=new TokenBuilder();
+      tb.add(child.string());
     }
  else     if (child.type == NodeType.ELM) {
-      throw error("Element '%' must have no elements as child.",type);
+      throw error("Element '%' must have no child elements.",type);
     }
   }
-  return value;
+  return tb == null ? null : tb.finish();
 }
