@@ -15,11 +15,11 @@
       text.add(node.string());
     }
  else     if (ip == NodeType.ATT) {
+      final QNm name=node.qname();
       if (!text.isEmpty() || !children.isEmpty()) {
-        errAtt=node.qname();
+        errAtt=name;
         return false;
       }
-      final QNm name=node.qname();
       for (      final ANode att : atts) {
         if (name.eq(att.qname())) {
           duplAtt=name;
@@ -34,13 +34,11 @@
         errNS=node.qname();
         return false;
       }
-      final byte[] name=node.name();
-      final byte[] uri=node.string();
-      final byte[] u=nspaces.value(name);
-      if (u == null) {
+      final byte[] name=node.name(), uri=node.string(), knownUri=nspaces.value(name);
+      if (knownUri == null) {
         nspaces.add(name,uri);
       }
- else       if (!Token.eq(uri,u)) {
+ else       if (!Token.eq(uri,knownUri)) {
         duplNS=name;
         return false;
       }
