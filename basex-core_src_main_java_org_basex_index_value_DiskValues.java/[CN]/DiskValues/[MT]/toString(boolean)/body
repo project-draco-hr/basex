@@ -1,12 +1,12 @@
 {
   final TokenBuilder tb=new TokenBuilder();
-  tb.add(text ? "TEXT" : "ATTRIBUTE").add(" INDEX, '").add(data.meta.name).add("':\n");
-  final int s=size();
-  for (int m=0; m < s; m++) {
-    final long pos=idxr.read5(m * 5L);
-    final int oc=idxl.readNum(pos);
+  tb.addExt(type).add(" INDEX, '").add(data.meta.name).add("':\n");
+  final int entries=size();
+  for (int index=0; index < entries; index++) {
+    final long pos=idxr.read5(index * 5L);
+    final int count=idxl.readNum(pos);
     int id=idxl.readNum();
-    tb.add("  ").addInt(m).add(". offset: ").addLong(pos);
+    tb.add("  ").addInt(index).add(". offset: ").addLong(pos);
     if (all) {
       tb.add(", key: \"").add(key(id)).add('"');
       tb.add(", ids").add("/pres").add(": ").addInt(id).add('/').addInt(pre(id));
@@ -14,7 +14,7 @@
  else {
       tb.add(", ids").add(": ").addInt(id);
     }
-    for (int n=1; n < oc; n++) {
+    for (int c=1; c < count; c++) {
       id+=idxl.readNum();
       tb.add(",").addInt(id);
       if (all)       tb.add('/').addInt(pre(id));

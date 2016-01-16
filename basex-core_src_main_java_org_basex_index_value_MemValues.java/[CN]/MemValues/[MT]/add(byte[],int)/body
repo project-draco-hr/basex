@@ -1,24 +1,20 @@
 {
-  if (vals.length == 0)   return;
-  final byte[][] tokens=tokenize ? distinctTokens(key) : new byte[][]{key};
-  for (  final byte[] token : tokens) {
-    final int id=tokenize ? values.put(token) : values.id(token), vl=vals.length;
-    while (idsList.size() < id + 1)     idsList.add(null);
-    if (lenList.size() < id + 1)     lenList.set(id,0);
-    final int len=lenList.get(id), size=len + vl;
-    int[] ids=idsList.get(id);
-    if (ids == null) {
-      ids=vals;
-    }
- else {
-      if (ids.length < size)       ids=Arrays.copyOf(ids,Array.newSize(size));
-      System.arraycopy(vals,0,ids,len,vl);
-      if (ids[len - 1] > vals[0]) {
-        if (reorder == null)         reorder=new BoolList(values.size());
-        reorder.set(id,true);
-      }
-    }
-    idsList.set(id,ids);
-    lenList.set(id,size);
+  final int id=type == IndexType.TOKEN ? values.put(key) : values.id(key), vl=vals.length;
+  while (idsList.size() < id + 1)   idsList.add(null);
+  if (lenList.size() < id + 1)   lenList.set(id,0);
+  final int len=lenList.get(id), size=len + vl;
+  int[] ids=idsList.get(id);
+  if (ids == null) {
+    ids=vals;
   }
+ else {
+    if (ids.length < size)     ids=Arrays.copyOf(ids,Array.newSize(size));
+    System.arraycopy(vals,0,ids,len,vl);
+    if (ids[len - 1] > vals[0]) {
+      if (reorder == null)       reorder=new BoolList(values.size());
+      reorder.set(id,true);
+    }
+  }
+  idsList.set(id,ids);
+  lenList.set(id,size);
 }

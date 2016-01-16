@@ -1,9 +1,19 @@
 {
   final int tl=term.length;
-  if (tl == 0 && text)   return test == null ? BasicNodeIter.EMPTY : scanEmpty();
+  if (tl == 0 && type == IndexType.TEXT)   return test == null ? BasicNodeIter.EMPTY : scanEmpty();
   final Data data=ictx.data;
-  final IndexIterator ii=(text ? data.meta.textindex : tokenize ? data.meta.tokenindex : data.meta.attrindex) && tl > 0 && tl <= data.meta.maxlen ? data.iter(new StringToken(text,term)) : scan(term);
-  final int kind=text ? Data.TEXT : Data.ATTR;
+  final boolean index;
+  if (type == IndexType.TEXT) {
+    index=data.meta.textindex && tl > 0 && tl <= data.meta.maxlen;
+  }
+ else   if (type == IndexType.ATTRIBUTE) {
+    index=data.meta.attrindex && tl > 0 && tl <= data.meta.maxlen;
+  }
+ else {
+    index=data.meta.tokenindex;
+  }
+  final IndexIterator ii=index ? data.iter(new StringToken(type,term)) : scan(term);
+  final int kind=type == IndexType.TEXT ? Data.TEXT : Data.ATTR;
   final DBNode tmp=new DBNode(data,0,test == null ? kind : Data.ELEM);
   return new BasicNodeIter(){
     @Override public ANode next(){

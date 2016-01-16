@@ -1,0 +1,42 @@
+{
+  final String names;
+switch (type) {
+case TEXT:
+    names=data.meta.textinclude;
+  break;
+case ATTRIBUTE:
+names=data.meta.attrinclude;
+break;
+case TOKEN:
+names=data.meta.tokeninclude;
+break;
+case FULLTEXT:
+names=data.meta.ftinclude;
+break;
+default :
+throw Util.notExpected();
+}
+final HashSet<String> inc=toSet(names.trim());
+for (final String entry : inc) {
+if (entry.equals("*") || entry.equals("*:*")) {
+qnames.reset();
+return;
+}
+final String uri, ln;
+final Matcher m=QNm.EQNAME.matcher(entry);
+if (m.find()) {
+uri=m.group(1);
+ln=m.group(2).equals("*") ? null : m.group(2);
+}
+ else if (entry.startsWith("*:")) {
+uri=null;
+ln=entry.substring(2);
+}
+ else {
+uri="";
+ln=entry;
+}
+qnames.add(ln == null ? null : token(ln));
+qnames.add(uri == null ? null : token(uri));
+}
+}

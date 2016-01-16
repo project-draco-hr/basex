@@ -14,12 +14,12 @@
     if (kind == ATTR) {
       if (meta.updindex && meta.attrindex) {
         pres.add(pre);
-        attrIndex.delete(cache(pres,false));
+        attrIndex.delete(cache(pres,IndexType.ATTRIBUTE));
       }
       table.write1(pre,11,uriId);
       table.write2(pre,1,attrNames.index(name,null,false));
       if (nsFlag)       table.write2(nsPre,1,1 << 15 | nameId(nsPre));
-      if (!pres.isEmpty())       attrIndex.add(cache(pres,false));
+      if (!pres.isEmpty())       attrIndex.add(cache(pres,IndexType.ATTRIBUTE));
     }
  else {
       if (meta.updindex && meta.textindex) {
@@ -27,12 +27,12 @@
         for (int curr=pre + attSize(pre,kind); curr != last; curr+=size(curr,kind(curr))) {
           if (kind(curr) == TEXT)           pres.add(curr);
         }
-        textIndex.delete(cache(pres,true));
+        textIndex.delete(cache(pres,IndexType.TEXT));
       }
       table.write1(pre,3,uriId);
       final int nameId=elemNames.index(name,null,false);
       table.write2(nsPre,1,(nsFlag || nsFlag(nsPre) ? 1 << 15 : 0) | nameId);
-      if (!pres.isEmpty())       textIndex.add(cache(pres,true));
+      if (!pres.isEmpty())       textIndex.add(cache(pres,IndexType.TEXT));
     }
   }
 }

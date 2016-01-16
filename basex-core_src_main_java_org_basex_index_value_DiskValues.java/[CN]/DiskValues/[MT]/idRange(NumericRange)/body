@@ -4,14 +4,15 @@
   final boolean simple=len != 0 && min > 0 && (long)min == min && token(min).length == len;
   final IntList pres=new IntList();
 synchronized (monitor) {
-    final int s=size();
-    for (int l=0; l < s; ++l) {
-      final int ds=idxl.readNum(idxr.read5(l * 5L));
+    final int entries=size();
+    final boolean text=type == IndexType.TEXT;
+    for (int index=0; index < entries; ++index) {
+      final int count=idxl.readNum(idxr.read5(index * 5L));
       int id=idxl.readNum();
       final int pre=pre(id);
       final double v=data.textDbl(pre,text);
       if (v >= min && v <= max) {
-        for (int d=0; d < ds; ++d) {
+        for (int c=0; c < count; c++) {
           pres.add(pre(id));
           id+=idxl.readNum();
         }
