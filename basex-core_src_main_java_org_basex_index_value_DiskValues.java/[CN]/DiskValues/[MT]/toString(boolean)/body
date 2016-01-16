@@ -1,27 +1,25 @@
 {
-  final int sz=size();
   final TokenBuilder tb=new TokenBuilder();
   tb.add(text ? "TEXT" : "ATTRIBUTE").add(" INDEX, '").add(data.meta.name).add("':\n");
-  if (sz != 0) {
-    for (int m=0; m < sz; m++) {
-      final long pos=idxr.read5(m * 5L);
-      final int oc=idxl.readNum(pos);
-      int id=idxl.readNum();
-      final int pre=all ? pre(id) : 0;
-      tb.add("  ").addInt(m).add(". offset: ").addLong(pos);
-      if (all)       tb.add(", key: \"").add(data.text(pre,text)).add('"');
-      tb.add(", ids");
-      if (all)       tb.add("/pres");
-      tb.add(": ");
-      tb.addInt(id);
-      if (all)       tb.add('/').addInt(pre);
-      for (int n=1; n < oc; n++) {
-        id+=idxl.readNum();
-        tb.add(",").addInt(id);
-        if (all)         tb.add('/').addInt(pre(id));
-      }
-      tb.add("\n");
+  final int s=size();
+  for (int m=0; m < s; m++) {
+    final long pos=idxr.read5(m * 5L);
+    final int oc=idxl.readNum(pos);
+    int id=idxl.readNum();
+    tb.add("  ").addInt(m).add(". offset: ").addLong(pos);
+    if (all) {
+      tb.add(", key: \"").add(key(id)).add('"');
+      tb.add(", ids").add("/pres").add(": ").addInt(id).add('/').addInt(pre(id));
     }
+ else {
+      tb.add(", ids").add(": ").addInt(id);
+    }
+    for (int n=1; n < oc; n++) {
+      id+=idxl.readNum();
+      tb.add(",").addInt(id);
+      if (all)       tb.add('/').addInt(pre(id));
+    }
+    tb.add("\n");
   }
   return tb.toString();
 }

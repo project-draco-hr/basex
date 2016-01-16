@@ -2,7 +2,7 @@
   for (  Set option : options)   execute(option);
   execute(new CreateDB(NAME,FILE));
   boolean text=IndexType.TEXT == indexType;
-  ValueIndex index=text ? context.data().textIndex : IndexType.ATTTOKEN == indexType ? context.data().attrTokenIndex : context.data().attrIndex;
+  ValueIndex index=text ? context.data().textIndex : IndexType.TOKEN == indexType ? context.data().tokenIndex : context.data().attrIndex;
   for (  final Entry<String,Integer> entry : tokens.entrySet()) {
     byte[] token=token(entry.getKey());
     IndexIterator it=index.iter(new IndexEntries(token,indexType));
@@ -10,7 +10,7 @@
     while (it.more()) {
       int pre=it.pre();
       final byte[] result=context.data().text(pre,text);
-      if (IndexType.ATTTOKEN == indexType)       assertTrue("Token '" + entry.getKey() + "' not found in match '"+ string(result)+ "'!",new TokenSet(Token.split(normalize(result),' ')).contains(token(entry.getKey())));
+      if (IndexType.TOKEN == indexType)       assertTrue("Token '" + entry.getKey() + "' not found in match '"+ string(result)+ "'!",new TokenSet(distinctTokens(result)).contains(token(entry.getKey())));
  else       assertEquals("Wrong result returned!",entry.getKey(),string(result));
       count++;
     }
