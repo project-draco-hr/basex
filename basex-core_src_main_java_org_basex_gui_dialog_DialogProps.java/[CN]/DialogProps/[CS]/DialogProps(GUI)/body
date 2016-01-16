@@ -7,49 +7,50 @@
   final BaseXBack tabRes=add.border(8);
   final Data data=main.context.data();
   final int ll=LABELS.length;
-  for (int l=0; l < ll; ++l) {
+  for (int l=0; l < ll; l++) {
     labels[l]=new BaseXLabel(LABELS[l]).large();
     panels[l]=new BaseXBack(new BorderLayout(0,4));
-    infos[l]=new TextPanel(Token.token(PLEASE_WAIT_D),false,this);
+    infos[l]=new TextPanel(PLEASE_WAIT_D,false,this);
     infos[l].setFont(dmfont);
-    BaseXLayout.setHeight(infos[l],200);
+    BaseXLayout.setHeight(infos[l],150);
     if (l != 1)     buttons[l]=new BaseXButton(" ",this);
-    if (l == 5)     buttons[l].setEnabled(!data.inMemory());
+    if (l == 6)     buttons[l].setEnabled(!data.inMemory());
   }
-  creations[3]=new DialogValues(this,true);
-  creations[4]=new DialogValues(this,false);
-  creations[5]=new DialogFT(this,false);
-  tabNames=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
-  tabNames.add(panels[0]);
-  tabNames.add(panels[1]);
-  tabPath=new BaseXBack(new GridLayout(1,1)).border(8);
-  tabPath.add(panels[2]);
-  tabValues=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
-  tabValues.add(panels[3]);
-  tabValues.add(panels[4]);
-  tabFT=new BaseXBack(new GridLayout(1,1)).border(8);
-  tabFT.add(panels[5]);
-  final BaseXBack tabGeneral=new BaseXBack(new BorderLayout(0,8)).border(8);
-  final Font f=tabGeneral.getFont();
+  creations[3]=new DialogValues(this,IndexType.TEXT);
+  creations[4]=new DialogValues(this,IndexType.ATTRIBUTE);
+  creations[5]=new DialogValues(this,IndexType.TOKEN);
+  creations[6]=new DialogFT(this,false);
+  namePanel=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
+  namePanel.add(panels[0]);
+  namePanel.add(panels[1]);
+  pathPanel=new BaseXBack(new GridLayout(1,1)).border(8);
+  pathPanel.add(panels[2]);
+  indexPanel=new BaseXBack(new GridLayout(3,1,0,8)).border(8);
+  indexPanel.add(panels[3]);
+  indexPanel.add(panels[4]);
+  indexPanel.add(panels[5]);
+  ftPanel=new BaseXBack(new GridLayout(1,1)).border(8);
+  ftPanel.add(panels[6]);
+  final BaseXBack propPanel=new BaseXBack(new BorderLayout(0,8)).border(8);
+  final Font f=propPanel.getFont();
   final BaseXLabel doc=new BaseXLabel(data.meta.name).border(0,0,6,0).large();
-  BaseXLayout.setWidth(doc,400);
-  tabGeneral.add(doc,BorderLayout.NORTH);
+  propPanel.add(doc,BorderLayout.NORTH);
   final String db=InfoDB.db(data.meta,true,false,true);
   final TokenBuilder info=new TokenBuilder(db);
   if (!data.nspaces.isEmpty()) {
     info.bold().add(NL + NAMESPACES + NL).norm().add(data.nspaces.info());
   }
-  final TextPanel text=new TextPanel(info.finish(),false,this);
+  final TextPanel text=new TextPanel(info.toString(),false,this);
   text.setFont(f);
   BaseXLayout.setHeight(text,200);
-  tabGeneral.add(new SearchEditor(main,text),BorderLayout.CENTER);
+  propPanel.add(new SearchEditor(main,text),BorderLayout.CENTER);
   tabs=new BaseXTabs(this);
   tabs.addTab(RESOURCES,tabRes);
-  tabs.addTab(NAMES,tabNames);
-  tabs.addTab(PATH_INDEX,tabPath);
-  tabs.addTab(INDEXES,tabValues);
-  tabs.addTab(FULLTEXT,tabFT);
-  tabs.addTab(GENERAL,tabGeneral);
+  tabs.addTab(NAMES,namePanel);
+  tabs.addTab(PATH_INDEX,pathPanel);
+  tabs.addTab(INDEXES,indexPanel);
+  tabs.addTab(FULLTEXT,ftPanel);
+  tabs.addTab(Text.PROPERTIES,propPanel);
   tabs.addChangeListener(new ChangeListener(){
     @Override public synchronized void stateChanged(    final ChangeEvent evt){
       updateInfo();
