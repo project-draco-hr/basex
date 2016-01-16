@@ -1,12 +1,12 @@
 {
-  final String f=text ? DATATXT : DATAATV;
+  final String f=DiskValues.getFileSuffix(text,tokenize);
   int sz=0;
   try (final DataOutput outL=new DataOutput(data.meta.dbfile(f + 'l'));final DataOutput outR=new DataOutput(data.meta.dbfile(f + 'r'))){
     outL.write4(0);
     final IntList ml=new IntList();
-    final IntList il=new IntList();
+    final LongList il=new LongList();
     final DiskValuesMerger[] vm=new DiskValuesMerger[splits];
-    for (int i=0; i < splits; ++i)     vm[i]=new DiskValuesMerger(data,text,i);
+    for (int i=0; i < splits; ++i)     vm[i]=new DiskValuesMerger(data,text,tokenize,i);
     while (true) {
       checkStop();
       int min=-1;
@@ -27,13 +27,17 @@
       for (int m=0; m < ms; ++m) {
         final DiskValuesMerger t=vm[ml.get(m)];
         final int vl=t.values.length;
-        for (int l=4, v; l < vl; l+=Num.length(v)) {
-          v=Num.get(t.values,l);
-          il.add(v);
+        for (int l=4; l < vl; l+=Num.length(t.values,l)) {
+          long value=Num.get(t.values,l);
+          if (tokenize) {
+            l+=Num.length(t.values,l);
+            value=value << 32 | Num.get(t.values,l);
+          }
+          il.add(value);
         }
         t.next();
       }
-      write(outL,outR,il);
+      write(outL,outR,il,tokenize);
       ++sz;
     }
   }
