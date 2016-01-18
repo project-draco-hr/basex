@@ -1,8 +1,7 @@
 {
   final TokenSet idSet=ids(exprs[0].atomIter(qc,info));
   final ANode root=checkRoot(toNode(ctxArg(1,qc),qc));
-  final Data data=root.data();
-  if (data == null || (idref ? data.tokenIndex : data.attrIndex) == null) {
+  if (scan(root,idref)) {
     final ANodeList list=new ANodeList().check();
     add(idSet,list,root,idref);
     return list.iter();
@@ -10,10 +9,10 @@
   final TokenList idList=new TokenList(idSet.size());
   for (  final byte[] id : idSet)   idList.add(id);
   final Value ids=StrSeq.get(idList);
-  final ValueAccess va=new ValueAccess(info,ids,idref ? IndexType.TOKEN : IndexType.ATTRIBUTE,null,new IndexContext(data,false));
+  final ValueAccess va=new ValueAccess(info,ids,idref ? IndexType.TOKEN : IndexType.ATTRIBUTE,null,new IndexContext(root.data(),false));
   final ANodeList results=new ANodeList();
   for (  final ANode attr : va.iter(qc)) {
-    if (isId(attr,idref))     results.add(attr.parent());
+    if (isId(attr,idref))     results.add(idref ? attr : attr.parent());
   }
   return results.iter();
 }

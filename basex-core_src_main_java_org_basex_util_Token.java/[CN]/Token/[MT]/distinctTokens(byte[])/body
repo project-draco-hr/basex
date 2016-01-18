@@ -1,8 +1,14 @@
 {
   final byte[][] tokens=split(normalize(token),' ');
-  final TokenList tl=new TokenList(tokens.length);
-  for (  final byte[] t : tokens) {
-    if (!tl.contains(t))     tl.add(t);
+  int tl=tokens.length;
+  for (int i=0; i < tl - 1; i++) {
+    for (int j=i + 1; j < tl; j++) {
+      if (eq(tokens[i],tokens[j])) {
+        Array.move(tokens,j + 1,-1,tl - j - 1);
+        j--;
+        tl--;
+      }
+    }
   }
-  return tl.finish();
+  return Array.copyOf(tokens,tl);
 }
