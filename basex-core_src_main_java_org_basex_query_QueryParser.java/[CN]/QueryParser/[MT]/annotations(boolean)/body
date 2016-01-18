@@ -1,8 +1,9 @@
 {
   final AnnList anns=new AnnList();
   while (true) {
+    final Ann ann;
     if (updating && wsConsumeWs(UPDATING)) {
-      anns.add(new Ann(info(),Annotation.UPDATING));
+      ann=new Ann(info(),Annotation.UPDATING);
     }
  else     if (consume('%')) {
       skipWs();
@@ -25,7 +26,7 @@
         if (NSGlobal.prefix(uri).length != 0 && !eq(uri,LOCAL_URI,ERROR_URI)) {
           throw (NSGlobal.reserved(uri) ? ANNWHICH_X_X : BASX_ANNOT_X_X).get(info,'%',name.string());
         }
-        anns.add(new Ann(info,name,items.finish()));
+        ann=new Ann(info,name,items.finish());
       }
  else {
         if (sig.single && anns.contains(sig))         throw BASX_TWICE_X_X.get(info,'%',sig.id());
@@ -37,12 +38,14 @@
           final Item it=items.get(a);
           if (!st.instance(it))           throw BASX_ANNTYPE_X_X_X.get(info,sig,st,it.seqType());
         }
-        anns.add(new Ann(info,sig,items.finish()));
+        ann=new Ann(info,sig,items.finish());
       }
     }
  else {
       break;
     }
+    anns.add(ann);
+    if (ann.sig == Annotation.UPDATING)     qc.updating();
   }
   skipWs();
   return anns;

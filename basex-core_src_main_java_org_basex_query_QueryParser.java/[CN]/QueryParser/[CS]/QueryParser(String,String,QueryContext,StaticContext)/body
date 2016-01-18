@@ -1,15 +1,14 @@
 {
   super(query);
-  this.qc=qc;
-  final MainOptions opts=qc.context.options;
-  final String bi=path != null ? path : opts.get(MainOptions.QUERYPATH);
-  final StaticContext sctx=sc != null ? sc : new StaticContext(qc);
-  if (!bi.isEmpty())   sctx.baseURI(bi);
-  this.sc=sctx;
+  qc=qctx;
+  sc=sctx != null ? sctx : new StaticContext(qctx);
+  final MainOptions opts=qctx.context.options;
+  final String uri=path != null ? path : opts.get(MainOptions.QUERYPATH);
+  if (!uri.isEmpty())   sc.baseURI(uri);
   for (  final Entry<String,String> entry : opts.toMap(MainOptions.BINDINGS).entrySet()) {
     final String key=entry.getKey();
     final Atm value=new Atm(entry.getValue());
-    if (key.isEmpty())     qc.context(value,sc);
- else     qc.bind(key,value,sc);
+    if (key.isEmpty())     qctx.context(value,sc);
+ else     qctx.bind(key,value,sc);
   }
 }
