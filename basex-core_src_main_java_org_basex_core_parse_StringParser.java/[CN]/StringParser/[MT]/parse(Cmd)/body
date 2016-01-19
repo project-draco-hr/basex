@@ -6,7 +6,7 @@ case BACKUP:
       return new CreateBackup(glob(cmd));
 case DATABASE:
 case DB:
-    return new CreateDB(name(cmd),remaining(null));
+    return new CreateDB(name(cmd),remaining(null,true));
 case INDEX:
   return new CreateIndex(consume(CmdIndex.class,cmd));
 case USER:
@@ -32,10 +32,10 @@ case CHECK:
 return new Check(string(cmd));
 case ADD:
 final String aa=key(S_TO,null) ? string(cmd) : null;
-return new Add(aa,remaining(cmd));
+return new Add(aa,remaining(cmd,true));
 case STORE:
 final String sa=key(S_TO,null) ? string(cmd) : null;
-return new Store(sa,remaining(cmd));
+return new Store(sa,remaining(cmd,true));
 case RETRIEVE:
 return new Retrieve(string(cmd));
 case DELETE:
@@ -43,7 +43,7 @@ return new Delete(string(cmd));
 case RENAME:
 return new Rename(string(cmd),string(cmd));
 case REPLACE:
-return new Replace(string(cmd),remaining(cmd));
+return new Replace(string(cmd),remaining(cmd,true));
 case INFO:
 switch (consume(CmdInfo.class,cmd)) {
 case NULL:
@@ -54,9 +54,8 @@ return new InfoDB();
 case INDEX:
 return new InfoIndex(consume(CmdIndexInfo.class,null));
 case STORAGE:
-String arg1=number();
+final String arg1=number();
 final String arg2=arg1 != null ? number() : null;
-if (arg1 == null) arg1=xquery(null);
 return new InfoStorage(arg1,arg2);
 }
 break;
@@ -90,7 +89,7 @@ break;
 case EXPORT:
 return new Export(string(cmd));
 case XQUERY:
-return new XQuery(xquery(cmd));
+return new XQuery(remaining(cmd,false));
 case RUN:
 return new Run(string(cmd));
 case TEST:

@@ -1,37 +1,13 @@
 {
   final String first=args[0], second=args[1];
-  DBNodes nodes=null;
-  if (isQuery()) {
-    try {
-      final Value value=qp(first,context).value();
-      if (value instanceof DBNodes)       nodes=(DBNodes)value;
-    }
- catch (    final QueryException ex) {
-      error(Util.message(ex));
-    }
- finally {
-      closeQp();
-    }
-  }
   final Data data=context.data();
   final DataPrinter dp=new DataPrinter(data);
-  if (nodes != null) {
-    for (    final int pre : nodes.pres())     dp.add(pre);
+  int start=0, end=1000;
+  if (!first.isEmpty()) {
+    start=toInt(first);
+    end=(second.isEmpty() ? start : toInt(second)) + 1;
   }
- else {
-    int start=0, end=1000;
-    if (!first.isEmpty()) {
-      if (!second.isEmpty()) {
-        start=toInt(first);
-        end=toInt(second) + 1;
-      }
- else {
-        start=toInt(first);
-        end=start + 1;
-      }
-    }
-    dp.add(start,end);
-  }
+  dp.add(start,end);
   out.print(dp.finish());
   return true;
 }
