@@ -1,8 +1,10 @@
 {
   if (!extend())   return false;
+  int l=1;
   final int s=start, e=end, ts=size();
   final byte[] tmp=Arrays.copyOf(text,ts);
-  final TokenList tl=new TokenList();
+  for (int i=s; i < e; i++)   if (tmp[i] == '\n')   l++;
+  TokenList tl=new TokenList(l);
   final ByteList bl=new ByteList();
   for (int i=s; i < e; i++) {
     final byte ch=tmp[i];
@@ -14,8 +16,7 @@
     }
   }
   if (!bl.isEmpty())   tl.add(bl.finish());
-  tl.sort(gopts.get(GUIOptions.CASESORT),gopts.get(GUIOptions.ASCSORT));
-  if (gopts.get(GUIOptions.MERGEDUPL))   tl.unique();
+  sort(tl);
   int i=s;
   for (  final byte[] line : tl) {
     final int ll=line.length;
