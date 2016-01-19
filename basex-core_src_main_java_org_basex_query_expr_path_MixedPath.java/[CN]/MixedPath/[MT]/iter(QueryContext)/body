@@ -1,6 +1,6 @@
 {
   Iter iter;
-  final long sz;
+  long sz;
   if (root != null) {
     final Iter rt=qc.iter(root);
     final long s=rt.size();
@@ -20,42 +20,34 @@
     sz=rt.size();
   }
   final Value cv=qc.value;
-  final long cs=qc.size;
-  final long cp=qc.pos;
+  final long cp=qc.pos, cs=qc.size;
   try {
     final int sl=steps.length;
     for (int s=0; s < sl; s++) {
-      final Expr step=steps[s];
-      final ItemList cache=new ItemList();
       qc.size=sz;
       qc.pos=1;
-      long nodes=0;
+      final ANodeList nodes=new ANodeList().check();
+      final ItemList items=new ItemList();
+      final Expr step=steps[s];
       for (Item it; (it=iter.next()) != null; ) {
         if (!(it instanceof ANode))         throw PATHNODE_X_X_X.get(info,step,it.type,it);
         qc.value=it;
         final Iter ir=qc.iter(step);
         for (Item i; (i=ir.next()) != null; ) {
-          if (i instanceof ANode)           nodes++;
-          cache.add(i);
+          if (i instanceof ANode)           nodes.add((ANode)i);
+ else           items.add(i);
         }
         qc.pos++;
       }
-      final long vs=cache.size();
-      if (nodes < vs) {
-        if (nodes > 0)         throw EVALNODESVALS.get(info);
-        if (s + 1 < sl) {
-          final Item it=cache.get(0);
-          throw PATHNODE_X_X_X.get(info,steps[s + 1],it.type,it);
-        }
-      }
-      if (nodes == vs) {
-        final ANodeList list=new ANodeList().check();
-        for (        final Item nd : cache)         list.add((ANode)nd);
-        iter=list.iter();
+      if (items.isEmpty()) {
+        iter=nodes.iter();
       }
  else {
-        iter=cache.iter();
+        if (!nodes.isEmpty())         throw MIXEDRESULTS.get(info);
+        if (s + 1 < sl)         throw PATHNODE_X_X_X.get(info,steps[s + 1],items.get(0).type,items.get(0));
+        iter=items.iter();
       }
+      sz=iter.size();
     }
     return iter;
   }
