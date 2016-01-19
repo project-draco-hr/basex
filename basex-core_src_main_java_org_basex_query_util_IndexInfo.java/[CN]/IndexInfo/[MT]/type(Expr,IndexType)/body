@@ -1,0 +1,16 @@
+{
+  pred=input;
+  final Step last=lastStep();
+  if (last == null)   return null;
+  final Data data=ic.data;
+  final boolean elem=last.test.type == NodeType.ELM;
+  if (elem) {
+    if (!(data.meta.uptodate && data.nspaces.isEmpty() && last.test.kind == Kind.NAME))     return null;
+    test=(NameTest)last.test;
+    final Stats stats=data.elemNames.stat(data.elemNames.id(test.name.local()));
+    if (stats == null || !stats.isLeaf())     return null;
+  }
+  text=elem || last.test.type == NodeType.TXT;
+  final IndexType it=type != null ? type : text ? IndexType.TEXT : IndexType.ATTRIBUTE;
+  return new IndexNames(it,data).contains(qname()) && check(type,last) ? it : null;
+}

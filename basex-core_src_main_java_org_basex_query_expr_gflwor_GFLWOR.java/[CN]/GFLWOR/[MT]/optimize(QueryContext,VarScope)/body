@@ -36,7 +36,7 @@
       final For fst=(For)clauses.getFirst();
       if (!fst.empty) {
         if (fst.expr instanceof GFLWOR) {
-          qc.compInfo(QueryText.OPTFLAT,fst);
+          qc.compInfo(QueryText.OPTFLAT_X,fst);
           final GFLWOR sub=(GFLWOR)fst.expr;
           clauses.set(0,new For(fst.var,null,fst.score,sub.ret,false,fst.info));
           if (fst.pos != null)           clauses.add(1,new Count(fst.pos,fst.info));
@@ -61,7 +61,7 @@
       if (ret instanceof GFLWOR) {
         final GFLWOR sub=(GFLWOR)ret;
         if (sub.isFLWR()) {
-          qc.compInfo(QueryText.OPTFLAT,this);
+          qc.compInfo(QueryText.OPTFLAT_X,this);
           clauses.addAll(sub.clauses);
           ret=sub.ret;
           changed=true;
@@ -71,7 +71,7 @@
       if (ret instanceof GFLWOR || tc != null && tc.expr instanceof GFLWOR) {
         final GFLWOR sub=(GFLWOR)(tc == null ? ret : tc.expr);
         if (sub.clauses.getFirst() instanceof Let) {
-          qc.compInfo(QueryText.OPTFLAT,this);
+          qc.compInfo(QueryText.OPTFLAT_X,this);
           final LinkedList<Clause> cls=sub.clauses;
           do {
             clauses.add(cls.removeFirst());
@@ -88,7 +88,7 @@
   mergeWheres();
   size=calcSize();
   if (size == 0 && !has(Flag.NDT) && !has(Flag.UPD)) {
-    qc.compInfo(QueryText.OPTREWRITE,this);
+    qc.compInfo(QueryText.OPTREWRITE_X,this);
     return Empty.SEQ;
   }
   seqType=SeqType.get(ret.seqType().type,size);

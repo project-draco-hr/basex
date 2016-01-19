@@ -10,14 +10,17 @@
     e=children(qc,v);
     if (e != this)     return e.optimize(qc,scp);
   }
-  if (root == null && steps.length == 1 && steps[0] instanceof Step) {
-    final Step step=(Step)steps[0];
-    if (step.axis == ATTR && step.test.kind == Kind.URI_NAME) {
-      step.seqType(SeqType.NOD_ZO);
+  final Path path=get(info,root,steps);
+  final int sl=path.steps.length;
+  final Expr lastExpr=path.steps[sl - 1];
+  path.size=path.size(qc);
+  path.seqType=SeqType.get(lastExpr.seqType().type,path.size);
+  if (path.root == null && sl == 1 && lastExpr instanceof Step) {
+    final Step lastStep=(Step)lastExpr;
+    if (lastStep.axis == ATTR && lastStep.test.unique) {
+      lastStep.seqType=lastStep.seqType.withOcc(Occ.ZERO_ONE);
+      path.seqType=lastStep.seqType;
     }
   }
-  final Path path=get(info,root,steps);
-  path.size=path.size(qc);
-  path.seqType=SeqType.get(steps[steps.length - 1].seqType().type,path.size);
   return path;
 }
