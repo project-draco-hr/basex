@@ -1,0 +1,17 @@
+{
+  set(MainOptions.UPDINDEX,true);
+  set(MainOptions.TOKENINDEX,true);
+  execute(new CreateDB(NAME));
+  execute(new Add("a","<x c='c'/>"));
+  query(_DB_TOKEN.args(NAME,"a"),"");
+  query(DATA.args(_DB_TOKEN.args(NAME,"c")),"c");
+  for (int i=0; i < 5; i++) {
+    execute(new Add("a","<x c='c'/>"));
+    execute(new Add("a","<x a='a' b='b'/>"));
+    execute(new Replace("a","<x/>"));
+  }
+  query(_DB_TOKEN.args(NAME,"a"),"");
+  query(_DB_TOKEN.args(NAME,"b"),"");
+  query(_DB_TOKEN.args(NAME,"c"),"");
+  query(_DB_INFO.args(NAME) + "//tokenindex/text()","true");
+}

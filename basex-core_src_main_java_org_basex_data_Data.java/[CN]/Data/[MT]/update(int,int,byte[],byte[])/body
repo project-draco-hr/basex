@@ -10,21 +10,24 @@
     final int nsPre=kind == ATTR ? parent(pre,kind) : pre;
     final int uriId=nsFlag ? nspaces.add(nsPre,prefix,uri,this) : oldUriId != 0 && eq(nspaces.uri(oldUriId),uri) ? oldUriId : 0;
     final int sz=size(pre,kind);
-    final IntList pres=new IntList();
     if (kind == ATTR) {
-      if (meta.updindex && meta.attrindex) {
-        pres.add(pre);
-        attrIndex.delete(cache(pres,IndexType.ATTRIBUTE));
+      if (meta.updindex) {
+        if (meta.attrindex)         attrIndex.delete(cache(pre,IndexType.ATTRIBUTE));
+        if (meta.tokenindex)         tokenIndex.delete(cache(pre,IndexType.TOKEN));
       }
       table.write1(pre,11,uriId);
       table.write2(pre,1,attrNames.index(name,null,false));
       if (nsFlag)       table.write2(nsPre,1,1 << 15 | nameId(nsPre));
-      if (!pres.isEmpty())       attrIndex.add(cache(pres,IndexType.ATTRIBUTE));
+      if (meta.updindex) {
+        if (meta.attrindex)         attrIndex.add(cache(pre,IndexType.ATTRIBUTE));
+        if (meta.tokenindex)         tokenIndex.add(cache(pre,IndexType.TOKEN));
+      }
     }
  else {
+      final IntList pres=new IntList();
       if (meta.updindex && meta.textindex) {
         final int last=pre + sz;
-        for (int curr=pre + attSize(pre,kind); curr != last; curr+=size(curr,kind(curr))) {
+        for (int curr=pre + attSize(pre,kind); curr < last; curr+=size(curr,kind(curr))) {
           if (kind(curr) == TEXT)           pres.add(curr);
         }
         textIndex.delete(cache(pres,IndexType.TEXT));

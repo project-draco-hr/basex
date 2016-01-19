@@ -5,14 +5,15 @@
   final int ps=pres.size(), kind=text ? TEXT : ATTR;
   for (int p=0; p < ps; p++) {
     final int pre=pres.get(p);
-    if (kind(pre) == kind && textLen(pre,text) <= meta.maxlen && in.contains(this,pre,text)) {
-      final byte[] key=text(pre,text);
-      IntList ids=map.get(key);
-      if (ids == null) {
-        ids=new IntList(1);
-        map.put(key,ids);
+    if (kind(pre) == kind && in.contains(this,pre,text)) {
+      if (type == IndexType.TOKEN) {
+        for (        final byte[] token : distinctTokens(text(pre,text))) {
+          addId(map,token,pre);
+        }
       }
-      ids.add(id(pre));
+ else       if (textLen(pre,text) <= meta.maxlen) {
+        addId(map,text(pre,text),pre);
+      }
     }
   }
   return map;

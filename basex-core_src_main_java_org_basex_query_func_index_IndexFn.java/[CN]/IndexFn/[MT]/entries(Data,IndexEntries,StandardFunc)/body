@@ -1,23 +1,5 @@
 {
-  final ValueIndex index;
-  final boolean avl;
   final IndexType type=entries.type();
-  if (type == IndexType.TEXT) {
-    index=data.textIndex;
-    avl=data.meta.textindex;
-  }
- else   if (type == IndexType.ATTRIBUTE) {
-    index=data.attrIndex;
-    avl=data.meta.attrindex;
-  }
- else   if (type == IndexType.TOKEN) {
-    index=data.tokenIndex;
-    avl=data.meta.tokenindex;
-  }
- else {
-    index=data.ftIndex;
-    avl=data.meta.ftindex;
-  }
-  if (!avl)   throw BXDB_INDEX_X.get(call.info,data.meta.name,type);
-  return entries(index,entries);
+  if (!data.meta.index(type))   throw BXDB_INDEX_X.get(call.info,data.meta.name,type);
+  return entries(data.index(type),entries);
 }
