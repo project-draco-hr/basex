@@ -1,18 +1,18 @@
 {
   final TokenSet idSet=ids(exprs[0].atomIter(qc,info));
   final ANode root=checkRoot(toNode(ctxArg(1,qc),qc));
-  if (scan(root,idref)) {
-    final ANodeList list=new ANodeList().check();
-    add(idSet,list,root,idref);
-    return list.iter();
+  if (index(root,idref)) {
+    final TokenList idList=new TokenList(idSet.size());
+    for (    final byte[] id : idSet)     idList.add(id);
+    final Value ids=StrSeq.get(idList);
+    final ValueAccess va=new ValueAccess(info,ids,idref ? IndexType.TOKEN : IndexType.ATTRIBUTE,null,new IndexContext(root.data(),false));
+    final ANodeList results=new ANodeList();
+    for (    final ANode attr : va.iter(qc)) {
+      if (XMLToken.isId(attr.name(),idref))       results.add(idref ? attr : attr.parent());
+    }
+    return results.iter();
   }
-  final TokenList idList=new TokenList(idSet.size());
-  for (  final byte[] id : idSet)   idList.add(id);
-  final Value ids=StrSeq.get(idList);
-  final ValueAccess va=new ValueAccess(info,ids,idref ? IndexType.TOKEN : IndexType.ATTRIBUTE,null,new IndexContext(root.data(),false));
-  final ANodeList results=new ANodeList();
-  for (  final ANode attr : va.iter(qc)) {
-    if (isId(attr,idref))     results.add(idref ? attr : attr.parent());
-  }
-  return results.iter();
+  final ANodeList list=new ANodeList().check();
+  add(idSet,list,root,idref);
+  return list.iter();
 }

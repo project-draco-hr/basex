@@ -1,8 +1,14 @@
 {
+  if (isEmpty())   return true;
+  if (data.nspaces.isEmpty())   return false;
+  final TokenSet names=new TokenSet();
   final int ns=qnames.size();
   for (int n=0; n < ns; n++) {
     final byte[] name=qnames.name(n);
-    if (name == null || (idref ? Token.contains(name,IDREF) : Token.contains(name,ID) && !Token.contains(name,IDREF)))     return true;
+    if (name != null && XMLToken.isId(name,idref))     names.add(name);
   }
-  return isEmpty();
+  for (  final byte[] name : data.attrNames) {
+    if (XMLToken.isId(name,idref && !names.contains(name)))     return false;
+  }
+  return true;
 }
