@@ -2,10 +2,11 @@
   Method meth=null;
   final Class<?> clazz=module.getClass();
   for (  final Method m : clazz.getMethods()) {
-    if (m.getName().equals(name) && m.getParameterTypes().length == arity) {
-      if (meth != null)       throw JAVAAMBIG_X_X_X.get(ii,clazz.getName(),name,arity);
-      meth=m;
-    }
+    if (!m.getName().equals(name))     continue;
+    final Class<?>[] pTypes=m.getParameterTypes();
+    if (pTypes.length != arity || !typeMatches(pTypes,types))     continue;
+    if (meth != null)     throw JAVAAMB_X_X_X.get(ii,clazz.getName(),name,arity);
+    meth=m;
   }
   if (meth == null)   throw JAVAWHICH_X_X_X.get(ii,clazz.getName(),name,arity);
   final Lock lock=meth.getAnnotation(Lock.class);
