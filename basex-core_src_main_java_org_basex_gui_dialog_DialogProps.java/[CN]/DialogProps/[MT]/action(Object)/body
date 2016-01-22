@@ -1,44 +1,50 @@
 {
-  if (cmp != null) {
-    final int ll=LABELS.length;
-    for (int l=0; l < ll; l++) {
-      if (cmp != buttons[l])       continue;
-      final String label=buttons[l].getText();
-      final Command cmd;
-      if (label.equals(OPTIMIZE)) {
-        cmd=new Optimize();
-      }
- else       if (label.equals(DROP)) {
-        cmd=new DropIndex(TYPES[l]);
-      }
- else {
-        cmd=new CreateIndex(TYPES[l]);
-        for (        final DialogIndex di : creations)         if (di != null)         di.setOptions();
-      }
-      infos[l].setText(PLEASE_WAIT_D);
-      DialogProgress.execute(this,cmd);
-      return;
-    }
-  }
-  resources.action(cmp);
-  add.action(cmp);
   final Data data=gui.context.data();
   final boolean[] exists={true,true,true,data.meta.textindex,data.meta.attrindex,data.meta.tokenindex,data.meta.ftindex};
+  Command cmd=null;
+  if (cmp == optimize) {
+    cmd=new Optimize();
+  }
+ else   if (cmp == optimizeAll) {
+    cmd=new OptimizeAll();
+    optionsPanel.setOptions(data);
+  }
+ else {
+    final int bl=buttons.length;
+    for (int b=0; b < bl; b++) {
+      if (cmp == buttons[b]) {
+        if (exists[b]) {
+          cmd=new DropIndex(TYPES[b]);
+        }
+ else {
+          cmd=new CreateIndex(TYPES[b]);
+          indexes[b].setOptions();
+        }
+        infos[b].setText(PLEASE_WAIT_D);
+      }
+    }
+  }
+  if (cmd != null) {
+    DialogProgress.execute(this,cmd);
+    return;
+  }
+  resources.action(cmp);
+  addPanel.action(cmp);
+  final boolean outofdate=!data.meta.uptodate;
   if (cmp == this) {
-    final boolean outdated=!data.meta.uptodate;
     final int ll=LABELS.length;
     for (int l=0; l < ll; ++l) {
-      final boolean stats=l < 3;
-      labels[l].setText(stats && outdated ? LABELS[l] + " (" + OUT_OF_DATE+ ')' : LABELS[l]);
-      if (buttons[l] != null) {
-        buttons[l].setText(stats ? OPTIMIZE : exists[l] ? DROP : CREATE);
-        if (stats)         buttons[l].setEnabled(outdated);
-      }
-      add(l,creations[l] == null || exists[l] ? null : creations[l]);
+      labels[l].setText(l < IndexType.TEXT.ordinal() && outofdate ? LABELS[l] + " (" + OUT_OF_DATE+ ')' : LABELS[l]);
+      if (buttons[l] != null)       buttons[l].setText(exists[l] ? DROP : CREATE);
+      add(l,indexes[l] == null || exists[l] ? null : indexes[l]);
     }
     updateInfo();
   }
-  for (  final DialogIndex di : creations) {
+  for (  final DialogIndex di : indexes) {
     if (di != null)     di.action(true);
   }
+  dbInfo.setText(InfoDB.db(data.meta,true,false,true));
+  nsInfo.setText(data.nspaces.info());
+  optimize.setEnabled(outofdate);
+  optimizeAll.setEnabled(!data.inMemory());
 }
