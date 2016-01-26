@@ -1,22 +1,25 @@
 {
   close();
-  final MainOptions opts=new MainOptions(qc.context.options,true);
-  options.assignTo(opts);
+  final MainOptions mopts=options.assignTo(new MainOptions(qc.context.options,true));
+  final boolean add=newDocs.data != null;
   try {
-    final Data data=CreateDB.create(name,Parser.emptyParser(opts),qc.context,opts);
-    if (add.data != null) {
-      data.startUpdate(opts);
+    final Data data=CreateDB.create(name,Parser.emptyParser(mopts),qc.context,mopts);
+    if (add) {
+      data.startUpdate(mopts);
       try {
-        data.insert(data.meta.size,-1,new DataClip(add.data));
+        data.insert(data.meta.size,-1,new DataClip(newDocs.data));
         Optimize.optimize(data,null);
       }
   finally {
-        data.finishUpdate(opts);
+        data.finishUpdate(mopts);
       }
     }
     Close.close(data,qc.context);
   }
  catch (  final IOException ex) {
     throw UPDBOPTERR_X.get(info,ex);
+  }
+ finally {
+    if (add)     newDocs.finish();
   }
 }
