@@ -1,5 +1,6 @@
 {
   final int p=pos;
+  wsConsume(INVOKE);
   final boolean upd=wsConsumeWs(UPDATING), ndt=wsConsumeWs(NON_DETERMINISTIC);
   if (upd || ndt) {
     final Expr func=primary();
@@ -15,10 +16,9 @@
  while (wsConsume(COMMA));
         if (!wsConsume(PAREN2))         throw funcMiss(func);
       }
-      if (!(func instanceof Item) || func instanceof FItem) {
-        if (upd)         qc.updating();
-        return new DynFuncCall(ii,sc,upd,ndt,func,argList.finish());
-      }
+      if (func instanceof Value && !(func instanceof FItem))       throw error(NOPAREN_X_X,func);
+      if (upd)       qc.updating();
+      return new DynFuncCall(ii,sc,upd,ndt,func,argList.finish());
     }
   }
   pos=p;

@@ -4,14 +4,14 @@
     while (wsConsume(ARROW)) {
       skipWs();
       final Expr ex=curr('(') ? parenthesized() : curr('$') ? localVars.resolve(varName(),info()) : eQName(ARROWSPEC,sc.funcNS);
+      final InputInfo ii=info();
       wsCheck(PAREN1);
       if (ex instanceof QNm) {
         final QNm name=(QNm)ex;
         if (keyword(name))         throw error(RESERVED_X,name.local());
-        e=function(name,e);
+        e=function(name,ii,new ExprList(e));
       }
  else {
-        final InputInfo ii=info();
         final ExprList argList=new ExprList(e);
         final int[] holes=argumentList(argList,e);
         final Expr[] args=argList.finish();
