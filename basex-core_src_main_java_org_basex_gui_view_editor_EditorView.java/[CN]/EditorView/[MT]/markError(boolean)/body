@@ -12,13 +12,14 @@
   }
   if (path == null)   return;
   final IOFile file=new IOFile(path);
-  EditorArea edit=find(file,false);
+  EditorArea ea=find(file);
+  final EditorArea edit;
   if (jump) {
-    if (edit == null) {
-      edit=open(file,error,true);
-      if (error)       ii=inputInfo;
-    }
-    if (edit != null)     tabs.setSelectedComponent(edit);
+    edit=open(file,error,true);
+    if (ea == null && error)     ii=inputInfo;
+  }
+ else {
+    edit=ea;
   }
   if (edit == null || ii == null)   return;
   final int ep=pos(edit.last,ii.line(),ii.column());
@@ -26,5 +27,6 @@
   if (jump) {
     edit.setCaret(ep);
     posCode.invokeLater();
+    if (ea == null && project.getWidth() != 0)     project.jumpTo(edit.file(),false);
   }
 }
