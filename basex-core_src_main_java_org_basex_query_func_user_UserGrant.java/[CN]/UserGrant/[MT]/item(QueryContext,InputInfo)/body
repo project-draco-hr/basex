@@ -1,10 +1,13 @@
 {
   checkAdmin(qc);
   final User user=toSafeUser(0,qc);
-  final Perm perm=toPerm(1,qc);
-  final String db=exprs.length > 2 ? toDB(2,qc) : "";
+  final ArrayList<Perm> perms=toPerms(1,qc);
+  final StringList patterns=toPatterns(2,qc);
   if (user.name().equals(UserText.ADMIN))   throw USER_ADMIN.get(info);
-  if (!db.isEmpty() && (perm == Perm.CREATE || perm == Perm.ADMIN))   throw USER_LOCAL.get(info);
-  qc.resources.updates().add(new Grant(user,perm,db,qc,ii),qc);
+  int ps=perms.size();
+  for (int p=0; p < ps; p++) {
+    if (!patterns.get(p).isEmpty() && (perms.get(p) == Perm.CREATE || perms.get(p) == Perm.ADMIN))     throw USER_LOCAL.get(info);
+  }
+  qc.resources.updates().add(new Grant(user,perms,patterns,qc,ii),qc);
   return null;
 }

@@ -1,16 +1,18 @@
 {
   query(_USER_GRANT.args(NAME,Perm.READ));
+  query(_USER_GRANT.args(NAME,Perm.READ,""));
   query(_USER_GRANT.args(NAME,Perm.WRITE,NAME));
   query(_USER_LIST_DETAILS.args() + "[@name = '" + NAME+ "']/@permission/string()","read");
   query(_USER_LIST_DETAILS.args() + "/database[@pattern = '" + NAME+ "']/@permission/string()","write");
+  query(_USER_GRANT.args(NAME,"('admin','none')","('','x')"));
   error(_USER_GRANT.args(NAME,Perm.ADMIN,NAME),USER_LOCAL);
   error(_USER_GRANT.args(NAME,Perm.CREATE,NAME),USER_LOCAL);
   error(_USER_GRANT.args(UserText.ADMIN,Perm.ADMIN),USER_ADMIN);
   error(_USER_GRANT.args(UserText.ADMIN,Perm.ADMIN,NAME),USER_ADMIN);
   error(_USER_GRANT.args("",Perm.ADMIN),USER_NAME_X);
   error(_USER_GRANT.args("",Perm.ADMIN,NAME),USER_NAME_X);
-  error(_USER_GRANT.args(NAME,Perm.ADMIN,""),USER_PATTERN_X);
+  error(_USER_GRANT.args(NAME,Perm.ADMIN,";"),USER_PATTERN_X);
   error(_USER_GRANT.args(NAME,"x"),USER_PERMISSION_X);
   error(_USER_GRANT.args(NAME,Perm.READ) + ',' + _USER_GRANT.args(NAME,Perm.WRITE),USER_UPDATE_X_X);
-  error(_USER_GRANT.args(NAME,Perm.READ,'x') + ',' + _USER_GRANT.args(NAME,Perm.WRITE,'x'),USER_UPDATE_X_X_X);
+  error(_USER_GRANT.args(NAME,Perm.READ,'x') + ',' + _USER_GRANT.args(NAME,Perm.WRITE,'x'),USER_SAMEPAT_X);
 }
