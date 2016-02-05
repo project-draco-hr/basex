@@ -12,15 +12,15 @@
     final int sz=size(pre,kind);
     if (kind == ATTR) {
       if (meta.updindex) {
-        if (meta.attrindex)         attrIndex.delete(cache(pre,IndexType.ATTRIBUTE));
-        if (meta.tokenindex)         tokenIndex.delete(cache(pre,IndexType.TOKEN));
+        if (meta.attrindex)         attrIndex.delete(new ValueCache(pre,IndexType.ATTRIBUTE,this));
+        if (meta.tokenindex)         tokenIndex.delete(new ValueCache(pre,IndexType.TOKEN,this));
       }
       table.write1(pre,11,uriId);
       table.write2(pre,1,attrNames.index(name,null,false));
       if (nsFlag)       table.write2(nsPre,1,1 << 15 | nameId(nsPre));
       if (meta.updindex) {
-        if (meta.attrindex)         attrIndex.add(cache(pre,IndexType.ATTRIBUTE));
-        if (meta.tokenindex)         tokenIndex.add(cache(pre,IndexType.TOKEN));
+        if (meta.attrindex)         attrIndex.add(new ValueCache(pre,IndexType.ATTRIBUTE,this));
+        if (meta.tokenindex)         tokenIndex.add(new ValueCache(pre,IndexType.TOKEN,this));
       }
     }
  else {
@@ -30,12 +30,12 @@
         for (int curr=pre + attSize(pre,kind); curr < last; curr+=size(curr,kind(curr))) {
           if (kind(curr) == TEXT)           pres.add(curr);
         }
-        textIndex.delete(cache(pres,IndexType.TEXT));
+        textIndex.delete(new ValueCache(pres,IndexType.TEXT,this));
       }
       table.write1(pre,3,uriId);
       final int nameId=elemNames.index(name,null,false);
       table.write2(nsPre,1,(nsFlag || nsFlag(nsPre) ? 1 << 15 : 0) | nameId);
-      if (!pres.isEmpty())       textIndex.add(cache(pres,IndexType.TEXT));
+      if (!pres.isEmpty())       textIndex.add(new ValueCache(pres,IndexType.TEXT,this));
     }
   }
 }
