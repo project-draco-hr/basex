@@ -2,20 +2,20 @@
   int c=ch;
   if (c == '>') {
     type=Type.R_BR;
-    state=State.CONTENT;
+    scan=Scan.CONTENT;
   }
  else   if (c == '=') {
     type=Type.EQ;
   }
  else   if (c == '\'' || c == '"') {
     type=Type.QUOTE;
-    state=State.QUOTE;
+    scan=Scan.QUOTE;
     quote=c;
   }
  else   if (c == '/') {
     type=Type.CLOSE_R_BR;
     if ((c=nextChar()) == '>') {
-      state=State.CONTENT;
+      scan=Scan.CONTENT;
     }
  else {
       token.add(c);
@@ -26,11 +26,11 @@
     type=Type.WS;
   }
  else   if (isStartChar(c)) {
-    type=state == State.ATT ? Type.ATTNAME : Type.ELEMNAME;
+    type=scan == Scan.ATT ? Type.ATTNAME : Type.ELEMNAME;
     do     token.add(c);
  while (isChar(c=nextChar()));
     prev(1);
-    state=State.ATT;
+    scan=Scan.ATT;
   }
  else {
     throw error(CHARACTER,(char)c);
