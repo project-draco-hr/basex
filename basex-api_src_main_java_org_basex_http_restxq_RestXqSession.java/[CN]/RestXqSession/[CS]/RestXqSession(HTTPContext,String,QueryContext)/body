@@ -1,0 +1,14 @@
+{
+  this.qc=qc;
+  this.key=key;
+  session=http.req.getSession();
+  if (key != null) {
+    final Object oldQc=session.getAttribute(key);
+    if (oldQc instanceof QueryContext) {
+      ((QueryContext)oldQc).stop();
+      do       Thread.yield();
+ while (session.getAttribute(key) == oldQc);
+    }
+    session.setAttribute(key,qc);
+  }
+}

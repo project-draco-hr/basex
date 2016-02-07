@@ -1,15 +1,16 @@
 {
   final StaticFunc sf=function.function;
   final Expr[] args=new Expr[sf.args.length];
-  function.bind(http,args,error);
+  function.bind(http,args,error,qc);
   final MainModule mm=new MainModule(sf,args);
-  query.mainModule(mm);
-  query.http(http);
-  query.context.register(query);
+  qc.mainModule(mm);
+  qc.http(http);
+  qc.context.register(qc);
+  final RestXqSession session=new RestXqSession(http,function.key,qc);
   String redirect=null, forward=null;
   RestXqRespBuilder response=null;
   try {
-    final Iter iter=query.iter();
+    final Iter iter=qc.iter();
     Item item=iter.next();
     if (item instanceof ANode) {
       final ANode node=(ANode)item;
@@ -40,8 +41,9 @@
     }
    }
   finally {
-    query.close();
-    query.context.unregister(query);
+    qc.close();
+    qc.context.unregister(qc);
+    session.close();
     if (redirect != null) {
       http.redirect(redirect);
     }
