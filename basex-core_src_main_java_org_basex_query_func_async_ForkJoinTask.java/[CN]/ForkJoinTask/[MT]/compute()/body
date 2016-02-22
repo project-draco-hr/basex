@@ -1,10 +1,10 @@
 {
   final ValueBuilder vb=new ValueBuilder();
-  final int length=end - start;
-  if (length <= split) {
+  if (end - start <= split) {
     try {
-      for (int i=start, j=0; i < end && j < split; i++, j++) {
-        vb.add(funcs.get(i).invokeValue(qc,ii));
+      final int last=Math.min(end,start + split);
+      for (int f=start; f < last; f++) {
+        vb.add(funcs.get(f).invokeValue(qc,ii));
       }
     }
  catch (    final QueryException ex) {
@@ -13,13 +13,11 @@
     }
   }
  else {
-    final int spl=length / 2;
-    ForkJoinTask<Value> second;
-    second=new ForkJoinTask<>(funcs,split,qc,ii,start + spl,end);
-    end=start + spl;
-    second.fork();
-    vb.add(compute());
-    vb.add(second.join());
+    final int mid=start + (end - start) / 2;
+    final ForkJoinTask<Value> first=new ForkJoinTask<>(funcs,split,qc,ii,start,mid);
+    final ForkJoinTask<Value> second=new ForkJoinTask<>(funcs,split,qc,ii,mid,end);
+    invokeAll(first,second);
+    vb.add(first.join()).add(second.join());
   }
   return (T)vb.value();
 }
