@@ -1,0 +1,25 @@
+{
+  final ValueBuilder vb=new ValueBuilder();
+  final int length=end - start;
+  if (length <= split) {
+    try {
+      for (int i=start, j=0; i < end && j < split; i++, j++) {
+        vb.add(funcs.get(i).invokeValue(qc,ii));
+      }
+    }
+ catch (    final QueryException ex) {
+      completeExceptionally(ex);
+      cancel(true);
+    }
+  }
+ else {
+    final int spl=length / 2;
+    ForkJoinTask<Value> second;
+    second=new ForkJoinTask<>(funcs,split,qc,ii,start + spl,end);
+    end=start + spl;
+    second.fork();
+    vb.add(compute());
+    vb.add(second.join());
+  }
+  return (T)vb.value();
+}
