@@ -4,7 +4,7 @@
     try {
       final int last=Math.min(end,start + split);
       for (int f=start; f < last; f++) {
-        vb.add(funcs.get(f).invokeValue(qc,ii));
+        vb.add(((FItem)funcs.itemAt(f)).invokeValue(qc,ii));
       }
     }
  catch (    final QueryException ex) {
@@ -14,10 +14,10 @@
   }
  else {
     final int mid=start + (end - start) / 2;
-    final ForkJoinTask<Value> first=new ForkJoinTask<>(funcs,split,qc,ii,start,mid);
-    final ForkJoinTask<Value> second=new ForkJoinTask<>(funcs,split,qc,ii,mid,end);
+    final ForkJoinTask first=new ForkJoinTask(funcs,split,qc,ii,start,mid);
+    final ForkJoinTask second=new ForkJoinTask(funcs,split,qc,ii,mid,end);
     invokeAll(first,second);
     vb.add(first.join()).add(second.join());
   }
-  return (T)vb.value();
+  return vb.value();
 }
