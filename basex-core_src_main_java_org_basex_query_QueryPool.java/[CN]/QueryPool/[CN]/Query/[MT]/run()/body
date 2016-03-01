@@ -1,0 +1,36 @@
+{
+  final Context ctx=qp.qc.context;
+  QueryException exc=null;
+  Value value=null;
+  try {
+    ctx.register(qp);
+    value=copy(qp.iter(),ctx);
+  }
+ catch (  final ProcException ex) {
+    cache=false;
+  }
+catch (  final QueryException ex) {
+    exc=ex;
+  }
+catch (  final Throwable ex) {
+    exc=ASYNC_UNEXP_X.get(info,ex);
+  }
+ finally {
+    if (cache) {
+      result=value;
+      exception=exc;
+      new Timer(true).schedule(new TimerTask(){
+        @Override public void run(){
+          queries.remove(id);
+        }
+      }
+,ctx.soptions.get(StaticOptions.ASYNCTIMEOUT) * 1000L);
+    }
+ else {
+      queries.remove(id);
+    }
+    qp.close();
+    ctx.unregister(qp);
+    qp=null;
+  }
+}

@@ -1,0 +1,31 @@
+{
+  final String query="\"(1 to 1000000)[.=1]\"";
+  query("let $query := async:eval(" + query + ") "+ "return (hof:until("+ "  function($result) { not(async:is-running($query)) },"+ "  function($curr) { prof:sleep(10) },"+ "  ()"+ "), async:result($query))","1");
+  String id=query(_ASYNC_EVAL.args(query));
+  while (true) {
+    try {
+      assertEquals("1",eval(_ASYNC_RESULT.args(id)));
+      break;
+    }
+ catch (    final QueryException ex) {
+      assertSame(ASYNC_RUNNING_X,ex.error());
+    }
+catch (    final IOException ex) {
+      fail(ex.toString());
+    }
+  }
+  id=query(_ASYNC_EVAL.args(query," map {}"," map { 'cache': false() }"));
+  while (true) {
+    try {
+      eval(_ASYNC_RESULT.args(id));
+      fail("Result was cached.");
+    }
+ catch (    final QueryException ex) {
+      if (ex.error() == ASYNC_WHICH_X)       break;
+      assertSame(ASYNC_RUNNING_X,ex.error());
+    }
+catch (    final IOException ex) {
+      fail(ex.toString());
+    }
+  }
+}
