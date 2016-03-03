@@ -6,9 +6,10 @@
     final Annotation sig=ann.sig;
     if (sig == null)     continue;
     found|=eq(sig.uri,QueryText.REST_URI);
+    final Item[] args=ann.args();
     if (sig == _REST_PATH) {
       try {
-        path=new RestXqPath(toString(ann.args[0]),ann.info);
+        path=new RestXqPath(toString(args[0]),ann.info);
       }
  catch (      final IllegalArgumentException ex) {
         throw error(ann.info,ex.getMessage());
@@ -40,15 +41,15 @@
       errorParams.add(param(ann,declared));
     }
  else     if (sig == _REST_METHOD) {
-      final String mth=toString(ann.args[0]).toUpperCase(Locale.ENGLISH);
-      final Item body=ann.args.length > 1 ? ann.args[1] : null;
+      final String mth=toString(args[0]).toUpperCase(Locale.ENGLISH);
+      final Item body=args.length > 1 ? args[1] : null;
       addMethod(mth,body,declared,ann.info);
     }
  else     if (sig == _REST_SINGLE) {
-      key="\u0000" + (ann.args.length > 0 ? toString(ann.args[0]) : (function.info.path() + ':' + function.info.line()));
+      key="\u0000" + (args.length > 0 ? toString(args[0]) : (function.info.path() + ':' + function.info.line()));
     }
  else     if (eq(sig.uri,QueryText.REST_URI)) {
-      final Item body=ann.args.length == 0 ? null : ann.args[0];
+      final Item body=args.length == 0 ? null : args[0];
       addMethod(string(sig.local()),body,declared,ann.info);
     }
  else     if (sig == _INPUT_CSV) {
@@ -69,7 +70,7 @@
     }
  else     if (eq(sig.uri,QueryText.OUTPUT_URI)) {
       try {
-        output.assign(string(sig.local()),toString(ann.args[0]));
+        output.assign(string(sig.local()),toString(args[0]));
       }
  catch (      final BaseXException ex) {
         throw error(ann.info,UNKNOWN_SER,sig.local());
