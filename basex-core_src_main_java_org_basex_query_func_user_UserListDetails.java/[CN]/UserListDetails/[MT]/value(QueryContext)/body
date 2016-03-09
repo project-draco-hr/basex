@@ -1,0 +1,22 @@
+{
+  checkAdmin(qc);
+  final User u=exprs.length > 0 ? toUser(0,qc) : null;
+  final ValueBuilder vb=new ValueBuilder();
+  for (  final User us : qc.context.users.users(null)) {
+    if (u != null && u != us)     continue;
+    final String perm=us.perm((String)null).toString();
+    final FElem user=new FElem(USER).add(NAME,us.name()).add(PERMISSION,perm);
+    for (    final Entry<Algorithm,EnumMap<Code,String>> codes : us.alg().entrySet()) {
+      final FElem password=new FElem(PASSWORD).add(ALGORITHM,codes.getKey().toString());
+      for (      final Entry<Code,String> code : codes.getValue().entrySet()) {
+        password.add(new FElem(code.getKey().toString()).add(code.getValue()));
+      }
+      user.add(password);
+    }
+    for (    final Entry<String,Perm> local : us.locals().entrySet()) {
+      user.add(new FElem(DATABASE).add(PATTERN,local.getKey()).add(PERMISSION,local.getValue().toString()));
+    }
+    vb.add(user);
+  }
+  return vb.value();
+}

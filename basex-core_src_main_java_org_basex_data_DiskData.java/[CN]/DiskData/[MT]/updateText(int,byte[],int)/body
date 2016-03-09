@@ -1,30 +1,24 @@
 {
-  final boolean text=kind != ATTR;
-  if (meta.updindex) {
-    final int id=id(pre);
-    final byte[] oldval=text(pre,text);
-    final DiskValues index=(DiskValues)(text ? txtindex : atvindex);
-    if (index != null && kind != DOC)     index.replace(oldval,value,id);
-  }
-  final DataAccess store=text ? texts : values;
-  final long len=store.length();
+  indexDelete(pre,-1,1);
+  final DataAccess store=kind == ATTR ? values : texts;
+  final long oldRef=textRef(pre);
   final long v=toSimpleInt(value);
-  final boolean vn=v != Integer.MIN_VALUE;
-  final byte[] vl=vn ? null : COMP.get().pack(value);
-  final long old=textOff(pre);
-  final long off;
-  if (num(old)) {
-    off=len;
+  if (v != Integer.MIN_VALUE) {
+    if (!number(oldRef))     store.free(oldRef & IO.OFFCOMP - 1,0);
+    textRef(pre,v | IO.OFFNUM);
   }
  else {
-    final int l=vn ? 0 : vl.length + Num.length(vl.length);
-    off=store.free(old & IO.OFFCOMP - 1,l);
-  }
-  if (vn) {
-    textOff(pre,v | IO.OFFNUM);
-  }
+    final byte[] val=COMPRESS.get().pack(value);
+    final long off;
+    if (number(oldRef)) {
+      off=store.length();
+    }
  else {
-    store.writeToken(off,vl);
-    textOff(pre,vl == value ? off : off | IO.OFFCOMP);
+      final int vl=val.length;
+      off=store.free(oldRef & IO.OFFCOMP - 1,vl + Num.length(vl));
+    }
+    store.writeToken(off,val);
+    textRef(pre,val == value ? off : off | IO.OFFCOMP);
   }
+  indexAdd(pre,-1,1,null);
 }

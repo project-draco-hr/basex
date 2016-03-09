@@ -1,0 +1,61 @@
+{
+  return new WindowEval(){
+    /** 
+ * Queue holding the items of the current window. 
+ */
+    private final ArrayDeque<Item> queue=new ArrayDeque<>();
+    @Override public boolean next(    final QueryContext qc) throws QueryException {
+      while (true) {
+        Item curr, next=null;
+        while ((curr=advance()) != null) {
+          next=queue.peekFirst();
+          if (next == null && (next=next()) != null)           queue.addLast(next);
+          if (start.matches(qc,curr,p,prev,next))           break;
+          prev=curr;
+        }
+        if (curr != null) {
+          final ValueBuilder cache=new ValueBuilder();
+          final Iterator<Item> qiter=queue.iterator();
+          if (qiter.hasNext())           qiter.next();
+          Item pr=prev, it=curr, nx=next;
+          long ps=p;
+          do {
+            cache.add(it);
+            if (end.matches(qc,it,ps++,pr,nx))             break;
+            pr=it;
+            it=nx;
+            if (qiter.hasNext()) {
+              nx=qiter.next();
+            }
+ else {
+              nx=next();
+              if (nx != null)               queue.addLast(nx);
+            }
+          }
+ while (it != null);
+          if (!(it == null && only)) {
+            start.bind(qc,curr,p,prev,next);
+            prev=curr;
+            qc.set(var,cache.value(),info);
+            return true;
+          }
+        }
+        if (!prepareNext(qc,sub))         return false;
+        queue.clear();
+      }
+    }
+    /** 
+ * tries to advance the start of the queue by one element and returns the removed
+ * element in case of success, {@code null} otherwise.
+ * @return removed element or {@code null}
+ * @throws QueryException evaluation exception
+ */
+    private Item advance() throws QueryException {
+      Item it=queue.pollFirst();
+      if (it == null)       it=next();
+      if (it != null)       p++;
+      return it;
+    }
+  }
+;
+}

@@ -1,0 +1,12 @@
+{
+  query(_VALIDATE_XSD_INFO.args(FILE,XSD),"");
+  query(_VALIDATE_XSD_INFO.args(DOC.args(FILE),DOC.args(XSD)),"");
+  query(_VALIDATE_XSD_INFO.args(_FILE_READ_TEXT.args(FILE),_FILE_READ_TEXT.args(XSD)),"");
+  query(_VALIDATE_XSD_INFO.args(FILE,XSD,"1.0"),"");
+  query("let $doc := <root/> " + "let $schema := <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'> " + "<xs:element name='root'/> "+ "</xs:schema> "+ "return "+ _VALIDATE_XSD_INFO.args("$doc","$schema"),"");
+  query(EXISTS.args(_VALIDATE_XSD_INFO.args(FILE)),"true");
+  query(EXISTS.args("let $doc := <root/> " + "let $schema := <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'> " + "<xs:element name='unknown'/> "+ "</xs:schema> "+ "return "+ _VALIDATE_XSD_INFO.args("$doc","$schema")),"true");
+  error(_VALIDATE_XSD_INFO.args("unknown"),WHICHRES_X);
+  error(_VALIDATE_XSD_INFO.args(FILE,"unknown.xsd"),WHICHRES_X);
+  error(_VALIDATE_XSD_INFO.args(FILE,XSD,"0.99"),BXVA_XSDVERSION_X);
+}

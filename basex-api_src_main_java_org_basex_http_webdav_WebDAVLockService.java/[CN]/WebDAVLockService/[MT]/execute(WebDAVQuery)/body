@@ -1,0 +1,27 @@
+{
+  if (module == null) {
+    final ClassLoader cl=getClass().getClassLoader();
+    final InputStream is=cl.getResourceAsStream(FILE);
+    if (is == null)     throw new IOException("WebDAV module not found: " + FILE);
+    module=string(new IOStream(is).read());
+  }
+  try (final QueryProcessor qp=new QueryProcessor(query.toString(),http.context(true))){
+    for (    final Entry<String,String> entry : query.entries()) {
+      qp.bind(entry.getKey(),entry.getValue());
+    }
+    qp.qc.parseLibrary(module,FILE,qp.sc);
+    final StringList items=new StringList();
+    final ArrayOutput ao=new ArrayOutput();
+    final Serializer ser=qp.getSerializer(ao);
+    for (    final Item it : qp.value()) {
+      ser.serialize(it);
+      items.add(ao.toString());
+      ao.reset();
+    }
+    return items;
+  }
+ catch (  final Exception ex) {
+    Util.errln(ex.getMessage());
+    throw new BaseXException(ex);
+  }
+}

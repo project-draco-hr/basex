@@ -1,0 +1,17 @@
+{
+  final int l1=cps1.length, l2=cps2.length, lMax=Math.max(l1,l2);
+  if (lMax == 0)   return 1;
+  final int[][] m=new int[lMax + 1][lMax + 1];
+  for (int f2=-1, f1=-1, p1=0; p1 < lMax; p1++) {
+    final int c1=p1 < l1 ? cps1[p1] : 0;
+    for (int p2=0; p2 < lMax; p2++) {
+      final int c2=p2 < l2 ? cps2[p2] : 0;
+      int c=m(m[p1][p2 + 1] + 1,m[p1 + 1][p2] + 1,m[p1][p2] + (c1 == c2 ? 0 : 1));
+      if (c1 == f1 && c2 == f2)       c=m[p1][p2];
+      m[p1 + 1][p2 + 1]=c;
+      f1=c2;
+    }
+    f2=c1;
+  }
+  return (double)(lMax - m[lMax][lMax]) / lMax;
+}

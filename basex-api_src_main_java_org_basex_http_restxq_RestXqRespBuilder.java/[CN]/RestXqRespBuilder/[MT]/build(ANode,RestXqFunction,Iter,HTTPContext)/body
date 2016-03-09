@@ -20,13 +20,12 @@
           final byte[] nam=c.attribute(Q_NAME);
           final byte[] val=c.attribute(Q_VALUE);
           if (nam != null && val != null) {
-            final String key=string(nam);
-            final String value=string(val);
-            if (key.equals(MimeTypes.CONTENT_TYPE)) {
+            final String key=string(nam), value=string(val);
+            if (key.equalsIgnoreCase(HttpText.CONTENT_TYPE)) {
               cType=value;
             }
  else {
-              http.res.setHeader(key,value);
+              http.res.setHeader(key,key.equalsIgnoreCase(HttpText.LOCATION) ? http.resolve(value) : value);
             }
           }
         }
@@ -36,8 +35,7 @@
       }
     }
  else     if (OUTPUT_SERIAL.eq(n)) {
-      sp=FuncOptions.serializer(n,func.function.info);
-      FuncOptions.serializer(n,func.output,func.function.info);
+      sp=FuncOptions.serializer(n,func.output,func.function.info);
     }
  else {
       throw func.error(UNEXP_NODE,n);
@@ -48,12 +46,12 @@
   if (item == null) {
     error=true;
   }
- else   if (func.methods.size() == 1 && func.methods.contains(HTTPMethod.HEAD.name())) {
+ else   if (func.methods.size() == 1 && func.methods.contains(HttpMethod.HEAD.name())) {
     throw func.error(HEAD_METHOD);
   }
   http.sopts(sp);
   http.initResponse();
-  final Serializer ser=Serializer.get(cache,sp);
-  for (; item != null; item=iter.next())   ser.serialize(item);
-  ser.close();
-}
+  try (final Serializer ser=Serializer.get(cache,sp)){
+    for (; item != null; item=iter.next())     ser.serialize(item);
+  }
+ }

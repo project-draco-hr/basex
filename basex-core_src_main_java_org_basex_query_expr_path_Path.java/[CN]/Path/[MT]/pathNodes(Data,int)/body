@@ -1,0 +1,21 @@
+{
+  if (!data.meta.uptodate)   return null;
+  ArrayList<PathNode> nodes=data.paths.root();
+  for (int s=0; s <= last; s++) {
+    final Step curr=axisStep(s);
+    if (curr == null)     return null;
+    final boolean desc=curr.axis == DESC;
+    if (!desc && curr.axis != CHILD || curr.test.kind != Kind.NAME)     return null;
+    final int name=data.elemNames.id(curr.test.name.local());
+    final ArrayList<PathNode> tmp=new ArrayList<>();
+    for (    final PathNode node : PathIndex.desc(nodes,desc)) {
+      if (node.kind == Data.ELEM && name == node.name) {
+        if (!tmp.isEmpty() && tmp.get(0).level() != node.level())         return null;
+        tmp.add(node);
+      }
+    }
+    if (tmp.isEmpty())     return null;
+    nodes=tmp;
+  }
+  return nodes;
+}

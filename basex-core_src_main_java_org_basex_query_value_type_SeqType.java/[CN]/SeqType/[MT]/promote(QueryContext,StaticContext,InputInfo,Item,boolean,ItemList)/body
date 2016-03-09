@@ -1,0 +1,32 @@
+{
+  if (type instanceof AtomType) {
+    for (    final Item atom : item.atomValue(ii)) {
+      final Type tp=atom.type;
+      if (tp.instanceOf(type)) {
+        cache.add(atom);
+      }
+ else       if (tp == AtomType.ATM) {
+        if (type.nsSensitive())         throw NSSENS_X_X.get(ii,item.type,type);
+        for (        final Item it : type.cast(atom,qc,sc,ii))         cache.add(it);
+      }
+ else       if (type == AtomType.DBL && (tp == AtomType.FLT || tp.instanceOf(AtomType.DEC))) {
+        cache.add(Dbl.get(atom.dbl(ii)));
+      }
+ else       if (type == AtomType.FLT && tp.instanceOf(AtomType.DEC)) {
+        cache.add(Flt.get(atom.flt(ii)));
+      }
+ else       if (type == AtomType.STR && atom instanceof Uri) {
+        cache.add(Str.get(atom.string(ii)));
+      }
+ else {
+        throw INVPROMOTE_X_X_X.get(ii,item.seqType(),withOcc(Occ.ONE),item);
+      }
+    }
+  }
+ else   if (item instanceof FItem && type instanceof FuncType) {
+    cache.add(((FItem)item).coerceTo((FuncType)type,qc,ii,opt));
+  }
+ else {
+    throw INVPROMOTE_X_X_X.get(ii,item.seqType(),withOcc(Occ.ONE),item);
+  }
+}

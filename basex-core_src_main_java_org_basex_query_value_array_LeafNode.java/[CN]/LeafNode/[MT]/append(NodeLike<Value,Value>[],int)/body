@@ -1,0 +1,28 @@
+{
+  if (pos == 0) {
+    nodes[pos]=this;
+    return 1;
+  }
+  final NodeLike<Value,Value> left=nodes[pos - 1];
+  if (!(left instanceof PartialLeafNode)) {
+    nodes[pos]=this;
+    return pos + 1;
+  }
+  final Value[] ls=((PartialLeafNode)left).elems, rs=values;
+  final int l=ls.length, r=rs.length, n=l + r;
+  if (n <= Array.MAX_LEAF) {
+    final Value[] vals=new Value[n];
+    System.arraycopy(ls,0,vals,0,l);
+    System.arraycopy(rs,0,vals,l,r);
+    nodes[pos - 1]=new LeafNode(vals);
+    return pos;
+  }
+  final int ll=n / 2, rl=n - ll, move=r - rl;
+  final Value[] newLeft=new Value[ll], newRight=new Value[rl];
+  System.arraycopy(ls,0,newLeft,0,l);
+  System.arraycopy(rs,0,newLeft,l,move);
+  System.arraycopy(rs,move,newRight,0,rl);
+  nodes[pos - 1]=new LeafNode(newLeft);
+  nodes[pos]=new LeafNode(newRight);
+  return pos + 1;
+}

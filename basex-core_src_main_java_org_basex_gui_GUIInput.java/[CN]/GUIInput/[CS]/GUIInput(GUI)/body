@@ -2,7 +2,10 @@
   super(main);
   gui=main;
   final Font f=getFont();
-  setFont(f.deriveFont((float)f.getSize() + 2));
+  final int fs=f.getSize(), ns=(int)(fs * 1.2d);
+  setFont(f.deriveFont(ns));
+  final Dimension ps=getPreferredSize();
+  setPreferredSize(new Dimension(ps.width,ps.height + ns - fs));
   box=new BaseXCombo(main);
   box.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
@@ -19,13 +22,9 @@
           completeInput();
         }
  else {
-          final Data data=main.context.data();
-          final int i=data == null ? 2 : gui.gopts.get(GUIOptions.SEARCHMODE);
-          final StringsOption options=i == 0 ? GUIOptions.SEARCH : i == 1 ? GUIOptions.XQUERY : GUIOptions.COMMANDS;
-          new BaseXHistory(main,options).store(getText());
-          if (e.getModifiers() == 0)           main.execute();
+          store();
         }
-        return;
+        if (e.getModifiers() == 0)         gui.execute();
       }
       if (count == 0)       return;
       int bi=box.getSelectedIndex();

@@ -1,20 +1,20 @@
 {
-  final SeqType argType=expr.type();
-  if (argType.instanceOf(this.type)) {
-    qc.compInfo(QueryText.OPTCAST,this.type);
+  final SeqType argType=expr.seqType();
+  if (argType.instanceOf(seqType)) {
+    qc.compInfo(QueryText.OPTCAST_X,seqType);
     return expr;
   }
+  if (expr instanceof FuncItem && seqType.type instanceof FuncType) {
+    if (!seqType.occ.check(1))     throw INVPROMOTE_X_X.get(info,argType,seqType);
+    final FuncItem fi=(FuncItem)expr;
+    return optPre(fi.coerceTo((FuncType)seqType.type,qc,info,true),qc);
+  }
   if (expr.isValue()) {
-    if (expr instanceof FuncItem && this.type.type instanceof FuncType) {
-      if (!this.type.occ.check(1))       throw Err.treatError(info,this.type,expr);
-      final FuncItem fit=(FuncItem)expr;
-      return optPre(fit.coerceTo((FuncType)this.type.type,qc,info,true),qc);
-    }
     return optPre(value(qc),qc);
   }
-  if (argType.type.instanceOf(this.type.type) && !expr.has(Flag.NDT) && !expr.has(Flag.UPD)) {
-    final SeqType.Occ occ=argType.occ.intersect(this.type.occ);
-    if (occ == null)     throw INVCAST.get(info,argType,this.type);
+  if (argType.type.instanceOf(seqType.type) && !expr.has(Flag.NDT) && !expr.has(Flag.UPD)) {
+    final Occ occ=argType.occ.intersect(seqType.occ);
+    if (occ == null)     throw INVPROMOTE_X_X.get(info,argType,seqType);
   }
   final Expr opt=expr.typeCheck(this,qc,scp);
   if (opt != null)   return optPre(opt,qc);

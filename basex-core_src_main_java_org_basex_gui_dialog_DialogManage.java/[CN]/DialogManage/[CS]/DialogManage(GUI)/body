@@ -1,11 +1,14 @@
 {
   super(main,MANAGE_DB);
   panel.setLayout(new BorderLayout(4,0));
-  final StringList dbs=main.context.databases.list();
-  choice=new BaseXList(dbs.toArray(),this,false);
+  final String[] dbs=main.context.databases.list().finish();
+  choice=new BaseXList(dbs,this,false);
   choice.setSize(200,500);
   final Data data=main.context.data();
-  if (data != null)   choice.setValue(data.meta.name);
+  if (data != null) {
+    data.flush(true);
+    choice.setValue(data.meta.name);
+  }
   doc1=new BaseXLabel(" ").large();
   doc1.setSize(420,doc1.getHeight());
   detail=new TextPanel(false,this);
@@ -20,7 +23,7 @@
   tab1.add(newButtons(drop,rename,copy,open),BorderLayout.SOUTH);
   doc2=new BaseXLabel(" ").border(0,0,6,0);
   doc2.setFont(doc1.getFont());
-  backups=new BaseXList(new String[]{},this);
+  backups=new BaseXList(new String[0],this);
   backups.setSize(400,400);
   backup=new BaseXButton(BACKUP,this);
   restore=new BaseXButton(RESTORE,this);
@@ -39,5 +42,5 @@
   set(choice,BorderLayout.CENTER);
   set(tabs,BorderLayout.EAST);
   action(null);
-  if (!dbs.isEmpty())   finish(null);
+  if (dbs.length != 0)   finish();
 }

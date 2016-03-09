@@ -1,13 +1,16 @@
 {
-  super(ctx,opts);
+  this.context=context;
+  this.gopts=gopts;
+  setIconImage(BaseXImages.get("logo_64"));
+  setTitle();
   GUIMacOSX.enableOSXFullscreen(this);
   final Dimension scr=Toolkit.getDefaultToolkit().getScreenSize();
-  final int[] ps=gopts.get(GUIOptions.GUILOC);
-  final int[] sz=gopts.get(GUIOptions.GUISIZE);
-  final int x=Math.max(0,Math.min(scr.width - sz[0],ps[0]));
-  final int y=Math.max(0,Math.min(scr.height - sz[1],ps[1]));
-  setBounds(x,y,sz[0],sz[1]);
-  if (gopts.get(GUIOptions.MAXSTATE)) {
+  final int[] loc=this.gopts.get(GUIOptions.GUILOC);
+  final int[] size=this.gopts.get(GUIOptions.GUISIZE);
+  final int x=Math.max(0,Math.min(scr.width - size[0],loc[0]));
+  final int y=Math.max(0,Math.min(scr.height - size[1],loc[1]));
+  setBounds(x,y,size[0],size[1]);
+  if (this.gopts.get(GUIOptions.MAXSTATE)) {
     setExtendedState(MAXIMIZED_HORIZ);
     setExtendedState(MAXIMIZED_VERT);
     setExtendedState(MAXIMIZED_BOTH);
@@ -25,7 +28,7 @@
   BaseXBack b=new BaseXBack();
   b.add(hits);
   buttons.add(b,BorderLayout.EAST);
-  if (gopts.get(GUIOptions.SHOWBUTTONS))   control.add(buttons,BorderLayout.CENTER);
+  if (this.gopts.get(GUIOptions.SHOWBUTTONS))   control.add(buttons,BorderLayout.CENTER);
   nav=new BaseXBack(new BorderLayout(5,0)).border(2,2,0,2);
   mode=new BaseXCombo(this,FIND,XQUERY,COMMAND);
   mode.setSelectedIndex(2);
@@ -83,6 +86,7 @@
   go=BaseXButton.get("c_go",RUN_QUERY,false,this);
   go.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
+      input.store();
       execute();
     }
   }
@@ -93,7 +97,7 @@
   b.add(go);
   b.add(filter);
   nav.add(b,BorderLayout.EAST);
-  if (gopts.get(GUIOptions.SHOWINPUT))   control.add(nav,BorderLayout.SOUTH);
+  if (this.gopts.get(GUIOptions.SHOWINPUT))   control.add(nav,BorderLayout.SOUTH);
   top.add(control,BorderLayout.NORTH);
   notify=new ViewNotifier(this);
   text=new TextView(notify);
@@ -103,17 +107,12 @@
   top.add(views,BorderLayout.CENTER);
   setContentBorder();
   status=new GUIStatus(this);
-  if (gopts.get(GUIOptions.SHOWSTATUS))   top.add(status,BorderLayout.SOUTH);
+  if (this.gopts.get(GUIOptions.SHOWSTATUS))   top.add(status,BorderLayout.SOUTH);
   setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
   add(top);
   setVisible(true);
   views.updateViews();
   refreshControls();
-  SwingUtilities.invokeLater(new Runnable(){
-    @Override public void run(){
-      checkVersion();
-    }
-  }
-);
+  checkVersion();
   input.requestFocusInWindow();
 }

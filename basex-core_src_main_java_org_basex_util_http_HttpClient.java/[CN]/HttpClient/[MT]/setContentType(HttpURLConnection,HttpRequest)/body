@@ -1,0 +1,15 @@
+{
+  String ct;
+  final String contType=request.headers.get(CONTENT_TYPE.toLowerCase(Locale.ENGLISH));
+  if (contType != null) {
+    ct=contType;
+  }
+ else {
+    ct=request.payloadAttrs.get(SerializerOptions.MEDIA_TYPE.name());
+    if (request.isMultipart) {
+      final String b=request.payloadAttrs.get(BOUNDARY);
+      ct=new TokenBuilder().add(ct).add("; ").add(BOUNDARY).add('=').add(b.isEmpty() ? DEFAULT_BOUNDARY : b).toString();
+    }
+  }
+  conn.setRequestProperty(CONTENT_TYPE,ct);
+}

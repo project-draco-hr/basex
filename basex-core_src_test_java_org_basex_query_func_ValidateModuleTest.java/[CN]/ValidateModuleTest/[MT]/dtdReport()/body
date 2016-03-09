@@ -1,0 +1,13 @@
+{
+  query(_VALIDATE_DTD_REPORT.args(FILE,DTD),"<report>\n<status>valid</status>\n</report>");
+  query(_VALIDATE_DTD_REPORT.args(FILE,DTD) + "//status/string()","valid");
+  query(_VALIDATE_DTD_REPORT.args(DOC.args(FILE),DTD) + "//status/string()","valid");
+  query(_VALIDATE_DTD_REPORT.args(_FILE_READ_TEXT.args(FILE),_FILE_READ_TEXT.args(DTD)) + "//status/string()","valid");
+  query("let $doc := <root/> " + "let $dtd := '<!ELEMENT root (#PCDATA)>' " + "return " + _VALIDATE_DTD_REPORT.args("$doc","$dtd") + "//status/string()","valid");
+  query(_VALIDATE_DTD_REPORT.args(FILE) + "//status/string()","invalid");
+  query("let $doc := <root/> " + "let $dtd := '<!ELEMENT unknown (#PCDATA)>' " + "return " + _VALIDATE_DTD_REPORT.args("$doc","$dtd") + "//status/string()","invalid");
+  query("let $doc := <root/> " + "let $schema := '<!ELEMENT unknown (#PCDATA)>' " + "let $report := " + _VALIDATE_DTD_REPORT.args("$doc","$schema") + "return $report update ("+ "  delete node .//message/text(),"+ "  for $a in .//@* return replace value of node $a with ''"+ ")","<report>\n<status>invalid</status>\n" + "<message level=\"\" line=\"\" column=\"\"/>\n" + "</report>");
+  query(EXISTS.args(_VALIDATE_DTD_REPORT.args(INPUT,DTD) + "//@url"),"true");
+  error(_VALIDATE_DTD_REPORT.args("unknown"),WHICHRES_X);
+  error(_VALIDATE_DTD_REPORT.args(FILE,"unknown.dtd"),WHICHRES_X);
+}

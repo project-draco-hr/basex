@@ -1,0 +1,49 @@
+{
+  try {
+    if (item instanceof Map) {
+      level++;
+      out.print('{');
+      boolean s=false;
+      final TokenSet set=nodups ? new TokenSet() : null;
+      final Map m=(Map)item;
+      for (      final Item key : m.keys()) {
+        final byte[] name=key.string(null);
+        if (nodups) {
+          if (set.contains(name))           throw SERDUPL_X.getIO(name);
+          set.put(name);
+        }
+        if (s)         out.print(',');
+        indent();
+        string(name);
+        out.print(':');
+        if (indent)         out.print(' ');
+        serialize(m.get(key,null));
+        s=true;
+      }
+      level--;
+      indent();
+      out.print('}');
+    }
+ else     if (item instanceof Array) {
+      level++;
+      out.print('[');
+      boolean s=false;
+      for (      final Value val : ((Array)item).members()) {
+        if (s)         out.print(',');
+        indent();
+        serialize(val);
+        s=true;
+      }
+      level--;
+      indent();
+      out.print(']');
+    }
+ else {
+      throw SERJSONFUNC_X.getIO(item.type);
+    }
+  }
+ catch (  final QueryException ex) {
+    throw new QueryIOException(ex);
+  }
+  sep=true;
+}

@@ -1,12 +1,19 @@
 {
   final Item it;
-  if (type().zeroOrOne()) {
+  if (seqType().zeroOrOne()) {
     it=item(qc,info);
   }
  else {
     final Iter ir=iter(qc);
     it=ir.next();
-    if (!(it == null || it instanceof ANode || ir.next() == null))     throw CONDTYPE.get(info,this);
+    if (it != null && !(it instanceof ANode)) {
+      final Item n=ir.next();
+      if (n != null) {
+        final ValueBuilder vb=new ValueBuilder().add(it).add(n);
+        if (ir.next() != null)         vb.add(Str.get(DOTS));
+        throw EBV_X.get(ii,vb.value());
+      }
+    }
   }
   return it == null ? Bln.FALSE : it;
 }

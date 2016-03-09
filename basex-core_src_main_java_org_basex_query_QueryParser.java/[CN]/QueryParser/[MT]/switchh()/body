@@ -1,15 +1,16 @@
 {
-  if (!sc.xquery3() || !wsConsumeWs(SWITCH,PAR1,TYPEPAR))   return null;
-  wsCheck(PAR1);
+  if (!wsConsumeWs(SWITCH,PAREN1,TYPEPAR))   return null;
+  final InputInfo ii=info();
+  wsCheck(PAREN1);
   final Expr expr=check(expr(),NOSWITCH);
   SwitchCase[] exprs={};
-  wsCheck(PAR2);
+  wsCheck(PAREN2);
   ExprList cases;
   do {
     cases=new ExprList(null);
     while (wsConsumeWs(CASE))     add(cases,single());
     if (cases.size() == 1) {
-      if (exprs.length == 0)       throw error(WRONGCHAR,CASE,found());
+      if (exprs.length == 0)       throw error(WRONGCHAR_X_X,CASE,found());
       wsCheck(DEFAULT);
     }
     wsCheck(RETURN);
@@ -17,5 +18,5 @@
     exprs=Array.add(exprs,new SwitchCase(info(),cases.finish()));
   }
  while (cases.size() != 1);
-  return new Switch(info(),expr,exprs);
+  return new Switch(ii,expr,exprs);
 }

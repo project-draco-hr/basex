@@ -1,26 +1,27 @@
 {
-  return new AxisIter(){
+  return new BasicNodeIter(){
     /** 
  * Child nodes. 
  */
-    private NodeSeqBuilder nc;
+    private BasicNodeIter iter;
     /** 
  * Counter. 
  */
-    private long c;
+    private int i;
     @Override public ANode next(){
-      if (nc == null) {
+      if (iter == null) {
         if (type == NodeType.ATT)         return null;
         final ANode r=parent();
         if (r == null)         return null;
-        nc=new NodeSeqBuilder();
-        final AxisIter ai=r.children();
-        for (ANode n; (n=ai.next()) != null && !n.is(ANode.this); ) {
-          nc.add(n.finish());
+        final ANodeList list=new ANodeList();
+        for (        final ANode n : r.children()) {
+          if (n.is(ANode.this))           break;
+          list.add(n.finish());
         }
-        c=nc.size();
+        i=list.size();
+        iter=list.iter();
       }
-      return c > 0 ? nc.get(--c) : null;
+      return i > 0 ? iter.get(--i) : null;
     }
   }
 ;

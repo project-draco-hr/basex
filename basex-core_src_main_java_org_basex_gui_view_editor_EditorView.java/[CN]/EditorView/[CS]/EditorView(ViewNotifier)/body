@@ -1,8 +1,8 @@
 {
   super(EDITORVIEW,man);
   layout(new BorderLayout());
-  label=new BaseXLabel(EDITOR,true,false);
-  label.setForeground(GRAY);
+  setBackground(PANEL);
+  header=new BaseXHeader(EDITOR);
   tabs=new BaseXTabs(gui);
   tabs.setFocusable(Prop.MAC);
   tabs.addDragDrop(false);
@@ -12,16 +12,14 @@
   final AbstractButton openB=BaseXButton.command(GUIMenuCmd.C_EDITOPEN,gui);
   final AbstractButton saveB=BaseXButton.get("c_save",SAVE,false,gui);
   final AbstractButton find=search.button(FIND_REPLACE);
+  final AbstractButton vars=BaseXButton.get("c_vars",EXTERNAL_VARIABLES,false,gui);
   hist=BaseXButton.get("c_hist",RECENTLY_OPENED,false,gui);
   stop=BaseXButton.get("c_stop",STOP,false,gui);
-  stop.addKeyListener(this);
   stop.setEnabled(false);
   go=BaseXButton.get("c_go",BaseXLayout.addShortcut(RUN_QUERY,BaseXKeys.EXEC1.toString()),false,gui);
-  go.addKeyListener(this);
   test=BaseXButton.get("c_test",BaseXLayout.addShortcut(RUN_TESTS,BaseXKeys.UNIT.toString()),false,gui);
-  test.addKeyListener(this);
-  final BaseXBack buttons=new BaseXBack(Fill.NONE);
-  buttons.layout(new TableLayout(1,8,1,0)).border(0,0,8,0);
+  final BaseXBack buttons=new BaseXBack(false);
+  buttons.layout(new TableLayout(1,9,1,0)).border(0,0,8,0);
   buttons.add(openB);
   buttons.add(saveB);
   buttons.add(hist);
@@ -29,26 +27,28 @@
   buttons.add(Box.createHorizontalStrut(6));
   buttons.add(stop);
   buttons.add(go);
+  buttons.add(vars);
   buttons.add(test);
-  final BaseXBack north=new BaseXBack(Fill.NONE).layout(new BorderLayout());
+  final BaseXBack north=new BaseXBack(false).layout(new BorderLayout());
   north.add(buttons,BorderLayout.WEST);
-  north.add(label,BorderLayout.EAST);
+  north.add(header,BorderLayout.EAST);
   search.editor(addTab(),false);
   info=new BaseXLabel().setText(OK,Msg.SUCCESS);
   pos=new BaseXLabel(" ");
   posCode.invokeLater();
-  final BaseXBack south=new BaseXBack(Fill.NONE).border(10,0,2,0);
+  final BaseXBack south=new BaseXBack(false).border(4,0,0,0);
   south.layout(new BorderLayout(4,0));
   south.add(info,BorderLayout.CENTER);
   south.add(pos,BorderLayout.EAST);
-  final BaseXBack main=new BaseXBack().border(5).mode(Fill.NONE);
+  final BaseXBack main=new BaseXBack().border(5);
+  main.setOpaque(false);
   main.layout(new BorderLayout());
   main.add(north,BorderLayout.NORTH);
   main.add(center,BorderLayout.CENTER);
   main.add(south,BorderLayout.SOUTH);
   project=new ProjectView(this);
   split=new BaseXSplit(true);
-  split.mode(Fill.NONE);
+  split.setOpaque(false);
   split.add(project);
   split.add(main);
   split.init(new double[]{0.3,0.7},new double[]{0,1});
@@ -79,7 +79,7 @@
       }
 ;
       final StringList opened=new StringList();
-      for (      final EditorArea ea : editors())       opened.add(ea.file.path());
+      for (      final EditorArea ea : editors())       opened.add(ea.file().path());
       final StringList hst=new StringList(HISTORY);
       final StringList all=new StringList(gui.gopts.get(GUIOptions.EDITOR));
       final int fl=Math.min(all.size(),e == null ? HISTORY : HISTCOMP);
@@ -109,7 +109,7 @@
   refreshHistory(null);
   info.addMouseListener(new MouseAdapter(){
     @Override public void mouseClicked(    final MouseEvent e){
-      jumpToError();
+      markError(true);
     }
   }
 );
@@ -128,6 +128,12 @@
     }
   }
 );
+  vars.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      DialogBindings.show(gui);
+    }
+  }
+);
   test.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
       run(getEditor(),Action.TEST);
@@ -143,20 +149,13 @@
       posCode.invokeLater();
       refreshMark();
       run(ea,Action.PARSE);
+      gui.setTitle();
     }
   }
 );
   BaseXLayout.addDrop(this,new DropHandler(){
     @Override public void drop(    final Object file){
       if (file instanceof File)       open(new IOFile((File)file));
-    }
-  }
-);
-  SwingUtilities.invokeLater(new Runnable(){
-    @Override public void run(){
-      for (      final String file : gui.gopts.get(GUIOptions.OPEN)) {
-        open(new IOFile(file),false,false);
-      }
     }
   }
 );

@@ -1,0 +1,22 @@
+{
+  Step s=step;
+  if (text) {
+    if (pred instanceof AxisPath) {
+      final AxisPath path=(AxisPath)pred;
+      final int pl=path.steps.length;
+      s=path.step(pl - 1);
+      if (s.axis == Axis.CHILD && s.test == Test.TXT) {
+        s=pl > 1 ? path.step(pl - 2) : step;
+      }
+    }
+  }
+ else {
+    if (pred instanceof AxisPath) {
+      final AxisPath path=(AxisPath)pred;
+      s=path.step(path.steps.length - 1);
+    }
+  }
+  if (!(s.test instanceof NameTest))   return null;
+  final NameTest nt=(NameTest)s.test;
+  return new byte[][]{nt.local,nt.name == null ? null : nt.name.uri()};
+}

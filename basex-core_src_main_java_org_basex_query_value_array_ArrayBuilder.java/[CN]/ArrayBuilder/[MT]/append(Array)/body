@@ -1,0 +1,46 @@
+{
+  if (!(arr instanceof BigArray)) {
+    for (    final Value val : arr.members())     append(val);
+    return this;
+  }
+  final BigArray big=(BigArray)arr;
+  final Value[] ls=big.left, rs=big.right;
+  final FingerTree<Value,Value> midTree=big.middle;
+  if (midTree.isEmpty()) {
+    for (    final Value l : big.left)     append(l);
+    for (    final Value r : big.right)     append(r);
+    return this;
+  }
+  if (tree.isEmpty()) {
+    final int k=inLeft + inRight;
+    final Value[] temp=new Value[k];
+    final int l=(mid - inLeft + CAP) % CAP, m=CAP - l;
+    if (k <= m) {
+      System.arraycopy(vals,l,temp,0,k);
+    }
+ else {
+      System.arraycopy(vals,l,temp,0,m);
+      System.arraycopy(vals,0,temp,m,k - m);
+    }
+    inLeft=inRight=0;
+    tree.append(midTree);
+    for (int i=ls.length; --i >= 0; )     prepend(ls[i]);
+    for (int i=k; --i >= 0; )     prepend(temp[i]);
+    for (    final Value r : rs)     append(r);
+    return this;
+  }
+  final int inMiddle=inRight + big.left.length, leaves=(inMiddle + Array.MAX_LEAF - 1) / Array.MAX_LEAF, leafSize=(inMiddle + leaves - 1) / leaves;
+  for (int i=0, l=0; l < leaves; l++) {
+    final int inLeaf=Math.min(leafSize,inMiddle - i);
+    final Value[] leaf=new Value[inLeaf];
+    for (int p=0; p < inLeaf; p++) {
+      leaf[p]=i < inRight ? vals[(mid + i) % CAP] : big.left[i - inRight];
+      i++;
+    }
+    tree.append(new LeafNode(leaf));
+  }
+  tree.append(big.middle);
+  inRight=0;
+  for (  final Value r : big.right)   append(r);
+  return this;
+}

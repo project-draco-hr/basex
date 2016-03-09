@@ -1,0 +1,47 @@
+{
+  if (root == null || !root.iterable())   return false;
+  final long size=root.size();
+  final SeqType tp=root.seqType();
+  boolean atMostOne=size == 0 || size == 1 || tp.zeroOrOne();
+  boolean sameDepth=atMostOne || tp.type == NodeType.DOC || tp.type == NodeType.DEL;
+  for (  final Expr expr : steps) {
+    final Step step=(Step)expr;
+switch (step.axis) {
+case ANC:
+case ANCORSELF:
+case PREC:
+case PRECSIBL:
+      return false;
+case FOLL:
+    if (!atMostOne)     return false;
+  atMostOne=false;
+sameDepth=false;
+break;
+case FOLLSIBL:
+if (!atMostOne) return false;
+atMostOne=false;
+break;
+case ATTR:
+atMostOne&=step.test.kind == Kind.URI_NAME;
+break;
+case CHILD:
+if (!sameDepth) return false;
+atMostOne=false;
+break;
+case DESC:
+case DESCORSELF:
+if (!sameDepth) return false;
+atMostOne=false;
+sameDepth=false;
+break;
+case PARENT:
+if (!atMostOne) return false;
+break;
+case SELF:
+break;
+default :
+throw Util.notExpected();
+}
+}
+return true;
+}

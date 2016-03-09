@@ -6,7 +6,7 @@
   final int w=getWidth() - scroll.getWidth();
   final int h=getHeight();
   final int fsz=GUIConstants.fontSize;
-  final Context context=tdata.context;
+  final Context context=tdata.ctx;
   final Data data=context.data();
   final int focus=gui.context.focused;
   final int rfocus=tdata.getRoot(data,focus);
@@ -17,7 +17,7 @@
   final TokenBuilder[] tb=new TokenBuilder[nCols];
   for (int i=0; i < nCols; ++i)   tb[i]=new TokenBuilder();
   focusedString=null;
-  final Nodes marked=context.marked;
+  final DBNodes marked=context.marked;
   int l=scroll.pos() / rowH - 1;
   int posY=-scroll.pos() + l * rowH;
   int mpos=0;
@@ -25,12 +25,13 @@
     if (posY > h || l >= tdata.rows.size())     break;
     posY+=rowH;
     final int pre=tdata.rows.get(l);
-    while (mpos < marked.size() && marked.pres[mpos] < pre)     ++mpos;
+    final long ms=marked.size();
+    while (mpos < ms && marked.pre(mpos) < pre)     ++mpos;
     g.setColor(GUIConstants.color2);
     g.drawLine(0,posY + rowH - 1,w,posY + rowH - 1);
-    g.setColor(Color.white);
+    g.setColor(GUIConstants.BACK);
     g.drawLine(0,posY + rowH,w,posY + rowH);
-    final boolean rm=mpos < marked.size() && marked.pres[mpos] == pre;
+    final boolean rm=mpos < marked.size() && marked.pre(mpos) == pre;
     final boolean rf=pre == rfocus;
     final int col=rm ? rf ? 5 : 4 : 3;
     if (rm || rf) {
@@ -39,7 +40,7 @@
       g.setColor(GUIConstants.color(col + 4));
       g.drawLine(0,posY - 1,w,posY - 1);
     }
-    g.setColor(Color.black);
+    g.setColor(GUIConstants.TEXT);
     if (rowH < fsz)     continue;
     ti.init(pre);
     int fcol=-1;
@@ -59,7 +60,7 @@
       final double cw=w * tdata.cols[c].width;
       final double ce=x + cw;
       if (ce != 0) {
-        final byte[] str=tb[c].isEmpty() ? null : tb[c].finish();
+        final byte[] str=tb[c].isEmpty() ? null : tb[c].toArray();
         if (str != null) {
           if (tdata.mouseX > x && tdata.mouseX < ce || fcol == c) {
             fx=(int)x;
@@ -76,7 +77,7 @@
       if (fx > w - sw - 2)       fx=w - sw - 2;
       g.setColor(GUIConstants.color(col + 2));
       g.fillRect(fx - 2,posY,sw,rowH - 1);
-      g.setColor(Color.black);
+      g.setColor(GUIConstants.TEXT);
       BaseXLayout.chopString(g,focusStr,fx + 1,posY + 2,sw,fsz);
       focusedString=string(focusStr);
       final int i=focusedString.indexOf("; ");

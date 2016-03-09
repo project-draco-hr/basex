@@ -1,15 +1,14 @@
 {
-  final String db=args[0];
-  final String path=args[1] != null ? args[1] : "";
+  final String db=args[0], path=args[1];
   if (!Databases.validName(db))   return error(NAME_INVALID_X,db);
   final Table table=new Table();
   table.description=RESOURCES;
   table.header.add(INPUT_PATH);
   table.header.add(TYPE);
-  table.header.add(MimeTypes.CONTENT_TYPE);
+  table.header.add(DataText.CONTENT_TYPE);
   table.header.add(SIZE);
   try {
-    final Data data=Open.open(db,context);
+    final Data data=Open.open(db,context,options);
     final Resources res=data.resources;
     final IntList il=res.docs(path);
     final int ds=il.size();
@@ -18,8 +17,8 @@
       final TokenList tl=new TokenList(3);
       final byte[] file=data.text(pre,true);
       tl.add(file);
-      tl.add(SerialMethod.XML.toString());
-      tl.add(MimeTypes.APP_XML);
+      tl.add(XML);
+      tl.add(MediaType.APPLICATION_XML.toString());
       tl.add(data.size(pre,Data.DOC));
       table.contents.add(tl);
     }
@@ -27,8 +26,8 @@
       final String f=string(file);
       final TokenList tl=new TokenList(3);
       tl.add(file);
-      tl.add(SerialMethod.RAW.toString());
-      tl.add(MimeTypes.get(f));
+      tl.add(IO.RAW);
+      tl.add(MediaType.get(f).toString());
       tl.add(data.meta.binary(f).length());
       table.contents.add(tl);
     }

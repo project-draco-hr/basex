@@ -1,23 +1,24 @@
 {
-  if (sopts == null)   return get(os);
-switch (sopts.get(SerializerOptions.METHOD)) {
+  final SerializerOptions so=sopts == null ? SerializerMode.DEFAULT.get() : sopts;
+switch (so.get(SerializerOptions.METHOD)) {
 case XHTML:
-    return new XHTMLSerializer(os,sopts);
+    return new XHTMLSerializer(os,so);
 case HTML:
-  return new HTMLSerializer(os,sopts);
+  return new HTMLSerializer(os,so);
 case TEXT:
-return new TextSerializer(os,sopts);
-case RAW:
-return new RawSerializer(os,sopts);
+return new TextSerializer(os,so);
 case CSV:
-final CsvOptions copts=sopts.get(SerializerOptions.CSV);
-final CsvFormat cform=copts.get(CsvOptions.FORMAT);
-return cform == CsvFormat.MAP ? new CsvMapSerializer(os,sopts) : new CsvDirectSerializer(os,sopts);
+final CsvOptions copts=so.get(SerializerOptions.CSV);
+return copts.get(CsvOptions.FORMAT) == CsvFormat.MAP ? new CsvMapSerializer(os,so) : new CsvDirectSerializer(os,so);
 case JSON:
-final JsonSerialOptions jopts=sopts.get(SerializerOptions.JSON);
-final JsonFormat jform=jopts.get(JsonOptions.FORMAT);
-return jform == JsonFormat.JSONML ? new JsonMLSerializer(os,sopts) : jform == JsonFormat.MAP ? new JsonMapSerializer(os,sopts) : new JsonNodeSerializer(os,sopts);
+final JsonSerialOptions jopts=so.get(SerializerOptions.JSON);
+final JsonFormat jformat=jopts.get(JsonOptions.FORMAT);
+return jformat == JsonFormat.JSONML ? new JsonMLSerializer(os,so) : jformat == JsonFormat.BASIC ? new JsonBasicSerializer(os,so) : new JsonNodeSerializer(os,so);
+case XML:
+return new XMLSerializer(os,so);
+case ADAPTIVE:
+return new AdaptiveSerializer(os,so);
 default :
-return new XMLSerializer(os,sopts);
+return new BaseXSerializer(os,so);
 }
 }

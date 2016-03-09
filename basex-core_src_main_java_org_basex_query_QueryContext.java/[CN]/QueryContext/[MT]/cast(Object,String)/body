@@ -1,18 +1,18 @@
 {
-  final StaticContext sc=root != null ? root.sc : new StaticContext(context);
+  final StaticContext sc=root != null ? root.sc : new StaticContext(this);
   Object vl=val;
   if (vl instanceof String) {
     final String string=(String)vl;
     final StringList strings=new StringList(1);
-    if (string.indexOf('\1') != -1) {
+    if (string.indexOf('\1') == -1) {
+      strings.add(string);
+    }
+ else {
       strings.add(string.split("\1"));
       vl=strings.toArray();
     }
- else {
-      strings.add(string);
-    }
     if (string.indexOf('\2') != -1) {
-      final ValueBuilder vb=new ValueBuilder(strings.size());
+      final ValueBuilder vb=new ValueBuilder();
       for (      final String str : strings) {
         final int i=str.indexOf('\2');
         final String s=i == -1 ? str : str.substring(0,i);
@@ -23,16 +23,13 @@
     }
   }
   if (type == null || type.isEmpty()) {
-    return vl instanceof Value ? (Value)vl : JavaMapping.toValue(vl,this,sc);
+    return vl instanceof Value ? (Value)vl : JavaFunction.toValue(vl,this,sc);
   }
   if (type.equalsIgnoreCase(MainParser.JSON.name())) {
     try {
       final JsonParserOptions jp=new JsonParserOptions();
-      jp.set(JsonOptions.SPEC,JsonSpec.ECMA_262);
       jp.set(JsonOptions.FORMAT,JsonFormat.MAP);
-      final JsonConverter conv=JsonConverter.get(jp);
-      conv.convert(token(vl.toString()),null);
-      return conv.finish();
+      return JsonConverter.get(jp).convert(token(vl.toString()),null);
     }
  catch (    final QueryIOException ex) {
       throw ex.getCause();
@@ -40,7 +37,7 @@
   }
   if (type.equals(QueryText.EMPTY_SEQUENCE + "()"))   return Empty.SEQ;
   final QNm nm=new QNm(token(type.replaceAll("\\(.*?\\)$","")),sc);
-  if (!nm.hasURI() && nm.hasPrefix())   throw NOURI.get(null,nm.string());
+  if (!nm.hasURI() && nm.hasPrefix())   throw NOURI_X.get(null,nm.string());
   Type tp;
   if (type.endsWith(")")) {
     if (nm.eq(AtomType.ITEM.name))     tp=AtomType.ITEM;
@@ -51,17 +48,17 @@
     tp=ListType.find(nm);
     if (tp == null)     tp=AtomType.find(nm,false);
   }
-  if (tp == null)   throw NOTYPE.get(null,type);
+  if (tp == null)   throw WHICHTYPE_X.get(null,type);
   if (vl instanceof Value) {
     if (vl instanceof Item)     return tp.cast((Item)vl,this,sc,null);
     final Value v=(Value)vl;
-    final ValueBuilder seq=new ValueBuilder((int)v.size());
+    final ValueBuilder seq=new ValueBuilder();
     for (    final Item i : v)     seq.add(tp.cast(i,this,sc,null));
     return seq.value();
   }
   if (vl instanceof String[]) {
     final String[] strings=(String[])vl;
-    final ValueBuilder seq=new ValueBuilder(strings.length);
+    final ValueBuilder seq=new ValueBuilder();
     for (    final String s : strings)     seq.add(tp.cast(s,this,sc,null));
     return seq.value();
   }

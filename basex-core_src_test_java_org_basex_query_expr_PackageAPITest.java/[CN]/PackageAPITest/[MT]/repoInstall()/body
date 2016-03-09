@@ -4,14 +4,16 @@
     fail("Not existing package not detected.");
   }
  catch (  final QueryException ex) {
-    check(null,ex,Err.BXRE_WHICH);
+    check(null,ex,BXRE_WHICH_X);
   }
-  new RepoInstall(REPO + "pkg3.xar",null).execute(context);
+  execute(new RepoInstall(REPO + "pkg3.xar",null));
   final String dir=normalize(PKG3ID);
-  assertTrue(dir(dir));
-  assertTrue(file(dir + "/expath-pkg.xml"));
-  assertTrue(dir(dir + "/pkg3"));
-  assertTrue(dir(dir + "/pkg3/mod"));
-  assertTrue(file(dir + "/pkg3/mod/pkg3mod1.xql"));
+  assertTrue(isDir(dir));
+  assertTrue(isFile(dir + "/expath-pkg.xml"));
+  assertTrue(isDir(dir + "/pkg3"));
+  assertTrue(isDir(dir + "/pkg3/mod"));
+  assertTrue(isFile(dir + "/pkg3/mod/pkg3mod1.xql"));
   assertTrue(new IOFile(REPO,dir).delete());
+  execute(new RepoInstall(REPO + "12345.xqm",null));
+  assertTrue(isFile("urn/isbn/12345.xqm"));
 }

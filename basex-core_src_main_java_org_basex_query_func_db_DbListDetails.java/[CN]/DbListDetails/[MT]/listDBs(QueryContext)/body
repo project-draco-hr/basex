@@ -1,0 +1,32 @@
+{
+  final Context ctx=qc.context;
+  final StringList dbs=ctx.filter(Perm.READ,ctx.databases.listDBs());
+  return new Iter(){
+    int pos;
+    @Override public ANode get(    final long i) throws QueryException {
+      final String name=dbs.get((int)i);
+      try {
+        final MetaData meta=new MetaData(name,ctx.options,ctx.soptions);
+        meta.read();
+        final int bin=new IOFile(ctx.soptions.dbPath(name),IO.RAW).descendants().size();
+        final FElem res=new FElem(DATABASE);
+        res.add(RESOURCES,token(meta.ndocs + bin));
+        res.add(MDATE,DateTime.format(new Date(meta.dbtime())));
+        res.add(SIZE,token(meta.dbsize()));
+        if (ctx.perm(Perm.CREATE,name))         res.add(PATH,meta.original);
+        res.add(name);
+        return res;
+      }
+ catch (      final IOException ex) {
+        throw BXDB_OPEN_X.get(info,ex);
+      }
+    }
+    @Override public ANode next() throws QueryException {
+      return pos < size() ? get(pos++) : null;
+    }
+    @Override public long size(){
+      return dbs.size();
+    }
+  }
+;
+}

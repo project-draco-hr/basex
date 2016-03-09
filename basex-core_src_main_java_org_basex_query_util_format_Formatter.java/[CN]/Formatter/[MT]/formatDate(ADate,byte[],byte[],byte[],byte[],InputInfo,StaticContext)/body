@@ -1,0 +1,182 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  if (lng.length != 0 && MAP.get(lng) == null)   tb.add("[Language: en]");
+  boolean iso=false;
+  if (cal.length != 0) {
+    final QNm qnm;
+    try {
+      qnm=QNm.resolve(cal,sc);
+    }
+ catch (    final QueryException ex) {
+      throw CALQNAME_X.get(ii,cal);
+    }
+    if (qnm.uri().length == 0) {
+      int c=-1;
+      final byte[] ln=qnm.local();
+      final int cl=CALENDARS.length;
+      while (++c < cl && !eq(CALENDARS[c],ln))       ;
+      if (c == cl)       throw CALWHICH_X.get(ii,cal);
+      if (c > 1)       tb.add("[Calendar: AD]");
+      iso=c == 0;
+    }
+  }
+  if (plc.length != 0)   tb.add("[Place: ]");
+  final DateParser dp=new DateParser(ii,pic);
+  while (dp.more()) {
+    final int ch=dp.literal();
+    if (ch == -1) {
+      final byte[] marker=dp.marker();
+      if (marker.length == 0)       throw PICDATE_X.get(ii,pic);
+      final int compSpec=ch(marker,0);
+      byte[] pres=ONE;
+      boolean max=false;
+      BigDecimal frac=null;
+      long num=0;
+      final boolean dat=date.type == AtomType.DAT;
+      final boolean tim=date.type == AtomType.TIM;
+      boolean err=false;
+switch (compSpec) {
+case 'Y':
+        num=Math.abs(date.yea());
+      max=true;
+    err=tim;
+  break;
+case 'M':
+num=date.mon();
+err=tim;
+break;
+case 'D':
+num=date.day();
+err=tim;
+break;
+case 'd':
+final long y=date.yea();
+for (int m=(int)date.mon() - 1; --m >= 0; ) num+=ADate.dpm(y,m);
+num+=date.day();
+err=tim;
+break;
+case 'F':
+num=date.toJava().toGregorianCalendar().get(Calendar.DAY_OF_WEEK) - 1;
+if (num == 0) num=7;
+pres=NN;
+err=tim;
+break;
+case 'W':
+num=date.toJava().toGregorianCalendar().get(Calendar.WEEK_OF_YEAR);
+err=tim;
+break;
+case 'w':
+num=date.toJava().toGregorianCalendar().get(Calendar.WEEK_OF_MONTH);
+if (iso && num == 0) num=5;
+err=tim;
+break;
+case 'H':
+num=date.hou();
+err=dat;
+break;
+case 'h':
+num=date.hou() % 12;
+if (num == 0) num=12;
+err=dat;
+break;
+case 'P':
+num=date.hou() / 12;
+pres=NN;
+err=dat;
+break;
+case 'm':
+num=date.min();
+pres=token("01");
+err=dat;
+break;
+case 's':
+num=date.sec().intValue();
+pres=token("01");
+err=dat;
+break;
+case 'f':
+frac=date.sec().remainder(BigDecimal.ONE);
+num=frac.movePointRight(3).intValue();
+err=dat;
+break;
+case 'Z':
+case 'z':
+num=date.tz();
+pres=token("01:01");
+break;
+case 'C':
+pres=NN;
+break;
+case 'E':
+num=date.yea();
+pres=NN;
+err=tim;
+break;
+default :
+throw INVCOMPSPEC_X.get(ii,marker);
+}
+if (err) throw PICINVCOMP_X_X.get(ii,marker,date.type);
+if (pres == null) continue;
+final DateFormat fp=new DateFormat(substring(marker,1),pres,ii);
+if (max) {
+int mx=0;
+final int fl=fp.primary.length;
+for (int s=0; s < fl; s+=cl(fp.primary,s)) mx++;
+if (mx > 1) fp.max=mx;
+}
+if (compSpec == 'z' || compSpec == 'Z') {
+tb.add(formatZone((int)num,fp,marker));
+}
+ else if (fp.first == 'n') {
+byte[] in=null;
+if (compSpec == 'M') {
+in=month((int)num - 1,fp.min,fp.max);
+}
+ else if (compSpec == 'F') {
+in=day((int)num - 1,fp.min,fp.max);
+}
+ else if (compSpec == 'P') {
+in=ampm(num == 0);
+}
+ else if (compSpec == 'C') {
+in=calendar();
+}
+ else if (compSpec == 'E') {
+in=era((int)num);
+}
+if (in != null) {
+if (fp.cs == Case.LOWER) in=lc(in);
+if (fp.cs == Case.UPPER) in=uc(in);
+tb.add(in);
+}
+ else {
+fp.first='0';
+fp.primary=ONE;
+tb.add(formatInt(num,fp));
+}
+}
+ else {
+if (frac != null && frac.compareTo(BigDecimal.ZERO) != 0) {
+String s=frac.toString().replace("0.","");
+final int sl=s.length();
+if (fp.min > sl) {
+s=frac(frac,fp.min);
+}
+ else if (fp.max < sl) {
+s=frac(frac,fp.max);
+}
+ else {
+final int fl=fp.primary.length;
+if (fl != 1 && fl != sl) s=frac(frac,fl);
+}
+num=Strings.toLong(s);
+}
+tb.add(formatInt(num,fp));
+}
+}
+ else {
+tb.add(ch);
+}
+}
+return tb.finish();
+}

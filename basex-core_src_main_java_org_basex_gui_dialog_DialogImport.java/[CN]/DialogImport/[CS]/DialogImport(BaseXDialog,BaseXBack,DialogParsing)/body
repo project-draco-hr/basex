@@ -1,12 +1,11 @@
 {
   gui=dial.gui;
-  parsing=parse;
-  layout(new TableLayout(10,1));
+  this.parsing=parsing;
+  layout(new TableLayout(11,1));
   border(8);
   add(new BaseXLabel(FILE_OR_DIR + COL,true,true).border(0,0,6,0));
   final String path=gui.gopts.get(GUIOptions.INPUTPATH);
-  input=new BaseXTextField(path,dial);
-  input.history(GUIOptions.INPUTS,dial);
+  input=new BaseXTextField(path,dial).history(GUIOptions.INPUTS,dial);
   final IO io=IO.get(path);
   if (io instanceof IOFile && !path.isEmpty())   dbname=io.dbname();
   browse=new BaseXButton(BROWSE_D,dial);
@@ -25,24 +24,26 @@
   final MainOptions opts=gui.context.options;
   final StringList ps=new StringList();
   for (  final MainParser mp : MainParser.values())   ps.add(mp.name());
-  parsers=new BaseXCombo(dial,ps.toArray());
+  parsers=new BaseXCombo(dial,ps.finish());
   parsers.setSelectedItem(opts.get(MainOptions.PARSER).name());
-  filter=new BaseXTextField(opts.get(MainOptions.CREATEFILTER),dial);
-  BaseXLayout.setWidth(filter,200);
+  createFilter=new BaseXTextField(opts.get(MainOptions.CREATEFILTER),dial);
+  createFilter.setColumns(30);
   addRaw=new BaseXCheckBox(ADD_RAW_FILES,MainOptions.ADDRAW,opts,dial);
   skipCorrupt=new BaseXCheckBox(SKIP_CORRUPT_FILES,MainOptions.SKIPCORRUPT,opts,dial);
-  archives=new BaseXCheckBox(PARSE_ARCHIVES,MainOptions.ADDARCHIVES,opts,dial);
+  addArchives=new BaseXCheckBox(PARSE_ARCHIVES,MainOptions.ADDARCHIVES,opts,dial);
+  archiveName=new BaseXCheckBox(ADD_ARCHIVE_NAME,MainOptions.ARCHIVENAME,opts,dial);
   final BaseXBack p=new BaseXBack(new TableLayout(2,2,20,0));
   p.add(new BaseXLabel(INPUT_FORMAT,false,true).border(0,0,6,0));
   p.add(new BaseXLabel(FILE_PATTERNS + COL,false,true).border(0,0,6,0));
   p.add(parsers);
-  p.add(filter);
+  p.add(createFilter);
   add(p);
   add(Box.createVerticalStrut(8));
   add(addRaw);
   add(skipCorrupt);
-  add(archives);
-  info=new BaseXLabel(" ").border(32,0,6,0);
+  add(addArchives);
+  add(archiveName);
+  info=new BaseXLabel(" ").border(20,0,6,0);
   add(info);
   final DropHandler dh=new DropHandler(){
     @Override public void drop(    final Object object){

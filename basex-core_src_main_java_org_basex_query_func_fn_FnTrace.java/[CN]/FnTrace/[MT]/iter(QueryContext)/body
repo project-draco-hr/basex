@@ -1,0 +1,19 @@
+{
+  return new Iter(){
+    final Iter ir=exprs[0].iter(qc);
+    final byte[] label=exprs.length > 1 ? toToken(exprs[1],qc) : null;
+    boolean empty=true;
+    @Override public Item next() throws QueryException {
+      final Item it=ir.next();
+      if (it != null) {
+        trace(it,label,info,qc);
+        empty=false;
+      }
+ else       if (empty) {
+        trace(null,label,info,qc);
+      }
+      return it;
+    }
+  }
+;
+}

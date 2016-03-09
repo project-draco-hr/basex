@@ -1,0 +1,112 @@
+{
+  if (pos < 0)   throw new IndexOutOfBoundsException("first index < 0: " + pos);
+  if (len < 0)   throw new IndexOutOfBoundsException("length < 0: " + len);
+  final long midSize=middle.size();
+  if (len > size - pos)   throw new IndexOutOfBoundsException("end out of bounds: " + (pos + len) + " > "+ size);
+  if (len == 0)   return Empty.SEQ;
+  if (len == 1)   return itemAt(pos);
+  if (len == size)   return this;
+  final long end=pos + len;
+  if (end <= left.length) {
+    final int p=(int)pos, n=(int)len;
+    if (len <= MAX_SMALL)     return new SmallSeq(slice(left,p,p + n),type);
+    final int mid=p + n / 2;
+    final Type rt=type;
+    return new BigSeq(slice(left,p,mid),FingerTree.<Item>empty(),slice(left,mid,p + n),rt);
+  }
+  final long rightOffset=left.length + midSize;
+  if (pos >= rightOffset) {
+    final int p=(int)(pos - rightOffset), n=(int)len;
+    if (len <= MAX_SMALL)     return new SmallSeq(slice(right,p,p + n),type);
+    final int mid=p + n / 2;
+    final Type rt=type;
+    return new BigSeq(slice(right,p,mid),FingerTree.<Item>empty(),slice(right,mid,p + n),rt);
+  }
+  final int inLeft=pos < left.length ? (int)(left.length - pos) : 0, inRight=end > rightOffset ? (int)(end - rightOffset) : 0;
+  if (inLeft >= MIN_DIGIT && inRight >= MIN_DIGIT) {
+    final Item[] newLeft=inLeft == left.length ? left : slice(left,(int)pos,left.length);
+    final Item[] newRight=inRight == right.length ? right : slice(right,0,inRight);
+    return new BigSeq(newLeft,middle,newRight,type);
+  }
+  if (middle.isEmpty()) {
+    final Item[] out;
+    if (inLeft == 0) {
+      out=inRight == right.length ? right : slice(right,0,inRight);
+    }
+ else     if (inRight == 0) {
+      out=inLeft == left.length ? left : slice(left,left.length - inLeft,left.length);
+    }
+ else {
+      out=slice(left,left.length - inLeft,left.length + inRight);
+      System.arraycopy(right,0,out,inLeft,inRight);
+    }
+    return fromMerged(out,type);
+  }
+  final long inMiddle=len - inLeft - inRight;
+  final FingerTree<Item,Item> mid;
+  if (inMiddle == midSize) {
+    mid=middle;
+  }
+ else {
+    final long off=pos < left.length ? 0 : pos - left.length;
+    final TreeSlice<Item,Item> slice=middle.slice(off,inMiddle);
+    if (!slice.isTree()) {
+      final Item[] single=((PartialLeafNode)slice.getPartial()).elems;
+      if (inLeft > 0) {
+        final Item[] out=slice(left,(int)pos,left.length + single.length);
+        System.arraycopy(single,0,out,inLeft,single.length);
+        return fromMerged(out,type);
+      }
+      if (inRight > 0) {
+        final Item[] out=slice(single,0,single.length + inRight);
+        System.arraycopy(right,0,out,single.length,inRight);
+        return fromMerged(out,type);
+      }
+      return new SmallSeq(single,type);
+    }
+    mid=slice.getTree();
+  }
+  final int off=left.length - inLeft;
+  final Item[] newLeft;
+  final FingerTree<Item,Item> mid1;
+  if (inLeft >= MIN_DIGIT) {
+    newLeft=inLeft == left.length ? left : slice(left,off,left.length);
+    mid1=mid;
+  }
+ else {
+    final Item[] head=((LeafNode)mid.head()).values;
+    if (inLeft == 0) {
+      newLeft=head;
+    }
+ else {
+      newLeft=slice(head,-inLeft,head.length);
+      System.arraycopy(left,off,newLeft,0,inLeft);
+    }
+    mid1=mid.tail();
+  }
+  final Item[] newRight;
+  final FingerTree<Item,Item> newMiddle;
+  if (inRight >= MIN_DIGIT) {
+    newMiddle=mid1;
+    newRight=inRight == right.length ? right : slice(right,0,inRight);
+  }
+ else   if (!mid1.isEmpty()) {
+    final Item[] last=((LeafNode)mid1.last()).values;
+    newMiddle=mid1.init();
+    if (inRight == 0) {
+      newRight=last;
+    }
+ else {
+      newRight=slice(last,0,last.length + inRight);
+      System.arraycopy(right,0,newRight,last.length,inRight);
+    }
+  }
+ else {
+    if (inRight == 0)     return fromMerged(newLeft,type);
+    final int n=newLeft.length + inRight;
+    final Item[] out=slice(newLeft,0,n);
+    System.arraycopy(right,0,out,newLeft.length,inRight);
+    return fromMerged(out,type);
+  }
+  return new BigSeq(newLeft,newMiddle,newRight,type);
+}

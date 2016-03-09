@@ -1,0 +1,17 @@
+{
+  final double ds=toDouble(exprs[1],qc);
+  if (Double.isNaN(ds))   return null;
+  final long start=StrictMath.round(ds);
+  final boolean min=start == Long.MIN_VALUE;
+  long len=Long.MAX_VALUE;
+  final int el=exprs.length;
+  if (el > 2) {
+    final double dl=toDouble(exprs[2],qc);
+    if (Double.isNaN(dl))     return null;
+    if (min && dl == Double.POSITIVE_INFINITY)     return null;
+    len=StrictMath.round(dl);
+  }
+  if (min)   return len == Long.MAX_VALUE ? ALL : null;
+  if (this instanceof UtilItemRange && len != Long.MAX_VALUE)   len-=start - 1;
+  return new long[]{start,len};
+}

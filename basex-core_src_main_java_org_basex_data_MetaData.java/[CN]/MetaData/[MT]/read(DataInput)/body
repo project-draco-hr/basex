@@ -1,17 +1,20 @@
 {
   String storage="", istorage="";
   while (true) {
-    final String k=string(in.readToken());
+    final String k=Token.string(in.readToken());
     if (k.isEmpty())     break;
     if (k.equals(DBPERM)) {
-      users.read(in);
+      for (int u=in.readNum(); u > 0; --u) {
+        in.readToken();
+        in.readToken();
+        in.readNum();
+      }
     }
  else {
-      final String v=string(in.readToken());
+      final String v=Token.string(in.readToken());
       if (k.equals(DBSTR))       storage=v;
  else       if (k.equals(IDBSTR))       istorage=v;
  else       if (k.equals(DBFNAME))       original=v;
- else       if (k.equals(DBENC))       encoding=v;
  else       if (k.equals(DBFTSW))       stopwords=v;
  else       if (k.equals(DBFTLN))       language=Language.get(v);
  else       if (k.equals(DBSIZE))       size=toInt(v);
@@ -25,12 +28,20 @@
  else       if (k.equals(DBFTDC))       diacritics=toBool(v);
  else       if (k.equals(DBCHOP))       chop=toBool(v);
  else       if (k.equals(DBUPDIDX))       updindex=toBool(v);
+ else       if (k.equals(DBAUTOOPT))       autooptimize=toBool(v);
  else       if (k.equals(DBTXTIDX))       textindex=toBool(v);
  else       if (k.equals(DBATVIDX))       attrindex=toBool(v);
- else       if (k.equals(DBFTXIDX))       ftxtindex=toBool(v);
+ else       if (k.equals(DBTOKIDX))       tokenindex=toBool(v);
+ else       if (k.equals(DBFTXIDX))       ftindex=toBool(v);
+ else       if (k.equals(DBTXTINC))       textinclude=v;
+ else       if (k.equals(DBATVINC))       attrinclude=v;
+ else       if (k.equals(DBTOKINC))       tokeninclude=v;
+ else       if (k.equals(DBFTXINC))       ftinclude=v;
+ else       if (k.equals(DBSPLITS))       splitsize=toInt(v);
  else       if (k.equals(DBCRTTXT))       createtext=toBool(v);
  else       if (k.equals(DBCRTATV))       createattr=toBool(v);
- else       if (k.equals(DBCRTFTX))       createftxt=toBool(v);
+ else       if (k.equals(DBCRTTOK))       createtoken=toBool(v);
+ else       if (k.equals(DBCRTFTX))       createft=toBool(v);
  else       if (k.equals(DBWCIDX))       wcindex=toBool(v);
  else       if (k.equals(DBFTST))       stemming=toBool(v);
  else       if (k.equals(DBFTCS))       casesens=toBool(v);
@@ -41,5 +52,5 @@
   if (!storage.equals(STORAGE) && new Version(storage).compareTo(new Version(STORAGE)) > 0)   throw new BuildException(H_DB_FORMAT,storage);
   oldindex=!istorage.equals(ISTORAGE) && new Version(istorage).compareTo(new Version(ISTORAGE)) > 0;
   corrupt=dbfile(DATAUPD).exists();
-  if (wcindex)   ftxtindex=false;
+  if (wcindex)   ftindex=false;
 }

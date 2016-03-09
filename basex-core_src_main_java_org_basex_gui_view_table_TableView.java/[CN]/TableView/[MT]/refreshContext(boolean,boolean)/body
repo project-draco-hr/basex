@@ -11,6 +11,18 @@
  else {
     if (!more)     tdata.resetFilter();
     gui.updating=true;
-    new Thread(this).start();
+    new Thread(){
+      @Override public void run(){
+        int zoomstep=ZOOM.length;
+        while (--zoomstep >= 0) {
+          scroll.height(tdata.rows.size() * tdata.rowH(ZOOM[zoomstep]));
+          repaint();
+          Performance.sleep(25);
+        }
+        gui.updating=false;
+        focus();
+      }
+    }
+.start();
   }
 }

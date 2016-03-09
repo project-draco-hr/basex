@@ -2,19 +2,18 @@
   try {
     final boolean dir=renamed.isDir();
     final String oldPath=old.file().getCanonicalPath() + (dir ? File.separator : "");
-    final int s=tabs.getTabCount() - 1;
-    for (int i=0; i < s; i++) {
-      final Component c=tabs.getComponentAt(i);
+    for (    final Component c : tabs.getComponents()) {
       if (!(c instanceof EditorArea))       continue;
       final EditorArea ea=(EditorArea)c;
-      final String editPath=ea.file.file().getCanonicalPath();
+      if (!ea.opened())       continue;
+      final String editPath=ea.file().file().getCanonicalPath();
       if (dir) {
         if (editPath.startsWith(oldPath)) {
-          ea.file=new IOFile(renamed + File.separator + editPath.substring(oldPath.length()));
+          ea.file(new IOFile(renamed + File.separator + editPath.substring(oldPath.length())));
         }
       }
  else       if (oldPath.equals(editPath)) {
-        ea.file=renamed;
+        ea.file(renamed);
         ea.label.setText(renamed.name());
         break;
       }

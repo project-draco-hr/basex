@@ -1,0 +1,32 @@
+{
+  InputInfo ii=inputInfo;
+  final String path;
+  final boolean error=ii == null;
+  if (error) {
+    final TreeMap<String,InputInfo> errors=project.errors();
+    if (errors.isEmpty())     return;
+    path=errors.get(errors.keySet().iterator().next()).path();
+  }
+ else {
+    path=ii.path();
+  }
+  if (path == null)   return;
+  final IOFile file=new IOFile(path);
+  final EditorArea ea=find(file);
+  final EditorArea edit;
+  if (jump) {
+    edit=open(file,error,true);
+    if (ea == null && error)     ii=inputInfo;
+  }
+ else {
+    edit=ea;
+  }
+  if (edit == null || ii == null)   return;
+  final int ep=pos(edit.last,ii.line(),ii.column());
+  edit.error(ep);
+  if (jump) {
+    edit.setCaret(ep);
+    posCode.invokeLater();
+    if (ea == null && project.getWidth() != 0)     project.jumpTo(edit.file(),false);
+  }
+}

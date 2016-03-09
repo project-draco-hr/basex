@@ -1,0 +1,14 @@
+{
+  if (!context.perm(Perm.READ,name))   throw new BaseXException(PERM_REQUIRED_X,Perm.READ);
+synchronized (context.datas) {
+    Data data=context.datas.pin(name);
+    if (data == null) {
+      if (!context.soptions.dbExists(name))       throw new BaseXException(dbnf(name));
+      final MetaData meta=new MetaData(name,options,context.soptions);
+      if (meta.updateFile().exists())       throw new BaseXException(DB_UPDATED_X,meta.name);
+      data=new DiskData(meta);
+      context.datas.pin(data);
+    }
+    return data;
+  }
+}

@@ -1,0 +1,27 @@
+{
+  if (wsConsume(ASTERISK)) {
+    wsCheck(PAREN2);
+    return t;
+  }
+  if (t instanceof MapType) {
+    final Type key=itemType().type;
+    if (!key.instanceOf(AtomType.AAT))     throw error(MAPTAAT_X,key);
+    wsCheck(COMMA);
+    final MapType tp=MapType.get((AtomType)key,sequenceType());
+    wsCheck(PAREN2);
+    return tp;
+  }
+  if (t instanceof ArrayType) {
+    final ArrayType tp=ArrayType.get(sequenceType());
+    wsCheck(PAREN2);
+    return tp;
+  }
+  SeqType[] args={};
+  if (!wsConsume(PAREN2)) {
+    do     args=Array.add(args,sequenceType());
+ while (wsConsume(COMMA));
+    wsCheck(PAREN2);
+  }
+  wsCheck(AS);
+  return FuncType.get(anns,sequenceType(),args);
+}

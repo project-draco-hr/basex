@@ -1,14 +1,23 @@
 {
   final Data data=ii.ic.data;
-  if (!mni || !mxi || data.inMemory()|| !ii.check(expr,false))   return false;
-  final Stats key=key(ii,ii.text);
+  if (!mni || !mxi || data.inMemory())   return false;
+  final IndexType type=ii.type(expr,null);
+  if (type == null)   return false;
+  final Stats key=key(ii,type);
   if (key == null)   return false;
-  final NumericRange nr=new NumericRange(ii.text,Math.max(min,key.min),Math.min(max,key.max));
-  ii.costs=nr.min > nr.max || nr.max < key.min || nr.min > key.max ? 0 : Math.max(1,data.meta.size / 5);
-  if (ii.costs == 0)   return true;
-  if (min == Double.NEGATIVE_INFINITY && max == Double.POSITIVE_INFINITY)   return false;
+  final NumericRange nr=new NumericRange(type,Math.max(min,key.min),Math.min(max,key.max));
+  if (nr.min > nr.max || nr.max < key.min || nr.min > key.max) {
+    ii.costs=0;
+    return true;
+  }
+  ii.costs=data.costs(nr);
+  if (ii.costs == -1)   return false;
+  final int mnl=min >= 0 && (long)min == min ? token(min).length : -1;
+  final int mxl=max >= 0 && (long)max == max ? token(max).length : -1;
+  if (mnl != mxl || mnl == -1)   return false;
+  if (min == Double.NEGATIVE_INFINITY && max == Double.POSITIVE_INFINITY || token((int)nr.min).length != token((int)nr.max).length)   return false;
   final TokenBuilder tb=new TokenBuilder();
   tb.add(mni ? '[' : '(').addExt(min).add(',').addExt(max).add(mxi ? ']' : ')');
-  ii.create(new RangeAccess(info,nr,ii.ic),info,Util.info(OPTRNGINDEX,tb),true);
+  ii.create(new RangeAccess(info,nr,ii.ic),true,info,Util.info(OPTINDEX_X_X,"range",tb));
   return true;
 }

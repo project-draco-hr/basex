@@ -1,11 +1,11 @@
 {
-  final IOFile trg=new IOFile(root + '/' + file);
+  final IOFile trg=new IOFile(root,file);
   final boolean create=!trg.exists();
-  final IO in=new IOFile("src/main/webapp/" + file);
+  final IO in=new IOFile("src/main/webapp",file);
   final byte[] data;
   if (in.exists()) {
     data=in.read();
-    IOFile res=new IOFile("src/main/resources/");
+    IOFile res=new IOFile("src/main/resources");
     if (res.exists()) {
       res=new IOFile(res,file);
       if (!res.exists() || !Token.eq(data,res.read())) {
@@ -16,10 +16,11 @@
     }
   }
  else   if (create) {
-    final InputStream is=BaseXHTTP.class.getResourceAsStream('/' + file);
-    if (is == null)     throw new BaseXException(in + " not found.");
-    data=new IOStream(is).read();
-  }
+    try (final InputStream is=BaseXHTTP.class.getResourceAsStream('/' + file)){
+      if (is == null)       throw new BaseXException(in + " not found.");
+      data=new IOStream(is).read();
+    }
+   }
  else {
     return trg;
   }

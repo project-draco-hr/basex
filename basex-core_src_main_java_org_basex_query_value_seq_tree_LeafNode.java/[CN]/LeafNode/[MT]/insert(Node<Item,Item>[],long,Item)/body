@@ -1,0 +1,43 @@
+{
+  final int p=(int)pos, n=values.length;
+  final Item[] vals=new Item[n + 1];
+  System.arraycopy(values,0,vals,0,p);
+  vals[p]=val;
+  System.arraycopy(values,p,vals,p + 1,n - p);
+  if (n < TreeSeq.MAX_LEAF) {
+    siblings[1]=new LeafNode(vals);
+    return false;
+  }
+  final LeafNode left=(LeafNode)siblings[0];
+  if (left != null && left.values.length < TreeSeq.MAX_LEAF) {
+    final Item[] lvals=left.values;
+    final int l=lvals.length, diff=TreeSeq.MAX_LEAF - l, move=(diff + 1) / 2;
+    final Item[] newLeft=new Item[l + move], newRight=new Item[n + 1 - move];
+    System.arraycopy(lvals,0,newLeft,0,l);
+    System.arraycopy(vals,0,newLeft,l,move);
+    System.arraycopy(vals,move,newRight,0,newRight.length);
+    siblings[0]=new LeafNode(newLeft);
+    siblings[1]=new LeafNode(newRight);
+    return false;
+  }
+  final LeafNode right=(LeafNode)siblings[2];
+  if (right != null && right.values.length < TreeSeq.MAX_LEAF) {
+    final Item[] rvals=right.values;
+    final int r=rvals.length, diff=TreeSeq.MAX_LEAF - r, move=(diff + 1) / 2, l=n + 1 - move;
+    final Item[] newLeft=new Item[l], newRight=new Item[r + move];
+    System.arraycopy(vals,0,newLeft,0,l);
+    System.arraycopy(vals,l,newRight,0,move);
+    System.arraycopy(rvals,0,newRight,move,r);
+    siblings[1]=new LeafNode(newLeft);
+    siblings[2]=new LeafNode(newRight);
+    return false;
+  }
+  final int l=vals.length / 2, r=vals.length - l;
+  final Item[] newLeft=new Item[l], newRight=new Item[r];
+  System.arraycopy(vals,0,newLeft,0,l);
+  System.arraycopy(vals,l,newRight,0,r);
+  siblings[3]=siblings[2];
+  siblings[1]=new LeafNode(newLeft);
+  siblings[2]=new LeafNode(newRight);
+  return true;
+}

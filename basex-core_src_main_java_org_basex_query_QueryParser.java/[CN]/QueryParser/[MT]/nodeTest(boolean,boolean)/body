@@ -2,20 +2,20 @@
   final int i=pos;
   if (consume('*')) {
     if (!consume(':'))     return new NameTest(att);
-    return new NameTest(new QNm(ncName(QNAMEINV)),NameTest.Kind.NAME,att,sc.elemNS);
+    return new NameTest(new QNm(ncName(QNAME_X)),Kind.NAME,att,sc.elemNS);
   }
-  if (sc.xquery3() && consume(EQNAME)) {
+  if (consume(EQNAME)) {
     final byte[] uri=bracedURILiteral();
     if (consume('*')) {
       final QNm nm=new QNm(COLON,uri);
-      return new NameTest(nm,NameTest.Kind.URI,att,sc.elemNS);
+      return new NameTest(nm,Kind.URI,att,sc.elemNS);
     }
   }
   pos=i;
   final QNm name=eQName(null,SKIPCHECK);
   if (name != null) {
     final int i2=pos;
-    if (all && wsConsumeWs(PAR1)) {
+    if (all && wsConsumeWs(PAREN1)) {
       final NodeType type=NodeType.find(name);
       if (type != null)       return kindTest(type);
     }
@@ -23,13 +23,13 @@
       pos=i2;
       if (name.hasPrefix() || !consume(':')) {
         skipWs();
-        names.add(new QNmCheck(name,!att));
-        return new NameTest(name,NameTest.Kind.URI_NAME,att,sc.elemNS);
+        qnames.add(name,!att);
+        return new NameTest(name,Kind.URI_NAME,att,sc.elemNS);
       }
       if (consume('*')) {
         final QNm nm=new QNm(concat(name.string(),COLON));
-        names.add(new QNmCheck(nm,!att));
-        return new NameTest(nm,NameTest.Kind.URI,att,sc.elemNS);
+        qnames.add(nm,!att);
+        return new NameTest(nm,Kind.URI,att,sc.elemNS);
       }
     }
   }

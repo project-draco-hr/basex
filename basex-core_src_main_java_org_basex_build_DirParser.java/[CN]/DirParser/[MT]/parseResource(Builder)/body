@@ -1,10 +1,10 @@
 {
-  b.checkStop();
-  final long l=src.length();
-  if (l != -1)   b.meta.filesize+=l;
+  builder.checkStop();
+  final long l=source.length();
+  if (l != -1)   builder.meta.filesize+=l;
+  final String name=source.name();
   String targ=target;
-  String path=src.path();
-  final String name=src.name();
+  String path=source.path();
   if (path.endsWith('/' + name)) {
     path=path.substring(0,path.length() - name.length());
     if (path.startsWith(root))     path=path.substring(root.length());
@@ -12,41 +12,41 @@
   }
   boolean exclude=false;
   if (filter != null) {
-    final String nm=Prop.CASE ? src.name() : src.name().toLowerCase(Locale.ENGLISH);
+    final String nm=Prop.CASE ? name : name.toLowerCase(Locale.ENGLISH);
     exclude=!filter.matcher(nm).matches();
   }
   if (exclude) {
     if (addRaw && rawPath != null) {
-      Store.store(src.inputSource(),new IOFile(rawPath,targ + name));
+      Store.store(source.inputSource(),new IOFile(rawPath,targ + name));
     }
   }
  else {
     if (rawParser) {
       if (rawPath != null) {
-        Store.store(src.inputSource(),new IOFile(rawPath,targ + name));
+        Store.store(source.inputSource(),new IOFile(rawPath,targ + name));
       }
     }
  else {
       boolean ok=true;
-      IO in=src;
+      IO in=source;
       if (skipCorrupt) {
         try {
-          if (!(src instanceof IOContent || dtd)) {
-            in=new IOContent(src.read());
-            in.name(src.name());
+          if (!(source instanceof IOContent || dtd)) {
+            in=new IOContent(source.read());
+            in.name(name);
           }
           parser=Parser.singleParser(in,options,targ);
           MemBuilder.build("",parser);
         }
  catch (        final IOException ex) {
           Util.debug(ex);
-          skipped.add(src.path());
+          skipped.add(source.path());
           ok=false;
         }
       }
       if (ok) {
         parser=Parser.singleParser(in,options,targ);
-        parser.parse(b);
+        parser.parse(builder);
       }
       parser=null;
       if (Prop.debug && (++c & 0x3FF) == 0)       Util.err(";");

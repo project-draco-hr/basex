@@ -1,0 +1,30 @@
+{
+  if (pos < leftSize)   return new TreeSlice<>(removeLeft(pos));
+  final long rightStart=leftSize + middle.size();
+  if (pos >= rightStart)   return new TreeSlice<>(removeRight(pos - rightStart));
+  final TreeSlice<Node<N,E>,E> slice=middle.remove(pos - leftSize);
+  if (slice.isTree()) {
+    final FingerTree<Node<N,E>,E> newMiddle=slice.getTree();
+    return slice.setTree(new DeepTree<>(left,leftSize,newMiddle,right,size - 1));
+  }
+  final Node<N,E> node=(Node<N,E>)((PartialInnerNode<N,E>)slice.getPartial()).sub;
+  if (left.length < right.length) {
+    final Node<N,E>[] newLeft=slice(left,0,left.length + 1);
+    newLeft[left.length]=node;
+    return slice.setTree(get(newLeft,leftSize + node.size(),right,size - 1));
+  }
+  if (right.length < MAX_DIGIT) {
+    final Node<N,E>[] newRight=slice(right,-1,right.length);
+    newRight[0]=node;
+    return slice.setTree(get(left,leftSize,newRight,size - 1));
+  }
+  final int n=2 * MAX_DIGIT + 1, ll=(n - NODE_SIZE) / 2;
+  @SuppressWarnings("unchecked") final Node<N,E>[] newLeft=slice(left,0,ll), ch=new Node[NODE_SIZE];
+  final int inL=left.length - ll, inR=NODE_SIZE - inL - 1;
+  System.arraycopy(left,ll,ch,0,inL);
+  ch[inL]=node;
+  System.arraycopy(right,0,ch,inL + 1,inR);
+  final Node<N,E>[] newRight=slice(right,inR,MAX_DIGIT);
+  final Node<Node<N,E>,E> newMid=new InnerNode<>(ch);
+  return slice.setTree(get(newLeft,new SingletonTree<>(newMid),newRight,size - 1));
+}

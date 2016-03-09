@@ -1,0 +1,34 @@
+{
+  if (!file.exists())   return;
+  try {
+    final byte[] io=file.read();
+    final IOContent content=new IOContent(io,file.path());
+    final MainOptions options=new MainOptions(false);
+    options.set(MainOptions.INTPARSE,true);
+    final ANode doc=new DBNode(Parser.singleParser(content,options,""));
+    final ANode root=children(doc,USERS).next();
+    if (root == null) {
+      Util.errln(file.name() + ": No 'users' root element.");
+    }
+ else {
+      for (      final ANode child : children(root,USER)) {
+        try {
+          final User user=new User(child);
+          final String name=user.name();
+          if (users.get(name) != null) {
+            Util.errln(file.name() + ": User \"" + name+ "\" supplied more than once.");
+          }
+ else {
+            users.put(name,user);
+          }
+        }
+ catch (        final BaseXException ex) {
+          Util.errln(file.name() + ": " + ex.getLocalizedMessage());
+        }
+      }
+    }
+  }
+ catch (  final IOException ex) {
+    Util.errln(ex);
+  }
+}

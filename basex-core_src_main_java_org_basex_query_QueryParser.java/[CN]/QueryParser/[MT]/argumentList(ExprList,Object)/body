@@ -1,20 +1,22 @@
 {
   int[] holes=null;
-  if (!wsConsume(PAR2)) {
-    int i=0;
+  if (!wsConsume(PAREN2)) {
+    int i=args.size();
     do {
-      if (wsConsume(PLHOLDER)) {
+      final Expr e=single();
+      if (e != null) {
+        args.add(e);
+      }
+ else       if (wsConsume(QUESTION)) {
         holes=holes == null ? new int[]{i} : Array.add(holes,i);
       }
  else {
-        final Expr e=single();
-        if (e == null)         throw error(FUNCMISS,name);
-        args.add(e);
+        throw funcMiss(name);
       }
       i++;
     }
  while (wsConsume(COMMA));
-    if (!wsConsume(PAR2))     throw error(FUNCMISS,name);
+    if (!wsConsume(PAREN2))     throw funcMiss(name);
   }
   return holes;
 }

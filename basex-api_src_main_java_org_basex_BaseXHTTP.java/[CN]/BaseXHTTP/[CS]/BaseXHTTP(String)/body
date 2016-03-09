@@ -2,65 +2,77 @@
   super(args);
   parseArgs();
   context=HTTPContext.init();
-  final GlobalOptions gopts=context.globalopts;
-  final String webapp=gopts.get(GlobalOptions.WEBPATH);
+  final StaticOptions sopts=context.soptions;
+  final String webapp=sopts.get(StaticOptions.WEBPATH);
   final WebAppContext wac=new WebAppContext(webapp,"/");
   jetty=(Server)new XmlConfiguration(initJetty(webapp).inputStream()).configure();
   jetty.setHandler(wac);
+  final Connector[] conns=jetty.getConnectors();
+  if (conns == null || conns.length == 0)   throw new BaseXException("No Jetty connector defined in " + JETTYCONF + ".");
   if (httpPort != 0) {
-    for (    final Connector c : jetty.getConnectors()) {
-      if (c instanceof SelectChannelConnector) {
-        c.setPort(httpPort);
+    for (    final Connector conn : conns) {
+      if (conn instanceof SelectChannelConnector) {
+        conn.setPort(httpPort);
         break;
       }
     }
   }
   final String startX=HTTP + ' ' + SRV_STARTED_PORT_X;
   final String stopX=HTTP + ' ' + SRV_STOPPED_PORT_X;
-  if (stopped) {
+  if (stop) {
     stop();
-    for (    final Connector c : jetty.getConnectors())     Util.outln(stopX,c.getPort());
+    if (!quiet)     for (    final Connector conn : conns)     Util.outln(stopX,conn.getPort());
     Performance.sleep(1000);
     return;
   }
+  final Connector conn1=conns[0];
   if (service) {
-    final Connector connector=jetty.getConnectors()[0];
-    start(connector.getPort(),connector instanceof SslSelectChannelConnector,args);
-    for (    final Connector c : jetty.getConnectors()) {
-      Util.outln(startX,c.getPort());
-    }
+    start(conn1.getPort(),conn1 instanceof SslSelectChannelConnector,args);
+    if (!quiet)     for (    final Connector conn : conns)     Util.outln(startX,conn.getPort());
     Performance.sleep(1000);
     return;
   }
-  if (!Options.getSystem(GlobalOptions.USER).isEmpty()) {
-    while (Options.getSystem(GlobalOptions.PASSWORD).isEmpty()) {
+  final String user=Prop.get(StaticOptions.USER);
+  String pw=Prop.get(StaticOptions.PASSWORD);
+  if (user != null && !user.isEmpty()) {
+    while (pw == null || pw.isEmpty()) {
       Util.out(PASSWORD + COLS);
-      Options.setSystem(GlobalOptions.PASSWORD,Util.password());
+      pw=Util.password();
+      Prop.put(StaticOptions.PASSWORD,pw);
     }
   }
-  jetty.start();
-  for (  final Connector c : jetty.getConnectors()) {
-    Util.outln(startX,c.getPort());
+  if (!quiet)   Util.outln(header());
+  try {
+    jetty.start();
+  }
+ catch (  final BindException ex) {
+    Util.debug(ex);
+    throw new BaseXException(HTTP + ' ' + SRV_RUNNING_X,conn1.getPort());
+  }
+  final IOException ex=HTTPContext.exception();
+  if (ex != null)   throw ex;
+  if (!quiet) {
+    for (    final Connector conn : conns)     Util.outln(startX,conn.getPort());
   }
   HTTPContext.init(wac.getServletContext());
-  final int stop=gopts.get(GlobalOptions.STOPPORT);
-  if (stop >= 0)   new StopServer(gopts.get(GlobalOptions.SERVERHOST),stop).start();
+  final int port=sopts.get(StaticOptions.STOPPORT);
+  if (port >= 0)   new StopServer(sopts.get(StaticOptions.SERVERHOST),port).start();
   Runtime.getRuntime().addShutdownHook(new Thread(){
     @Override public void run(){
-      for (      final Connector c : jetty.getConnectors()) {
-        Util.outln(stopX,c.getPort());
+      if (!quiet) {
+        for (        final Connector conn : conns)         Util.outln(stopX,conn.getPort());
       }
       final Log l=context.log;
       if (l != null) {
-        for (        final Connector c : jetty.getConnectors()) {
-          l.writeServer(OK,Util.info(stopX,c.getPort()));
+        for (        final Connector conn : conns) {
+          l.writeServer(LogType.OK,Util.info(stopX,conn.getPort()));
         }
       }
       context.close();
     }
   }
 );
-  for (  final Connector c : jetty.getConnectors()) {
-    context.log.writeServer(OK,Util.info(startX,c.getPort()));
+  for (  final Connector conn : conns) {
+    context.log.writeServer(LogType.OK,Util.info(startX,conn.getPort()));
   }
 }

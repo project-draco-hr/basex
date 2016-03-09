@@ -1,58 +1,60 @@
 {
-  final int l=text.length;
-  ++pos;
-  lp=cpos;
-  pa=false;
-  boolean bs=false;
-  for (boolean sn=false; cpos < l; cpos+=cl(text,cpos)) {
-    final int c=cp(text,cpos);
+  final boolean wc=wildcards;
+  final byte[] txt=text;
+  final int txtl=txt.length;
+  int cp=epos;
+  boolean bs=false, pa=false, sn=false;
+  for (; cp < txtl; cp+=cl(txt,cp)) {
+    final int ch=cp(txt,cp);
     if (wc && !bs) {
-      bs=c == '\\';
+      bs=ch == '\\';
       if (bs)       continue;
-      if (c == '.')       break;
+      if (ch == '.')       break;
     }
-    if (!sn && (c == '.' || c == '!' || c == '?')) {
+    if (!sn && (ch == '.' || ch == '!' || ch == '?')) {
       sn=true;
-      ++sent;
-      pm=c;
+      ++sentence;
+      punct=ch;
     }
- else     if (!pa && c == '\n') {
+ else     if (!pa && ch == '\n') {
       pa=true;
-      ++para;
+      ++paragraph;
     }
- else     if (ftChar(c)) {
+ else     if (lod(ch)) {
       if (bs) {
-        --cpos;
+        --cp;
         bs=false;
       }
       break;
     }
     bs=false;
   }
-  spos=cpos;
-  if (cpos == l)   return false;
-  for (; cpos < l; cpos+=cl(text,cpos)) {
-    int c=cp(text,cpos);
+  final int lp=cp;
+  spos=cp;
+  for (; cp < txtl; cp+=cl(txt,cp)) {
+    int ch=cp(txt,cp);
     if (wc && !bs) {
-      bs=c == '\\';
+      bs=ch == '\\';
       if (bs)       continue;
-      if (c == '.') {
-        c=cpos + 1 < l ? text[cpos + 1] : 0;
-        if (c == '?' || c == '*' || c == '+') {
-          ++cpos;
+      if (ch == '.') {
+        ch=cp + 1 < txtl ? txt[cp + 1] : 0;
+        if (ch == '?' || ch == '*' || ch == '+') {
+          ++cp;
         }
- else         if (c == '{') {
-          while (++cpos < l && text[cpos] != '}')           ;
-          if (cpos == l)           break;
+ else         if (ch == '{') {
+          while (++cp < txtl && txt[cp] != '}')           ;
+          if (cp == txtl)           break;
         }
         continue;
       }
     }
-    if (!ftChar(c)) {
-      if (bs)       --cpos;
+    if (!lod(ch)) {
+      if (bs)       --cp;
       break;
     }
     bs=false;
   }
-  return true;
+  epos=cp;
+  ++pos;
+  return lp < cp;
 }

@@ -1,0 +1,43 @@
+{
+  if (rt.type != NodeType.DOC)   return this;
+  final Data data=rt.data();
+  if (data == null || !data.meta.uptodate || data.nspaces.globalUri() == null)   return this;
+  Path path=this;
+  final int sl=steps.length;
+  for (int s=0; s < sl; s++) {
+    final Step prev=s > 0 ? axisStep(s - 1) : null;
+    if (prev != null && prev.preds.length != 0)     break;
+    final Step curr=axisStep(s);
+    if (curr == null || curr.axis != DESC || curr.has(Flag.POS))     continue;
+    ArrayList<PathNode> nodes=pathNodes(data,s);
+    if (nodes == null)     continue;
+    final ArrayList<QNm> qnm=new ArrayList<>();
+    while (nodes.get(0).parent != null) {
+      QNm nm=new QNm(data.elemNames.key(nodes.get(0).name));
+      if (nm.hasPrefix())       return this;
+      for (      final PathNode p : nodes) {
+        if (nodes.get(0).name != p.name)         nm=null;
+      }
+      qnm.add(nm);
+      nodes=PathIndex.parent(nodes);
+    }
+    qc.compInfo(OPTCHILD_X,steps[s]);
+    int ts=qnm.size();
+    final Expr[] stps=new Expr[ts + sl - s - 1];
+    for (int t=0; t < ts; t++) {
+      final Expr[] preds=t == ts - 1 ? ((Preds)steps[s]).preds : new Expr[0];
+      final QNm nm=qnm.get(ts - t - 1);
+      final NameTest nt=nm == null ? new NameTest(false) : new NameTest(nm,Kind.NAME,false,null);
+      stps[t]=Step.get(info,CHILD,nt,preds);
+    }
+    while (++s < sl)     stps[ts++]=steps[s];
+    path=get(info,root,stps);
+    break;
+  }
+  final ArrayList<PathNode> nodes=pathNodes(qc);
+  if (nodes != null && nodes.isEmpty()) {
+    qc.compInfo(OPTPATH_X,path);
+    return Empty.SEQ;
+  }
+  return path;
+}

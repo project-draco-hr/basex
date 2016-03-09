@@ -8,18 +8,14 @@
     final Expr ex;
     if (consume('/')) {
       checkAxis(Axis.DESC);
-      add(el,descOrSelf());
+      add(el,Step.get(info(),Axis.DESCORSELF,Test.NOD));
       mark();
-      ex=step();
-      if (ex == null) {
-        if (more())         checkInit();
-        throw error(PATHMISS,found());
-      }
+      ex=step(true);
     }
  else {
       checkAxis(Axis.CHILD);
       mark();
-      ex=step();
+      ex=step(false);
       if (ex == null)       return root;
     }
     add(el,ex);
@@ -27,10 +23,9 @@
   }
  else {
     mark();
-    final Expr ex=step();
+    final Expr ex=step(false);
     if (ex == null)     return null;
-    final boolean nostep=curr() != '/' && (curr() != '!' || next() == '=');
-    if (nostep && !(ex instanceof Step))     return ex;
+    if (curr() != '/' && !(ex instanceof Step))     return ex;
     el=new ExprList();
     if (ex instanceof Step)     add(el,ex);
  else     root=ex;

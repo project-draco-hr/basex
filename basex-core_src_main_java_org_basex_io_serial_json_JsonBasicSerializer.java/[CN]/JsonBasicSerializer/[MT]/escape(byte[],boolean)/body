@@ -1,0 +1,39 @@
+{
+  if (escape) {
+    if (contains(value,'\\')) {
+      final TokenParser tp=new TokenParser(value);
+      while (tp.more()) {
+        int c=tp.next();
+        if (c == '\\') {
+          if (!tp.more())           throw JSON_ESCAPE_X.getIO(value);
+          c=tp.next();
+          if (indexOf(ESCAPES,c) == -1)           throw JSON_ESCAPE_X.getIO(value);
+          if (c == 'u') {
+            for (int i=0; i < 4; i++) {
+              if (!tp.more())               throw JSON_ESCAPE_X.getIO(value);
+              c=tp.next();
+              if (c < '0' || c > '9' && c < 'A' || c > 'F' && c < 'a' || c > 'f')               throw JSON_ESCAPE_X.getIO(value);
+            }
+          }
+        }
+      }
+    }
+  }
+  final ByteList bl=new ByteList();
+  for (  final byte c : value) {
+    if (c >= 0 && c < 32 || c >= 128) {
+      bl.add('\\');
+      if (c == '\b')       bl.add('b');
+ else       if (c == '\f')       bl.add('f');
+ else       if (c == '\n')       bl.add('n');
+ else       if (c == '\r')       bl.add('r');
+ else       if (c == '\t')       bl.add('t');
+ else       bl.add('u').add('0').add('0').add(HEX[c >> 4]).add(HEX[c & 0xF]);
+    }
+ else {
+      if (c == '"' || !escape && c == '\\')       bl.add('\\');
+      bl.add(c);
+    }
+  }
+  return bl.finish();
+}

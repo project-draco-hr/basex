@@ -1,12 +1,13 @@
 {
-  if (!(expr.isValue() || expr.exprSize() < qc.context.options.get(MainOptions.INLINELIMIT) && !expr.has(Flag.CTX) && !expr.has(Flag.UPD)))   return null;
-  qc.compInfo(OPTINLINE,this);
-  final LinkedList<GFLWOR.Clause> cls=exprs.length == 0 ? null : new LinkedList<GFLWOR.Clause>();
+  if (!StaticFunc.inline(qc,anns,expr) || expr.has(Flag.CTX))   return null;
+  qc.compInfo(OPTINLINE_X,this);
+  final LinkedList<Clause> cls=exprs.length == 0 ? null : new LinkedList<Clause>();
   final IntObjMap<Var> vs=new IntObjMap<>();
-  for (int i=0; i < params.length; i++) {
-    final Var old=params[i], v=scp.newCopyOf(qc,old);
+  final int pl=params.length;
+  for (int p=0; p < pl; p++) {
+    final Var old=params[p], v=scp.newCopyOf(qc,old);
     vs.put(old.id,v);
-    cls.add(new Let(v,exprs[i],false,ii).optimize(qc,scp));
+    cls.add(new Let(v,exprs[p],false,ii).optimize(qc,scp));
   }
   final Expr rt=expr.copy(qc,scp,vs);
   rt.accept(new ASTVisitor(){

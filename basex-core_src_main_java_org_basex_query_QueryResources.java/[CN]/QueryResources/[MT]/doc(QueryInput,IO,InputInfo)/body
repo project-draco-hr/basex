@@ -1,14 +1,13 @@
 {
-  if (qc.context.options.get(MainOptions.DEFAULTDB) && qc.nodes != null) {
-    final Data dt=data[0];
-    final int pre=dt.resources.doc(qi.original);
-    if (pre != -1)     return new DBNode(dt,pre,Data.DOC);
+  final Data gd=globalData();
+  if (gd != null && qc.context.options.get(MainOptions.DEFAULTDB)) {
+    final int pre=gd.resources.doc(qi.original);
+    if (pre != -1)     return new DBNode(gd,pre,Data.DOC);
   }
-  for (int d=0; d < datas; ++d) {
-    final Data dt=data[d];
-    if (dt.resources.docs().size() == 1 && IO.get(dt.meta.original).eq(qi.input))     return new DBNode(dt,0,Data.DOC);
-    final String n=dt.meta.name;
-    if (Prop.CASE ? n.equals(qi.db) : n.equalsIgnoreCase(qi.db))     return doc(dt,qi,info);
+  for (  final Data data : datas) {
+    if (data.meta.ndocs == 1 && IO.get(data.meta.original).eq(qi.input))     return new DBNode(data,0,Data.DOC);
+    final String n=data.meta.name;
+    if (Prop.CASE ? n.equals(qi.db) : n.equalsIgnoreCase(qi.db))     return doc(data,qi,info);
   }
   Data dt=open(qi);
   if (dt == null)   dt=create(qi,true,baseIO,info);

@@ -1,44 +1,51 @@
 {
-  if (atomic)   return this;
   if (swap()) {
+    qc.compInfo(OPTSWAP_X,this);
     op=op.swap();
-    qc.compInfo(OPTSWAP,this);
   }
-  final Expr e1=exprs[0];
-  final Expr e2=exprs[1];
-  Expr e=this;
-  if (oneIsEmpty()) {
-    e=optPre(Bln.FALSE,qc);
-  }
- else   if (allAreValues()) {
-    e=preEval(qc);
-  }
- else   if (e1.isFunction(Function.COUNT)) {
-    e=compCount(op.op);
-    if (e != this)     qc.compInfo(e instanceof Bln ? OPTPRE : OPTWRITE,this);
-  }
- else   if (e1.isFunction(Function.POSITION)) {
-    if (e2 instanceof RangeSeq && op.op == OpV.EQ) {
-      final long p1=((Value)e2).itemAt(0).itr(info);
-      final long p2=p1 + e2.size() - 1;
-      e=Pos.get(p1,p2,info);
+  final Expr e1=exprs[0], e2=exprs[1];
+  final SeqType st1=e1.seqType();
+  if (oneIsEmpty())   return optPre(Bln.FALSE,qc);
+  if (e1.isFunction(Function.COUNT)) {
+    final Expr e=compCount(op.op);
+    if (e != this) {
+      qc.compInfo(e instanceof Bln ? OPTPRE_X : OPTREWRITE_X,this);
+      return e;
     }
- else {
-      e=Pos.get(op.op,e2,e,info);
+  }
+  if (e1.isFunction(Function.STRING_LENGTH)) {
+    final Expr e=compStringLength(op.op);
+    if (e != this) {
+      qc.compInfo(e instanceof Bln ? OPTPRE_X : OPTREWRITE_X,this);
+      return e;
     }
-    if (e != this)     qc.compInfo(OPTWRITE,this);
   }
- else   if (e1.type().eq(SeqType.BLN) && (op == OpG.EQ && e2 == Bln.FALSE || op == OpG.NE && e2 == Bln.TRUE)) {
-    e=Function.NOT.get(null,info,e1);
-    qc.compInfo(OPTWRITE,this);
+  if (e1.isFunction(Function.POSITION)) {
+    final Expr e=Pos.get(op.op,e2,this,info);
+    if (e != this) {
+      qc.compInfo(OPTREWRITE_X,this);
+      return e;
+    }
   }
- else {
-    e=CmpR.get(this);
-    if (e == this)     e=CmpSR.get(this);
-    if (e != this)     qc.compInfo(OPTWRITE,this);
+  if (st1.eq(SeqType.BLN) && (op == OpG.EQ && e2 == Bln.FALSE || op == OpG.NE && e2 == Bln.TRUE)) {
+    qc.compInfo(OPTREWRITE_X,this);
+    return Function.NOT.get(null,info,e1);
   }
-  if (e != this)   return e;
-  atomic=e1.type().zeroOrOne() && e2.type().zeroOrOne();
-  if (atomic)   qc.compInfo(OPTATOMIC,this);
+  ParseExpr e=CmpR.get(this);
+  if (e == this)   e=CmpSR.get(this);
+  if (e != this) {
+    qc.compInfo(OPTREWRITE_X,this);
+    return allAreValues() ? e.preEval(qc) : e;
+  }
+  final SeqType st2=e2.seqType();
+  if (st1.zeroOrOne() && !st1.mayBeArray() && st2.zeroOrOne()&& !st2.mayBeArray()) {
+    atomic=true;
+    qc.compInfo(OPTATOMIC_X,this);
+  }
+  if (allAreValues())   return preEval(qc);
+  if (op == OpG.EQ && e1.sameAs(e2) && !e1.has(Flag.NDT) && !e1.has(Flag.UPD) && (!e1.has(Flag.CTX) || qc.value != null)) {
+    final SeqType st=e1.seqType();
+    if (st.oneOrMore() && st.type.isStringOrUntyped())     return optPre(Bln.TRUE,qc);
+  }
   return this;
 }

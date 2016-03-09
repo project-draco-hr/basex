@@ -1,9 +1,11 @@
 {
-  RESTCmd.parseOptions(rs);
-  final HTTPContext http=rs.http;
-  if (http.depth() == 0)   throw HTTPCode.NO_PATH.get();
-  rs.add(new Open(http.db()));
-  if (http.depth() == 1)   rs.add(new DropDB(http.db()));
- else   rs.add(new Delete(http.dbpath()));
-  return new RESTExec(rs);
+  RESTCmd.parseOptions(session);
+  final HTTPContext http=session.http;
+  final String db=http.db();
+  if (db.isEmpty())   throw HTTPCode.NO_PATH.get();
+  session.add(new Open(db));
+  final String path=http.dbpath();
+  if (path.isEmpty())   session.add(new DropDB(db));
+ else   session.add(new Delete(path));
+  return new RESTExec(session);
 }

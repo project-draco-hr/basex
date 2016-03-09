@@ -1,0 +1,13 @@
+{
+  checkCreate(qc);
+  final ANode request=toEmptyNode(exprs[0],qc);
+  final byte[] href=exprs.length >= 2 ? toEmptyToken(exprs[1],qc) : null;
+  Iter iter=null;
+  if (exprs.length == 3) {
+    final Iter bodies=exprs[2].iter(qc);
+    final ItemList cache=new ItemList();
+    for (Item body; (body=bodies.next()) != null; )     cache.add(body);
+    iter=cache.iter();
+  }
+  return new HttpClient(info,qc.context.options).sendRequest(href,request,iter);
+}

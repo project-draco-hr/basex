@@ -1,29 +1,28 @@
 {
-  int n=tags.index(name,null,true);
-  path.put(n,Data.ELEM,level);
+  int nameId=elemNames.index(name,null,true);
+  path.put(nameId,Data.ELEM,level);
   final int pre=meta.size;
-  tstack.set(level,n);
-  pstack.set(level,pre);
-  ns.prepare();
-  final int nl=nsp.size();
-  for (int nx=0; nx < nl; nx++)   ns.add(nsp.name(nx),nsp.value(nx),meta.size);
-  final int dis=level == 0 ? 1 : pre - pstack.get(level - 1);
-  final int as=att.size();
-  int u=ns.uri(name,true);
-  if (u == 0 && indexOf(name,':') != -1 && !eq(prefix(name),XML))   throw new BuildException(WHICHNS,parser.detail(),prefix(name));
-  addElem(dis,n,Math.min(IO.MAXATTS,as + 1),u,nl != 0);
+  elemStack.set(level,nameId);
+  parStack.set(level,pre);
+  nspaces.open(pre,nsp);
+  final int dis=level == 0 ? 1 : pre - parStack.get(level - 1);
+  final int as=atts.size();
+  final byte[] pref=prefix(name);
+  int uriId=nspaces.uriIdForPrefix(pref,true);
+  if (uriId == 0 && pref.length != 0 && !eq(pref,XML))   throw new BuildException(WHICHNS,parser.detail(),prefix(name));
+  addElem(dis,nameId,Math.min(IO.MAXATTS,as + 1),uriId,!nsp.isEmpty());
   for (int a=0; a < as; ++a) {
-    final byte[] av=att.value(a);
-    final byte[] an=att.name(a);
-    n=atts.index(an,av,true);
-    u=ns.uri(an,false);
-    if (u == 0 && indexOf(an,':') != -1 && !eq(prefix(an),XML))     throw new BuildException(WHICHNS,parser.detail(),an);
-    path.put(n,Data.ATTR,level + 1,av,meta);
-    addAttr(n,av,Math.min(IO.MAXATTS,a + 1),u);
+    final byte[] an=atts.name(a), av=atts.value(a);
+    final byte[] ap=prefix(an);
+    nameId=attrNames.index(an,av,true);
+    uriId=nspaces.uriIdForPrefix(ap,false);
+    if (uriId == 0 && ap.length != 0 && !eq(ap,XML))     throw new BuildException(WHICHNS,parser.detail(),an);
+    path.put(nameId,Data.ATTR,level + 1,av,meta);
+    addAttr(nameId,av,Math.min(IO.MAXATTS,a + 1),uriId);
   }
-  if (level > 1)   tags.stat(tstack.get(level - 1)).setLeaf(false);
-  limit(tags.size(),0x8000,LIMITELEMS);
-  limit(atts.size(),0x8000,LIMITATTS);
-  limit(ns.size(),0x100,LIMITNS);
+  if (level > 1)   elemNames.stat(elemStack.get(level - 1)).setLeaf(false);
+  limit(elemNames.size(),0x8000,LIMITELEMS);
+  limit(attrNames.size(),0x8000,LIMITATTS);
+  limit(nspaces.size(),0x100,LIMITNS);
   if (meta.size < 0)   limit(0,0,LIMITRANGE);
 }

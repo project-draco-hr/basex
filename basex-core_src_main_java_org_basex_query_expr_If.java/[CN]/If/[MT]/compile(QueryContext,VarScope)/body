@@ -1,13 +1,12 @@
 {
-  cond=cond.compile(qc,scp).compEbv(qc);
-  if (cond.isValue())   return optPre(eval(qc).compile(qc,scp),qc);
-  final int es=exprs.length;
-  for (int e=0; e < es; e++) {
+  cond=cond.compile(qc,scp);
+  final int[] branches=cond.isValue() ? new int[]{branch(qc)} : new int[]{0,1};
+  for (  final int b : branches) {
     try {
-      exprs[e]=exprs[e].compile(qc,scp);
+      exprs[b]=exprs[b].compile(qc,scp);
     }
  catch (    final QueryException ex) {
-      exprs[e]=FNInfo.error(ex,type);
+      exprs[b]=FnError.get(ex,seqType);
     }
   }
   return optimize(qc,scp);

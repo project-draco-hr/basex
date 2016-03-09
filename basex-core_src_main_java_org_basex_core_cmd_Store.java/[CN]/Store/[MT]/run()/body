@@ -1,28 +1,29 @@
 {
-  final boolean create=context.user.has(Perm.CREATE);
+  final boolean create=context.user().has(Perm.CREATE);
   String path=MetaData.normPath(args[0]);
-  if (path == null || path.endsWith("."))   return error(NAME_INVALID_X,args[0]);
+  if (path == null || path.endsWith("."))   return error(PATH_INVALID_X,args[0]);
   if (in == null) {
     final IO io=IO.get(args[1]);
     if (!io.exists() || io.isDir())     return error(RES_NOT_FOUND_X,create ? io : args[1]);
     in=io.inputSource();
     if ((path.isEmpty() || path.endsWith("/")) && !(io instanceof IOContent))     path+=io.name();
   }
-  if (path.isEmpty())   return error(NAME_INVALID_X,path);
   final Data data=context.data();
   if (data.inMemory())   return error(NO_MAINMEM);
   final IOFile file=data.meta.binary(path);
-  if (path.isEmpty() || path.endsWith(".") || file == null || file.isDir())   return error(NAME_INVALID_X,create ? path : args[0]);
-  if (!data.startUpdate())   return error(DB_PINNED_X,data.meta.name);
+  if (path.isEmpty() || path.endsWith(".") || file == null)   return error(PATH_INVALID_X,create ? path : args[0]);
+  if (lock && !startUpdate())   return false;
+  boolean ok=true;
   try {
     store(in,file);
-    return info(QUERY_EXECUTED_X_X,"",perf);
+    ok=info(QUERY_EXECUTED_X_X,"",perf);
   }
  catch (  final IOException ex) {
     Util.debug(ex);
-    return error(FILE_NOT_SAVED_X,file);
+    ok=error(FILE_NOT_SAVED_X,file);
   }
  finally {
-    data.finishUpdate();
+    if (lock)     ok&=finishUpdate();
   }
+  return ok;
 }

@@ -1,0 +1,33 @@
+{
+  int m=0;
+  boolean strip=false;
+  if (mod != null) {
+    for (    final byte b : mod) {
+      if (b == 'i')       m|=CASE_INSENSITIVE | UNICODE_CASE;
+ else       if (b == 'm')       m|=MULTILINE;
+ else       if (b == 's')       m|=DOTALL;
+ else       if (b == 'q')       m|=LITERAL;
+ else       if (b == 'x')       strip=true;
+ else       throw REGMOD_X.get(ii,(char)b);
+    }
+  }
+  if ((m & LITERAL) != 0)   return Pattern.compile(string(regex),m);
+  try {
+    final RegExParser parser=new RegExParser(regex,strip,(m & DOTALL) != 0,(m & MULTILINE) != 0);
+    final String string=parser.parse().toString();
+    final Pattern pattern=Pattern.compile(string,m);
+    if (check) {
+      final Pattern p=(pattern.flags() & Pattern.MULTILINE) == 0 ? pattern : Pattern.compile(pattern.pattern());
+      if (p.matcher("").matches())       throw REGROUP.get(ii);
+    }
+    return pattern;
+  }
+ catch (  final ParseException ex) {
+    Util.debug(ex);
+    throw REGPAT_X.get(ii,regex);
+  }
+catch (  final TokenMgrError ex) {
+    Util.debug(ex);
+    throw REGPAT_X.get(ii,regex);
+  }
+}

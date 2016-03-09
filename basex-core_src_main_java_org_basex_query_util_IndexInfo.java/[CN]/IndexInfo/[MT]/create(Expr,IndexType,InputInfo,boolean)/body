@@ -1,0 +1,38 @@
+{
+  if (type == null || value == null)   return false;
+  final Data data=ic.data;
+  final ParseExpr root;
+  if (value.isValue()) {
+    costs=0;
+    final Iter ir=value.iter(qc);
+    final ArrayList<ValueAccess> tmp=new ArrayList<>();
+    final TokenSet strings=new TokenSet();
+    for (Item it; (it=ir.next()) != null; ) {
+      if (!it.type.isStringOrUntyped())       return false;
+      byte[] string=it.string(info);
+      if (trim)       string=Token.trim(string);
+      final int sl=string.length;
+      if (type != IndexType.TOKEN && (sl == 0 || sl > data.meta.maxlen))       return false;
+      if (!strings.contains(string)) {
+        strings.put(string);
+        final int c=data.costs(new StringToken(type,string));
+        if (c < 0)         return false;
+        if (c > 0) {
+          final ValueAccess va=new ValueAccess(info,it,type,test,ic).trim(trim);
+          tmp.add(va);
+          if (c == 1)           va.seqType=va.seqType().withOcc(Occ.ZERO_ONE);
+          costs+=c;
+        }
+      }
+    }
+    final int vs=tmp.size();
+    root=vs == 1 ? tmp.get(0) : new Union(info,tmp.toArray(new ValueAccess[vs]));
+  }
+ else {
+    if (!value.seqType().type.isStringOrUntyped() || value.has(Flag.CTX) || value.has(Flag.NDT)|| value.has(Flag.UPD))     return false;
+    costs=Math.max(1,data.meta.size / 10);
+    root=new ValueAccess(info,value,type,test,ic);
+  }
+  create(root,false,info,Util.info(OPTINDEX_X_X,type,value));
+  return true;
+}

@@ -1,0 +1,26 @@
+{
+  HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier(){
+    @Override public boolean verify(    final String hostname,    final SSLSession session){
+      return true;
+    }
+  }
+);
+  final TrustManager[] tm={new X509TrustManager(){
+    @Override public X509Certificate[] getAcceptedIssuers(){
+      return null;
+    }
+    @Override public void checkClientTrusted(    final X509Certificate[] certs,    final String authType){
+    }
+    @Override public void checkServerTrusted(    final X509Certificate[] certs,    final String authType){
+    }
+  }
+};
+  try {
+    final SSLContext sc=SSLContext.getInstance("SSL");
+    sc.init(null,tm,new SecureRandom());
+    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+  }
+ catch (  final Exception ex) {
+    Util.errln(ex);
+  }
+}

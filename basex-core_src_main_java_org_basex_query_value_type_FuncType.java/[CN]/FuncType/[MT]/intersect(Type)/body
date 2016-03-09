@@ -1,14 +1,15 @@
 {
-  if (t instanceof MapType)   return t.intersect(this);
+  if (t instanceof MapType || t instanceof ArrayType)   return t.intersect(this);
   if (instanceOf(t))   return this;
   if (t.instanceOf(this))   return t;
   if (t instanceof FuncType) {
     final FuncType ft=(FuncType)t;
-    final SeqType rt=ret.intersect(ft.ret);
-    if (rt != null && args.length == ft.args.length) {
-      final SeqType[] arg=new SeqType[args.length];
-      for (int i=0; i < arg.length; i++)       arg[i]=args[i].union(ft.args[i]);
-      final Ann a=ann.union(ft.ann);
+    final SeqType rt=type.intersect(ft.type);
+    final int al=argTypes.length;
+    if (rt != null && al == ft.argTypes.length) {
+      final SeqType[] arg=new SeqType[al];
+      for (int a=0; a < al; a++)       arg[a]=argTypes[a].union(ft.argTypes[a]);
+      final AnnList a=anns.union(ft.anns);
       return a == null ? null : get(a,rt,arg);
     }
   }

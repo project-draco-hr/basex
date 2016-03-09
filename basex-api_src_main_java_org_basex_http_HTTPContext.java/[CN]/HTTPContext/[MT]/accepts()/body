@@ -1,0 +1,22 @@
+{
+  final String accept=req.getHeader(ACCEPT);
+  final ArrayList<MediaType> list=new ArrayList<>();
+  if (accept == null) {
+    list.add(MediaType.ALL_ALL);
+  }
+ else {
+    for (    final String produce : accept.split("\\s*,\\s*")) {
+      final MediaType type=new MediaType(produce);
+      final String qf=type.parameters().get("q");
+      final double d=qf != null ? toDouble(token(qf)) : 1;
+      if (d > 0 && d <= 1) {
+        final StringBuilder sb=new StringBuilder();
+        final String main=type.main(), sub=type.sub();
+        sb.append(main.isEmpty() ? "*" : main).append('/');
+        sb.append(sub.isEmpty() ? "*" : sub).append("; q=").append(d);
+        list.add(new MediaType(sb.toString()));
+      }
+    }
+  }
+  return list.toArray(new MediaType[list.size()]);
+}

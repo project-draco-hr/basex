@@ -1,12 +1,11 @@
 {
   final IOFile file=new IOFile(Prop.TMP,Util.className(FnHttpTest.class));
   file.write(token("test"));
-  final HTTPRequest req=new HTTPRequest();
+  final HttpRequest req=new HttpRequest();
   req.payloadAttrs.put("src",file.url());
   req.payloadAttrs.put("method","binary");
   final FakeHttpConnection fakeConn=new FakeHttpConnection(new URL("http://www.test.com"));
-  final HTTPClient hc=new HTTPClient(null,ctx.options);
-  hc.setRequestContent(fakeConn.getOutputStream(),req);
+  HttpClient.setRequestContent(fakeConn.getOutputStream(),req);
   file.delete();
-  assertEquals(fakeConn.out.toString(),"test");
+  assertEquals(fakeConn.out.toString(Strings.UTF8),"test");
 }

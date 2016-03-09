@@ -1,0 +1,18 @@
+{
+  final Path source=toPath(0,qc);
+  if (!Files.exists(source))   throw FILE_NOT_FOUND_X.get(info,source);
+  final Path src=absolute(source);
+  Path trg=absolute(toPath(1,qc));
+  if (Files.isDirectory(trg)) {
+    trg=trg.resolve(src.getFileName());
+    if (Files.isDirectory(trg))     throw FILE_IS_DIR_X.get(info,trg);
+  }
+ else   if (!Files.exists(trg)) {
+    if (!Files.isDirectory(trg.getParent()))     throw FILE_NO_DIR_X.get(info,trg);
+  }
+ else   if (Files.isDirectory(src)) {
+    throw FILE_IS_DIR_X.get(info,src);
+  }
+  relocate(src,trg,copy);
+  return null;
+}

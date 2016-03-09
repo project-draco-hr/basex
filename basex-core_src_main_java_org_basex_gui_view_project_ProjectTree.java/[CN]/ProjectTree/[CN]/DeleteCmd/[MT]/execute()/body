@@ -1,14 +1,15 @@
 {
   final ProjectNode node=selectedNode();
-  if (BaseXDialog.confirm(view.gui,Util.info(DELETE_FILE_X,node.file))) {
+  final GUI gui=view.gui;
+  if (BaseXDialog.confirm(gui,Util.info(DELETE_FILE_X,node.file))) {
     final ProjectNode parent=(ProjectNode)node.getParent();
-    if (!view.editor.delete(node.file)) {
-      BaseXDialog.error(view.gui,Util.info(FILE_NOT_DELETED_X,node.file));
-    }
- else {
+    if (gui.editor.delete(node.file)) {
       parent.refresh();
       setSelectionPath(parent.path());
-      view.reset();
+      view.refresh();
+    }
+ else {
+      BaseXDialog.error(gui,Util.info(FILE_NOT_DELETED_X,node.file));
     }
   }
 }

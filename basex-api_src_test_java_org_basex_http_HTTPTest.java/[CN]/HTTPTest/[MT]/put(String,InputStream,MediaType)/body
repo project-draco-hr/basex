@@ -1,0 +1,23 @@
+{
+  final IOUrl url=new IOUrl(root + u);
+  final HttpURLConnection conn=(HttpURLConnection)url.connection();
+  conn.setDoOutput(true);
+  conn.setRequestMethod(PUT.name());
+  if (type != null)   conn.setRequestProperty(HttpText.CONTENT_TYPE,type.toString());
+  try (final OutputStream bos=new BufferedOutputStream(conn.getOutputStream())){
+    if (is != null) {
+      try (final BufferedInputStream bis=new BufferedInputStream(is)){
+        for (int i; (i=bis.read()) != -1; )         bos.write(i);
+      }
+     }
+  }
+   try {
+    read(conn.getInputStream());
+  }
+ catch (  final IOException ex) {
+    throw error(conn,ex);
+  }
+ finally {
+    conn.disconnect();
+  }
+}

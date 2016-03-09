@@ -1,0 +1,26 @@
+{
+  count(_ARCHIVE_CREATE.args("X",""),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>",""),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry level='9'>X</archive:entry>",""),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry encoding='US-ASCII'>X</archive:entry>",""),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry " + "last-modified='2000-01-01T12:12:12'>X</archive:entry>",""),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>",""," map { }"),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>",""," map { 'format':'zip', 'algorithm':'deflate' }"),1);
+  count(_ARCHIVE_CREATE.args("X","","<archive:options/>"),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>","","<archive:options><archive:format value='zip'/>" + "<archive:algorithm value='deflate'/></archive:options>"),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>","","<archive:options><archive:format value='zip'/></archive:options>"),1);
+  count(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>","","<archive:options><archive:format value='gzip'/></archive:options>"),1);
+  error(_ARCHIVE_CREATE.args("X","()"),ARCH_DIFF_X_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry/>",""),ARCH_EMPTY);
+  error(_ARCHIVE_CREATE.args("<archive:entry compression-level='x'>X</archive:entry>",""),ARCH_LEVEL_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry compression-level='10'>X</archive:entry>",""),ARCH_LEVEL_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry last-modified='2020'>X</archive:entry>",""),ARCH_DATETIME_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>"," 123"),STRBIN_X_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry encoding='x'>X</archive:entry>",""),ARCH_ENCODING_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry encoding='US-ASCII'>X</archive:entry>","\u00fc"),ARCH_ENCODE_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>",""," map { 'format':'rar' }"),ARCH_UNKNOWN);
+  error(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>",""," map { 'x':'y' }"),INVALIDOPT_X);
+  error(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>","","<archive:options><archive:format value='rar'/></archive:options>"),ARCH_UNKNOWN);
+  error(_ARCHIVE_CREATE.args("<archive:entry>X</archive:entry>","","<archive:options><archive:algorithm value='unknown'/></archive:options>"),ARCH_SUPP_X_X);
+  error(_ARCHIVE_CREATE.args("('x','y')","('a','b')","<archive:options><archive:format value='gzip'/></archive:options>"),ARCH_ONE_X);
+}

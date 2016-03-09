@@ -13,29 +13,25 @@
   final String sources=path + "TestSources/";
   final Performance perf=new Performance();
   context.options.set(MainOptions.CHOP,false);
-  data=MemBuilder.build(new IOFile(path + input),context);
-  final Nodes root=new Nodes(0,data);
+  data=new DBNode(new IOFile(path + input)).data();
+  final DBNode root=new DBNode(data,0);
   Util.outln(NL + Util.className(this) + " Test Suite "+ text("/*:test-suite/@version",root));
   Util.outln("Caching Sources...");
-  for (  final int s : nodes("//*:source",root).pres) {
-    final Nodes srcRoot=new Nodes(s,data);
-    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
-    srcs.put(text("@ID",srcRoot),val);
+  for (  final Item node : nodes("//*:source",root)) {
+    final String val=(path + text("@FileName",node)).replace('\\','/');
+    srcs.put(text("@ID",node),val);
   }
   Util.outln("Caching Modules...");
-  for (  final int s : nodes("//*:module",root).pres) {
-    final Nodes srcRoot=new Nodes(s,data);
-    final String val=(path + text("@FileName",srcRoot)).replace('\\','/');
-    mods.put(text("@ID",srcRoot),val);
+  for (  final Item node : nodes("//*:module",root)) {
+    final String val=(path + text("@FileName",node)).replace('\\','/');
+    mods.put(text("@ID",node),val);
   }
   Util.outln("Caching Collections...");
-  for (  final int c : nodes("//*:collection",root).pres) {
-    final Nodes nodes=new Nodes(c,data);
-    final String cname=text("@ID",nodes);
+  for (  final Item node : nodes("//*:collection",root)) {
+    final String cname=text("@ID",node);
     final StringList dl=new StringList();
-    final Nodes doc=nodes("*:input-document",nodes);
-    for (int d=0; d < doc.size(); ++d) {
-      dl.add(sources + string(data.atom(doc.pres[d])) + IO.XMLSUFFIX);
+    for (    final Item doc : nodes("*:input-document",node)) {
+      dl.add(sources + string(doc.string(null)) + IO.XMLSUFFIX);
     }
     colls.put(cname,dl.toArray());
   }
@@ -45,12 +41,13 @@
     new IOFile(results).delete();
   }
   if (verbose)   Util.outln();
-  final Nodes nodes=minimum ? nodes("//*:test-group[starts-with(@name, 'Minim')]//*:test-case",root) : group != null ? nodes("//*:test-group[@name eq '" + group + "']//*:test-case",root) : nodes("//*:test-case",root);
+  final Value nodes=minimum ? nodes("//*:test-group[starts-with(@name, 'Minim')]//*:test-case",root) : group != null ? nodes("//*:test-group[@name eq '" + group + "']//*:test-case",root) : nodes("//*:test-case",root);
   long total=nodes.size();
   Util.out("Parsing " + total + " Queries");
-  for (int t=0; t < total; ++t) {
-    if (!parse(new Nodes(nodes.pres[t],data)))     break;
-    if (!verbose && t % 500 == 0)     Util.out(".");
+  int t=0;
+  for (  final Item node : nodes) {
+    if (!parse(node))     break;
+    if (!verbose && t++ % 500 == 0)     Util.out(".");
   }
   Util.outln();
   total=ok + ok2 + err+ err2;

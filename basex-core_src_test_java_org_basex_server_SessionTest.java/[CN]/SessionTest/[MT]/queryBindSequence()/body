@@ -1,27 +1,27 @@
 {
-  Query query=session.query("declare variable $a external; $a");
-  query.bind("a","1\u00012","xs:integer");
-  assertEqual("1",query.next());
-  assertEqual("2",query.next());
-  query.close();
-  query=session.query("declare variable $a external; $a");
-  query.bind("a","09\u0002xs:hexBinary\u00012","xs:integer");
-  assertEqual("09",query.next());
-  assertEqual("2",query.next());
-  query.close();
-  query=session.query("declare variable $a external; $a");
-  query.bind("a",Seq.get(new Item[]{Int.get(1),Str.get("X")},2));
-  assertEqual("1",query.next());
-  assertEqual("X",query.next());
-  query.close();
-  query=session.query("declare variable $a external; $a");
-  query.bind("a",IntSeq.get(new long[]{1,2},AtomType.INT));
-  assertEqual("1",query.next());
-  assertEqual("2",query.next());
-  query.close();
-  query=session.query("declare variable $a external; $a");
-  query.bind("a",IntSeq.get(new long[]{1,2},AtomType.INT),"xs:integer");
-  assertEqual("1",query.next());
-  assertEqual("2",query.next());
-  query.close();
-}
+  try (Query query=session.query("declare variable $a external; $a")){
+    query.bind("a","1\u00012","xs:integer");
+    assertEqual("1",query.next());
+    assertEqual("2",query.next());
+  }
+   try (Query query=session.query("declare variable $a external; $a")){
+    query.bind("a","09\u0002xs:hexBinary\u00012","xs:integer");
+    assertEqual("\t",query.next());
+    assertEqual("2",query.next());
+  }
+   try (Query query=session.query("declare variable $a external; $a")){
+    query.bind("a",new ItemList().add(Int.get(1)).add(Str.get("X")).value());
+    assertEqual("1",query.next());
+    assertEqual("X",query.next());
+  }
+   try (Query query=session.query("declare variable $a external; $a")){
+    query.bind("a",IntSeq.get(new long[]{1,2},AtomType.INT));
+    assertEqual("1",query.next());
+    assertEqual("2",query.next());
+  }
+   try (Query query=session.query("declare variable $a external; $a")){
+    query.bind("a",IntSeq.get(new long[]{1,2},AtomType.INT),"xs:integer");
+    assertEqual("1",query.next());
+    assertEqual("2",query.next());
+  }
+ }

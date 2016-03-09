@@ -1,39 +1,45 @@
 {
   final Data data=context.data();
-  if (data.inMemory())   return error(NO_MAINMEM);
   final CmdIndex ci=getOption(CmdIndex.class);
   if (ci == null)   return error(UNKNOWN_CMD_X,this);
-  final IndexType index;
-switch (ci) {
-case TEXT:
+  final IndexType type;
+  if (ci == CmdIndex.TEXT) {
+    type=IndexType.TEXT;
     data.meta.createtext=true;
-  index=IndexType.TEXT;
-break;
-case ATTRIBUTE:
-data.meta.createattr=true;
-index=IndexType.ATTRIBUTE;
-break;
-case FULLTEXT:
-data.meta.createftxt=true;
-data.meta.stemming=options.get(MainOptions.STEMMING);
-data.meta.casesens=options.get(MainOptions.CASESENS);
-data.meta.diacritics=options.get(MainOptions.DIACRITICS);
-data.meta.language=Language.get(options);
-data.meta.stopwords=options.get(MainOptions.STOPWORDS);
-index=IndexType.FULLTEXT;
-break;
-default :
-return error(UNKNOWN_CMD_X,this);
-}
-if (!data.startUpdate()) return error(DB_PINNED_X,data.meta.name);
-try {
-create(index,data,this);
-return info(INDEX_CREATED_X_X,index,perf);
-}
- catch (final IOException ex) {
-return error(Util.message(ex));
-}
+  }
+ else   if (ci == CmdIndex.ATTRIBUTE) {
+    type=IndexType.ATTRIBUTE;
+    data.meta.createattr=true;
+  }
+ else   if (ci == CmdIndex.TOKEN) {
+    type=IndexType.TOKEN;
+    data.meta.createtoken=true;
+  }
+ else   if (ci == CmdIndex.FULLTEXT) {
+    type=IndexType.FULLTEXT;
+    data.meta.createft=true;
+    data.meta.stemming=options.get(MainOptions.STEMMING);
+    data.meta.casesens=options.get(MainOptions.CASESENS);
+    data.meta.diacritics=options.get(MainOptions.DIACRITICS);
+    data.meta.language=Language.get(options);
+    data.meta.stopwords=options.get(MainOptions.STOPWORDS);
+  }
+ else {
+    return error(UNKNOWN_CMD_X,this);
+  }
+  data.meta.names(type,options);
+  data.meta.splitsize=options.get(MainOptions.SPLITSIZE);
+  if (!startUpdate())   return false;
+  boolean ok=true;
+  try {
+    create(type,data,this);
+    ok=info(INDEX_CREATED_X_X,type,perf);
+  }
+ catch (  final IOException ex) {
+    ok=error(Util.message(ex));
+  }
  finally {
-data.finishUpdate();
-}
+    ok&=finishUpdate();
+  }
+  return ok;
 }

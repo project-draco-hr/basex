@@ -1,5 +1,15 @@
 {
-  for (int i=0; i < exprs.length - 1; i++)   if (!exprs[i].ebv(qc,info).bool(info))   return Bln.FALSE;
-  final Expr last=exprs[exprs.length - 1];
-  return tailCall ? last.item(qc,ii) : last.ebv(qc,ii).bool(ii) ? Bln.TRUE : Bln.FALSE;
+  if (qc.scoring) {
+    double s=0;
+    for (    final Expr expr : exprs) {
+      final Item it=expr.ebv(qc,info);
+      if (!it.bool(info))       return Bln.FALSE;
+      s+=it.score();
+    }
+    return Bln.get(true,Scoring.avg(s,exprs.length));
+  }
+  for (  final Expr expr : exprs) {
+    if (!expr.ebv(qc,info).bool(info))     return Bln.FALSE;
+  }
+  return Bln.TRUE;
 }

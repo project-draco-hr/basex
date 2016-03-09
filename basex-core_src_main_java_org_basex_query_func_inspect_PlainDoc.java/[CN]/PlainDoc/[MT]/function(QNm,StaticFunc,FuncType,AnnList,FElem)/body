@@ -1,0 +1,41 @@
+{
+  final FElem function=elem("function",parent);
+  if (fname != null) {
+    function.add("name",fname.string());
+    if (fname.uri().length != 0)     function.add("uri",fname.uri());
+  }
+  final TokenObjMap<TokenList> doc=sf != null ? sf.doc() : null;
+  final int al=ftype.argTypes.length;
+  QNm[] names=null;
+  if (sf != null) {
+    names=new QNm[al];
+    for (int n=0; n < al; n++)     names[n]=sf.args[n].name;
+  }
+  for (int a=0; a < al; a++) {
+    final FElem argument=elem("argument",function);
+    if (names != null) {
+      final byte[] name=names[a].string();
+      final byte[] uri=names[a].uri();
+      argument.add("name",name);
+      if (uri.length != 0)       argument.add("uri",uri);
+      final byte[] pdoc=doc(doc,name);
+      if (pdoc != null)       add(pdoc,argument);
+    }
+    type(ftype.argTypes[a],argument);
+  }
+  annotation(anns,function,true);
+  if (doc != null) {
+    for (    final byte[] key : doc) {
+      if (eq(key,DOC_PARAM,DOC_RETURN))       continue;
+      for (      final byte[] value : doc.get(key)) {
+        final FElem elem=eq(key,DOC_TAGS) ? elem(string(key),function) : elem("tag",function).add("name",key);
+        add(value,elem);
+      }
+    }
+  }
+  final SeqType rt=sf != null ? sf.seqType() : ftype.type;
+  final FElem ret=type(rt,elem("return",function));
+  final TokenList returns=doc != null ? doc.get(DOC_RETURN) : null;
+  if (returns != null)   for (  final byte[] val : returns)   add(val,ret);
+  return function;
+}

@@ -1,16 +1,16 @@
 {
-  GroupBy.Spec[] specs=null;
+  Spec[] specs=null;
   do {
     final InputInfo ii=info();
     final QNm name=varName();
-    final SeqType type=optAsType();
+    final SeqType declType=optAsType();
     final Expr by;
-    if (type != null || wsConsume(ASSIGN)) {
-      if (type != null)       wsCheck(ASSIGN);
+    if (declType != null || wsConsume(ASSIGN)) {
+      if (declType != null)       wsCheck(ASSIGN);
       by=check(single(),NOVARDECL);
     }
  else {
-      final VarRef vr=resolveLocalVar(name,ii);
+      final VarRef vr=localVars.resolveLocal(name,ii);
       boolean dec=false;
       if (vr != null) {
         for (        final Clause f : cl) {
@@ -20,7 +20,7 @@
           }
         }
         if (!dec && specs != null) {
-          for (          final GroupBy.Spec spec : specs) {
+          for (          final Spec spec : specs) {
             if (spec.var.is(vr.var)) {
               dec=true;
               break;
@@ -28,13 +28,13 @@
           }
         }
       }
-      if (!dec)       throw error(GVARNOTDEFINED,'$' + string(name.string()));
+      if (!dec)       throw error(GVARNOTDEFINED_X,'$' + string(name.string()));
       by=vr;
     }
-    final Collation coll=wsConsumeWs(COLLATION) ? Collation.get(stringLiteral(),qc,sc,info(),FLWORCOLL) : sc.collation;
-    final GroupBy.Spec spec=new GroupBy.Spec(ii,addVar(name,type,false),by,coll);
+    final Collation coll=wsConsumeWs(COLLATION) ? Collation.get(stringLiteral(),qc,sc,info(),FLWORCOLL_X) : sc.collation;
+    final Spec spec=new Spec(ii,localVars.add(name,declType,false),by,coll);
     if (specs == null) {
-      specs=new GroupBy.Spec[]{spec};
+      specs=new Spec[]{spec};
     }
  else {
       for (int i=specs.length; --i >= 0; ) {

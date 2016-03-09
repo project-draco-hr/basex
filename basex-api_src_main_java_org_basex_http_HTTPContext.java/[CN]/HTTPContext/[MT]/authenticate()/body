@@ -1,15 +1,37 @@
 {
   final byte[] address=token(req.getRemoteAddr());
   try {
-    if (user == null || user.isEmpty() || pass == null || pass.isEmpty())     throw new LoginException(NOPASSWD);
-    final Context ctx=new Context(context(),null);
-    ctx.user=ctx.users.get(user);
-    if (ctx.user == null || !ctx.user.password.equals(md5(pass)))     throw new LoginException();
+    if (username == null || username.isEmpty())     throw new LoginException(NOUSERNAME);
+    final User us=context.users.get(username);
+    if (us == null)     throw new LoginException();
+    if (auth == AuthMethod.BASIC) {
+      if (password == null || !us.matches(password))       throw new LoginException();
+    }
+ else {
+      final EnumMap<Request,String> map=HttpClient.digestHeaders(req.getHeader(AUTHORIZATION));
+      final String am=map.get(Request.AUTH_METHOD);
+      if (!AuthMethod.DIGEST.toString().equals(am))       throw new LoginException(DIGESTAUTH);
+      final String nonce=map.get(Request.NONCE), cnonce=map.get(Request.CNONCE);
+      String ha1=us.code(Algorithm.DIGEST,Code.HASH);
+      if (Strings.eq(map.get(Request.ALGORITHM),MD5_SESS))       ha1=Strings.md5(ha1 + ':' + nonce+ ':'+ cnonce);
+      String h2=method + ':' + map.get(Request.URI);
+      final String qop=map.get(Request.QOP);
+      if (Strings.eq(qop,AUTH_INT))       h2+=':' + Strings.md5(params.body().toString());
+      final String ha2=Strings.md5(h2);
+      final StringBuilder rsp=new StringBuilder(ha1).append(':').append(nonce);
+      if (Strings.eq(qop,AUTH,AUTH_INT)) {
+        rsp.append(':').append(map.get(Request.NC));
+        rsp.append(':').append(cnonce);
+        rsp.append(':').append(qop);
+      }
+      rsp.append(':').append(ha2);
+      if (!Strings.md5(rsp.toString()).equals(password))       throw new LoginException();
+    }
     context.blocker.remove(address);
-    return ctx;
+    return us;
   }
  catch (  final LoginException ex) {
-    for (int d=context.blocker.delay(address); d > 0; d--)     Performance.sleep(100);
+    context.blocker.delay(address);
     throw ex;
   }
 }

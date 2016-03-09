@@ -1,0 +1,10 @@
+{
+  query(_VALIDATE_DTD_INFO.args(FILE,DTD),"");
+  query(_VALIDATE_DTD_INFO.args(DOC.args(FILE),DTD),"");
+  query(_VALIDATE_DTD_INFO.args(_FILE_READ_TEXT.args(FILE),_FILE_READ_TEXT.args(DTD)),"");
+  query("let $doc := <root/> " + "let $dtd := '<!ELEMENT root (#PCDATA)>' " + "return "+ _VALIDATE_DTD_INFO.args("$doc","$dtd"),"");
+  query(EXISTS.args(_VALIDATE_DTD_INFO.args(FILE)),"true");
+  query(EXISTS.args("let $doc := <root/> " + "let $dtd := '<!ELEMENT unknown (#PCDATA)>' " + "return "+ _VALIDATE_DTD_INFO.args("$doc","$dtd")),"true");
+  error(_VALIDATE_DTD_INFO.args("unknown"),WHICHRES_X);
+  error(_VALIDATE_DTD_INFO.args(FILE,"unknown.dtd"),WHICHRES_X);
+}

@@ -1,0 +1,17 @@
+{
+  if (results.size() >= MAXHITS)   return;
+  for (  final String path : pc) {
+    final String lc=path.toLowerCase(Locale.ENGLISH).replace('\\','/');
+    final int offset=offset(lc,pathSearch);
+    if (mode == 0 ? lc.startsWith(pattern,offset) : mode == 1 ? (lc.indexOf(pattern,offset) != -1) : matches(lc,pattern,offset)) {
+      if (!exclude.contains(path)) {
+        exclude.add(path);
+        if (filterContent(path,search)) {
+          results.add(path);
+          if (results.size() >= MAXHITS)           return;
+        }
+      }
+    }
+    if (id != filterId)     throw new InterruptedException();
+  }
+}

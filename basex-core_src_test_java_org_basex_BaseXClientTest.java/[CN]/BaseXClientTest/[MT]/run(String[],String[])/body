@@ -1,16 +1,12 @@
 {
   final BaseXServer server=createServer(sargs);
-  final ArrayOutput ao=new ArrayOutput();
-  System.setOut(new PrintStream(ao));
-  System.setErr(NULL);
-  final StringList sl=new StringList();
-  sl.add("-p9999").add("-U" + Text.S_ADMIN).add("-P" + Text.S_ADMIN).add(args);
-  try {
-    new BaseXClient(sl.toArray());
+  final StringList sl=new StringList("-p" + DB_PORT,"-U" + UserText.ADMIN,"-P" + UserText.ADMIN).add(args);
+  try (final ArrayOutput ao=new ArrayOutput()){
+    System.setOut(new PrintStream(ao));
+    new BaseXClient(sl.finish());
     return ao.toString();
   }
   finally {
-    System.setErr(ERR);
     stopServer(server);
   }
 }

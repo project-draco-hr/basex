@@ -1,0 +1,70 @@
+{
+  return new NodeIter(){
+    final Pos[] posExpr=new Pos[preds.length];
+    final long[] cPos=new long[preds.length];
+    boolean skip;
+    BasicNodeIter iter;
+    @Override public ANode next() throws QueryException {
+      if (skip)       return null;
+      if (iter == null) {
+        iter=axis.iter(checkNode(qc));
+        final int pl=preds.length;
+        for (int p=0; p < pl; p++) {
+          final Expr pred=preds[p];
+          if (pred instanceof Pos) {
+            posExpr[p]=(Pos)pred;
+          }
+ else           if (num(pred)) {
+            final Item it=pred.atomItem(qc,info);
+            if (it == null)             return null;
+            final double dbl=toDouble(it);
+            final long lng=(long)dbl;
+            if (dbl != lng)             return null;
+            final Expr e=Pos.get(lng,info);
+            if (e instanceof Pos)             posExpr[p]=(Pos)e;
+ else             return null;
+          }
+        }
+      }
+      for (      final ANode node : iter) {
+        qc.checkStop();
+        if (test.eq(node) && preds(node))         return node.finish();
+      }
+      return null;
+    }
+    /** 
+ * Evaluates the predicates.
+ * @param node input node
+ * @return result of check
+ * @throws QueryException query exception
+ */
+    private boolean preds(    final ANode node) throws QueryException {
+      final Value cv=qc.value;
+      qc.value=node;
+      try {
+        double s=qc.scoring ? 0 : -1;
+        final int pl=preds.length;
+        for (int p=0; p < pl; p++) {
+          final Expr pred=preds[p];
+          final Pos pos=posExpr[p];
+          if (pos == null) {
+            final Item tst=pred.test(qc,info);
+            if (tst == null)             return false;
+            if (s != -1)             s+=tst.score();
+          }
+ else {
+            final long ps=++cPos[p];
+            if (!pos.matches(ps))             return false;
+            if (pos.skip(ps))             skip=true;
+          }
+        }
+        if (s > 0)         node.score(Scoring.avg(s,preds.length));
+      }
+  finally {
+        qc.value=cv;
+      }
+      return true;
+    }
+  }
+;
+}

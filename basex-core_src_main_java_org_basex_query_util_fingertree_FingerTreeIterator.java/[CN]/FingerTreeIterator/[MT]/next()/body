@@ -1,0 +1,73 @@
+{
+  if (index >= n)   throw new NoSuchElementException();
+  if (leaf == null)   init();
+  index++;
+  if (leafPos < leaf.arity())   return leaf.getSub(leafPos++);
+  while (nTop >= 0 && poss[nTop] == nodes[nTop].arity() - 1)   nTop--;
+  final Node<?,E> start;
+  if (nTop >= 0) {
+    start=nodes[nTop].getSub(++poss[nTop]);
+  }
+ else {
+    final DeepTree<?,E> curr=trees[tTop];
+    if (deepPos < -1) {
+      ++deepPos;
+      start=curr.left[curr.left.length + deepPos];
+    }
+ else     if (deepPos == -1) {
+      final FingerTree<?,E> mid=curr.middle;
+      if (mid instanceof EmptyTree) {
+        deepPos=1;
+        start=curr.right[0];
+      }
+ else       if (mid instanceof SingletonTree) {
+        deepPos=0;
+        start=((SingletonTree<?,E>)mid).elem;
+      }
+ else {
+        final DeepTree<?,E> deep=(DeepTree<?,E>)mid;
+        if (++tTop == trees.length) {
+          final DeepTree<?,E>[] newTrees=new DeepTree[2 * tTop];
+          System.arraycopy(trees,0,newTrees,0,tTop);
+          trees=newTrees;
+        }
+        trees[tTop]=deep;
+        deepPos=-deep.left.length;
+        start=deep.left[0];
+      }
+    }
+ else     if (deepPos == 0) {
+      deepPos=1;
+      start=curr.right[0];
+    }
+ else {
+      final int p=deepPos - 1;
+      if (p < curr.right.length - 1) {
+        deepPos++;
+        start=curr.right[p + 1];
+      }
+ else {
+        trees[tTop]=null;
+        deepPos=0;
+        tTop--;
+        start=trees[tTop].right[0];
+        deepPos=1;
+      }
+    }
+  }
+  Node<?,E> sub=start;
+  while (sub instanceof InnerNode) {
+    if (++nTop == nodes.length) {
+      final InnerNode<?,E>[] newNodes=new InnerNode[2 * nTop];
+      System.arraycopy(nodes,0,newNodes,0,nTop);
+      nodes=newNodes;
+      poss=Arrays.copyOf(poss,2 * nTop);
+    }
+    nodes[nTop]=(InnerNode<?,E>)sub;
+    poss[nTop]=0;
+    sub=nodes[nTop].getSub(0);
+  }
+  leaf=(Node<E,E>)sub;
+  leafPos=1;
+  return leaf.getSub(0);
+}

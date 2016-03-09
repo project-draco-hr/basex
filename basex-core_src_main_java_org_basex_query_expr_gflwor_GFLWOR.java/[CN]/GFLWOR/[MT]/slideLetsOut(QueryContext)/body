@@ -1,0 +1,20 @@
+{
+  boolean changed=false;
+  for (int i=1; i < clauses.size(); i++) {
+    final Clause clause=clauses.get(i);
+    if (!(clause instanceof Let) || clause.has(Flag.NDT) || clause.has(Flag.CNS)|| clause.has(Flag.UPD))     continue;
+    final Let let=(Let)clause;
+    int insert=-1;
+    for (int j=i; --j >= 0; ) {
+      final Clause curr=clauses.get(j);
+      if (!curr.skippable(let))       break;
+      if (curr instanceof For || curr instanceof Window)       insert=j;
+    }
+    if (insert >= 0) {
+      clauses.add(insert,clauses.remove(i));
+      if (!changed)       qc.compInfo(QueryText.OPTFORLET);
+      changed=true;
+    }
+  }
+  return changed;
+}

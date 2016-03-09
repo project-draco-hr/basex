@@ -1,0 +1,19 @@
+{
+  final Value cv=qc.value;
+  try {
+    final int el=exprs.length;
+    for (int e=0; e < el; e++) {
+      try {
+        exprs[e]=exprs[e].compile(qc,scp);
+      }
+ catch (      final QueryException ex) {
+        exprs[e]=FnError.get(ex,seqType);
+      }
+      qc.value=null;
+    }
+  }
+  finally {
+    qc.value=cv;
+  }
+  return optimize(qc,scp);
+}

@@ -1,0 +1,71 @@
+{
+  if (pos <= leftSize) {
+    int i=0;
+    long p=pos;
+    for (; ; i++) {
+      final long sub=left[i].size();
+      if (p <= sub)       break;
+      p-=sub;
+    }
+    final int ll=left.length;
+    final Node<N,E> l=i > 0 ? left[i - 1] : null, r=i + 1 < ll ? left[i + 1] : null;
+    @SuppressWarnings("unchecked") final Node<N,E>[] siblings=new Node[]{l,null,r,null};
+    if (!left[i].insert(siblings,p,val)) {
+      final Node<N,E>[] newLeft=left.clone();
+      if (i > 0)       newLeft[i - 1]=siblings[0];
+      newLeft[i]=siblings[1];
+      if (i + 1 < ll)       newLeft[i + 1]=siblings[2];
+      return new DeepTree<>(newLeft,leftSize + 1,middle,right,size + 1);
+    }
+    @SuppressWarnings("unchecked") final Node<N,E>[] temp=new Node[ll + 1];
+    if (i > 0) {
+      System.arraycopy(left,0,temp,0,i - 1);
+      temp[i - 1]=siblings[0];
+    }
+    temp[i]=siblings[1];
+    temp[i + 1]=siblings[2];
+    if (i + 1 < ll) {
+      temp[i + 2]=siblings[3];
+      System.arraycopy(left,i + 2,temp,i + 3,ll - i - 2);
+    }
+    if (ll < MAX_DIGIT)     return new DeepTree<>(temp,leftSize + 1,middle,right,size + 1);
+    final int m=temp.length - NODE_SIZE;
+    final Node<N,E>[] newLeft=slice(temp,0,m), ch=slice(temp,m,temp.length);
+    return get(newLeft,middle.cons(new InnerNode<>(ch)),right,size + 1);
+  }
+  long p=pos - leftSize;
+  final long midSize=middle.size();
+  if (p < midSize)   return new DeepTree<>(left,leftSize,middle.insert(p,val),right,size + 1);
+  p-=midSize;
+  int i=0;
+  for (; ; i++) {
+    final long sub=right[i].size();
+    if (p <= sub)     break;
+    p-=sub;
+  }
+  final int rl=right.length;
+  final Node<N,E> l=i > 0 ? right[i - 1] : null, r=i + 1 < rl ? right[i + 1] : null;
+  @SuppressWarnings("unchecked") final Node<N,E>[] siblings=new Node[]{l,null,r,null};
+  if (!right[i].insert(siblings,p,val)) {
+    final Node<N,E>[] newRight=right.clone();
+    if (i > 0)     newRight[i - 1]=siblings[0];
+    newRight[i]=siblings[1];
+    if (i + 1 < rl)     newRight[i + 1]=siblings[2];
+    return new DeepTree<>(left,leftSize,middle,newRight,size + 1);
+  }
+  @SuppressWarnings("unchecked") final Node<N,E>[] temp=new Node[rl + 1];
+  if (i > 0) {
+    System.arraycopy(right,0,temp,0,i - 1);
+    temp[i - 1]=siblings[0];
+  }
+  temp[i]=siblings[1];
+  temp[i + 1]=siblings[2];
+  if (i + 1 < rl) {
+    temp[i + 2]=siblings[3];
+    System.arraycopy(right,i + 2,temp,i + 3,rl - i - 2);
+  }
+  if (right.length < MAX_DIGIT)   return new DeepTree<>(left,leftSize,middle,temp,size + 1);
+  final int m=NODE_SIZE;
+  final Node<N,E>[] ch=slice(temp,0,m), newRight=slice(temp,m,temp.length);
+  return new DeepTree<>(left,leftSize,middle.snoc(new InnerNode<>(ch)),newRight,size + 1);
+}

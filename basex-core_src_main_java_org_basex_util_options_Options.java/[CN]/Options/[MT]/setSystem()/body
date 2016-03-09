@@ -1,16 +1,15 @@
 {
-  final StringList sl=new StringList();
-  for (  final Object key : System.getProperties().keySet()) {
-    final String k=key.toString();
-    if (k.startsWith(DBPREFIX))     sl.add(k);
-  }
-  for (  final String key : sl) {
-    final String v=System.getProperty(key);
-    try {
-      final String k=key.substring(DBPREFIX.length()).toUpperCase(Locale.ENGLISH);
-      if (assign(k,v,-1,false))       Util.debug(k + Text.COLS + v);
-    }
- catch (    final BaseXException ignore) {
+  for (  final Entry<String,String> entry : entries()) {
+    String name=entry.getKey();
+    final String value=entry.getValue();
+    if (name.startsWith(DBPREFIX)) {
+      name=name.substring(DBPREFIX.length()).toUpperCase(Locale.ENGLISH);
+      try {
+        if (assign(name,value,-1,false))         Util.debug(name + Text.COLS + value);
+      }
+ catch (      final BaseXException ex) {
+        Util.errln(ex);
+      }
     }
   }
 }

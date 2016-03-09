@@ -1,0 +1,18 @@
+{
+  final byte[] token=toToken(exprs[0],qc);
+  final FtTokenizeOptions opts=toOptions(1,Q_OPTIONS,new FtTokenizeOptions(),qc);
+  final FTOpt opt=new FTOpt().copy(qc.ftOpt());
+  final FTDiacritics dc=opts.get(FtTokenizeOptions.DIACRITICS);
+  if (dc != null)   opt.set(DC,dc == FTDiacritics.SENSITIVE);
+  final Boolean st=opts.get(FtTokenizeOptions.STEMMING);
+  if (st != null)   opt.set(ST,st);
+  final String ln=opts.get(FtTokenizeOptions.LANGUAGE);
+  if (ln != null)   opt.ln=Language.get(ln);
+  final FTCase cs=opts.get(FtTokenizeOptions.CASE);
+  if (cs != null)   opt.cs=cs;
+  final TokenList tl=new TokenList();
+  final FTLexer ftl=new FTLexer(opt).init(token);
+  if (all)   ftl.all();
+  while (ftl.hasNext())   tl.add(ftl.nextToken());
+  return tl;
+}

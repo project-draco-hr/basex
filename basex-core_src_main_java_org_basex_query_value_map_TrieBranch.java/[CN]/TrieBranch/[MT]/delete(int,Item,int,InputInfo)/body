@@ -1,0 +1,19 @@
+{
+  final int key=key(h,l);
+  final TrieNode sub=kids[key];
+  if (sub == null)   return this;
+  final TrieNode nsub=sub.delete(h,k,l + 1,ii);
+  if (nsub == sub)   return this;
+  final int nu;
+  if (nsub == null) {
+    nu=used ^ 1 << key;
+    if (Integer.bitCount(nu) == 1) {
+      final TrieNode single=kids[Integer.numberOfTrailingZeros(nu)];
+      if (!(single instanceof TrieBranch))       return single;
+    }
+  }
+ else   nu=used;
+  final TrieNode[] ks=copyKids();
+  ks[key]=nsub;
+  return new TrieBranch(ks,nu,size - 1);
+}

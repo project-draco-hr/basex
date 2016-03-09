@@ -1,0 +1,22 @@
+{
+  if (uri == null)   return sc.collation;
+  byte[] url=uri;
+  final Uri u=Uri.uri(url);
+  if (!u.isValid())   throw INVURI_X.get(info,url);
+  if (!u.isAbsolute()) {
+    if (Token.startsWith(url,'?')) {
+      url=concat(URL,url);
+    }
+ else {
+      url=sc.baseURI().resolve(u,info).string();
+    }
+  }
+  if (eq(COLLATION_URI,url))   return null;
+  if (qc.collations == null)   qc.collations=new TokenObjMap<>();
+  Collation coll=qc.collations.get(url);
+  if (coll == null) {
+    coll=get(url,info,err);
+    qc.collations.put(url,coll);
+  }
+  return coll;
+}

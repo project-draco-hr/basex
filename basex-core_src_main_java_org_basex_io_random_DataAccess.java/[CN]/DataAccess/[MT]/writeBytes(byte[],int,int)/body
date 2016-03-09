@@ -1,0 +1,14 @@
+{
+  final int last=offset + len;
+  int o=offset;
+  while (o < last) {
+    final Buffer bf=buffer();
+    final int l=Math.min(last - o,IO.BLOCKSIZE - off);
+    System.arraycopy(buffer,o,bf.data,off,l);
+    bf.dirty=true;
+    off+=l;
+    o+=l;
+    final long nl=bf.pos + off;
+    if (nl > length)     length(nl);
+  }
+}

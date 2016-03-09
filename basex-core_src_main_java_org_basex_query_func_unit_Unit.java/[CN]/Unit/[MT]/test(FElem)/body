@@ -1,0 +1,102 @@
+{
+  final FElem suite=new FElem(TESTSUITE).add(NAME,file.url());
+  final ArrayList<StaticFunc> beforeModule=new ArrayList<>(0);
+  final ArrayList<StaticFunc> afterModule=new ArrayList<>(0);
+  final ArrayList<StaticFunc> before=new ArrayList<>(0);
+  final ArrayList<StaticFunc> after=new ArrayList<>(0);
+  final ArrayList<QNm> beforeFilter=new ArrayList<>();
+  final ArrayList<QNm> afterFilter=new ArrayList<>();
+  final ArrayList<StaticFunc> test=new ArrayList<>(0);
+  final Performance perf=new Performance();
+  try (final QueryContext qc=new QueryContext(ctx)){
+    input=string(file.read());
+    qc.parse(input,file.path(),null);
+    for (    final StaticFunc sf : qc.funcs.funcs()) {
+      final AnnList anns=sf.anns;
+      boolean xq=false;
+      for (      final Ann ann : anns)       xq|=ann.sig != null && eq(ann.sig.uri,QueryText.UNIT_URI);
+      if (!xq)       continue;
+      if (anns.contains(PRIVATE))       throw UNIT_PRIVATE_X.get(null,sf.name.local());
+      if (sf.args.length > 0)       throw UNIT_ARGS_X.get(null,sf.name.local());
+      if (anns.contains(_UNIT_BEFORE_MODULE))       beforeModule.add(sf);
+      if (anns.contains(_UNIT_AFTER_MODULE))       afterModule.add(sf);
+      final Ann b=anns.get(_UNIT_BEFORE);
+      if (b != null) {
+        before.add(sf);
+        beforeFilter.add(name(sf,b));
+      }
+      final Ann a=anns.get(_UNIT_AFTER);
+      if (a != null) {
+        after.add(sf);
+        afterFilter.add(name(sf,a));
+      }
+      if (anns.contains(_UNIT_TEST))       test.add(sf);
+    }
+    for (    final StaticFunc sf : beforeModule)     eval(sf);
+    for (    final StaticFunc sf : test) {
+      final AnnList anns=sf.anns;
+      final Ann ann=anns.get(_UNIT_TEST);
+      final Item[] args=ann.args();
+      final int vs=args.length;
+      QNm code=null;
+      if (vs == 2 && eq(EXPECTED,args[0].string(null))) {
+        code=QNm.resolve(args[1].string(null),QueryText.ERROR_URI,sf.sc,sf.info);
+      }
+ else       if (vs != 0) {
+        throw BASX_ANNNUM_X_X_X.get(ann.info,ann,vs,vs == 1 ? "" : "s");
+      }
+      final FElem testcase=new FElem(TESTCASE).add(NAME,sf.name.local());
+      tests++;
+      final Performance perf2=new Performance();
+      final Ann ignore=anns.get(_UNIT_IGNORE);
+      if (ignore == null) {
+        try {
+          int l=before.size();
+          for (int i=0; i < l; i++) {
+            final QNm name=beforeFilter.get(i);
+            if (name == null || name.eq(sf.name))             eval(before.get(i));
+          }
+          eval(sf);
+          l=after.size();
+          for (int i=0; i < l; i++) {
+            final QNm name=afterFilter.get(i);
+            if (name == null || name.eq(sf.name))             eval(after.get(i));
+          }
+          if (code != null) {
+            failures++;
+            testcase.add(new FElem(FAILURE).add(new FElem(EXPECTED).add(code.prefixId())));
+          }
+        }
+ catch (        final QueryException ex) {
+          addError(ex,testcase,code);
+        }
+      }
+ else {
+        final Item[] iargs=ignore.args();
+        testcase.add(SKIPPED,iargs.length == 0 ? EMPTY : iargs[0].string(null));
+        skipped++;
+      }
+      testcase.add(TIME,time(perf2));
+      suite.add(testcase);
+    }
+    for (    final StaticFunc sf : afterModule)     eval(sf);
+  }
+ catch (  final QueryException ex) {
+    if (current == null) {
+      addError(ex,suite,null);
+    }
+ else {
+      final FElem tc=new FElem(TESTINIT).add(NAME,current.name.local()).add(TIME,time(perf));
+      suite.add(tc);
+      addError(ex,tc,null);
+    }
+  }
+  if (suite.hasChildren()) {
+    suite.add(TIME,time(perf));
+    suite.add(TESTS,token(tests));
+    suite.add(FAILURES,token(failures));
+    suite.add(ERRORS,token(errors));
+    suite.add(SKIPPED,token(skipped));
+    suites.add(suite);
+  }
+}

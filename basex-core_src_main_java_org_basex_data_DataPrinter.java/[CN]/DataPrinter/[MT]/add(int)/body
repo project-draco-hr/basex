@@ -1,0 +1,25 @@
+{
+  final int k=data.kind(pre);
+  final TokenList tl=new TokenList();
+  tl.add(pre);
+  tl.add(pre - data.parent(pre,k));
+  tl.add(data.size(pre,k));
+  tl.add(data.attSize(pre,k));
+  tl.add(data.id(pre));
+  final int uriId=data.uriId(pre,k);
+  if (data.nsFlag(pre))   tl.add("+" + uriId);
+ else   tl.add(uriId);
+  tl.add(TABLEKINDS[k]);
+  final byte[] cont;
+  if (k == Data.ELEM) {
+    cont=data.name(pre,Data.ELEM);
+  }
+ else   if (k == Data.ATTR) {
+    cont=new TokenBuilder(data.name(pre,Data.ATTR)).add(ATT1).add(data.text(pre,false)).add(ATT2).finish();
+  }
+ else {
+    cont=data.text(pre,true);
+  }
+  tl.add(Token.replace(Token.chop(cont,64),'\n',' '));
+  table.contents.add(tl);
+}

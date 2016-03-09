@@ -1,13 +1,9 @@
 {
-  final QueryContext qc=new QueryContext(context);
-  try {
+  try (final QueryContext qc=new QueryContext(context)){
     qc.parseLibrary("module namespace m='foo'; declare function m:foo() { m:bar() }; ","",null);
     fail("Unknown function 'm:bar()' was not detected.");
   }
  catch (  final QueryException e) {
-    assertSame(Err.FUNCUNKNOWN,e.err());
-  }
- finally {
-    qc.close();
+    assertSame(QueryError.WHICHFUNC_X,e.error());
   }
 }

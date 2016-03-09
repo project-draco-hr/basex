@@ -1,21 +1,24 @@
 {
   final int p=pos;
-  if (wsConsumeWs(UPDATING)) {
+  wsConsume(INVOKE);
+  final boolean upd=wsConsumeWs(UPDATING), ndt=wsConsumeWs(NON_DETERMINISTIC);
+  if (upd || ndt) {
     final Expr func=primary();
-    if (wsConsume(PAR1)) {
+    if (wsConsume(PAREN1)) {
       final InputInfo ii=info();
       final ExprList argList=new ExprList();
-      if (!wsConsume(PAR2)) {
+      if (!wsConsume(PAREN2)) {
         do {
           final Expr e=single();
-          if (e == null)           throw error(FUNCMISS,func);
+          if (e == null)           throw funcMiss(func);
           argList.add(e);
         }
  while (wsConsume(COMMA));
-        if (!wsConsume(PAR2))         throw error(FUNCMISS,func);
+        if (!wsConsume(PAREN2))         throw funcMiss(func);
       }
-      qc.updating();
-      return new DynFuncCall(ii,sc,true,func,argList.finish());
+      if (func instanceof Value && !(func instanceof FItem))       throw error(NOPAREN_X_X,func);
+      if (upd)       qc.updating();
+      return new DynFuncCall(ii,sc,upd,ndt,func,argList.finish());
     }
   }
   pos=p;

@@ -3,9 +3,17 @@
   socket.connect(new InetSocketAddress(host,port),5000);
   in=new BufferedInputStream(socket.getInputStream());
   out=socket.getOutputStream();
-  ehost=host;
-  final String ts=receive();
-  send(user);
-  send(md5(md5(pass) + ts));
+  final String[] response=receive().split(":");
+  final String code, nonce;
+  if (response.length > 1) {
+    code=username + ':' + response[0]+ ':'+ password;
+    nonce=response[1];
+  }
+ else {
+    code=password;
+    nonce=response[0];
+  }
+  send(username);
+  send(md5(md5(code) + nonce));
   if (!ok())   throw new IOException("Access denied.");
 }

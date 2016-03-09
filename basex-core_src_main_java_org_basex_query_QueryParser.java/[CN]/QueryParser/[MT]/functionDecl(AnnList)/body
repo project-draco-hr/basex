@@ -1,0 +1,15 @@
+{
+  final InputInfo ii=info();
+  final QNm name=eQName(FUNCNAME,sc.funcNS);
+  if (keyword(name))   throw error(RESERVED_X,name.local());
+  wsCheck(PAREN1);
+  if (module != null && !eq(name.uri(),module.uri()))   throw error(MODULENS_X,name);
+  localVars.pushContext(null);
+  final Var[] args=paramList();
+  wsCheck(PAREN2);
+  final SeqType type=optAsType();
+  final Expr expr=wsConsumeWs(EXTERNAL) ? null : enclosedExpr();
+  final VarScope scope=localVars.popContext();
+  final StaticFunc func=qc.funcs.declare(anns,name,args,type,expr,sc,scope,currDoc.toString(),ii);
+  funcs.put(func.id(),func);
+}

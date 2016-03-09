@@ -1,6 +1,6 @@
 {
   String arg=in.readString();
-  String err=null;
+  String error=null;
   try {
     final ServerQuery qp;
     final StringBuilder info=new StringBuilder();
@@ -9,7 +9,8 @@
       qp=new ServerQuery(query,context);
       arg=Integer.toString(id++);
       queries.put(arg,qp);
-      out.writeString(arg);
+      out.print(arg);
+      out.write(0);
       info.append(query);
     }
  else {
@@ -33,13 +34,13 @@
         if (!typ.isEmpty())         info.append(" as ").append(typ);
       }
  else       if (sc == ServerCmd.RESULTS) {
-        qp.execute(true,out,true,false);
+        qp.execute(out,true,true,false);
       }
  else       if (sc == ServerCmd.EXEC) {
-        qp.execute(false,out,true,false);
+        qp.execute(out,false,true,false);
       }
  else       if (sc == ServerCmd.FULL) {
-        qp.execute(true,out,true,true);
+        qp.execute(out,true,true,true);
       }
  else       if (sc == ServerCmd.INFO) {
         out.print(qp.info());
@@ -59,18 +60,19 @@
       out.write(0);
     }
     out.write(0);
-    log(new StringBuilder(sc.toString()).append('[').append(arg).append("] ").append(info),true);
+    log(LogType.OK,sc.toString() + '[' + arg+ "] "+ info);
   }
  catch (  final Throwable ex) {
-    err=Util.message(ex);
-    log(sc + "[" + arg+ ']',null);
-    log(err,false);
+    error=Util.message(ex);
+    log(LogType.REQUEST,sc + "[" + arg+ ']');
+    log(LogType.ERROR,error);
     queries.remove(arg);
   }
-  if (err != null) {
+  if (error != null) {
     out.write(0);
     out.write(1);
-    out.writeString(err);
+    out.print(error);
+    out.write(0);
   }
   out.flush();
 }

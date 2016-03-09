@@ -1,0 +1,26 @@
+{
+  try (final BufferInput bi=new BufferInput(in,1 << 22)){
+    if (peek(bi) == '<') {
+      try {
+        return db == null ? createDb(dbname(path),bi) : addXML(db,path,bi);
+      }
+ catch (      final IOException ex) {
+        try {
+          bi.reset();
+        }
+ catch (        final IOException e) {
+          throw ex;
+        }
+      }
+    }
+    final String d;
+    if (db == null) {
+      d=dbname(path);
+      createDb(d);
+    }
+ else {
+      d=db;
+    }
+    return store(d,path,bi);
+  }
+ }

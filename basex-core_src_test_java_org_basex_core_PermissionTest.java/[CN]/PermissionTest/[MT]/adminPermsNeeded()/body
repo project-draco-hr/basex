@@ -1,15 +1,16 @@
 {
-  ok(new Grant(S_ADMIN,NAME),adminSession);
+  ok(new Grant(ADMIN,NAME),adminSession);
   if (server.context.users.get("test2") != null) {
     ok(new DropUser("test2"),testSession);
   }
-  ok(new CreateUser("test2",Token.md5(NAME)),testSession);
+  ok(new CreateUser("test2",NAME),testSession);
   ok(new CreateDB(NAME,"<xml/>"),testSession);
   ok(new ShowUsers(),testSession);
-  ok(new Grant(S_ADMIN,"test2"),testSession);
+  ok(new Grant(ADMIN,"test2"),testSession);
   ok(new Grant("create","test2"),testSession);
-  ok(new AlterUser(NAME,Token.md5(NAME)),testSession);
-  ok(new DropUser("test2"),testSession);
+  ok(new AlterPassword(NAME,NAME),testSession);
+  ok(new AlterUser("test2","test4"),testSession);
+  ok(new DropUser("test3"),testSession);
   ok(new Close(),testSession);
   ok(new Close(),adminSession);
   ok(new DropDB(NAME),adminSession);
@@ -17,4 +18,5 @@
   ok(new RepoList(),testSession);
   ok(new RepoDelete("http://www.pkg3.com",null),testSession);
   ok(new org.basex.core.cmd.Test(FOLDER + "tests-ok.xqm"),testSession);
+  ok(new XQuery("Q{java.lang.String}new('x')"),testSession);
 }

@@ -1,0 +1,14 @@
+{
+  checkCreate(qc);
+  final int id=(int)toLong(exprs[0],qc);
+  final String query=string(toToken(exprs[1],qc));
+  final Object obj=jdbc(qc).get(id);
+  if (!(obj instanceof Connection))   throw BXSQ_CONN_X.get(info,id);
+  try {
+    final Statement stmt=((Connection)obj).createStatement();
+    return stmt.execute(query) ? iter(stmt,true) : Empty.ITER;
+  }
+ catch (  final SQLException ex) {
+    throw BXSQ_ERROR_X.get(info,ex);
+  }
+}

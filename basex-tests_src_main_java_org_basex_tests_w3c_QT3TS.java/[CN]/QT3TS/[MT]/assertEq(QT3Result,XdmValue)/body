@@ -1,0 +1,10 @@
+{
+  final String exp=expected.getString();
+  try {
+    final String qu="declare variable $returned external; $returned eq " + exp;
+    return environment(new XQuery(qu,ctx),result.env).bind("$returned",result.value).value().getBoolean() ? null : exp;
+  }
+ catch (  final XQueryException err) {
+    return err.getCode().equals("FOAR0002") && exp.equals(expected.getString()) ? null : err.getException().getMessage();
+  }
+}

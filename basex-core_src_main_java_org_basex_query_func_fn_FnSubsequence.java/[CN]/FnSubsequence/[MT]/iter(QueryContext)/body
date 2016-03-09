@@ -1,0 +1,35 @@
+{
+  final long[] range=range(qc);
+  if (range == null)   return Empty.ITER;
+  if (range == ALL)   return exprs[0].iter(qc);
+  final long start=range[0], len=range[1];
+  final Iter iter=qc.iter(exprs[0]);
+  if (iter instanceof ValueIter)   return eval(((ValueIter)iter).value(),start,len).iter();
+  final long max=iter.size();
+  final long e=len == Long.MAX_VALUE ? len : start + len;
+  if (max >= 0)   return new Iter(){
+    final long m=Math.min(e,max + 1);
+    long c=Math.max(1,start);
+    @Override public Item next() throws QueryException {
+      return c < m ? iter.get(c++ - 1) : null;
+    }
+    @Override public Item get(    final long i) throws QueryException {
+      return iter.get(c + i - 1);
+    }
+    @Override public long size(){
+      return Math.max(0,m - c);
+    }
+  }
+;
+  return new Iter(){
+    long c;
+    @Override public Item next() throws QueryException {
+      while (true) {
+        final Item it=iter.next();
+        if (it == null || ++c >= e)         return null;
+        if (c >= start)         return it;
+      }
+    }
+  }
+;
+}

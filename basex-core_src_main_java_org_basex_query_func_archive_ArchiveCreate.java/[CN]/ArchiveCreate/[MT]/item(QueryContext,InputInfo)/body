@@ -1,0 +1,31 @@
+{
+  final Iter entries=qc.iter(exprs[0]), contents=qc.iter(exprs[1]);
+  final ArchOptions opts=toOptions(2,Q_OPTIONS,new ArchOptions(),qc);
+  final String format=opts.get(ArchOptions.FORMAT);
+  final int level=level(opts);
+  try (final ArchiveOut out=ArchiveOut.get(format.toLowerCase(Locale.ENGLISH),info)){
+    out.level(level);
+    try {
+      int e=0, c=0;
+      while (true) {
+        final Item en=entries.next(), cn=contents.next();
+        if (en == null || cn == null) {
+          if (cn != null)           do           c++;
+ while (contents.next() != null);
+          if (en != null)           do           e++;
+ while (entries.next() != null);
+          if (e != c)           throw ARCH_DIFF_X_X.get(info,e,c);
+          break;
+        }
+        if (out instanceof GZIPOut && c > 0)         throw ARCH_ONE_X.get(info,format.toUpperCase(Locale.ENGLISH));
+        add(checkElemToken(en),cn,out,level,qc);
+        e++;
+        c++;
+      }
+    }
+ catch (    final IOException ex) {
+      throw ARCH_FAIL_X.get(info,ex);
+    }
+    return new B64(out.finish());
+  }
+ }

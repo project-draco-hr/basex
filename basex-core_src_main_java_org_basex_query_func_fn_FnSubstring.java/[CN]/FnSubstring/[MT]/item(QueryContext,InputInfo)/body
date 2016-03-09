@@ -1,0 +1,36 @@
+{
+  final byte[] str=toEmptyToken(exprs[0],qc);
+  final Item is=toAtomItem(exprs[1],qc);
+  int s;
+  if (is instanceof Int) {
+    s=(int)is.itr(info) - 1;
+  }
+ else {
+    final double ds=is.dbl(info);
+    if (Double.isNaN(ds))     return Str.ZERO;
+    s=subPos(ds);
+  }
+  final boolean end=exprs.length == 3, ascii=ascii(str);
+  int l=ascii ? str.length : length(str);
+  int e=l;
+  if (end) {
+    final Item ie=toAtomItem(exprs[2],qc);
+    e=ie instanceof Int ? (int)ie.itr(info) : subPos(ie.dbl(info) + 1);
+  }
+  if (s < 0) {
+    e+=s;
+    s=0;
+  }
+  e=Math.min(l,end ? s + e : Integer.MAX_VALUE);
+  if (s >= e)   return Str.ZERO;
+  if (ascii)   return Str.get(substring(str,s,e));
+  int ss=s;
+  int ee=e;
+  int p=0;
+  for (l=0; l < str.length; l+=cl(str,l), ++p) {
+    if (p == s)     ss=l;
+    if (p == e)     ee=l;
+  }
+  if (p == e)   ee=l;
+  return Str.get(Arrays.copyOfRange(str,ss,ee));
+}

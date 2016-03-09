@@ -1,13 +1,13 @@
 {
-  final String desc=def.toString();
-  final String name=desc.replaceAll("\\(.*","");
+  final String desc=def.toString(), name=desc.replaceAll("\\(.*","");
   final String[] names=def.names();
-  assertTrue(def + Arrays.toString(names),names.length == (def.max == Integer.MAX_VALUE ? def.min : def.max));
+  final int min=def.minMax[0], max=def.minMax[1];
+  assertTrue(def + Arrays.toString(names),names.length == (max == Integer.MAX_VALUE ? min : max));
   final Set<String> set=new HashSet<>(Arrays.asList(names));
   assertEquals("Duplicate argument names: " + def,names.length,set.size());
-  if (def.max == Integer.MAX_VALUE)   assertTrue(names[names.length - 1].matches(".*\\d+$"));
-  for (int al=Math.max(def.min - 1,0); al <= def.max + 1; al++) {
-    final boolean in=al >= def.min && al <= def.max;
+  if (max == Integer.MAX_VALUE)   assertTrue(names[names.length - 1].matches(".*\\d+$"));
+  for (int al=Math.max(min - 1,0); al <= max + 1; al++) {
+    final boolean in=al >= min && al <= max;
     final StringBuilder qu=new StringBuilder(name + '(');
     int any=0;
     for (int a=0; a < al; a++) {
@@ -25,10 +25,10 @@
         qu.append("'x'");
       }
     }
-    if ((def.min > 0 || al != 0) && (any == 0 || any != al)) {
+    if ((min > 0 || al != 0) && (any == 0 || any != al)) {
       final String query=qu.append(')').toString();
-      if (in)       error(query,Err.INVCAST,Err.NONUMBER,Err.INVFUNCITEM,Err.STRNODTYPE,Err.ELMMAPTYPE,Err.BINARYTYPE,Err.STRBINTYPE,Err.WHICHRES,Err.BXDB_NODB,Err.BXDB_INDEX);
- else       error(query,Err.FUNCARGSG,Err.FUNCARGPL);
+      if (in)       error(query,INVCAST_X_X_X,NONUMBER_X_X,INVFUNCITEM_X_X,ZEROFUNCS_X_X,STRNOD_X_X,ELMMAP_X_X_X,BINARY_X,STRBIN_X_X,WHICHRES_X,BXDB_NODB_X_X,MAP_X_X,BXDB_INDEX_X);
+ else       error(query,FUNCARGNUM_X_X_X);
     }
   }
 }

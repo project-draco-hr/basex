@@ -1,0 +1,22 @@
+{
+  final IntObjMap<Var> decl=new IntObjMap<>();
+  final BitArray used=new BitArray();
+  for (  final Clause clause : clauses)   for (  final Var v : clause.vars())   decl.put(v.id,v);
+  final ASTVisitor marker=new ASTVisitor(){
+    @Override public boolean used(    final VarRef ref){
+      final int id=ref.var.id;
+      if (decl.get(id) != null)       used.set(id);
+      return true;
+    }
+  }
+;
+  ret.accept(marker);
+  boolean changed=false;
+  for (int c=clauses.size(); --c >= 0; ) {
+    final Clause clause=clauses.get(c);
+    changed|=clause.clean(decl,used);
+    clause.accept(marker);
+    for (    final Var v : clause.vars())     used.clear(v.id);
+  }
+  return changed;
+}

@@ -1,22 +1,30 @@
 {
   super(main,CHOOSE_FONT,false);
-  final String[] fonts=GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-  final BaseXBack p=new BaseXBack(new TableLayout(1,4,8,0));
+  final GUIOptions gopts=gui.gopts;
+  fonts=GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+  final BaseXBack p=new BaseXBack(new TableLayout(2,4,8,0));
   font=new BaseXList(fonts,this);
+  font.setWidth(200);
   p.add(font);
   font2=new BaseXList(fonts,this);
+  font2.setWidth(200);
   p.add(font2);
   type=new BaseXList(FONT_TYPES,this);
   type.setWidth(90);
   p.add(type);
-  size=new BaseXList(FTSZ,this);
+  size=new BaseXList(SIZES,this);
   size.setWidth(50);
   p.add(size);
-  final GUIOptions gopts=gui.gopts;
   font.setValue(gopts.get(GUIOptions.FONT));
   font2.setValue(gopts.get(GUIOptions.MONOFONT));
+  font2.setEnabled(false);
   type.setValue(FONT_TYPES[gopts.get(GUIOptions.FONTTYPE)]);
-  size.setValue(Integer.toString(gui.gopts.get(GUIOptions.FONTSIZE)));
+  font.setValue(gopts.get(GUIOptions.FONT));
+  p.add(new BaseXBack());
+  onlyMono=new BaseXCheckBox("Monospace",GUIOptions.ONLYMONO,gopts,this);
+  p.add(onlyMono);
   set(p,BorderLayout.CENTER);
-  finish(gopts.get(GUIOptions.FONTSLOC));
+  finish();
+  monoFonts();
+  action(onlyMono);
 }

@@ -1,3 +1,11 @@
 {
   out.writeDiffs(docs());
+  if (dirty && pathIndex) {
+    final TokenList paths=paths();
+    try (final DataOutput doc=new DataOutput(data.meta.dbfile(DATAPTH))){
+      doc.writeNum(paths.size());
+      for (      final byte[] path : paths)       doc.writeToken(path);
+    }
+     dirty=false;
+  }
 }

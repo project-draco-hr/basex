@@ -1,18 +1,14 @@
 {
-  if (!sc.xquery3())   return null;
   skipWs();
   final Expr name;
   final byte[] str=ncName(null);
   if (str.length == 0) {
-    if (!wsConsume(BRACE1))     return null;
-    name=check(expr(),NSWRONG);
-    wsCheck(BRACE2);
+    if (!curr('{'))     return null;
+    name=enclosedExpr();
   }
  else {
     name=Str.get(str);
   }
-  if (!wsConsume(BRACE1))   return null;
-  final Expr e=expr();
-  wsCheck(BRACE2);
-  return new CNSpace(sc,info(),name,e == null ? Empty.SEQ : e);
+  skipWs();
+  return curr('{') ? new CNSpace(sc,info(),name,enclosedExpr()) : null;
 }

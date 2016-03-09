@@ -1,0 +1,75 @@
+{
+  final double d=item.dbl(ii);
+  if (Double.isNaN(d))   return nan;
+  final boolean neg=d < 0 || d == 0 && Double.doubleToLongBits(d) == Long.MIN_VALUE;
+  final Picture pic=pics[neg && pics.length == 2 ? 1 : 0];
+  final IntList res=new IntList(), intgr=new IntList(), fract=new IntList();
+  int exp=0;
+  ANum num=item;
+  if (pic.pc)   num=(ANum)Calc.MULT.ev(ii,num,Int.get(100));
+  if (pic.pm)   num=(ANum)Calc.MULT.ev(ii,num,Int.get(1000));
+  if (Double.isInfinite(num.dbl(ii))) {
+    intgr.add(new TokenParser(inf).toArray());
+  }
+ else {
+    if (pic.minExp != 0 && d != 0) {
+      BigDecimal dec=num.dec(ii).abs().stripTrailingZeros();
+      int scl=0;
+      if (dec.compareTo(BigDecimal.ONE) >= 0) {
+        scl=dec.setScale(0,RoundingMode.HALF_DOWN).precision();
+      }
+ else {
+        while (dec.compareTo(BigDecimal.ONE) < 0) {
+          dec=dec.multiply(BigDecimal.TEN);
+          scl--;
+        }
+        scl++;
+      }
+      exp=scl - pic.min[0];
+      if (exp != 0) {
+        final BigDecimal n=BigDecimal.TEN.pow(Math.abs(exp));
+        num=(ANum)Calc.MULT.ev(ii,num,Dec.get(exp > 0 ? BigDecimal.ONE.divide(n) : n));
+      }
+    }
+    num=num.round(pic.maxFrac,true).abs();
+    final String s=(num instanceof Dbl || num instanceof Flt ? Dec.get(BigDecimal.valueOf(num.dbl(ii))) : num).toString();
+    final int sep=s.indexOf('.');
+    final int sl=s.length();
+    final int il=sep == -1 ? sl : sep;
+    for (int i=il; i < pic.min[0]; ++i)     intgr.add(zero);
+    if (!s.startsWith("0."))     for (int i=0; i < il; i++)     intgr.add(zero + s.charAt(i) - '0');
+    if (pic.group[0].length == 1 && pic.group[0][0] > 0) {
+      for (int p=intgr.size() - (neg ? 2 : 1); p > 0; --p) {
+        if (p % pic.group[0][0] == 0)         intgr.insert(intgr.size() - p,grouping);
+      }
+    }
+ else {
+      final int gl=pic.group[0].length;
+      for (int g=0; g < gl; ++g) {
+        final int pos=intgr.size() - pic.group[0][g];
+        if (pos > 0)         intgr.insert(pos,grouping);
+      }
+    }
+    final int fl=sep == -1 ? 0 : sl - il - 1;
+    if (fl != 0)     for (int i=sep + 1; i < sl; i++)     fract.add(zero + s.charAt(i) - '0');
+    for (int i=fl; i < pic.min[1]; ++i)     fract.add(zero);
+    final int ul=fract.size();
+    for (int p=pic.group[1].length - 1; p >= 0; p--) {
+      final int pos=pic.group[1][p];
+      if (pos < ul)       fract.insert(pos,grouping);
+    }
+  }
+  if (neg && pics.length != 2)   res.add(minus);
+  res.add(pic.prefSuf[0].toArray()).add(intgr.finish());
+  if (!fract.isEmpty())   res.add(decimal).add(fract.finish());
+  if (pic.minExp != 0) {
+    res.add(exponent);
+    if (exp < 0)     res.add(minus);
+    final String s=Integer.toString(Math.abs(exp));
+    final int sl=s.length();
+    for (int i=sl; i < pic.minExp; i++)     res.add(zero);
+    for (int i=0; i < sl; i++)     res.add(zero + s.charAt(i) - '0');
+  }
+  res.add(pic.prefSuf[1].toArray());
+  return new TokenBuilder(res.finish()).finish();
+}

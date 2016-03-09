@@ -1,0 +1,30 @@
+{
+  final int k=nodes.length;
+  if (k == 0)   return this;
+  if (k == 1)   return appendLeft ? cons(nodes[0]) : snoc(nodes[0]);
+  if (appendLeft) {
+    int l=k + left.length;
+    final Node<N,E>[] ls=slice(nodes,0,l);
+    System.arraycopy(left,0,ls,k,left.length);
+    if (l <= MAX_DIGIT)     return get(ls,middle,right);
+    FingerTree<Node<N,E>,E> newMid=middle;
+    for (int rem=(l + MAX_ARITY - 1) / MAX_ARITY; rem > 1; rem--) {
+      final int curr=(l + rem - 1) / rem;
+      newMid=newMid.cons(new InnerNode<>(slice(ls,l - curr,l)));
+      l-=curr;
+    }
+    return get(slice(ls,0,l),newMid,right);
+  }
+  final int r=right.length + k;
+  final Node<N,E>[] rs=slice(right,0,r);
+  System.arraycopy(nodes,0,rs,right.length,k);
+  if (k + right.length <= MAX_DIGIT)   return get(left,middle,rs);
+  int i=0;
+  FingerTree<Node<N,E>,E> newMid=middle;
+  for (int rem=(r + MAX_ARITY - 1) / MAX_ARITY; rem > 1; rem--) {
+    final int curr=(r - i + rem - 1) / rem;
+    newMid=newMid.snoc(new InnerNode<>(slice(rs,i,i + curr)));
+    i+=curr;
+  }
+  return get(left,newMid,slice(rs,i,r));
+}

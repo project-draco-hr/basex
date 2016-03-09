@@ -1,0 +1,28 @@
+{
+  final String name=string(toToken(exprs[0],qc));
+  if (!Databases.validName(name))   throw BXDB_NAME_X.get(info,name);
+  final TokenList paths=new TokenList();
+  if (exprs.length > 2) {
+    final Iter ir=qc.iter(exprs[2]);
+    for (Item it; (it=ir.next()) != null; ) {
+      final String path=string(toToken(it));
+      final String norm=MetaData.normPath(path);
+      if (norm == null)       throw RESINV_X.get(info,path);
+      paths.add(norm);
+    }
+  }
+  final int ps=paths.size();
+  final List<NewInput> inputs=new ArrayList<>(ps);
+  if (exprs.length > 1) {
+    final Value val=qc.value(exprs[1]);
+    final long is=val.size();
+    if (ps != 0 && is != ps)     throw BXDB_CREATEARGS_X_X.get(info,is,ps);
+    for (int i=0; i < is; i++) {
+      final byte[] path=i < ps ? paths.get(i) : EMPTY;
+      inputs.add(checkInput(val.itemAt(i),path));
+    }
+  }
+  final Options opts=toOptions(3,Q_OPTIONS,new Options(),qc);
+  qc.updates().add(new DBCreate(name,inputs,opts,qc,info),qc);
+  return null;
+}

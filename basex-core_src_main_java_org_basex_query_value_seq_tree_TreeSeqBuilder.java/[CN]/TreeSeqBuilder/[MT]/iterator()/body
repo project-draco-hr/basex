@@ -1,0 +1,28 @@
+{
+  return new Iterator<Item>(){
+    private int pos=-inLeft;
+    private Iterator<Item> sub;
+    @Override public boolean hasNext(){
+      return pos <= inRight;
+    }
+    @Override public Item next(){
+      if (pos > inRight)       throw new NoSuchElementException();
+      if (pos < 0) {
+        final int p=pos++;
+        return vals[(mid + p + CAP) % CAP];
+      }
+      if (pos == 0) {
+        if (sub == null)         sub=tree.iterator();
+        if (sub.hasNext())         return sub.next();
+        sub=null;
+        pos++;
+      }
+      final int p=pos++;
+      return vals[(mid + p - 1) % CAP];
+    }
+    @Override public void remove(){
+      throw new UnsupportedOperationException();
+    }
+  }
+;
+}

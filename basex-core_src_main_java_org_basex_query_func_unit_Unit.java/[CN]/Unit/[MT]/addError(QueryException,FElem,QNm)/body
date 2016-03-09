@@ -1,0 +1,35 @@
+{
+  final QNm name=ex.qname();
+  if (code == null || !code.eq(name)) {
+    final FElem error;
+    final boolean fail=UNIT_ASSERT.eq(name);
+    if (fail) {
+      failures++;
+      error=new FElem(FAILURE);
+    }
+ else {
+      errors++;
+      error=new FElem(ERROR);
+    }
+    error.add(LINE,token(ex.line()));
+    error.add(COLUMN,token(ex.column()));
+    final String url=IO.get(ex.file()).url();
+    if (!file.url().equals(url))     error.add(URI,url);
+    if (ex instanceof UnitException) {
+      final UnitException ue=(UnitException)ex;
+      error.add(element(ue.returned,RETURNED,ue.count));
+      error.add(element(ue.expected,EXPECTED,ue.count));
+    }
+ else     if (!fail) {
+      error.add(TYPE,ex.qname().prefixId(QueryText.ERROR_URI));
+    }
+    final Value v=ex.value();
+    if (v instanceof Item) {
+      error.add(element((Item)v,INFO,-1));
+    }
+ else {
+      error.add(new FElem(INFO).add(ex.getLocalizedMessage()));
+    }
+    testcase.add(error);
+  }
+}

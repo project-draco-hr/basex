@@ -1,0 +1,22 @@
+{
+  final String readerQuery="?query=(1%20to%20100000000000000)%5b.=0%5d";
+  final String writerQuery="/test.xml";
+  final byte[] content=Token.token("<a/>");
+  final Get readerAction=new Get(readerQuery);
+  final Put writerAction=new Put(writerQuery,content);
+  final ExecutorService exec=Executors.newFixedThreadPool(2);
+  exec.submit(readerAction);
+  Performance.sleep(TIMEOUT);
+  Future<HTTPResponse> writer=exec.submit(writerAction);
+  try {
+    final HTTPResponse result=writer.get(TIMEOUT,TimeUnit.MILLISECONDS);
+    if (result.status.isSuccess())     fail("Database modified while a reader is running");
+    throw new Exception(result.toString());
+  }
+ catch (  final TimeoutException e) {
+    writerAction.stop=true;
+  }
+  readerAction.stop=true;
+  writer=exec.submit(writerAction);
+  assertEquals(HTTPCode.CREATED,writer.get().status);
+}

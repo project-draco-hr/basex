@@ -1,0 +1,51 @@
+{
+  long pos=index;
+  FingerTree<?,E> curr=this;
+  int level=0;
+  final Node<?,E> digit;
+  while (true) {
+    if (curr instanceof SingletonTree) {
+      digit=((SingletonTree<?,E>)curr).elem;
+      break;
+    }
+    final DeepTree<?,E> deep=(DeepTree<?,E>)curr;
+    if (pos < deep.leftSize) {
+      Node<?,E> nd=null;
+      for (int i=0; i < deep.left.length; i++) {
+        nd=deep.left[i];
+        final long s=nd.size();
+        if (pos < s)         break;
+        pos-=s;
+      }
+      digit=nd;
+      break;
+    }
+    pos-=deep.leftSize;
+    final long mSize=deep.middle.size();
+    if (pos >= mSize) {
+      pos-=mSize;
+      Node<?,E> nd=null;
+      for (int i=0; i < deep.right.length; i++) {
+        nd=deep.right[i];
+        final long s=nd.size();
+        if (pos < s)         break;
+        pos-=s;
+      }
+      digit=nd;
+      break;
+    }
+    curr=deep.middle;
+    level++;
+  }
+  Node<?,?> nd=digit;
+  for (; level > 0; level--) {
+    final InnerNode<?,?> deep=(InnerNode<?,?>)nd;
+    final long[] bounds=deep.bounds;
+    int p=0;
+    while (pos >= bounds[p])     p++;
+    if (p > 0)     pos-=bounds[p - 1];
+    nd=deep.children[p];
+  }
+  @SuppressWarnings("unchecked") final E res=((Node<E,E>)nd).getSub((int)pos);
+  return res;
+}

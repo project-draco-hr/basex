@@ -4,12 +4,12 @@
   String query="declare context item external; .";
   System.out.println("\n* Query:");
   System.out.println(query);
-  QueryProcessor proc=new QueryProcessor(query,context);
-  String item="Hello World!\n";
-  proc.context(item);
-  Result result=proc.execute();
-  System.out.println("\n* Result:");
-  System.out.println(result);
-  proc.close();
-  context.close();
+  try (QueryProcessor qp=new QueryProcessor(query,context)){
+    String item="Hello World!\n";
+    qp.context(item);
+    Value result=qp.value();
+    System.out.println("\n* Result:");
+    System.out.println(result);
+  }
+   context.close();
 }

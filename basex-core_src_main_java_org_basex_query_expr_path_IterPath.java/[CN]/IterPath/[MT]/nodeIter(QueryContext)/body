@@ -1,0 +1,54 @@
+{
+  return new NodeIter(){
+    final boolean r=root != null;
+    final int sz=steps.length + (r ? 1 : 0);
+    final Expr[] expr=r ? new ExprList(sz).add(root).add(steps).finish() : steps;
+    final Iter[] iter=new Iter[sz];
+    ANode node;
+    int pos=-1;
+    @Override public ANode next() throws QueryException {
+      ANode n=node;
+      int p=pos;
+      if (p == -1) {
+        ++p;
+        iter[p]=qc.iter(expr[p]);
+      }
+      final Value cv=qc.value;
+      final long cp=qc.pos, cs=qc.size;
+      try {
+        while (true) {
+          final Item it=iter[p].next();
+          if (it == null) {
+            iter[p]=null;
+            if (--p == -1) {
+              n=null;
+              break;
+            }
+          }
+ else           if (p < sz - 1) {
+            if (r && p == 0 && !(it instanceof ANode))             throw PATHNODE_X_X_X.get(info,steps[0],it.type,it);
+            qc.value=it;
+            ++p;
+            iter[p]=qc.iter(expr[p]);
+          }
+ else {
+            final ANode nx=(ANode)it;
+            if (n == null || !n.is(nx)) {
+              n=nx;
+              break;
+            }
+          }
+        }
+        pos=p;
+        node=n;
+        return n;
+      }
+  finally {
+        qc.value=cv;
+        qc.pos=cp;
+        qc.size=cs;
+      }
+    }
+  }
+;
+}

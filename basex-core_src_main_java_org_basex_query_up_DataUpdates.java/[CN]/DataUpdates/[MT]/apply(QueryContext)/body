@@ -1,0 +1,31 @@
+{
+  auc.execute(true);
+  auc=null;
+  Collections.sort(dbUpdates);
+  final int s=dbUpdates.size();
+  for (int i=0; i < s; i++) {
+    dbUpdates.get(i).apply();
+    dbUpdates.set(i,null);
+  }
+  for (  final Put put : puts.values())   put.apply();
+  try {
+    Optimize.finish(data);
+  }
+ catch (  final IOException ex) {
+    throw UPDBOPTERR_X.get(null,ex);
+  }
+  final String original=data.meta.original;
+  if (!original.isEmpty() && data.inMemory()) {
+    if (writeback) {
+      try {
+        Export.export(data,original,qc.context.options,null);
+      }
+ catch (      final IOException ex) {
+        throw UPDBOPTERR_X.get(null,ex);
+      }
+    }
+ else {
+      FnTrace.trace(Token.token(original + ": Updates are not written back."),null,qc);
+    }
+  }
+}

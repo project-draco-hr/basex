@@ -1,5 +1,19 @@
 {
-  final int pl=preds.length;
-  for (int p=0; p < pl; ++p)   preds[p]=preds[p].compile(qc,scp).compEbv(qc);
+  final Value init=qc.value;
+  if (init != null && init.isEmpty())   qc.value=null;
+  try {
+    final int pl=preds.length;
+    for (int p=0; p < pl; ++p) {
+      try {
+        preds[p]=preds[p].compile(qc,scp);
+      }
+ catch (      final QueryException ex) {
+        preds[p]=FnError.get(ex,seqType);
+      }
+    }
+  }
+  finally {
+    qc.value=init;
+  }
   return optimize(qc,scp);
 }

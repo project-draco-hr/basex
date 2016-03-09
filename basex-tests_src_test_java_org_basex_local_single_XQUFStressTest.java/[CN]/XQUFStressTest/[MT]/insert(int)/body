@@ -1,0 +1,8 @@
+{
+  for (int r=0; r < runs; r++) {
+    execute(new CreateDB(NAME,"<doc/>"));
+    query("for $i in 1 to " + NRNODES + " return insert node "+ "<section><page/></section> into /doc");
+    query("for $page in //page " + "let $par := $page/.. " + "return (delete node $page, insert node $page before $par)");
+    execute(new DropDB(NAME));
+  }
+}

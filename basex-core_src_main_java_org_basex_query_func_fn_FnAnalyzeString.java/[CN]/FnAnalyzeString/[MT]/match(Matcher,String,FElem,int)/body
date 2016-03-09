@@ -1,0 +1,20 @@
+{
+  final FElem nd=new FElem(group == 0 ? Q_MATCH : Q_MGROUP);
+  if (group > 0)   nd.add(NR,token(group));
+  final int start=matcher.start(group), end=matcher.end(group), gc=matcher.groupCount();
+  int[] pos={group + 1,start};
+  while (pos[0] <= gc && matcher.end(pos[0]) <= end) {
+    final int st=matcher.start(pos[0]);
+    if (st >= 0) {
+      if (pos[1] < st)       nd.add(string.substring(pos[1],st));
+      pos=match(matcher,string,nd,pos[0]);
+    }
+ else     pos[0]++;
+  }
+  if (pos[1] < end) {
+    nd.add(string.substring(pos[1],end));
+    pos[1]=end;
+  }
+  parent.add(nd);
+  return pos;
+}

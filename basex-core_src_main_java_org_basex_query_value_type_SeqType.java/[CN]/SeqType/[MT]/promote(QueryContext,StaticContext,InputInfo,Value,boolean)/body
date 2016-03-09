@@ -1,27 +1,21 @@
 {
-  final long n=val.size();
-  if (!occ.check(n))   throw Err.treatError(ii,this,val);
+  final int n=(int)value.size();
+  if (!occ.check(n))   throw INVPROMOTE_X_X_X.get(ii,value.seqType(),withOcc(Occ.ONE),value);
   if (n == 0)   return Empty.SEQ;
-  if (val.isItem())   return instance((Item)val,true) ? val : promote(qc,sc,ii,(Item)val,opt);
-  ValueBuilder vb=null;
-  final Item fst=val.itemAt(0);
-  if (!instance(fst,true)) {
-    vb=new ValueBuilder(new Item[(int)val.size()],0);
-    vb.add(promote(qc,sc,ii,fst,opt));
-  }
- else   if (val.homogeneous()) {
-    return val;
-  }
-  for (int i=1; i < n; i++) {
-    final Item it=val.itemAt(i);
-    if (vb != null) {
-      vb.add(instance(it,true) ? it : promote(qc,sc,ii,it,opt));
+  ItemList cache=null;
+  for (int i=0; i < n; i++) {
+    final Item it=value.itemAt(i);
+    if (instance(it)) {
+      if (i == 0 && value.homogeneous())       return value;
+      if (cache != null)       cache.add(it);
     }
- else     if (!instance(it,true)) {
-      vb=new ValueBuilder(new Item[(int)val.size()],0);
-      for (int j=0; j < i; j++)       vb.add(val.itemAt(j));
-      vb.add(promote(qc,sc,ii,it,opt));
+ else {
+      if (cache == null) {
+        cache=new ItemList(n);
+        for (int j=0; j < i; j++)         cache.add(value.itemAt(j));
+      }
+      promote(qc,sc,ii,it,opt,cache);
     }
   }
-  return vb != null ? Seq.get(vb.items(),(int)vb.size(),type) : val;
+  return cache != null ? cache.value(type) : value;
 }

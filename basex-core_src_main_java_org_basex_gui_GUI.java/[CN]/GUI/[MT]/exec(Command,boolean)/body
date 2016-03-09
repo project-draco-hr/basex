@@ -15,10 +15,11 @@
     final Performance perf=new Performance();
     final Data data=context.data();
     if (gopts.get(GUIOptions.FILTERRT) && data != null && !context.root())     context.invalidate();
-    final Nodes current=context.current();
+    final DBNodes current=context.current();
     command=cmd;
     final ArrayOutput ao=new ArrayOutput();
     ao.setLimit(gopts.get(GUIOptions.MAXTEXT));
+    cmd.maxResults(gopts.get(GUIOptions.MAXRESULTS));
     updating=cmd.updating(context);
     if (edit)     editor.start();
     if (cmd.newData(context))     notify.init();
@@ -42,35 +43,39 @@
     info.setInfo(inf,cmd,time,ok,true);
     final boolean stopped=inf.endsWith(INTERRUPTED);
     if (edit)     editor.info(cause,stopped,true);
+    final Value result=cmd.finish();
+    DBNodes nodes=result instanceof DBNodes && !result.isEmpty() ? (DBNodes)result : null;
+    if (!text.visible() && ao.size() != 0 && nodes == null) {
+      GUIMenuCmd.C_SHOWRESULT.execute(this);
+    }
     if (!ok && !stopped) {
       text.setText(ao);
-      if ((!edit || inf.startsWith(S_BUGINFO)) && !info.visible()) {
+      if (!info.visible() && (!edit || inf.startsWith(S_BUGINFO))) {
         GUIMenuCmd.C_SHOWINFO.execute(this);
       }
     }
  else {
-      final Result result=cmd.result();
-      Nodes nodes=result instanceof Nodes && result.size() != 0 ? (Nodes)result : null;
+      final boolean updated=cmd.updated(context);
       if (context.data() != data) {
         notify.init();
       }
- else       if (cmd.updated(context)) {
+ else       if (updated) {
         notify.update();
         if (nodes == null)         nodes=context.current();
       }
  else       if (result != null) {
         final boolean flt=gopts.get(GUIOptions.FILTERRT);
-        final Nodes nd=context.current();
-        if (flt || nd != null && !nd.sameAs(current)) {
-          if (nodes != null)           notify.context((Nodes)result,flt,null);
+        final DBNodes curr=context.current();
+        if (flt || curr != null && !curr.sameAs(current)) {
+          if (nodes != null)           notify.context(nodes,flt,null);
         }
  else         if (context.marked != null) {
-          Nodes m=context.marked;
+          DBNodes m=context.marked;
           if (nodes != null) {
             m=nodes;
           }
  else           if (m.size() != 0) {
-            m=new Nodes(data);
+            m=new DBNodes(data);
           }
           if (context.marked != m)           notify.mark(m,null);
         }
@@ -78,16 +83,13 @@
       if (thread == threadID && !stopped) {
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
-        if (nodes == null) {
-          if (!text.visible() && ao.size() != 0)           GUIMenuCmd.C_SHOWRESULT.execute(this);
-          text.setText(ao);
-        }
-        text.cacheText(ao,cmd,result);
+        if (nodes == null)         text.setText(ao);
+        if (!updated)         text.cache(ao,cmd,result);
       }
     }
   }
  catch (  final Exception ex) {
-    BaseXDialog.error(this,Util.info(EXEC_ERROR,cmd,Util.bug(ex)));
+    BaseXDialog.error(this,Util.info(EXEC_ERROR_X_X,cmd,Util.bug(ex)));
     updating=false;
   }
   stop();

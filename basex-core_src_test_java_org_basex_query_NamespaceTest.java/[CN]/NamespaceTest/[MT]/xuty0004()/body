@@ -1,9 +1,10 @@
 {
-  try {
-    new QueryProcessor("declare variable $input-context external;" + "let $source as node()* := (" + "    <status>on leave</status>,"+ "    <!-- for 6 months -->"+ "  ),"+ "  $target := $input-context/works[1]/employee[1]"+ "return insert nodes $source into $target",context).execute();
+  final String query="declare variable $input-context external;" + "let $source as node()* := (" + "    <status>on leave</status>,"+ "    <!-- for 6 months -->"+ "  ),"+ "  $target := $input-context/works[1]/employee[1]"+ "return insert nodes $source into $target";
+  try (final QueryProcessor qp=new QueryProcessor(query,context)){
+    qp.value();
   }
  catch (  final QueryException ex) {
-    assertEquals("XUTY0004",string(ex.qname().local()));
+    assertEquals("XUTY0004",ex.error().code);
   }
   fail("should throw XUTY0004");
 }

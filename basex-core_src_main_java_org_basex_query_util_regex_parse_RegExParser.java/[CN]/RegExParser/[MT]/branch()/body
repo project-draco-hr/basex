@@ -1,0 +1,44 @@
+{
+  RegExp atom;
+  final RegExpList pieces=new RegExpList();
+  Quantifier qu=null;
+  label_2:   while (true) {
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+case NPAR_OPEN:
+case PAR_OPEN:
+case CHAR:
+case DIGIT:
+case BACK_REF:
+case WILDCARD:
+case LINE_START:
+case LINE_END:
+case SINGLE_ESC:
+case MULTI_ESC:
+case CAT_ESC:
+case BR_OPEN:
+      ;
+    break;
+default :
+  jj_la1[1]=jj_gen;
+break label_2;
+}
+atom=atom();
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+case Q_MARK:
+case STAR:
+case PLUS:
+case QUANT_OPEN:
+qu=quantifier();
+break;
+default :
+jj_la1[2]=jj_gen;
+;
+}
+pieces.add(qu == null ? atom : new Piece(atom,qu));
+qu=null;
+}
+{
+if (true) return pieces.size() == 1 ? pieces.get(0) : new Branch(pieces.finish());
+}
+throw new Error("Missing return statement in function");
+}

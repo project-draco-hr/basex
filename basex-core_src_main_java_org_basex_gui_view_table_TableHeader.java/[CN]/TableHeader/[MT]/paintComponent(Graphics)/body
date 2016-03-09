@@ -1,7 +1,7 @@
 {
   super.paintComponent(g);
   g.setFont(font);
-  g.setColor(Color.black);
+  g.setColor(TEXT);
   if (tdata.rows == null) {
     BaseXLayout.drawCenter(g,NO_DATA,getWidth(),getHeight() / 2);
     return;
@@ -9,10 +9,10 @@
   final int fsz=fontSize;
   int w=getWidth();
   final int h=getHeight();
-  final int hh=h >> 1;
+  final int hh=h / 2;
   g.setColor(color2);
   g.drawLine(0,h - 1,w,h - 1);
-  final int bs=BaseXScrollBar.SIZE;
+  final int bs=view.scroll.getWidth();
   w-=bs;
   double x=0;
   final int nc=tdata.cols.length;
@@ -21,12 +21,12 @@
     final double ce=x + cw;
     final boolean clicked=n == clickCol && moveC == -1 && header;
     BaseXLayout.drawCell(g,(int)x,(int)ce + 1,0,hh,clicked);
-    g.setColor(Color.white);
+    g.setColor(BACK);
     g.fillRect((int)x + 1,hh,(int)ce - (int)x - 2,hh - 2);
     g.drawLine((int)ce - 1,hh - 1,(int)ce - 1,h - 2);
-    g.setColor(GRAY);
+    g.setColor(gray);
     g.drawLine((int)ce,hh - 1,(int)ce,h - 2);
-    g.setColor(Color.black);
+    g.setColor(TEXT);
     g.setFont(bfont);
     final int off=clicked ? 1 : 0;
     BaseXLayout.chopString(g,tdata.cols[n].name,(int)x + 4 + off,2 + off,(int)cw,fsz);
@@ -38,7 +38,7 @@
       box.paint(g,(int)x,hh,(int)ce - (int)x,hh);
     }
  else {
-      g.setColor(Color.black);
+      g.setColor(TEXT);
       g.setFont(font);
       g.drawString(tdata.cols[n].filter,(int)x + 5,h - 7);
     }
@@ -47,11 +47,12 @@
   final boolean clicked=nc == clickCol;
   BaseXLayout.drawCell(g,(int)x,w + bs,0,hh,clicked && header);
   BaseXLayout.drawCell(g,(int)x,w + bs,hh - 1,h,clicked && !header);
-  g.setColor(Color.black);
-  g.setFont(bfont);
-  smooth(g);
+  BaseXLayout.antiAlias(g);
   int o=header && clicked ? 1 : 0;
-  g.fillPolygon(new int[]{(int)x + o + 4,(int)x + o + bs - 4,(int)x + o + bs / 2},new int[]{o + 6,o + 6,o + bs - 3},3);
+  final int xo=(int)(4 * scale), yo=(int)(6 * scale);
+  g.setColor(TEXT);
+  g.fillPolygon(new int[]{(int)x + o + xo,(int)x + o + bs - xo,(int)x + o + bs / 2},new int[]{o + yo,o + yo,o + bs - yo},3);
+  g.setFont(bfont);
   o=!header && clicked ? 1 : 0;
   final byte[] reset={'x'};
   x+=(bs - BaseXLayout.width(g,reset)) / 2d;

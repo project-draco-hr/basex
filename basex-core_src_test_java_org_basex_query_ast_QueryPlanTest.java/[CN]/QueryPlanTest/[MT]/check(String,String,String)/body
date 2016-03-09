@@ -1,9 +1,8 @@
 {
-  final QueryProcessor qp=new QueryProcessor(qu,context);
-  try {
+  try (final QueryProcessor qp=new QueryProcessor(qu,context)){
     qp.compile();
     final FDoc plan=qp.plan();
-    if (res != null)     assertEquals(res,qp.execute().toString());
+    if (res != null)     assertEquals(res,normNL(qp.value().serialize().toString()));
     for (    final String p : pr) {
       if (new QueryProcessor(p,context).context(plan).value() != Bln.TRUE) {
         fail(NL + "- Query: " + qu+ NL+ "- Check: "+ p+ NL+ "- Plan: "+ plan.serialize());
@@ -11,11 +10,8 @@
     }
   }
  catch (  final Exception ex) {
-    final AssertionError err=new AssertionError(Util.message(ex));
+    final AssertionError err=new AssertionError(qu);
     err.initCause(ex);
     throw err;
-  }
- finally {
-    qp.close();
   }
 }

@@ -1,0 +1,25 @@
+{
+  return new Iter(){
+    /** 
+ * Clause evaluator. 
+ */
+    private final Eval ev=newEval();
+    /** 
+ * Return iterator. 
+ */
+    private Iter sub=Empty.ITER;
+    @Override public Item next() throws QueryException {
+      while (true) {
+        final Item it=sub.next();
+        qc.checkStop();
+        if (it != null)         return it;
+        if (!ev.next(qc)) {
+          sub=null;
+          return null;
+        }
+        sub=ret.iter(qc);
+      }
+    }
+  }
+;
+}

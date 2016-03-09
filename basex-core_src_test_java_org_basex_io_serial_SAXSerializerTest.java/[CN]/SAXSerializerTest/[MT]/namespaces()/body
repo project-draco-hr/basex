@@ -1,10 +1,10 @@
 {
-  final QueryProcessor queryProcessor=new QueryProcessor("<a xmlns='x'/>",context);
-  final Item item=queryProcessor.iter().next();
-  final SAXSerializer saxSerializer=new SAXSerializer(item);
-  final SAXSource saxSource=new SAXSource(saxSerializer,null);
-  final DOMResult result=new DOMResult();
-  TransformerFactory.newInstance().newTransformer().transform(saxSource,result);
-  Assert.assertEquals("x",result.getNode().getFirstChild().getNamespaceURI());
-  queryProcessor.close();
-}
+  try (final QueryProcessor queryProcessor=new QueryProcessor("<a xmlns='x'/>",context)){
+    final Item item=queryProcessor.iter().next();
+    final SAXSerializer saxSerializer=new SAXSerializer(item);
+    final SAXSource saxSource=new SAXSource(saxSerializer,null);
+    final DOMResult result=new DOMResult();
+    TransformerFactory.newInstance().newTransformer().transform(saxSource,result);
+    assertEquals("x",result.getNode().getFirstChild().getNamespaceURI());
+  }
+ }

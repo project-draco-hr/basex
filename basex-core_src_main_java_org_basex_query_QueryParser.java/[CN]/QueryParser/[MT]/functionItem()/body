@@ -1,30 +1,28 @@
 {
   skipWs();
   final int ip=pos;
-  final Ann ann=curr('%') ? annotations() : null;
-  if (wsConsume(FUNCTION) && wsConsume(PAR1)) {
-    if (ann != null) {
-      if (ann.contains(Ann.Q_PRIVATE) || ann.contains(Ann.Q_PUBLIC))       throw error(INVISIBLE);
-    }
-    final HashMap<Var,Expr> nonLocal=new HashMap<>();
-    pushVarContext(nonLocal);
+  final AnnList anns=annotations(false).check(false);
+  if (wsConsume(FUNCTION) && wsConsume(PAREN1)) {
+    if (anns.contains(Annotation.PRIVATE) || anns.contains(Annotation.PUBLIC))     throw error(NOVISALLOWED);
+    final HashMap<Var,Expr> global=new HashMap<>();
+    localVars.pushContext(global);
     final Var[] args=paramList();
-    wsCheck(PAR2);
+    wsCheck(PAREN2);
     final SeqType type=optAsType();
-    final Expr body=enclosed(NOFUNBODY);
-    final VarScope scope=popVarContext();
-    return new Closure(info(),type,args,body,ann,nonLocal,sc,scope);
+    final Expr body=enclosedExpr();
+    final VarScope scope=localVars.popContext();
+    return new Closure(info(),type,args,body,anns,global,sc,scope);
   }
-  if (ann != null)   throw error(NOANN);
+  if (!anns.isEmpty())   throw error(NOANN);
   pos=ip;
   final QNm name=eQName(null,sc.funcNS);
   if (name != null && consume('#')) {
-    if (keyword(name))     throw error(RESERVED,name.local());
+    if (keyword(name))     throw error(RESERVED_X,name.local());
     final Expr ex=numericLiteral(true);
     if (!(ex instanceof Int))     return ex;
-    final long card=((ANum)ex).itr();
-    final Expr lit=Functions.getLiteral(name,(int)card,qc,sc,info());
-    return lit != null ? lit : FuncLit.unknown(name,card,qc,sc,info());
+    final int card=(int)((ANum)ex).itr();
+    final Expr lit=Functions.getLiteral(name,card,qc,sc,info(),false);
+    return lit != null ? lit : unknownLit(name,card,info());
   }
   pos=ip;
   return null;

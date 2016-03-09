@@ -1,0 +1,97 @@
+{
+  if (pos < 0)   throw new IndexOutOfBoundsException("negative index: " + pos);
+  if (pos >= arraySize())   throw new IndexOutOfBoundsException("position too big: " + pos);
+  if (pos < left.length) {
+    final int p=(int)pos, l=left.length;
+    if (l > MIN_DIGIT) {
+      final Value[] newLeft=new Value[l - 1];
+      System.arraycopy(left,0,newLeft,0,p);
+      System.arraycopy(left,p + 1,newLeft,p,newLeft.length - p);
+      return new BigArray(newLeft,middle,right);
+    }
+    if (middle.isEmpty()) {
+      final int r=right.length, n=l - 1 + r;
+      final Value[] vals=new Value[n];
+      System.arraycopy(left,0,vals,0,p);
+      System.arraycopy(left,p + 1,vals,p,l - 1 - p);
+      System.arraycopy(right,0,vals,l - 1,r);
+      return fromMerged(vals);
+    }
+    final Value[] head=((LeafNode)middle.head()).values;
+    final int r=head.length, n=l - 1 + r;
+    if (r > MIN_LEAF) {
+      final int move=(r - MIN_LEAF + 1) / 2;
+      final Value[] newLeft=new Value[l - 1 + move];
+      System.arraycopy(left,0,newLeft,0,p);
+      System.arraycopy(left,p + 1,newLeft,p,l - 1 - p);
+      System.arraycopy(head,0,newLeft,l - 1,move);
+      final Value[] newHead=slice(head,move,r);
+      return new BigArray(newLeft,middle.replaceHead(new LeafNode(newHead)),right);
+    }
+    final Value[] newLeft=new Value[n];
+    System.arraycopy(left,0,newLeft,0,p);
+    System.arraycopy(left,p + 1,newLeft,p,l - 1 - p);
+    System.arraycopy(head,0,newLeft,l - 1,r);
+    return new BigArray(newLeft,middle.tail(),right);
+  }
+  final long midSize=middle.size(), rightOffset=left.length + midSize;
+  if (pos >= rightOffset) {
+    final int p=(int)(pos - rightOffset), r=right.length;
+    if (r > MIN_DIGIT) {
+      final Value[] newRight=new Value[r - 1];
+      System.arraycopy(right,0,newRight,0,p);
+      System.arraycopy(right,p + 1,newRight,p,r - 1 - p);
+      return new BigArray(left,middle,newRight);
+    }
+    if (middle.isEmpty()) {
+      final int l=left.length, n=l + r - 1;
+      final Value[] vals=new Value[n];
+      System.arraycopy(left,0,vals,0,l);
+      System.arraycopy(right,0,vals,l,p);
+      System.arraycopy(right,p + 1,vals,l + p,r - 1 - p);
+      return fromMerged(vals);
+    }
+    final Value[] last=((LeafNode)middle.last()).values;
+    final int l=last.length, n=l + r - 1;
+    if (l > MIN_LEAF) {
+      final int move=(l - MIN_LEAF + 1) / 2;
+      final Value[] newLast=slice(last,0,l - move);
+      final Value[] newRight=new Value[r - 1 + move];
+      System.arraycopy(last,l - move,newRight,0,move);
+      System.arraycopy(right,0,newRight,move,p);
+      System.arraycopy(right,p + 1,newRight,move + p,r - 1 - p);
+      return new BigArray(left,middle.replaceLast(new LeafNode(newLast)),newRight);
+    }
+    final Value[] newRight=new Value[n];
+    System.arraycopy(last,0,newRight,0,l);
+    System.arraycopy(right,0,newRight,l,p);
+    System.arraycopy(right,p + 1,newRight,l + p,r - 1 - p);
+    return new BigArray(left,middle.init(),newRight);
+  }
+  final TreeSlice<Value,Value> slice=middle.remove(pos - left.length);
+  if (slice.isTree()) {
+    return new BigArray(left,slice.getTree(),right);
+  }
+  final Value[] mid=((PartialLeafNode)slice.getPartial()).elems;
+  final int l=left.length, m=mid.length, r=right.length;
+  if (l > r) {
+    final int move=(l - MIN_DIGIT + 1) / 2;
+    final Value[] newLeft=slice(left,0,l - move);
+    final Value[] newMid=slice(left,l - move,l + m);
+    System.arraycopy(mid,0,newMid,move,m);
+    return new BigArray(newLeft,FingerTree.singleton(new LeafNode(newMid)),right);
+  }
+  if (r > MIN_DIGIT) {
+    final int move=(r - MIN_DIGIT + 1) / 2;
+    final Value[] newMid=slice(mid,0,m + move);
+    System.arraycopy(right,0,newMid,m,move);
+    final Value[] newRight=slice(right,move,r);
+    return new BigArray(left,FingerTree.singleton(new LeafNode(newMid)),newRight);
+  }
+  final int ml=m / 2, mr=m - ml;
+  final Value[] newLeft=slice(left,0,l + ml);
+  System.arraycopy(mid,0,newLeft,l,ml);
+  final Value[] newRight=slice(right,-mr,r);
+  System.arraycopy(mid,ml,newRight,0,mr);
+  return new BigArray(newLeft,newRight);
+}

@@ -1,15 +1,15 @@
 {
-  return new AxisIter(){
-    private final DBNode node=copy();
-    int k=data.kind(pre);
-    private final int pp=data.parent(pre,k);
-    final int s=pp == -1 ? 0 : pp + data.size(pp,data.kind(pp));
-    int p=pp == -1 ? 0 : pre + data.size(pre,k);
+  return new BasicNodeIter(){
+    private final DBNode node=finish();
+    int kind=data.kind(pre);
+    private final int pp=data.parent(pre,kind);
+    final int sz=pp == -1 ? 0 : pp + data.size(pp,data.kind(pp));
+    int curr=pp == -1 ? 0 : pre + data.size(pre,kind);
     @Override public ANode next(){
-      if (p == s)       return null;
-      k=data.kind(p);
-      node.set(p,k);
-      p+=data.size(p,k);
+      if (curr == sz)       return null;
+      kind=data.kind(curr);
+      node.set(curr,kind);
+      curr+=data.size(curr,kind);
       return node;
     }
   }

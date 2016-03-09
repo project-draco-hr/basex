@@ -1,12 +1,12 @@
 {
-  Query query=session.query("12345678");
-  assertFalse(query.updating());
-  assertEqual("12345678",query.execute());
-  assertFalse(query.updating());
-  query.close();
-  query=session.query("insert node <a/> into <b/>");
-  assertTrue(query.updating());
-  assertEqual("",query.execute());
-  assertTrue(query.updating());
-  query.close();
-}
+  try (Query query=session.query("12345678")){
+    assertFalse(query.updating());
+    assertEqual("12345678",query.execute());
+    assertFalse(query.updating());
+  }
+   try (Query query=session.query("insert node <a/> into <b/>")){
+    assertTrue(query.updating());
+    assertEqual("",query.execute());
+    assertTrue(query.updating());
+  }
+ }

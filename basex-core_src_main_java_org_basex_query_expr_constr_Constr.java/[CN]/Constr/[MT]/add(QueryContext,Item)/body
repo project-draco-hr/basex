@@ -1,0 +1,63 @@
+{
+  if (it instanceof Array) {
+    for (    final Value val : ((Array)it).members()) {
+      for (      final Item i : val) {
+        if (!add(qc,i))         return false;
+      }
+    }
+    return true;
+  }
+  if (it instanceof FItem)   throw CONSFUNC_X.get(info,it);
+  if (it instanceof ANode) {
+    ANode node=(ANode)it;
+    final Type ip=it.type;
+    if (ip == NodeType.TXT) {
+      text.add(node.string());
+    }
+ else     if (ip == NodeType.ATT) {
+      final QNm name=node.qname();
+      if (!text.isEmpty() || !children.isEmpty()) {
+        errAtt=name;
+        return false;
+      }
+      for (      final ANode att : atts) {
+        if (name.eq(att.qname())) {
+          duplAtt=name;
+          return false;
+        }
+      }
+      atts.add(new FAttr(name,node.string()));
+      if (name.hasURI())       sc.ns.add(name.prefix(),name.uri());
+    }
+ else     if (ip == NodeType.NSP) {
+      if (!text.isEmpty() || !children.isEmpty()) {
+        errNS=node.qname();
+        return false;
+      }
+      final byte[] name=node.name(), uri=node.string(), knownUri=nspaces.value(name);
+      if (knownUri == null) {
+        nspaces.add(name,uri);
+      }
+ else       if (!Token.eq(uri,knownUri)) {
+        duplNS=name;
+        return false;
+      }
+    }
+ else     if (ip == NodeType.DOC) {
+      final BasicNodeIter iter=node.children();
+      for (ANode ch; (ch=iter.next()) != null && add(qc,ch); )       ;
+    }
+ else {
+      if (!text.isEmpty())       children.add(new FTxt(text.next()));
+      node=node.deepCopy(qc.context.options);
+      children.add(node);
+    }
+    more=false;
+  }
+ else {
+    if (more)     text.add(' ');
+    text.add(it.string(info));
+    more=true;
+  }
+  return true;
+}

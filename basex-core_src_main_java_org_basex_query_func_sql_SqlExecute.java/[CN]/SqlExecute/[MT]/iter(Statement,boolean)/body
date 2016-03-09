@@ -1,0 +1,47 @@
+{
+  try {
+    final ResultSet rs=stmt.getResultSet();
+    final ResultSetMetaData md=rs.getMetaData();
+    final int cc=md.getColumnCount();
+    return new Iter(){
+      @Override public Item next() throws QueryException {
+        try {
+          if (!rs.next()) {
+            rs.close();
+            if (close)             stmt.close();
+            return null;
+          }
+          final FElem row=new FElem(Q_ROW);
+          for (int k=1; k <= cc; k++) {
+            final String name=md.getColumnLabel(k);
+            final Object value=rs.getObject(k);
+            if (value == null)             continue;
+            final FElem col=new FElem(Q_COLUMN).add(NAME,name);
+            row.add(col);
+            if (value instanceof SQLXML) {
+              final String xml=((SQLXML)value).getString();
+              try {
+                col.add(new DBNode(new IOContent(xml)).children().next());
+              }
+ catch (              final IOException ex) {
+                Util.debug(ex);
+                col.add(xml);
+              }
+            }
+ else {
+              col.add(value.toString());
+            }
+          }
+          return row;
+        }
+ catch (        final SQLException ex) {
+          throw BXSQ_ERROR_X.get(info,ex);
+        }
+      }
+    }
+;
+  }
+ catch (  final SQLException ex) {
+    throw BXSQ_ERROR_X.get(info,ex);
+  }
+}

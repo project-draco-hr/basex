@@ -1,0 +1,47 @@
+{
+  if (val instanceof Item)   return add((Item)val);
+  if (!(val instanceof BigSeq)) {
+    for (    final Item it : val)     add(it);
+    return this;
+  }
+  final BigSeq big=(BigSeq)val;
+  final Item[] ls=big.left, rs=big.right;
+  final FingerTree<Item,Item> midTree=big.middle;
+  if (midTree.isEmpty()) {
+    for (    final Item l : ls)     add(l);
+    for (    final Item r : rs)     add(r);
+    return this;
+  }
+  if (tree.isEmpty()) {
+    final int k=inLeft + inRight;
+    final Item[] temp=new Item[k];
+    final int l=(mid - inLeft + CAP) % CAP, m=CAP - l;
+    if (k <= m) {
+      System.arraycopy(vals,l,temp,0,k);
+    }
+ else {
+      System.arraycopy(vals,l,temp,0,m);
+      System.arraycopy(vals,0,temp,m,k - m);
+    }
+    inLeft=inRight=0;
+    tree.append(midTree);
+    for (int i=ls.length; --i >= 0; )     addFront(ls[i]);
+    for (int i=k; --i >= 0; )     addFront(temp[i]);
+    for (    final Item r : rs)     add(r);
+    return this;
+  }
+  final int inMiddle=inRight + ls.length, leaves=(inMiddle + TreeSeq.MAX_LEAF - 1) / TreeSeq.MAX_LEAF, leafSize=(inMiddle + leaves - 1) / leaves;
+  for (int i=0, l=0; l < leaves; l++) {
+    final int inLeaf=Math.min(leafSize,inMiddle - i);
+    final Item[] leaf=new Item[inLeaf];
+    for (int p=0; p < inLeaf; p++) {
+      leaf[p]=i < inRight ? vals[(mid + i) % CAP] : ls[i - inRight];
+      i++;
+    }
+    tree.append(new LeafNode(leaf));
+  }
+  tree.append(midTree);
+  inRight=0;
+  for (  final Item r : rs)   add(r);
+  return this;
+}

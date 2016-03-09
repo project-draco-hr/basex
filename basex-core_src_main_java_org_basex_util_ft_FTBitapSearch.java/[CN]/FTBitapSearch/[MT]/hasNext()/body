@@ -2,15 +2,18 @@
   if (masks.length == 0)   return false;
   if (next)   return pos >= 0;
   next=true;
-  while (haystack.hasNext()) {
-    final byte[] current=haystack.nextToken();
+  while (iter.hasNext()) {
+    final byte[] current=iter.nextToken();
     ++pos;
     boolean matched=false;
-    for (int i=0; i < masks.length; i++) {
+    final int ml=masks.length;
+    for (int i=0; i < ml; i++) {
       final int id=sorted[i];
-      final TokenList n=needles.get(id);
+      final TokenList n=tokens.get(id);
       final BitSet m=masks[id];
-      for (int k=n.size(); k >= 1; k--)       m.set(k,m.get(k - 1) && cmp.equal(current,n.get(k - 1)));
+      for (int k=n.size(); k >= 1; k--) {
+        m.set(k,m.get(k - 1) && cmp.equal(current,n.get(k - 1)));
+      }
       if (m.get(n.size()) && !matched) {
         match=id;
         matched=true;

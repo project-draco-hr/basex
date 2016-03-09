@@ -1,0 +1,13 @@
+{
+  if (tp instanceof ArrayType)   return false;
+  final SeqType[] at=tp.argTypes;
+  if (at != null && (at.length != 1 || !at[0].one()))   return false;
+  SeqType ret=tp.type;
+  if (tp instanceof MapType) {
+    AtomType arg=((MapType)tp).keyType();
+    if (arg == AtomType.AAT)     arg=null;
+    if (ret == null || ret.eq(SeqType.ITEM_ZM))     ret=null;
+    return (arg == null && ret == null) || root.instanceOf(arg,ret);
+  }
+  return coerce || ret == null || ret.eq(SeqType.ITEM_ZM);
+}

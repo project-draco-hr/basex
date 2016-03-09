@@ -1,15 +1,11 @@
 {
-  final Value cv=qc.value;
+  root=root.compile(qc,scp);
+  final Value init=qc.value;
+  qc.value=Path.initial(qc,root);
   try {
-    root=root.compile(qc,scp);
-    if (root.isEmpty())     return optPre(null,qc);
-    if (root instanceof AxisPath && !super.has(Flag.FCS))     return ((Path)root.copy(qc,scp)).addPreds(qc,scp,preds).compile(qc,scp);
-    qc.value=null;
-    final Expr e=super.compile(qc,scp);
-    if (e != this)     return e;
-    return preds.length == 0 ? root : opt(qc);
+    return super.compile(qc,scp);
   }
   finally {
-    qc.value=cv;
+    qc.value=init;
   }
 }

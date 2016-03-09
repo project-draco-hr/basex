@@ -1,13 +1,10 @@
 {
-  final SerializerOptions sopts=new SerializerOptions();
-  sopts.set(SerializerOptions.INDENT,YesNo.NO);
-  context.options.set(MainOptions.SERIALIZER,sopts);
+  set(MainOptions.SERIALIZER,SerializerMode.NOINDENT.get());
   final String in="<x><a xml:space='default'> </a><a> </a>" + "<a xml:space='preserve'> </a></x>";
   final String out="<x><a xml:space=\"default\"/><a/>" + "<a xml:space=\"preserve\"> </a></x>";
   for (  final boolean b : new boolean[]{true,false}) {
-    context.options.set(MainOptions.INTPARSE,b);
-    new CreateDB(NAME,in).execute(context);
-    final String result=new XQuery(".").execute(context);
-    assertEquals("Internal parser: " + b,out,result);
+    set(MainOptions.INTPARSE,b);
+    execute(new CreateDB(NAME,in));
+    assertEquals("Internal parser: " + b,out,query("."));
   }
 }

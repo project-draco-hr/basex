@@ -1,25 +1,25 @@
 {
   if (node.type != NodeType.ELM)   return node;
-  final MemData md=new MemData(ctx.options);
-  final DataBuilder db=new DataBuilder(md);
+  final MemData data=new MemData(ctx.options);
+  final DataBuilder db=new DataBuilder(data);
   db.build(node);
   boolean del=true;
-  for (int pre=0; pre < md.meta.size; pre++) {
-    final int kind=md.kind(pre);
+  for (int pre=0; pre < data.meta.size; pre++) {
+    final int kind=data.kind(pre);
     if (kind != Data.ELEM && kind != Data.ATTR)     continue;
-    final byte[] uri=md.nspaces.uri(md.uri(pre,kind));
+    final byte[] uri=data.nspaces.uri(data.uriId(pre,kind));
     if (uri == null || !eq(uri,ns))     continue;
-    final byte[] name=md.name(pre,kind);
-    if (prefix(name).length == 0) {
+    final byte[] nm=data.name(pre,kind);
+    if (prefix(nm).length == 0) {
       if (kind == Data.ELEM) {
-        md.update(pre,Data.ELEM,name,EMPTY);
-        md.nsFlag(pre,false);
+        data.update(pre,Data.ELEM,nm,EMPTY);
+        data.nsFlag(pre,false);
       }
     }
  else {
       del=false;
     }
   }
-  if (del)   md.nspaces.delete(ns);
-  return new DBNode(md);
+  if (del)   data.nspaces.delete(ns);
+  return new DBNode(data);
 }

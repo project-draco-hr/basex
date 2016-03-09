@@ -1,0 +1,18 @@
+{
+  filesFilter.setCursor(CURSORWAIT);
+  contentsFilter.setCursor(CURSORWAIT);
+  project.list.setCursor(CURSORWAIT);
+  new GUIWorker<String[]>(){
+    @Override protected String[] doInBackground() throws Exception {
+      final String pattern=file.isEmpty() ? project.gui.gopts.get(GUIOptions.FILES) : file;
+      return project.files.filter(pattern,content,project.root.file);
+    }
+    @Override protected void done(    final String[] files){
+      project.list.setElements(files,content);
+      filesFilter.setCursor(CURSORTEXT);
+      contentsFilter.setCursor(CURSORTEXT);
+      project.list.setCursor(CURSORARROW);
+    }
+  }
+.execute();
+}

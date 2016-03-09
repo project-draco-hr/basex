@@ -1,14 +1,14 @@
 {
-  new RepoInstall(REPO + "testJar.xar",null).execute(context);
+  execute(new RepoInstall(REPO + "testJar.xar",null));
   final String dir=normalize("jarPkg-1.0.0");
-  assertTrue(dir(dir));
-  assertTrue(file(dir + "/expath-pkg.xml"));
-  assertTrue(file(dir + "/basex.xml"));
-  assertTrue(dir(dir + "/jar"));
-  assertTrue(file(dir + "/jar/test.jar"));
-  assertTrue(file(dir + "/jar/wrapper.xq"));
-  final QueryProcessor qp=new QueryProcessor("import module namespace j='jar'; j:print('test')",context);
-  assertEquals(qp.execute().toString(),"test");
-  qp.close();
-  assertTrue("Repo directory could not be deleted.",new IOFile(REPO,dir).delete());
+  assertTrue(isDir(dir));
+  assertTrue(isFile(dir + "/expath-pkg.xml"));
+  assertTrue(isFile(dir + "/basex.xml"));
+  assertTrue(isDir(dir + "/jar"));
+  assertTrue(isFile(dir + "/jar/test.jar"));
+  assertTrue(isFile(dir + "/jar/wrapper.xq"));
+  try (final QueryProcessor qp=new QueryProcessor("import module namespace j='jar'; j:print('test')",context)){
+    assertEquals(qp.value().serialize().toString(),"test");
+  }
+   assertTrue("Repo directory could not be deleted.",new IOFile(REPO,dir).delete());
 }

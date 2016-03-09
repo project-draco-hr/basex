@@ -12,10 +12,7 @@
  else   if (pre > 0) {
     split=cursor(pre - 1) + IO.NODESIZE;
   }
- else {
-    throw Util.notExpected("Insertion at beginning of populated table.");
-  }
-  final int nold=npre - fpre << IO.NODEPOWER;
+  final int nold=nextPre - firstPre << IO.NODEPOWER;
   final int moved=nold - split;
   Buffer bf=bm.current();
   if (nold + nnew <= IO.BLOCKSIZE) {
@@ -23,7 +20,7 @@
     System.arraycopy(entries,0,bf.data,split,nnew);
     bf.dirty=true;
     for (int i=page + 1; i < used; ++i)     fpres[i]+=nr;
-    npre+=nr;
+    nextPre+=nr;
     meta.size+=nr;
     return;
   }
@@ -58,7 +55,7 @@
       ++needed;
     }
   }
-  final int exp=blocks + needed - (blocks - used);
+  final int exp=size + needed - (size - used);
   if (exp > fpres.length) {
     final int ns=Math.max(fpres.length << 1,exp);
     fpres=Arrays.copyOf(fpres,ns);
@@ -67,13 +64,13 @@
   Array.move(fpres,page + 1,needed,used - page - 1);
   Array.move(pages,page + 1,needed,used - page - 1);
   while (needed-- > 0) {
-    freeBlock();
+    freePage();
     nrem+=write(all,nrem);
     fpres[page]=fpres[page - 1] + IO.ENTRIES;
     pages[page]=(int)bm.current().pos;
   }
   for (int i=page + 1; i < used; ++i)   fpres[i]+=nr;
   meta.size+=nr;
-  fpre=fpres[page];
-  npre=page + 1 < used && fpres[page + 1] < meta.size ? fpres[page + 1] : meta.size;
+  firstPre=fpres[page];
+  nextPre=page + 1 < used && fpres[page + 1] < meta.size ? fpres[page + 1] : meta.size;
 }

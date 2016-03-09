@@ -1,0 +1,18 @@
+{
+  if (item.type.eq(type))   return item;
+  try {
+    if (!error && info != null)     info.check(true);
+    final Value v=type.cast(item,qc,sc,info);
+    if (kind != null) {
+      for (      final Item i : v)       if (!kind.eq(item))       throw castError(info,i,type);
+    }
+    return v;
+  }
+ catch (  final QueryException ex) {
+    if (error)     throw ex;
+    return null;
+  }
+ finally {
+    if (!error && info != null)     info.check(false);
+  }
+}

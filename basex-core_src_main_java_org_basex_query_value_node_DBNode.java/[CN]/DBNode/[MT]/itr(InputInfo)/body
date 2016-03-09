@@ -1,7 +1,13 @@
 {
-  final boolean txt=type == NodeType.TXT || type == NodeType.COM;
-  if (txt || type == NodeType.ATT) {
-    final long l=data.textItr(pre,txt);
+  if (type == NodeType.ELM) {
+    final int as=data.attSize(pre,Data.ELEM);
+    if (data.size(pre,Data.ELEM) - as == 1 && data.kind(pre + as) == Data.TEXT) {
+      final long l=data.textItr(pre + as,true);
+      if (l != Long.MIN_VALUE)       return l;
+    }
+  }
+ else   if (type == NodeType.TXT || type == NodeType.ATT) {
+    final long l=data.textItr(pre,type == NodeType.TXT);
     if (l != Long.MIN_VALUE)     return l;
   }
   return Int.parse(data.atom(pre),ii);

@@ -1,0 +1,17 @@
+{
+  final Atts ns=new Atts();
+  ANode node=this;
+  do {
+    final Atts nsp=node.namespaces();
+    if (nsp != null) {
+      for (int a=nsp.size() - 1; a >= 0; a--) {
+        final byte[] key=nsp.name(a);
+        if (!ns.contains(key))         ns.add(key,nsp.value(a));
+      }
+    }
+    node=node.parent();
+  }
+ while (node != null && node.type == NodeType.ELM);
+  if (sc != null)   sc.ns.inScope(ns);
+  return ns;
+}

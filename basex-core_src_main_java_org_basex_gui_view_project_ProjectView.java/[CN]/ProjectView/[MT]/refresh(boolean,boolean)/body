@@ -1,0 +1,22 @@
+{
+  if (reset)   files.reset();
+  filter.refresh(true);
+  final boolean parseproj=gui.gopts.get(GUIOptions.PARSEPROJ);
+  if (parseproj && !root.file.eq(new IOFile(Prop.USERHOME)) && (!parsed || parse)) {
+    parsed=false;
+    if (getWidth() == 0)     return;
+    new GUIWorker<Boolean>(){
+      @Override protected Boolean doInBackground() throws InterruptedException {
+        final Performance perf=new Performance();
+        files.parse(root.file,gui.context);
+        parsed=true;
+        gui.status.setText(PARSING_CC + perf.getTime());
+        return true;
+      }
+      @Override protected void done(      final Boolean refresh){
+        if (refresh)         refreshTree();
+      }
+    }
+.execute();
+  }
+}

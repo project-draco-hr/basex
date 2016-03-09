@@ -1,0 +1,75 @@
+{
+  if (from == 0 && len == size)   return new TreeSlice<>(this);
+  final long midSize=middle.size(), rightOff=leftSize + midSize;
+  final long inLeft=from + len <= leftSize ? len : from < leftSize ? leftSize - from : 0;
+  final long inRight=from >= rightOff ? len : from + len > rightOff ? from + len - rightOff : 0;
+  @SuppressWarnings("unchecked") final NodeLike<N,E>[] buffer=new NodeLike[2 * MAX_DIGIT + 1];
+  int inBuffer=splitDigit(left,from,inLeft,buffer,0);
+  if (inLeft == len) {
+    if (inBuffer == 1)     return new TreeSlice<>(buffer[0]);
+    final int mid1=inBuffer / 2;
+    final Node<N,E>[] ls=slice(buffer,0,mid1), rs=slice(buffer,mid1,inBuffer);
+    return new TreeSlice<>(get(ls,rs,len));
+  }
+  final long inMiddle=len - inLeft - inRight;
+  final FingerTree<Node<N,E>,E> mid;
+  final TreeSlice<Node<N,E>,E> slice;
+  if (inMiddle == 0) {
+    mid=EmptyTree.getInstance();
+    slice=new TreeSlice<>(mid);
+  }
+ else {
+    final long midOff=from <= leftSize ? 0 : from - leftSize;
+    slice=middle.slice(midOff,inMiddle);
+    if (slice.isTree()) {
+      mid=slice.getTree();
+    }
+ else {
+      final NodeLike<N,E> sub=((PartialInnerNode<N,E>)slice.getPartial()).sub;
+      inBuffer=sub.append(buffer,inBuffer);
+      mid=EmptyTree.getInstance();
+    }
+  }
+  final long rightFrom=from < rightOff ? 0 : from - rightOff;
+  if (mid.isEmpty()) {
+    inBuffer=splitDigit(right,rightFrom,inRight,buffer,inBuffer);
+    return slice.setNodes(buffer,inBuffer,len);
+  }
+  final FingerTree<Node<N,E>,E> mid2;
+  if (inBuffer > 1 || buffer[0] instanceof Node) {
+    mid2=mid;
+  }
+ else {
+    final InnerNode<N,E> head=(InnerNode<N,E>)mid.head();
+    final int k=head.arity();
+    inBuffer=head.getSub(0).append(buffer,inBuffer);
+    for (int i=1; i < k; i++)     buffer[inBuffer++]=head.getSub(i);
+    mid2=mid.tail();
+  }
+  if (mid2.isEmpty()) {
+    inBuffer=splitDigit(right,rightFrom,inRight,buffer,inBuffer);
+    return slice.setNodes(buffer,inBuffer,len);
+  }
+  final Node<N,E>[] newLeft=slice(buffer,0,inBuffer);
+  inBuffer=splitDigit(right,rightFrom,inRight,buffer,0);
+  final FingerTree<Node<N,E>,E> mid3;
+  final Node<N,E>[] newRight;
+  if (inBuffer == 0) {
+    mid3=mid2.init();
+    newRight=((InnerNode<N,E>)mid2.last()).children;
+  }
+ else   if (inBuffer > 1 || buffer[0] instanceof Node) {
+    mid3=mid2;
+    newRight=slice(buffer,0,inBuffer);
+  }
+ else {
+    final NodeLike<N,E> partial=buffer[0];
+    final InnerNode<N,E> last=(InnerNode<N,E>)mid2.last();
+    final int k=last.arity();
+    for (int i=0; i < k; i++)     buffer[i]=last.getSub(i);
+    inBuffer=partial.append(buffer,k);
+    mid3=mid2.init();
+    newRight=slice(buffer,0,inBuffer);
+  }
+  return slice.setTree(get(newLeft,mid3,newRight,len));
+}

@@ -1,7 +1,15 @@
 {
-  if (ch < 0x80 && !contains(token,ch))   return token;
-  final TokenBuilder tb=new TokenBuilder(token.length);
+  if (ch < 0x80) {
+    if (!contains(token,ch))     return token;
+    final int tl=token.length;
+    final TokenBuilder tb=new TokenBuilder(tl);
+    for (    final byte c : token) {
+      if (c != ch)       tb.add(c);
+    }
+    return tb.finish();
+  }
   final int tl=token.length;
+  final TokenBuilder tb=new TokenBuilder(tl);
   for (int i=0; i < tl; i+=cl(token,i)) {
     final int c=cp(token,i);
     if (c != ch)     tb.add(c);

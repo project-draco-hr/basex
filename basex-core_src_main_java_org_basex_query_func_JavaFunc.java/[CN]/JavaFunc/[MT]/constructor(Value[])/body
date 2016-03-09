@@ -1,7 +1,16 @@
 {
-  for (  final Constructor<?> con : clazz.getConstructors()) {
-    final Object[] arg=args(con.getParameterTypes(),null,ar,true);
-    if (arg != null)     return con.newInstance(arg);
+  Constructor<?> cons=null;
+  Object[] cargs=null;
+  for (  final Constructor<?> c : clazz.getConstructors()) {
+    final Class<?>[] pTypes=c.getParameterTypes();
+    if (!typeMatches(pTypes,types))     continue;
+    final Object[] jArgs=javaArgs(pTypes,null,args,true);
+    if (jArgs != null) {
+      if (cons != null)       throw JAVACONSAMB_X.get(info,Util.className(clazz) + '#' + pTypes.length);
+      cons=c;
+      cargs=jArgs;
+    }
   }
-  throw JAVACON.get(info,name(),foundArgs(ar));
+  if (cons != null)   return cons.newInstance(cargs);
+  throw WHICHCONSTR_X_X.get(info,name(),foundArgs(args));
 }

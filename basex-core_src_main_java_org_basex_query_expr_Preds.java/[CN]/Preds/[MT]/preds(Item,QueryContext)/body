@@ -1,13 +1,14 @@
 {
-  if (preds.length == 0)   return true;
   final Value cv=qc.value;
+  qc.value=item;
   try {
-    for (    final Expr p : preds) {
-      qc.value=it;
-      final Item i=p.test(qc,info);
-      if (i == null)       return false;
-      it.score(i.score());
+    double s=qc.scoring ? 0 : -1;
+    for (    final Expr pred : preds) {
+      final Item test=pred.test(qc,info);
+      if (test == null)       return false;
+      if (s != -1)       s+=test.score();
     }
+    if (s > 0)     item.score(Scoring.avg(s,preds.length));
     return true;
   }
   finally {

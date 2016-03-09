@@ -1,0 +1,72 @@
+{
+  final FTPosData ft=node instanceof FTPosNode ? ((FTPosNode)node).ftpos : null;
+  final Data data=node.data();
+  int pre=node.pre(), kind=data.kind(pre);
+  final int size=pre + data.size(pre,kind);
+  if (kind == Data.DOC) {
+    openDoc(data.text(pre++,true));
+    while (pre < size && !finished()) {
+      node((ANode)new DBNode(data,pre));
+      pre+=data.size(pre,data.kind(pre));
+    }
+    closeDoc();
+    return;
+  }
+  final TokenSet nsp=data.nspaces.isEmpty() ? null : new TokenSet();
+  final IntList pars=new IntList();
+  final BoolList indt=new BoolList();
+  while (pre < size && !finished()) {
+    kind=data.kind(pre);
+    final int r=data.parent(pre,kind);
+    while (!pars.isEmpty() && pars.peek() >= r) {
+      closeElement();
+      indent=indt.pop();
+      pars.pop();
+    }
+    if (kind == Data.TEXT) {
+      prepareText(data.text(pre,true),ft != null ? ft.get(data,pre) : null);
+      pre++;
+    }
+ else     if (kind == Data.COMM) {
+      prepareComment(data.text(pre++,true));
+    }
+ else     if (kind == Data.PI) {
+      preparePi(data.name(pre,Data.PI),data.atom(pre++));
+    }
+ else {
+      final byte[] name=data.name(pre,kind);
+      final byte[] uri=data.nspaces.uri(data.uriId(pre,kind));
+      openElement(new QNm(name,uri));
+      if (nsp != null) {
+        nsp.clear();
+        int pp=pre;
+        namespace(prefix(name),uri == null ? EMPTY : uri,false);
+        do {
+          final Atts ns=data.namespaces(pp);
+          final int nl=ns.size();
+          for (int n=0; n < nl; n++) {
+            final byte[] pref=ns.name(n);
+            if (nsp.add(pref))             namespace(pref,ns.value(n),false);
+          }
+          if (level != 0)           break;
+          pp=data.parent(pp,data.kind(pp));
+        }
+ while (pp >= 0 && data.kind(pp) == Data.ELEM);
+      }
+      indt.push(indent);
+      final int as=pre + data.attSize(pre,kind);
+      while (++pre != as) {
+        final byte[] n=data.name(pre,Data.ATTR);
+        final byte[] v=data.text(pre,false);
+        attribute(n,v,false);
+        if (eq(n,XML_SPACE) && indent)         indent=!eq(v,PRESERVE);
+      }
+      pars.push(r);
+    }
+  }
+  while (!pars.isEmpty()) {
+    closeElement();
+    indent=indt.pop();
+    pars.pop();
+  }
+}

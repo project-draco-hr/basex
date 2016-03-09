@@ -1,0 +1,21 @@
+{
+  set(MainOptions.UPDINDEX,true);
+  set(MainOptions.TEXTINCLUDE,"a");
+  execute(new CreateDB(NAME,"<x><a>text</a><b>TEXT</b></x>"));
+  check("count(//a[text() = 'text'])","1","exists(//ValueAccess)");
+  check("count(//b[text() = 'TEXT'])","1","empty(//ValueAccess)");
+  query("replace value of node x/a with 'TEXT'");
+  check("count(//a[text() = 'TEXT'])","1","exists(//ValueAccess)");
+  query("rename node x/a as 'b'");
+  check("//a[text() = 'TEXT']","","exists(//Empty)");
+  check("count(//b[text() = 'TEXT'])","2","empty(ValueAccess)");
+  query("x/b/(rename node . as 'a')");
+  check("count(//a[text() = 'TEXT'])","2","exists(//ValueAccess)");
+  check("count(//b[text() = 'TEXT'])","0","empty(//ValueAccess)");
+  query("x/a/(replace value of node . with 'text')");
+  check("count(//a[text() = 'text'])","2","exists(//ValueAccess)");
+  query("delete node x/a[1]");
+  check("count(//a[text() = 'text'])","1","exists(//ValueAccess)");
+  query("delete node x/a[1]");
+  check("//a[text() = 'text']","","exists(//Empty)");
+}

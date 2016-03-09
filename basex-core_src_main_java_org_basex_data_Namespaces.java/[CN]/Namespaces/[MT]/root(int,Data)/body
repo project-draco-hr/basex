@@ -1,26 +1,23 @@
 {
   final List<NSNode> cand=new LinkedList<>();
-  NSNode node=root;
-  cand.add(node);
-  for (int p; (p=node.find(pre)) > -1; ) {
-    node=node.children[p];
-    cand.add(0,node);
+  NSNode nd=root;
+  cand.add(nd);
+  for (int p; (p=nd.find(pre)) > -1; ) {
+    nd=nd.child(p);
+    cand.add(0,nd);
   }
-  node=root;
+  nd=root;
   if (cand.size() > 1) {
     int ancPre=pre;
     NSNode curr=cand.remove(0);
-    while (ancPre > -1 && node == root) {
-      if (curr.pre == ancPre)       node=curr;
- else       if (curr.pre < ancPre) {
-        while ((ancPre=data.parent(ancPre,data.kind(ancPre))) > curr.pre)         ;
-        if (curr.pre == ancPre)         node=curr;
-      }
+    while (ancPre > -1 && nd == root) {
+      while (ancPre > curr.pre())       ancPre=data.parent(ancPre,data.kind(ancPre));
+      if (ancPre == curr.pre())       nd=curr;
       if (!cand.isEmpty())       curr=cand.remove(0);
     }
   }
-  final int uri=uri(Token.EMPTY,pre,data);
-  defaults.set(level,uri);
-  defaults.set(level - 1,uri);
-  current=node;
+  final int uriId=uriIdForPrefix(Token.EMPTY,pre,data);
+  defaults.set(level,uriId);
+  defaults.set(level - 1,uriId);
+  cursor=nd;
 }

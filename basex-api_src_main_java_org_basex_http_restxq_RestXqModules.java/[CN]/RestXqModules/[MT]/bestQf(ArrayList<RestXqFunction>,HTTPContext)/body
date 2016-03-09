@@ -1,0 +1,23 @@
+{
+  final MediaType[] accepts=http.accepts();
+  double bestQf=0;
+  RestXqFunction best=list.get(0);
+  for (  final RestXqFunction rxf : list) {
+    if (best.compareTo(rxf) != 0)     break;
+    if (rxf.produces.isEmpty())     return null;
+    for (    final MediaType produce : rxf.produces) {
+      for (      final MediaType accept : accepts) {
+        final String value=accept.parameters().get("q");
+        final double qf=value == null ? 1 : Double.parseDouble(value);
+        if (produce.matches(accept)) {
+          if (bestQf == qf)           return null;
+          if (bestQf < qf) {
+            bestQf=qf;
+            best=rxf;
+          }
+        }
+      }
+    }
+  }
+  return best;
+}

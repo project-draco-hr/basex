@@ -1,0 +1,21 @@
+{
+  boolean found=false;
+  final QueryError err=ex.error();
+  for (  final QueryError e : errors)   found|=err != null ? err == e : e.qname().eq(ex.qname());
+  if (!found) {
+    final TokenBuilder tb=new TokenBuilder("\n");
+    if (query != null)     tb.add("Query: ").add(query).add("\n");
+    tb.add("Error(s): ");
+    if (err != null) {
+      int c=0;
+      for (      final QueryError er : errors)       tb.add(c++ == 0 ? "" : "/").add(er.name());
+      ex.printStackTrace();
+      fail(tb.add("\nResult: ").add(err.name() + " (" + ex.getLocalizedMessage()+ ')').toString());
+    }
+ else {
+      int c=0;
+      for (      final QueryError er : errors)       tb.add(c++ == 0 ? "" : "/").add(er.qname().local());
+      fail(tb.add("\nResult: ").add(ex.qname().string()).toString());
+    }
+  }
+}

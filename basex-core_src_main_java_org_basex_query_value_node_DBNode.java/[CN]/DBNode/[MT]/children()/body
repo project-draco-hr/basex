@@ -1,16 +1,14 @@
 {
-  return new AxisMoreIter(){
-    int k=data.kind(pre), p=pre + data.attSize(pre,k);
-    final int s=pre + data.size(pre,k);
-    final DBNode node=copy();
-    @Override public boolean more(){
-      return p < s;
-    }
+  return new BasicNodeIter(){
+    int kind=data.kind(pre), curr=pre + data.attSize(pre,kind);
+    final int last=pre + data.size(pre,kind);
+    final DBNode node=finish();
     @Override public ANode next(){
-      if (!more())       return null;
-      k=data.kind(p);
-      node.set(p,k);
-      p+=data.size(p,k);
+      if (curr == last)       return null;
+      final Data d=data;
+      kind=d.kind(curr);
+      node.set(curr,kind);
+      curr+=d.size(curr,kind);
       return node;
     }
   }

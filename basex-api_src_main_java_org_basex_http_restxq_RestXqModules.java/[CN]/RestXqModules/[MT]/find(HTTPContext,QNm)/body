@@ -1,24 +1,20 @@
 {
-  cache(http);
   final ArrayList<RestXqFunction> list=new ArrayList<>();
-  for (  final RestXqModule mod : modules.values()) {
+  for (  final RestXqModule mod : cache(http).values()) {
     for (    final RestXqFunction rxf : mod.functions()) {
       if (rxf.matches(http,error))       list.add(rxf);
     }
   }
   if (list.isEmpty())   return null;
-  RestXqFunction first=list.get(0);
-  if (list.size() > 1) {
-    Collections.sort(list);
-    first=list.get(0);
-    if (first.compareTo(list.get(1)) == 0) {
-      final TokenBuilder tb=new TokenBuilder();
-      for (      final RestXqFunction rxf : list) {
-        if (first.compareTo(rxf) != 0)         break;
-        tb.add(Prop.NL).add(rxf.function.info.toString());
-      }
-      throw first.path == null ? first.error(ERROR_CONFLICT,error,tb) : first.error(PATH_CONFLICT,first.path,tb);
-    }
+  Collections.sort(list);
+  final RestXqFunction best=list.get(0);
+  if (list.size() == 1 || best.compareTo(list.get(1)) != 0)   return best;
+  final RestXqFunction bestQf=bestQf(list,http);
+  if (bestQf != null)   return bestQf;
+  final TokenBuilder tb=new TokenBuilder();
+  for (  final RestXqFunction rxf : list) {
+    if (best.compareTo(rxf) != 0)     break;
+    tb.add(Prop.NL).add(rxf.function.info.toString());
   }
-  return first;
+  throw best.path == null ? best.error(ERROR_CONFLICT,error,tb) : best.error(PATH_CONFLICT,best.path,tb);
 }

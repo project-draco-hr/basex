@@ -4,12 +4,38 @@
     updateText(pre,trim(concat(name,SPACE,atom(pre))),PI);
   }
  else {
-    final int ouri=nspaces.uri(name,pre,this);
-    final boolean ne=ouri == 0 && uri.length != 0;
-    final int npre=kind == ATTR ? parent(pre,kind) : pre;
-    final int nuri=ne ? nspaces.add(npre,npre,prefix(name),uri,this) : ouri != 0 && eq(nspaces.uri(ouri),uri) ? ouri : 0;
-    table.write1(pre,kind == ELEM ? 3 : 11,nuri);
-    table.write2(pre,1,(nsFlag(pre) ? 1 << 15 : 0) | (kind == ELEM ? tagindex : atnindex).index(name,null,false));
-    table.write2(npre,1,(ne || nsFlag(npre) ? 1 << 15 : 0) | name(npre));
+    final byte[] prefix=prefix(name);
+    final int oldUriId=nspaces.uriIdForPrefix(prefix,pre,this);
+    final boolean nsFlag=oldUriId == 0 && uri.length != 0 && !eq(prefix,XML);
+    final int nsPre=kind == ATTR ? parent(pre,kind) : pre;
+    final int uriId=nsFlag ? nspaces.add(nsPre,prefix,uri,this) : oldUriId != 0 && eq(nspaces.uri(oldUriId),uri) ? oldUriId : 0;
+    final int sz=size(pre,kind);
+    if (kind == ATTR) {
+      if (meta.updindex) {
+        if (meta.attrindex)         attrIndex.delete(new ValueCache(pre,IndexType.ATTRIBUTE,this));
+        if (meta.tokenindex)         tokenIndex.delete(new ValueCache(pre,IndexType.TOKEN,this));
+      }
+      table.write1(pre,11,uriId);
+      table.write2(pre,1,attrNames.index(name,null,false));
+      if (nsFlag)       table.write2(nsPre,1,1 << 15 | nameId(nsPre));
+      if (meta.updindex) {
+        if (meta.attrindex)         attrIndex.add(new ValueCache(pre,IndexType.ATTRIBUTE,this));
+        if (meta.tokenindex)         tokenIndex.add(new ValueCache(pre,IndexType.TOKEN,this));
+      }
+    }
+ else {
+      final IntList pres=new IntList();
+      if (meta.updindex && meta.textindex) {
+        final int last=pre + sz;
+        for (int curr=pre + attSize(pre,kind); curr < last; curr+=size(curr,kind(curr))) {
+          if (kind(curr) == TEXT)           pres.add(curr);
+        }
+        textIndex.delete(new ValueCache(pres,IndexType.TEXT,this));
+      }
+      table.write1(pre,3,uriId);
+      final int nameId=elemNames.index(name,null,false);
+      table.write2(nsPre,1,(nsFlag || nsFlag(nsPre) ? 1 << 15 : 0) | nameId);
+      if (!pres.isEmpty())       textIndex.add(new ValueCache(pres,IndexType.TEXT,this));
+    }
   }
 }

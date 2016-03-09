@@ -1,0 +1,19 @@
+{
+  if (other instanceof NodeTest) {
+    final NodeTest o=(NodeTest)other;
+    if (type != null && o.type != null && type != o.type)     return null;
+    final NodeType nt=type != null ? type : o.type;
+    if (name != null && o.name != null && !name.eq(o.name))     return null;
+    final QNm n=name != null ? name : o.name;
+    final boolean both=ext != null && o.ext != null;
+    final Type e=ext == null ? o.ext : o.ext == null ? ext : ext.intersect(o.ext);
+    return both && e == null ? null : new NodeTest(nt,n,e);
+  }
+  if (other instanceof KindTest) {
+    return type.instanceOf(other.type) ? this : null;
+  }
+  if (other instanceof NameTest) {
+    throw Util.notExpected(other);
+  }
+  return null;
+}

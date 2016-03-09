@@ -1,0 +1,33 @@
+{
+  final ANode n=node.attributes().next();
+  if (n != null)   throw error.get(info,Util.info("Invalid attribute: '%'",n.name()));
+  final TokenBuilder tb=new TokenBuilder();
+  for (  final ANode child : node.children()) {
+    if (child.type != NodeType.ELM)     continue;
+    final QNm qname=child.qname();
+    if (!eq(qname.uri(),root.uri())) {
+      if (qname.uri().length == 0)       throw error.get(info,Util.info("Element has no namespace: '%'",qname));
+      continue;
+    }
+    byte[] value=null;
+    final String name=string(qname.local());
+    if (hasElements(child)) {
+      value=token(optString(child,error));
+    }
+ else {
+      for (      final ANode attr : child.attributes()) {
+        if (eq(attr.name(),VALUE)) {
+          value=attr.string();
+          if (name.equals(SerializerOptions.CDATA_SECTION_ELEMENTS.name())) {
+            value=resolve(child,value);
+          }
+        }
+ else {
+        }
+      }
+      if (value == null)       value=child.string();
+    }
+    tb.add(name).add('=').add(string(value).trim().replace(",",",,")).add(',');
+  }
+  return tb.toString();
+}

@@ -1,23 +1,12 @@
 {
-  final String u=args[off];
-  final String d=off + 1 < args.length ? args[off + 1] : null;
-  if (!Databases.validName(u,true))   return error(NAME_INVALID_X,u);
-  if (d != null && !Databases.validName(d,true))   return error(NAME_INVALID_X,d);
-  final String[] users=users(u);
-  if (users.length == 0)   return info(UNKNOWN_USER_X,u) && opt;
-  StringList dbs=null;
-  if (d != null) {
-    dbs=context.databases.listDBs(d);
-    if (dbs.isEmpty())     return info(DB_NOT_FOUND_X,d) && opt;
-  }
+  final String name=args[off];
+  final String pattern=off + 1 < args.length ? args[off + 1] : "";
+  if (!Databases.validName(name,true))   return error(NAME_INVALID_X,name);
+  if (!pattern.isEmpty() && !Databases.validName(pattern,true))   return error(NAME_INVALID_X,pattern);
+  final String[] users=users(name);
+  if (users.length == 0)   return info(UNKNOWN_USER_X,name) && opt;
   boolean ok=true;
-  for (  final String user : users) {
-    if (dbs == null) {
-      ok&=run(user,null);
-    }
- else {
-      for (      final String db : dbs)       ok&=run(user,db);
-    }
-  }
+  for (  final String user : users)   ok&=run(user,pattern);
+  context.users.write();
   return ok;
 }

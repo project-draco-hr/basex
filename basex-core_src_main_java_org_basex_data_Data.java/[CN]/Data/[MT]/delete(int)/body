@@ -1,29 +1,23 @@
 {
   meta.update();
-  int k=kind(pre);
-  final int s=size(pre,k);
-  resources.delete(pre,s);
-  if (meta.updindex) {
-    indexDelete(pre,s);
-  }
-  if (k != DOC && k != ELEM)   delete(pre,k != ATTR);
+  int kind=kind(pre);
+  final int size=size(pre,kind);
+  indexDelete(pre,id(pre),size);
+  if (kind != DOC && kind != ELEM)   delete(pre,kind != ATTR);
   int par=pre;
-  if (k == ATTR) {
+  if (kind == ATTR) {
     par=parent(par,ATTR);
     attSize(par,ELEM,attSize(par,ELEM) - 1);
     size(par,ELEM,size(par,ELEM) - 1);
-    k=kind(par);
+    kind=kind(par);
   }
-  while (par > 0 && k != DOC) {
-    par=parent(par,k);
-    k=kind(par);
-    size(par,k,size(par,k) - s);
+  nspaces.delete(pre,size,this);
+  while (par > 0 && kind != DOC) {
+    par=parent(par,kind);
+    kind=kind(par);
+    size(par,kind,size(par,kind) - size);
   }
   if (kind(pre) == DOC)   --meta.ndocs;
-  if (meta.updindex) {
-    idmap.delete(pre,id(pre),-s);
-  }
-  table.delete(pre,s);
-  if (!cache)   updateDist(pre,-s);
-  nspaces.delete(pre,s,this);
+  table.delete(pre,size);
+  updateDist(pre,-size);
 }

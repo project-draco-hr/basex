@@ -1,25 +1,27 @@
 {
-  final byte k=tok.type() == IndexType.TEXT ? Data.TEXT : Data.ATTR;
-  final int i=id(tok.get());
-  if (i > 0) {
-    final int[] pres=ids[i];
-    final int s=len[i];
-    if (s > 0) {
-      return new IndexIterator(){
-        int p;
-        @Override public boolean more(){
-          return p < s;
-        }
-        @Override public int pre(){
-          while (more() && data.kind(pres[p++]) != k)           ;
-          return pres[p - 1];
-        }
-        @Override public int size(){
-          return s;
-        }
-      }
-;
+  final int id=values.id(token.get());
+  if (id == 0)   return IndexIterator.EMPTY;
+  final int len=lenList.get(id);
+  final int[] ids=idsList.get(id), pres;
+  if (data.meta.updindex) {
+    final IntList tmp=new IntList();
+    for (int i=0; i < len; ++i)     tmp.add(data.pre(ids[i]));
+    pres=tmp.sort().finish();
+  }
+ else {
+    pres=ids;
+  }
+  return new IndexIterator(){
+    int p;
+    @Override public boolean more(){
+      return p < len;
+    }
+    @Override public int pre(){
+      return pres[p++];
+    }
+    @Override public int size(){
+      return len;
     }
   }
-  return IndexIterator.EMPTY;
+;
 }

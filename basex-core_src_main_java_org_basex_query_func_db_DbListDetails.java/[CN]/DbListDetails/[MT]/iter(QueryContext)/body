@@ -1,0 +1,31 @@
+{
+  if (exprs.length == 0)   return listDBs(qc);
+  final Data data=checkData(qc);
+  final String path=string(exprs.length == 1 ? EMPTY : toToken(exprs[1],qc));
+  final IntList il=data.resources.docs(path);
+  final TokenList tl=data.resources.binaries(path);
+  return new Iter(){
+    final int is=il.size(), ts=tl.size();
+    int ip, tp;
+    @Override public ANode get(    final long i){
+      if (i < is) {
+        final int pre=il.get((int)i);
+        final byte[] pt=data.text(pre,true);
+        return resource(pt,false,data.size(pre,Data.DOC),MediaType.APPLICATION_XML,data.meta.time);
+      }
+      if (i < is + ts) {
+        final byte[] pt=tl.get((int)i - is);
+        final IOFile io=data.meta.binary(string(pt));
+        return resource(pt,true,io.length(),MediaType.get(io.path()),io.timeStamp());
+      }
+      return null;
+    }
+    @Override public ANode next(){
+      return ip < is ? get(ip++) : tp < ts ? get(ip + tp++) : null;
+    }
+    @Override public long size(){
+      return is + ts;
+    }
+  }
+;
+}

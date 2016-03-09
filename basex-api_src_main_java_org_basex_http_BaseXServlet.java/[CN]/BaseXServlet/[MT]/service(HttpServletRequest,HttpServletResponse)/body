@@ -2,8 +2,9 @@
   final HTTPContext http=new HTTPContext(req,res,this);
   final boolean restxq=this instanceof RestXqServlet;
   try {
+    http.authorize();
     run(http);
-    http.log("",SC_OK);
+    http.log(SC_OK,"");
   }
  catch (  final HTTPException ex) {
     http.status(ex.getStatus(),Util.message(ex),restxq);
@@ -11,14 +12,11 @@
 catch (  final LoginException ex) {
     http.status(SC_UNAUTHORIZED,Util.message(ex),restxq);
   }
-catch (  final IOException ex) {
+catch (  final IOException|QueryException ex) {
     http.status(SC_BAD_REQUEST,Util.message(ex),restxq);
   }
 catch (  final ProcException ex) {
-    http.status(SC_BAD_REQUEST,Text.INTERRUPTED,restxq);
-  }
-catch (  final QueryException ex) {
-    http.status(SC_BAD_REQUEST,Util.message(ex),restxq);
+    http.status(SC_GONE,Text.INTERRUPTED,restxq);
   }
 catch (  final Exception ex) {
     final String msg=Util.bug(ex);

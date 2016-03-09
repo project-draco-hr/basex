@@ -1,0 +1,51 @@
+{
+  query(_DB_OPTIMIZE.args(NAME));
+  query(_DB_OPTIMIZE.args(NAME));
+  error(_DB_OPTIMIZE.args(NAME,true),UPDBOPTERR_X);
+  execute(new Close());
+  query(_DB_OPTIMIZE.args(NAME,true));
+  final CmdIndex[] cis={CmdIndex.TEXT,CmdIndex.ATTRIBUTE,CmdIndex.TOKEN,CmdIndex.FULLTEXT};
+  final String[] indexes=lc(MainOptions.TEXTINDEX,MainOptions.ATTRINDEX,MainOptions.TOKENINDEX,MainOptions.FTINDEX);
+  final String[] includes=lc(MainOptions.TEXTINCLUDE,MainOptions.ATTRINCLUDE,MainOptions.TOKENINCLUDE,MainOptions.FTINCLUDE);
+  final String[] boolOptions=new StringList(indexes).add(lc(MainOptions.STEMMING,MainOptions.CASESENS,MainOptions.DIACRITICS)).finish();
+  final String[] stringOptions=lc(MainOptions.LANGUAGE,MainOptions.STOPWORDS);
+  final String[] numberOptions=lc(MainOptions.MAXCATS,MainOptions.MAXLEN,MainOptions.SPLITSIZE);
+  for (  final String option : numberOptions)   query(_DB_OPTIMIZE.args(NAME,false," map { '" + option + "': 1 }"));
+  for (  final String option : boolOptions) {
+    for (    final boolean bool : new boolean[]{true,false})     query(_DB_OPTIMIZE.args(NAME,false," map { '" + option + "':"+ bool+ "() }"));
+  }
+  for (  final String option : stringOptions)   query(_DB_OPTIMIZE.args(NAME,false," map { '" + option + "':'' }"));
+  assertEquals(context.options.get(MainOptions.TEXTINDEX),true);
+  error(_DB_OPTIMIZE.args(NAME,false," map { 'xyz': 'abc' }"),BASX_OPTIONS_X);
+  error(_DB_OPTIMIZE.args(NAME,false," map { '" + lc(MainOptions.UPDINDEX) + "': 1 }"),BASX_OPTIONS_X);
+  error(_DB_OPTIMIZE.args(NAME,false," map { '" + lc(MainOptions.MAXLEN) + "': -1 }"),BASX_VALUE_X_X);
+  error(_DB_OPTIMIZE.args(NAME,false," map { '" + lc(MainOptions.MAXLEN) + "': 'a' }"),BASX_VALUE_X_X);
+  error(_DB_OPTIMIZE.args(NAME,false," map { '" + lc(MainOptions.TEXTINDEX) + "':'nope' }"),BASX_VALUE_X_X);
+  query(_DB_OPTIMIZE.args(NAME));
+  for (  final String ind : indexes)   query(_DB_INFO.args(NAME) + "//" + ind+ "/text()","false");
+  for (  final String inc : includes)   query(_DB_INFO.args(NAME) + "//" + inc+ "/text()","");
+  execute(new Open(NAME));
+  for (  final String inc : includes)   execute(new Set(inc,"a"));
+  for (  final CmdIndex ci : cis)   execute(new CreateIndex(ci));
+  execute(new Close());
+  query(_DB_OPTIMIZE.args(NAME));
+  for (  final String ind : indexes)   query(_DB_INFO.args(NAME) + "//" + ind+ "/text()","true");
+  for (  final String inc : includes)   query(_DB_INFO.args(NAME) + "//" + inc+ "/text()","a");
+  execute(new Open(NAME));
+  for (  final String inc : includes)   execute(new Set(inc,""));
+  for (  final CmdIndex cmd : cis)   execute(new DropIndex(cmd));
+  for (  final String ind : indexes)   query(_DB_INFO.args(NAME) + "//" + ind+ "/text()","false");
+  for (  final String inc : includes)   query(_DB_INFO.args(NAME) + "//" + inc+ "/text()","");
+  execute(new Close());
+  query(_DB_OPTIMIZE.args(NAME));
+  for (  final String ind : indexes)   query(_DB_INFO.args(NAME) + "//" + ind+ "/text()","false");
+  for (  final String inc : includes)   query(_DB_INFO.args(NAME) + "//" + inc+ "/text()","");
+  final StringBuilder options=new StringBuilder();
+  for (  final String option : indexes)   options.append("'").append(option).append("':true(),");
+  for (  final String option : includes)   options.append("'").append(option).append("':'a',");
+  options.append("'").append(lc(MainOptions.UPDINDEX)).append("':true()");
+  query(_DB_OPTIMIZE.args(NAME,true," map { " + options + "}"));
+  for (  final String ind : indexes)   query(_DB_INFO.args(NAME) + "//" + ind+ "/text()","true");
+  for (  final String inc : includes)   query(_DB_INFO.args(NAME) + "//" + inc+ "/text()","a");
+  query(_DB_INFO.args(NAME) + "//" + lc(MainOptions.UPDINDEX)+ "/text()","true");
+}

@@ -1,8 +1,13 @@
 {
-  final boolean txt=type == NodeType.TXT || type == NodeType.COM;
-  if (txt || type == NodeType.ATT) {
-    final double d=data.textDbl(pre,txt);
-    if (!Double.isNaN(d))     return d;
+  double d=Double.NaN;
+  if (type == NodeType.ELM) {
+    final int as=data.attSize(pre,Data.ELEM);
+    if (data.size(pre,Data.ELEM) - as == 1 && data.kind(pre + as) == Data.TEXT) {
+      d=data.textDbl(pre + as,true);
+    }
   }
-  return Dbl.parse(data.atom(pre),ii);
+ else   if (type == NodeType.TXT || type == NodeType.ATT) {
+    d=data.textDbl(pre,type == NodeType.TXT);
+  }
+  return Double.isNaN(d) ? Dbl.parse(data.atom(pre),ii) : d;
 }

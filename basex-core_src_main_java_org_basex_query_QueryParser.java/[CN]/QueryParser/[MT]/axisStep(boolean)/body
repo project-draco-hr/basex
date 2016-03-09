@@ -1,0 +1,53 @@
+{
+  Axis axis=null;
+  Test test=null;
+  if (wsConsume(DOT2)) {
+    axis=Axis.PARENT;
+    test=Test.NOD;
+    checkTest(test,false);
+  }
+ else   if (consume('@')) {
+    axis=Axis.ATTR;
+    test=nodeTest(true,true);
+    checkTest(test,true);
+    if (test == null) {
+      --pos;
+      throw error(NOATTNAME);
+    }
+  }
+ else {
+    for (    final Axis ax : Axis.VALUES) {
+      final int i=pos;
+      if (!wsConsumeWs(ax.name))       continue;
+      if (wsConsumeWs(COLS)) {
+        alterPos=pos;
+        axis=ax;
+        final boolean attr=ax == Axis.ATTR;
+        test=nodeTest(attr,true);
+        checkTest(test,attr);
+        if (test == null)         throw error(AXISMISS_X,axis);
+        break;
+      }
+      pos=i;
+    }
+    if (axis == null) {
+      axis=Axis.CHILD;
+      test=nodeTest(false,true);
+      if (test == Test.NSP)       throw error(NSAXIS);
+      if (test != null && test.type == NodeType.ATT)       axis=Axis.ATTR;
+      checkTest(test,axis == Axis.ATTR);
+    }
+    if (test == null) {
+      if (error)       throw error(STEPMISS_X,found());
+      return null;
+    }
+  }
+  final ExprList el=new ExprList();
+  while (wsConsume(SQUARE1)) {
+    checkPred(true);
+    add(el,expr());
+    wsCheck(SQUARE2);
+    checkPred(false);
+  }
+  return Step.get(info(),axis,test,el.finish());
+}

@@ -3,36 +3,36 @@
   System.out.println("\n* Start server.");
   BaseXServer server=new BaseXServer();
   System.out.println("\n* Create a client session.");
-  session=new ClientSession("localhost",1984,"admin","admin");
-  System.out.print("\n* Run a query: ");
-  System.out.println(session.execute("XQUERY 1"));
-  System.out.print("\n* Run a query (faster): ");
-  session.setOutputStream(System.out);
-  session.execute("XQUERY 1 to 2");
-  System.out.println();
-  session.setOutputStream(null);
-  System.out.print("\n* Use query instance: ");
-  session.execute("set queryinfo on");
-  ClientQuery query=session.query("1 to 3");
-  System.out.println(query.execute());
-  System.out.print("\n* Show query info: \n");
-  System.out.println(query.info());
-  query.close();
-  System.out.print("\n* Iterate over results: ");
-  query=session.query("1 to 4");
-  while (query.more()) {
-    System.out.print(query.next() + ' ');
+  try (ClientSession session=new ClientSession("localhost",1984,"admin","admin")){
+    System.out.print("\n* Run a query: ");
+    System.out.println(session.execute("XQUERY 1"));
+    System.out.print("\n* Run a query (faster): ");
+    session.setOutputStream(System.out);
+    session.execute("XQUERY 1 to 2");
+    System.out.println();
+    session.setOutputStream(null);
+    System.out.print("\n* Use query instance: ");
+    session.execute("set queryinfo on");
+    try (ClientQuery query=session.query("1 to 3")){
+      System.out.println(query.execute());
+      System.out.print("\n* Show query info: \n");
+      System.out.println(query.info());
+    }
+     System.out.print("\n* Iterate over results: ");
+    try (ClientQuery query=session.query("1 to 4")){
+      while (query.more()) {
+        System.out.print(query.next() + ' ');
+      }
+      System.out.println();
+    }
+     System.out.print("\n* Bind variable $a: ");
+    session.execute("set queryinfo on");
+    try (ClientQuery query=session.query("declare variable $a as xs:int external; 1 to $a")){
+      query.bind("$a","5");
+      System.out.println(query.execute());
+    }
+     System.out.println("\n* Close the client session.");
   }
-  System.out.println();
-  query.close();
-  System.out.print("\n* Bind variable $a: ");
-  session.execute("set queryinfo on");
-  query=session.query("declare variable $a as xs:int external; 1 to $a");
-  query.bind("$a","5");
-  System.out.println(query.execute());
-  query.close();
-  System.out.println("\n* Close the client session.");
-  session.close();
-  System.out.println("\n* Stop the server.");
+   System.out.println("\n* Stop the server.");
   server.stop();
 }

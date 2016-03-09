@@ -1,0 +1,59 @@
+{
+  Iter iter;
+  long sz;
+  if (root != null) {
+    final Iter rt=qc.iter(root);
+    final long s=rt.size();
+    if (s >= 0) {
+      iter=rt;
+      sz=s;
+    }
+ else {
+      final Value val=rt.value();
+      iter=val.iter();
+      sz=val.size();
+    }
+  }
+ else {
+    final Value rt=ctxValue(qc);
+    iter=rt.iter();
+    sz=rt.size();
+  }
+  final Value cv=qc.value;
+  final long cp=qc.pos, cs=qc.size;
+  try {
+    final int sl=steps.length;
+    for (int s=0; s < sl; s++) {
+      qc.size=sz;
+      qc.pos=1;
+      final ANodeList nodes=new ANodeList().check();
+      final ItemList items=new ItemList();
+      final Expr step=steps[s];
+      for (Item it; (it=iter.next()) != null; ) {
+        if (!(it instanceof ANode))         throw PATHNODE_X_X_X.get(info,step,it.type,it);
+        qc.value=it;
+        final Iter ir=qc.iter(step);
+        for (Item i; (i=ir.next()) != null; ) {
+          if (i instanceof ANode)           nodes.add((ANode)i);
+ else           items.add(i);
+        }
+        qc.pos++;
+      }
+      if (items.isEmpty()) {
+        iter=nodes.iter();
+      }
+ else {
+        if (s + 1 < sl)         throw PATHNODE_X_X_X.get(info,steps[s + 1],items.get(0).type,items.get(0));
+        if (!nodes.isEmpty())         throw MIXEDRESULTS.get(info);
+        iter=items.iter();
+      }
+      sz=iter.size();
+    }
+    return iter;
+  }
+  finally {
+    qc.value=cv;
+    qc.size=cs;
+    qc.pos=cp;
+  }
+}

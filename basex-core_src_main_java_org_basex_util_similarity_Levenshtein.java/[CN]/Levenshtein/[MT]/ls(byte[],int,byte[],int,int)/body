@@ -1,0 +1,28 @@
+{
+  int[][] mx=matrix;
+  if (mx == null) {
+    mx=new int[MAX + 2][MAX + 2];
+    final int ml=mx.length;
+    for (int m=0; m < ml; ++m) {
+      mx[0][m]=m;
+      mx[m][0]=m;
+    }
+    matrix=mx;
+  }
+  int e2=-1, f2=-1;
+  for (int t=0; t < tl; t+=cl(tk,t)) {
+    final int e=noDiacritics(lc(cp(tk,t)));
+    int d=Integer.MAX_VALUE;
+    for (int s=0; s < sl; s+=cl(sb,s)) {
+      final int f=noDiacritics(lc(cp(sb,s)));
+      int c=m(mx[t][s + 1] + 1,mx[t + 1][s] + 1,mx[t][s] + (e == f ? 0 : 1));
+      if (e == f2 && f == e2)       c=mx[t][s];
+      mx[t + 1][s + 1]=c;
+      d=Math.min(d,c);
+      f2=f;
+    }
+    if (d > k)     return false;
+    e2=e;
+  }
+  return mx[tl][sl] <= k;
+}

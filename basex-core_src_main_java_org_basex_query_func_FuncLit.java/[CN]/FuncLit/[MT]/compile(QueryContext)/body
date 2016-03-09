@@ -3,16 +3,15 @@
   compiled=true;
   if (check) {
     final StaticFunc sf=qc.funcs.get(name,args.length,info,true);
-    if (sf == null)     throw FUNCUNKNOWN.get(info,name.string());
-    ann=sf.ann;
-    type=sf.funcType().seqType();
+    anns=sf.anns;
+    seqType=sf.funcType().seqType();
   }
   try {
     expr=expr.compile(qc,scope);
     expr.markTailCalls(null);
   }
  catch (  final QueryException e) {
-    expr=FNInfo.error(e,type);
+    expr=FnError.get(e,seqType);
   }
  finally {
     scope.cleanUp(this);

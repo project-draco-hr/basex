@@ -1,0 +1,52 @@
+{
+  final AnnList anns=new AnnList();
+  while (true) {
+    final Ann ann;
+    if (updating && wsConsumeWs(UPDATING)) {
+      ann=new Ann(info(),Annotation.UPDATING);
+    }
+ else     if (consume('%')) {
+      skipWs();
+      final InputInfo info=info();
+      final QNm name=eQName(QNAME_X,XQ_URI);
+      final ItemList items=new ItemList();
+      if (wsConsumeWs(PAREN1)) {
+        do {
+          final Expr ex=literal();
+          if (!(ex instanceof Item))           throw error(ANNVALUE);
+          items.add((Item)ex);
+        }
+ while (wsConsumeWs(COMMA));
+        wsCheck(PAREN2);
+      }
+      skipWs();
+      final Annotation sig=Annotation.get(name);
+      if (sig == null) {
+        final byte[] uri=name.uri();
+        if (NSGlobal.prefix(uri).length != 0 && !eq(uri,LOCAL_URI,ERROR_URI)) {
+          throw (NSGlobal.reserved(uri) ? ANNWHICH_X_X : BASX_ANNOT_X_X).get(info,'%',name.string());
+        }
+        ann=new Ann(info,name,items.finish());
+      }
+ else {
+        if (sig.single && anns.contains(sig))         throw BASX_TWICE_X_X.get(info,'%',sig.id());
+        final long arity=items.size();
+        if (arity < sig.minMax[0] || arity > sig.minMax[1])         throw BASX_ANNNUM_X_X_X.get(info,sig,arity,arity == 1 ? "" : "s");
+        final int al=sig.args.length;
+        for (int a=0; a < arity; a++) {
+          final SeqType st=sig.args[Math.min(al - 1,a)];
+          final Item it=items.get(a);
+          if (!st.instance(it))           throw BASX_ANNTYPE_X_X_X.get(info,sig,st,it.seqType());
+        }
+        ann=new Ann(info,sig,items.finish());
+      }
+    }
+ else {
+      break;
+    }
+    anns.add(ann);
+    if (ann.sig == Annotation.UPDATING)     qc.updating();
+  }
+  skipWs();
+  return anns;
+}

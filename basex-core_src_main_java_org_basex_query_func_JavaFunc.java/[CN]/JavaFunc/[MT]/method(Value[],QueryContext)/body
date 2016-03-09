@@ -1,29 +1,33 @@
 {
   try {
-    final Field f=clazz.getField(method);
-    final boolean st=Modifier.isStatic(f.getModifiers());
-    if (ar.length == (st ? 0 : 1)) {
-      return f.get(st ? null : instObj(ar[0]));
-    }
+    final Field field=clazz.getField(method);
+    final boolean stat=Modifier.isStatic(field.getModifiers());
+    if (args.length == (stat ? 0 : 1))     return field.get(stat ? null : instObj(args[0]));
   }
  catch (  final NoSuchFieldException ex) {
   }
-  for (  final Method meth : clazz.getMethods()) {
-    if (!meth.getName().equals(method))     continue;
-    final boolean st=Modifier.isStatic(meth.getModifiers());
-    final Object[] arg=args(meth.getParameterTypes(),null,ar,st);
-    if (arg != null) {
-      Object inst=null;
-      if (!st) {
-        inst=instObj(ar[0]);
-        if (inst instanceof QueryModule) {
-          final QueryModule mod=(QueryModule)inst;
-          mod.staticContext=sc;
-          mod.queryContext=qc;
-        }
+  Method meth=null;
+  Object inst=null;
+  Object[] margs=null;
+  for (  final Method m : clazz.getMethods()) {
+    if (!m.getName().equals(method))     continue;
+    final Class<?>[] pTypes=m.getParameterTypes();
+    if (!typeMatches(pTypes,types))     continue;
+    final boolean stat=Modifier.isStatic(m.getModifiers());
+    final Object[] jArgs=javaArgs(pTypes,null,args,stat);
+    if (jArgs == null)     continue;
+    if (meth != null)     throw JAVAAMB_X_X_X.get(info,clazz.getName(),method,pTypes.length);
+    meth=m;
+    margs=jArgs;
+    if (!stat) {
+      inst=instObj(args[0]);
+      if (inst instanceof QueryModule) {
+        final QueryModule mod=(QueryModule)inst;
+        mod.staticContext=sc;
+        mod.queryContext=qc;
       }
-      return meth.invoke(inst,arg);
     }
   }
-  throw JAVAMTH.get(info,name(),foundArgs(ar));
+  if (meth != null)   return meth.invoke(inst,margs);
+  throw WHICHMETHOD_X_X.get(info,name(),foundArgs(args));
 }

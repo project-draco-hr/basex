@@ -1,0 +1,15 @@
+{
+  final long seed=toLong(exprs[0],qc);
+  final long num=toLong(exprs[1],qc);
+  if (num < 0)   throw BXRA_NUM_X.get(info,num);
+  final long max=exprs.length > 2 ? toLong(exprs[2],qc) : Integer.MAX_VALUE;
+  if (max < 1 || max > Integer.MAX_VALUE)   throw BXRA_BOUNDS_X.get(info,max);
+  return new Iter(){
+    final Random r=new Random(seed);
+    long c;
+    @Override public Item next(){
+      return ++c <= num ? Int.get(max == Integer.MAX_VALUE ? r.nextInt() : r.nextInt((int)max)) : null;
+    }
+  }
+;
+}

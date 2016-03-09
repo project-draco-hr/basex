@@ -1,12 +1,12 @@
 {
   super(md);
   try (final DataInput in=new DataInput(meta.dbfile(DATATBL + 'i'))){
-    final int b=in.readNum();
-    blocks=b;
+    final int s=in.readNum();
+    size=s;
     final int u=in.readNum();
     final boolean regular=u == 0 || u == Integer.MAX_VALUE;
     if (regular) {
-      used=u == 0 ? 0 : b;
+      used=u == 0 ? 0 : s;
     }
  else {
       used=u;
@@ -19,7 +19,5 @@
     }
   }
    file=new RandomAccessFile(meta.dbfile(DATATBL).file(),"rw");
-  if (lock)   exclusiveLock();
- else   sharedLock();
-  if (fl == null)   throw new BaseXException(Text.DB_PINNED_X,md.name);
+  if (!lock(write))   throw new BaseXException(Text.DB_PINNED_X,md.name);
 }

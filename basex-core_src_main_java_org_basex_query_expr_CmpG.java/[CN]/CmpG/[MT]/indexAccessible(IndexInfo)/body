@@ -1,35 +1,7 @@
 {
   if (op != OpG.EQ || coll != null)   return false;
-  if (!ii.check(exprs[0],false))   return false;
-  final Data data=ii.ic.data;
-  final Expr arg=exprs[1];
-  final ParseExpr root;
-  if (!arg.isValue()) {
-    if (!arg.type().type.isStringOrUntyped() || arg.has(Flag.CTX) || arg.has(Flag.NDT)|| arg.has(Flag.UPD))     return false;
-    ii.costs=Math.max(1,data.meta.size / 10);
-    root=new ValueAccess(info,arg,ii.text,ii.name,ii.ic);
-  }
- else {
-    ii.costs=0;
-    final Iter ir=arg.iter(ii.qc);
-    final ArrayList<ValueAccess> va=new ArrayList<>();
-    final TokenSet strings=new TokenSet();
-    for (Item it; (it=ir.next()) != null; ) {
-      if (!it.type.isStringOrUntyped())       return false;
-      final byte[] string=it.string(info);
-      if (string.length == 0)       return false;
-      if (!strings.contains(string)) {
-        strings.put(string);
-        final int costs=data.costs(new StringToken(ii.text,string));
-        if (costs != 0) {
-          va.add(new ValueAccess(info,it,ii.text,ii.name,ii.ic));
-          ii.costs+=costs;
-        }
-      }
-    }
-    final int vs=va.size();
-    root=vs == 1 ? va.get(0) : new Union(info,va.toArray(new ValueAccess[vs]));
-  }
-  ii.create(root,info,Util.info(ii.text ? OPTTXTINDEX : OPTATVINDEX,arg),false);
-  return true;
+  Expr expr1=exprs[0];
+  final boolean tokenize=expr1 instanceof FnTokenize;
+  if (tokenize)   expr1=((FnTokenize)expr1).input();
+  return ii.create(exprs[1],ii.type(expr1,tokenize ? IndexType.TOKEN : null),info,false);
 }

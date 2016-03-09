@@ -1,31 +1,13 @@
 {
-  final String start=args[0];
-  final String end=args[1];
-  if (start != null && toInt(start) == Integer.MIN_VALUE) {
-    queryNodes();
-    if (result == null)     return false;
-  }
+  final String first=args[0], second=args[1];
   final Data data=context.data();
-  if (result != null) {
-    final Table table=th();
-    for (    final int n : ((Nodes)result).pres)     table(table,data,n);
-    out.print(table.finish());
-    result=null;
+  final DataPrinter dp=new DataPrinter(data);
+  int start=0, end=1000;
+  if (!first.isEmpty()) {
+    start=toInt(first);
+    end=(second.isEmpty() ? start : toInt(second)) + 1;
   }
- else {
-    int ps=0;
-    int pe=1000;
-    if (start != null) {
-      if (end != null) {
-        ps=toInt(start);
-        pe=toInt(end) + 1;
-      }
- else {
-        ps=toInt(start);
-        pe=ps + 1;
-      }
-    }
-    out.print(table(data,ps,pe));
-  }
+  dp.add(start,end);
+  out.print(dp.finish());
   return true;
 }

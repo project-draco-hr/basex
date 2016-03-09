@@ -1,3 +1,38 @@
 {
-  return value(qc).iter();
+  final Iter iter=expr.iter(qc);
+  return new Iter(){
+    /** 
+ * Item cache. 
+ */
+    final ItemList cache=new ItemList();
+    /** 
+ * Item cache index. 
+ */
+    int c;
+    /** 
+ * Result index. 
+ */
+    int i;
+    @Override public Item next() throws QueryException {
+      final SeqType st=seqType;
+      while (c == cache.size()) {
+        qc.checkStop();
+        cache.size(0);
+        c=0;
+        final Item it=iter.next();
+        if (it == null || st.instance(it)) {
+          cache.add(it);
+        }
+ else {
+          st.promote(qc,sc,info,it,false,cache);
+        }
+      }
+      final Item it=cache.get(c);
+      cache.set(c++,null);
+      if (it == null && i < st.occ.min || i > st.occ.max)       throw INVPROMOTE_X_X.get(info,expr.seqType(),st);
+      i++;
+      return it;
+    }
+  }
+;
 }

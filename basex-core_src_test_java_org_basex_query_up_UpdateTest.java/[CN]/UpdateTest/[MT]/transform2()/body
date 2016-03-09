@@ -1,6 +1,10 @@
 {
-  new Set("mainmem","on").execute(context);
-  new CreateDB("DBtransform","<instance><data><vocable hits='1'/></data></instance>").execute(context);
-  query("for $voc in 1 to 2 " + "let $xml := doc('DBtransform') " + "return ("+ "$xml update ("+ "for $i in 1 to 2 return "+ "insert node $xml/instance/data/vocable[@hits = '1'] into ./instance))","<instance><data><vocable hits=\"1\"/></data><vocable hits=\"1\"/>" + "<vocable hits=\"1\"/></instance><instance><data>" + "<vocable hits=\"1\"/></data><vocable hits=\"1\"/><vocable hits=\"1\"/></instance>");
-  new Set("mainmem","off").execute(context);
+  set(MainOptions.MAINMEM,true);
+  try {
+    execute(new CreateDB("DBtransform","<instance><data><vocable hits='1'/></data></instance>"));
+    query("for $voc in 1 to 2 " + "let $xml := doc('DBtransform') " + "return ("+ "$xml update ("+ "for $i in 1 to 2 return "+ "insert node $xml/instance/data/vocable[@hits = '1'] into ./instance))","<instance>\n<data>\n" + "<vocable hits=\"1\"/>\n</data>\n" + "<vocable hits=\"1\"/>\n"+ "<vocable hits=\"1\"/>\n</instance>\n<instance>\n<data>\n"+ "<vocable hits=\"1\"/>\n</data>\n"+ "<vocable hits=\"1\"/>\n"+ "<vocable hits=\"1\"/>\n</instance>");
+  }
+  finally {
+    set(MainOptions.MAINMEM,false);
+  }
 }

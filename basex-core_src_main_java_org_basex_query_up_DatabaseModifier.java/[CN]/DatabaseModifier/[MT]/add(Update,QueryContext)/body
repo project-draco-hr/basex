@@ -1,9 +1,15 @@
 {
-  if (up instanceof NameUpdate) {
-    if (!qc.context.perm(Perm.CREATE,null))     throw BASX_PERM.get(up.info(),Perm.CREATE);
+  if (update instanceof NameUpdate) {
+    if (!qc.context.perm(Perm.CREATE,((NameUpdate)update).name()))     throw BASX_PERM_X.get(update.info(),Perm.CREATE);
   }
- else   if (!qc.context.perm(Perm.WRITE,((DataUpdate)up).data().meta)) {
-    throw BASX_PERM.get(up.info(),Perm.WRITE);
+ else   if (update instanceof DataUpdate) {
+    if (!qc.context.perm(Perm.WRITE,((DataUpdate)update).data().meta.name))     throw BASX_PERM_X.get(update.info(),Perm.WRITE);
   }
-  add(up);
+ else   if (update instanceof UserUpdate) {
+    if (!qc.context.perm(Perm.ADMIN,null))     throw BASX_PERM_X.get(update.info(),Perm.ADMIN);
+  }
+ else {
+    throw Util.notExpected("Unknown update type: " + update);
+  }
+  super.add(update,qc);
 }

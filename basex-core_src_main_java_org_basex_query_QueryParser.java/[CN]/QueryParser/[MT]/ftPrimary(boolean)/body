@@ -1,14 +1,14 @@
 {
   final Pragma[] pragmas=pragma();
   if (pragmas != null) {
-    wsCheck(BRACE1);
+    wsCheck(CURLY1);
     final FTExpr e=ftSelection(true);
-    wsCheck(BRACE2);
+    wsCheck(CURLY2);
     return new FTExtensionSelection(info(),pragmas,e);
   }
-  if (wsConsumeWs(PAR1)) {
+  if (wsConsumeWs(PAREN1)) {
     final FTExpr e=ftSelection(false);
-    wsCheck(PAR2);
+    wsCheck(PAREN2);
     return e;
   }
   skipWs();
@@ -17,10 +17,10 @@
     e=Str.get(stringLiteral());
   }
  else   if (curr('{')) {
-    e=enclosed(NOENCLEXPR);
+    e=enclosedExpr();
   }
  else {
-    throw error(prg ? NOPRAGMA : NOFTSELECT,found());
+    throw error(prg ? NOPRAGMA : NOFTSELECT_X,found());
   }
   FTMode mode=FTMode.ANY;
   if (wsConsumeWs(ALL)) {

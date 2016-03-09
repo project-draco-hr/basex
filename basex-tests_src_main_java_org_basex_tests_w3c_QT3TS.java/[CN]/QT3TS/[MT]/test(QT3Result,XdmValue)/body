@@ -1,56 +1,58 @@
 {
   final String type=expected.getName().getLocalPart();
-  final XdmValue value=result.value;
   try {
-    String msg;
+    final String msg;
     if (type.equals("error")) {
       msg=assertError(result,expected);
+    }
+ else     if (type.equals("assert-serialization-error")) {
+      msg=assertSerializationError(result,expected);
     }
  else     if (type.equals("all-of")) {
       msg=allOf(result,expected);
     }
+ else     if (type.equals("not")) {
+      msg=not(result,expected);
+    }
  else     if (type.equals("any-of")) {
       msg=anyOf(result,expected);
     }
- else     if (value != null) {
+ else     if (result.value != null) {
       if (type.equals("assert")) {
-        msg=assertQuery(value,expected);
+        msg=assertQuery(result,expected);
       }
  else       if (type.equals("assert-count")) {
-        msg=assertCount(value,expected);
+        msg=assertCount(result,expected);
       }
  else       if (type.equals("assert-deep-eq")) {
-        msg=assertDeepEq(value,expected);
+        msg=assertDeepEq(result,expected);
       }
  else       if (type.equals("assert-empty")) {
-        msg=assertEmpty(value);
+        msg=assertEmpty(result);
       }
  else       if (type.equals("assert-eq")) {
-        msg=assertEq(value,expected);
+        msg=assertEq(result,expected);
       }
  else       if (type.equals("assert-false")) {
-        msg=assertBoolean(value,false);
+        msg=assertBoolean(result,false);
       }
  else       if (type.equals("assert-permutation")) {
-        msg=assertPermutation(value,expected);
+        msg=assertPermutation(result,expected);
       }
  else       if (type.equals("assert-xml")) {
-        msg=assertXML(value,expected);
+        msg=assertXML(result,expected);
       }
  else       if (type.equals("serialization-matches")) {
-        msg=serializationMatches(value,expected,result.sprop);
-      }
- else       if (type.equals("assert-serialization-error")) {
-        msg=assertSerializationError(value,expected,result.sprop);
+        msg=serializationMatches(result,expected);
       }
  else       if (type.equals("assert-string-value")) {
-        msg=assertStringValue(value,expected);
+        msg=assertStringValue(result,expected);
       }
  else       if (type.equals("assert-true")) {
-        msg=assertBoolean(value,true);
+        msg=assertBoolean(result,true);
       }
  else       if (type.equals("assert-type")) {
-        msg=assertType(value,expected);
+        msg=assertType(result,expected);
       }
  else {
         msg="Test type not supported: " + type;

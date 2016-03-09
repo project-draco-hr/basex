@@ -1,11 +1,61 @@
 {
+  if (root.isEmpty())   return optPre(qc);
   final Value cv=qc.value;
   try {
-    if (root.isEmpty())     return optPre(null,qc);
-    if (root instanceof AxisPath && !super.has(Flag.FCS))     return ((Path)root.copy(qc,scp)).addPreds(qc,scp,preds);
-    return preds.length == 0 ? root : opt(qc);
+    qc.value=Path.initial(qc,root);
+    final Expr e=super.optimize(qc,scp);
+    if (e != this)     return e;
   }
   finally {
     qc.value=cv;
   }
+  seqType(root.seqType(),root.size());
+  if (size == 0)   return optPre(qc);
+  final Expr ex=path(root,preds);
+  if (ex != null)   return ex.optimize(qc,scp);
+  if (root instanceof ContextValue || root instanceof Value && root.data() != null) {
+    final Path ip=Path.get(info,root,Step.get(info,SELF,Test.NOD,preds));
+    final Expr ie=ip.index(qc,Path.initial(qc,root));
+    if (ie != ip)     return ie;
+  }
+  if (!super.has(Flag.POS))   return copyType(new IterFilter(info,root,preds));
+  Expr e=root;
+  boolean opt=false;
+  for (  final Expr pred : preds) {
+    final Pos pos=pred instanceof Pos ? (Pos)pred : null;
+    final boolean last=pred.isFunction(Function.LAST);
+    if (last) {
+      if (e.isValue()) {
+        e=FnSubsequence.eval((Value)e,e.size(),1);
+      }
+ else {
+        e=Function._UTIL_LAST_FROM.get(null,info,e);
+      }
+      opt=true;
+    }
+ else     if (pos != null) {
+      if (e.isValue()) {
+        e=FnSubsequence.eval((Value)e,pos.min,pos.max - pos.min + 1);
+      }
+ else       if (pos.min == pos.max) {
+        e=Function._UTIL_ITEM_AT.get(null,info,e,Int.get(pos.min));
+      }
+ else {
+        e=Function._UTIL_ITEM_RANGE.get(null,info,e,Int.get(pos.min),Int.get(pos.max));
+      }
+      opt=true;
+    }
+ else     if (num(pred)) {
+      e=Function._UTIL_ITEM_AT.get(null,info,e,pred);
+      opt=true;
+    }
+ else {
+      e=e instanceof Filter ? ((Filter)e).addPred(pred) : get(info,e,pred);
+    }
+  }
+  if (opt) {
+    qc.compInfo(QueryText.OPTREWRITE_X,this);
+    return e.optimize(qc,scp);
+  }
+  return get(info,root,preds);
 }

@@ -1,0 +1,37 @@
+{
+  if (right.length > 1) {
+    return new DeepTree<>(left,leftSize,middle,remove(right,pos),size - 1);
+  }
+  final Node<N,E> node=right[0];
+  if (!middle.isEmpty()) {
+    final InnerNode<N,E> last=(InnerNode<N,E>)middle.last();
+    final Node<N,E> lastSub=last.getSub(last.arity() - 1);
+    final NodeLike<N,E>[] rem=node.remove(lastSub,null,pos);
+    final Node<N,E> newLastSub=(Node<N,E>)rem[0], newNode=(Node<N,E>)rem[1];
+    if (newNode == null) {
+      final Node<N,E>[] newRight=last.children.clone();
+      newRight[newRight.length - 1]=newLastSub;
+      return new DeepTree<>(left,leftSize,middle.init(),newRight,size - 1);
+    }
+    @SuppressWarnings("unchecked") final Node<N,E>[] newRight=new Node[]{newNode};
+    final Node<Node<N,E>,E> newLast=last.replaceLast(newLastSub);
+    return new DeepTree<>(left,leftSize,middle.replaceLast(newLast),newRight,size - 1);
+  }
+  final Node<N,E> lastLeft=left[left.length - 1];
+  final NodeLike<N,E>[] rem=node.remove(lastLeft,null,pos);
+  final Node<N,E> newLastLeft=(Node<N,E>)rem[0], newNode=(Node<N,E>)rem[1];
+  if (newNode == null) {
+    if (left.length == 1) {
+      return new SingletonTree<>(newLastLeft);
+    }
+    @SuppressWarnings("unchecked") final Node<N,E>[] newRight=new Node[]{newLastLeft};
+    return get(slice(left,0,left.length - 1),newRight,size - 1);
+  }
+  @SuppressWarnings("unchecked") final Node<N,E>[] newRight=new Node[]{newNode};
+  if (newLastLeft == lastLeft) {
+    return get(left,leftSize,newRight,size - 1);
+  }
+  final Node<N,E>[] newLeft=left.clone();
+  newLeft[newLeft.length - 1]=newLastLeft;
+  return get(newLeft,newRight,size - 1);
+}

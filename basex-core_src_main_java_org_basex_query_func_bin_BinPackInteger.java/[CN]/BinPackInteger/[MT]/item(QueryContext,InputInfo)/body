@@ -1,0 +1,21 @@
+{
+  long b=toLong(exprs[0],qc);
+  final long sz=toLong(exprs[1],qc);
+  final ByteOrder bo=order(2,qc);
+  if (sz < 0)   throw BIN_NS_X.get(info,sz);
+  final byte[] tmp=new byte[(int)sz];
+  final int tl=tmp.length;
+  if (bo == ByteOrder.BIG_ENDIAN) {
+    for (int t=tl - 1; t >= 0; t--) {
+      tmp[t]=(byte)b;
+      b>>=8;
+    }
+  }
+ else {
+    for (int t=0; t < tl; t++) {
+      tmp[t]=(byte)b;
+      b>>=8;
+    }
+  }
+  return new B64(tmp);
+}

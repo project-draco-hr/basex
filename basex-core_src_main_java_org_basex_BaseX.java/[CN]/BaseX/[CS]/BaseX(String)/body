@@ -6,9 +6,10 @@
     final StringBuilder bind=new StringBuilder();
     SerializerOptions sopts=null;
     boolean v=false, qi=false, qp=false;
-    for (int i=0; i < ops.size(); i++) {
-      final int c=ops.get(i);
-      String val=vals.get(i);
+    final int os=ops.size();
+    for (int o=0; o < os; o++) {
+      final int c=ops.get(o);
+      String val=vals.get(o);
       if (c == 'b') {
         if (bind.length() != 0)         bind.append(',');
         val=bind.append(val.replaceAll(",",",,")).toString();
@@ -26,9 +27,6 @@
         execute(new Set(MainOptions.QUERYPATH,""),false);
         console=false;
       }
- else       if (c == 'd') {
-        Prop.debug^=true;
-      }
  else       if (c == 'D') {
         execute(new Set(MainOptions.DOTPLAN,null),false);
       }
@@ -37,11 +35,10 @@
         execute(new Check(val),verbose);
         execute(new Set(MainOptions.MAINMEM,false),false);
       }
- else       if (c == 'L') {
-        newline^=true;
-        if (sopts == null)         sopts=new SerializerOptions();
-        sopts.set(SerializerOptions.ITEM_SEPARATOR,"\\n");
-        execute(new Set(MainOptions.SERIALIZER,sopts),false);
+ else       if (c == 'I') {
+        if (bind.length() != 0)         bind.append(',');
+        val=bind.append("=").append(val.replaceAll(",",",,")).toString();
+        execute(new Set(MainOptions.BINDINGS,val),false);
       }
  else       if (c == 'o') {
         if (out != System.out)         out.close();
@@ -65,7 +62,7 @@
         console=false;
       }
  else       if (c == 'r') {
-        execute(new Set(MainOptions.RUNS,Token.toInt(val)),false);
+        execute(new Set(MainOptions.RUNS,Strings.toInt(val)),false);
       }
  else       if (c == 'R') {
         execute(new Set(MainOptions.RUNQUERY,null),false);
@@ -93,9 +90,6 @@
  else       if (c == 'w') {
         execute(new Set(MainOptions.CHOP,null),false);
       }
- else       if (c == 'W') {
-        writeOptions^=true;
-      }
  else       if (c == 'x') {
         execute(new Set(MainOptions.XMLPLAN,null),false);
         qp^=true;
@@ -109,7 +103,6 @@
       verbose=qi || qp || v;
     }
     if (console)     console();
-    if (writeOptions)     context.globalopts.write();
   }
   finally {
     quit();

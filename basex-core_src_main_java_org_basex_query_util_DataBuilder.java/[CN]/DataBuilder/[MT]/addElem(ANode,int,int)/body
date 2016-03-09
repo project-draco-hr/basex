@@ -1,21 +1,17 @@
 {
-  final int ds=data.meta.size;
-  data.nspaces.prepare();
-  final Atts ns=par == -1 ? node.nsScope() : node.namespaces();
-  final int nl=ns.size();
-  for (int n=0; n < nl; n++)   data.nspaces.add(ns.name(n),ns.value(n),ds);
-  final QNm name=node.qname();
-  final int tn=data.tagindex.index(name.string(),null,false);
-  final int s=size(node,false);
-  final int u=data.nspaces.uri(name.uri());
-  data.elem(pre - par,tn,size(node,true),s,u,nl != 0);
-  data.insert(ds);
-  int p=pre + 1;
-  AxisIter ai=node.attributes();
-  for (ANode ch; (ch=ai.next()) != null; )   p=addAttr(ch,p,pre);
-  ai=node.children();
-  for (ANode ch; (ch=ai.next()) != null; )   p=addNode(ch,p,pre,node);
-  data.nspaces.close(ds);
-  if (s != p - pre)   data.size(ds,Data.ELEM,p - pre);
-  return p;
+  final int last=data.meta.size;
+  final Atts ns=par == -1 ? node.nsScope(null) : node.namespaces();
+  data.nspaces.open(last,ns);
+  final QNm qname=node.qname();
+  final int size=size(node,false), asize=size(node,true);
+  final int nameId=data.elemNames.index(qname.string(),null,false);
+  final int uriId=data.nspaces.uriId(qname.uri());
+  data.elem(pre - par,nameId,asize,size,uriId,!ns.isEmpty());
+  data.insert(last);
+  int cPre=pre + 1;
+  for (  final ANode attr : node.attributes())   cPre=addAttr(attr,cPre,pre);
+  for (  final ANode child : node.children())   cPre=addNode(child,cPre,pre);
+  data.nspaces.close(last);
+  if (size != cPre - pre)   data.size(last,Data.ELEM,cPre - pre);
+  return cPre;
 }

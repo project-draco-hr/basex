@@ -1,0 +1,70 @@
+{
+  Node<?,E> node;
+  long pos=Math.min(index,n - 1);
+  if (tTop >= 0) {
+    while (true) {
+      final DeepTree<?,E> curr=trees[tTop];
+      if (pos < curr.leftSize) {
+        final Node<?,E>[] left=curr.left;
+        int i=0;
+        for (; ; i++) {
+          node=left[i];
+          final long sz=node.size();
+          if (pos < sz)           break;
+          pos-=sz;
+        }
+        deepPos=i - left.length;
+        break;
+      }
+      pos-=curr.leftSize;
+      final FingerTree<?,E> mid=curr.middle;
+      final long midSize=mid.size();
+      if (pos >= midSize) {
+        pos-=midSize;
+        final Node<?,E>[] right=curr.right;
+        int i=0;
+        for (; ; i++) {
+          node=right[i];
+          final long sz=node.size();
+          if (pos < sz)           break;
+          pos-=sz;
+        }
+        deepPos=i + 1;
+        break;
+      }
+      if (mid instanceof SingletonTree) {
+        node=mid.head();
+        deepPos=0;
+        break;
+      }
+      if (++tTop == trees.length)       trees=Arrays.copyOf(trees,2 * tTop);
+      trees[tTop]=(DeepTree<?,E>)mid;
+    }
+  }
+ else {
+    deepPos=0;
+    node=nodes[0];
+    nTop=-1;
+  }
+  Node<?,E> curr=node;
+  while (curr instanceof InnerNode) {
+    final InnerNode<?,E> inner=(InnerNode<?,E>)curr;
+    int idx=0;
+    Node<?,E> sub=inner.getSub(0);
+    while (true) {
+      final long sz=sub.size();
+      if (pos < sz)       break;
+      pos-=sz;
+      sub=inner.getSub(++idx);
+    }
+    if (++nTop == nodes.length) {
+      nodes=Arrays.copyOf(nodes,2 * nTop);
+      poss=Arrays.copyOf(poss,2 * nTop);
+    }
+    nodes[nTop]=inner;
+    poss[nTop]=idx;
+    curr=sub;
+  }
+  leaf=(Node<E,E>)curr;
+  leafPos=(int)(index < n ? pos : pos + 1);
+}

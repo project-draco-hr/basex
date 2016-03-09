@@ -1,0 +1,20 @@
+{
+  final String number="63177";
+  final String slowQuery="?query=(1%20to%20100000000000)%5b.=0%5d";
+  final String fastQuery="?query=" + number;
+  final Get slowAction=new Get(slowQuery);
+  final Get fastAction=new Get(fastQuery);
+  final ExecutorService exec=Executors.newFixedThreadPool(2);
+  final Future<HTTPResponse> slow=exec.submit(slowAction);
+  Performance.sleep(TIMEOUT);
+  final Future<HTTPResponse> fast=exec.submit(fastAction);
+  try {
+    final HTTPResponse result=fast.get();
+    assertEquals(HTTPCode.OK,result.status);
+    assertEquals(number,result.data);
+  }
+  finally {
+    slowAction.stop=true;
+    slow.get();
+  }
+}

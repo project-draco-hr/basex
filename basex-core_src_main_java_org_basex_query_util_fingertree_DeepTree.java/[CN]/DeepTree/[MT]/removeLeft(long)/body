@@ -1,0 +1,39 @@
+{
+  if (left.length > 1) {
+    return new DeepTree<>(remove(left,pos),leftSize - 1,middle,right,size - 1);
+  }
+  final Node<N,E> node=left[0];
+  if (!middle.isEmpty()) {
+    final InnerNode<N,E> head=(InnerNode<N,E>)middle.head();
+    final Node<N,E> first=head.getSub(0);
+    final NodeLike<N,E>[] rem=node.remove(null,first,pos);
+    final Node<N,E> newNode=(Node<N,E>)rem[1], newFirst=(Node<N,E>)rem[2];
+    if (newNode == null) {
+      final Node<N,E>[] newLeft=head.children.clone();
+      newLeft[0]=newFirst;
+      return get(newLeft,middle.tail(),right,size - 1);
+    }
+    @SuppressWarnings("unchecked") final Node<N,E>[] newLeft=new Node[]{newNode};
+    if (newFirst != first) {
+      final FingerTree<Node<N,E>,E> newMid=middle.replaceHead(head.replaceFirst(newFirst));
+      return new DeepTree<>(newLeft,newNode.size(),newMid,right,size - 1);
+    }
+    return new DeepTree<>(newLeft,newNode.size(),middle,right,size - 1);
+  }
+  final NodeLike<N,E>[] rem=node.remove(null,right[0],pos);
+  final Node<N,E> newNode=(Node<N,E>)rem[1], newFirstRight=(Node<N,E>)rem[2];
+  if (newNode == null) {
+    if (right.length == 1)     return new SingletonTree<>(newFirstRight);
+    final int mid=right.length / 2;
+    final Node<N,E>[] newLeft=slice(right,0,mid);
+    newLeft[0]=newFirstRight;
+    return get(newLeft,middle,slice(right,mid,right.length),size - 1);
+  }
+  @SuppressWarnings("unchecked") final Node<N,E>[] newLeft=new Node[]{newNode};
+  if (newFirstRight == right[0]) {
+    return new DeepTree<>(newLeft,newLeft[0].size(),middle,right,size - 1);
+  }
+  final Node<N,E>[] newRight=right.clone();
+  newRight[0]=newFirstRight;
+  return new DeepTree<>(newLeft,newNode.size(),middle,newRight,size - 1);
+}

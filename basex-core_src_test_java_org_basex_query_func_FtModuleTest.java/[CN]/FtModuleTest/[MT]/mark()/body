@@ -1,0 +1,13 @@
+{
+  query(_FT_MARK.args(" //*[text() contains text '1']"),"<li>Exercise <mark>1</mark>\n</li>");
+  query(_FT_MARK.args(" //*[text() contains text '2'], 'b'"),"<li>Exercise <b>2</b>\n</li>");
+  contains(_FT_MARK.args(" //*[text() contains text 'Exercise']"),"<li>\n<mark>Exercise</mark> 1</li>");
+  query("copy $a := text { 'a b' } modify () return " + _FT_MARK.args("$a[. contains text 'a']","b"),"<b>a</b>\nb");
+  query("copy $a := text { 'ab' } modify () return " + _FT_MARK.args("$a[. contains text 'ab'], 'b'"),"<b>ab</b>");
+  query("copy $a := text { 'a b' } modify () return " + _FT_MARK.args("$a[. contains text 'a b'], 'b'"),"<b>a</b>\n\n<b>b</b>");
+  query(COUNT.args(_FT_MARK.args(" //*[text() contains text '1']/../../../../..")),"1");
+  execute(new CreateDB(NAME,"<a:a xmlns:a='A'>C</a:a>"));
+  query(_FT_MARK.args(" /descendant::*[text() contains text 'C']",'b'),"<a:a xmlns:a=\"A\">\n<b>C</b>\n</a:a>");
+  execute(new DropDB(NAME));
+  query("copy $c := <A xmlns='A'>A</A> modify () return <X>{ " + _FT_MARK.args(" $c[text() contains text 'A']") + " }</X>/*");
+}

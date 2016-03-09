@@ -1,0 +1,20 @@
+{
+  boolean shifts=false;
+  for (  final StructuralUpdate update : struct) {
+    if (update.accumulatedShifts != 0) {
+      shifts=true;
+      break;
+    }
+  }
+  if (!shifts)   return;
+  final IntSet updatedNodes=new IntSet();
+  for (  final StructuralUpdate update : struct) {
+    int pre=update.preOfAffectedNode + update.accumulatedShifts;
+    while (pre < data.meta.size && !updatedNodes.contains(pre)) {
+      final int kind=data.kind(pre);
+      data.dist(pre,kind,calculateNewDistance(pre,kind));
+      updatedNodes.add(pre);
+      pre+=data.size(pre,kind);
+    }
+  }
+}

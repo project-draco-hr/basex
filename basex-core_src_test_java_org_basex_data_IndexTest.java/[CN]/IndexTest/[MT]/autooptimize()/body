@@ -1,0 +1,17 @@
+{
+  set(MainOptions.AUTOOPTIMIZE,true);
+  execute(new CreateDB(NAME));
+  query(_DB_INFO.args(NAME) + "//textindex/text()","true");
+  execute(new Replace("x.xml","<a>A</a>"));
+  query(_DB_INFO.args(NAME) + "//textindex/text()","true");
+  query(_DB_REPLACE.args(NAME,"x.xml","<a>B</a>"));
+  query(_DB_INFO.args(NAME) + "//textindex/text()","true");
+  set(MainOptions.AUTOOPTIMIZE,false);
+  execute(new Optimize());
+  execute(new Replace("x.xml","<a>C</a>"));
+  query(_DB_INFO.args(NAME) + "//textindex/text()","false");
+  execute(new Optimize());
+  query(_DB_INFO.args(NAME) + "//textindex/text()","true");
+  query(_DB_REPLACE.args(NAME,"x.xml","<a>D</a>"));
+  query(_DB_INFO.args(NAME) + "//textindex/text()","false");
+}

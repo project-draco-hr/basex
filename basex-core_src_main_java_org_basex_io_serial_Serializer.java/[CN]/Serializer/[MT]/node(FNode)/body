@@ -1,0 +1,42 @@
+{
+  final Type type=node.type;
+  if (type == NodeType.COM) {
+    prepareComment(node.string());
+  }
+ else   if (type == NodeType.TXT) {
+    prepareText(node.string(),null);
+  }
+ else   if (type == NodeType.PI) {
+    preparePi(node.name(),node.string());
+  }
+ else   if (type == NodeType.ATT) {
+    attribute(node.name(),node.string(),true);
+  }
+ else   if (type == NodeType.NSP) {
+    namespace(node.name(),node.string(),true);
+  }
+ else   if (type == NodeType.DOC) {
+    openDoc(node.baseURI());
+    for (    final ANode n : node.children())     node(n);
+    closeDoc();
+  }
+ else {
+    final QNm name=node.qname();
+    openElement(name);
+    final Atts nsp=node.namespaces();
+    for (int p=nsp.size() - 1; p >= 0; p--)     namespace(nsp.name(p),nsp.value(p),false);
+    namespace(name.prefix(),name.uri(),false);
+    final boolean i=indent;
+    BasicNodeIter iter=node.attributes();
+    for (ANode nd; (nd=iter.next()) != null; ) {
+      final byte[] n=nd.name();
+      final byte[] v=nd.string();
+      attribute(n,v,false);
+      if (eq(n,XML_SPACE) && indent)       indent=!eq(v,PRESERVE);
+    }
+    iter=node.children();
+    for (ANode n; (n=iter.next()) != null; )     node(n);
+    closeElement();
+    indent=i;
+  }
+}

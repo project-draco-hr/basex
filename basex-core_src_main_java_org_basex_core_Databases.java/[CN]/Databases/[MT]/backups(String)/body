@@ -1,14 +1,14 @@
 {
   final StringList backups=new StringList();
-  final IOFile file=gopts.dbpath(db + IO.ZIPSUFFIX);
+  final IOFile file=soptions.dbPath(db + IO.ZIPSUFFIX);
   if (file.exists()) {
     backups.add(db);
   }
  else {
-    final String regex=db.replaceAll("([" + REGEXCHARS + "])","\\\\$1") + DateTime.PATTERN + IO.ZIPSUFFIX;
-    for (    final IOFile f : gopts.dbpath().children()) {
+    final Pattern regex=regex(db,'-' + DATE + '\\'+ IO.ZIPSUFFIX);
+    for (    final IOFile f : soptions.dbPath().children()) {
       final String n=f.name();
-      if (n.matches(regex))       backups.add(n.substring(0,n.lastIndexOf('.')));
+      if (regex.matcher(n).matches())       backups.add(n.substring(0,n.lastIndexOf('.')));
     }
   }
   return backups.sort(Prop.CASE,false);

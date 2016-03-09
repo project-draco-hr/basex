@@ -1,0 +1,16 @@
+{
+  for (  final String u : paths) {
+    final int pre=data.pre(id);
+    if (pre == -1)     return;
+    final DBNode node=new DBNode(data,pre);
+    try (final PrintOutput po=new PrintOutput(u)){
+      final SerializerOptions sopts=(node.data().meta.chop ? SerializerMode.DEFAULT : SerializerMode.NOINDENT).get();
+      try (final Serializer ser=Serializer.get(po,sopts)){
+        ser.serialize(node);
+      }
+     }
+ catch (    final IOException ex) {
+      throw UPPUTERR_X.get(info,u);
+    }
+  }
+}

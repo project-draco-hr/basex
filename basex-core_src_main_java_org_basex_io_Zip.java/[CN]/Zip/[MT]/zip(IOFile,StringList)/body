@@ -1,14 +1,14 @@
 {
-  if (!(archive instanceof IOFile))   throw new FileNotFoundException(archive.path());
+  if (!(file instanceof IOFile))   throw new FileNotFoundException(file.path());
   curr=0;
-  try (final ZipOutputStream out=new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(archive.path())))){
+  try (final ZipOutputStream out=new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(file.path())))){
     out.setLevel(1);
     total=files.size();
     final byte[] data=new byte[IO.BLOCKSIZE];
-    for (    final String file : files) {
+    for (    final String f : files) {
       curr++;
-      try (final FileInputStream in=new FileInputStream(new File(root.file(),file))){
-        final String fl=Prop.WIN ? file.replace('\\','/') : file;
+      try (final FileInputStream in=new FileInputStream(new File(root.file(),f))){
+        final String fl=Prop.WIN ? f.replace('\\','/') : f;
         out.putNextEntry(new ZipEntry(root.name() + '/' + fl));
         for (int c; (c=in.read(data)) != -1; )         out.write(data,0,c);
         out.closeEntry();

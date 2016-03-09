@@ -1,30 +1,29 @@
 {
-  if (comma.get(level))   print(',');
+  if (comma.get(level))   out.print(',');
  else   comma.set(level,true);
   if (level > 0) {
-    indent(level);
+    indent();
     final byte[] ptype=types.get(level - 1);
     if (eq(ptype,OBJECT)) {
-      if (atts && !eq(tag,PAIR))       error("<%> found, <%> expected",tag,PAIR);
-      if (key == null)       error("<%> has no name attribute",tag);
-      print('"');
+      if (atts && !eq(elem.string(),PAIR))       throw error("<%> found, <%> expected",elem,PAIR);
+      if (key == null)       throw error("<%> has no name attribute",elem);
+      out.print('"');
       final byte[] name=atts ? key : XMLToken.decode(key,lax);
-      if (name == null)       error("Name of element <%> is invalid",key);
-      print(name);
-      print("\":");
-      if (indent)       print(' ');
+      if (name == null)       throw error("Name of element <%> is invalid",key);
+      out.print(norm(name));
+      out.print("\":");
     }
  else     if (eq(ptype,ARRAY)) {
       if (atts) {
-        if (!eq(tag,ITEM))         error("<%> found, <%> expected",tag,ITEM);
-        if (key != null)         error("<%> must have no name attribute",tag);
+        if (!eq(elem.string(),ITEM))         throw error("<%> found, <%> expected",elem,ITEM);
+        if (key != null)         throw error("<%> must have no name attribute",elem);
       }
  else {
-        if (!eq(tag,VALUE))         error("<%> found, <%> expected",tag,VALUE);
+        if (!eq(elem.string(),VALUE))         throw error("<%> found, <%> expected",elem,VALUE);
       }
     }
  else {
-      error("<%> is typed as \"%\" and cannot be nested",tags.get(level - 1),ptype);
+      throw error("<%> is typed as \"%\" and cannot be nested",elems.get(level - 1),ptype);
     }
   }
   byte[] type=types.get(level);
@@ -39,12 +38,9 @@
     types.set(level,type);
   }
   if (eq(type,OBJECT)) {
-    print('{');
+    out.print('{');
   }
  else   if (eq(type,ARRAY)) {
-    print('[');
-  }
- else   if (level == 0 && spec == JsonSpec.RFC4627) {
-    error("<%> must be typed as \"%\" or \"%\"",JSON,OBJECT,ARRAY);
+    out.print('[');
   }
 }

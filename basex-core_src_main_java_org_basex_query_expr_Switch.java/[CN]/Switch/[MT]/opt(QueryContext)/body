@@ -1,0 +1,36 @@
+{
+  final boolean pre=cond.isValue();
+  final ExprList cache=new ExprList();
+  final Item it=pre ? cond.atomItem(qc,info) : null;
+  final ArrayList<SwitchCase> tmp=new ArrayList<>();
+  for (  final SwitchCase sc : cases) {
+    final int sl=sc.exprs.length;
+    final Expr ret=sc.exprs[0];
+    final ExprList el=new ExprList(sl).add(ret);
+    for (int e=1; e < sl; e++) {
+      final Expr ex=sc.exprs[e];
+      if (pre && ex.isValue()) {
+        final Item cs=ex.item(qc,info);
+        if (it == cs || cs != null && it != null && it.equiv(cs,null,info))         return ret;
+        qc.compInfo(OPTREMOVE_X_X,description(),ex);
+      }
+ else       if (cache.contains(ex)) {
+        qc.compInfo(OPTREMOVE_X_X,description(),ex);
+      }
+ else {
+        cache.add(ex);
+        el.add(ex);
+      }
+    }
+    if (sl == 1 && tmp.isEmpty())     return ret;
+    if (sl == 1 || el.size() > 1) {
+      sc.exprs=el.finish();
+      tmp.add(sc);
+    }
+  }
+  if (tmp.size() != cases.length) {
+    qc.compInfo(OPTREWRITE_X,this);
+    cases=tmp.toArray(new SwitchCase[tmp.size()]);
+  }
+  return this;
+}

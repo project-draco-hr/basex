@@ -1,0 +1,19 @@
+{
+  checkCreate(qc);
+  return process(new Validation(){
+    @Override void process(    final ErrorHandler handler) throws IOException, ParserConfigurationException, SAXException, QueryException {
+      final Item it=toNodeOrAtomItem(exprs[0],qc);
+      final IO path=exprs.length < 2 ? null : checkPath(toEmptyToken(exprs[1],qc));
+      SerializerOptions sp=null;
+      if (path != null) {
+        sp=new SerializerOptions();
+        sp.set(SerializerOptions.DOCTYPE_SYSTEM,prepare(path,handler).url());
+      }
+      final IO in=read(it,qc,sp);
+      final SAXParserFactory sf=SAXParserFactory.newInstance();
+      sf.setValidating(true);
+      sf.newSAXParser().parse(in.inputSource(),handler);
+    }
+  }
+);
+}

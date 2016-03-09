@@ -1,0 +1,18 @@
+{
+  final Performance p=new Performance();
+  final byte[] msg=exprs.length > 2 ? toToken(exprs[2],qc) : null;
+  if (exprs.length > 1 && toBoolean(exprs[1],qc)) {
+    final Value v=qc.value(exprs[0]).cache().value();
+    FnTrace.trace(token(p.getTime()),msg,qc);
+    return v.iter();
+  }
+  return new Iter(){
+    final Iter ir=exprs[0].iter(qc);
+    @Override public Item next() throws QueryException {
+      final Item it=ir.next();
+      if (it == null)       FnTrace.trace(token(p.getTime()),msg,qc);
+      return it;
+    }
+  }
+;
+}

@@ -1,0 +1,64 @@
+{
+  final byte[] data=new byte[IO.BLOCKSIZE];
+  for (ANode node; (node=iter.next()) != null; ) {
+    final QNm mode=node.qname();
+    final boolean dir=mode.eq(Q_DIR);
+    if (!dir && !mode.eq(Q_ENTRY))     throw ZIP_UNKNOWN_X.get(info,mode);
+    String name=attribute(node,NAME,false);
+    String src=attribute(node,SRC,false);
+    if (src != null)     src=src.replaceAll("\\\\","/");
+    if (name == null) {
+      if (src == null)       throw ZIP_INVALID_X_X.get(info,node.qname(),SRC);
+      name=src;
+    }
+    name=name.replaceAll(".*/","");
+    if (dir)     name+='/';
+    zos.putNextEntry(new ZipEntry(root + name));
+    if (dir) {
+      create(zos,node.children(),root + name,zf,qc);
+    }
+ else {
+      if (src != null) {
+        if (!new IOFile(src).exists())         throw ZIP_NOTFOUND_X.get(info,src);
+        try (final BufferedInputStream bis=new BufferedInputStream(new FileInputStream(src))){
+          for (int c; (c=bis.read(data)) != -1; )           zos.write(data,0,c);
+        }
+       }
+ else {
+        final BasicNodeIter ch=node.children();
+        final String m=attribute(node,METHOD,false);
+        ANode n=ch.next();
+        ZipEntry ze=null;
+        if (zf != null && n == null)         ze=zf.getEntry(root + name);
+        if (ze != null) {
+          final InputStream zis=zf.getInputStream(ze);
+          for (int c; (c=zis.read(data)) != -1; )           zos.write(data,0,c);
+        }
+ else         if (n != null) {
+          final boolean hex=M_HEX.equals(m);
+          if (hex || M_BASE64.equals(m)) {
+            final ByteList bl=new ByteList();
+            do             bl.add(n.string());
+ while ((n=ch.next()) != null);
+            final byte[] bytes=bl.finish();
+            zos.write((hex ? new Hex(bytes) : new B64(bytes)).toJava());
+          }
+ else {
+            final ArrayOutput ao=new ArrayOutput();
+            try (final Serializer ser=Serializer.get(ao,sopts(node))){
+              do {
+                ser.serialize(DataBuilder.stripNS(n,ZIP_URI,qc.context));
+              }
+ while ((n=ch.next()) != null);
+            }
+ catch (            final QueryIOException ex) {
+              throw ex.getCause(info);
+            }
+            zos.write(ao.finish());
+          }
+        }
+      }
+      zos.closeEntry();
+    }
+  }
+}

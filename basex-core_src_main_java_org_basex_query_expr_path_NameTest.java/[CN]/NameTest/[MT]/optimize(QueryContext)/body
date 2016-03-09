@@ -1,0 +1,18 @@
+{
+  final Data data=qc.data();
+  if (data == null)   return true;
+  final byte[] dataNS=data.nspaces.globalUri();
+  if (dataNS == null)   return true;
+  boolean results=true;
+  if (kind == Kind.URI_NAME && !name.hasURI()) {
+    if (type == NodeType.ATT || Token.eq(dataNS,defElemNS)) {
+      kind=Kind.NAME;
+    }
+ else {
+      results=false;
+    }
+  }
+  if (results)   results=kind != Kind.NAME || (type == NodeType.ELM ? data.elemNames : data.attrNames).contains(local);
+  if (!results)   qc.compInfo(OPTNAME_X,name);
+  return results;
+}

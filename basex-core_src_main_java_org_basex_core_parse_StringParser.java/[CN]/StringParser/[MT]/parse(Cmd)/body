@@ -6,13 +6,11 @@ case BACKUP:
       return new CreateBackup(glob(cmd));
 case DATABASE:
 case DB:
-    return new CreateDB(name(cmd),remaining(null));
+    return new CreateDB(name(cmd),remaining(null,true));
 case INDEX:
   return new CreateIndex(consume(CmdIndex.class,cmd));
 case USER:
 return new CreateUser(name(cmd),password());
-case EVENT:
-return new CreateEvent(name(cmd));
 }
 break;
 case COPY:
@@ -22,20 +20,22 @@ switch (consume(CmdAlter.class,cmd)) {
 case DATABASE:
 case DB:
 return new AlterDB(name(cmd),name(cmd));
+case PASSWORD:
+return new AlterPassword(name(cmd),password());
 case USER:
-return new AlterUser(name(cmd),password());
+return new AlterUser(name(cmd),name(cmd));
 }
 break;
 case OPEN:
-return new Open(name(cmd));
+return new Open(name(cmd),string(null));
 case CHECK:
 return new Check(string(cmd));
 case ADD:
-String arg=key(S_TO,null) ? string(cmd) : null;
-return new Add(arg,remaining(cmd));
+final String aa=key(S_TO,null) ? string(cmd) : null;
+return new Add(aa,remaining(cmd,true));
 case STORE:
-arg=key(S_TO,null) ? string(cmd) : null;
-return new Store(arg,remaining(cmd));
+final String sa=key(S_TO,null) ? string(cmd) : null;
+return new Store(sa,remaining(cmd,true));
 case RETRIEVE:
 return new Retrieve(string(cmd));
 case DELETE:
@@ -43,7 +43,7 @@ return new Delete(string(cmd));
 case RENAME:
 return new Rename(string(cmd),string(cmd));
 case REPLACE:
-return new Replace(string(cmd),remaining(cmd));
+return new Replace(string(cmd),remaining(cmd,true));
 case INFO:
 switch (consume(CmdInfo.class,cmd)) {
 case NULL:
@@ -54,9 +54,8 @@ return new InfoDB();
 case INDEX:
 return new InfoIndex(consume(CmdIndexInfo.class,null));
 case STORAGE:
-String arg1=number(null);
-final String arg2=arg1 != null ? number(null) : null;
-if (arg1 == null) arg1=xquery(null);
+final String arg1=number();
+final String arg2=arg1 != null ? number() : null;
 return new InfoStorage(arg1,arg2);
 }
 break;
@@ -77,8 +76,6 @@ case USER:
 return new DropUser(glob(cmd),key(ON,null) ? glob(cmd) : null);
 case BACKUP:
 return new DropBackup(glob(cmd));
-case EVENT:
-return new DropEvent(name(cmd));
 }
 break;
 case OPTIMIZE:
@@ -92,7 +89,7 @@ break;
 case EXPORT:
 return new Export(string(cmd));
 case XQUERY:
-return new XQuery(xquery(cmd));
+return new XQuery(remaining(cmd,false));
 case RUN:
 return new Run(string(cmd));
 case TEST:
@@ -101,8 +98,6 @@ case EXECUTE:
 return new Execute(string(cmd,false));
 case FIND:
 return new Find(string(cmd,false));
-case CS:
-return new Cs(xquery(cmd));
 case GET:
 return new Get(name(null));
 case SET:
@@ -112,6 +107,7 @@ return new Password(password());
 case HELP:
 return new Help(name(null));
 case EXIT:
+case QUIT:
 return new Exit();
 case FLUSH:
 return new Flush();
@@ -127,8 +123,6 @@ case USERS:
 return new ShowUsers(key(ON,null) ? name(cmd) : null);
 case BACKUPS:
 return new ShowBackups();
-case EVENTS:
-return new ShowEvents();
 }
 break;
 case GRANT:
@@ -148,5 +142,5 @@ return new RepoList();
 }
 break;
 }
-throw Util.notExpected("command specified, but not implemented yet");
+throw Util.notExpected("Command specified, but not implemented yet");
 }

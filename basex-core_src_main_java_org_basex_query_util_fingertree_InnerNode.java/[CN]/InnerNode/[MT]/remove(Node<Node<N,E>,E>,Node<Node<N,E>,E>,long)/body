@@ -1,0 +1,83 @@
+{
+  int i=0;
+  final int n=bounds.length;
+  while (pos >= bounds[i])   i++;
+  final long off=i == 0 ? pos : pos - bounds[i - 1];
+  final NodeLike<N,E>[] res=children[i].remove(i == 0 ? null : children[i - 1],i == n - 1 ? null : children[i + 1],off);
+  @SuppressWarnings("unchecked") final NodeLike<Node<N,E>,E>[] out=(NodeLike<Node<N,E>,E>[])res;
+  final Node<N,E> l=(Node<N,E>)res[0], m=(Node<N,E>)res[1], r=(Node<N,E>)res[2];
+  if (m != null) {
+    final Node<N,E>[] ch=children.clone();
+    if (i > 0)     ch[i - 1]=l;
+    ch[i]=m;
+    if (i < n - 1)     ch[i + 1]=r;
+    out[0]=left;
+    out[1]=new InnerNode<>(ch);
+    out[2]=right;
+    return out;
+  }
+  if (n > 2) {
+    @SuppressWarnings("unchecked") final Node<N,E>[] ch=new Node[n - 1];
+    if (i > 0) {
+      System.arraycopy(children,0,ch,0,i - 1);
+      ch[i - 1]=l;
+    }
+    if (i < n - 1) {
+      ch[i]=r;
+      System.arraycopy(children,i + 2,ch,i + 1,n - i - 2);
+    }
+    out[0]=left;
+    out[1]=new InnerNode<>(ch);
+    out[2]=right;
+    return out;
+  }
+  final Node<N,E> single=i == 0 ? r : l;
+  if (left != null && left.arity() > 2) {
+    final Node<N,E>[] ch=((InnerNode<N,E>)left).children;
+    final int a=ch.length, move=(a - 1) / 2;
+    @SuppressWarnings("unchecked") final Node<N,E>[] ls=new Node[a - move], ms=new Node[move + 1];
+    System.arraycopy(ch,0,ls,0,a - move);
+    System.arraycopy(ch,a - move,ms,0,move);
+    ms[move]=single;
+    out[0]=new InnerNode<>(ls);
+    out[1]=new InnerNode<>(ms);
+    out[2]=right;
+    return out;
+  }
+  if (right != null && right.arity() > 2) {
+    final Node<N,E>[] ch=((InnerNode<N,E>)right).children;
+    final int a=ch.length, move=(a - 1) / 2;
+    @SuppressWarnings("unchecked") final Node<N,E>[] ms=new Node[move + 1], rs=new Node[a - move];
+    ms[0]=single;
+    System.arraycopy(ch,0,ms,1,move);
+    System.arraycopy(ch,move,rs,0,rs.length);
+    out[0]=left;
+    out[1]=new InnerNode<>(ms);
+    out[2]=new InnerNode<>(rs);
+    return out;
+  }
+  if (left != null) {
+    final Node<N,E>[] ch=((InnerNode<N,E>)left).children;
+    final int a=ch.length;
+    @SuppressWarnings("unchecked") final Node<N,E>[] ls=new Node[a + 1];
+    System.arraycopy(ch,0,ls,0,a);
+    ls[a]=single;
+    out[0]=new InnerNode<>(ls);
+    out[2]=right;
+    return out;
+  }
+  if (right != null) {
+    final Node<N,E>[] ch=((InnerNode<N,E>)right).children;
+    final int a=ch.length;
+    @SuppressWarnings("unchecked") final Node<N,E>[] rs=new Node[a + 1];
+    rs[0]=single;
+    System.arraycopy(ch,0,rs,1,a);
+    out[0]=null;
+    out[2]=new InnerNode<>(rs);
+    return out;
+  }
+  out[0]=null;
+  out[1]=new PartialInnerNode<>(single);
+  out[2]=null;
+  return out;
+}

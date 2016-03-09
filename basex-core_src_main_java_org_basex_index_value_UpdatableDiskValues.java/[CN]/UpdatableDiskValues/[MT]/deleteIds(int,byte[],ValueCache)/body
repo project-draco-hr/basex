@@ -1,0 +1,25 @@
+{
+  final long off=idxr.read5(index * 5L);
+  final IntList ids=values.ids(key).sort();
+  final boolean pos=values.pos(key) != null;
+  final int oldSize=idxl.readNum(off), delSize=ids.size(), newSize=oldSize - delSize;
+  final IntList newIds=new IntList(newSize), newPos=pos ? new IntList(newSize) : null;
+  for (int o=0, d=0, currId=0; o < oldSize; o++) {
+    currId+=idxl.readNum();
+    final int currPos=pos ? idxl.readNum() : 0;
+    if (d < delSize && currId == ids.get(d)) {
+      d++;
+    }
+ else {
+      newIds.add(currId);
+      if (newPos != null)       newPos.add(currPos);
+    }
+  }
+  free.add((int)(idxl.cursor() - off),off);
+  if (newSize == 0) {
+    cache.delete(key);
+    return true;
+  }
+  writeIds(key,newIds,newPos,index);
+  return false;
+}

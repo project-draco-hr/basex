@@ -1,0 +1,26 @@
+{
+  final long id=++filterId;
+  final TreeSet<String> results=new TreeSet<>();
+  final int[] search=new TokenParser(Token.lc(Token.token(content))).toArray();
+  final ProjectCache pc=cache(root);
+  if (file.contains("*") || file.contains("?")) {
+    final Pattern pt=Pattern.compile(IOFile.regex(file));
+    for (    final String path : pc) {
+      final int offset=offset(path,true);
+      if (pt.matcher(path.substring(offset)).matches() && filterContent(path,search)) {
+        results.add(path);
+        if (results.size() >= MAXHITS)         break;
+      }
+      if (id != filterId)       throw new InterruptedException();
+    }
+  }
+ else {
+    final String pttrn=file.toLowerCase(Locale.ENGLISH).replace('\\','/');
+    final HashSet<String> exclude=new HashSet<>();
+    final boolean pathSearch=pttrn.indexOf('/') != -1;
+    for (int i=0; i < (pathSearch ? 2 : 3); i++) {
+      filter(pttrn,search,i,results,exclude,pathSearch,pc,id);
+    }
+  }
+  return results.toArray(new String[results.size()]);
+}

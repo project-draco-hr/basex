@@ -10,7 +10,7 @@
     info.setCursor(CURSORARROW);
     info.setText(stopped ? INTERRUPTED : OK,Msg.SUCCESS);
     info.setToolTipText(null);
-    errorInfo=null;
+    inputInfo=null;
   }
  else {
     info.setCursor(CURSORHAND);
@@ -18,19 +18,19 @@
     final String tt=th.getMessage().replace("<","&lt;").replace(">","&gt;").replaceAll("\r?\n","<br/>").replaceAll("(<br/>.*?)<br/>.*","$1");
     info.setToolTipText("<html>" + tt + "</html>");
     if (th instanceof QueryIOException) {
-      errorInfo=((QueryIOException)th).getCause().info();
+      inputInfo=((QueryIOException)th).getCause().info();
     }
  else     if (th instanceof QueryException) {
-      errorInfo=((QueryException)th).info();
+      inputInfo=((QueryException)th).info();
     }
  else     if (th instanceof SAXParseException) {
       final SAXParseException ex=(SAXParseException)th;
-      final String path=getEditor().file.path();
-      errorInfo=new InputInfo(path,ex.getLineNumber(),ex.getColumnNumber());
+      final String path=getEditor().file().path();
+      inputInfo=new InputInfo(path,ex.getLineNumber(),ex.getColumnNumber());
     }
  else {
-      errorInfo=new InputInfo(getEditor().file.path(),1,1);
+      inputInfo=new InputInfo(getEditor().file().path(),1,1);
     }
-    error(false);
+    markError(false);
   }
 }

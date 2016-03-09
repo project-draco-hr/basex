@@ -1,30 +1,38 @@
 {
   final Data data=context.data();
-  if (data.inMemory())   return error(NO_MAINMEM);
   final CmdIndex ci=getOption(CmdIndex.class);
-  if (ci == null)   return error(UNKNOWN_CMD_X,this);
-  final IndexType it;
-switch (ci) {
-case TEXT:
+  final IndexType type;
+  if (ci == CmdIndex.TEXT) {
+    type=IndexType.TEXT;
     data.meta.createtext=false;
-  it=IndexType.TEXT;
-break;
-case ATTRIBUTE:
-data.meta.createattr=false;
-it=IndexType.ATTRIBUTE;
-break;
-case FULLTEXT:
-data.meta.createftxt=false;
-it=IndexType.FULLTEXT;
-break;
-default :
-return error(UNKNOWN_CMD_X,this);
-}
-if (!data.startUpdate()) return error(DB_PINNED_X,data.meta.name);
-try {
-return drop(it,context.data()) ? info(INDEX_DROPPED_X_X,it,perf) : error(INDEX_NOT_DROPPED_X,it);
-}
-  finally {
-data.finishUpdate();
-}
+  }
+ else   if (ci == CmdIndex.ATTRIBUTE) {
+    type=IndexType.ATTRIBUTE;
+    data.meta.createattr=false;
+  }
+ else   if (ci == CmdIndex.TOKEN) {
+    type=IndexType.TOKEN;
+    data.meta.createtoken=false;
+  }
+ else   if (ci == CmdIndex.FULLTEXT) {
+    type=IndexType.FULLTEXT;
+    data.meta.createft=false;
+  }
+ else {
+    return error(UNKNOWN_CMD_X,this);
+  }
+  data.meta.names(type,options);
+  if (!startUpdate())   return false;
+  boolean ok=true;
+  try {
+    drop(type,data);
+    ok=info(INDEX_DROPPED_X_X,type,perf);
+  }
+ catch (  final IOException ex) {
+    ok=error(Util.message(ex));
+  }
+ finally {
+    ok&=finishUpdate();
+  }
+  return ok;
 }

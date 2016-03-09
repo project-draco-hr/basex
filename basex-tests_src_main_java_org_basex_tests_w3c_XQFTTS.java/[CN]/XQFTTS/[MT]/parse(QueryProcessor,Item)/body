@@ -1,0 +1,26 @@
+{
+  final QueryContext qc=qp.qc;
+  qc.resources.ftmaps(stop,thes);
+  final FTOpt opt=qc.ftOpt();
+  for (  final String s : aux("stopwords",root)) {
+    final IO fn=stop2.get(s);
+    if (fn != null) {
+      if (opt.sw == null)       opt.sw=new StopWords();
+      opt.sw.read(fn,false);
+    }
+  }
+  for (  final String s : aux("stemming-dictionary",root)) {
+    final IO fn=stem.get(s);
+    if (fn != null) {
+      if (opt.sd == null)       opt.sd=new StemDir();
+      opt.sd.read(fn);
+    }
+  }
+  for (  final String s : aux("thesaurus",root)) {
+    final IO fn=thes2.get(s);
+    if (fn != null) {
+      if (opt.th == null)       opt.th=new ThesQuery();
+      opt.th.add(new Thesaurus(fn,context));
+    }
+  }
+}

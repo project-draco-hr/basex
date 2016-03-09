@@ -1,0 +1,25 @@
+{
+  final ANodeList list=new ANodeList();
+  for (  final ANode n : axis.iter(checkNode(qc))) {
+    if (test.eq(n))     list.add(n.finish());
+  }
+  final boolean scoring=qc.scoring;
+  for (  final Expr pred : preds) {
+    final long nl=list.size();
+    qc.size=nl;
+    qc.pos=1;
+    int c=0;
+    for (int n=0; n < nl; ++n) {
+      final ANode node=list.get(n);
+      qc.value=node;
+      final Item tst=pred.test(qc,info);
+      if (tst != null) {
+        if (scoring)         node.score(tst.score());
+        list.set(c++,node);
+      }
+      qc.pos++;
+    }
+    list.size(c);
+  }
+  return list.iter();
+}

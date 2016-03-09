@@ -1,0 +1,43 @@
+{
+  if (!(tree instanceof DeepTree)) {
+    if (tree instanceof SingletonTree)     append(((SingletonTree<N,E>)tree).elem);
+    return;
+  }
+  final DeepTree<N,E> deep=(DeepTree<N,E>)tree;
+  final Node<N,E>[] ls=deep.left, rs=deep.right;
+  final int ll=ls.length, rl=rs.length;
+  final FingerTree<Node<N,E>,E> mid=deep.middle;
+  if (mid.isEmpty()) {
+    for (int i=0; i < ll; i++)     append(ls[i]);
+    for (int i=0; i < rl; i++)     append(rs[i]);
+  }
+ else   if (middle == null) {
+    final int n=inLeft + inRight;
+    final Node<N,E>[] buff=new Node[n + ll];
+    copyInto(midPos - inLeft,buff,0,n);
+    System.arraycopy(ls,0,buff,n,ll);
+    inLeft=inRight=0;
+    middle=mid;
+    for (int i=buff.length; --i >= 0; )     prepend(buff[i]);
+    for (int i=0; i < rl; i++)     append(rs[i]);
+  }
+ else {
+    final int n=inRight + ll;
+    final Node<N,E>[] buff=new Node[n];
+    copyInto(midPos,buff,0,inRight);
+    System.arraycopy(ls,0,buff,inRight,ll);
+    inRight=0;
+    for (int k=(n + NODE_SIZE - 1) / NODE_SIZE, p=0; k > 0; k--) {
+      final int inNode=(n - p + k - 1) / k;
+      final Node<N,E>[] out=new Node[inNode];
+      System.arraycopy(buff,p,out,0,inNode);
+      final Node<Node<N,E>,E> sub=new InnerNode<>(out);
+      if (middle == null)       middle=new BufferNode<>(sub);
+ else       midBuffer().append(sub);
+      p+=inNode;
+    }
+    if (middle == null)     middle=mid;
+ else     midBuffer().append(mid);
+    for (int i=0; i < rl; i++)     append(rs[i]);
+  }
+}

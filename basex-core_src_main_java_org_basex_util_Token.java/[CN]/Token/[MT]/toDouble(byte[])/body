@@ -1,12 +1,28 @@
 {
   final int tl=token.length;
+  int s=-1;
+  while (++s < tl && ws(token[s]))   ;
+  if (s == tl)   return Double.NaN;
+  int e=s;
   boolean f=false;
-  for (  final int t : token) {
-    if (t >= 0 && t <= ' ' || digit(t))     continue;
-    f=t == 'e' || t == 'E' || t == '.' || t == '-';
-    if (!f)     return Double.NaN;
+  for (int p=s; p < tl; ++p) {
+    final byte b=token[p];
+    if (e == s) {
+      if (digit(b) || b == '+')       continue;
+      if (ws(b)) {
+        e=p + 1;
+      }
+ else {
+        f=b == 'e' || b == 'E' || b == '.' || b == '-';
+        if (!f)         return Double.NaN;
+      }
+    }
+ else     if (!ws(b)) {
+      return Double.NaN;
+    }
   }
-  if (f || tl > 9)   return dbl(token);
-  final int d=toInt(token);
+  if (e == s)   e=tl;
+  if (f || e - s > 9)   return toDouble(token,s,e);
+  final int d=toInt(token,s,e);
   return d == Integer.MIN_VALUE ? Double.NaN : d;
 }

@@ -9,11 +9,12 @@
   }
   if (XMLToken.isNCStartChar(curr()))   return checkDbl();
   if (dec) {
-    final byte[] t=tok.finish();
-    if (t.length == 1 && t[0] == '.')     throw error(NUMBERDEC,t);
-    return new Dec(t);
+    final byte[] t=tok.toArray();
+    if (t.length == 1 && t[0] == '.')     throw error(NUMBERDEC_X,t);
+    return Dec.get(new BigDecimal(string(trim(t))));
   }
-  final long l=toLong(tok.finish());
+  final long l=toLong(tok.toArray());
   if (l != Long.MIN_VALUE)   return Int.get(l);
-  return FNInfo.error(new QueryException(info(),RANGE,tok),SeqType.ITR);
+  final InputInfo ii=info();
+  return FnError.get(RANGE_X.get(ii,chop(tok,ii)),SeqType.ITR);
 }

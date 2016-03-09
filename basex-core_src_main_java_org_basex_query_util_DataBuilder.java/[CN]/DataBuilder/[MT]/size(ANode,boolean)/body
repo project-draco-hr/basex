@@ -1,15 +1,16 @@
 {
   if (node instanceof DBNode) {
-    final DBNode dbn=(DBNode)node;
-    final int k=node.kind();
-    return att ? dbn.data.attSize(dbn.pre,k) : dbn.data.size(dbn.pre,k);
+    final DBNode dbnode=(DBNode)node;
+    final Data data=dbnode.data();
+    final int kind=node.kind();
+    final int pre=dbnode.pre();
+    return att ? data.attSize(pre,kind) : data.size(pre,kind);
   }
-  int s=1;
-  AxisIter ai=node.attributes();
-  while (ai.next() != null)   ++s;
+  int size=1;
+  final BasicNodeIter iter=node.attributes();
+  while (iter.next() != null)   ++size;
   if (!att) {
-    ai=node.children();
-    for (ANode i; (i=ai.next()) != null; )     s+=size(i,att);
+    for (    final ANode child : node.children())     size+=size(child,false);
   }
-  return s;
+  return size;
 }

@@ -1,0 +1,22 @@
+{
+  checkCreate(qc);
+  final ArrayList<StaticFunc> old=new ArrayList<>();
+  if (exprs.length > 0) {
+    Collections.addAll(old,qc.funcs.funcs());
+    try {
+      final IO io=checkPath(exprs[0],qc);
+      qc.parse(Token.string(io.read()),io.path(),sc);
+      qc.funcs.compile(qc,true);
+    }
+ catch (    final IOException ex) {
+      throw IOERR_X.get(info,ex);
+    }
+  }
+  final ValueBuilder vb=new ValueBuilder();
+  for (  final StaticFunc sf : qc.funcs.funcs()) {
+    if (old.contains(sf))     continue;
+    final FuncItem fi=Functions.getUser(sf,qc,sf.sc,info);
+    if (sc.mixUpdates || !fi.annotations().contains(Annotation.UPDATING))     vb.add(fi);
+  }
+  return vb.value();
+}

@@ -1,5 +1,5 @@
 {
-  final int s=openSubScope();
+  final int s=localVars.openScope();
   final LinkedList<Clause> clauses=initialClause(null);
   if (clauses == null)   return null;
   final TokenObjMap<Var> curr=new TokenObjMap<>();
@@ -9,63 +9,62 @@
     do {
       size=clauses.size();
       initialClause(clauses);
-      for (int i=size; i < clauses.size(); i++)       for (      final Var v : clauses.get(i).vars())       curr.put(v.name.id(),v);
+      for (      final Clause c : clauses) {
+        for (        final Var v : c.vars())         curr.put(v.name.id(),v);
+      }
     }
  while (size < clauses.size());
     if (wsConsumeWs(WHERE)) {
       alterPos=pos;
       clauses.add(new Where(check(single(),NOWHERE),info()));
-      alter=NOWHERE;
     }
-    if (sc.xquery3() && wsConsumeWs(GROUP)) {
+    if (wsConsumeWs(GROUP)) {
       wsCheck(BY);
       skipWs();
       alterPos=pos;
-      final GroupBy.Spec[] specs=groupSpecs(clauses);
+      final Spec[] specs=groupSpecs(clauses);
       final ArrayList<VarRef> ng=new ArrayList<>();
-      for (      final GroupBy.Spec spec : specs)       curr.put(spec.var.name.id(),spec.var);
+      for (      final Spec spec : specs)       curr.put(spec.var.name.id(),spec.var);
       vars:       for (      final Var v : curr.values()) {
-        for (        final GroupBy.Spec spec : specs)         if (spec.var.is(v))         continue vars;
+        for (        final Spec spec : specs)         if (spec.var.is(v))         continue vars;
         ng.add(new VarRef(specs[0].info,v));
       }
       final Var[] ngrp=new Var[ng.size()];
       for (int i=ng.size(); --i >= 0; ) {
         final VarRef v=ng.get(i);
-        final Var nv=addVar(v.var.name,null,false);
-        if (v.type().one())         nv.refineType(SeqType.get(v.type().type,Occ.ONE_MORE),qc,info());
+        final Var nv=localVars.add(v.var.name,null,false);
+        if (v.seqType().one())         nv.refineType(SeqType.get(v.seqType().type,Occ.ONE_MORE),qc,info());
         ngrp[i]=nv;
         curr.put(nv.name.id(),nv);
       }
       final VarRef[] pre=new VarRef[ng.size()];
       clauses.add(new GroupBy(specs,ng.toArray(pre),ngrp,specs[0].info));
-      alter=GRPBY;
     }
     final boolean stable=wsConsumeWs(STABLE);
     if (stable)     wsCheck(ORDER);
     if (stable || wsConsumeWs(ORDER)) {
       wsCheck(BY);
       alterPos=pos;
-      OrderBy.Key[] ob=null;
+      Key[] ob=null;
       do {
-        final OrderBy.Key key=orderSpec();
-        ob=ob == null ? new OrderBy.Key[]{key} : Array.add(ob,key);
+        final Key key=orderSpec();
+        ob=ob == null ? new Key[]{key} : Array.add(ob,key);
       }
  while (wsConsume(COMMA));
       final VarRef[] vs=new VarRef[curr.size()];
       int i=0;
       for (      final Var v : curr.values())       vs[i++]=new VarRef(ob[0].info,v);
       clauses.add(new OrderBy(vs,ob,ob[0].info));
-      alter=ORDERBY;
     }
-    if (sc.xquery3() && wsConsumeWs(COUNT,DOLLAR,NOCOUNT)) {
-      final Var v=addVar(varName(),SeqType.ITR,false);
+    if (wsConsumeWs(COUNT,DOLLAR,NOCOUNT)) {
+      final Var v=localVars.add(varName(),SeqType.ITR,false);
       curr.put(v.name.id(),v);
       clauses.add(new Count(v,info()));
     }
   }
- while (sc.xquery3() && size < clauses.size());
+ while (size < clauses.size());
   if (!wsConsumeWs(RETURN))   throw alter == null ? error(FLWORRETURN) : error();
   final Expr ret=check(single(),NORETURN);
-  closeSubScope(s);
+  localVars.closeScope(s);
   return new GFLWOR(clauses.get(0).info,clauses,ret);
 }

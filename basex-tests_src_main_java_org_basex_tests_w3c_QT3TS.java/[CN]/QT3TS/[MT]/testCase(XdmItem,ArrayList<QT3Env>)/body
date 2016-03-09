@@ -13,20 +13,19 @@
   }
   tested++;
   final XdmValue expected=new XQuery("*:result/*[1]",ctx).context(test).value();
-  if (new XQuery("*:dependency[@type='spec'][matches(@value,'(XQ10)([^+]|$)')]",ctx).context(test).next() != null)   ctx.options.set(MainOptions.XQUERY3,false);
-  QT3Env e=null;
+  QT3Env env=null;
   final XdmValue ienv=new XQuery("*:environment[*]",ctx).context(test).value();
-  if (ienv.size() != 0)   e=new QT3Env(ctx,ienv);
+  if (ienv.size() != 0)   env=new QT3Env(ctx,ienv);
   boolean base=true;
-  if (e == null) {
-    final String env=asString("*:environment/@ref",test);
-    if (!env.isEmpty()) {
-      e=envs(envs,env);
-      if (e == null) {
-        e=envs(genvs,env);
+  if (env == null) {
+    final String e=asString("*:environment[1]/@ref",test);
+    if (!e.isEmpty()) {
+      env=envs(envs,e);
+      if (env == null) {
+        env=envs(genvs,e);
         base=false;
       }
-      if (e == null)       Util.errln("%: environment '%' not found.",name,env);
+      if (env == null)       Util.errln("%: environment '%' not found.",name,e);
     }
   }
   final Performance perf=new Performance();
@@ -39,14 +38,14 @@
     string=string(new IOFile(baseDir,qfile).read());
   }
   if (verbose)   Util.outln(name);
-  if (e != null) {
-    for (    final HashMap<String,String> par : e.params) {
+  if (env != null) {
+    for (    final HashMap<String,String> par : env.params) {
       final String decl=par.get(DECLARED);
       if (decl == null || decl.equals("false")) {
         string="declare variable $" + par.get(NNAME) + " external;"+ string;
       }
     }
-    for (    final HashMap<String,String> src : e.sources) {
+    for (    final HashMap<String,String> src : env.sources) {
       final String role=src.get(ROLE);
       if (role != null && role.startsWith("$")) {
         string="declare variable " + role + " external;"+ string;
@@ -64,16 +63,12 @@
     if (file == null)     break;
     query.addModule(uri.getString(),baseDir + file.getString());
   }
-  final QT3Result result=new QT3Result();
+  final QT3Result returned=new QT3Result();
+  returned.env=env;
   try {
-    if (e != null) {
-      for (      final HashMap<String,String> ns : e.namespaces) {
-        query.namespace(ns.get(PREFIX),ns.get(URI));
-      }
-      for (      final HashMap<String,String> par : e.params) {
-        query.bind(par.get(NNAME),new XQuery(par.get(SELECT),ctx).value());
-      }
-      for (      final HashMap<String,String> src : e.sources) {
+    environment(query,env);
+    if (env != null) {
+      for (      final HashMap<String,String> src : env.sources) {
         final String file=file(base,src.get(FILE));
         query.addDocument(src.get(URI),file);
         final String role=src.get(ROLE);
@@ -82,30 +77,30 @@
         if (role.equals("."))         query.context(doc);
  else         query.bind(role,doc);
       }
-      for (      final HashMap<String,String> src : e.resources) {
-        query.addResource(src.get(URI),file(base,src.get(FILE)),src.get(Prop.ENCODING));
+      for (      final HashMap<String,String> src : env.resources) {
+        query.addResource(src.get(URI),file(base,src.get(FILE)),src.get(QT3Constants.ENCODING));
       }
-      query.addCollection(e.collURI,e.collSources.toArray());
-      if (e.collContext) {
-        query.context(query.collection(e.collURI));
+      query.addCollection(env.collURI,env.collSources.toArray());
+      if (env.collContext) {
+        query.context(query.collection(env.collURI));
       }
-      if (e.context != null) {
-        query.context(e.context);
+      if (env.context != null) {
+        query.context(env.context);
       }
-      if (e.baseURI != null)       query.baseURI(e.baseURI);
-      for (      final Map.Entry<QName,HashMap<String,String>> df : e.decFormats.entrySet()) {
+      if (env.baseURI != null)       query.baseURI(env.baseURI);
+      for (      final Entry<QName,HashMap<String,String>> df : env.decFormats.entrySet()) {
         query.decimalFormat(df.getKey(),df.getValue());
       }
     }
-    result.value=query.value();
-    result.sprop=query.serializer();
+    returned.value=query.value();
+    returned.query=query;
   }
  catch (  final XQueryException ex) {
-    result.err=ex;
-    result.value=null;
+    returned.xqerror=ex;
+    returned.value=null;
   }
 catch (  final Throwable ex) {
-    result.error=ex;
+    returned.error=ex;
     Util.errln("Query: " + name);
     ex.printStackTrace();
   }
@@ -113,23 +108,21 @@ catch (  final Throwable ex) {
     final long l=perf.time();
     if (l > 100000000)     slow.put(-l,name);
   }
-  ctx.options.set(MainOptions.XQUERY3,true);
-  final String exp=test(result,expected);
+  final String exp=test(returned,expected);
   final TokenBuilder tmp=new TokenBuilder();
   tmp.add(name).add(NL);
-  tmp.add(noComments(string)).add(NL);
-  boolean err=result.value == null;
+  tmp.add(QueryProcessor.removeComments(string,maxout)).add(NL);
+  boolean err=returned.value == null;
   String res;
   try {
-    if (result.error != null) {
-      res=result.error.toString();
+    if (returned.error != null) {
+      res=returned.error.toString();
     }
- else     if (result.err != null) {
-      res=result.err.getCode() + ": " + result.err.getLocalizedMessage();
+ else     if (returned.xqerror != null) {
+      res=returned.xqerror.getCode() + ": " + returned.xqerror.getLocalizedMessage();
     }
  else {
-      result.sprop.set(SerializerOptions.OMIT_XML_DECLARATION,"yes");
-      res=serialize(result.value,result.sprop);
+      res=serialize(returned);
     }
   }
  catch (  final XQueryException ex) {
@@ -137,18 +130,16 @@ catch (  final Throwable ex) {
     err=true;
   }
 catch (  final Throwable ex) {
-    res="Unexpected: " + ex.toString();
-    err=true;
+    res=returned.value.toString();
   }
-  tmp.add(err ? "Error : " : "Result: ").add(noComments(res)).add(NL);
+  tmp.add(err ? "Error : " : "Result: ").add(normSpecial(res)).add(NL);
   if (exp == null) {
     tmp.add(NL);
     right.add(tmp.finish());
     correct++;
   }
  else {
-    tmp.add("Expect: " + noComments(exp)).add(NL).add(NL);
-    wrong.add(tmp.finish());
+    wrong.add(tmp.add("Expect: ").add(normSpecial(exp)).add(NL).add(NL).finish());
   }
   if (report != null)   report.addTest(name,exp == null);
 }

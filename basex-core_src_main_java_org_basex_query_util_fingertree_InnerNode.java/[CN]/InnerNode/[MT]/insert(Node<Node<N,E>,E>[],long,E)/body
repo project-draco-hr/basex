@@ -1,0 +1,104 @@
+{
+  final Node<Node<N,E>,E> left=siblings[0], right=siblings[2];
+  int i=0;
+  final int n=bounds.length;
+  while (index > bounds[i])   i++;
+  final long off=i == 0 ? index : index - bounds[i - 1];
+  @SuppressWarnings("unchecked") final Node<N,E>[] subs=(Node<N,E>[])siblings;
+  subs[0]=i == 0 ? null : children[i - 1];
+  subs[2]=i == n - 1 ? null : children[i + 1];
+  final int l=Math.max(0,i - 1), r=Math.min(i + 1,n - 1);
+  if (!children[i].insert(subs,off,val)) {
+    final Node<N,E>[] out=children.clone();
+    System.arraycopy(subs,i == 0 ? 1 : 0,out,l,r - l + 1);
+    siblings[0]=left;
+    siblings[1]=new InnerNode<>(out);
+    siblings[2]=right;
+    return false;
+  }
+  @SuppressWarnings("unchecked") final Node<N,E>[] temp=new Node[n + 1];
+  if (i == 0) {
+    System.arraycopy(subs,1,temp,0,3);
+    System.arraycopy(children,2,temp,3,n - 2);
+  }
+ else   if (i < n - 1) {
+    System.arraycopy(children,0,temp,0,l);
+    System.arraycopy(subs,0,temp,l,4);
+    System.arraycopy(children,r + 1,temp,l + 4,n - l - 3);
+  }
+ else {
+    System.arraycopy(children,0,temp,0,n - 2);
+    System.arraycopy(subs,0,temp,n - 2,3);
+  }
+  if (n < FingerTree.MAX_ARITY) {
+    siblings[0]=left;
+    siblings[1]=new InnerNode<>(temp);
+    siblings[2]=right;
+    return false;
+  }
+  if (left != null) {
+    final int la=left.arity(), move=(FingerTree.MAX_ARITY - la + 1) / 2;
+    if (move > 0) {
+      final Node<N,E>[] ch=((InnerNode<N,E>)left).children;
+      @SuppressWarnings("unchecked") final Node<N,E>[] ls=new Node[la + move], rs=new Node[n + 1 - move];
+      System.arraycopy(ch,0,ls,0,la);
+      System.arraycopy(temp,0,ls,la,move);
+      System.arraycopy(temp,move,rs,0,rs.length);
+      siblings[0]=new InnerNode<>(ls);
+      siblings[1]=new InnerNode<>(rs);
+      siblings[2]=right;
+      return false;
+    }
+  }
+  if (right != null) {
+    final int ra=right.arity(), move=(FingerTree.MAX_ARITY - ra + 1) / 2;
+    if (move > 0) {
+      final Node<N,E>[] ch=((InnerNode<N,E>)right).children;
+      @SuppressWarnings("unchecked") final Node<N,E>[] ls=new Node[n + 1 - move], rs=new Node[ra + move];
+      System.arraycopy(temp,0,ls,0,ls.length);
+      System.arraycopy(temp,ls.length,rs,0,move);
+      System.arraycopy(ch,0,rs,move,ra);
+      siblings[0]=left;
+      siblings[1]=new InnerNode<>(ls);
+      siblings[2]=new InnerNode<>(rs);
+      return false;
+    }
+  }
+  if (left != null) {
+    final Node<N,E>[] ch=((InnerNode<N,E>)left).children;
+    final int la=ch.length, k=la + n + 1, ml=k / 3, ll=k - 2 * ml, inL=la - ll;
+    @SuppressWarnings("unchecked") final Node<N,E>[] ls=new Node[ll], mid1=new Node[ml], mid2=new Node[ml];
+    System.arraycopy(ch,0,ls,0,ll);
+    System.arraycopy(ch,ll,mid1,0,inL);
+    System.arraycopy(temp,0,mid1,inL,ml - inL);
+    System.arraycopy(temp,ml - inL,mid2,0,ml);
+    siblings[0]=inL == 0 ? left : new InnerNode<>(ls);
+    siblings[1]=new InnerNode<>(mid1);
+    siblings[2]=new InnerNode<>(mid2);
+    siblings[3]=right;
+    return true;
+  }
+  if (right != null) {
+    final Node<N,E>[] ch=((InnerNode<N,E>)right).children;
+    final int ra=ch.length, k=n + 1 + ra, ml=k / 3, rl=k - 2 * ml, inR=ra - rl;
+    @SuppressWarnings("unchecked") final Node<N,E>[] mid1=new Node[ml], mid2=new Node[ml], rs=new Node[rl];
+    System.arraycopy(temp,0,mid1,0,ml);
+    System.arraycopy(temp,ml,mid2,0,ml - inR);
+    System.arraycopy(ch,0,mid2,ml - inR,inR);
+    System.arraycopy(ch,inR,rs,0,rl);
+    siblings[0]=null;
+    siblings[1]=new InnerNode<>(mid1);
+    siblings[2]=new InnerNode<>(mid2);
+    siblings[3]=inR == 0 ? right : new InnerNode<>(rs);
+    return true;
+  }
+  final int ll=(n + 1) / 2, rl=n + 1 - ll;
+  @SuppressWarnings("unchecked") final Node<N,E>[] ls=new Node[ll], rs=new Node[rl];
+  System.arraycopy(temp,0,ls,0,ll);
+  System.arraycopy(temp,ll,rs,0,rl);
+  siblings[0]=null;
+  siblings[1]=new InnerNode<>(ls);
+  siblings[2]=new InnerNode<>(rs);
+  siblings[3]=null;
+  return true;
+}

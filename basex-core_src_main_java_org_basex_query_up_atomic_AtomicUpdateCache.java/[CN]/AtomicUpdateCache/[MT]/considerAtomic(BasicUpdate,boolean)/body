@@ -1,0 +1,20 @@
+{
+  if (recent == null) {
+    recent=candidate;
+    if (recent instanceof StructuralUpdate)     recentStruct=candidate;
+    return;
+  }
+  if (candidate instanceof StructuralUpdate && recentStruct != null) {
+    ((StructuralUpdate)candidate).accumulatedShifts+=recentStruct.accumulatedShifts();
+  }
+  if (slack) {
+    add(candidate,false);
+  }
+ else {
+    check(recent,candidate);
+    if (treeAwareUpdates(recent,candidate))     return;
+    final BasicUpdate m=recent.merge(data,candidate);
+    if (m != null)     add(m,true);
+ else     add(candidate,false);
+  }
+}

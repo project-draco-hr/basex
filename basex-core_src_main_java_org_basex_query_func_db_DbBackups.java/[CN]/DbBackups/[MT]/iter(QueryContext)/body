@@ -1,0 +1,21 @@
+{
+  checkCreate(qc);
+  final String name=exprs.length == 0 ? null : string(toToken(exprs[0],qc));
+  final StringList backups=name == null ? qc.context.databases.backups() : qc.context.databases.backups(name);
+  final IOFile dbpath=qc.context.soptions.dbPath();
+  return new Iter(){
+    int up=-1;
+    @Override public Item next() throws QueryException {
+      if (++up >= backups.size())       return null;
+      final String backup=backups.get(up);
+      final long length=new IOFile(dbpath,backup + IO.ZIPSUFFIX).length();
+      final String db=Databases.name(backup);
+      final Date date=Databases.date(backup);
+      final String ymd=DateTime.format(date,DateTime.DATE);
+      final String hms=DateTime.format(date,DateTime.TIME);
+      final Dtm dtm=new Dtm(token(ymd + 'T' + hms),info);
+      return new FElem(BACKUP).add(backup).add(DATABASE,db).add(DATE,dtm.string(info)).add(SIZE,token(length));
+    }
+  }
+;
+}

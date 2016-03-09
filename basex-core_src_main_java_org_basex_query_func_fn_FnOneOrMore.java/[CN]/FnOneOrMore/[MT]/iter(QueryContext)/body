@@ -1,0 +1,18 @@
+{
+  final Iter ir=exprs[0].iter(qc);
+  final long len=ir.size();
+  if (len == 0)   throw ONEORMORE.get(info);
+  if (len > 0)   return ir;
+  return new Iter(){
+    private boolean first=true;
+    @Override public Item next() throws QueryException {
+      final Item it=ir.next();
+      if (first) {
+        if (it == null)         throw ONEORMORE.get(info);
+        first=false;
+      }
+      return it;
+    }
+  }
+;
+}

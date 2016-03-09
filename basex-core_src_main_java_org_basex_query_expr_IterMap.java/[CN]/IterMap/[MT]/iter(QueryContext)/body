@@ -1,0 +1,42 @@
+{
+  return new Iter(){
+    final int sz=exprs.length;
+    final Iter[] iter=new Iter[sz];
+    final Value[] values=new Value[sz];
+    int pos=-1;
+    @Override public Item next() throws QueryException {
+      final Value cv=qc.value;
+      int p=pos;
+      if (p == -1) {
+        values[++p]=cv;
+        iter[p]=qc.iter(exprs[0]);
+      }
+      try {
+        qc.value=values[p];
+        while (true) {
+          final Item it=iter[p].next();
+          if (it == null) {
+            iter[p]=null;
+            if (--p == -1) {
+              pos=p;
+              return null;
+            }
+          }
+ else           if (p < sz - 1) {
+            qc.value=it;
+            values[++p]=it;
+            iter[p]=qc.iter(exprs[p]);
+          }
+ else {
+            pos=p;
+            return it;
+          }
+        }
+      }
+  finally {
+        qc.value=cv;
+      }
+    }
+  }
+;
+}

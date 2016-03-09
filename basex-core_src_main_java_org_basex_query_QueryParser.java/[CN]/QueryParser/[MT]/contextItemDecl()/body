@@ -2,21 +2,21 @@
   wsCheck(ITEMM);
   if (!decl.add(ITEMM))   throw error(DUPLITEM);
   if (wsConsumeWs(AS)) {
-    final SeqType type=itemType();
-    if (sc.initType == null) {
-      sc.initType=type;
+    final SeqType declType=itemType();
+    if (sc.contextType == null) {
+      sc.contextType=declType;
     }
- else     if (!sc.initType.eq(type)) {
-      throw error(CITYPES,sc.initType,type);
+ else     if (!sc.contextType.eq(declType)) {
+      throw error(CITYPES_X_X,sc.contextType,declType);
     }
   }
   if (!wsConsumeWs(EXTERNAL))   wsCheck(ASSIGN);
  else   if (!wsConsumeWs(ASSIGN))   return;
-  pushVarContext(null);
-  final Expr expr=check(single(),NOVARDECL);
-  final SeqType type=sc.initType == null ? SeqType.ITEM : sc.initType;
-  final VarScope scope=popVarContext();
-  qc.ctxItem=MainModule.get(expr,scope,type,currDoc.toString(),sc,info());
+  localVars.pushContext(null);
+  final Expr e=check(single(),NOVARDECL);
+  final SeqType declType=sc.contextType == null ? SeqType.ITEM : sc.contextType;
+  final VarScope scope=localVars.popContext();
+  qc.ctxItem=MainModule.get(e,scope,declType,currDoc.toString(),sc,info());
   if (module != null)   throw error(DECITEM);
-  if (!sc.mixUpdates && expr.has(Flag.UPD))   throw error(UPCTX,expr);
+  if (!sc.mixUpdates && e.has(Flag.UPD))   throw error(UPCTX,e);
 }

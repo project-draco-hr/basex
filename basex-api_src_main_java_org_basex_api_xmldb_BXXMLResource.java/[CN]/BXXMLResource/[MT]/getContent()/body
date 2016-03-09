@@ -2,17 +2,18 @@
   if (content == null) {
     try {
       final ArrayOutput ao=new ArrayOutput();
-      final Serializer ser=Serializer.get(ao);
-      if (data != null) {
-        ser.serialize(new DBNode(data,pos));
-      }
- else       if (result != null) {
-        result.serialize(ser,pos);
-      }
+      try (final Serializer ser=Serializer.get(ao,SerializerMode.NOINDENT.get())){
+        if (data != null) {
+          ser.serialize(new DBNode(data,pre));
+        }
+ else         if (item != null) {
+          ser.serialize(item);
+        }
  else {
-        return null;
+          return null;
+        }
       }
-      content=ao.toArray();
+       content=ao.toArray();
     }
  catch (    final IOException ex) {
       throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ex.getMessage());

@@ -1,11 +1,14 @@
 {
   if (coll != null || min == null || max == null)   return false;
   final Data data=ii.ic.data;
-  if (data.inMemory() || !ii.check(expr,false))   return false;
-  final StringRange sr=new StringRange(ii.text,min,mni,max,mxi);
-  ii.costs=Math.max(1,data.meta.size / 10);
+  if (data.inMemory())   return false;
+  final IndexType type=ii.type(expr,null);
+  if (type == null)   return false;
+  final StringRange sr=new StringRange(type,min,mni,max,mxi);
+  ii.costs=data.costs(sr);
+  if (ii.costs < 0)   return false;
   final TokenBuilder tb=new TokenBuilder();
   tb.add(mni ? '[' : '(').addExt(min).add(',').addExt(max).add(mxi ? ']' : ')');
-  ii.create(new StringRangeAccess(info,sr,ii.ic),info,Util.info(OPTSRNGINDEX,tb),true);
+  ii.create(new StringRangeAccess(info,sr,ii.ic),true,info,Util.info(OPTINDEX_X_X,type + " string range",tb));
   return true;
 }

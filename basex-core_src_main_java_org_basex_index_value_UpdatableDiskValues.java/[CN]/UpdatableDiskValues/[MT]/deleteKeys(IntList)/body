@@ -1,0 +1,18 @@
+{
+  if (keys.isEmpty())   return;
+  int sz=size();
+  final int kl=keys.size();
+  final byte[] tmp=idxr.readBytes(0,sz * 5);
+  for (int k=0, newIndex=keys.get(k++), oldIndex=newIndex + 1; oldIndex < sz; oldIndex++) {
+    if (k < kl && oldIndex == keys.get(k)) {
+      k++;
+    }
+ else {
+      copy(tmp,oldIndex,newIndex++);
+    }
+  }
+  sz-=kl;
+  size(sz);
+  idxr.cursor(0);
+  idxr.writeBytes(tmp,0,sz * 5);
+}

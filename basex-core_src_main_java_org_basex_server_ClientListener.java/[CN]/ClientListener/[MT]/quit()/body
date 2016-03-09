@@ -1,8 +1,9 @@
 {
   if (!running)   return;
   running=false;
-  if (command != null) {
-    command.stop();
+  final Command c=command;
+  if (c != null) {
+    c.stop();
     do     Performance.sleep(50);
  while (command != null);
   }
@@ -10,13 +11,9 @@
   try {
     new Close().run(context);
     socket.close();
-    if (events) {
-      esocket.close();
-      for (      final Sessions s : context.events.values())       s.remove(this);
-    }
   }
  catch (  final Throwable ex) {
-    log(ex,false);
+    log(LogType.ERROR,Util.message(ex));
     Util.stack(ex);
   }
 }

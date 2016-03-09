@@ -1,0 +1,30 @@
+{
+  if (loaded.contains(id))   return;
+  Pkg pkg=context.repo.pkgDict().get(id);
+  if (pkg == null)   throw BXRE_NOTINST_X.get(ii,id);
+  final IOFile pkgDir=context.repo.path(pkg.dir());
+  final IO pkgDesc=new IOFile(pkgDir,PkgText.DESCRIPTOR);
+  if (!pkgDesc.exists())   Util.debug(PkgText.MISSDESC,id);
+  pkg=new PkgParser(ii).parse(pkgDesc);
+  final IOFile jarDesc=new IOFile(pkgDir,PkgText.JARDESC);
+  IOFile modDir=new IOFile(pkgDir,PkgText.CONTENT);
+  if (!modDir.exists())   modDir=new IOFile(pkgDir,pkg.abbrev());
+  if (jarDesc.exists()) {
+    final JarDesc desc=new JarParser(ii).parse(jarDesc);
+    for (    final byte[] u : desc.jars)     addURL(new IOFile(modDir,string(u)));
+  }
+  if (!pkg.dep.isEmpty())   toLoad.add(id);
+  for (  final PkgDep d : pkg.dep) {
+    if (d.name != null) {
+      final String depId=new PkgValidator(context.repo,ii).depPkg(d);
+      if (depId == null)       throw BXRE_NOTINST_X.get(ii,d.name);
+      if (toLoad.contains(depId))       throw CIRCMODULE.get(ii);
+      addRepo(depId,toLoad,loaded,ii,qp);
+    }
+  }
+  for (  final PkgComponent comp : pkg.comps) {
+    qp.module(new IOFile(modDir,comp.file).path(),comp.uri,ii);
+  }
+  if (toLoad.contains(id))   toLoad.remove(id);
+  loaded.add(id);
+}

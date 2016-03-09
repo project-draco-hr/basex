@@ -1,0 +1,34 @@
+{
+  String name=Strings.camelCase(string(qname.local()));
+  String[] types=null;
+  final int n=name.indexOf('\u00b7');
+  if (n != -1) {
+    types=Strings.split(name.substring(n + 1),'\u00b7');
+    name=name.substring(0,n);
+  }
+  final String uri=string(qname.uri());
+  final boolean java=uri.startsWith(JAVAPREF);
+  final String className=java ? uri.substring(JAVAPREF.length()) : Strings.className(Strings.uri2path(uri));
+  final ModuleLoader modules=qc.resources.modules();
+  final Object module=modules.findModule(className);
+  if (module != null) {
+    final Method meth=moduleMethod(module,name,args.length,types,qc,ii);
+    if (meth != null) {
+      final Requires req=meth.getAnnotation(Requires.class);
+      final Perm perm=req == null ? Perm.ADMIN : Perm.get(req.value().name().toLowerCase(Locale.ENGLISH));
+      return new JavaModuleFunc(sc,ii,module,meth,args,perm);
+    }
+  }
+  try {
+    final Class<?> clazz=modules.findClass(className);
+    if (name.equals(NEW) || exists(clazz,name))     return new JavaFunc(sc,ii,clazz,name,types,args);
+  }
+ catch (  final ClassNotFoundException ex) {
+    if (java)     Util.debug(ex);
+  }
+catch (  final Throwable th) {
+    throw JAVAINIT_X_X.get(ii,Util.className(th),th);
+  }
+  if (java)   throw JAVAWHICH_X_X_X.get(ii,className,name,args.length);
+  return null;
+}

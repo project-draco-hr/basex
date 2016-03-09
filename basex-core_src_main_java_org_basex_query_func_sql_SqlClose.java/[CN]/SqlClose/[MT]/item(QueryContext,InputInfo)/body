@@ -1,0 +1,19 @@
+{
+  checkCreate(qc);
+  try {
+    final int id=(int)toLong(exprs[0],qc);
+    final JDBCConnections jdbc=jdbc(qc);
+    final Object obj=jdbc.get(id);
+    if (obj instanceof Connection) {
+      ((Connection)obj).close();
+    }
+ else {
+      ((PreparedStatement)obj).close();
+    }
+    jdbc.remove(id);
+    return null;
+  }
+ catch (  final SQLException ex) {
+    throw BXSQ_ERROR_X.get(info,ex);
+  }
+}

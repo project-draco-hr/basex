@@ -1,0 +1,25 @@
+{
+  if (eq(name.uri(),XS_URI)) {
+    final Type type=getCast(name,args.length,ii);
+    final SeqType to=SeqType.get(type,Occ.ZERO_ONE);
+    return TypedFunc.constr(new Cast(sc,ii,args[0],to));
+  }
+  final StandardFunc fun=get().get(name,args,sc,ii);
+  if (fun != null) {
+    final AnnList anns=new AnnList();
+    if (fun.sig.has(Flag.UPD)) {
+      anns.add(new Ann(ii,Annotation.UPDATING));
+      qc.updating();
+    }
+    return new TypedFunc(fun,anns);
+  }
+  final TypedFunc tf=qc.funcs.getRef(name,args,sc,ii);
+  if (tf != null) {
+    if (tf.anns.contains(Annotation.UPDATING))     qc.updating();
+    return tf;
+  }
+  final JavaFunction jf=JavaFunction.get(name,args,qc,sc,ii);
+  if (jf != null)   return TypedFunc.java(jf);
+  if (FuncType.find(name) == null)   return qc.funcs.getFuncRef(name,args,sc,ii);
+  return null;
+}

@@ -1,0 +1,27 @@
+{
+  if (n == 0)   return EmptyTree.getInstance();
+  if (n == 1)   return new SingletonTree<>(nodes[0]);
+  if (n <= 2 * MAX_ARITY) {
+    final int mid=n / 2;
+    @SuppressWarnings("unchecked") final Node<N,E>[] left=new Node[mid], right=new Node[n - mid];
+    System.arraycopy(nodes,0,left,0,mid);
+    System.arraycopy(nodes,mid,right,0,n - mid);
+    return DeepTree.get(left,right,size);
+  }
+  final int k=Math.min((n - MAX_ARITY) / 2,MAX_ARITY);
+  @SuppressWarnings("unchecked") final Node<N,E>[] left=new Node[k], right=new Node[k];
+  System.arraycopy(nodes,0,left,0,k);
+  System.arraycopy(nodes,n - k,right,0,k);
+  final long leftSize=DeepTree.size(left), rightSize=DeepTree.size(right);
+  @SuppressWarnings("unchecked") final Node<Node<N,E>,E>[] outNodes=(Node<Node<N,E>,E>[])nodes;
+  final int remaining=n - 2 * k, ns=(remaining + MAX_ARITY - 1) / MAX_ARITY;
+  for (int i=0, j=0; i < ns; i++) {
+    final int rem=ns - i, sz=(remaining - j + rem - 1) / rem;
+    @SuppressWarnings("unchecked") final Node<N,E>[] ch=new Node[sz];
+    System.arraycopy(nodes,j,ch,0,sz);
+    outNodes[i]=new InnerNode<>(ch);
+    j+=sz;
+  }
+  final FingerTree<Node<N,E>,E> middle=buildTree(outNodes,ns,size - leftSize - rightSize);
+  return new DeepTree<>(left,leftSize,middle,right,size);
+}

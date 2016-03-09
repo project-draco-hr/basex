@@ -1,18 +1,17 @@
 {
   final String name=args[0];
   if (!Databases.validName(name,true))   return error(NAME_INVALID_X,name);
-  final StringList dbs=context.databases.listDBs(name);
+  final StringList dbs=context.filter(Perm.READ,context.databases.listDBs(name));
   if (dbs.isEmpty())   return error(DB_NOT_FOUND_X,name);
   boolean ok=true;
   for (  final String db : dbs) {
-    if (!goptions.dbpath(db).isDir())     continue;
-    if (MetaData.file(context.globalopts.dbpath(db),DATAUPD).exists()) {
-      info(Text.DB_UPDATED_X,db);
+    if (MetaData.file(soptions.dbPath(db),DATAUPD).exists()) {
+      info(DB_UPDATED_X,db);
       ok=false;
     }
  else {
       try {
-        backup(db,context,this);
+        backup(db,soptions,this);
         info(DB_BACKUP_X,db,perf);
       }
  catch (      final IOException ex) {

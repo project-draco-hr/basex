@@ -1,15 +1,15 @@
 {
   if (!wsConsumeWs(USING))   return false;
   if (wsConsumeWs(LOWERCASE)) {
-    if (opt.cs != null)     throw error(FTDUP,CASE);
+    if (opt.cs != null)     throw error(FTDUP_X,CASE);
     opt.cs=FTCase.LOWER;
   }
  else   if (wsConsumeWs(UPPERCASE)) {
-    if (opt.cs != null)     throw error(FTDUP,CASE);
+    if (opt.cs != null)     throw error(FTDUP_X,CASE);
     opt.cs=FTCase.UPPER;
   }
  else   if (wsConsumeWs(CASE)) {
-    if (opt.cs != null)     throw error(FTDUP,CASE);
+    if (opt.cs != null)     throw error(FTDUP_X,CASE);
     if (wsConsumeWs(SENSITIVE)) {
       opt.cs=FTCase.SENSITIVE;
     }
@@ -19,15 +19,15 @@
     }
   }
  else   if (wsConsumeWs(DIACRITICS)) {
-    if (opt.isSet(DC))     throw error(FTDUP,DIACRITICS);
+    if (opt.isSet(DC))     throw error(FTDUP_X,DIACRITICS);
     opt.set(DC,wsConsumeWs(SENSITIVE));
     if (!opt.is(DC))     wsCheck(INSENSITIVE);
   }
  else   if (wsConsumeWs(LANGUAGE)) {
-    if (opt.ln != null)     throw error(FTDUP,LANGUAGE);
+    if (opt.ln != null)     throw error(FTDUP_X,LANGUAGE);
     final byte[] lan=stringLiteral();
     opt.ln=Language.get(string(lan));
-    if (opt.ln == null)     throw error(FTNOTOK,lan);
+    if (opt.ln == null)     throw error(FTNOTOK_X,lan);
   }
  else   if (wsConsumeWs(OPTION)) {
     optionDecl();
@@ -35,43 +35,42 @@
  else {
     final boolean using=!wsConsumeWs(NO);
     if (wsConsumeWs(STEMMING)) {
-      if (opt.isSet(ST))       throw error(FTDUP,STEMMING);
+      if (opt.isSet(ST))       throw error(FTDUP_X,STEMMING);
       opt.set(ST,using);
     }
  else     if (wsConsumeWs(THESAURUS)) {
-      if (opt.th != null)       throw error(FTDUP,THESAURUS);
+      if (opt.th != null)       throw error(FTDUP_X,THESAURUS);
       opt.th=new ThesQuery();
       if (using) {
-        final boolean par=wsConsume(PAR1);
+        final boolean par=wsConsume(PAREN1);
         if (!wsConsumeWs(DEFAULT))         ftThesaurusID(opt.th);
         while (par && wsConsume(COMMA))         ftThesaurusID(opt.th);
-        if (par)         wsCheck(PAR2);
+        if (par)         wsCheck(PAREN2);
       }
     }
  else     if (wsConsumeWs(STOP)) {
       wsCheck(WORDS);
-      if (opt.sw != null)       throw error(FTDUP,STOP + ' ' + WORDS);
+      if (opt.sw != null)       throw error(FTDUP_X,STOP + ' ' + WORDS);
       opt.sw=new StopWords();
       if (wsConsumeWs(DEFAULT)) {
         if (!using)         throw error(FTSTOP);
       }
  else {
-        boolean union=false;
-        boolean except=false;
+        boolean union=false, except=false;
         while (using) {
-          if (wsConsume(PAR1)) {
+          if (wsConsume(PAREN1)) {
             do {
               final byte[] sl=stringLiteral();
               if (except)               opt.sw.delete(sl);
  else               if (!union || !opt.sw.contains(sl))               opt.sw.add(sl);
             }
  while (wsConsume(COMMA));
-            wsCheck(PAR2);
+            wsCheck(PAREN2);
           }
  else           if (wsConsumeWs(AT)) {
             final String fn=string(stringLiteral());
-            final IO fl=qc.stop != null ? qc.stop.get(fn) : sc.io(fn);
-            if (!opt.sw.read(fl,except))             throw error(NOSTOPFILE,fl);
+            final IO fl=qc.resources.stopWords(fn,sc);
+            if (!opt.sw.read(fl,except))             throw error(NOSTOPFILE_X,fl);
           }
  else           if (!union && !except) {
             throw error(FTSTOP);
@@ -83,17 +82,17 @@
       }
     }
  else     if (wsConsumeWs(WILDCARDS)) {
-      if (opt.isSet(WC))       throw error(FTDUP,WILDCARDS);
+      if (opt.isSet(WC))       throw error(FTDUP_X,WILDCARDS);
       if (opt.is(FZ))       throw error(BXFT_MATCH);
       opt.set(WC,using);
     }
  else     if (wsConsumeWs(FUZZY)) {
-      if (opt.isSet(FZ))       throw error(FTDUP,FUZZY);
+      if (opt.isSet(FZ))       throw error(FTDUP_X,FUZZY);
       if (opt.is(WC))       throw error(BXFT_MATCH);
       opt.set(FZ,using);
     }
  else {
-      throw error(FTMATCH,consume());
+      throw error(FTMATCH_X,consume());
     }
   }
   return true;

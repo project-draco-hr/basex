@@ -1,23 +1,23 @@
 {
-  if (qc.context.options.get(MainOptions.DEFAULTDB) && qc.nodes != null) {
-    final Data dt=data[0];
-    final IntList pres=dt.resources.docs(qi.original);
-    return DBNodeSeq.get(pres,dt,true,qi.original.isEmpty());
+  final Data gd=globalData();
+  if (qc.context.options.get(MainOptions.DEFAULTDB) && gd != null) {
+    final IntList pres=gd.resources.docs(qi.original);
+    return DBNodeSeq.get(pres,gd,true,qi.original.isEmpty());
   }
   final String in=baseIO != null ? baseIO.merge(qi.original).path() : null;
   if (in != null) {
     final String[] names={in,qi.original};
-    for (int c=0; c < colls; c++) {
-      final String n=collName[c];
-      if (Prop.CASE ? Token.eq(n,names) : Token.eqic(n,names))       return coll[c];
+    final int cs=colls.size();
+    for (int c=0; c < cs; c++) {
+      final String name=collNames.get(c);
+      if (Prop.CASE ? Strings.eq(name,names) : Strings.eqic(name,names))       return colls.get(c);
     }
   }
   Data dt=null;
-  for (int i=0; i < datas; ++i) {
-    final Data d=data[i];
-    final String n=d.meta.name;
-    if (Prop.CASE ? n.equals(qi.db) : n.equalsIgnoreCase(qi.db) || IO.get(d.meta.original).eq(qi.input)) {
-      dt=d;
+  for (  final Data data : datas) {
+    final String n=data.meta.name;
+    if (Prop.CASE ? n.equals(qi.db) : n.equalsIgnoreCase(qi.db) || IO.get(data.meta.original).eq(qi.input)) {
+      dt=data;
       break;
     }
   }

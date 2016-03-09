@@ -1,0 +1,20 @@
+{
+  this.level=level;
+  String m=ex.getMessage();
+  Throwable e=ex;
+  if (m.contains("Exception:")) {
+    e=Util.rootException(e);
+    if (e instanceof SAXException)     m=e.getLocalizedMessage();
+  }
+  if (ex instanceof SAXParseException) {
+    final SAXParseException se=(SAXParseException)ex;
+    final String id=se.getSystemId();
+    if (id != null) {
+      final IO io=IO.get(id);
+      if (schema == null || !io.isDir() && !schema.equals(io))       url=id;
+    }
+    line=se.getLineNumber();
+    column=se.getColumnNumber();
+  }
+  message=m;
+}

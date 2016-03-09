@@ -1,14 +1,12 @@
 {
-  for (  final DBUpdate d : dbUpdates)   d.prepare(tmp);
+  for (  final DBUpdate d : dbUpdates)   d.prepare();
   final int s=nodeUpdates.size();
   nodes=new IntList(s);
   for (int i=1; i <= s; i++)   nodes.add(nodeUpdates.key(i));
   nodes.sort();
   for (int i=0; i < s; ++i) {
     final NodeUpdates ups=nodeUpdates.get(nodes.get(i));
-    for (    final NodeUpdate p : ups.updates) {
-      if (p instanceof NodeCopy)       ((NodeCopy)p).prepare(tmp);
-    }
+    for (    final NodeUpdate p : ups.updates)     p.prepare(tmp);
   }
   int p=nodes.size() - 1;
   int par=-1;
@@ -25,7 +23,7 @@
         --p;
       }
       if (par != -1)       il.add(par);
-      checkNames(il.toArray());
+      checkNames(il.finish());
     }
  else {
       if (k == Data.ELEM)       checkNames(pre);

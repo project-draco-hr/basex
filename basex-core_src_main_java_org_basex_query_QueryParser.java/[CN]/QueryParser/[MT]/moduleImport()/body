@@ -1,32 +1,29 @@
 {
   byte[] pref=EMPTY;
-  if (wsConsumeWs(NSPACE)) {
-    pref=ncName(NONAME);
+  if (wsConsumeWs(NAMESPACE)) {
+    pref=ncName(NONAME_X);
     wsCheck(IS);
   }
   final byte[] uri=trim(stringLiteral());
   if (uri.length == 0)   throw error(NSMODURI);
-  if (!Uri.uri(uri).isValid())   throw error(INVURI,uri);
-  if (modules.contains(uri))   throw error(DUPLMODULE,uri);
+  if (!Uri.uri(uri).isValid())   throw error(INVURI_X,uri);
+  if (modules.contains(uri))   throw error(DUPLMODULE_X,uri);
   modules.add(uri);
   if (pref != EMPTY) {
-    if (sc.ns.staticURI(pref) != null)     throw error(DUPLNSDECL,pref);
+    if (sc.ns.staticURI(pref) != null)     throw error(DUPLNSDECL_X,pref);
     sc.ns.add(pref,uri,info());
     namespaces.put(pref,uri);
   }
+  final ModInfo mi=new ModInfo();
+  mi.info=info();
+  mi.uri=uri;
+  mods.add(mi);
   if (wsConsumeWs(AT)) {
-    do {
-      module(stringLiteral(),uri);
-    }
+    do     mi.paths.add(stringLiteral());
  while (wsConsumeWs(COMMA));
-    return;
   }
-  final byte[] path=qc.modDeclared.get(uri);
-  if (path != null) {
-    module(path,uri);
-    return;
+ else {
+    final byte[] path=qc.modDeclared.get(uri);
+    if (path != null)     mi.paths.add(path);
   }
-  for (  final byte[] u : Function.URIS.values())   if (eq(uri,u))   return;
-  if (qc.resources.modules().addImport(uri,info(),this))   return;
-  throw error(WHICHMODULE,uri);
 }

@@ -1,0 +1,41 @@
+{
+  final String eol=System.getProperty("line.separator","\n");
+  final StringBuilder expected=new StringBuilder();
+  int maxSize=0;
+  for (  final int[] exp : exps) {
+    if (maxSize < exp.length) {
+      maxSize=exp.length;
+    }
+    for (    final int ex : exp) {
+      expected.append(img[ex]).append(' ');
+    }
+    if (exp[exp.length - 1] != 0) {
+      expected.append("...");
+    }
+    expected.append(eol).append("    ");
+  }
+  String retval="Encountered \"";
+  Token tok=curr.next;
+  for (int i=0; i < maxSize; i++) {
+    if (i != 0)     retval+=" ";
+    if (tok.kind == 0) {
+      retval+=img[0];
+      break;
+    }
+    retval+=' ' + img[tok.kind];
+    retval+=" \"";
+    retval+=addEscapes(tok.image);
+    retval+=" \"";
+    tok=tok.next;
+  }
+  retval+="\" at line " + curr.next.beginLine + ", column "+ curr.next.beginColumn;
+  retval+='.' + eol;
+  if (exps.length == 1) {
+    retval+="Was expecting:" + eol + "    ";
+  }
+ else {
+    retval+="Was expecting one of:" + eol + "    ";
+  }
+  retval+=expected.toString();
+  return retval;
+}

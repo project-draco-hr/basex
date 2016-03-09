@@ -1,0 +1,89 @@
+{
+  final boolean[] declared=new boolean[function.args.length];
+  boolean found=false;
+  final MainOptions options=ctx.options;
+  for (  final Ann ann : function.anns) {
+    final Annotation sig=ann.sig;
+    if (sig == null)     continue;
+    found|=eq(sig.uri,QueryText.REST_URI);
+    final Item[] args=ann.args();
+    if (sig == _REST_PATH) {
+      try {
+        path=new RestXqPath(toString(args[0]),ann.info);
+      }
+ catch (      final IllegalArgumentException ex) {
+        throw error(ann.info,ex.getMessage());
+      }
+      for (      final QNm v : path.vars())       checkVariable(v,AtomType.AAT,declared);
+    }
+ else     if (sig == _REST_ERROR) {
+      error(ann);
+    }
+ else     if (sig == _REST_CONSUMES) {
+      strings(ann,consumes);
+    }
+ else     if (sig == _REST_PRODUCES) {
+      strings(ann,produces);
+    }
+ else     if (sig == _REST_QUERY_PARAM) {
+      queryParams.add(param(ann,declared));
+    }
+ else     if (sig == _REST_FORM_PARAM) {
+      formParams.add(param(ann,declared));
+    }
+ else     if (sig == _REST_HEADER_PARAM) {
+      headerParams.add(param(ann,declared));
+    }
+ else     if (sig == _REST_COOKIE_PARAM) {
+      cookieParams.add(param(ann,declared));
+    }
+ else     if (sig == _REST_ERROR_PARAM) {
+      errorParams.add(param(ann,declared));
+    }
+ else     if (sig == _REST_METHOD) {
+      final String mth=toString(args[0]).toUpperCase(Locale.ENGLISH);
+      final Item body=args.length > 1 ? args[1] : null;
+      addMethod(mth,body,declared,ann.info);
+    }
+ else     if (sig == _REST_SINGLE) {
+      key="\u0000" + (args.length > 0 ? toString(args[0]) : (function.info.path() + ':' + function.info.line()));
+    }
+ else     if (eq(sig.uri,QueryText.REST_URI)) {
+      final Item body=args.length == 0 ? null : args[0];
+      addMethod(string(sig.local()),body,declared,ann.info);
+    }
+ else     if (sig == _INPUT_CSV) {
+      final CsvParserOptions opts=new CsvParserOptions(options.get(MainOptions.CSVPARSER));
+      options.set(MainOptions.CSVPARSER,parse(opts,ann));
+    }
+ else     if (sig == _INPUT_JSON) {
+      final JsonParserOptions opts=new JsonParserOptions(options.get(MainOptions.JSONPARSER));
+      options.set(MainOptions.JSONPARSER,parse(opts,ann));
+    }
+ else     if (sig == _INPUT_HTML) {
+      final HtmlOptions opts=new HtmlOptions(options.get(MainOptions.HTMLPARSER));
+      options.set(MainOptions.HTMLPARSER,parse(opts,ann));
+    }
+ else     if (sig == _INPUT_TEXT) {
+      final TextOptions opts=new TextOptions(options.get(MainOptions.TEXTPARSER));
+      options.set(MainOptions.TEXTPARSER,parse(opts,ann));
+    }
+ else     if (eq(sig.uri,QueryText.OUTPUT_URI)) {
+      try {
+        output.assign(string(sig.local()),toString(args[0]));
+      }
+ catch (      final BaseXException ex) {
+        throw error(ann.info,UNKNOWN_SER,sig.local());
+      }
+    }
+  }
+  if (found) {
+    if (path == null && error == null)     throw error(function.info,ANN_MISSING,'%',PATH,'%',ERROR);
+    final int dl=declared.length;
+    for (int d=0; d < dl; d++) {
+      if (declared[d])       continue;
+      throw error(function.info,VAR_UNDEFINED,function.args[d].name.string());
+    }
+  }
+  return found;
+}

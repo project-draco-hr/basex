@@ -39,8 +39,9 @@
       final int nv=op2 == np2 ? np1 : np2;
       final String val=values[nv];
       list.setSelectedValue(val,true);
+      multi=il.size() > 1;
       if (e.isShiftDown() && !single) {
-        list.setSelectedIndices(il.toArray());
+        list.setSelectedIndices(il.finish());
         text.setText("");
       }
  else {
@@ -48,7 +49,6 @@
         text.setText(val);
         text.selectAll();
       }
-      multi=il.size() > 1;
     }
     @Override public void keyTyped(    final KeyEvent e){
       final char ch=e.getKeyChar();
@@ -67,7 +67,8 @@
         final boolean glob=txt.matches("^.*[*?,].*$");
         final String regex=glob ? IOFile.regex(txt,false) : null;
         final IntList il=new IntList();
-        for (int v=0; v < values.length; ++v) {
+        final int vl=values.length;
+        for (int v=0; v < vl; ++v) {
           final String value=values[v].trim().toLowerCase(Locale.ENGLISH);
           if (glob) {
             if (value.matches(regex))             il.add(v);
@@ -86,7 +87,7 @@
         if (!il.isEmpty()) {
           list.setSelectedValue(values[il.get(il.size() - 1)],true);
         }
-        list.setSelectedIndices(il.toArray());
+        list.setSelectedIndices(il.finish());
       }
       d.action(BaseXList.this);
       typed=false;
@@ -110,9 +111,7 @@
       mousePressed(e);
     }
     @Override public void mouseClicked(    final MouseEvent e){
-      if (e.getClickCount() == 2) {
-        d.close();
-      }
+      if (e.getClickCount() == 2)       d.close();
     }
   }
 ;
@@ -122,7 +121,7 @@
   list.addMouseListener(mouse);
   list.addMouseMotionListener(mouse);
   text.setFont(list.getFont());
-  BaseXLayout.setWidth(text,list.getWidth());
+  text.setPreferredSize(new Dimension(list.getWidth(),text.getPreferredSize().height));
   BaseXLayout.addInteraction(list,d);
   scroll=new JScrollPane(list);
   add(scroll);

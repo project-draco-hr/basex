@@ -1,0 +1,13 @@
+{
+  final WebDAVQuery query=new WebDAVQuery(STRING_JOIN.args(_DB_LIST_DETAILS.args() + "[. != $db] ! (text(), @modified-date)","out:tab()"));
+  query.bind("db",WEBDAV_DB);
+  final String[] result=results(query);
+  final List<WebDAVResource> dbs=new ArrayList<>();
+  final int rs=result.length;
+  for (int r=0; r < rs; r+=2) {
+    final String name=result[r];
+    final long mod=DateTime.parse(result[r + 1]).getTime();
+    dbs.add(WebDAVFactory.database(this,new WebDAVMetaData(name,mod)));
+  }
+  return dbs;
+}

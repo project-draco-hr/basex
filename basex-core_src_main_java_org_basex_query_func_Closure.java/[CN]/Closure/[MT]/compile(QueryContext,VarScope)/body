@@ -1,16 +1,17 @@
 {
   if (compiled)   return this;
   compiled=true;
-  for (  final Entry<Var,Expr> e : nonLocal.entrySet()) {
+  checkUpdating();
+  for (  final Entry<Var,Expr> e : global.entrySet()) {
     final Expr bound=e.getValue().compile(qc,scp);
     e.setValue(bound);
-    e.getKey().refineType(bound.type(),qc,info);
+    e.getKey().refineType(bound.seqType(),qc,info);
   }
   try {
     expr=expr.compile(qc,scope);
   }
  catch (  final QueryException qe) {
-    expr=FNInfo.error(qe,ret != null ? ret : expr.type());
+    expr=FnError.get(qe,type != null ? type : expr.seqType());
   }
  finally {
     scope.cleanUp(this);

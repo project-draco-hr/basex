@@ -1,0 +1,34 @@
+{
+  final AtomicUpdateCache auc=new AtomicUpdateCache(data);
+  final IntList docs=data.resources.docs(path);
+  int d=0, bs=0;
+  if (bin != null && bin.exists()) {
+    final Store store=new Store(path);
+    store.setInput(in);
+    store.lock=false;
+    if (!store.run(context))     return error(store.info());
+    bs=1;
+  }
+ else {
+    final Add add=new Add(path);
+    try {
+      add.setInput(in);
+      add.init(context,out);
+      if (!add.build())       return error(add.info());
+      if (docs.isEmpty()) {
+        auc.addInsert(data.meta.size,-1,add.clip);
+      }
+ else {
+        auc.addReplace(docs.get(d++),add.clip);
+      }
+      context.invalidate();
+    }
+  finally {
+      add.close();
+    }
+  }
+  final int ds=docs.size();
+  for (; d < ds; d++)   auc.addDelete(docs.get(d));
+  auc.execute(false);
+  return info(RES_REPLACED_X_X,ds + bs,perf);
+}

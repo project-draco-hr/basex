@@ -1,92 +1,72 @@
 {
+  final int sCount=source.size();
+  if (sCount == 0)   return;
   meta.update();
-  if (meta.updindex)   indexBegin();
-  resources.insert(tpre,source);
-  final int size=source.size();
-  final int buf=Math.min(size,IO.BLOCKSIZE >> IO.NODEPOWER);
-  buffer(buf);
-  final TokenMap nsScope=nspaces.scope(tpar,this);
-  final IntList preStack=new IntList();
-  final NSNode nsRoot=nspaces.getCurrent();
-  final IntList flagPres=new IntList();
-  final List<NSNode> nsNodesShift=nspaces.getNSNodes(tpre);
-  final Data data=source.data;
+  resources.docs();
+  final int bSize=Math.min(sCount,IO.BLOCKSIZE >> IO.NODEPOWER);
+  bufferSize(bSize);
+  final NSScope nsScope=new NSScope(pre,this);
+  final Data sdata=source.data;
   int c=0, sTopPre=source.start;
-  for (int spre=sTopPre; spre < source.end; ++spre, ++c) {
-    if (c != 0 && c % buf == 0)     insert(tpre + c - buf);
-    final int pre=tpre + c;
-    final int kind=data.kind(spre);
-    final int ssize=data.size(spre,kind);
-    final int spar=data.parent(spre,kind);
-    final int dist;
-    if (spre == sTopPre) {
-      dist=pre - tpar;
-      sTopPre+=ssize;
+  for (int sPre=sTopPre; sPre < source.end; ++sPre, ++c) {
+    if (c != 0 && c % bSize == 0)     insert(pre + c - bSize);
+    final int sKind=sdata.kind(sPre);
+    final int sSize=sdata.size(sPre,sKind);
+    final int sPar=sdata.parent(sPre,sKind);
+    final int nPre=pre + c, nDist;
+    if (sPre == sTopPre) {
+      nDist=nPre - par;
+      sTopPre+=sSize;
     }
  else {
-      dist=spre - spar;
+      nDist=sPre - sPar;
     }
-    final int nsPre=kind == DOC ? -1 : pre - dist;
-    if (c == 0)     nspaces.root(nsPre,this);
-    while (!preStack.isEmpty() && preStack.peek() > nsPre)     nspaces.close(preStack.pop());
-switch (kind) {
+    final int nsPre=sKind == DOC ? -1 : nPre - nDist;
+    nsScope.loop(nsPre,c);
+switch (sKind) {
 case DOC:
-      nspaces.prepare();
-    doc(pre,ssize,data.text(spre,true));
-  meta.ndocs++;
-preStack.push(pre);
+      nsScope.open(nPre);
+    doc(sSize,sdata.text(sPre,true));
+  ++meta.ndocs;
 break;
 case ELEM:
-nspaces.prepare();
-boolean ne=false;
-if (data.nsFlag(spre)) {
-final Atts at=data.ns(spre);
-for (int a=0; a < at.size(); ++a) {
-final byte[] old=nsScope.get(at.name(a));
-if (old == null || !eq(old,at.value(a))) {
-nspaces.add(at.name(a),at.value(a),pre);
-ne=true;
-}
-}
-}
-byte[] nm=data.name(spre,kind);
-elem(dist,tagindex.index(nm,null,false),data.attSize(spre,kind),ssize,nspaces.uri(nm,true),ne);
-preStack.push(pre);
+{
+final boolean nsFlag=nsScope.open(nPre,sdata.namespaces(sPre));
+final byte[] name=sdata.name(sPre,sKind);
+elem(nDist,elemNames.index(name,null,false),sdata.attSize(sPre,sKind),sSize,nspaces.uriIdForPrefix(prefix(name),true),nsFlag);
 break;
+}
 case TEXT:
 case COMM:
 case PI:
-text(pre,dist,data.text(spre,true),kind);
+text(nDist,sdata.text(sPre,true),sKind);
 break;
 case ATTR:
-nm=data.name(spre,kind);
-final byte[] attPref=prefix(nm);
-if (data.nsFlag(spre) && nsScope.get(attPref) == null) {
-nspaces.add(nsPre,preStack.isEmpty() ? -1 : preStack.peek(),attPref,data.nspaces.uri(data.uri(spre,kind)),this);
-flagPres.add(nsPre);
+{
+final byte[] name=sdata.name(sPre,sKind);
+int uriId=sdata.uriId(sPre,sKind);
+if (uriId != 0) {
+final byte[] prefix=prefix(name), uri=sdata.nspaces.uri(uriId);
+uriId=nspaces.uriIdForPrefix(prefix,false);
+if (uriId == 0 && !eq(prefix,XML)) {
+uriId=nspaces.add(nsPre,prefix,uri,this);
+table.write2(nsPre,1,1 << 15 | nameId(nsPre));
 }
-attr(pre,dist,atnindex.index(nm,null,false),data.text(spre,false),nspaces.uri(nm,false),false);
-break;
 }
-Namespaces.incrementPre(nsNodesShift,1);
+attr(nDist,attrNames.index(name,null,false),sdata.text(sPre,false),uriId);
 }
-while (!preStack.isEmpty()) nspaces.close(preStack.pop());
-nspaces.setCurrent(nsRoot);
-if (bp != 0) insert(tpre + c - 1 - (c - 1) % buf);
-buffer(1);
-for (int f=0; f < flagPres.size(); f++) {
-final int fl=flagPres.get(f);
-table.write2(fl,1,name(fl) | 1 << 15);
 }
-int p=tpar;
-while (p >= 0) {
-final int k=kind(p);
-size(p,k,size(p,k) + size);
-p=parent(p,k);
+nsScope.shift(1);
 }
-if (meta.updindex) {
-idmap.insert(tpre,id(tpre),size);
-indexEnd();
+nsScope.close();
+if (bp != 0) insert(pre + c - 1 - (c - 1) % bSize);
+bufferSize(1);
+int cPre=par;
+while (cPre >= 0) {
+final int cKind=kind(cPre);
+size(cPre,cKind,size(cPre,cKind) + sCount);
+cPre=parent(cPre,cKind);
 }
-if (!cache) updateDist(tpre + size,size);
+indexAdd(pre,id(pre),sCount,source);
+updateDist(pre + sCount,sCount);
 }

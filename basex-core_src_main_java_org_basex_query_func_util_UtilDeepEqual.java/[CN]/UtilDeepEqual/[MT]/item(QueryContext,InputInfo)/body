@@ -1,0 +1,19 @@
+{
+  final DeepEqual cmp=new DeepEqual(info);
+  final Mode[] modes=Mode.values();
+  if (exprs.length == 3) {
+    for (    final Item it : exprs[2].atomValue(qc,info)) {
+      final byte[] key=uc(toToken(it));
+      boolean found=false;
+      for (      final Mode m : modes) {
+        found=eq(key,token(m.name()));
+        if (found) {
+          cmp.flag(m);
+          break;
+        }
+      }
+      if (!found)       throw INVALIDOPTION_X.get(info,key);
+    }
+  }
+  return Bln.get(cmp.equal(qc.iter(exprs[0]),qc.iter(exprs[1])));
+}

@@ -1,0 +1,39 @@
+{
+  final TokenBuilder tb=new TokenBuilder().add("map");
+  if (indent)   tb.add(' ');
+  tb.add('{');
+  int c=0;
+  ++level;
+  for (  final Item key : item.keys()) {
+    if (c++ > 0)     tb.add(',');
+    printChars(tb.next());
+    indent();
+    more=false;
+    serialize(key);
+    tb.add(':');
+    if (indent)     tb.add(' ');
+    try {
+      final Value v=item.get(key,null);
+      final boolean par=v.size() != 1;
+      if (par)       tb.add('(');
+      int cc=0;
+      for (      final Item it : v) {
+        if (cc++ > 0) {
+          tb.add(',');
+          if (indent)           tb.add(' ');
+        }
+        printChars(tb.next());
+        more=false;
+        serialize(it);
+      }
+      if (par)       tb.add(')');
+    }
+ catch (    final QueryException ex) {
+      throw new QueryIOException(ex);
+    }
+  }
+  printChars(tb.next());
+  --level;
+  indent();
+  printChars(tb.add('}').finish());
+}

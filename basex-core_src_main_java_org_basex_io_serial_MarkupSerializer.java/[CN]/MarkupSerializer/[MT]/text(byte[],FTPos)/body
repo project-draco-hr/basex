@@ -1,0 +1,42 @@
+{
+  final byte[] val=norm(value);
+  if (ftp == null) {
+    final ArrayList<QNm> qnames=cdata();
+    final int vl=val.length;
+    if (qnames.isEmpty() || elems.isEmpty() || !qnames.contains(elems.peek())) {
+      for (int k=0; k < vl; k+=cl(val,k)) {
+        printChar(cp(val,k));
+      }
+    }
+ else {
+      out.print(CDATA_O);
+      int c=0;
+      for (int k=0; k < vl; k+=cl(val,k)) {
+        final int cp=cp(val,k);
+        if (cp == ']') {
+          ++c;
+        }
+ else {
+          if (c > 1 && cp == '>') {
+            out.print(CDATA_C);
+            out.print(CDATA_O);
+          }
+          c=0;
+        }
+        out.print(cp);
+      }
+      out.print(CDATA_C);
+    }
+  }
+ else {
+    final FTLexer lex=new FTLexer().original().init(val);
+    while (lex.hasNext()) {
+      final FTSpan span=lex.next();
+      if (!span.del && ftp.contains(span.pos))       out.print((char)TokenBuilder.MARK);
+      final byte[] text=span.text;
+      final int tl=text.length;
+      for (int t=0; t < tl; t+=cl(text,t))       printChar(cp(text,t));
+    }
+  }
+  sep=false;
+}

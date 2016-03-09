@@ -1,0 +1,28 @@
+{
+  final int mx=max >= 0 ? max : Integer.MAX_VALUE;
+  final Iter ir=iter();
+  final ItemList cache;
+  Item it;
+  final Data data=resources.globalData();
+  if (defaultOutput && data != null) {
+    final IntList pres=new IntList();
+    while ((it=ir.next()) != null && it.data() == data && pres.size() < mx) {
+      checkStop();
+      pres.add(((DBNode)it).pre());
+    }
+    final int ps=pres.size();
+    if (it == null || ps == mx)     return new DBNodes(data,pres.finish()).ftpos(ftPosData);
+    cache=new ItemList();
+    for (int p=0; p < ps; p++)     cache.add(new DBNode(data,pres.get(p)));
+    cache.add(it);
+  }
+ else {
+    cache=new ItemList();
+  }
+  while ((it=ir.next()) != null && cache.size() < mx) {
+    checkStop();
+    it.materialize(null);
+    cache.add(it);
+  }
+  return cache.value();
+}

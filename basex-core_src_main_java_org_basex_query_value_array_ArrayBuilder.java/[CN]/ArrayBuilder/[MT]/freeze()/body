@@ -1,0 +1,15 @@
+{
+  final int n=inLeft + inRight;
+  if (n == 0)   return Array.empty();
+  final int start=(mid - inLeft + CAP) % CAP;
+  if (n <= Array.MAX_SMALL) {
+    final Value[] small=new Value[n];
+    for (int i=0; i < n; i++)     small[i]=vals[(start + i) % CAP];
+    return new SmallArray(small);
+  }
+  final int a=tree.isEmpty() ? n / 2 : inLeft, b=n - a;
+  final Value[] ls=new Value[a], rs=new Value[b];
+  for (int i=0; i < a; i++)   ls[i]=vals[(start + i) % CAP];
+  for (int i=a; i < n; i++)   rs[i - a]=vals[(start + i) % CAP];
+  return new BigArray(ls,tree.freeze(),rs);
+}

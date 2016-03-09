@@ -1,0 +1,17 @@
+{
+  try {
+    final Data data=checkData(qc);
+    if (exprs.length == 1)     return Bln.TRUE;
+    final String path=path(1,qc);
+    boolean raw=false;
+    if (!data.inMemory()) {
+      final IOFile io=data.meta.binary(path);
+      raw=io.exists() && !io.isDir();
+    }
+    return Bln.get(raw || data.resources.doc(path) != -1);
+  }
+ catch (  final QueryException ex) {
+    if (ex.error() == BXDB_OPEN_X)     return Bln.FALSE;
+    throw ex;
+  }
+}

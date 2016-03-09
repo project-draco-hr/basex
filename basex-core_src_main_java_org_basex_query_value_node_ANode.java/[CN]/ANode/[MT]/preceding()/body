@@ -1,29 +1,30 @@
 {
-  return new AxisIter(){
+  return new BasicNodeIter(){
     /** 
  * Iterator. 
  */
-    private NodeSeqBuilder nc;
+    private BasicNodeIter iter;
     @Override public ANode next(){
-      if (nc == null) {
-        nc=new NodeSeqBuilder();
+      if (iter == null) {
+        final ANodeList list=new ANodeList();
         ANode n=ANode.this;
         ANode p=n.parent();
         while (p != null) {
           if (n.type != NodeType.ATT) {
-            final NodeSeqBuilder tmp=new NodeSeqBuilder();
-            final AxisIter ai=p.children();
-            for (ANode c; (c=ai.next()) != null && !c.is(n); ) {
+            final ANodeList tmp=new ANodeList();
+            for (            final ANode c : p.children()) {
+              if (c.is(n))               break;
               tmp.add(c.finish());
               addDesc(c.children(),tmp);
             }
-            for (long t=tmp.size() - 1; t >= 0; t--)             nc.add(tmp.get(t));
+            for (int t=tmp.size() - 1; t >= 0; t--)             list.add(tmp.get(t));
           }
           n=p;
           p=p.parent();
         }
+        iter=list.iter();
       }
-      return nc.next();
+      return iter.next();
     }
   }
 ;

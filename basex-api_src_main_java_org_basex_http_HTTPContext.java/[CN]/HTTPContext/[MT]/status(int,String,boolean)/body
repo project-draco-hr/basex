@@ -1,17 +1,33 @@
 {
   try {
-    log(message,code);
+    log(code,info);
     res.resetBuffer();
-    if (code == SC_UNAUTHORIZED)     res.setHeader(WWW_AUTHENTICATE,BASIC);
+    if (code == SC_UNAUTHORIZED) {
+      final TokenBuilder header=new TokenBuilder(auth.toString());
+      final String nonce=Strings.md5(Long.toString(System.nanoTime()));
+      if (auth == AuthMethod.DIGEST) {
+        header.add(" ");
+        header.addExt(Request.REALM).add("=\"").add(Prop.NAME).add("\",");
+        header.addExt(Request.QOP).add("=\"").add(AUTH).add(',').add(AUTH_INT).add("\",");
+        header.addExt(Request.NONCE).add("=\"").add(nonce).add('"');
+      }
+      res.setHeader(WWW_AUTHENTICATE,header.toString());
+    }
     if (error && code >= SC_BAD_REQUEST) {
-      res.sendError(code,message);
+      res.sendError(code,info);
     }
  else {
       res.setStatus(code);
-      if (message != null)       res.getOutputStream().write(token(message));
+      if (info != null) {
+        res.setContentType(MediaType.TEXT_PLAIN.toString());
+        try (final ArrayOutput ao=new ArrayOutput()){
+          ao.write(token(info));
+          res.getOutputStream().write(ao.normalize().finish());
+        }
+       }
     }
   }
  catch (  final IllegalStateException ex) {
-    log(Util.message(ex),SC_INTERNAL_SERVER_ERROR);
+    log(SC_INTERNAL_SERVER_ERROR,Util.message(ex));
   }
 }

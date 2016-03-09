@@ -1,0 +1,23 @@
+{
+  final String file=asString("@file",expected);
+  final boolean norm=asBoolean("@normalize-space=('true','1')",expected);
+  final boolean pref=asBoolean("@ignore-prefixes=('true','1')",expected);
+  String exp=expected.getString();
+  try {
+    if (!file.isEmpty())     exp=string(new IOFile(baseDir,file).read());
+    exp=normNL(exp);
+    if (norm)     exp=string(normalize(token(exp)));
+    final XdmValue returned=result.value;
+    final String res=normNL(asString("serialize(., map{ 'indent':'no','method':'xml' })",returned));
+    if (exp.equals(res))     return null;
+    final String r=normNL(asString("serialize(., map{ 'indent':'no','method':'xml','omit-xml-declaration':'no' })",returned));
+    if (exp.equals(r))     return null;
+    String flags="'" + Mode.ALLNODES + "'";
+    if (!pref)     flags+=",'" + Mode.NAMESPACES + "'";
+    final String query=Function._UTIL_DEEP_EQUAL.args("<X>" + exp + "</X>","<X>" + res + "</X>","(" + flags + ")");
+    return asBoolean(query,expected) ? null : exp;
+  }
+ catch (  final IOException ex) {
+    return Util.info("% (found: %)",exp,ex);
+  }
+}

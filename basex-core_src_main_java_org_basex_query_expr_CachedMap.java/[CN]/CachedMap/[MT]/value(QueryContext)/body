@@ -1,0 +1,25 @@
+{
+  final Value cv=qc.value;
+  final long cp=qc.pos, cs=qc.size;
+  try {
+    ItemList result=qc.value(exprs[0]).cache();
+    final int el=exprs.length;
+    for (int e=1; e < el; e++) {
+      qc.pos=0;
+      qc.size=result.size();
+      final ItemList vb=new ItemList(result.size());
+      for (      final Item it : result) {
+        qc.pos++;
+        qc.value=it;
+        vb.add(qc.value(exprs[e]));
+      }
+      result=vb;
+    }
+    return result.value();
+  }
+  finally {
+    qc.value=cv;
+    qc.size=cs;
+    qc.pos=cp;
+  }
+}

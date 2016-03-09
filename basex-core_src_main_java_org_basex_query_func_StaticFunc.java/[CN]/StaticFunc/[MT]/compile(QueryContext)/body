@@ -5,17 +5,17 @@
   qc.value=null;
   try {
     expr=expr.compile(qc,scope);
-    if (declType != null) {
-      if ((declType.type == AtomType.BLN || declType.type == AtomType.FLT || declType.type == AtomType.DBL || declType.type == AtomType.QNM || declType.type == AtomType.URI) && declType.eq(expr.type())) {
-        qc.compInfo(OPTCAST,declType);
+    if (type != null) {
+      if ((type.type == AtomType.BLN || type.type == AtomType.FLT || type.type == AtomType.DBL || type.type == AtomType.QNM || type.type == AtomType.URI) && type.eq(expr.seqType())) {
+        qc.compInfo(OPTCAST_X,type);
       }
  else {
-        expr=new TypeCheck(sc,info,expr,declType,true).optimize(qc,scope);
+        expr=new TypeCheck(sc,info,expr,type,true).optimize(qc,scope);
       }
     }
   }
  catch (  final QueryException qe) {
-    expr=FNInfo.error(qe,expr.type());
+    expr=FnError.get(qe,expr.seqType());
   }
  finally {
     scope.cleanUp(this);

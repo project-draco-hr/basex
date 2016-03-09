@@ -1,0 +1,22 @@
+{
+  final boolean p=printKey;
+  final TokenSet keys=printedKeys;
+  printKey=pk;
+  printedKeys=new TokenSet();
+  level++;
+  boolean comma=false;
+  for (ANode child; (child=iter.next()) != null; ) {
+    if (child.type == NodeType.ELM) {
+      if (comma)       out.print(',');
+      node(child);
+      comma=true;
+    }
+ else     if (child.type == NodeType.TXT && !ws(child.string())) {
+      throw error("Element '%' must have no text nodes.",child.name());
+    }
+  }
+  level--;
+  indent();
+  printKey=p;
+  printedKeys=keys;
+}

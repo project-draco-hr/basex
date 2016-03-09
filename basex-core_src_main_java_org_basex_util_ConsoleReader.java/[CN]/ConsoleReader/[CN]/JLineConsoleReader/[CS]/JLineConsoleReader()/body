@@ -1,8 +1,17 @@
 {
-  readerClass=Reflect.find(JLINE_CONSOLE_READER);
-  readLine=Reflect.method(readerClass,"readLine");
-  readEcho=Reflect.method(readerClass,"readLine",String.class,Character.class);
-  setDefaultPrompt=Reflect.method(readerClass,"setDefaultPrompt",String.class);
-  reader=readerClass.newInstance();
-  defaultConfiguration();
+  final Class<?> readerC=Reflect.find(JLINE_CONSOLE_READER);
+  readLine=Reflect.method(readerC,"readLine",String.class);
+  readEcho=Reflect.method(readerC,"readLine",String.class,Character.class);
+  reader=readerC.newInstance();
+  final Class<?> history=Reflect.find(JLINE_HISTORY);
+  fileHistoryC=Reflect.find(JLINE_FILE_HISTORY);
+  fileHistory=Reflect.get(Reflect.find(fileHistoryC,File.class),new File(Prop.HOME,HISTORY_FILE));
+  final Class<?> completer=Reflect.find(JLINE_COMPLETER);
+  final Class<?> enumCompleter=Reflect.find(JLINE_ENUM_COMPLETER);
+  final Class<?> fileNameCompleter=Reflect.find(JLINE_FILE_NAME_COMPLETER);
+  Reflect.invoke(Reflect.method(readerC,"setBellEnabled",boolean.class),reader,false);
+  Reflect.invoke(Reflect.method(readerC,"setHistory",history),reader,fileHistory);
+  Reflect.invoke(Reflect.method(readerC,"setHistoryEnabled",boolean.class),reader,true);
+  Reflect.invoke(Reflect.method(readerC,"addCompleter",completer),reader,Reflect.get(Reflect.find(enumCompleter,Class.class),Cmd.class));
+  Reflect.invoke(Reflect.method(readerC,"addCompleter",completer),reader,Reflect.get(Reflect.find(fileNameCompleter)));
 }

@@ -1,54 +1,61 @@
 {
-  final HTTPContext http=rs.http;
-  if (http.depth() == 0)   throw HTTPCode.NO_PATH.get();
-  RESTCmd.parseOptions(rs);
-  boolean xml=true;
+  final HTTPContext http=session.http;
+  final String db=http.db();
+  if (db.isEmpty())   throw HTTPCode.NO_PATH.get();
+  RESTCmd.parseOptions(session);
+  final MainOptions options=session.context.options;
   final InputStream is=http.req.getInputStream();
-  final String ct=http.contentType();
-  MainParser parser=null;
-  if (isJSON(ct)) {
-    parser=MainParser.JSON;
-    if (APP_JSONML.equals(ct)) {
-      final JsonParserOptions jopts=new JsonParserOptions();
-      jopts.set(JsonOptions.FORMAT,JsonFormat.JSONML);
-      rs.context.options.set(MainOptions.JSONPARSER,jopts);
-    }
+  final MediaType mt=http.contentType();
+  boolean xml=true;
+  final String ct=mt.type();
+  if (mt.is(MediaType.APPLICATION_JSON)) {
+    final JsonParserOptions opts=new JsonParserOptions();
+    opts.assign(mt);
+    options.set(MainOptions.JSONPARSER,opts);
+    options.set(MainOptions.PARSER,MainParser.JSON);
   }
- else   if (TEXT_CSV.equals(ct)) {
-    parser=MainParser.CSV;
+ else   if (mt.is(MediaType.TEXT_CSV)) {
+    final CsvParserOptions opts=new CsvParserOptions();
+    opts.assign(mt);
+    options.set(MainOptions.CSVPARSER,opts);
+    options.set(MainOptions.PARSER,MainParser.CSV);
   }
- else   if (TEXT_HTML.equals(ct)) {
-    parser=MainParser.HTML;
+ else   if (mt.is(MediaType.TEXT_HTML)) {
+    final HtmlOptions opts=new HtmlOptions();
+    opts.assign(mt);
+    options.set(MainOptions.HTMLPARSER,opts);
+    options.set(MainOptions.PARSER,MainParser.HTML);
   }
- else   if (ct != null && isText(ct)) {
-    parser=MainParser.TEXT;
+ else   if (mt.isText()) {
+    final TextOptions opts=new TextOptions();
+    opts.assign(mt);
+    options.set(MainOptions.TEXTPARSER,opts);
+    options.set(MainOptions.PARSER,MainParser.TEXT);
   }
- else   if (ct != null && !isXML(ct)) {
+ else   if (!ct.isEmpty() && !mt.isXML()) {
     xml=false;
   }
-  if (parser != null)   rs.context.options.set(MainOptions.PARSER,parser);
-  final String db=http.db();
-  if (http.depth() == 1) {
+  final String path=http.dbpath();
+  if (path.isEmpty()) {
     if (xml) {
-      rs.add(new CreateDB(db),is);
+      session.add(new CreateDB(db),is);
     }
  else {
-      rs.add(new CreateDB(db));
-      rs.add(new Store(db),is);
+      session.add(new CreateDB(db));
+      session.add(new Store(db),is);
     }
   }
  else {
-    rs.add(new Open(db));
-    final String path=http.dbpath();
+    session.add(new Open(db));
     if (xml) {
-      rs.add(new Replace(path),is);
+      session.add(new Replace(path),is);
     }
  else {
-      rs.add(new Delete(path));
-      rs.add(new Store(path),is);
+      session.add(new Delete(path));
+      session.add(new Store(path),is);
     }
   }
-  final RESTExec cmd=new RESTExec(rs);
+  final RESTExec cmd=new RESTExec(session);
   cmd.code=HTTPCode.CREATED_X;
   return cmd;
 }

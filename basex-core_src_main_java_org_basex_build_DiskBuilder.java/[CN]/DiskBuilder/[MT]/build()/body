@@ -1,23 +1,19 @@
 {
-  final IO file=parser.src;
-  final MetaData md=new MetaData(dbname,context);
-  md.original=file != null ? file.path() : "";
-  md.filesize=file != null ? file.length() : 0;
-  md.time=file != null ? file.timeStamp() : System.currentTimeMillis();
-  md.dirty=true;
+  meta.assign(parser);
+  meta.dirty=true;
   final Runtime rt=Runtime.getRuntime();
-  int bs=(int)Math.min(md.filesize,Math.min(1 << 22,rt.maxMemory() - rt.freeMemory() >> 2));
+  final long max=Math.min(1 << 22,rt.maxMemory() - rt.freeMemory() >> 2);
+  int bs=(int)Math.min(meta.filesize,max);
   bs=Math.max(IO.BLOCKSIZE,bs - bs % IO.BLOCKSIZE);
-  DropDB.drop(dbname,context);
-  context.globalopts.dbpath(dbname).md();
-  meta=md;
-  tags=new Names(md);
-  atts=new Names(md);
+  DropDB.drop(dbname,sopts);
+  sopts.dbPath(dbname).md();
+  elemNames=new Names(meta);
+  attrNames=new Names(meta);
   try {
-    tout=new DataOutput(new TableOutput(md,DATATBL));
-    xout=new DataOutput(md.dbfile(DATATXT),bs);
-    vout=new DataOutput(md.dbfile(DATAATV),bs);
-    sout=new DataOutput(md.dbfile(DATATMP),bs);
+    tout=new DataOutput(new TableOutput(meta,DATATBL));
+    xout=new DataOutput(meta.dbfile(DATATXT),bs);
+    vout=new DataOutput(meta.dbfile(DATAATV),bs);
+    sout=new DataOutput(meta.dbfile(DATATMP),bs);
     final Performance perf=Prop.debug ? new Performance() : null;
     Util.debug(tit() + DOTS);
     parse();
@@ -27,18 +23,20 @@
     try {
       close();
     }
- catch (    final IOException ignored) {
+ catch (    final IOException ignore) {
     }
     throw ex;
   }
   close();
-  try (final DataInput in=new DataInput(md.dbfile(DATATMP))){
-    final TableAccess ta=new TableDiskAccess(md,true);
-    for (; spos < ssize; ++spos)     ta.write4(in.readNum(),8,in.readNum());
-    ta.close();
+  try (final DataInput in=new DataInput(meta.dbfile(DATATMP))){
+    final TableAccess ta=new TableDiskAccess(meta,true);
+    try {
+      for (; spos < ssize; ++spos)       ta.write4(in.readNum(),8,in.readNum());
+    }
+  finally {
+      ta.close();
+    }
   }
-   md.dbfile(DATATMP).delete();
-  final DiskData data=new DiskData(md,tags,atts,path,ns);
-  data.finishUpdate();
-  return data;
+   meta.dbfile(DATATMP).delete();
+  return new DiskData(meta,elemNames,attrNames,path,nspaces);
 }

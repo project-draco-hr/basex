@@ -1,0 +1,13 @@
+{
+  final int n=inLeft + inRight;
+  if (n == 1)   return new SingletonTree<>(nodes[(midPos + inRight - 1 + CAP) % CAP]);
+  final int a=middle == null ? n / 2 : inLeft, l=midPos - inLeft;
+  final Node<N,E>[] left=copy(l,a), right=copy(l + a,n - a);
+  if (middle == null)   return DeepTree.get(left,right);
+  if (middle instanceof FingerTree) {
+    final FingerTree<Node<N,E>,E> tree=(FingerTree<Node<N,E>,E>)middle;
+    return DeepTree.get(left,tree,right);
+  }
+  final BufferNode<Node<N,E>,E> buffer=(BufferNode<Node<N,E>,E>)middle;
+  return DeepTree.get(left,buffer.freeze(),right);
+}

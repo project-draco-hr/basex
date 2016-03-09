@@ -1,10 +1,10 @@
 {
   final String name=args[0];
   if (!Databases.validName(name,true))   return error(NAME_INVALID_X,name);
-  final StringList dbs=context.databases.listDBs(name);
-  if (dbs.isEmpty())   dbs.add(name);
+  final StringList dbs=context.filter(Perm.READ,context.databases.listDBs(name));
+  if (dbs.isEmpty() && context.perm(Perm.READ,name))   dbs.add(name);
   for (  final String db : dbs) {
-    for (    final String backup : context.databases.backups(db))     drop(backup,context);
+    for (    final String backup : context.databases.backups(db))     drop(backup,soptions);
   }
   return info(BACKUP_DROPPED_X,name + '*' + IO.ZIPSUFFIX);
 }

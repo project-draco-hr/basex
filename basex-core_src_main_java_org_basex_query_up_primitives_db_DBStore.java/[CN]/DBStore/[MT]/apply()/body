@@ -1,0 +1,16 @@
+{
+  for (  final byte[] path : map) {
+    try {
+      final IOFile file=data.meta.binary(string(path));
+      if (file.isDir())       file.delete();
+      file.parent().md();
+      try (final BufferInput bi=map.get(path).input(info)){
+        file.write(bi);
+      }
+     }
+ catch (    final IOException ex) {
+      Util.debug(ex);
+      throw UPDBPUT_X.get(info,path);
+    }
+  }
+}

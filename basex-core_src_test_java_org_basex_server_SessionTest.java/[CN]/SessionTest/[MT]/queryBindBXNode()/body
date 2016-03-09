@@ -1,0 +1,27 @@
+{
+  try (Query query=session.query("declare variable $a as element() external; $a")){
+    query.bind("$a",BXNode.get(new FElem("a")));
+    assertEqual("<a/>",query.execute());
+  }
+   final String string="declare variable $a external; $a";
+  try (Query query=session.query(string)){
+    query.bind("$a",BXNode.get(new FElem("a")));
+    assertEqual("<a/>",query.execute());
+  }
+   try (Query query=session.query(string)){
+    query.bind("$a",BXNode.get(new FDoc().add(new FElem("a"))));
+    assertEqual("<a/>",query.execute());
+  }
+   try (Query query=session.query(string)){
+    query.bind("$a",BXNode.get(new FTxt("a")));
+    assertEqual("a",query.execute());
+  }
+   try (Query query=session.query(string)){
+    query.bind("$a",BXNode.get(new FPI("a","b")));
+    assertEqual("<?a b?>",query.execute());
+  }
+   try (Query query=session.query(string)){
+    query.bind("$a",BXNode.get(new FComm("a")));
+    assertEqual("<!--a-->",query.execute());
+  }
+ }

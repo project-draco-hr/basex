@@ -1,6 +1,6 @@
 {
-  String user=context.globalopts.get(GlobalOptions.USER);
-  String pass=context.globalopts.get(GlobalOptions.PASSWORD);
+  String user=context.soptions.get(StaticOptions.USER);
+  String pass=context.soptions.get(StaticOptions.PASSWORD);
   while (user.isEmpty()) {
     Util.out(USERNAME + COLS);
     user=Util.input();
@@ -9,5 +9,12 @@
     Util.out(PASSWORD + COLS);
     pass=Util.password();
   }
-  return new ClientSession(context,user,pass,out);
+  final String host=context.soptions.get(StaticOptions.HOST);
+  final int port=context.soptions.get(StaticOptions.PORT);
+  try {
+    return new ClientSession(host,port,user,pass,out);
+  }
+ catch (  final ConnectException ex) {
+    throw new BaseXException(CONNECTION_ERROR_X,port);
+  }
 }

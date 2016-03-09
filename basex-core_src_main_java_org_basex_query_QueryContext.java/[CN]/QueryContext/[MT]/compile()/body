@@ -1,33 +1,41 @@
 {
-  if (nodes == null)   nodes=context.current();
-  final StringList o=tempOpts;
-  for (int s=0; s < o.size(); s+=2) {
-    try {
-      context.options.assign(o.get(s).toUpperCase(Locale.ENGLISH),o.get(s + 1));
+  if (compiled)   return;
+  try {
+    final StringList opts=tempOpts;
+    final int os=opts.size();
+    for (int o=0; o < os; o+=2) {
+      try {
+        context.options.assign(opts.get(o).toUpperCase(Locale.ENGLISH),opts.get(o + 1));
+      }
+ catch (      final BaseXException ex) {
+        throw BASX_VALUE_X_X.get(null,opts.get(o),opts.get(o + 1));
+      }
     }
- catch (    final BaseXException ex) {
-      throw BASX_VALUE.get(null,o.get(s),o.get(s + 1));
+    maxCalls=context.options.get(MainOptions.TAILCALLS);
+    vars.bindExternal(this,bindings);
+    if (ctxItem != null) {
+      try {
+        ctxItem.compile(this);
+        value=ctxItem.cache(this).value();
+      }
+ catch (      final QueryException ex) {
+        throw ex.error() == NOCTX_X ? CIRCCTX.get(ctxItem.info) : ex;
+      }
     }
-  }
-  maxCalls=context.options.get(MainOptions.TAILCALLS);
-  vars.bindExternal(this,bindings);
-  if (ctxItem != null) {
-    try {
-      ctxItem.compile(this);
-      value=ctxItem.cache(this).value();
+ else {
+      final DBNodes nodes=context.current();
+      if (nodes != null) {
+        if (!context.perm(Perm.READ,nodes.data().meta.name))         throw BASX_PERM_X.get(null,Perm.READ);
+        value=resources.compile(nodes);
+      }
     }
- catch (    final QueryException ex) {
-      if (ex.err() != NOCTX)       throw ex;
-      throw NOCTXDECL.get(ctxItem.info);
+    if (value != null && root.sc.contextType != null) {
+      value=root.sc.contextType.promote(this,root.sc,null,value,true);
     }
+    analyze();
+    info.runtime=true;
   }
- else   if (nodes != null) {
-    if (nodes.ftpos != null)     ftPosData=new FTPosData();
-    resources.compile(nodes);
+  finally {
+    compiled=true;
   }
-  if (value != null && root.sc.initType != null) {
-    value=root.sc.initType.promote(this,root.sc,null,value,true);
-  }
-  analyze();
-  info.runtime=true;
 }

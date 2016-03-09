@@ -1,0 +1,35 @@
+{
+  String method=atts.get(SerializerOptions.METHOD.name());
+  if (method == null) {
+    final MediaType type=new MediaType(atts.get(SerializerOptions.MEDIA_TYPE.name()));
+    if (type.is(MediaType.APPLICATION_HTML_XML)) {
+      method=SerialMethod.XHTML.toString();
+    }
+ else     if (type.is(MediaType.TEXT_HTML)) {
+      method=SerialMethod.HTML.toString();
+    }
+ else     if (type.isXML()) {
+      method=SerialMethod.XML.toString();
+    }
+ else     if (type.isText()) {
+      method=SerialMethod.TEXT.toString();
+    }
+ else {
+      method=SerialMethod.XML.toString();
+    }
+  }
+  final String src=atts.get(SRC);
+  if (src == null) {
+    write(payload,atts,method,out);
+  }
+ else {
+    final IOUrl io=new IOUrl(src);
+    if (Strings.eq(method,BINARY)) {
+      out.write(io.read());
+    }
+ else {
+      final ItemList buffer=new ItemList().add(Str.get(new TextInput(io).content()));
+      write(buffer,atts,method,out);
+    }
+  }
+}

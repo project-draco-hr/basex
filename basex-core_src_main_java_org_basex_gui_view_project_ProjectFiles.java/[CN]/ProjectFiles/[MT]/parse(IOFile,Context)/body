@@ -1,0 +1,35 @@
+{
+  final long id=++parseId;
+  final HashSet<String> parsed=new HashSet<>();
+  final TreeMap<String,InputInfo> errs=new TreeMap<>();
+  final ProjectCache pc=cache(root);
+  final StringList mods=new StringList(), lmods=new StringList();
+  for (  final String path : pc) {
+    final IOFile file=new IOFile(path);
+    if (file.hasSuffix(IO.XQSUFFIXES))     (file.hasSuffix(IO.XQMSUFFIX) ? lmods : mods).add(path);
+  }
+  mods.add(lmods);
+  for (  final String path : mods) {
+    if (id != parseId)     throw new InterruptedException();
+    if (parsed.contains(path))     continue;
+    final IOFile file=new IOFile(path);
+    try (final TextInput ti=new TextInput(file)){
+      try (final QueryContext qc=new QueryContext(ctx)){
+        final String input=ti.cache().toString();
+        final boolean lib=QueryProcessor.isLibrary(input);
+        qc.parse(input,lib,path,null);
+        parsed.add(path);
+        for (        final byte[] mod : qc.modParsed)         parsed.add(Token.string(mod));
+      }
+ catch (      final QueryException ex) {
+        final InputInfo ii=ex.info();
+        errs.put(path,ii);
+        parsed.add(ii.path());
+      }
+    }
+ catch (    final IOException ex) {
+      Util.debug(ex);
+    }
+  }
+  errors=errs;
+}

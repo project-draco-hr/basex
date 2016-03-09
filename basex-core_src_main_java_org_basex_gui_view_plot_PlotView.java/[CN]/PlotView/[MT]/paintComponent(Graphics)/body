@@ -10,11 +10,10 @@
   plotHeight=h - (MARGIN[0] + MARGIN[2]);
   final int sz=sizeFactor();
   g.setFont(font);
-  g.setColor(Color.black);
+  g.setColor(TEXT);
   final Data data=gui.context.data();
-  final boolean nd=data == null;
-  if (nd || plotWidth - sz < 0 || plotHeight - sz < 0) {
-    BaseXLayout.drawCenter(g,nd ? NO_DATA : NO_PIXELS,w,h / 2 - MARGIN[0]);
+  if (data == null || plotWidth - sz < 0 || plotHeight - sz < 0) {
+    BaseXLayout.drawCenter(g,data == null ? NO_DATA : NO_PIXELS,w,h / 2 - MARGIN[0]);
     return;
   }
   if (plotImg == null || plotChanged)   createPlotImage();
@@ -25,14 +24,14 @@
   gui.painting=true;
   int focused=gui.context.focused;
   if (focused != -1) {
-    final int itmID=data.tagindex.id(plotData.item);
+    final int itmID=data.elemNames.id(plotData.item);
     int k=data.kind(focused);
-    int name=data.name(focused);
+    int name=data.nameId(focused);
     while (focused > 0 && itmID != name) {
       focused=data.parent(focused,k);
       if (focused > -1) {
         k=data.kind(focused);
-        name=data.name(focused);
+        name=data.nameId(focused);
       }
     }
   }
@@ -75,13 +74,13 @@
     }
   }
   if (dragging) {
-    g.setColor(color2A);
     final int selW=selectionBox.w;
     final int selH=selectionBox.h;
     final int x1=selectionBox.x;
     final int y1=selectionBox.y;
+    g.setColor(colormark2A);
     g.fillRect(selW > 0 ? x1 : x1 + selW,selH > 0 ? y1 : y1 + selH,Math.abs(selW),Math.abs(selH));
-    g.setColor(color3A);
+    g.setColor(colormark1A);
     g.drawRect(selW > 0 ? x1 : x1 + selW,selH > 0 ? y1 : y1 + selH,Math.abs(selW),Math.abs(selH));
   }
   markingChanged=false;

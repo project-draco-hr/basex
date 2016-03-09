@@ -1,19 +1,20 @@
 {
-  Util.outln(S_CONSOLE + TRY_MORE_X,sa() ? S_STANDALONE : S_CLIENT);
+  Util.outln(header() + NL + TRY_MORE_X);
   verbose=true;
-  final ConsoleReader cr=ConsoleReader.get();
-  while (console) {
-    final String in=cr.readLine();
-    if (in == null)     break;
-    if (in.isEmpty())     continue;
-    try {
-      if (!execute(new CommandParser(in,context).pwReader(cr.pwReader()))) {
-        Util.outln(BYE[new Random().nextInt(4)]);
-        return;
+  try (final ConsoleReader cr=ConsoleReader.get()){
+    while (console) {
+      final String in=cr.readLine(PROMPT);
+      if (in == null)       break;
+      if (in.isEmpty())       continue;
+      try {
+        if (!execute(new CommandParser(in,context).pwReader(cr.pwReader()))) {
+          Util.outln(BYE[new Random().nextInt(4)]);
+          break;
+        }
+      }
+ catch (      final IOException ex) {
+        Util.errln(ex);
       }
     }
- catch (    final IOException ex) {
-      Util.errln(ex);
-    }
   }
-}
+ }

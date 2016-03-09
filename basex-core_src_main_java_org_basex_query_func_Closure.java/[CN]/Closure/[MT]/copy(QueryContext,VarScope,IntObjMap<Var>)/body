@@ -1,14 +1,15 @@
 {
   final VarScope v=scope.copy(qc,vs);
   final HashMap<Var,Expr> nl=new HashMap<>();
-  for (  final Entry<Var,Expr> e : nonLocal.entrySet()) {
+  for (  final Entry<Var,Expr> e : global.entrySet()) {
     final Var var=vs.get(e.getKey().id);
     final Expr ex=e.getValue().copy(qc,scp,vs);
     nl.put(var,ex);
   }
-  final Var[] a=args.clone();
-  for (int i=0; i < a.length; i++)   a[i]=vs.get(a[i].id);
+  final Var[] vars=args.clone();
+  final int al=vars.length;
+  for (int a=0; a < al; a++)   vars[a]=vs.get(vars[a].id);
   final Expr e=expr.copy(qc,v,vs);
   e.markTailCalls(null);
-  return copyType(new Closure(info,name,ret,a,e,ann,nl,sc,v));
+  return copyType(new Closure(info,name,type,vars,e,anns,nl,sc,v));
 }

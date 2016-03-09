@@ -1,0 +1,28 @@
+{
+switch (state) {
+case INIT:
+    state=!hasFreeVars() && !has(Flag.NDT) && !has(Flag.UPD) ? Caching.ENABLED : Caching.DISABLED;
+  return iter(qc);
+case ENABLED:
+cvalue=qc.value instanceof DBNode ? ((DBNode)qc.value).finish() : qc.value;
+state=Caching.READY;
+break;
+case READY:
+if (sameContext(qc)) {
+cached=nodeIter(qc).value();
+state=Caching.CACHED;
+}
+ else {
+state=Caching.DISABLED;
+}
+break;
+case CACHED:
+if (!sameContext(qc)) {
+cached=null;
+state=Caching.DISABLED;
+}
+break;
+case DISABLED:
+}
+return cached == null ? nodeIter(qc) : cached.iter();
+}

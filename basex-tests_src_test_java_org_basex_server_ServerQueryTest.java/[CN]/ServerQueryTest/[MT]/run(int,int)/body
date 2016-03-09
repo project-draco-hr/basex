@@ -1,0 +1,12 @@
+{
+  server=createServer();
+  try (final ClientSession cs=createClient()){
+    cs.execute("create db test " + INPUT);
+    final Client[] cl=new Client[clients];
+    for (int i=0; i < clients; ++i)     cl[i]=new Client(runs);
+    for (    final Client c : cl)     c.start();
+    for (    final Client c : cl)     c.join();
+    cs.execute("drop db test");
+  }
+   stopServer(server);
+}

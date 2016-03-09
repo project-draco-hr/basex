@@ -2,12 +2,12 @@
   final JAXBContext jaxbContext=JAXBContext.newInstance(SAXSerializerObject.class);
   final ArrayOutput marshalled=new ArrayOutput();
   jaxbContext.createMarshaller().marshal(new SAXSerializerObject("Object1",42),marshalled);
-  new CreateDB(NAME,marshalled.toString()).execute(context);
-  final QueryProcessor queryProcessor=new QueryProcessor("//domain-object[@name='Object1']",context);
-  final Item item=queryProcessor.iter().next();
-  final SAXSerializer saxSerializer=new SAXSerializer(item);
-  final SAXSource saxSource=new SAXSource(saxSerializer,null);
-  final SAXSerializerObject dom=jaxbContext.createUnmarshaller().unmarshal(saxSource,SAXSerializerObject.class).getValue();
-  queryProcessor.close();
-  Assert.assertEquals(42,dom.getValue());
-}
+  execute(new CreateDB(NAME,marshalled.toString()));
+  try (final QueryProcessor queryProcessor=new QueryProcessor("//domain-object[@name='Object1']",context)){
+    final Item item=queryProcessor.iter().next();
+    final SAXSerializer saxSerializer=new SAXSerializer(item);
+    final SAXSource saxSource=new SAXSource(saxSerializer,null);
+    final SAXSerializerObject dom=jaxbContext.createUnmarshaller().unmarshal(saxSource,SAXSerializerObject.class).getValue();
+    assertEquals(42,dom.getValue());
+  }
+ }

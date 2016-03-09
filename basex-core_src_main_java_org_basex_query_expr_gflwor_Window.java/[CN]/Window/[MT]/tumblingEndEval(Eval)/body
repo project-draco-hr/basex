@@ -1,0 +1,26 @@
+{
+  return new TumblingEval(){
+    @Override public boolean next(    final QueryContext qc) throws QueryException {
+      while (true) {
+        if (findStart(qc)) {
+          final ValueBuilder window=new ValueBuilder();
+          boolean found=false;
+          do {
+            window.add(curr);
+            if (end.matches(qc,curr,p,prev,next)) {
+              found=true;
+              break;
+            }
+          }
+ while (readNext());
+          if (found || !only) {
+            qc.set(var,window.value(),info);
+            return true;
+          }
+        }
+        if (!prepareNext(qc,sub))         return false;
+      }
+    }
+  }
+;
+}

@@ -1,0 +1,66 @@
+{
+  final Value[] ls=left, rs=right;
+  final int l=ls.length, r=rs.length, startPos;
+  final long m=middle.size();
+  final ListIterator<Value> sub;
+  if (start < l) {
+    startPos=(int)start - l;
+    sub=middle.listIterator(0);
+  }
+ else   if (start - l < m) {
+    startPos=0;
+    sub=middle.listIterator(start - l);
+  }
+ else {
+    startPos=(int)(start - l - m) + 1;
+    sub=middle.listIterator(m);
+  }
+  return new ListIterator<Value>(){
+    int pos=startPos;
+    @Override public int nextIndex(){
+      return pos < 0 ? l + pos : pos > 0 ? (int)(l + m + pos - 1) : l + sub.nextIndex();
+    }
+    @Override public boolean hasNext(){
+      return pos <= r;
+    }
+    @Override public Value next(){
+      if (pos > r)       throw new NoSuchElementException();
+      if (pos < 0) {
+        return ls[l + pos++];
+      }
+      if (pos == 0) {
+        if (sub.hasNext())         return sub.next();
+        pos=1;
+      }
+      return rs[pos++ - 1];
+    }
+    @Override public int previousIndex(){
+      return pos < 0 ? l + pos - 1 : pos > 0 ? (int)(l + m + pos - 2) : l + sub.previousIndex();
+    }
+    @Override public boolean hasPrevious(){
+      return pos > -l;
+    }
+    @Override public Value previous(){
+      if (pos <= -l)       throw new NoSuchElementException();
+      if (pos > 0) {
+        if (--pos > 0)         return rs[pos - 1];
+      }
+      if (pos == 0) {
+        if (sub.hasPrevious())         return sub.previous();
+        pos=-1;
+        return ls[l - 1];
+      }
+      return ls[l + --pos];
+    }
+    @Override public void add(    final Value e){
+      throw new UnsupportedOperationException();
+    }
+    @Override public void set(    final Value e){
+      throw new UnsupportedOperationException();
+    }
+    @Override public void remove(){
+      throw new UnsupportedOperationException();
+    }
+  }
+;
+}

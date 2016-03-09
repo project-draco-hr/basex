@@ -3,11 +3,12 @@
   final VarScope scp=new VarScope(sc);
   final int arity=sf.args.length;
   final Var[] args=new Var[arity];
-  final Expr[] calls=new Expr[args.length];
-  for (int i=0; i < args.length; i++) {
-    args[i]=scp.newLocal(qc,sf.argName(i),ft.args[i],true);
-    calls[i]=new VarRef(info,args[i]);
+  final int al=args.length;
+  final Expr[] calls=new Expr[al];
+  for (int a=0; a < al; a++) {
+    args[a]=scp.newLocal(qc,sf.argName(a),ft.argTypes[a],true);
+    calls[a]=new VarRef(info,args[a]);
   }
   final TypedFunc tf=qc.funcs.getFuncRef(sf.name,calls,sc,info);
-  return new FuncItem(sc,tf.ann,sf.name,args,ft,tf.fun,scp.stackSize());
+  return new FuncItem(sc,tf.anns,sf.name,args,ft,tf.fun,scp.stackSize());
 }

@@ -1,0 +1,9 @@
+{
+  for (  final Entry<String,String> entry : map().entrySet()) {
+    final String key=entry.getKey(), value=entry.getValue();
+    set(MainOptions.ATTRINCLUDE,key);
+    execute(new CreateDB(NAME,FILE));
+    check("count(//*[@" + key + " = "+ value+ "])",Integer.toString(value.split(",").length),"exists(//ValueAccess)");
+    if (!key.equals("*"))     check("//*[@x = 'unknown']","","exists(//DBNode)");
+  }
+}

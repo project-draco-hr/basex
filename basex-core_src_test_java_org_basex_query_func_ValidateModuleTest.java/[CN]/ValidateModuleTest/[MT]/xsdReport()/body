@@ -1,0 +1,15 @@
+{
+  query(_VALIDATE_XSD_REPORT.args(FILE,XSD),"<report>\n<status>valid</status>\n</report>");
+  query(_VALIDATE_XSD_REPORT.args(FILE,XSD) + "//status/string()","valid");
+  query(_VALIDATE_XSD_REPORT.args(DOC.args(FILE),DOC.args(XSD)) + "//status/string()","valid");
+  query(_VALIDATE_XSD_REPORT.args(_FILE_READ_TEXT.args(FILE),_FILE_READ_TEXT.args(XSD)) + "//status/string()","valid");
+  query(_VALIDATE_XSD_REPORT.args(FILE,XSD,"1.0"),"<report>\n<status>valid</status>\n</report>");
+  query("let $doc := <root/> " + "let $schema := <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'> " + "                 <xs:element name='root'/> "+ "               </xs:schema> "+ "return " + _VALIDATE_XSD_REPORT.args("$doc","$schema") + "//status/string()","valid");
+  query(_VALIDATE_XSD_REPORT.args(FILE) + "//status/string()","invalid");
+  query("let $doc := <root/> " + "let $schema := <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'> " + "                 <xs:element name='unknown'/> "+ "               </xs:schema> "+ "return " + _VALIDATE_XSD_REPORT.args("$doc","$schema") + "//status/string()","invalid");
+  query("let $doc := <root/> " + "let $schema := <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'> " + "                 <xs:element name='unknown'/> "+ "               </xs:schema> "+ "let $report := " + _VALIDATE_XSD_REPORT.args("$doc","$schema") + "return $report update ("+ "  delete node .//message/text(),"+ "  for $a in .//@* return replace value of node $a with ''"+ ")","<report>\n<status>invalid</status>\n" + "<message level=\"\" line=\"\" column=\"\"/>\n" + "</report>");
+  query(EXISTS.args(_VALIDATE_XSD_REPORT.args(INPUT,XSD) + "//@url"),"true");
+  error(_VALIDATE_XSD_REPORT.args("unknown"),WHICHRES_X);
+  error(_VALIDATE_XSD_REPORT.args(FILE,"unknown.xsd"),WHICHRES_X);
+  error(_VALIDATE_XSD_REPORT.args(FILE,XSD,"0.99"),BXVA_XSDVERSION_X);
+}

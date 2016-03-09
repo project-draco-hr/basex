@@ -1,17 +1,8 @@
 {
-  final Var[] args=function.args;
   final Matcher m=TEMPLATE.matcher(tmp);
   if (!m.find())   throw error(INV_TEMPLATE,tmp);
   final byte[] vn=token(m.group(1));
   if (!XMLToken.isQName(vn))   throw error(INV_VARNAME,vn);
   final QNm name=new QNm(vn);
-  if (name.hasPrefix())   name.uri(function.sc.ns.uri(name.prefix()));
-  int r=-1;
-  while (++r < args.length && !args[r].name.eq(name))   ;
-  if (r == args.length)   throw error(UNKNOWN_VAR,vn);
-  if (declared[r])   throw error(VAR_ASSIGNED,vn);
-  final SeqType st=args[r].declaredType();
-  if (args[r].checksType() && !st.type.instanceOf(type))   throw error(INV_VARTYPE,vn,type);
-  declared[r]=true;
-  return name;
+  return checkVariable(name,type,declared);
 }

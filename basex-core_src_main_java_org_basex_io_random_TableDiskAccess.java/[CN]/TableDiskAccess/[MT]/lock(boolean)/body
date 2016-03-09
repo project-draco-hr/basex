@@ -1,15 +1,13 @@
 {
   try {
-    if (lock) {
-      if (exclusiveLock())       return true;
-      if (sharedLock())       return false;
+    if (fl != null) {
+      if (write != fl.isShared())       return true;
+      fl.release();
     }
- else {
-      if (sharedLock())       return true;
-    }
+    fl=file.getChannel().tryLock(0,Long.MAX_VALUE,!write);
+    return fl != null;
   }
  catch (  final IOException ex) {
-    Util.stack(ex);
+    throw Util.notExpected(ex);
   }
-  throw Util.notExpected((lock ? "Exclusive" : "Shared") + " lock could not be acquired.");
 }

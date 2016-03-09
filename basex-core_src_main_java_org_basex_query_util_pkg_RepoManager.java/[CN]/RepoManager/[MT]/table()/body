@@ -5,20 +5,14 @@
   t.header.add(VERSINFO);
   t.header.add(TYPE);
   t.header.add(PATH);
-  final TokenMap pkg=repo.pkgDict();
-  for (  final byte[] p : pkg) {
-    if (p != null)     t.contents.add(entry(string(Package.name(p)),string(Package.version(p)),EXPATH,string(pkg.get(p))));
+  for (  final Pkg pkg : all()) {
+    final String version=pkg.version();
+    final TokenList tl=new TokenList();
+    tl.add(pkg.name());
+    tl.add(version == null ? "-" : version);
+    tl.add(version == null ? INTERNAL : EXPATH);
+    tl.add(pkg.dir());
+    t.contents.add(tl);
   }
-  for (  final IOFile ch : repo.path().children()) {
-    final String n=ch.name();
-    if (!ch.isDir()) {
-      t.contents.add(entry(n.replaceAll("\\..*","").replace('/','.'),"-",INTERNAL,n));
-    }
- else     if (n.indexOf('-') == -1) {
-      for (      final String s : ch.descendants()) {
-        t.contents.add(entry(n + '.' + s.replaceAll("\\..*","").replace('/','.'),"-",INTERNAL,n + '/' + s));
-      }
-    }
-  }
-  return t.sort();
+  return t;
 }

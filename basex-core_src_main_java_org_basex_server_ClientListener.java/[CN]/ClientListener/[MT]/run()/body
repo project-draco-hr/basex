@@ -21,12 +21,6 @@
  else         if (sc == ServerCmd.ADD) {
           add();
         }
- else         if (sc == ServerCmd.WATCH) {
-          watch();
-        }
- else         if (sc == ServerCmd.UNWATCH) {
-          unwatch();
-        }
  else         if (sc == ServerCmd.REPLACE) {
           replace();
         }
@@ -47,21 +41,22 @@
       if (sc != ServerCmd.COMMAND)       continue;
       try {
         command=new CommandParser(cmd,context).parseSingle();
-        log(command,null);
+        log(LogType.REQUEST,command.toString(true));
       }
  catch (      final QueryException ex) {
         final String msg=ex.getMessage();
-        log(cmd,null);
-        log(msg,false);
+        log(LogType.REQUEST,cmd);
+        log(LogType.ERROR,msg);
         out.write(0);
-        out.writeString(msg);
+        out.print(msg);
+        out.write(0);
         send(false);
         continue;
       }
       boolean ok=true;
       String info;
       try {
-        command.execute(context,new EncodingOutput(out));
+        command.execute(context,new ServerOutput(out));
         info=command.info();
       }
  catch (      final BaseXException ex) {
@@ -78,7 +73,7 @@
     }
   }
  catch (  final IOException ex) {
-    log(ex,false);
+    log(LogType.ERROR,Util.message(ex));
     command=null;
     quit();
   }

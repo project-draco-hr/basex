@@ -1,52 +1,18 @@
 {
-  String name=MetaData.normPath(args[0]);
-  if (name == null)   return error(NAME_INVALID_X,args[0]);
-  final IO io;
   try {
-    io=sourceToIO(name);
-  }
- catch (  final IOException ex) {
-    return error(Util.message(ex));
-  }
-  if (io == null)   return error(RES_NOT_FOUND);
-  if (!io.exists())   return in != null ? error(RES_NOT_FOUND) : error(RES_NOT_FOUND_X,context.user.has(Perm.CREATE) ? io : args[1]);
-  if (!name.endsWith("/") && (io.isDir() || io.isArchive()))   name+='/';
-  String target="";
-  final int s=name.lastIndexOf('/');
-  if (s != -1) {
-    target=name.substring(0,s);
-    name=name.substring(s + 1);
-  }
-  final Data data=context.data();
-  if (name.isEmpty())   name=io.name();
- else   io.name(name);
-  if (name.isEmpty())   return error(NAME_INVALID_X,name);
-  String db=null;
-  Data tmp=null;
-  try {
-    final Parser parser=new DirParser(io,context,data.meta.path);
-    parser.target(target);
-    if (cache(parser)) {
-      db=context.globalopts.random(data.meta.name);
-      build=new DiskBuilder(db,parser,context);
-    }
- else {
-      build=new MemBuilder(name,parser);
-    }
-    tmp=build.build();
-    if (tmp.meta.size > 1) {
-      if (lock && !data.startUpdate())       return error(DB_PINNED_X,data.meta.name);
-      data.insert(data.meta.size,-1,new DataClip(tmp));
+    if (!build())     return false;
+    if (clip.data.meta.size > 1) {
+      if (!startUpdate())       return false;
       context.invalidate();
-      if (lock)       data.finishUpdate();
+      final Data data=context.data();
+      final AtomicUpdateCache auc=new AtomicUpdateCache(data);
+      auc.addInsert(data.meta.size,-1,clip);
+      auc.execute(false);
+      if (!finishUpdate())       return false;
     }
-    return info(parser.info() + PATH_ADDED_X_X,name,perf);
+    return info(RES_ADDED_X,perf);
   }
- catch (  final IOException ex) {
-    return error(Util.message(ex));
-  }
- finally {
-    if (tmp != null)     tmp.close();
-    if (db != null)     DropDB.drop(db,context);
+  finally {
+    close();
   }
 }

@@ -1,17 +1,20 @@
 {
   final IOFile io=new IOFile(TEMP);
-  io.write(Token.token("<x"));
-  new Set(MainOptions.SKIPCORRUPT,true).execute(context);
-  assertEquals(0,context.data().resources.docs("").size());
-  new Add("x","<x").execute(context);
-  new Add("x",CORRUPT).execute(context);
-  assertEquals(0,context.data().resources.docs("").size());
-  new Set(MainOptions.SKIPCORRUPT,false).execute(context);
+  write(io,"<x");
+  try {
+    set(MainOptions.SKIPCORRUPT,true);
+    assertEquals(0,docs());
+    execute(new Add("x","<x"));
+    execute(new Add("x",CORRUPT));
+    assertEquals(0,docs());
+  }
+  finally {
+    set(MainOptions.SKIPCORRUPT,false);
+  }
   try {
     new Add("","<x").execute(context);
     fail("Broken file was added to the database.");
   }
- catch (  final Exception ignored) {
+ catch (  final BaseXException ignored) {
   }
-  assertTrue(io.delete());
 }

@@ -3,16 +3,18 @@
   try {
     versionDecl();
     final int i=pos;
-    if (wsConsumeWs(MODULE,NSPACE,null))     throw error(MAINMOD);
+    if (wsConsumeWs(MODULE,NAMESPACE,null))     throw error(MAINMOD);
     pos=i;
     prolog1();
+    importModules();
     prolog2();
-    pushVarContext(null);
+    localVars.pushContext(null);
     final Expr expr=expr();
     if (expr == null)     throw alter == null ? error(EXPREMPTY) : error();
-    final VarScope scope=popVarContext();
+    final VarScope scope=localVars.popContext();
     final MainModule mm=new MainModule(expr,scope,null,moduleDoc,funcs,vars,imports,sc,null);
-    finish(mm,true);
+    finish(mm);
+    check(mm);
     return mm;
   }
  catch (  final QueryException ex) {

@@ -1,0 +1,14 @@
+{
+  final long fstSize=left[0].size(), newSize=size - fstSize;
+  if (left.length > 1) {
+    final Node<N,E>[] newLeft=slice(left,1,left.length);
+    return new DeepTree<>(newLeft,leftSize - fstSize,middle,right,newSize);
+  }
+  if (middle.isEmpty()) {
+    if (right.length == 1)     return new SingletonTree<>(right[0]);
+    final int mid=right.length / 2;
+    return get(slice(right,0,mid),slice(right,mid,right.length),newSize);
+  }
+  final InnerNode<N,E> head=(InnerNode<N,E>)middle.head();
+  return new DeepTree<>(head.children,head.size(),middle.tail(),right,newSize);
+}

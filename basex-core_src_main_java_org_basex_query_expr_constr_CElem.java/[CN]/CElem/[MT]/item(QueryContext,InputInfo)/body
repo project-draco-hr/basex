@@ -1,0 +1,54 @@
+{
+  final int s=addNS();
+  try {
+    final Atts ns=new Atts();
+    final int nl=nspaces.size();
+    for (int i=0; i < nl; i++)     ns.add(nspaces.name(i),nspaces.value(i));
+    final QNm nm=qname(qc,true,ii);
+    final byte[] cp=nm.prefix(), cu=nm.uri();
+    if (eq(cp,XML) ^ eq(cu,XML_URI))     throw CEXML.get(info,cu,cp);
+    if (eq(cu,XMLNS_URI))     throw CEINV_X.get(info,cu);
+    if (eq(cp,XMLNS))     throw CEINV_X.get(info,cp);
+    if (!nm.hasURI() && nm.hasPrefix())     throw INVPREF_X.get(info,nm);
+    if (!eq(cp,XML)) {
+      final byte[] uri=sc.ns.uri(cp);
+      if (nm.hasURI()) {
+        if (!comp && (uri == null || !eq(uri,cu)))         sc.ns.add(cp,cu);
+        if (!ns.contains(cp))         ns.add(cp,cu);
+      }
+ else {
+        nm.uri(uri);
+      }
+    }
+    final Constr constr=new Constr(ii,sc);
+    final FElem node=new FElem(nm,ns,constr.children,constr.atts);
+    constr.add(qc,exprs);
+    if (constr.errAtt != null)     throw NOATTALL_X.get(info,constr.errAtt);
+    if (constr.errNS != null)     throw NONSALL_X.get(info,constr.errNS);
+    if (constr.duplAtt != null)     throw CATTDUPL_X.get(info,constr.duplAtt);
+    if (constr.duplNS != null)     throw DUPLNSCONS_X.get(info,constr.duplNS);
+    if (constr.nspaces.contains(EMPTY) && !nm.hasURI())     throw DUPLNSCONS_X.get(info,EMPTY);
+    final Atts cns=constr.nspaces;
+    final int cl=cns.size();
+    for (int c=0; c < cl; c++)     addNS(cns.name(c),cns.value(c),ns);
+    final int al=constr.atts.size();
+    for (int a=0; a < al; a++) {
+      final ANode att=constr.atts.get(a);
+      final QNm qnm=att.qname();
+      if (!qnm.hasPrefix() || !qnm.hasURI())       continue;
+      final byte[] apref=qnm.prefix();
+      if (eq(apref,XML))       continue;
+      final byte[] auri=qnm.uri();
+      final byte[] npref=addNS(apref,auri,ns);
+      if (npref != null) {
+        final QNm aname=new QNm(concat(npref,COLON,qnm.local()),auri);
+        constr.atts.set(a,new FAttr(aname,att.string()));
+      }
+    }
+    for (    final ANode ch : constr.children)     ch.optimize();
+    return node.optimize();
+  }
+  finally {
+    sc.ns.size(s);
+  }
+}

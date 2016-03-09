@@ -1,8 +1,8 @@
 {
   final Performance p=new Performance();
-  String err;
-  if (cause != null) {
-    err=Util.message(cause);
+  String error;
+  if (exception != null) {
+    error=Util.message(exception);
   }
  else {
     try {
@@ -20,48 +20,43 @@
         if (r == 0)         plan(true);
         if (!run)         continue;
         final PrintOutput po=r == 0 && serial ? out : new NullOutput();
-        final Serializer ser;
-        if (options.get(MainOptions.CACHEQUERY)) {
-          result=qp.execute();
-          info.evaluating+=p.time();
-          ser=qp.getSerializer(po);
-          result.serialize(ser);
-          hits=result.size();
-        }
+        try (final Serializer ser=qp.getSerializer(po)){
+          if (maxResults >= 0) {
+            result=qp.cache(maxResults);
+            info.evaluating+=p.time();
+            result.serialize(ser);
+            hits=result.size();
+          }
  else {
-          hits=0;
-          final Iter ir=qp.iter();
-          info.evaluating+=p.time();
-          Item it=ir.next();
-          ser=qp.getSerializer(po);
-          while (it != null) {
-            checkStop();
-            ser.serialize(it);
-            it=ir.next();
-            ++hits;
+            hits=0;
+            final Iter ir=qp.iter();
+            info.evaluating+=p.time();
+            for (Item it; (it=ir.next()) != null; ) {
+              ser.serialize(it);
+              ++hits;
+              checkStop();
+            }
           }
         }
-        ser.close();
-        qp.close();
+         qp.close();
         info.serializing+=p.time();
       }
-      out.flush();
-      if (goptions.get(GlobalOptions.GLOBALLOCK) && qp.updating) {
+      if (soptions.get(StaticOptions.GLOBALLOCK) && qp.updating) {
         info.readLocked=null;
         info.writeLocked=null;
       }
       return info(info.toString(qp,out.size(),hits,options.get(MainOptions.QUERYINFO)));
     }
  catch (    final QueryException|IOException ex) {
-      cause=ex;
-      err=Util.message(ex);
+      exception=ex;
+      error=Util.message(ex);
     }
 catch (    final ProcException ex) {
-      err=INTERRUPTED;
+      error=INTERRUPTED;
     }
 catch (    final StackOverflowError ex) {
       Util.debug(ex);
-      err=BASX_STACKOVERFLOW.desc;
+      error=BASX_STACKOVERFLOW.desc;
     }
 catch (    final RuntimeException ex) {
       extError("");
@@ -72,5 +67,5 @@ catch (    final RuntimeException ex) {
       if (qp != null)       qp.close();
     }
   }
-  return extError(err);
+  return extError(error);
 }

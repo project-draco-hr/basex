@@ -1,0 +1,20 @@
+{
+  final Matcher m=EQNAME.matcher(Token.string(name));
+  byte[] uri=null, nm=name;
+  if (m.find()) {
+    uri=token(m.group(1));
+    nm=token(m.group(2));
+  }
+ else {
+    final int i=indexOf(nm,':');
+    if (i == -1) {
+      uri=def;
+    }
+ else {
+      if (sc != null)       uri=sc.ns.uri(substring(nm,0,i));
+      if (uri == null)       throw NOURI_X.get(info,name);
+    }
+  }
+  if (!XMLToken.isQName(nm))   throw BINDNAME_X.get(info,name);
+  return new QNm(nm,uri);
+}

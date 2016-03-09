@@ -1,0 +1,36 @@
+{
+  final int sl=steps.length;
+  final ExprList stps=new ExprList(sl);
+  Expr rt=root;
+  if (rt instanceof Path) {
+    final Path path=(Path)rt;
+    stps.add(path.steps);
+    rt=path.root;
+  }
+  if (rt instanceof ContextValue)   rt=null;
+  for (  final Expr expr : steps) {
+    Expr step=expr;
+    if (step instanceof ContextValue) {
+      if (sl > 1)       continue;
+      step=Step.get(((ContextValue)step).info,SELF,Test.NOD);
+    }
+ else     if (step instanceof Filter) {
+      final Filter f=(Filter)step;
+      if (f.root instanceof ContextValue) {
+        step=Step.get(f.info,SELF,Test.NOD,f.preds);
+      }
+    }
+ else     if (step instanceof Path) {
+      final Path p=(Path)step;
+      if (p.root != null && !(p.root instanceof ContextValue))       stps.add(p.root);
+      final int pl=p.steps.length - 1;
+      for (int i=0; i < pl; i++)       stps.add(p.steps[i]);
+      step=p.steps[pl];
+    }
+    stps.add(step);
+  }
+  boolean axes=true;
+  final Expr[] st=stps.finish();
+  for (  final Expr step : st)   axes&=step instanceof Step;
+  return axes ? iterative(rt,st) ? new IterPath(info,rt,st) : new CachedPath(info,rt,st) : new MixedPath(info,rt,st);
+}

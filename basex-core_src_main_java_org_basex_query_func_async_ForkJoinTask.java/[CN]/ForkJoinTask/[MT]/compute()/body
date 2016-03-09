@@ -1,0 +1,23 @@
+{
+  final ValueBuilder vb=new ValueBuilder();
+  if (end - start <= split) {
+    try {
+      final int last=Math.min(end,start + split);
+      for (int f=start; f < last; f++) {
+        vb.add(((FItem)funcs.itemAt(f)).invokeValue(qc,ii));
+      }
+    }
+ catch (    final QueryException ex) {
+      completeExceptionally(ex);
+      cancel(true);
+    }
+  }
+ else {
+    final int mid=start + (end - start) / 2;
+    final ForkJoinTask first=new ForkJoinTask(funcs,split,qc,ii,start,mid);
+    final ForkJoinTask second=new ForkJoinTask(funcs,split,qc,ii,mid,end);
+    invokeAll(first,second);
+    vb.add(first.join()).add(second.join());
+  }
+  return vb.value();
+}

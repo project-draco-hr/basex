@@ -1,0 +1,40 @@
+{
+  if (root == -1) {
+    root=newNode(key,id,pos,-1,exist);
+    return root;
+  }
+  int n=root;
+  while (true) {
+    final int diff=Token.diff(key,keys.get(n));
+    if (diff == 0) {
+      if (exist) {
+        addIds(id,pos,n);
+      }
+ else {
+        final int i=maps.get(Num.num(n));
+        if (i < 0) {
+          maps.put(Num.num(n),ids.size());
+          addNewIds(id,pos);
+        }
+ else {
+          addIds(id,pos,i);
+        }
+      }
+      return n;
+    }
+    int ch=diff < 0 ? left(n) : right(n);
+    if (ch == -1) {
+      ch=newNode(key,id,pos,n,exist);
+      if (diff < 0) {
+        setLeft(n,ch);
+        adjust(left(n));
+      }
+ else {
+        setRight(n,ch);
+        adjust(right(n));
+      }
+      return ch;
+    }
+    n=ch;
+  }
+}

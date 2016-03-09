@@ -1,0 +1,36 @@
+{
+  if (selected())   return;
+  final int caret=editor.pos(), startPos=editor.completionStart();
+  final String prefix=string(substring(editor.text(),startPos,caret));
+  if (prefix.isEmpty())   return;
+  final TreeMap<String,String> tmp=new TreeMap<>();
+  for (  final Entry<String,String> entry : REPLACE.entrySet()) {
+    final String key=entry.getKey();
+    if (key.startsWith(prefix))     tmp.put(key,entry.getValue());
+  }
+  if (tmp.size() == 1) {
+    complete(tmp.values().iterator().next(),startPos);
+  }
+ else   if (!tmp.isEmpty()) {
+    final JPopupMenu pm=new JPopupMenu();
+    final ActionListener al=new ActionListener(){
+      @Override public void actionPerformed(      final ActionEvent ae){
+        complete(ae.getActionCommand().replaceAll("^.*?\\] ",""),startPos);
+      }
+    }
+;
+    for (    final Entry<String,String> entry : tmp.entrySet()) {
+      final JMenuItem mi=new JMenuItem("[" + entry.getKey() + "] "+ entry.getValue());
+      pm.add(mi);
+      mi.addActionListener(al);
+    }
+    pm.addSeparator();
+    final JMenuItem mi=new JMenuItem(Text.INPUT + Text.COLS + prefix);
+    mi.setEnabled(false);
+    pm.add(mi);
+    final int[] cursor=rend.cursor();
+    pm.show(this,cursor[0],cursor[1]);
+    final MenuElement[] me={pm,(JMenuItem)pm.getComponent(0)};
+    MenuSelectionManager.defaultManager().setSelectedPath(me);
+  }
+}

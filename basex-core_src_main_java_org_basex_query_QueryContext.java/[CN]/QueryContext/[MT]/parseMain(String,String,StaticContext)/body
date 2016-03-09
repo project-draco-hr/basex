@@ -1,6 +1,9 @@
 {
   info.query=query;
-  root=new QueryParser(query,path,this,sc).parseMain();
-  updating=updating && root.expr.has(Flag.UPD);
+  final QueryParser qp=new QueryParser(query,path,this,sc);
+  root=qp.parseMain();
+  if (updating) {
+    updating=(qp.sc.mixUpdates && qp.sc.dynFuncCall) || root.expr.has(Flag.UPD);
+  }
   return root;
 }

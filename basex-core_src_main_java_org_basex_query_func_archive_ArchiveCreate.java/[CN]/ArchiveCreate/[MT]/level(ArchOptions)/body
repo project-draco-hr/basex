@@ -1,0 +1,13 @@
+{
+  int level=ZipEntry.DEFLATED;
+  final String format=options.get(ArchOptions.FORMAT);
+  final String alg=options.get(ArchOptions.ALGORITHM);
+  if (alg != null) {
+    if (format.equals(ZIP) && !Strings.eq(alg,STORED,DEFLATE) || format.equals(GZIP) && !Strings.eq(alg,DEFLATE)) {
+      throw ARCH_SUPP_X_X.get(info,ArchOptions.ALGORITHM.name(),alg);
+    }
+    if (Strings.eq(alg,STORED))     level=ZipEntry.STORED;
+ else     if (Strings.eq(alg,DEFLATE))     level=ZipEntry.DEFLATED;
+  }
+  return level;
+}

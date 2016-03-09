@@ -4,10 +4,6 @@
   if (file == null)   return;
   gui.gopts.set(GUIOptions.WORKPATH,file.path());
   gui.cursor(CURSORWAIT,true);
-  final MainOptions opts=gui.context.options;
-  final int mh=opts.get(MainOptions.MAXHITS);
-  opts.set(MainOptions.MAXHITS,-1);
-  opts.set(MainOptions.CACHEQUERY,false);
   try (final PrintOutput out=new PrintOutput(file.toString())){
     if (cmd != null) {
       cmd.execute(gui.context,out);
@@ -16,16 +12,13 @@
       ns.serialize(Serializer.get(out));
     }
  else {
-      final byte[] txt=text.getText();
-      for (      final byte t : txt)       if (t < 0 || t > ' ' || ws(t))       out.write(t);
+      out.write(text.getText());
     }
   }
  catch (  final IOException ex) {
     BaseXDialog.error(gui,Util.info(FILE_NOT_SAVED_X,file));
   }
  finally {
-    opts.set(MainOptions.MAXHITS,mh);
-    opts.set(MainOptions.CACHEQUERY,true);
     gui.cursor(CURSORARROW,true);
   }
 }

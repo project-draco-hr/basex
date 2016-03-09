@@ -1,0 +1,70 @@
+{
+  final Option<?> option=options.get(name);
+  if (option == null) {
+    if (error)     throw new BaseXException(error(name));
+    return false;
+  }
+  if (option instanceof BooleanOption) {
+    final boolean v;
+    if (item.type.isStringOrUntyped()) {
+      v=Strings.yes(string(item.string(null)));
+      if (!v && !Strings.no(string(item.string(null))))       throw new BaseXException(Text.OPT_BOOLEAN_X,option.name());
+    }
+ else     if (item instanceof Bln) {
+      v=((Bln)item).bool(null);
+    }
+ else {
+      throw new BaseXException(Text.OPT_BOOLEAN_X,option.name());
+    }
+    put(option,v);
+  }
+ else   if (option instanceof NumberOption) {
+    if (item instanceof ANum) {
+      put(option,(int)((ANum)item).itr(null));
+    }
+ else {
+      throw new BaseXException(Text.OPT_NUMBER_X,option.name());
+    }
+  }
+ else   if (option instanceof StringOption) {
+    if (item.type.isStringOrUntyped()) {
+      put(option,string(item.string(null)));
+    }
+ else {
+      throw new BaseXException(Text.OPT_STRING_X,option.name());
+    }
+  }
+ else   if (option instanceof EnumOption) {
+    if (item.type.isStringOrUntyped()) {
+      final EnumOption<?> eo=(EnumOption<?>)option;
+      final Object v=eo.get(string(item.string(null)));
+      if (v == null)       throw new BaseXException(allowed(option,(Object[])eo.values()));
+      put(option,v);
+    }
+ else {
+      throw new BaseXException(Text.OPT_STRING_X,option.name());
+    }
+  }
+ else   if (option instanceof OptionsOption) {
+    final Options o=((OptionsOption<?>)option).newInstance();
+    if (item instanceof Map) {
+      o.assign((Map)item,error,info);
+    }
+ else {
+      throw new BaseXException(Text.OPT_MAP_X,option.name());
+    }
+    put(option,o);
+  }
+ else   if (option instanceof MapOption) {
+    if (!(item instanceof Map))     throw new BaseXException(Text.OPT_FUNC_X,option.name());
+    put(option,item);
+  }
+ else   if (option instanceof FuncOption) {
+    if (!(item instanceof FuncItem))     throw new BaseXException(Text.OPT_FUNC_X,option.name());
+    put(option,item);
+  }
+ else {
+    throw Util.notExpected("Unsupported option: " + option);
+  }
+  return true;
+}

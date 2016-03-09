@@ -1,15 +1,15 @@
 {
-  QueryProcessor qp=new QueryProcessor(_HTTP_SEND_REQUEST.args("<http:request method='get' href='" + ROOT + "'/>"),ctx);
-  Result r=qp.execute();
-  checkResponse(r,HttpURLConnection.HTTP_OK,2);
-  assertEquals(NodeType.DOC,((Iter)r).get(1).type);
-  qp.close();
-  qp=new QueryProcessor(_HTTP_SEND_REQUEST.args("<http:request method='get' override-media-type='text/plain'/>",ROOT),ctx);
-  r=qp.execute();
-  checkResponse(r,HttpURLConnection.HTTP_OK,2);
-  assertEquals(AtomType.STR,((Iter)r).get(1).type);
-  qp.close();
-  qp=new QueryProcessor(_HTTP_SEND_REQUEST.args("<http:request method='get' status-only='true'/>",ROOT),ctx);
-  checkResponse(qp.execute(),HttpURLConnection.HTTP_OK,1);
-  qp.close();
-}
+  try (final QueryProcessor qp=new QueryProcessor(_HTTP_SEND_REQUEST.args("<http:request method='get' href='" + REST_ROOT + "'/>"),ctx)){
+    final Value v=qp.value();
+    checkResponse(v,2,HttpURLConnection.HTTP_OK);
+    assertEquals(NodeType.DOC,v.itemAt(1).type);
+  }
+   try (final QueryProcessor qp=new QueryProcessor(_HTTP_SEND_REQUEST.args("<http:request method='get' override-media-type='text/plain'/>",REST_ROOT),ctx)){
+    final Value v=qp.value();
+    checkResponse(v,2,HttpURLConnection.HTTP_OK);
+    assertEquals(AtomType.STR,v.itemAt(1).type);
+  }
+   try (final QueryProcessor qp=new QueryProcessor(_HTTP_SEND_REQUEST.args("<http:request method='get' status-only='true'/>",REST_ROOT),ctx)){
+    checkResponse(qp.value(),1,HttpURLConnection.HTTP_OK);
+  }
+ }

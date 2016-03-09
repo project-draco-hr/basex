@@ -1,0 +1,26 @@
+{
+  if (preds.length != 0 || data.nspaces.globalUri() == null)   return null;
+  int kind=-1, name=0;
+  if (test.type != null) {
+    kind=ANode.kind(test.type);
+    if (kind == Data.PI)     return null;
+    if (test.kind == Kind.NAME) {
+      final Names names=kind == Data.ATTR ? data.attrNames : data.elemNames;
+      name=names.id(((NameTest)test).local);
+    }
+ else     if (test.kind != null && test.kind != Kind.WILDCARD) {
+      return null;
+    }
+  }
+  if (axis != Axis.ATTR && axis != Axis.CHILD && axis != Axis.DESC && axis != Axis.DESCORSELF && axis != Axis.SELF)   return null;
+  final ArrayList<PathNode> tmp=new ArrayList<>();
+  for (  final PathNode pn : nodes) {
+    if (axis == Axis.SELF || axis == Axis.DESCORSELF) {
+      if (kind == -1 || kind == pn.kind && (name == 0 || name == pn.name)) {
+        if (!tmp.contains(pn))         tmp.add(pn);
+      }
+    }
+    if (axis != Axis.SELF)     add(pn,tmp,name,kind);
+  }
+  return tmp;
+}

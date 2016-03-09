@@ -1,18 +1,23 @@
 {
   mousefocus.assign();
   simplefd.assign();
-  final GlobalOptions opts=gui.context.globalopts;
-  if (source == path || source == button) {
-    final String dbpath=path.getText();
-    if (!opts.get(GlobalOptions.DBPATH).equals(dbpath) && gui.context.data() != null) {
+  final StaticOptions opts=gui.context.soptions;
+  if (source == dbPath || source == dbButton) {
+    final String dbpath=dbPath.getText();
+    if (!opts.get(StaticOptions.DBPATH).equals(dbpath) && gui.context.data() != null) {
       new Close().run(gui.context);
       gui.notify.init();
     }
-    opts.set(GlobalOptions.DBPATH,dbpath);
+    opts.set(StaticOptions.DBPATH,dbpath);
   }
-  opts.set(GlobalOptions.LANG,lang.getSelectedItem());
-  gui.gopts.set(GUIOptions.MAXHITS,HITS[limit.getValue()]);
+ else   if (source == repoPath || source == repoButton) {
+    gui.context.repo.reset();
+    opts.set(StaticOptions.REPOPATH,repoPath.getText());
+  }
+  opts.set(StaticOptions.LANG,lang.getSelectedItem());
+  gui.gopts.set(GUIOptions.MAXRESULTS,HITS[limit.getValue()]);
   creds.setText(TRANSLATION + COLS + creds(lang.getSelectedItem()));
   final int mh=HITS[limit.getValue()];
   label.setText(mh == -1 ? ALL : Integer.toString(mh));
+  return true;
 }

@@ -1,0 +1,15 @@
+{
+  final boolean asc=gopts.get(GUIOptions.ASCSORT), cs=gopts.get(GUIOptions.CASESORT);
+  final Collator coll=gopts.get(GUIOptions.UNICODE) ? null : Collator.getInstance();
+  final int column=gopts.get(GUIOptions.COLUMN) - 1;
+  if (coll != null || column > 0)   tokens.sort(true,true);
+  final Comparator<byte[]> cc=new Comparator<byte[]>(){
+    @Override public int compare(    final byte[] token1,    final byte[] token2){
+      final byte[] t1=sub(token1,column), t2=sub(token2,column);
+      return coll != null ? coll.compare(string(t1),string(t2)) : diff(cs ? lc(t1) : t1,cs ? lc(t2) : t2);
+    }
+  }
+;
+  tokens.sort(cc,asc);
+  if (gopts.get(GUIOptions.MERGEDUPL))   tokens.unique();
+}

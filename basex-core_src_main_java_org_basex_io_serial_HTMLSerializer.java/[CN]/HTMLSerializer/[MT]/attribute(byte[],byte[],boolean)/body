@@ -1,0 +1,28 @@
+{
+  if (!standalone)   out.print(' ');
+  out.print(name);
+  byte[] val=value;
+  if (!BOOLEAN.isEmpty() || !URIS.isEmpty()) {
+    final byte[] nm=concat(lc(elem.string()),ATT,lc(name));
+    if (BOOLEAN.contains(nm) && eq(name,val))     return;
+    if (escuri && URIS.contains(nm))     val=escape(val);
+  }
+  out.print(ATT1);
+  final int vl=val.length;
+  for (int v=0; v < vl; v+=cl(val,v)) {
+    final int ch=cp(val,v);
+    if (ch == '<' || ch == '&' && val[Math.min(v + 1,vl - 1)] == '{') {
+      out.print(ch);
+    }
+ else     if (ch == '"') {
+      out.print(E_QUOT);
+    }
+ else     if (ch == 0x9 || ch == 0xA) {
+      printHex(ch);
+    }
+ else {
+      printChar(ch);
+    }
+  }
+  out.print(ATT2);
+}

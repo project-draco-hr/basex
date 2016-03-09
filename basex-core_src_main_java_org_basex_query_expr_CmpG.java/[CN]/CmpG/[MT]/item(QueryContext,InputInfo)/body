@@ -4,41 +4,39 @@
     if (it1 == null)     return Bln.FALSE;
     final Item it2=exprs[1].item(qc,info);
     if (it2 == null)     return Bln.FALSE;
-    return Bln.get(eval(it1,it2,coll));
+    return Bln.get(eval(it1,it2));
   }
-  final Iter ir1=qc.iter(exprs[0]);
+  Iter ir1=exprs[0].atomIter(qc,info);
   final long is1=ir1.size();
   if (is1 == 0)   return Bln.FALSE;
   final boolean s1=is1 == 1;
-  if (s1 && exprs[1].size() == 1)   return Bln.get(eval(ir1.next(),exprs[1].item(qc,info),coll));
-  Iter ir2=qc.iter(exprs[1]);
+  Iter ir2=exprs[1].atomIter(qc,info);
   final long is2=ir2.size();
   if (is2 == 0)   return Bln.FALSE;
   final boolean s2=is2 == 1;
-  if (s1 && s2)   return Bln.get(eval(ir1.next(),ir2.next(),coll));
-  Item it1, it2;
-  if (s2) {
-    it2=ir2.next();
-    while ((it1=ir1.next()) != null) {
-      if (eval(it1,it2,coll))       return Bln.TRUE;
-    }
+  if (s1 && s2)   return Bln.get(eval(ir1.next(),ir2.next()));
+  if (s1) {
+    final Item it1=ir1.next();
+    for (Item it2; (it2=ir2.next()) != null; )     if (eval(it1,it2))     return Bln.TRUE;
     return Bln.FALSE;
   }
-  if (!ir2.reset()) {
-    final ValueBuilder vb=new ValueBuilder();
-    it1=ir1.next();
-    if (it1 == null)     return Bln.FALSE;
-    while ((it2=ir2.next()) != null) {
-      if (eval(it1,it2,coll))       return Bln.TRUE;
-      vb.add(it2);
-    }
-    ir2=vb;
+  if (s2) {
+    final Item it2=ir2.next();
+    for (Item it1; (it1=ir1.next()) != null; )     if (eval(it1,it2))     return Bln.TRUE;
+    return Bln.FALSE;
   }
-  while ((it1=ir1.next()) != null) {
-    ir2.reset();
-    while ((it2=ir2.next()) != null) {
-      if (eval(it1,it2,coll))       return Bln.TRUE;
+  final boolean swap=is1 > is2;
+  if (swap) {
+    final Iter ir=ir1;
+    ir1=ir2;
+    ir2=ir;
+  }
+  for (Item it1; (it1=ir1.next()) != null; ) {
+    if (ir2 == null)     ir2=exprs[swap ? 0 : 1].atomIter(qc,info);
+    for (Item it2; (it2=ir2.next()) != null; ) {
+      if (swap ? eval(it2,it1) : eval(it1,it2))       return Bln.TRUE;
     }
+    ir2=null;
   }
   return Bln.FALSE;
 }

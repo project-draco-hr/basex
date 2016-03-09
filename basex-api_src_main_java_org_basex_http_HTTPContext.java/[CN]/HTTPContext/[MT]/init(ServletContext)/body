@@ -2,25 +2,32 @@
   if (init)   return;
   init=true;
   final String webapp=sc.getRealPath("/");
-  Options.setSystem(Prop.PATH,webapp);
-  Options.setSystem(GlobalOptions.WEBPATH,webapp);
+  System.setProperty(Prop.PATH,webapp);
+  Prop.put(StaticOptions.WEBPATH,webapp);
   final Enumeration<String> en=sc.getInitParameterNames();
   while (en.hasMoreElements()) {
     final String key=en.nextElement();
-    if (!key.startsWith(Prop.DBPREFIX))     continue;
     String val=sc.getInitParameter(key);
-    if (key.endsWith("path") && !new File(val).isAbsolute()) {
+    if (key.startsWith(Prop.DBPREFIX) && key.endsWith("path") && !new File(val).isAbsolute()) {
       Util.debug(key.toUpperCase(Locale.ENGLISH) + ": " + val);
       val=new IOFile(webapp,val).path();
     }
-    Options.setSystem(key,val);
+    Prop.put(key,val);
   }
   if (context == null) {
     context=new Context(false);
   }
  else {
-    context.globalopts.setSystem();
+    context.soptions.setSystem();
     context.options.setSystem();
   }
-  if (!context.globalopts.get(GlobalOptions.HTTPLOCAL))   new BaseXServer(context);
+  if (!context.soptions.get(StaticOptions.HTTPLOCAL)) {
+    try {
+      server=new BaseXServer(context,"-D");
+    }
+ catch (    final IOException ex) {
+      exception=ex;
+      throw ex;
+    }
+  }
 }

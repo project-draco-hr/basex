@@ -1,0 +1,85 @@
+{
+  if (level > 0)   indent();
+  final BasicNodeIter iter=node.children();
+  if (node.type == NodeType.DOC || node.type == NodeType.DEL) {
+    for (ANode child; (child=iter.next()) != null; )     node(child);
+  }
+ else   if (node.type == NodeType.ELM) {
+    final QNm name=node.qname();
+    final byte[] type=name.local();
+    if (!eq(name.uri(),QueryText.FN_URI))     throw error("Element '%' has invalid namespace: '%'.",type,name.uri());
+    byte[] key=null;
+    boolean escaped=false, escapedKey=false;
+    for (    final ANode attr : node.attributes()) {
+      final QNm qnm=attr.qname();
+      final byte[] au=qnm.uri(), an=qnm.local(), av=attr.string();
+      if (au.length != 0) {
+        if (!eq(au,QueryText.FN_URI))         continue;
+        throw error("Element '%' has invalid attribute: %.",type,an);
+      }
+      if (eq(an,KEY)) {
+        key=attr.string();
+      }
+ else       if (eq(an,ESCAPED_KEY) && printKey) {
+        final Boolean b=Bln.parse(av);
+        if (b == null)         throw error("Value of '%' attribute is invalid: '%'.",an,av);
+        escapedKey=b;
+      }
+ else       if (eq(an,ESCAPED) && eq(type,STRING)) {
+        final Boolean b=Bln.parse(av);
+        if (b == null)         throw error("Value of '%' attribute is invalid: '%'.",an,av);
+        escaped=b;
+      }
+ else {
+        throw error("Element '%' has invalid attribute: %.",type,an);
+      }
+    }
+    if (printKey) {
+      if (key == null)       throw error("Element '%' has no key.",type);
+      if (!printedKeys.add(key))       throw error("Duplicate key: %.",key);
+      out.print('"');
+      out.print(norm(escape(key,escapedKey)));
+      out.print("\":");
+    }
+ else {
+      if (key != null)       throw error("Element '%' must have no key.",type);
+    }
+    if (eq(type,NULL)) {
+      out.print(NULL);
+      if (iter.next() != null)       throw error("Element '%' must have no children.",type);
+    }
+ else     if (eq(type,BOOLEAN)) {
+      final byte[] value=value(iter,type);
+      if (value == null)       throw error("Element '%' has no value.",type);
+      final Boolean b=Bln.parse(value);
+      if (b == null)       throw error("Element '%' has invalid value: '%'.",type,value);
+      out.print(norm(token(b.booleanValue())));
+    }
+ else     if (eq(type,STRING)) {
+      final byte[] value=value(iter,type);
+      out.print('"');
+      if (value != null)       out.print(norm(escape(value,escaped)));
+      out.print('"');
+    }
+ else     if (eq(type,NUMBER)) {
+      final byte[] value=value(iter,type);
+      if (value == null)       throw error("Element '%' has no value.",type);
+      final double d=toDouble(value);
+      if (Double.isNaN(d) || Double.isInfinite(d))       throw error("Element '%' has invalid value: '%'.",type,value);
+      out.print(token(d));
+    }
+ else     if (eq(type,ARRAY)) {
+      out.print('[');
+      children(iter,false);
+      out.print(']');
+    }
+ else     if (eq(type,MAP)) {
+      out.print('{');
+      children(iter,true);
+      out.print('}');
+    }
+ else {
+      throw error("Invalid element: '%'",name);
+    }
+  }
+}

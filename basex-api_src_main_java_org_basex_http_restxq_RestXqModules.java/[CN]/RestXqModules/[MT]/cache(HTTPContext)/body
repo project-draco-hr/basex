@@ -1,9 +1,14 @@
 {
-  if (restxq == null) {
-    final GlobalOptions gopts=http.context().globalopts;
-    restxq=new IOFile(gopts.get(GlobalOptions.WEBPATH)).resolve(gopts.get(GlobalOptions.RESTXQPATH));
+  final StaticOptions sopts=http.context(false).soptions;
+  HashMap<String,RestXqModule> cache=modules;
+  if (cache.isEmpty() || !sopts.get(StaticOptions.CACHERESTXQ)) {
+    cache=new HashMap<>();
+    final String webpath=sopts.get(StaticOptions.WEBPATH);
+    final String rxqpath=sopts.get(StaticOptions.RESTXQPATH);
+    final IOFile restxq=new IOFile(webpath).resolve(rxqpath);
+    if (!restxq.exists())     throw HTTPCode.NO_RESTXQ.get();
+    cache(http,restxq,cache,modules);
+    modules=cache;
   }
-  final HashMap<String,RestXqModule> cache=new HashMap<>();
-  cache(http,restxq,cache);
-  modules=cache;
+  return cache;
 }

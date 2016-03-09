@@ -4,13 +4,11 @@
   final boolean version=wsConsumeWs(VERSION);
   if (version) {
     final String ver=string(stringLiteral());
-    if (ver.equals(XQ10))     sc.xquery3(false);
- else     if (eq(ver,XQ11,XQ30))     sc.xquery3(true);
- else     throw error(XQUERYVER,ver);
+    if (!ver.equals(XQ10) && !Strings.eq(ver,XQ11,XQ30,XQ31))     throw error(XQUERYVER_X,ver);
   }
-  if ((version || sc.xquery3()) && wsConsumeWs(ENCODING)) {
+  if (wsConsumeWs(ENCODING)) {
     final String enc=string(stringLiteral());
-    if (!supported(enc))     throw error(XQUERYENC2,enc);
+    if (!Strings.supported(enc))     throw error(XQUERYENC2_X,enc);
   }
  else   if (!version) {
     pos=i;

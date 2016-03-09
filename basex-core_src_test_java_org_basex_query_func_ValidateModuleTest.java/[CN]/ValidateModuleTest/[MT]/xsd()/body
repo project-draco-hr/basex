@@ -1,0 +1,12 @@
+{
+  query(_VALIDATE_XSD.args(FILE,XSD),"");
+  query(_VALIDATE_XSD.args(DOC.args(FILE),DOC.args(XSD)),"");
+  query(_VALIDATE_XSD.args(_FILE_READ_TEXT.args(FILE),_FILE_READ_TEXT.args(XSD)),"");
+  query(_VALIDATE_XSD.args(FILE,XSD,"1.0"),"");
+  query("let $doc := <root/> " + "let $schema := <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'> " + "<xs:element name='root'/> "+ "</xs:schema> "+ "return validate:xsd($doc, $schema)","");
+  error(_VALIDATE_XSD.args("unknown"),WHICHRES_X);
+  error(_VALIDATE_XSD.args(FILE,"unknown.xsd"),WHICHRES_X);
+  error(_VALIDATE_XSD.args(FILE,XSD,"0.99"),BXVA_XSDVERSION_X);
+  error(_VALIDATE_XSD.args(FILE),BXVA_FAIL_X);
+  error("let $doc := <root/> " + "let $schema := <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'> " + "<xs:element name='unknown'/> "+ "</xs:schema> "+ "return validate:xsd($doc, $schema)",BXVA_FAIL_X);
+}

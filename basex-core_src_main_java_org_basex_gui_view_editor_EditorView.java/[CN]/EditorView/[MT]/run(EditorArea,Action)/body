@@ -9,7 +9,7 @@
       if (edit.opened())       edit.save();
     }
   }
-  IOFile file=editor.file;
+  IOFile file=editor.file();
   editor.last=in;
   final boolean xquery=file.hasSuffix(IO.XQSUFFIXES) || !file.path().contains(".");
   if (editor.script && run) {
@@ -22,7 +22,7 @@
     if (exec && lib) {
       final EditorArea ea=execEditor();
       if (ea != null) {
-        file=ea.file;
+        file=ea.file();
         input=string(ea.getText());
         lib=false;
       }
@@ -37,16 +37,12 @@
       execFile=file;
     }
  else {
-      final QueryContext qc=new QueryContext(gui.context);
-      try {
+      try (final QueryContext qc=new QueryContext(gui.context)){
         qc.parse(input,lib,null,null);
         info(null);
       }
  catch (      final QueryException ex) {
         info(ex);
-      }
- finally {
-        qc.close();
       }
     }
   }

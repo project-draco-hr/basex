@@ -1,15 +1,14 @@
 {
-  int p=pos - 1;
-  for (; p >= 0; p--) {
-    final byte b=text[p];
-    if (!XMLToken.isNCChar(b) && b != ':') {
-      if (b == '<' && p < pos - 1) {
-        sb.append("</");
-        while (++p < pos)         sb.append((char)text[p]);
-        sb.append('>');
-        break;
+  final int p=pos;
+  while (pos() > 0) {
+    final int cp=prev();
+    if (!XMLToken.isNCChar(cp) && cp != ':') {
+      if (cp == '<' && pos < p - 1) {
+        next();
+        sb.append("</").append(new TokenBuilder().add(text,pos,p)).append('>');
       }
-      return;
+      break;
     }
   }
+  pos=p;
 }

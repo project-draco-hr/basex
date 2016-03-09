@@ -2,20 +2,20 @@
   do {
     final QNm nm=varName();
     final SeqType tp=optAsType();
-    final boolean emp=sc.xquery3() && wsConsume(ALLOWING);
+    final boolean emp=wsConsume(ALLOWING);
     if (emp)     wsCheck(EMPTYORD);
     final QNm p=wsConsumeWs(AT) ? varName() : null;
     final QNm s=wsConsumeWs(SCORE) ? varName() : null;
     wsCheck(IN);
     final Expr e=check(single(),NOVARDECL);
-    final Var var=addVar(nm,tp,false);
-    final Var ps=p != null ? addVar(p,SeqType.ITR,false) : null;
-    final Var scr=s != null ? addVar(s,SeqType.DBL,false) : null;
+    final Var var=localVars.add(nm,tp,false);
+    final Var ps=p != null ? localVars.add(p,SeqType.ITR,false) : null;
+    final Var scr=s != null ? localVars.add(s,SeqType.DBL,false) : null;
     if (p != null) {
-      if (nm.eq(p))       throw error(DUPLVAR,var);
-      if (s != null && p.eq(s))       throw error(DUPLVAR,ps);
+      if (nm.eq(p))       throw error(DUPLVAR_X,var);
+      if (s != null && p.eq(s))       throw error(DUPLVAR_X,ps);
     }
-    if (s != null && nm.eq(s))     throw error(DUPLVAR,var);
+    if (s != null && nm.eq(s))     throw error(DUPLVAR_X,var);
     cls.add(new For(var,ps,scr,e,emp,info()));
   }
  while (wsConsumeWs(COMMA));

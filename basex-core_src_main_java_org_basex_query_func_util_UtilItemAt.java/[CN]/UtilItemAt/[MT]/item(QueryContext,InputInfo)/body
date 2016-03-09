@@ -1,0 +1,14 @@
+{
+  final double ds=toDouble(exprs[1],qc);
+  final long pos=(long)ds;
+  if (ds != pos || pos < 1)   return null;
+  final Iter iter=qc.iter(exprs[0]);
+  final long max=iter.size();
+  if (max >= 0)   return pos > max ? null : iter.get(pos - 1);
+  long p=0;
+  for (Item item; (item=iter.next()) != null; ) {
+    qc.checkStop();
+    if (++p == pos)     return item;
+  }
+  return null;
+}

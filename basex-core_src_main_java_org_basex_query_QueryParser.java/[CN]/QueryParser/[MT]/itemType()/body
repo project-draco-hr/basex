@@ -1,32 +1,32 @@
 {
   skipWs();
-  if (consume(PAR1)) {
-    final SeqType ret=itemType();
-    wsCheck(PAR2);
-    return ret;
+  if (consume(PAREN1)) {
+    final SeqType type=itemType();
+    wsCheck(PAREN2);
+    return type;
   }
-  final Ann ann=sc.xquery3() && curr('%') ? annotations() : null;
+  final AnnList anns=annotations(false).check(false);
   final QNm name=eQName(TYPEINVALID,null);
   skipWs();
   final boolean func=curr('(');
   Type t=null;
   if (func) {
-    consume(PAR1);
+    consume(PAREN1);
     if (name.eq(AtomType.ITEM.name))     t=AtomType.ITEM;
     if (t == null)     t=NodeType.find(name);
     if (t == null) {
       t=FuncType.find(name);
-      if (t != null)       return functionTest(ann,t).seqType();
+      if (t != null)       return functionTest(anns,t).seqType();
     }
-    if (t == null)     throw error(NOTYPE,name.string());
+    if (t == null)     throw error(WHICHTYPE_X,name.prefixId(XML));
   }
  else {
     if (!name.hasURI())     name.uri(sc.elemNS);
     t=AtomType.find(name,false);
-    if (t == null)     throw error(TYPEUNKNOWN,name);
+    if (t == null)     throw error(TYPEUNKNOWN_X,name.prefixId(XML));
   }
-  if (ann != null)   throw error(NOANN);
-  if (!func || wsConsume(PAR2))   return t.seqType();
-  if (!(t instanceof NodeType))   wsCheck(PAR2);
+  if (!anns.isEmpty())   throw error(NOANN);
+  if (!func || wsConsume(PAREN2))   return t.seqType();
+  if (!(t instanceof NodeType))   wsCheck(PAREN2);
   return SeqType.get(t,Occ.ONE,kindTest((NodeType)t));
 }

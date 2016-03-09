@@ -1,0 +1,33 @@
+{
+  final String name=DiskValues.fileSuffix(type) + (partial ? splits : "");
+  try (final DataOutput outL=new DataOutput(data.meta.dbfile(name + 'l'));final DataOutput outR=new DataOutput(data.meta.dbfile(name + 'r'))){
+    outL.write4(index.size());
+    final IntList id=new IntList(), pos=tokenize ? new IntList() : null;
+    index.init();
+    while (index.more()) {
+      final byte[] values=index.ids.get(index.next());
+      final int vs=Num.size(values);
+      if (partial) {
+        outR.write5(outL.size());
+        outL.write(values,0,vs);
+      }
+ else {
+        for (int ip=4; ip < vs; ip+=Num.length(values,ip)) {
+          id.add(Num.get(values,ip));
+          if (pos != null) {
+            ip+=Num.length(values,ip);
+            pos.add(Num.get(values,ip));
+          }
+        }
+        write(outL,outR,id,pos);
+      }
+    }
+  }
+   if (partial) {
+    try (final DataOutput outT=new DataOutput(data.meta.dbfile(name + 't'))){
+      index.init();
+      while (index.more())       outT.writeToken(index.keys.get(index.next()));
+    }
+   }
+  splits++;
+}

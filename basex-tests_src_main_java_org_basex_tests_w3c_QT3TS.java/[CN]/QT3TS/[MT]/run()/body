@@ -1,18 +1,18 @@
 {
-  ctx.globalopts.set(GlobalOptions.DBPATH,sandbox().path() + "/data");
+  ctx.soptions.set(StaticOptions.DBPATH,sandbox().path() + "/data");
   parseArgs();
   init();
   final Performance perf=new Performance();
   ctx.options.set(MainOptions.CHOP,false);
-  ctx.options.set(MainOptions.INTPARSE,false);
   final SerializerOptions sopts=new SerializerOptions();
+  sopts.set(SerializerOptions.METHOD,SerialMethod.XML);
   sopts.set(SerializerOptions.INDENT,YesNo.NO);
   sopts.set(SerializerOptions.OMIT_XML_DECLARATION,YesNo.NO);
   ctx.options.set(MainOptions.SERIALIZER,sopts);
   final XdmValue doc=new XQuery("doc('" + file(false,CATALOG) + "')",ctx).value();
   final String version=asString("*:catalog/@version",doc);
   Util.outln(NL + "QT3 Test Suite " + version);
-  Util.outln("Test directory: " + new File(".").getCanonicalPath());
+  Util.outln("Test directory: " + file(false,"."));
   Util.out("Parsing queries");
   for (  final XdmItem ienv : new XQuery("*:catalog/*:environment",ctx).context(doc))   genvs.add(new QT3Env(ctx,ienv));
   for (  final XdmItem it : new XQuery("for $f in //*:test-set/@file return string($f)",ctx).context(doc))   testSet(it.getString());
@@ -38,7 +38,8 @@
     }
   }
    if (report != null) {
-    final String file="ReportingResults/results_" + Prop.NAME + "_"+ Prop.VERSION+ IO.XMLSUFFIX;
+    sopts.set(SerializerOptions.OMIT_XML_DECLARATION,YesNo.YES);
+    final String file="ReportingResults/results_" + NAME + "_"+ VERSION+ IO.XMLSUFFIX;
     new IOFile(file).write(report.create(ctx).toArray());
     Util.outln("Creating report '" + file + "'...");
   }
@@ -46,7 +47,7 @@
   Util.outln(" Time    : " + perf);
   if (slow != null && !slow.isEmpty()) {
     Util.outln(NL + "Slow queries:");
-    for (    final Map.Entry<Long,String> l : slow.entrySet()) {
+    for (    final Entry<Long,String> l : slow.entrySet()) {
       Util.outln("- " + -(l.getKey() / 1000000) + " ms: "+ l.getValue());
     }
   }

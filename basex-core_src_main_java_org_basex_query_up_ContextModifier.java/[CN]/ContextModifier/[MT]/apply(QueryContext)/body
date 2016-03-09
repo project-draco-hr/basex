@@ -1,0 +1,24 @@
+{
+  for (  final UserUpdates up : userUpdates.values())   up.apply();
+  if (!userUpdates.isEmpty())   qc.context.users.write();
+  for (  final NameUpdates up : nameUpdates.values())   up.apply(true);
+  final Set<Data> datas=new HashSet<>();
+  try {
+    for (    final Data data : dbUpdates.keySet()) {
+      data.startUpdate(qc.context.options);
+      datas.add(data);
+    }
+    for (    final DataUpdates up : dbUpdates.values()) {
+      up.apply(qc);
+    }
+  }
+ catch (  final IOException ex) {
+    throw BXDB_LOCK_X.get(null,ex);
+  }
+ finally {
+    for (    final Data data : datas) {
+      data.finishUpdate(qc.context.options);
+    }
+  }
+  for (  final NameUpdates up : nameUpdates.values())   up.apply(false);
+}

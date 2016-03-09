@@ -1,0 +1,25 @@
+{
+  final int s=stat ? 0 : 1, pl=pTypes.length;
+  if (pl != args.length - s)   return null;
+  final boolean[] vType=vTypes == null ? values(pTypes) : vTypes;
+  final Object[] vals=new Object[pl];
+  for (int p=0; p < pl; p++) {
+    final Class<?> param=pTypes[p];
+    final Value arg=args[s + p];
+    if (arg.type.instanceOf(JavaMapping.type(param,true))) {
+      vals[p]=arg.toJava();
+    }
+ else {
+      vals[p]=arg instanceof Jav || !vType[p] ? arg.toJava() : arg;
+      if (!param.isInstance(vals[p])) {
+        if (arg.isEmpty() && !param.isPrimitive()) {
+          vals[p]=null;
+        }
+ else {
+          return null;
+        }
+      }
+    }
+  }
+  return vals;
+}

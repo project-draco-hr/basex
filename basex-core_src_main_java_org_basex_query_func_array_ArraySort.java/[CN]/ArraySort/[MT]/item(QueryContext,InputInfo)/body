@@ -1,0 +1,15 @@
+{
+  final Array array=toArray(exprs[0],qc);
+  final int sz=(int)array.arraySize();
+  final ValueList vl=new ValueList(sz);
+  final ArrayBuilder builder=new ArrayBuilder();
+  if (exprs.length > 1) {
+    final FItem key=checkArity(exprs[1],1,qc);
+    for (    final Value value : array.members())     vl.add(key.invokeValue(qc,info,value));
+  }
+ else {
+    for (    final Value value : array.members())     vl.add(value.atomValue(qc,info));
+  }
+  for (  final int order : FnSort.sort(vl,this))   builder.append(array.get(order));
+  return builder.freeze();
+}

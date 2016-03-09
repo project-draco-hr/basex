@@ -1,0 +1,45 @@
+{
+  final Iter iter=exprs[0].iter(qc);
+  final ANodeList list=new ANodeList().check();
+  for (Item it; (it=iter.next()) != null; )   list.add(toNode(it));
+  final int len=list.size();
+  if (len < 2)   return list.iter();
+  final ANodeList res=new ANodeList().check();
+  if (list.dbnodes()) {
+    final DBNode fst=(DBNode)list.get(outer ? 0 : len - 1);
+    final Data data=fst.data();
+    if (outer) {
+      final DBNode dummy=new DBNode(data);
+      for (int next=0, p; next < len; next=p < 0 ? -p - 1 : p) {
+        final DBNode nd=(DBNode)list.get(next);
+        final int pre=nd.pre();
+        dummy.pre(pre + data.size(pre,data.kind(pre)));
+        p=list.binarySearch(dummy,next + 1,len - next - 1);
+        res.add(nd);
+      }
+    }
+ else {
+      res.add(fst);
+      int before=fst.pre();
+      for (int i=len - 1; i-- != 0; ) {
+        final DBNode nd=(DBNode)list.get(i);
+        final int pre=nd.pre();
+        if (pre + data.size(pre,data.kind(pre)) <= before) {
+          res.add(nd);
+          before=pre;
+        }
+      }
+    }
+  }
+ else {
+    OUTER:     for (int i=0; i < len; i++) {
+      final ANode nd=list.get(i);
+      final BasicNodeIter ax=outer ? nd.ancestor() : nd.descendant();
+      for (ANode a; (a=ax.next()) != null; ) {
+        if (list.indexOf(a,false) != -1)         continue OUTER;
+      }
+      res.add(nd);
+    }
+  }
+  return res.iter();
+}

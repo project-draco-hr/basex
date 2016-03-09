@@ -1,70 +1,63 @@
 {
   meta.update();
-  final int size=source.size();
-  final Data data=source.data;
-  final int tkind=kind(tpre);
-  final int tsize=size(tpre,tkind);
-  final int tpar=parent(tpre,tkind);
-  final int diff=size - tsize;
-  buffer(size);
-  resources.replace(tpre,tsize,source);
-  if (meta.updindex) {
-    indexDelete(tpre,tsize);
-    indexBegin();
-  }
+  final int sCount=source.size();
+  final int tKind=kind(pre);
+  final int tSize=size(pre,tKind);
+  final int tPar=parent(pre,tKind);
+  bufferSize(sCount);
+  indexDelete(pre,id(pre),tSize);
+  final Data sData=source.data;
   int sTopPre=source.start;
-  for (int spre=sTopPre; spre < source.end; ++spre) {
-    final int kind=data.kind(spre);
-    final int ssize=data.size(spre,kind);
-    final int spar=data.parent(spre,kind);
-    final int pre=tpre + spre - source.start;
-    final int dist;
-    if (spre == sTopPre) {
-      dist=pre - tpar;
-      sTopPre+=ssize;
+  for (int sPre=source.start; sPre < source.end; ++sPre) {
+    final int sKind=sData.kind(sPre);
+    final int sSize=sData.size(sPre,sKind);
+    final int sPar=sData.parent(sPre,sKind);
+    final int cPre=pre + sPre - source.start;
+    final int cDist;
+    if (sPre == sTopPre) {
+      cDist=cPre - tPar;
+      sTopPre+=sSize;
     }
  else {
-      dist=spre - spar;
+      cDist=sPre - sPar;
     }
-switch (kind) {
+switch (sKind) {
 case DOC:
-      doc(pre,ssize,data.text(spre,true));
-    meta.ndocs++;
+      doc(sSize,sData.text(sPre,true));
+    ++meta.ndocs;
   break;
 case ELEM:
-byte[] nm=data.name(spre,kind);
-elem(dist,tagindex.index(nm,null,false),data.attSize(spre,kind),ssize,nspaces.uri(nm,true),false);
+final byte[] en=sData.name(sPre,sKind);
+elem(cDist,elemNames.index(en,null,false),sData.attSize(sPre,sKind),sSize,nspaces.uriIdForPrefix(prefix(en),true),false);
 break;
 case TEXT:
 case COMM:
 case PI:
-text(pre,dist,data.text(spre,true),kind);
+text(cDist,sData.text(sPre,true),sKind);
 break;
 case ATTR:
-nm=data.name(spre,kind);
-attr(pre,dist,atnindex.index(nm,null,false),data.text(spre,false),nspaces.uri(nm,false),false);
+final byte[] an=sData.name(sPre,sKind);
+attr(cDist,attrNames.index(an,null,false),sData.text(sPre,false),nspaces.uriIdForPrefix(prefix(an),false));
 break;
 }
 }
-if (meta.updindex) {
-indexEnd();
-idmap.delete(tpre,id(tpre),-tsize);
-idmap.insert(tpre,meta.lastid - size + 1,size);
-}
-table.replace(tpre,buffer(),tsize);
-buffer(1);
-if (diff == 0) return;
-int p=tpar;
+table.replace(pre,buffer(),tSize);
+bufferSize(1);
+final int diff=sCount - tSize;
+if (diff != 0) {
+int p=tPar;
 while (p >= 0) {
 final int k=kind(p);
 size(p,k,size(p,k) + diff);
 p=parent(p,k);
 }
-if (!cache) updateDist(tpre + size,diff);
-int spre=source.start;
-if (data.kind(spre) == ATTR) {
-int d=0;
-while (spre < source.end && data.kind(spre++) == ATTR) d++;
-if (d > 1) attSize(tpar,kind(tpar),d + attSize(tpar,ELEM) - 1);
+updateDist(pre + sCount,diff);
 }
+int sPre=source.start;
+if (sData.kind(sPre) == ATTR) {
+int d=0;
+while (sPre < source.end && sData.kind(sPre++) == ATTR) d++;
+if (d > 1) attSize(tPar,kind(tPar),d + attSize(tPar,ELEM) - 1);
+}
+indexAdd(pre,meta.lastid - sCount + 1,sCount,source);
 }

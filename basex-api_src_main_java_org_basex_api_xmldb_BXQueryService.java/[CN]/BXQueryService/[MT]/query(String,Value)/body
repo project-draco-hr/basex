@@ -1,0 +1,20 @@
+{
+  try (final QueryProcessor qp=new QueryProcessor(query,coll.ctx)){
+    qp.context(nodes);
+    qp.parse();
+    try {
+      coll.ctx.register(qp);
+      for (      final Map.Entry<String,String> entry : ns.entrySet()) {
+        qp.sc.ns.add(token(entry.getKey()),token(entry.getValue()),null);
+      }
+      return new BXResourceSet(qp.value(),coll);
+    }
+  finally {
+      qp.close();
+      coll.ctx.unregister(qp);
+    }
+  }
+ catch (  final QueryException ex) {
+    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ex.getMessage());
+  }
+}

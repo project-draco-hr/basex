@@ -1,0 +1,21 @@
+{
+  final String expCode=asString('@' + CODE,expected);
+  if (result.xqerror != null) {
+    if (!errors || expCode.equals("*"))     return null;
+    final String resCode=string(result.xqerror.getException().qname().local());
+    if (resCode.equals(expCode))     return null;
+  }
+  try {
+    if (result.value != null)     serialize(result);
+    return expCode;
+  }
+ catch (  final QueryException ex) {
+    if (!errors || expCode.equals("*"))     return null;
+    final String resCode=string(ex.qname().local());
+    if (resCode.equals(expCode))     return null;
+    return Util.info("% (found: %)",expCode,ex);
+  }
+catch (  final IOException ex) {
+    return Util.info("% (found: %)",expCode,ex);
+  }
+}

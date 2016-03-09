@@ -1,0 +1,22 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  final long ns=nodes.size();
+  for (int n=0; n < ns; ++n) {
+    final byte[] nm=nodes.itemAt(n).string(null);
+    String src=srcs.get(string(nm));
+    if (!tb.isEmpty())     tb.add(", ");
+    tb.add(nm);
+    final String dbname=new IOFile(src).dbname();
+    if (updating()) {
+      if (first) {
+        new DropDB(dbname).execute(context);
+      }
+ else {
+        src=dbname;
+      }
+    }
+    final Value value=qp.qc.resources.doc(new QueryInput(src),qp.sc.baseIO(),null);
+    qp.bind(string(vars.itemAt(n).string(null)),value);
+  }
+  return tb.finish();
+}

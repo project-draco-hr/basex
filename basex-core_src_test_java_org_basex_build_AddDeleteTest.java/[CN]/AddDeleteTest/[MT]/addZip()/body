@@ -1,8 +1,22 @@
 {
-  new Add("target",ZIPFILE).execute(context);
+  execute(new Add("target",ZIPFILE));
   assertEquals(4,docs());
-  new Set(MainOptions.ADDARCHIVES,false).execute(context);
-  new Add("",ZIPFILE).execute(context);
-  assertEquals(4,docs());
-  new Set(MainOptions.ADDARCHIVES,true).execute(context);
+  try {
+    set(MainOptions.ADDARCHIVES,false);
+    execute(new Add("",ZIPFILE));
+    assertEquals(4,docs());
+  }
+  finally {
+    set(MainOptions.ADDARCHIVES,true);
+  }
+  try {
+    set(MainOptions.ARCHIVENAME,true);
+    execute(new Add("",ZIPFILE));
+    assertEquals(4,context.data().resources.docs("xml.zip/").size());
+    execute(new Add("",GZIPFILE));
+    assertEquals(1,context.data().resources.docs("xml.gz/").size());
+  }
+  finally {
+    set(MainOptions.ARCHIVENAME,false);
+  }
 }

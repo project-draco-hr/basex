@@ -1,0 +1,19 @@
+{
+  final String value=req.getHeader(AUTHORIZATION);
+  if (value == null)   return;
+  final String[] ams=Strings.split(value,' ',2);
+  final AuthMethod am=StaticOptions.AUTHMETHOD.get(ams[0]);
+  if (am == null)   throw new BaseXException(WHICHAUTH,value);
+  if (am == AuthMethod.BASIC) {
+    final String details=ams.length > 1 ? ams[1] : "";
+    final String[] cred=Strings.split(org.basex.util.Base64.decode(details),':',2);
+    if (cred.length != 2)     throw new BaseXException(NOUSERNAME);
+    username=cred[0];
+    password=cred[1];
+  }
+ else {
+    final EnumMap<Request,String> map=HttpClient.digestHeaders(value);
+    username=map.get(Request.USERNAME);
+    password=map.get(Request.RESPONSE);
+  }
+}

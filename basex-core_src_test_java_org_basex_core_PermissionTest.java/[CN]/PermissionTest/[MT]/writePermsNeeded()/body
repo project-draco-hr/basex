@@ -1,18 +1,19 @@
 {
   ok(new Grant("write",NAME),adminSession);
-  ok(new Open(RENAMED),testSession);
-  ok(new Rename(RENAMED,RENAMED + '2'),testSession);
-  ok(new Rename(RENAMED + '2',RENAMED),testSession);
+  ok(new Open(NAME2),testSession);
+  ok(new Rename(NAME2,NAME2 + '2'),testSession);
+  ok(new Rename(NAME2 + '2',NAME2),testSession);
   ok(new Close(),testSession);
-  ok(new Open(RENAMED),testSession);
+  ok(new Open(NAME2),testSession);
   ok(new Add(NAME + ".xml","<xml>1</xml>"),testSession);
   ok(new Optimize(),testSession);
   ok(new Replace(NAME + ".xml","<xmlr>2</xmlr>"),testSession);
   no(new RepoInstall(REPO + "/pkg3.xar",null),testSession);
   ok(new RepoList(),testSession);
   no(new RepoDelete("http://www.pkg3.com",null),testSession);
+  no(new XQuery("Q{java.lang.String}new('x')"),testSession);
   ok(new XQuery("for $item in doc('" + NAME + "')//xml "+ "return rename node $item as 'null'"),testSession);
-  no(new XQuery("db:create('" + NAME + "')"),testSession);
+  no(new XQuery(_DB_CREATE.args(NAME)),testSession);
   ok(new Optimize(),testSession);
   for (  final CmdIndex cmd : CmdIndex.values()) {
     ok(new CreateIndex(cmd),testSession);
@@ -25,12 +26,13 @@
   ok(new Close(),testSession);
   no(new CreateDB(NAME,"<xml/>"),testSession);
   no(new DropDB(NAME),testSession);
-  no(new CreateUser(NAME,Token.md5(NAME)),testSession);
+  no(new CreateUser(NAME,NAME),testSession);
   no(new DropUser(NAME),testSession);
-  no(new Export(Prop.TMP + NAME),testSession);
+  no(new Export(Prop.TMP + NAME + "-export"),testSession);
   no(new Kill("dada"),testSession);
   no(new ShowUsers("Users"),testSession);
   no(new Grant("read",NAME),testSession);
   no(new Grant("none",NAME),testSession);
-  no(new AlterUser(NAME,Token.md5(NAME)),testSession);
+  no(new AlterPassword(NAME,NAME),testSession);
+  no(new AlterUser(NAME,"test2"),testSession);
 }

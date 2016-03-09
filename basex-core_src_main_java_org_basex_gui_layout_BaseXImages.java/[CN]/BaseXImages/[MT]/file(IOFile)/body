@@ -1,13 +1,13 @@
 {
   if (file == null)   return UNKNOWN;
   final String path=file.path();
-  final String mime=MimeTypes.get(path);
-  if (MimeTypes.isXML(mime))   return XML;
-  if (MimeTypes.isXQuery(mime))   return XQUERY;
+  final MediaType type=MediaType.get(path);
+  if (type.isXML())   return XML;
+  if (type.isXQuery())   return XQUERY;
   if (path.contains(IO.BASEXSUFFIX))   return BASEX;
-  if (Prop.WIN) {
+  if (Prop.WIN && !GUIConstants.large()) {
     final int p=path.lastIndexOf(path,'.');
-    final String suffix=p != -1 ? path.substring(p + 1) : null;
+    final String suffix=p == -1 ? null : path.substring(p + 1);
     Icon icon=null;
     if (suffix != null)     icon=FILES.get(suffix);
     if (icon == null) {
@@ -16,5 +16,5 @@
     }
     return icon;
   }
-  return MimeTypes.isText(mime) ? TEXT : UNKNOWN;
+  return type.isText() ? TEXT : UNKNOWN;
 }

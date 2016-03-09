@@ -1,0 +1,30 @@
+{
+  final Collation coll=toCollation(1,qc);
+  final Iter iter=exprs[0].atomIter(qc,info);
+  Item curr=iter.next();
+  if (curr == null)   return null;
+  cmp.eval(curr,curr,coll,sc,info);
+  if (curr instanceof AStr) {
+    for (Item it; (it=iter.next()) != null; ) {
+      if (!(it instanceof AStr))       throw MINMAX_X_X_X.get(info,curr.type,it.type,it);
+      final Type rt=curr.type, ri=it.type;
+      if (cmp.eval(curr,it,coll,sc,info))       curr=it;
+      if (rt != ri && curr.type == URI)       curr=STR.cast(curr,qc,sc,info);
+    }
+    return curr;
+  }
+  if (curr instanceof ADate || curr instanceof Dur || curr instanceof Bin|| curr.type == BLN) {
+    for (Item it; (it=iter.next()) != null; ) {
+      if (curr.type != it.type)       throw MINMAX_X_X_X.get(info,curr.type,it.type,it);
+      if (cmp.eval(curr,it,coll,sc,info))       curr=it;
+    }
+    return curr;
+  }
+  if (curr.type.isUntyped())   curr=DBL.cast(curr,qc,sc,info);
+  for (Item it; (it=iter.next()) != null; ) {
+    final Type type=numType(curr,it);
+    if (cmp.eval(curr,it,coll,sc,info) || Double.isNaN(it.dbl(info)))     curr=it;
+    if (type != null)     curr=(Item)type.cast(curr,qc,sc,info);
+  }
+  return curr;
+}

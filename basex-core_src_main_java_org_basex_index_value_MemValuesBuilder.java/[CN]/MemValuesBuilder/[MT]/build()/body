@@ -1,0 +1,23 @@
+{
+  Util.debug(det());
+  final MemValues index=new MemValues(data,type);
+  final boolean updindex=data.meta.updindex;
+  for (pre=0; pre < size; pre++) {
+    if ((pre & 0x0FFF) == 0)     check();
+    if (indexEntry()) {
+      if (tokenize) {
+        for (        final byte[] token : distinctTokens(data.text(pre,text))) {
+          index.add(token,updindex ? data.id(pre) : pre);
+          count++;
+        }
+      }
+ else       if (data.textLen(pre,text) <= data.meta.maxlen) {
+        index.add(data.text(pre,text),updindex ? data.id(pre) : pre);
+        count++;
+      }
+    }
+  }
+  index.finish();
+  finishIndex();
+  return index;
+}

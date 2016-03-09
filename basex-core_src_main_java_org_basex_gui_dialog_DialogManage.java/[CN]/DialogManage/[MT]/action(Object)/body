@@ -1,7 +1,7 @@
 {
   final Context ctx=gui.context;
   if (refresh) {
-    choice.setData(ctx.databases.list().toArray());
+    choice.setData(ctx.databases.list().finish());
     choice.requestFocusInWindow();
     refresh=false;
   }
@@ -13,7 +13,7 @@
   }
  else   if (cmp == drop) {
     for (    final String s : dbs) {
-      if (ctx.globalopts.dbexists(s))       cmds.add(new DropDB(s));
+      if (ctx.soptions.dbExists(s))       cmds.add(new DropDB(s));
     }
     if (!BaseXDialog.confirm(gui,Util.info(DROPPING_DB_X,cmds.size())))     return;
     refresh=true;
@@ -34,7 +34,7 @@
     for (    final String s : dbs)     cmds.add(new CreateBackup(s));
   }
  else   if (cmp == restore) {
-    if (!gui.context.globalopts.dbexists(db) || BaseXDialog.confirm(gui,OVERWRITE_DB_QUESTION))     cmds.add(new Restore(backups.getValue()));
+    if (!gui.context.soptions.dbExists(db) || BaseXDialog.confirm(gui,OVERWRITE_DB_QUESTION))     cmds.add(new Restore(backups.getValue()));
   }
  else   if (cmp == backups) {
   }
@@ -53,10 +53,10 @@
     final String title=dbs.size() == 1 ? db : dbs.size() + " " + DATABASES;
     doc1.setText(title);
     doc2.setText(BACKUPS + COLS + title);
-    boolean active=ctx.globalopts.dbexists(db);
+    boolean active=ctx.soptions.dbExists(db);
     String info="";
     if (active) {
-      final MetaData meta=new MetaData(db,ctx);
+      final MetaData meta=new MetaData(db,ctx.options,ctx.soptions);
       try {
         meta.read();
         info=InfoDB.db(meta,true,true,true);
@@ -74,12 +74,12 @@
     open.setEnabled(active);
     restore.setEnabled(active);
     active=false;
-    for (    final String d : dbs)     active|=ctx.globalopts.dbexists(d);
+    for (    final String d : dbs)     active|=ctx.soptions.dbExists(d);
     drop.setEnabled(active);
     backup.setEnabled(active);
-    final StringList names=ctx.databases.backups(db);
-    active=!names.isEmpty();
-    backups.setData(names.toArray());
+    final String[] names=ctx.databases.backups(db).finish();
+    active=names.length != 0;
+    backups.setData(names);
     backups.setEnabled(active);
     restore.setEnabled(active);
     delete.setEnabled(active);

@@ -5,14 +5,14 @@
     xqpe.executeCommand("OPEN xqj-concurrent-insert-test");
     xqpe.executeCommand("SET DEFAULTDB true");
     final HashMap<String,XQItem> docs=new HashMap<>();
-    final ThreadPoolExecutor tpe=new ThreadPoolExecutor(CONCURRENT_WRITE_THREADS,CONCURRENT_WRITE_THREADS,4L,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(CONCURRENT_READ_THREADS),new ThreadPoolExecutor.CallerRunsPolicy());
+    final ThreadPoolExecutor tpe=new ThreadPoolExecutor(CONCURRENT_WRITE_THREADS,CONCURRENT_WRITE_THREADS,4L,TimeUnit.SECONDS,new ArrayBlockingQueue<Runnable>(CONCURRENT_READ_THREADS),new CallerRunsPolicy());
     final ArrayList<Future<?>> futures=new ArrayList<>();
     for (int i=0; i < DOCS_TO_INSERT; i++) {
       final String uri=i + "-" + UUID.randomUUID()+ ".xml";
       final XQItem item=createDocument("<e>" + uri + "</e>");
       docs.put(uri,item);
     }
-    for (    final String uri : docs.keySet())     futures.add(tpe.submit(new InsertItemThread(uri,docs.get(uri))));
+    for (    final Entry<String,XQItem> doc : docs.entrySet())     futures.add(tpe.submit(new InsertItemThread(doc.getKey(),doc.getValue())));
     for (    final Future<?> future : futures)     future.get();
     for (    final String uri : docs.keySet())     assertTrue(docAvailable(uri));
   }

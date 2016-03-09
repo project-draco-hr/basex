@@ -1,0 +1,23 @@
+{
+  final byte[] u=ns.value(pref);
+  if (u == null) {
+    ns.add(pref,uri);
+  }
+ else   if (!eq(u,uri)) {
+    byte[] apref=null;
+    final int nl=ns.size();
+    for (int n=0; n < nl; n++) {
+      if (eq(ns.value(n),uri))       apref=ns.name(n);
+    }
+    if (apref == null) {
+      int i=1;
+      do {
+        apref=concat(pref,new byte[]{'_'},token(i++));
+      }
+ while (ns.contains(apref));
+      ns.add(apref,uri);
+    }
+    return apref;
+  }
+  return null;
+}

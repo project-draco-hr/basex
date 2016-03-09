@@ -2,36 +2,10 @@
   final int i=pos;
   final QNm name=eQName(null,sc.funcNS);
   if (name != null && !keyword(name)) {
-    if (wsConsume(PAR1)) {
-      final InputInfo ii=info();
-      final ExprList argList=new ExprList();
-      final int[] holes=argumentList(argList,name.string());
-      final Expr[] args=argList.finish();
-      alter=FUNCUNKNOWN;
-      alterFunc=name;
-      alterPos=pos;
-      final Expr ret;
-      if (holes != null) {
-        final int card=args.length + holes.length;
-        final Expr lit=Functions.getLiteral(name,card,qc,sc,ii);
-        final Expr f=lit != null ? lit : FuncLit.unknown(name,card,qc,sc,ii);
-        ret=new PartFunc(sc,ii,f,args,holes);
-        if (lit != null && (lit instanceof FuncItem ? ((FuncItem)f).annotations() : ((FuncLit)lit).annotations()).contains(Ann.Q_UPDATING))         qc.updating();
-      }
- else {
-        final TypedFunc f=Functions.get(name,args,false,qc,sc,ii);
-        if (f == null) {
-          ret=null;
-        }
- else {
-          if (f.ann.contains(Ann.Q_UPDATING))           qc.updating();
-          ret=f.fun;
-        }
-      }
-      if (ret != null) {
-        alter=null;
-        return ret;
-      }
+    final InputInfo ii=info();
+    if (wsConsume(PAREN1)) {
+      final Expr ret=function(name,ii,new ExprList());
+      if (ret != null)       return ret;
     }
   }
   pos=i;

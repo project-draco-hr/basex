@@ -1,0 +1,26 @@
+{
+  final IOFile[] files=root.children();
+  for (  final IOFile file : files)   if (file.name().equals(IO.IGNORESUFFIX))   return;
+  for (  final IOFile file : files) {
+    if (file.isDir()) {
+      cache(http,file,cache,old);
+    }
+ else {
+      final String path=file.path();
+      if (file.hasSuffix(IO.XQSUFFIXES)) {
+        RestXqModule module=old.get(path);
+        boolean parsed=false;
+        if (module != null) {
+          parsed=module.uptodate();
+        }
+ else {
+          module=new RestXqModule(file);
+        }
+        if (parsed || module.parse(http)) {
+          module.touch();
+          cache.put(path,module);
+        }
+      }
+    }
+  }
+}

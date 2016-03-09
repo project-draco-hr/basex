@@ -1,0 +1,23 @@
+{
+  final B64 archive=toB64(exprs[0],qc,false);
+  final ValueBuilder vb=new ValueBuilder();
+  try (final ArchiveIn in=ArchiveIn.get(archive.input(info),info)){
+    while (in.more()) {
+      final ZipEntry ze=in.entry();
+      if (ze.isDirectory())       continue;
+      final FElem e=new FElem(Q_ENTRY).declareNS();
+      long s=ze.getSize();
+      if (s != -1)       e.add(SIZE,token(s));
+      s=ze.getTime();
+      if (s != -1)       e.add(LAST_MOD,new Dtm(s,info).string(info));
+      s=ze.getCompressedSize();
+      if (s != -1)       e.add(COMP_SIZE,token(s));
+      e.add(ze.getName());
+      vb.add(e);
+    }
+    return vb.value();
+  }
+ catch (  final IOException ex) {
+    throw ARCH_FAIL_X.get(info,ex);
+  }
+}

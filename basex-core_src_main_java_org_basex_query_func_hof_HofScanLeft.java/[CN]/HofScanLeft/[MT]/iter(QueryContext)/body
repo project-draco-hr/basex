@@ -1,0 +1,19 @@
+{
+  final Iter outer=qc.iter(exprs[0]);
+  final FItem f=checkArity(exprs[2],2,qc);
+  return new Iter(){
+    private Value acc=qc.value(exprs[1]);
+    private Iter inner=acc.iter();
+    @Override public Item next() throws QueryException {
+      while (true) {
+        final Item i=inner.next();
+        if (i != null)         return i;
+        final Item o=outer.next();
+        if (o == null)         return null;
+        acc=f.invokeValue(qc,info,acc,o);
+        inner=acc.iter();
+      }
+    }
+  }
+;
+}

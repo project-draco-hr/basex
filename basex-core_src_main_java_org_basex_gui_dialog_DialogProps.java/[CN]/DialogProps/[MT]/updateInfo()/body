@@ -1,32 +1,34 @@
 {
   final Object o=tabs.getSelectedComponent();
   final IntList il=new IntList();
-  if (o == tabNames) {
-    il.add(0);
-    il.add(1);
+  if (o == namesPanel) {
+    il.add(IndexType.ELEMNAME.ordinal());
+    il.add(IndexType.ATTRNAME.ordinal());
   }
- else   if (o == tabPath) {
-    il.add(2);
+ else   if (o == pathsPanel) {
+    il.add(IndexType.PATH.ordinal());
   }
- else   if (o == tabValues) {
-    il.add(3);
-    il.add(4);
+ else   if (o == indexesPanel) {
+    il.add(IndexType.TEXT.ordinal());
+    il.add(IndexType.ATTRIBUTE.ordinal());
+    il.add(IndexType.TOKEN.ordinal());
   }
- else   if (o == tabFT) {
-    il.add(5);
+ else   if (o == ftPanel) {
+    il.add(IndexType.FULLTEXT.ordinal());
   }
   final Data data=gui.context.data();
-  final boolean[] val={true,true,true,data.meta.textindex,data.meta.attrindex,data.meta.ftxtindex};
-  for (int i=0; i < il.size(); i++) {
+  final boolean[] val={true,true,true,data.meta.textindex,data.meta.attrindex,data.meta.tokenindex,data.meta.ftindex};
+  final int is=il.size();
+  for (int i=0; i < is; i++) {
     final int idx=il.get(i);
     if (updated.contains(idx))     continue;
     updated.add(idx);
-    new Thread(){
+    SwingUtilities.invokeLater(new Runnable(){
       @Override public void run(){
-        infos[idx].setText(val[idx] ? data.info(TYPES[idx]) : Token.token(HELP[idx]));
+        infos[idx].setText(val[idx] ? data.info(TYPES[idx],gui.context.options) : Token.token(HELP[idx]));
         updated.delete(idx);
       }
     }
-.start();
+);
   }
 }

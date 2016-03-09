@@ -1,0 +1,15 @@
+{
+  query(_ZIP_ZIP_FILE.args(params("<entry name='one'/>")));
+  checkEntry("one",new byte[0]);
+  query(_ZIP_ZIP_FILE.args(params("<entry name='two'>!</entry>")));
+  checkEntry("two",new byte[]{'!'});
+  query(_ZIP_ZIP_FILE.args(params("<entry name='three' encoding='UTF-16'>!</entry>")));
+  checkEntry("three",new byte[]{'\0','!'});
+  query(_ZIP_ZIP_FILE.args(params("<entry name='four' src='" + TMPFILE + "'/>")));
+  checkEntry("four",new byte[]{'!'});
+  query(_ZIP_ZIP_FILE.args(params("<entry src='" + TMPFILE + "'/>")));
+  checkEntry(NAME + ".tmp",new byte[]{'!'});
+  query(_ZIP_ZIP_FILE.args(params("<dir name='a'><entry name='b' src='" + TMPFILE + "'/></dir>")));
+  checkEntry("a/b",new byte[]{'!'});
+  error(_ZIP_ZIP_FILE.args(params("<entry src='" + TMPFILE + "'/>"+ "<entry src='"+ TMPFILE+ "'/>")),ZIP_FAIL_X);
+}

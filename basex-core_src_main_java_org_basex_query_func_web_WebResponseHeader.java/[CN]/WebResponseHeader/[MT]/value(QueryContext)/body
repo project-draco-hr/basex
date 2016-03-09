@@ -1,0 +1,22 @@
+{
+  final HashMap<String,String> output=toOptions(0,null,new Options(),qc).free();
+  final HashMap<String,String> http=toOptions(1,null,new Options(),qc).free();
+  if (!http.containsKey(CACHE_CONTROL))   http.put(CACHE_CONTROL,CACHE_CONTROL_DEFAULT);
+  final FElem hresp=new FElem(QNm.get(HTTP_PREFIX,"response",HTTP_URI));
+  for (  final Entry<String,String> entry : http.entrySet()) {
+    final String name=entry.getKey(), value=entry.getValue();
+    if (!value.isEmpty())     hresp.add(new FElem(QNm.get(HTTP_PREFIX,"header",HTTP_URI)).add("name",name).add("value",value));
+  }
+  if (!output.containsKey(SerializerOptions.MEDIA_TYPE.name()))   output.put(SerializerOptions.MEDIA_TYPE.name(),MediaType.APPLICATION_OCTET_STREAM.toString());
+  final SerializerOptions so=SerializerMode.DEFAULT.get();
+  final FElem oseri=new FElem(QNm.get(OUTPUT_PREFIX,SERIALIZATION_PARAMETERS,OUTPUT_URI));
+  for (  final Entry<String,String> entry : output.entrySet()) {
+    final String name=entry.getKey(), value=entry.getValue();
+    if (so.option(name) == null)     throw INVALIDOPTION_X.get(info,name);
+    if (!value.isEmpty())     oseri.add(new FElem(QNm.get(OUTPUT_PREFIX,name,OUTPUT_URI)).add("value",value));
+  }
+  final FElem resp=new FElem(QNm.get(REST_PREFIX,"response",REST_URI));
+  if (hresp.children().next() != null)   resp.add(hresp);
+  if (oseri.children().next() != null)   resp.add(oseri);
+  return resp;
+}

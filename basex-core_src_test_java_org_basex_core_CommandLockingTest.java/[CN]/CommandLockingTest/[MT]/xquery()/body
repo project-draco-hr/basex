@@ -1,42 +1,50 @@
 {
-  ckDBs(new XQuery("collection('" + NAME + "')"),false,NAME_LIST);
-  ckDBs(new XQuery("collection()"),false,COLL_LIST);
-  ckDBs(new XQuery("<a/>/count(collection())"),false,COLL_LIST);
-  ckDBs(new XQuery("doc('" + NAME + "')"),false,NAME_LIST);
-  ckDBs(new XQuery("doc-available('" + NAME + "/foo.xml')"),false,NAME_LIST,null);
-  ckDBs(new XQuery("parse-xml('<foo/>')"),true,NONE);
-  ckDBs(new XQuery("parse-xml-fragment('<foo/>')"),true,NONE);
-  ckDBs(new XQuery("put(<foo/>, '" + NAME + "')"),true,NONE);
-  ckDBs(new XQuery("put(., '" + NAME + "')"),true,CTX_LIST);
-  ckDBs(new XQuery("root()"),false,CTX_LIST);
-  ckDBs(new XQuery("root(.)"),false,CTX_LIST);
-  ckDBs(new XQuery("root(./test)"),false,CTX_LIST);
-  ckDBs(new XQuery("serialize('<foo/>')"),true,NONE);
-  ckDBs(new XQuery("unparsed-text('" + FILE + "')"),false,NONE);
-  ckDBs(new XQuery("unparsed-text-available('" + FILE + "')"),false,NONE);
-  ckDBs(new XQuery("unparsed-text-lines('" + FILE + "')"),false,NONE);
-  ckDBs(new XQuery("uri-collection('" + NAME + "')"),false,NAME_LIST);
-  ckDBs(new XQuery("uri-collection()"),false,COLL_LIST);
-  for (  final String fn : new String[]{"data","string","number","string-length","normalize-space","document-uri","nilled","node-name","local-name","name","namespace-uri","root","base-uri","generate-id","has-children","path"}) {
-    ckDBs(new XQuery(fn + "()"),false,CTX_LIST);
-    ckDBs(new XQuery("doc('" + NAME + "')/"+ fn+ "()"),false,NAME_LIST,NAME_CTX);
+  ckDBs(new XQuery(COLLECTION.args(NAME)),false,NAME_LIST);
+  ckDBs(new XQuery(COLLECTION.args()),false,CTX_LIST);
+  ckDBs(new XQuery("<a/>/" + COUNT.args(COLLECTION.args())),false,CTX_LIST);
+  ckDBs(new XQuery(DOC.args(NAME)),false,NAME_LIST);
+  ckDBs(new XQuery(ID.args(NAME)),false,CTX_LIST);
+  ckDBs(new XQuery(IDREF.args(NAME)),false,CTX_LIST);
+  ckDBs(new XQuery(ELEMENT_WITH_ID.args(NAME)),false,CTX_LIST);
+  ckDBs(new XQuery(LANG.args(NAME)),false,CTX_LIST);
+  ckDBs(new XQuery(ID.args(NAME,DOC.args(NAME))),false,NAME_LIST);
+  ckDBs(new XQuery(IDREF.args(NAME,DOC.args(NAME))),false,NAME_LIST);
+  ckDBs(new XQuery(ELEMENT_WITH_ID.args(NAME,DOC.args(NAME))),false,NAME_LIST);
+  ckDBs(new XQuery(LANG.args(NAME,DOC.args(NAME))),false,NAME_LIST);
+  ckDBs(new XQuery(DOC_AVAILABLE.args(NAME + "/foo.xml")),false,NAME_LIST,null);
+  ckDBs(new XQuery(PARSE_XML.args("<foo/>")),true,NONE);
+  ckDBs(new XQuery(PARSE_XML_FRAGMENT.args("<foo/>")),true,NONE);
+  ckDBs(new XQuery(PUT.args("<foo/>",NAME)),true,NONE);
+  ckDBs(new XQuery(PUT.args(" .",NAME)),true,CTX_LIST);
+  ckDBs(new XQuery(ROOT.args()),false,CTX_LIST);
+  ckDBs(new XQuery(ROOT.args(" .")),false,CTX_LIST);
+  ckDBs(new XQuery(ROOT.args(" ./test")),false,CTX_LIST);
+  ckDBs(new XQuery(ROOT.args("<foo/>")),true,NONE);
+  ckDBs(new XQuery(UNPARSED_TEXT.args(FILE)),false,NONE);
+  ckDBs(new XQuery(UNPARSED_TEXT_AVAILABLE.args(FILE)),false,NONE);
+  ckDBs(new XQuery(UNPARSED_TEXT_LINES.args(FILE)),false,NONE);
+  ckDBs(new XQuery(URI_COLLECTION.args(NAME)),false,NAME_LIST);
+  ckDBs(new XQuery(URI_COLLECTION.args()),false,CTX_LIST);
+  for (  final Function fn : new Function[]{DATA,STRING,NUMBER,STRING_LENGTH,NORMALIZE_SPACE,DOCUMENT_URI,NILLED,NODE_NAME,LOCAL_NAME,Function.NAME,NAMESPACE_URI,ROOT,BASE_URI,GENERATE_ID,HAS_CHILDREN,PATH}) {
+    ckDBs(new XQuery(fn.args()),false,CTX_LIST);
+    ckDBs(new XQuery(DOC.args(NAME) + '/' + fn.args()),false,NAME_LIST,NAME_CTX);
   }
-  for (  final String fn : new String[]{"data","string","number","string-length","normalize-space","document-uri","nilled","node-name","local-name","name","namespace-uri","root","base-uri","generate-id","has-children","path"}) {
-    ckDBs(new XQuery(fn + "(doc('" + NAME+ "'))"),false,NAME_LIST);
+  for (  final Function fn : new Function[]{DATA,STRING,NUMBER,STRING_LENGTH,NORMALIZE_SPACE,DOCUMENT_URI,NILLED,NODE_NAME,LOCAL_NAME,Function.NAME,NAMESPACE_URI,ROOT,BASE_URI,GENERATE_ID,HAS_CHILDREN,PATH}) {
+    ckDBs(new XQuery(fn.args(DOC.args(NAME))),false,NAME_LIST);
   }
   ckDBs(new XQuery("."),false,CTX_LIST);
-  ckDBs(new XQuery("error()"),false,NONE);
-  ckDBs(new XQuery("error(xs:QName('foo'))"),false,NONE);
-  ckDBs(new XQuery("error(xs:QName('foo'), 'bar')"),false,NONE);
-  ckDBs(new XQuery("error(xs:QName('foo'), 'bar', <batz/>)"),false,NONE);
-  ckDBs(new XQuery("random:integer()"),false,NONE);
+  ckDBs(new XQuery(ERROR.args()),false,NONE);
+  ckDBs(new XQuery(ERROR.args("xs:QName('foo')")),false,NONE);
+  ckDBs(new XQuery(ERROR.args("xs:QName('foo')","bar")),false,NONE);
+  ckDBs(new XQuery(ERROR.args("xs:QName('foo')","bar","<batz/>")),false,NONE);
+  ckDBs(new XQuery(_RANDOM_INTEGER.args()),false,NONE);
   ckDBs(new XQuery("declare function local:a($a) {" + "if($a = 0) then $a else local:a($a idiv 2) };" + "local:a(5)"),false,NONE);
-  ckDBs(new XQuery("declare function local:a($a) {" + "if($a = 0) then collection() else local:a($a idiv 2) };" + "local:a(5)"),false,COLL_LIST);
-  ckDBs(new XQuery("declare function local:a($a) {" + "if($a = 0) then doc('" + NAME + "') else local:a($a idiv 2) };"+ "local:a(5)"),false,NAME_LIST);
+  ckDBs(new XQuery("declare function local:a($a) {" + "if($a = 0) then " + COLLECTION.args() + " else local:a($a idiv 2) };"+ "local:a(5)"),false,CTX_LIST);
+  ckDBs(new XQuery("declare function local:a($a) {" + "if($a = 0) then " + DOC.args(NAME) + " else local:a($a idiv 2) };"+ "local:a(5)"),false,NAME_LIST);
   XQuery query=new XQuery("import module namespace qm='java:org.basex.query.func.QueryModuleTest';" + "qm:readLock()");
-  query.execute(context);
+  execute(query);
   ckDBs(query,false,MODULE_LIST);
   query=new XQuery("import module namespace qm='java:org.basex.query.func.QueryModuleTest';" + "qm:writeLock()");
-  query.execute(context);
+  execute(query);
   ckDBs(query,true,MODULE_LIST);
 }

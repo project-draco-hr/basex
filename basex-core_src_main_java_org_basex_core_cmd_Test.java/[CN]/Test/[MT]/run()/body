@@ -1,12 +1,10 @@
 {
   final IOFile root=new IOFile(args[0]);
-  if (!root.exists())   return error(RES_NOT_FOUND_X,context.user.has(Perm.CREATE) ? root : args[0]);
+  if (!root.exists())   return error(RES_NOT_FOUND_X,context.user().has(Perm.CREATE) ? root : args[0]);
   try {
-    final XMLSerializer ser=Serializer.get(out);
     final Suite suite=new Suite();
-    ser.serialize(suite.test(root,context,this));
+    suite.test(root,context,this).serialize(Serializer.get(out));
     out.print(NL);
-    out.flush();
     final StringBuilder sb=new StringBuilder(RESULT).append(COLS);
     add(sb,"test",suite.tests);
     add(sb,"failure",suite.failures);
@@ -15,7 +13,7 @@
     return suite.errors + suite.failures == 0 ? info(sb.toString()) : error(sb.toString());
   }
  catch (  final IOException ex) {
-    cause=ex;
+    exception=ex;
     return error(Util.message(ex));
   }
 }

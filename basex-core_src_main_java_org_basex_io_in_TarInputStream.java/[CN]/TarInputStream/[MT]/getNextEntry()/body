@@ -12,11 +12,12 @@
     if (res < 0)     break;
     tr+=res;
   }
-  for (  final byte b : header) {
-    if (b != 0) {
-      entry=new TarEntry(header);
-      break;
-    }
+  if (eof(header))   return null;
+  entry=new TarEntry(header);
+  if (entry.isLongName()) {
+    final String name=longName();
+    entry=getNextEntry();
+    entry.setName(name);
   }
   return entry;
 }

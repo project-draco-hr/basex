@@ -1,5 +1,62 @@
 {
-  if (!(nd instanceof DBNode))   return null;
-  final DBNode node=(DBNode)nd;
-  return build(node.data,node.pre,nd.string());
+  if (!(node instanceof DBNode))   return null;
+  final DBNode dbnode=(DBNode)node;
+  final FTPos ftp=pos.get(dbnode.data(),dbnode.pre());
+  if (ftp == null)   return null;
+  final ArrayList<DataFTMarker> marks=new ArrayList<>();
+  final TokenBuilder token=new TokenBuilder();
+  final byte[] string=node.string();
+  for (final FTLexer lex=new FTLexer().original().init(string); lex.hasNext(); ) {
+    final FTSpan span=lex.next();
+    if (!span.del && ftp.contains(span.pos)) {
+      if (!token.isEmpty())       marks.add(new DataFTMarker(token.next(),false));
+      marks.add(new DataFTMarker(span.text,true));
+    }
+ else {
+      token.add(span.text);
+    }
+  }
+  if (!token.isEmpty())   marks.add(new DataFTMarker(token.finish(),false));
+  int ln=-len + string.length;
+  if (ln > 0) {
+    final int ms=marks.size();
+    final DataFTMarker first=marks.get(0);
+    final int firstl=first.mark ? 0 : first.token.length;
+    final DataFTMarker last=marks.get(ms - 1);
+    final int lastl=last.mark ? 0 : last.token.length;
+    if (!first.mark) {
+      final int l=Math.min(firstl,(int)((long)ln * firstl / (firstl + lastl)));
+      if (l > 0) {
+        first.token=concat(DOTS,subtoken(first.token,l));
+        ln-=l;
+      }
+    }
+    if (!last.mark && ln > 0) {
+      final int l=Math.min(lastl,ln);
+      last.token=concat(subtoken(last.token,0,lastl - l),DOTS);
+      ln-=l;
+    }
+    for (int m=ms - 2; m > 0 && ln > 0; m--) {
+      final DataFTMarker dm=marks.get(m);
+      if (dm.mark)       continue;
+      final int txtl=dm.token.length;
+      final int l=Math.min(txtl,ln);
+      dm.token=concat(subtoken(dm.token,0,(txtl - l) / 2),DOTS,subtoken(dm.token,(txtl + l) / 2));
+      ln-=l;
+    }
+    for (int m=ms - 1; m >= 0 && ln > 0; m--) {
+      final DataFTMarker dm=marks.get(m);
+      if (dm.mark)       ln-=marks.remove(m).token.length;
+    }
+    for (int m=marks.size() - 2; m >= 0; m--) {
+      final DataFTMarker dm1=marks.get(m), dm2=marks.get(m + 1);
+      if (!dm1.mark && !dm2.mark) {
+        if (!(eq(dm1.token,DOTS) && eq(dm2.token,DOTS))) {
+          dm1.token=concat(dm1.token,dm2.token);
+        }
+        marks.remove(m + 1);
+      }
+    }
+  }
+  return marks;
 }

@@ -1,13 +1,14 @@
 {
   final Zip zip=new Zip(new IOContent(content));
   final IOContent dsc=new IOContent(zip.read(DESCRIPTOR));
-  final Package pkg=new PkgParser(repo,info).parse(dsc);
-  final byte[] name=pkg.uniqueName();
-  final boolean exists=repo.pkgDict().get(name) != null;
-  if (exists)   delete(string(name));
+  final Pkg pkg=new PkgParser(info).parse(dsc);
+  final String id=pkg.id();
+  final EXPathRepo repo=context.repo;
+  final boolean exists=repo.pkgDict().get(id) != null;
+  if (exists)   delete(id);
   new PkgValidator(repo,info).check(pkg);
-  final IOFile file=uniqueDir(string(name).replaceAll("[^\\w.-]+","-"));
+  final IOFile file=uniqueDir(id.replaceAll("[^\\w.-]+","-"));
   zip.unzip(file);
-  repo.add(pkg,file.name());
+  repo.add(pkg.dir(file.name()));
   return exists;
 }

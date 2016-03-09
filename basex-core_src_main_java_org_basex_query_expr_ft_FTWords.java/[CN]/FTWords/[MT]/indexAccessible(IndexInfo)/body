@@ -1,0 +1,32 @@
+{
+  data=ii.ic.data;
+  final MetaData md=data.meta;
+  final FTOpt fto=ftt.opt;
+  if (occ != null || fto.cs != null && md.casesens == (fto.cs == FTCase.INSENSITIVE) || fto.isSet(DC) && md.diacritics != fto.is(DC) || fto.isSet(ST) && md.stemming != fto.is(ST) || fto.ln != null && !fto.ln.equals(md.language))   return false;
+  fto.copy(md);
+  if (tokens == null) {
+    ii.costs=Math.max(2,data.meta.size / 30);
+    return true;
+  }
+  final FTLexer ft=new FTLexer(fto);
+  ii.costs=0;
+  for (  byte[] t : tokens) {
+    ft.init(t);
+    while (ft.hasNext()) {
+      final byte[] tok=ft.nextToken();
+      if (fto.sw != null && fto.sw.contains(tok))       continue;
+      if (fto.is(WC)) {
+        t=ft.get();
+        if (t[0] == '.')         return false;
+        int d=0;
+        for (        final byte w : t) {
+          if (w == '{' || w == '\\' || w == '.' && ++d > 1)           return false;
+        }
+      }
+      final int costs=data.costs(ft);
+      if (costs < 0)       return false;
+      if (costs != 0)       ii.costs+=Math.max(2,costs / 100);
+    }
+  }
+  return true;
+}

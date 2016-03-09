@@ -1,10 +1,13 @@
 {
   removeAllChildren();
-  final ArrayList<IOFile> dirs=new ArrayList<>();
-  final ArrayList<IOFile> files=new ArrayList<>();
-  for (  final IOFile f : file.children())   (f.isDir() ? dirs : files).add(f);
+  final ArrayList<IOFile> dirs=new ArrayList<>(), files=new ArrayList<>();
+  final boolean hidden=project.gui.gopts.get(GUIOptions.HIDDENFILES);
+  for (  final IOFile child : file.children()) {
+    if (hidden || !child.file().isHidden())     (child.isDir() ? dirs : files).add(child);
+  }
   Collections.sort(dirs,COMP);
   Collections.sort(files,COMP);
   for (  final IOFile f : dirs)   add(new ProjectDir(f,project));
   for (  final IOFile f : files)   add(new ProjectFile(f,project));
+  project.refreshTree();
 }

@@ -1,0 +1,25 @@
+{
+  final TokenBuilder tb=new TokenBuilder();
+  tb.addExt(type).add(" INDEX, '").add(data.meta.name).add("':\n");
+  final int entries=size();
+  for (int index=0; index < entries; index++) {
+    final long pos=idxr.read5(index * 5L);
+    final int count=idxl.readNum(pos);
+    int id=idxl.readNum();
+    tb.add("  ").addInt(index).add(". offset: ").addLong(pos);
+    if (all) {
+      tb.add(", key: \"").add(key(id)).add('"');
+      tb.add(", ids").add("/pres").add(": ").addInt(id).add('/').addInt(pre(id));
+    }
+ else {
+      tb.add(", ids").add(": ").addInt(id);
+    }
+    for (int c=1; c < count; c++) {
+      id+=idxl.readNum();
+      tb.add(",").addInt(id);
+      if (all)       tb.add('/').addInt(pre(id));
+    }
+    tb.add("\n");
+  }
+  return tb.toString();
+}

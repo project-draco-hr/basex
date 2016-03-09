@@ -1,63 +1,72 @@
 {
   super(main,DB_PROPS);
-  main.setCursor(CURSORWAIT);
   panel.setLayout(new BorderLayout(5,0));
   resources=new DialogResources(this);
-  add=new DialogAdd(this);
-  ft=new DialogFT(this,false);
-  final BaseXBack tabRes=add.border(8);
+  set(resources,BorderLayout.WEST);
+  addPanel=new DialogAdd(this);
+  addPanel.border(8);
+  final int ll=LABELS.length;
+  for (int l=0; l < ll; l++) {
+    labels[l]=new BaseXLabel(LABELS[l]).large();
+    panels[l]=new BaseXBack(new BorderLayout(0,4));
+    BaseXLayout.setWidth(panels[l],600);
+    infos[l]=new TextPanel(PLEASE_WAIT_D,false,this);
+    infos[l].setFont(dmfont);
+  }
+  for (int l=IndexType.TEXT.ordinal(); l < ll; l++) {
+    buttons[l]=new BaseXButton(" ",this);
+    BaseXLayout.setHeight(panels[l],160);
+  }
   final Data data=main.context.data();
-  for (int i=0; i < LABELS.length; ++i) {
-    labels[i]=new BaseXLabel(LABELS[i]).large();
-    panels[i]=new BaseXBack(new BorderLayout(0,4));
-    infos[i]=new TextPanel(Token.token(PLEASE_WAIT_D),false,this);
-    BaseXLayout.setHeight(infos[i],200);
-    if (i != 1) {
-      indxs[i]=new BaseXButton(" ",this);
-      indxs[i].setEnabled(!data.inMemory());
-    }
-  }
-  tabNames=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
-  add(0,tabNames,null);
-  add(1,tabNames,null);
-  tabPath=new BaseXBack(new GridLayout(1,1)).border(8);
-  add(2,tabPath,null);
-  tabValues=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
-  add(3,tabValues,null);
-  add(4,tabValues,null);
-  tabFT=new BaseXBack(new GridLayout(1,1)).border(8);
-  add(5,tabFT,null);
-  final BaseXBack tabGeneral=new BaseXBack(new BorderLayout(0,8)).border(8);
-  final Font f=tabGeneral.getFont();
-  final BaseXLabel doc=new BaseXLabel(data.meta.name).border(0,0,6,0).large();
-  BaseXLayout.setWidth(doc,400);
-  tabGeneral.add(doc,BorderLayout.NORTH);
-  final String db=InfoDB.db(data.meta,true,false,true);
-  final TokenBuilder info=new TokenBuilder(db);
-  if (data.nspaces.size() != 0) {
-    info.bold().add(NL + NAMESPACES + NL).norm().add(data.nspaces.info());
-  }
-  final TextPanel text=new TextPanel(info.finish(),false,this);
-  text.setFont(f);
-  BaseXLayout.setHeight(text,200);
-  tabGeneral.add(new SearchEditor(main,text),BorderLayout.CENTER);
+  buttons[IndexType.FULLTEXT.ordinal()].setEnabled(!data.inMemory());
+  indexes[IndexType.TEXT.ordinal()]=new DialogValues(this,IndexType.TEXT);
+  indexes[IndexType.ATTRIBUTE.ordinal()]=new DialogValues(this,IndexType.ATTRIBUTE);
+  indexes[IndexType.TOKEN.ordinal()]=new DialogValues(this,IndexType.TOKEN);
+  indexes[IndexType.FULLTEXT.ordinal()]=new DialogFT(this,false);
+  namesPanel=new BaseXBack(new GridLayout(2,1,0,8)).border(8);
+  namesPanel.add(panels[IndexType.ELEMNAME.ordinal()]);
+  namesPanel.add(panels[IndexType.ATTRNAME.ordinal()]);
+  pathsPanel=panels[IndexType.PATH.ordinal()].border(8);
+  indexesPanel=new BaseXBack(new GridLayout(3,1,0,8)).border(8);
+  indexesPanel.add(panels[IndexType.TEXT.ordinal()]);
+  indexesPanel.add(panels[IndexType.ATTRIBUTE.ordinal()]);
+  indexesPanel.add(panels[IndexType.TOKEN.ordinal()]);
+  ftPanel=panels[IndexType.FULLTEXT.ordinal()].border(8);
+  final BaseXBack infoPanel=new BaseXBack(new GridLayout(2,1)).border(8);
+  final BaseXBack dbPanel=new BaseXBack(new BorderLayout());
+  dbPanel.add(new BaseXLabel(DATABASE + COLS + data.meta.name).border(0,0,6,0).large(),BorderLayout.NORTH);
+  dbInfo=new TextPanel("",false,this);
+  dbInfo.setFont(infoPanel.getFont());
+  dbPanel.add(new SearchEditor(main,dbInfo),BorderLayout.CENTER);
+  final BaseXBack nsPanel=new BaseXBack(new BorderLayout());
+  nsPanel.add(new BaseXLabel(NAMESPACES).border(0,0,6,0).large(),BorderLayout.NORTH);
+  nsInfo=new TextPanel("",false,this);
+  nsPanel.add(new SearchEditor(main,nsInfo),BorderLayout.CENTER);
+  infoPanel.add(dbPanel);
+  infoPanel.add(nsPanel);
+  optionsPanel=new DialogOptions(this,data);
+  final BaseXBack tabsPanel=new BaseXBack(new BorderLayout());
   tabs=new BaseXTabs(this);
-  tabs.addTab(RESOURCES,tabRes);
-  tabs.addTab(NAMES,tabNames);
-  tabs.addTab(PATH_INDEX,tabPath);
-  tabs.addTab(INDEXES,tabValues);
-  tabs.addTab(FULLTEXT,tabFT);
-  tabs.addTab(GENERAL,tabGeneral);
+  tabs.addTab(RESOURCES,addPanel);
+  tabs.addTab(NAMES,namesPanel);
+  tabs.addTab(PATHS,pathsPanel);
+  tabs.addTab(INDEXES,indexesPanel);
+  tabs.addTab(FULLTEXT,ftPanel);
+  tabs.addTab(OPTIONS,optionsPanel);
+  tabs.addTab(INFORMATION,infoPanel);
   tabs.addChangeListener(new ChangeListener(){
     @Override public synchronized void stateChanged(    final ChangeEvent evt){
       updateInfo();
     }
   }
 );
-  set(resources,BorderLayout.WEST);
-  set(tabs,BorderLayout.CENTER);
+  tabsPanel.add(tabs,BorderLayout.CENTER);
+  optimize=new BaseXButton(OPTIMIZE,this);
+  optimizeAll=new BaseXButton(OPTIMIZE_ALL,this);
+  optimizeAll.setEnabled(!gui.context.data().inMemory());
+  tabsPanel.add(newButtons(optimize,optimizeAll),BorderLayout.SOUTH);
+  set(tabsPanel,BorderLayout.CENTER);
   action(this);
   setResizable(true);
-  main.setCursor(CURSORARROW);
-  finish(null);
+  finish();
 }

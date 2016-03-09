@@ -1,0 +1,19 @@
+{
+  if (!scoring && expr instanceof TypeCheck) {
+    final TypeCheck tc=(TypeCheck)expr;
+    if (tc.isRedundant(var) || var.adoptCheck(tc.seqType(),tc.promote)) {
+      qc.compInfo(OPTCAST_X,tc.seqType());
+      expr=tc.expr;
+    }
+  }
+  seqType=scoring ? SeqType.DBL : expr.seqType();
+  var.refineType(seqType,qc,info);
+  if (var.checksType() && expr.isValue()) {
+    expr=var.checkType((Value)expr,qc,info,true);
+    var.refineType(expr.seqType(),qc,info);
+  }
+  size=scoring ? 1 : expr.size();
+  var.size=size;
+  var.data=expr.data();
+  return this;
+}

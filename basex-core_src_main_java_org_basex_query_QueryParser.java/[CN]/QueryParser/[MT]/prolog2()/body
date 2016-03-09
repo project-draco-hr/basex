@@ -2,7 +2,7 @@
   while (true) {
     final int i=pos;
     if (!wsConsumeWs(DECLARE))     break;
-    if (sc.xquery3() && wsConsumeWs(CONTEXT)) {
+    if (wsConsumeWs(CONTEXT)) {
       contextItemDecl();
     }
  else     if (wsConsumeWs(OPTION)) {
@@ -12,28 +12,15 @@
       throw error(PROLOGORDER);
     }
  else {
-      final Ann ann=new Ann();
-      while (true) {
-        if (wsConsumeWs(UPDATING)) {
-          ann.add(Ann.Q_UPDATING,Empty.SEQ,info());
-        }
- else         if (sc.xquery3() && consume('%')) {
-          annotation(ann);
-        }
- else {
-          break;
-        }
-      }
+      final AnnList anns=annotations(true);
       if (wsConsumeWs(VARIABLE)) {
-        if (ann.contains(Ann.Q_UPDATING))         throw error(UPDATINGVAR);
-        ann.check(true);
-        varDecl(ann);
+        if (anns.contains(Annotation.UPDATING))         throw error(UPDATINGVAR);
+        varDecl(anns.check(true));
       }
  else       if (wsConsumeWs(FUNCTION)) {
-        ann.check(false);
-        functionDecl(ann);
+        functionDecl(anns.check(false));
       }
- else       if (!ann.isEmpty()) {
+ else       if (!anns.isEmpty()) {
         throw error(VARFUNC);
       }
  else {

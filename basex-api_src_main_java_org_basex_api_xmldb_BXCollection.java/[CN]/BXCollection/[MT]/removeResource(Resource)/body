@@ -3,8 +3,14 @@
   final BXXMLResource del=checkXML(res);
   final Data data=ctx.data();
   if (del.data != data && del.data != null)   throw new XMLDBException(ErrorCodes.NO_SUCH_RESOURCE,ERR_UNKNOWN + data.meta.name);
-  if (!data.startUpdate())   throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_LOCK);
-  data.delete(getResource(del.getId()).pos);
-  ctx.invalidate();
-  data.finishUpdate();
+  try {
+    data.startUpdate(ctx.options);
+    data.delete(getResource(del.getId()).pre);
+    ctx.invalidate();
+    data.finishUpdate(ctx.options);
+  }
+ catch (  final IOException ex) {
+    Util.debug(ex);
+    throw new XMLDBException(ErrorCodes.VENDOR_ERROR,ERR_LOCK);
+  }
 }

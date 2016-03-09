@@ -12,18 +12,29 @@
       if (!al.isEmpty()) {
         final StringBuilder exp=new StringBuilder();
         final int as=al.size();
+        int min=Integer.MAX_VALUE, max=Integer.MIN_VALUE;
         for (int a=0; a < as; a++) {
-          if (a != 0)           exp.append(a + 1 < as ? "," : " or ");
-          exp.append(al.get(a));
+          final int m=al.get(a);
+          if (m < min)           min=m;
+          if (m > max)           max=m;
         }
-        final int a=call.exprs.length;
-        throw (a == 1 ? FUNCTYPESG : FUNCTYPEPL).get(call.info,call.name.string(),a,exp);
+        if (as > 1 && max - min + 1 == as) {
+          exp.append(min).append('-').append(max);
+        }
+ else {
+          for (int a=0; a < as; a++) {
+            if (a != 0)             exp.append(a + 1 < as ? ", " : " or ");
+            exp.append(al.get(a));
+          }
+        }
+        final int ar=call.exprs.length;
+        throw FUNCTYPES_X_X_X_X.get(call.info,call.name.string(),ar,ar == 1 ? "" : "s",exp);
       }
       final QueryException qe=similarError(call.name,call.info);
-      throw qe == null ? FUNCUNKNOWN.get(call.info,call.name.string()) : qe;
+      throw qe == null ? WHICHFUNC_X.get(call.info,call.name.prefixId()) : qe;
     }
     if (call != null) {
-      if (fc.func.expr == null)       throw FUNCNOIMPL.get(call.info,call.name.string());
+      if (fc.func.expr == null)       throw FUNCNOIMPL_X.get(call.info,call.name.string());
       qc.updating|=fc.func.updating;
     }
     id++;

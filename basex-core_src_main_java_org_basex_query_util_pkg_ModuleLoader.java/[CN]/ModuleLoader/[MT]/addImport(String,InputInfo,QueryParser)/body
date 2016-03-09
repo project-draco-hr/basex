@@ -1,0 +1,56 @@
+{
+  final String repoPath=context.soptions.get(StaticOptions.REPOPATH);
+  final boolean java=uri.startsWith(JAVAPREF);
+  final String className;
+  if (java) {
+    className=uri.substring(JAVAPREF.length());
+  }
+ else {
+    final HashSet<String> pkgs=context.repo.nsDict().get(uri);
+    if (pkgs != null) {
+      Version ver=null;
+      String id=null;
+      for (      final String pkg : pkgs) {
+        final Version v=new Version(Pkg.version(pkg));
+        if (ver == null || v.compareTo(ver) > 0) {
+          ver=v;
+          id=pkg;
+        }
+      }
+      if (id != null) {
+        addRepo(id,new HashSet<String>(),new HashSet<String>(),ii,qp);
+        return true;
+      }
+    }
+    final String path=Strings.uri2path(uri);
+    for (    final String suffix : IO.XQSUFFIXES) {
+      final IOFile file=new IOFile(repoPath,path + suffix);
+      if (file.exists()) {
+        qp.module(file.path(),uri,ii);
+        return true;
+      }
+    }
+    className=Strings.className(path);
+  }
+  final IOFile jar=new IOFile(repoPath,Strings.uri2path(className) + IO.JARSUFFIX);
+  if (jar.exists())   addURL(jar);
+  final Class<?> clz;
+  try {
+    clz=findClass(className);
+  }
+ catch (  final ClassNotFoundException ex) {
+    if (java)     throw WHICHCLASS_X.get(ii,ex.getMessage());
+    return false;
+  }
+catch (  final Throwable th) {
+    final Throwable t=Util.rootException(th);
+    throw MODINIT_X_X_X.get(ii,className,t.getMessage(),Util.className(t));
+  }
+  try {
+    javaModules.add(clz.newInstance());
+    return true;
+  }
+ catch (  final Throwable ex) {
+    throw MODINST_X_X.get(ii,className,ex);
+  }
+}

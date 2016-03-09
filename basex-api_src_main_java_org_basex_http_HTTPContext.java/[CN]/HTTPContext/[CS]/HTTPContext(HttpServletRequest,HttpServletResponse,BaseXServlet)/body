@@ -1,28 +1,24 @@
 {
-  req=rq;
-  res=rs;
+  this.req=req;
+  this.res=res;
   params=new HTTPParams(this);
-  method=rq.getMethod();
+  method=req.getMethod();
   final StringBuilder uri=new StringBuilder(req.getRequestURL());
   final String qs=req.getQueryString();
   if (qs != null)   uri.append('?').append(qs);
-  log('[' + method + "] "+ uri,null);
-  res.setCharacterEncoding(UTF8);
-  segments=decode(toSegments(req.getPathInfo()));
-  final GlobalOptions mprop=context().globalopts;
-  user=servlet.user != null ? servlet.user : mprop.get(GlobalOptions.USER);
-  pass=servlet.pass != null ? servlet.pass : mprop.get(GlobalOptions.PASSWORD);
-  final String auth=req.getHeader(AUTHORIZATION);
-  if (auth != null) {
-    final String[] values=auth.split(" ");
-    if (values[0].equals(BASIC)) {
-      final String[] cred=Base64.decode(values[1]).split(":",2);
-      if (cred.length != 2)       throw new LoginException(NOPASSWD);
-      user=cred[0];
-      pass=cred[1];
-    }
- else {
-      throw new LoginException(WHICHAUTH,values[0]);
-    }
+  context.log.write(address(),context.user(),LogType.REQUEST,'[' + method + "] "+ uri,null);
+  res.setCharacterEncoding(Strings.UTF8);
+  path=decode(normalize(req.getPathInfo()));
+  final StaticOptions mprop=context.soptions;
+  if (servlet.username.isEmpty()) {
+    username=mprop.get(StaticOptions.USER);
+    password=mprop.get(StaticOptions.PASSWORD);
   }
+ else {
+    username=servlet.username;
+    password=servlet.password;
+  }
+  final String value=req.getHeader(AUTHORIZATION);
+  final String am=value == null ? AuthMethod.BASIC.toString() : Strings.split(value,' ',2)[0];
+  auth=StaticOptions.AUTHMETHOD.get(am) == AuthMethod.DIGEST ? AuthMethod.DIGEST : servlet.auth != null ? servlet.auth : mprop.get(StaticOptions.AUTHMETHOD);
 }

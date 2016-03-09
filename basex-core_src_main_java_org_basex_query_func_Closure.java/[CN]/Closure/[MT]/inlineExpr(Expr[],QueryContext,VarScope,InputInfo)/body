@@ -1,18 +1,19 @@
 {
   if (expr.has(Flag.CTX))   return null;
-  qc.compInfo(OPTINLINE,this);
-  final LinkedList<GFLWOR.Clause> cls=exprs.length == 0 && nonLocal.isEmpty() ? null : new LinkedList<GFLWOR.Clause>();
+  qc.compInfo(OPTINLINE_X,this);
+  final LinkedList<Clause> cls=exprs.length == 0 && global.isEmpty() ? null : new LinkedList<Clause>();
   final IntObjMap<Var> vs=new IntObjMap<>();
-  for (int i=0; i < args.length; i++) {
-    final Var old=args[i], v=scp.newCopyOf(qc,old);
+  final int al=args.length;
+  for (int a=0; a < al; a++) {
+    final Var old=args[a], v=scp.newCopyOf(qc,old);
     vs.put(old.id,v);
-    cls.add(new Let(v,exprs[i],false,ii).optimize(qc,scp));
+    cls.add(new Let(v,exprs[a],false,ii).optimize(qc,scp));
   }
-  for (  final Entry<Var,Expr> e : nonLocal.entrySet()) {
+  for (  final Entry<Var,Expr> e : global.entrySet()) {
     final Var old=e.getKey(), v=scp.newCopyOf(qc,old);
     vs.put(old.id,v);
     cls.add(new Let(v,e.getValue(),false,ii).optimize(qc,scp));
   }
-  final Expr cpy=expr.copy(qc,scp,vs), rt=ret == null ? cpy : new TypeCheck(sc,ii,cpy,ret,true).optimize(qc,scp);
+  final Expr cpy=expr.copy(qc,scp,vs), rt=type == null ? cpy : new TypeCheck(sc,ii,cpy,type,true).optimize(qc,scp);
   return cls == null ? rt : new GFLWOR(ii,cls,rt).optimize(qc,scp);
 }

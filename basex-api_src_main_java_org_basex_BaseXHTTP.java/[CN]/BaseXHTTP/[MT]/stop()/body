@@ -1,10 +1,9 @@
 {
-  final GlobalOptions mprop=context.globalopts;
-  final int stop=num(GlobalOptions.STOPPORT,mprop);
-  if (stop >= 0)   stop(stop);
-  if (!bool(GlobalOptions.HTTPLOCAL,mprop)) {
-    final int port=num(GlobalOptions.SERVERPORT,mprop);
-    final int eport=num(GlobalOptions.EVENTPORT,mprop);
-    BaseXServer.stop(port,eport);
+  final StaticOptions sopts=context.soptions;
+  final int port=num(StaticOptions.STOPPORT,sopts);
+  final String host=sopts.get(StaticOptions.SERVERHOST);
+  if (port >= 0)   stop(host.isEmpty() ? S_LOCALHOST : host,port);
+  if (!bool(StaticOptions.HTTPLOCAL,sopts)) {
+    BaseXServer.stop(host,num(StaticOptions.SERVERPORT,sopts));
   }
 }

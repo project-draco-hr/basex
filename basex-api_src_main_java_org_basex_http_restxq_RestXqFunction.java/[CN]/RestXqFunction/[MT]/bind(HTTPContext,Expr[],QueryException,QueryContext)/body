@@ -1,0 +1,46 @@
+{
+  if (path != null) {
+    for (    final Entry<QNm,String> entry : path.values(http).entrySet()) {
+      final QNm qnm=new QNm(entry.getKey().string(),function.sc);
+      if (function.sc.elemNS != null && eq(qnm.uri(),function.sc.elemNS))       qnm.uri(EMPTY);
+      bind(qnm,arg,new Atm(entry.getValue()),qc);
+    }
+  }
+  final MainOptions mo=http.context(false).options;
+  if (requestBody != null) {
+    try {
+      bind(requestBody,arg,HttpPayload.value(http.params.body(),mo,http.contentType()),qc);
+    }
+ catch (    final IOException ex) {
+      throw error(INPUT_CONV,ex);
+    }
+  }
+  for (  final RestXqParam rxp : queryParams)   bind(rxp,arg,http.params.query().get(rxp.name),qc);
+  for (  final RestXqParam rxp : formParams)   bind(rxp,arg,http.params.form(mo).get(rxp.name),qc);
+  for (  final RestXqParam rxp : headerParams) {
+    final TokenList tl=new TokenList();
+    final Enumeration<?> en=http.req.getHeaders(rxp.name);
+    while (en.hasMoreElements()) {
+      for (      final String s : en.nextElement().toString().split(", *"))       tl.add(s);
+    }
+    bind(rxp,arg,StrSeq.get(tl),qc);
+  }
+  final Cookie[] ck=http.req.getCookies();
+  for (  final RestXqParam rxp : cookieParams) {
+    Value val=Empty.SEQ;
+    if (ck != null) {
+      for (      final Cookie c : ck) {
+        if (rxp.name.equals(c.getName()))         val=Str.get(c.getValue());
+      }
+    }
+    bind(rxp,arg,val,qc);
+  }
+  final Map<String,Value> errs=new HashMap<>();
+  if (err != null) {
+    final Value[] values=Catch.values(err);
+    final QNm[] names=Catch.NAMES;
+    final int nl=names.length;
+    for (int n=0; n < nl; n++)     errs.put(string(names[n].local()),values[n]);
+  }
+  for (  final RestXqParam rxp : errorParams)   bind(rxp,arg,errs.get(rxp.name),qc);
+}

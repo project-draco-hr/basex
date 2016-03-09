@@ -1,26 +1,17 @@
 {
   final Context context=qc.context;
-  if (!qc.context.user.has(Perm.READ))   throw BXXQ_PERM.get(info,Util.info(Text.PERM_REQUIRED_X,Perm.READ));
+  if (!context.user().has(Perm.READ))   throw BXXQ_PERM_X.get(info,Util.info(Text.PERM_REQUIRED_X,Perm.READ));
   final IO source=checkPath(input,baseIO,info);
-  if (single && source.isDir())   WHICHRES.get(info,baseIO);
-  final MainOptions opts=context.options;
-  final Option<?>[] options={MainOptions.SKIPCORRUPT,MainOptions.ADDARCHIVES,MainOptions.ADDRAW,MainOptions.PARSER,MainOptions.CREATEFILTER};
-  final Object[] values=new Object[options.length];
-  final int ol=options.length;
-  for (int o=0; o < ol; o++) {
-    final Option<?> option=options[o];
-    values[o]=opts.get(option);
-    opts.put(option,option.value());
-  }
+  if (single && source.isDir())   throw WHICHRES_X.get(info,baseIO);
   try {
-    final boolean force=context.options.get(MainOptions.FORCECREATE);
-    return add(CreateDB.create(source.dbname(),new DirParser(source,opts),context,!force));
+    final boolean mem=!context.options.get(MainOptions.FORCECREATE);
+    final MainOptions opts=new MainOptions(context.options,true);
+    return addData(CreateDB.create(source.dbname(),new DirParser(source,opts),context,opts,mem));
   }
  catch (  final IOException ex) {
-    throw IOERR.get(info,ex);
+    throw IOERR_X.get(info,ex);
   }
  finally {
-    for (int o=0; o < ol; o++)     opts.put(options[o],values[o]);
     input.path="";
   }
 }

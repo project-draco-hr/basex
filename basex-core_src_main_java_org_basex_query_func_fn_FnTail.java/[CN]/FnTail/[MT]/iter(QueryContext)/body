@@ -1,0 +1,16 @@
+{
+  final Expr e=exprs[0];
+  if (e.seqType().zeroOrOne())   return Empty.ITER;
+  final Iter ir=e.iter(qc);
+  if (ir instanceof ValueIter) {
+    final Value val=ir.value();
+    return val.size() < 2 ? Empty.ITER : val.subSeq(1,val.size() - 1).iter();
+  }
+  if (ir.next() == null)   return Empty.ITER;
+  return new Iter(){
+    @Override public Item next() throws QueryException {
+      return ir.next();
+    }
+  }
+;
+}

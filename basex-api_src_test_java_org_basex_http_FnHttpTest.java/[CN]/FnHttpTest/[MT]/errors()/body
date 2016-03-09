@@ -1,30 +1,30 @@
 {
   final List<byte[]> falseReqs=new ArrayList<>();
-  final byte[] falseReq1=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "href='http://basex.org'/>");
+  final byte[] falseReq1=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "href='" + REST_ROOT + "'/>");
   falseReqs.add(falseReq1);
-  final byte[] falseReq2=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='GET' href='http://basex.org' "+ "send-authorization='true'/>");
+  final byte[] falseReq2=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='GET' href='" + REST_ROOT + "' "+ "send-authorization='true'/>");
   falseReqs.add(falseReq2);
-  final byte[] falseReq3=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='GET' href='http://basex.org' "+ "send-authorization='true' username='test'/>");
+  final byte[] falseReq3=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='GET' href='" + REST_ROOT + "' "+ "send-authorization='true' username='test'/>");
   falseReqs.add(falseReq3);
-  final byte[] falseReq4=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='POST' href='http://basex.org'>"+ "<http:body>"+ "</http:body>"+ "</http:request>");
+  final byte[] falseReq4=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='POST' href='" + REST_ROOT + "'>"+ "<http:body>"+ "</http:body>"+ "</http:request>");
   falseReqs.add(falseReq4);
-  final byte[] falseReq5=token("<http:request method='POST' " + "xmlns:http='http://expath.org/ns/http-client' " + "href='http://basex.org'>"+ "<http:multipart boundary='xxx'>"+ "</http:multipart>"+ "</http:request>");
+  final byte[] falseReq5=token("<http:request method='POST' " + "xmlns:http='http://expath.org/ns/http-client' " + "href='" + REST_ROOT + "'>"+ "<http:multipart boundary='xxx'>"+ "</http:multipart>"+ "</http:request>");
   falseReqs.add(falseReq5);
-  final byte[] falseReq6=token("<http:request method='POST' " + "xmlns:http='http://expath.org/ns/http-client' " + "href='http://basex.org'>"+ "<http:multipart boundary='xxx'>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body media-type='text/plain'>"+ "Part1"+ "</http:body>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body>"+ "Part1"+ "</http:body>"+ "</http:multipart>"+ "</http:request>");
+  final byte[] falseReq6=token("<http:request method='POST' " + "xmlns:http='http://expath.org/ns/http-client' " + "href='" + REST_ROOT + "'>"+ "<http:multipart boundary='xxx'>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body media-type='text/plain'>"+ "Part1"+ "</http:body>"+ "<http:header name='hdr1' value-='val1'/>"+ "<http:body>"+ "Part1"+ "</http:body>"+ "</http:multipart>"+ "</http:request>");
   falseReqs.add(falseReq6);
   final byte[] falseReq7=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "href='ftp://basex.org'/>");
   falseReqs.add(falseReq7);
-  final byte[] falseReq8=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='DELETE' href='http://basex.org'>"+ "<http:body media-type='text/plain'>"+ "</http:body>"+ "</http:request>");
+  final byte[] falseReq8=token("<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='DELETE' href='" + REST_ROOT + "'>"+ "<http:body media-type='text/plain'>"+ "</http:body>"+ "</http:request>");
   falseReqs.add(falseReq8);
   for (  final byte[] falseReq : falseReqs) {
-    final DBNode dbNode=new DBNode(new IOContent(falseReq),ctx.options);
+    final DBNode dbNode=new DBNode(new IOContent(falseReq));
     try {
-      final HTTPRequestParser rp=new HTTPRequestParser(null);
+      final HttpRequestParser rp=new HttpRequestParser(null);
       rp.parse(dbNode.children().next(),null);
       fail("Exception not thrown");
     }
  catch (    final QueryException ex) {
-      assertTrue(contains(token(ex.getMessage()),token(ErrType.HC.toString())));
+      assertTrue(ex.getMessage().contains(ErrType.HC.toString()));
     }
   }
 }

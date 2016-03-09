@@ -1,0 +1,15 @@
+{
+  final B64 b1=toB64(exprs[0],qc,true);
+  final B64 b2=toB64(exprs[1],qc,true);
+  if (b1 == null || b2 == null)   return null;
+  final byte[] bytes1=b1.binary(info);
+  final byte[] bytes2=b2.binary(info);
+  final int bl1=bytes1.length;
+  final int bl2=bytes2.length;
+  if (bl1 != bl2)   throw BIN_DLA_X_X.get(info,bl1,bl2);
+  final byte[] tmp=new byte[bl1];
+  for (int b=0; b < bl1; b++) {
+    tmp[b]=(byte)(op == Bit.OR ? bytes1[b] | bytes2[b] : op == Bit.XOR ? bytes1[b] ^ bytes2[b] : bytes1[b] & bytes2[b]);
+  }
+  return new B64(tmp);
+}

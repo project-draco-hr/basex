@@ -2,13 +2,19 @@
   consumeWs('{',true);
   conv.openObject();
   if (!consumeWs('}',false)) {
+    final TokenSet set=new TokenSet();
     do {
-      conv.openPair(spec != JsonSpec.LIBERAL || curr() == '"' ? string() : unquoted());
+      final byte[] key=!liberal || curr() == '"' ? string() : unquoted();
+      final boolean dupl=set.contains(key);
+      if (dupl && duplicates == JsonDuplicates.REJECT)       throw error(BXJS_DUPLICATE_X,"Key '%' occurs more than once.",key);
+      final boolean add=!(dupl && duplicates == JsonDuplicates.USE_FIRST);
+      conv.openPair(key,add);
       consumeWs(':',true);
       value();
-      conv.closePair();
+      conv.closePair(add);
+      set.put(key);
     }
- while (consumeWs(',',false) && !(spec == JsonSpec.LIBERAL && curr() == '}'));
+ while (consumeWs(',',false) && !(liberal && curr() == '}'));
     consumeWs('}',true);
   }
   conv.closeObject();

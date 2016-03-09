@@ -1,14 +1,27 @@
 {
   final TokenBuilder tb=new TokenBuilder().add('<').add(name.string());
   if (ns != null) {
-    for (int n=0; n < ns.size(); n++) {
-      tb.add(new FNames(ns.name(n),ns.value(n)).toString());
+    final int nl=ns.size();
+    for (int n=0; n < nl; n++) {
+      tb.add(' ').addExt(new FNSpace(ns.name(n),ns.value(n)));
     }
   }
   if (atts != null) {
-    for (    final ANode n : atts)     tb.add(n.toString());
+    for (    final ANode att : atts)     tb.add(' ').addExt(att);
   }
-  if (hasChildren())   tb.add(">...</").add(name.string());
- else   tb.add("/");
-  return tb.add(">").toString();
+  if (hasChildren()) {
+    tb.add('>');
+    final ANode child=children.get(0);
+    if (child.type == NodeType.TXT && children.size() == 1) {
+      tb.add(Atm.toString(child.value,false));
+    }
+ else {
+      tb.add(DOTS);
+    }
+    tb.add("</").add(name.string()).add('>');
+  }
+ else {
+    tb.add("/>");
+  }
+  return tb.toString();
 }

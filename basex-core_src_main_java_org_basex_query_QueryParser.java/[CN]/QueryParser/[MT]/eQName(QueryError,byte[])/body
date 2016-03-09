@@ -1,0 +1,31 @@
+{
+  final int i=pos;
+  if (consume(EQNAME)) {
+    final byte[] uri=bracedURILiteral();
+    final byte[] name=ncName(null);
+    if (name.length != 0) {
+      if (def == URICHECK && uri.length == 0) {
+        pos=i;
+        throw error(NOURI_X,name);
+      }
+      return new QNm(name,uri);
+    }
+    pos=i;
+  }
+  final byte[] nm=qName(err);
+  if (nm.length == 0)   return null;
+  if (def == SKIPCHECK)   return new QNm(nm);
+  final QNm name=new QNm(nm,sc);
+  if (!name.hasURI()) {
+    if (def == URICHECK) {
+      pos=i;
+      throw error(NSMISS_X,name);
+    }
+    if (name.hasPrefix()) {
+      pos=i;
+      throw error(NOURI_X,name.string());
+    }
+    name.uri(def);
+  }
+  return name;
+}

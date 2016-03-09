@@ -1,11 +1,12 @@
 {
-  if (expr.type().one())   type=SeqType.get(type.type,Occ.ONE);
+  final SeqType st=expr.seqType();
+  if (st.one() && !st.mayBeArray())   seqType=SeqType.get(seqType.type,Occ.ONE);
   if (expr.isValue())   return optPre(value(qc),qc);
-  final Type t=type.type;
-  if ((t == AtomType.BLN || t == AtomType.FLT || t == AtomType.DBL || t == AtomType.QNM || t == AtomType.URI) && type.eq(expr.type())) {
+  final Type t=seqType.type;
+  if ((t == AtomType.BLN || t == AtomType.FLT || t == AtomType.DBL || t == AtomType.QNM || t == AtomType.URI) && seqType.eq(expr.seqType())) {
     optPre(expr,qc);
     return expr;
   }
-  size=type.occ();
+  size=seqType.occ();
   return this;
 }

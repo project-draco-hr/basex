@@ -1,12 +1,13 @@
 {
-  if (!inline(qc))   return null;
-  qc.compInfo(OPTINLINE,id());
-  final LinkedList<GFLWOR.Clause> cls=exprs.length == 0 ? null : new LinkedList<GFLWOR.Clause>();
+  if (!inline(qc,anns,expr) || has(Flag.CTX) || compiling|| selfRecursive())   return null;
+  qc.compInfo(OPTINLINE_X,id());
+  final LinkedList<Clause> cls=exprs.length == 0 ? null : new LinkedList<Clause>();
   final IntObjMap<Var> vs=new IntObjMap<>();
-  for (int i=0; i < args.length; i++) {
-    final Var old=args[i], v=scp.newCopyOf(qc,old);
+  final int al=args.length;
+  for (int a=0; a < al; a++) {
+    final Var old=args[a], v=scp.newCopyOf(qc,old);
     vs.put(old.id,v);
-    cls.add(new Let(v,exprs[i],false,info).optimize(qc,scp));
+    cls.add(new Let(v,exprs[a],false,info).optimize(qc,scp));
   }
   final Expr cpy=expr.copy(qc,scp,vs);
   return cls == null ? cpy : new GFLWOR(info,cls,cpy).optimize(qc,scp);

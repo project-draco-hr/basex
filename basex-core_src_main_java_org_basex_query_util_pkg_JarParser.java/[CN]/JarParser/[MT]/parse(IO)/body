@@ -1,17 +1,18 @@
 {
   final JarDesc desc=new JarDesc();
   try {
-    final ANode node=new DBNode(io,context.options).children().next();
+    final ANode node=new DBNode(io).children().next();
     for (    final ANode next : node.children()) {
+      if (next.type != NodeType.ELM)       continue;
       final QNm name=next.qname();
       if (eq(JAR,name.local()))       desc.jars.add(next.string());
  else       if (eq(CLASS,name.local()))       desc.classes.add(next.string());
     }
-    if (desc.jars.isEmpty())     throw BXRE_JARDESC.get(info,NOJARS);
- else     if (desc.classes.isEmpty())     throw BXRE_JARDESC.get(info,NOCLASSES);
+    if (desc.jars.isEmpty())     throw BXRE_JARDESC_X.get(info,NOJARS);
+    if (desc.classes.isEmpty())     throw BXRE_JARDESC_X.get(info,NOCLASSES);
     return desc;
   }
  catch (  final IOException ex) {
-    throw BXRE_JARFAIL.get(info,ex);
+    throw BXRE_JARFAIL_X.get(info,ex);
   }
 }

@@ -1,0 +1,46 @@
+{
+  final ANode[] nodes=list;
+  if (e < 7) {
+    for (int i=s; i < e + s; ++i) {
+      for (int j=i; j > s && nodes[j - 1].diff(nodes[j]) > 0; j--)       s(j,j - 1);
+    }
+    return;
+  }
+  int m=s + (e >> 1);
+  if (e > 7) {
+    int l=s;
+    int n=s + e - 1;
+    if (e > 40) {
+      final int k=e >>> 3;
+      l=m(l,l + k,l + (k << 1));
+      m=m(m - k,m,m + k);
+      n=m(n - (k << 1),n - k,n);
+    }
+    m=m(l,m,n);
+  }
+  final ANode v=nodes[m];
+  int a=s, b=a, c=s + e - 1, d=c;
+  while (true) {
+    while (b <= c) {
+      final int h=nodes[b].diff(v);
+      if (h > 0)       break;
+      if (h == 0)       s(a++,b);
+      ++b;
+    }
+    while (c >= b) {
+      final int h=nodes[c].diff(v);
+      if (h < 0)       break;
+      if (h == 0)       s(c,d--);
+      --c;
+    }
+    if (b > c)     break;
+    s(b++,c--);
+  }
+  final int n=s + e;
+  int k=Math.min(a - s,b - a);
+  s(s,b - k,k);
+  k=Math.min(d - c,n - d - 1);
+  s(b,n - k,k);
+  if ((k=b - a) > 1)   sort(s,k);
+  if ((k=d - c) > 1)   sort(n - k,k);
+}

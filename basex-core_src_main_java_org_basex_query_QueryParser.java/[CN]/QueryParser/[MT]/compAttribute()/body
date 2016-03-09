@@ -4,15 +4,13 @@
   final QNm qn=eQName(null,SKIPCHECK);
   if (qn != null) {
     name=qn;
-    names.add(new QNmCheck(qn,false));
+    qnames.add(qn,false);
   }
  else {
-    if (!wsConsume(BRACE1))     return null;
+    if (!wsConsume(CURLY1))     return null;
     name=check(expr(),NOATTNAME);
-    wsCheck(BRACE2);
+    wsCheck(CURLY2);
   }
-  if (!wsConsume(BRACE1))   return null;
-  final Expr e=expr();
-  wsCheck(BRACE2);
-  return new CAttr(sc,info(),true,name,e == null ? Empty.SEQ : e);
+  skipWs();
+  return curr('{') ? new CAttr(sc,info(),true,name,enclosedExpr()) : null;
 }

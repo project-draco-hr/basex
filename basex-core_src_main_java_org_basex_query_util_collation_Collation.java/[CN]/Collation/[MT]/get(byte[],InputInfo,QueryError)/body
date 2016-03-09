@@ -1,0 +1,24 @@
+{
+  if (eq(NOCASE,uri))   return new NoCaseCollation();
+  final int q=Token.indexOf(uri,'?');
+  final byte[] base=q == -1 ? uri : substring(uri,0,q);
+  final String args=q == -1 ? "" : string(replace(substring(uri,q + 1),'&',';'));
+  final CollationOptions opts;
+  if (eq(UCA,base) && UCAOptions.ACTIVE) {
+    opts=new UCAOptions();
+  }
+ else   if (eq(URL,base)) {
+    opts=new BaseXCollationOptions();
+  }
+ else {
+    throw err.get(info,Util.inf("Unknown collation '%'",uri));
+  }
+  try {
+    final Collation coll=opts.get(args);
+    coll.uri=uri;
+    return coll;
+  }
+ catch (  final IllegalArgumentException ex) {
+    throw err.get(info,ex.getMessage());
+  }
+}

@@ -1,6 +1,5 @@
 {
   super(output);
-  ehost=host;
   socket=new Socket();
   try {
     socket.connect(new InetSocketAddress(host,port),5000);
@@ -10,10 +9,19 @@
   }
   sin=socket.getInputStream();
   final BufferInput bi=new BufferInput(sin);
-  final String ts=bi.readString();
+  final String[] response=Strings.split(bi.readString(),':');
+  final String code, nonce;
+  if (response.length > 1) {
+    code=username + ':' + response[0]+ ':'+ password;
+    nonce=response[1];
+  }
+ else {
+    code=password;
+    nonce=response[0];
+  }
   sout=PrintOutput.get(socket.getOutputStream());
-  send(user);
-  send(Token.md5(Token.md5(pass) + ts));
+  send(username);
+  send(Strings.md5(Strings.md5(code) + nonce));
   sout.flush();
   if (!ok(bi))   throw new LoginException();
 }

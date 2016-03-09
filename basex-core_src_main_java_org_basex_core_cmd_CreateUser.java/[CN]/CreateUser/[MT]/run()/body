@@ -1,9 +1,9 @@
 {
-  try {
-    create(args[0],args[1],context);
-    return info(USER_CREATED_X,args[0]);
-  }
- catch (  final BaseXException ex) {
-    return error(Util.message(ex));
-  }
+  final String name=args[0], pw=args[1];
+  if (!Databases.validName(name))   return error(NAME_INVALID_X,name);
+  if (name.equals(UserText.ADMIN))   return error(ADMIN_STATIC);
+  final Users users=context.users;
+  users.add(new User(name,pw));
+  users.write();
+  return info(USER_CREATED_X,args[0]);
 }

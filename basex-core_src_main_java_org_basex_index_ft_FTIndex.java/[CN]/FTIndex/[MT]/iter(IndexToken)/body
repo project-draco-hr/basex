@@ -1,11 +1,9 @@
 {
   final byte[] tok=it.get();
-  final FTOpt opt=((FTLexer)it).ftOpt();
+  final FTLexer lexer=(FTLexer)it;
+  final FTOpt opt=lexer.ftOpt();
   if (opt.is(WC))   return wc(tok);
-  if (opt.is(FZ)) {
-    final int k=data.meta.options.get(MainOptions.LSERROR);
-    return fuzzy(tok,k == 0 ? tok.length >> 2 : k);
-  }
+  if (opt.is(FZ))   return fuzzy(tok,lexer.lserror(tok));
   final IndexEntry e=entry(tok);
-  return e.size > 0 ? iter(e.pointer,e.size,inZ,tok) : FTIndexIterator.FTEMPTY;
+  return e.size > 0 ? iter(e.offset,e.size,inZ,tok) : FTIndexIterator.FTEMPTY;
 }

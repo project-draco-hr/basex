@@ -1,0 +1,19 @@
+{
+  try {
+    final String res=eval(query);
+    final TokenBuilder tb=new TokenBuilder("Query did not fail:\n");
+    tb.add(query).add("\n[E] Error: ");
+    for (    final QueryError e : error)     tb.add(' ').add(e.qname().prefixId());
+    fail(tb.add("\n[F] ").add(res).toString());
+  }
+ catch (  final QueryIOException ex) {
+    check(query,ex.getCause(),error);
+  }
+catch (  final QueryException ex) {
+    check(query,ex,error);
+  }
+catch (  final Exception ex) {
+    Util.stack(ex);
+    fail("Unexpected exception: " + ex);
+  }
+}

@@ -1,0 +1,26 @@
+{
+  if (exprs[0] instanceof RangeSeq) {
+    final RangeSeq rs=(RangeSeq)exprs[0];
+    final long s=rs.start(), e=s + rs.size() - 1;
+    if (e < 3037000500L)     return Int.get((s + e) * (e - s + 1) / 2);
+    final BigInteger bs=BigInteger.valueOf(s), be=BigInteger.valueOf(e);
+    final BigInteger bi=bs.add(be).multiply(be.subtract(bs).add(BigInteger.ONE)).divide(BigInteger.valueOf(2));
+    final long l=bi.longValue();
+    if (bi.equals(BigInteger.valueOf(l)))     return Int.get(l);
+    throw RANGE_X.get(ii,bi);
+  }
+  final Iter iter=exprs[0].atomIter(qc,ii);
+  Item def;
+  if (exprs.length == 2) {
+    def=exprs[1].atomItem(qc,ii);
+    if (def != null) {
+      if (def.type.isUntyped())       def=Dbl.get(def.dbl(info));
+ else       if (!(def instanceof ANum) && !(def instanceof Dur))       throw SUM_X_X.get(info,def.type,def);
+    }
+  }
+ else {
+    def=Int.get(0);
+  }
+  final Item it=iter.next();
+  return it != null ? sum(iter,it,false) : def;
+}

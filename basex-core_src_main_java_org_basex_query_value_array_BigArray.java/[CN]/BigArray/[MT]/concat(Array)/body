@@ -1,0 +1,25 @@
+{
+  if (seq.isEmptyArray())   return this;
+  if (seq instanceof SmallArray) {
+    final Value[] newRight=concat(right,((SmallArray)seq).elems);
+    final int r=newRight.length;
+    if (r <= MAX_DIGIT)     return new BigArray(left,middle,newRight);
+    final int mid=r / 2;
+    final Value[] leaf=slice(newRight,0,mid);
+    final FingerTree<Value,Value> newMid=middle.snoc(new LeafNode(leaf));
+    return new BigArray(left,newMid,slice(newRight,mid,r));
+  }
+  final BigArray other=(BigArray)seq;
+  final Value[] ls=right, rs=other.left;
+  final int l=ls.length, n=l + rs.length;
+  final int k=(n + MAX_LEAF - 1) / MAX_LEAF, s=(n + k - 1) / k;
+  @SuppressWarnings("unchecked") final Node<Value,Value>[] midNodes=new Node[k];
+  int p=0;
+  for (int i=0; i < k; i++) {
+    final int curr=Math.min(n - p,s);
+    final Value[] arr=new Value[curr];
+    for (int j=0; j < curr; j++, p++)     arr[j]=p < l ? ls[p] : rs[p - l];
+    midNodes[i]=new LeafNode(arr);
+  }
+  return new BigArray(left,middle.concat(midNodes,n,other.middle),other.right);
+}

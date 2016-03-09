@@ -1,0 +1,43 @@
+{
+  final Data src=clip.data;
+  final int srcSize=clip.size();
+  if (srcSize != data.size(location,data.kind(location)))   return false;
+  final List<BasicUpdate> valueUpdates=new ArrayList<>();
+  for (int c=0; c < srcSize; c++) {
+    final int s=clip.start + c;
+    final int t=location + c;
+    final int sk=src.kind(s);
+    final int tk=data.kind(t);
+    if (sk != tk)     return false;
+    if (c > 0 && src.dist(s,sk) != data.dist(t,tk))     return false;
+    if (sk == Data.TEXT || sk == Data.COMM || sk == Data.DOC) {
+      final byte[] srcText=src.text(s,true);
+      if (!eq(data.text(t,true),srcText))       valueUpdates.add(UpdateValue.getInstance(data,t,srcText));
+    }
+ else {
+      final byte[] srcName=src.name(s,sk);
+      final byte[] trgName=data.name(t,tk);
+      if (!eq(srcName,trgName))       valueUpdates.add(Rename.getInstance(data,t,srcName,EMPTY));
+switch (sk) {
+case Data.ELEM:
+        if (src.attSize(s,sk) != data.attSize(t,tk) || src.size(s,sk) != data.size(t,tk))         return false;
+      break;
+case Data.ATTR:
+    final byte[] av=src.text(s,false);
+  if (!eq(data.text(t,false),av))   valueUpdates.add(UpdateValue.getInstance(data,t,av));
+break;
+case Data.PI:
+final byte[] srcText=src.text(s,true);
+final byte[] trgText=data.text(t,true);
+final int i=indexOf(srcText,' ');
+final byte[] pv=i == -1 ? EMPTY : substring(srcText,i + 1);
+if (!eq(pv,indexOf(trgText,' ') == -1 ? EMPTY : substring(trgText,i + 1))) {
+valueUpdates.add(UpdateValue.getInstance(data,t,pv));
+}
+break;
+}
+}
+}
+for (final BasicUpdate bu : valueUpdates) bu.apply(data);
+return true;
+}

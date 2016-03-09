@@ -1,0 +1,29 @@
+{
+  ArrayList<PathNode> nodes=desc(root(),true);
+  for (  final byte[] name : names) {
+    final boolean attr=startsWith(name,'@');
+    final byte kind=attr ? Data.ATTR : Data.ELEM;
+    final int id=attr ? data.attrNames.id(substring(name,1)) : data.elemNames.id(name);
+    final ArrayList<PathNode> tmp=new ArrayList<>();
+    for (    final PathNode node : nodes) {
+      if (node.name != id || node.kind != kind)       continue;
+      for (      final PathNode child : node.children) {
+        if (desc)         child.addDesc(tmp);
+ else         tmp.add(child);
+      }
+    }
+    nodes=tmp;
+  }
+  final int ns=nodes.size();
+  final int[] tmp=new int[ns];
+  for (int i=0; i < ns; ++i)   tmp[i]=nodes.get(i).stats.count;
+  final int[] occs=Array.createOrder(tmp,false);
+  final TokenList list=new TokenList();
+  for (int n=0; n < ns; n++) {
+    final PathNode node=nodes.get(occ ? occs[n] : n);
+    final byte[] name=node.token(data);
+    if (name.length != 0 && !list.contains(name) && !contains(name,'('))     list.add(name);
+  }
+  if (!occ)   list.sort(false);
+  return list;
+}

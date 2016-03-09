@@ -5,16 +5,16 @@
     checkS();
     if (pub) {
       pubidLit();
-      if (f)       checkS();
+      if (full)       checkS();
     }
     final int qu=consume();
     if (qu == '\'' || qu == '"') {
       int ch;
       final TokenBuilder tok=new TokenBuilder();
       while ((ch=nextChar()) != qu)       tok.add(ch);
-      if (!f)       return null;
+      if (!full)       return null;
       final String name=string(tok.finish());
-      if (!dtd && r)       return null;
+      if (!dtd && root)       return null;
       final XMLInput tin=input;
       if (dtd) {
         try {
@@ -42,14 +42,14 @@
         cont=Arrays.copyOfRange(cont,input.pos(),cont.length);
       }
       s();
-      if (r) {
+      if (root) {
         extSubsetDecl();
         if (!consume((char)0))         throw error(INVEND);
       }
       input=tin;
     }
  else {
-      if (f)       throw error(SCANQUOTE,(char)qu);
+      if (full)       throw error(SCANQUOTE,(char)qu);
       prev(1);
     }
   }

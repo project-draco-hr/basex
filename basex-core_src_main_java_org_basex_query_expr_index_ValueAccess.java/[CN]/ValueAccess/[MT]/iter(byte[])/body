@@ -1,0 +1,28 @@
+{
+  final int tl=term.length;
+  if (tl == 0 && type == IndexType.TEXT)   return test == null ? BasicNodeIter.EMPTY : scanEmpty();
+  final Data data=ictx.data;
+  boolean index=data.meta.index(type);
+  if (type == IndexType.TEXT || type == IndexType.ATTRIBUTE) {
+    index&=tl > 0 && tl <= data.meta.maxlen;
+  }
+  final IndexIterator ii=index ? data.iter(new StringToken(type,term)) : scan(term);
+  final int kind=type == IndexType.TEXT ? Data.TEXT : Data.ATTR;
+  final DBNode tmp=new DBNode(data,0,test == null ? kind : Data.ELEM);
+  return new BasicNodeIter(){
+    @Override public ANode next(){
+      while (ii.more()) {
+        if (test == null) {
+          tmp.pre(ii.pre());
+        }
+ else {
+          tmp.pre(data.parent(ii.pre(),kind));
+          if (!test.eq(tmp))           continue;
+        }
+        return tmp.finish();
+      }
+      return null;
+    }
+  }
+;
+}

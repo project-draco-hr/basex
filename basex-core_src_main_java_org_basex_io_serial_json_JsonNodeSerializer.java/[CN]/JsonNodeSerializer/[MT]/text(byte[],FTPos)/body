@@ -1,0 +1,19 @@
+{
+  final byte[] type=types.get(level - 1);
+  if (eq(type,STRING)) {
+    out.print('"');
+    for (    final byte ch : norm(value))     printChar(ch);
+    out.print('"');
+  }
+ else   if (eq(type,BOOLEAN)) {
+    if (!eq(value,TRUE,FALSE))     throw error("Value of <%> is no boolean: \"%\"",elems.get(level - 1),value);
+    out.print(value);
+  }
+ else   if (eq(type,NUMBER)) {
+    if (Double.isNaN(toDouble(value)))     throw error("Value of <%> is no number: \"%\"",elems.get(level - 1),value);
+    out.print(value);
+  }
+ else   if (trim(value).length != 0) {
+    throw error("<%> is typed as \"%\" and cannot have a value",elems.get(level - 1),type);
+  }
+}

@@ -1,14 +1,15 @@
 {
   final Expr f=exprs[exprs.length - 1];
   if (allAreValues())   return preEval(qc);
-  final SeqType t=f.type();
-  if (t.instanceOf(SeqType.FUN_O) && t.type != FuncType.ANY_FUN) {
+  final SeqType t=f.seqType();
+  if (t.instanceOf(SeqType.FUN_O) && t.type != SeqType.ANY_FUN) {
     final FuncType ft=(FuncType)t.type;
-    final int arity=exprs.length + holes.length - 1;
-    if (ft.args.length != arity)     throw INVARITY.get(info,f,arity);
-    final SeqType[] ar=new SeqType[holes.length];
-    for (int i=0; i < holes.length; i++)     ar[i]=ft.args[holes[i]];
-    type=FuncType.get(ft.ret,ar).seqType();
+    final int nargs=exprs.length + holes.length - 1;
+    if (ft.argTypes.length != nargs)     throw INVARITY_X_X_X_X.get(info,nargs,nargs == 1 ? "" : "s",ft.argTypes.length,f);
+    final SeqType[] args=new SeqType[holes.length];
+    final int hl=holes.length;
+    for (int h=0; h < hl; h++)     args[h]=ft.argTypes[holes[h]];
+    seqType=FuncType.get(ft.type,args).seqType();
   }
   return this;
 }

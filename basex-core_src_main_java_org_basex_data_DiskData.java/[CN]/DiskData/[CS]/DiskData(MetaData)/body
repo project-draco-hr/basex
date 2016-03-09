@@ -1,0 +1,40 @@
+{
+  super(meta);
+  try (final DataInput in=new DataInput(meta.dbfile(DATAINF))){
+    meta.read(in);
+    while (true) {
+      final String k=string(in.readToken());
+      if (k.isEmpty())       break;
+switch (k) {
+case DBTAGS:
+        elemNames=new Names(in,meta);
+      break;
+case DBATTS:
+    attrNames=new Names(in,meta);
+  break;
+case DBPATH:
+paths=new PathIndex(this,in);
+break;
+case DBNS:
+nspaces=new Namespaces(in);
+break;
+case DBDOCS:
+resources.read(in);
+break;
+}
+}
+}
+ init();
+if (meta.updindex) {
+idmap=new IdPreMap(meta.dbfile(DATAIDP));
+if (meta.textindex) textIndex=new UpdatableDiskValues(this,IndexType.TEXT);
+if (meta.attrindex) attrIndex=new UpdatableDiskValues(this,IndexType.ATTRIBUTE);
+if (meta.tokenindex) tokenIndex=new UpdatableDiskValues(this,IndexType.TOKEN);
+}
+ else {
+if (meta.textindex) textIndex=new DiskValues(this,IndexType.TEXT);
+if (meta.attrindex) attrIndex=new DiskValues(this,IndexType.ATTRIBUTE);
+if (meta.tokenindex) tokenIndex=new DiskValues(this,IndexType.TOKEN);
+}
+if (meta.ftindex) ftIndex=new FTIndex(this);
+}

@@ -1,18 +1,21 @@
 {
-  final IOFile root=new IOFile(rs.context.globalopts.get(GlobalOptions.WEBPATH));
+  final Context context=session.context;
+  final String webpath=context.soptions.get(StaticOptions.WEBPATH);
+  final String rpath=context.soptions.get(StaticOptions.RESTPATH);
+  final IOFile root=new IOFile(webpath).resolve(rpath);
   final IOFile file=new IOFile(root,path);
   if (!file.exists() || file.isDir() || !file.path().startsWith(root.path()))   throw HTTPCode.NOT_FOUND_X.get(Util.info(RES_NOT_FOUND_X,path));
   final String input=file.string();
   if (file.hasSuffix(IO.BXSSUFFIX)) {
     try {
-      for (      final Command cmd : new CommandParser(input,rs.context).parse())       rs.add(cmd);
+      for (      final Command cmd : new CommandParser(input,context).parse())       session.add(cmd);
     }
  catch (    final QueryException ex) {
       throw new IOException(ex);
     }
   }
  else {
-    rs.add(new XQuery(input));
+    session.add(new XQuery(input));
   }
-  return new RESTRun(rs,vars,val,file.path());
+  return new RESTRun(session,vars,val,file.path());
 }

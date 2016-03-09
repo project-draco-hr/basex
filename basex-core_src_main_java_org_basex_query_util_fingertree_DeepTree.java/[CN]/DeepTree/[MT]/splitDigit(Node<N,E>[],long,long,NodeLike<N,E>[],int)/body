@@ -1,0 +1,29 @@
+{
+  if (len <= 0)   return inBuffer;
+  int firstPos=0;
+  long firstOff=from;
+  Node<N,E> first=nodes[0];
+  long firstSize=first.size();
+  while (firstOff >= firstSize) {
+    firstOff-=firstSize;
+    first=nodes[++firstPos];
+    firstSize=first.size();
+  }
+  final long inFirst=firstSize - firstOff;
+  if (inFirst >= len) {
+    final NodeLike<N,E> part=len == firstSize ? first : first.slice(firstOff,len);
+    return part.append(buffer,inBuffer);
+  }
+  final NodeLike<N,E> firstSlice=firstOff == 0 ? first : first.slice(firstOff,inFirst);
+  int numMerged=firstSlice.append(buffer,inBuffer);
+  int pos=firstPos;
+  long remaining=len - inFirst;
+  while (remaining > 0) {
+    final Node<N,E> curr=nodes[++pos];
+    final long currSize=curr.size();
+    final NodeLike<N,E> slice=remaining >= currSize ? curr : curr.slice(0,remaining);
+    numMerged=slice.append(buffer,numMerged);
+    remaining-=currSize;
+  }
+  return numMerged;
+}

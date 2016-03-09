@@ -1,0 +1,17 @@
+{
+  long off=-1;
+  final Entry<Integer,LongList> entry=free.ceilingEntry(size);
+  if (entry != null) {
+    final int slotSize=entry.getKey();
+    if (slotSize < size)     throw Util.notExpected("Free slot is too small: % < %",slotSize,size);
+    final LongList offsets=entry.getValue();
+    off=offsets.pop();
+    slots--;
+    if (offsets.isEmpty())     free.remove(slotSize);
+    if (slotSize > size) {
+      if (off + slotSize > offset)       throw Util.notExpected("Free slot exceeds file offset: % + % > %",off,slotSize,offset);
+      add(slotSize - size,off + size);
+    }
+  }
+  return off == -1 ? offset : off;
+}

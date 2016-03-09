@@ -1,14 +1,14 @@
 {
-  final BXResourceFactory resources=new BXResourceFactory(http);
-  final HttpManager manager=new HttpManager(resources);
-  final Request request=new BXServletRequest(http.req);
-  final Response response=new BXServletResponse(http.res);
+  final WebDAVRequest request=new WebDAVRequest(http.req);
+  final Auth a=request.getAuthorization();
+  if (a != null)   http.credentials(a.getUser(),a.getPassword());
+  WebDAVFactory.init(http);
+  final WebDAVResponse response=new WebDAVResponse(http.res);
   try {
     manager.process(request,response);
   }
   finally {
-    resources.close();
-    http.res.getOutputStream().flush();
-    http.res.flushBuffer();
+    WebDAVFactory.close();
+    response.close();
   }
 }

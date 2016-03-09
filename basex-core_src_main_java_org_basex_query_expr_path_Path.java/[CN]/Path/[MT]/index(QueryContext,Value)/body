@@ -1,0 +1,79 @@
+{
+  if (rt == null || rt.type != NodeType.DOC)   return this;
+  final Data data=rt.data();
+  if (data == null)   return this;
+  IndexInfo index=null;
+  int iPred=0, iStep=0;
+  final int sl=steps.length;
+  for (int s=0; s < sl; s++) {
+    final Step step=axisStep(s);
+    if (step == null || !step.axis.down || step.has(Flag.POS))     break;
+    final boolean iter=pathNodes(data,s) != null;
+    final IndexContext ictx=new IndexContext(data,iter);
+    final int pl=step.preds.length;
+    for (int p=0; p < pl; p++) {
+      final IndexInfo ii=new IndexInfo(ictx,qc,step);
+      if (!step.preds[p].indexAccessible(ii))       continue;
+      if (ii.costs == 0) {
+        qc.compInfo(OPTNOINDEX,this);
+        return Empty.SEQ;
+      }
+      if (index == null || index.costs > ii.costs) {
+        index=ii;
+        iPred=p;
+        iStep=s;
+      }
+    }
+  }
+  if (index == null || index.costs > data.meta.size)   return this;
+  qc.compInfo(index.optInfo);
+  final ExprList newPreds=new ExprList();
+  final Test test=InvDocTest.get(rt);
+  final ExprList invSteps=new ExprList();
+  if (test != Test.DOC || !data.meta.uptodate || predSteps(data,iStep)) {
+    for (int s=iStep; s >= 0; s--) {
+      final Axis ax=axisStep(s).axis.invert();
+      if (s == 0) {
+        if (test != Test.DOC || ax != ANC && ax != ANCORSELF)         invSteps.add(Step.get(info,ax,test));
+      }
+ else {
+        final Step prev=axisStep(s - 1);
+        invSteps.add(Step.get(info,ax,prev.test,prev.preds));
+      }
+    }
+  }
+  if (!invSteps.isEmpty())   newPreds.add(get(info,null,invSteps.finish()));
+  final Step indexStep=index.step;
+  final int pl=indexStep.preds.length;
+  for (int p=0; p < pl; p++) {
+    if (p != iPred)     newPreds.add(indexStep.preds[p]);
+  }
+  final ExprList resultSteps=new ExprList();
+  final Expr resultRoot;
+  if (index.expr instanceof Path) {
+    final Path p=(Path)index.expr;
+    resultRoot=p.root;
+    resultSteps.add(p.steps);
+  }
+ else {
+    resultRoot=index.expr;
+  }
+  if (index.costs == 1) {
+    if (resultRoot instanceof IndexAccess)     ((IndexAccess)resultRoot).size(1);
+ else     ((ParseExpr)resultRoot).seqType=resultRoot.seqType().withOcc(Occ.ZERO_ONE);
+  }
+  if (!newPreds.isEmpty()) {
+    int ls=resultSteps.size() - 1;
+    final Step step;
+    if (ls < 0 || !(resultSteps.get(ls) instanceof Step)) {
+      step=Step.get(info,SELF,Test.NOD);
+      ls++;
+    }
+ else {
+      step=(Step)resultSteps.get(ls);
+    }
+    resultSteps.set(ls,step.addPreds(newPreds.finish()));
+  }
+  for (int s=iStep + 1; s < sl; s++)   resultSteps.add(steps[s]);
+  return resultSteps.isEmpty() ? resultRoot : get(info,resultRoot,resultSteps.finish());
+}

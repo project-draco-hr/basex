@@ -2,7 +2,7 @@
   if (!wsConsumeWs(PRAGMA))   return null;
   final ArrayList<Pragma> el=new ArrayList<>();
   do {
-    final QNm name=eQName(QNAMEINV,URICHECK);
+    final QNm name=eQName(QNAME_X,URICHECK);
     char c=curr();
     if (c != '#' && !ws(c))     throw error(PRAGMAINV);
     tok.reset();
@@ -11,12 +11,15 @@
       tok.add(consume());
       c=curr();
     }
-    final byte[] v=tok.trim().finish();
-    if (eq(name.prefix(),DB)) {
+    final byte[] value=tok.trim().toArray();
+    if (eq(name.prefix(),DB_PREFIX)) {
       final String key=string(uc(name.local()));
       final Option<?> opt=qc.context.options.option(key);
-      if (opt == null)       throw error(BASX_OPTIONS,key);
-      el.add(new DBPragma(name,opt,v));
+      if (opt == null)       throw error(BASX_OPTIONS_X,key);
+      el.add(new DBPragma(name,opt,value));
+    }
+ else     if (eq(name.prefix(),BASEX_PREFIX)) {
+      el.add(new BaseXPragma(name,value));
     }
     pos+=2;
   }

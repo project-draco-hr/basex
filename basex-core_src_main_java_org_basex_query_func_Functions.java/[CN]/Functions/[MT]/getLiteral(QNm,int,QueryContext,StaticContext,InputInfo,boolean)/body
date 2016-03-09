@@ -1,0 +1,58 @@
+{
+  if (eq(name.uri(),XS_URI)) {
+    final Type type=getCast(name,arity,ii);
+    final VarScope scp=new VarScope(sc);
+    final Var[] args={scp.newLocal(qc,new QNm(ITEMM,""),SeqType.AAT_ZO,true)};
+    final Expr e=new Cast(sc,ii,new VarRef(ii,args[0]),type.seqType());
+    final AnnList anns=new AnnList();
+    final FuncType ft=FuncType.get(anns,e.seqType(),args);
+    return closureOrFItem(anns,name,args,ft,e,scp,sc,ii,runtime,false);
+  }
+  final Function fn=get().getBuiltIn(name,arity,ii);
+  if (fn != null) {
+    final AnnList anns=new AnnList();
+    final VarScope scp=new VarScope(sc);
+    final FuncType ft=fn.type(arity,anns);
+    final QNm[] argNames=fn.argNames(arity);
+    final Var[] args=new Var[arity];
+    final Expr[] calls=new Expr[arity];
+    for (int i=0; i < arity; i++) {
+      args[i]=scp.newLocal(qc,argNames[i],ft.argTypes[i],true);
+      calls[i]=new VarRef(ii,args[i]);
+    }
+    final StandardFunc sf=fn.get(sc,ii,calls);
+    final boolean upd=sf.has(Flag.UPD);
+    if (upd) {
+      anns.add(new Ann(ii,Annotation.UPDATING));
+      qc.updating();
+    }
+    return sf.has(Flag.CTX) || sf.has(Flag.POS) ? new FuncLit(anns,name,args,sf,ft,scp,sc,ii) : closureOrFItem(anns,name,args,fn.type(arity,anns),sf,scp,sc,ii,runtime,upd);
+  }
+  final StaticFunc sf=qc.funcs.get(name,arity,ii,false);
+  if (sf != null) {
+    final FuncType ft=sf.funcType();
+    final VarScope scp=new VarScope(sc);
+    final Var[] args=new Var[arity];
+    final Expr[] calls=new Expr[arity];
+    for (int a=0; a < arity; a++) {
+      args[a]=scp.newLocal(qc,sf.argName(a),ft.argTypes[a],true);
+      calls[a]=new VarRef(ii,args[a]);
+    }
+    final boolean upd=sf.updating;
+    final TypedFunc tf=qc.funcs.getFuncRef(sf.name,calls,sc,ii);
+    final Expr f=closureOrFItem(tf.anns,sf.name,args,ft,tf.fun,scp,sc,ii,runtime,upd);
+    if (upd)     qc.updating();
+    return f;
+  }
+  final VarScope scp=new VarScope(sc);
+  final FuncType jt=FuncType.arity(arity);
+  final Var[] vs=new Var[arity];
+  final Expr[] args=new Expr[vs.length];
+  final int vl=vs.length;
+  for (int v=0; v < vl; v++) {
+    vs[v]=scp.newLocal(qc,new QNm(ARG + (v + 1),""),SeqType.ITEM_ZM,true);
+    args[v]=new VarRef(ii,vs[v]);
+  }
+  final Expr jf=JavaFunction.get(name,args,qc,sc,ii);
+  return jf == null ? null : new FuncLit(new AnnList(),name,vs,jf,jt,scp,sc,ii);
+}

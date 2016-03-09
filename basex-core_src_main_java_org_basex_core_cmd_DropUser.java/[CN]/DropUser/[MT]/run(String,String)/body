@@ -1,25 +1,18 @@
 {
-  if (user.equals(S_ADMIN))   return !info(ADMIN_STATIC_X);
-  if (db == null) {
-    for (    final ClientListener s : context.sessions) {
-      if (s.context().user.name.equals(user))       return !info(USER_LOGGED_IN_X,user);
+  if (name.equals(UserText.ADMIN))   return !info(ADMIN_STATIC);
+  final Users users=context.users;
+  final User user=users.get(name);
+  if (user != null) {
+    if (pattern.isEmpty()) {
+      for (      final ClientListener s : context.sessions) {
+        if (s.context().user().name().equals(name))         return !info(USER_LOGGED_IN_X,name);
+      }
+      users.drop(user);
     }
-    context.users.drop(context.users.get(user));
-    return info(USER_DROPPED_X,user);
+ else {
+      user.drop(pattern);
+    }
+    return info(pattern.isEmpty() ? USER_DROPPED_X : USER_DROPPED_X_X,name,pattern);
   }
-  final Data data;
-  try {
-    data=Open.open(db,context);
-  }
- catch (  final IOException ex) {
-    return !info(Util.message(ex),db);
-  }
-  if (!data.startUpdate())   return !info(DB_PINNED_X,data.meta.name);
-  if (data.meta.users.drop(data.meta.users.get(user))) {
-    info(USER_DROPPED_X_X,user,db);
-    data.meta.dirty=true;
-  }
-  data.finishUpdate();
-  Close.close(data,context);
   return true;
 }

@@ -1,0 +1,17 @@
+{
+  final Context ctx=qc.context;
+  final StaticOptions soptions=ctx.soptions;
+  final NewInput input=inputs.get(i);
+  final MainOptions mopts=dboptions.get(i).assignTo(new MainOptions(qc.context.options,true));
+  final boolean addcache=mopts.get(MainOptions.ADDCACHE);
+  ANode node=input.node;
+  if (node != null) {
+    if (node.type != NodeType.DOC)     node=new FDoc(name).add(node);
+    final MemData mdata=(MemData)node.dbNodeCopy(mopts).data();
+    mdata.update(0,Data.DOC,token(input.path));
+    return new DataClip(mdata);
+  }
+  final String dbpath=soptions.randomDbName(name);
+  final Parser parser=new DirParser(input.io,mopts,new IOFile(dbpath)).target(input.path);
+  return (addcache ? new DiskBuilder(dbpath,parser,soptions,mopts) : new MemBuilder(name,parser)).dataClip();
+}

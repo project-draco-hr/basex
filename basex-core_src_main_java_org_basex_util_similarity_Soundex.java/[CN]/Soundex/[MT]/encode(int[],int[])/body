@@ -1,0 +1,21 @@
+{
+  if (mapping.length != 26)   throw new QueryException("Soundex mapping must have 26 characters");
+  final IntList tmp=new IntList(cps.length);
+  for (  final int cp : cps) {
+    final int c=uc(cp);
+    if (c >= 'A' && c <= 'Z')     tmp.add(c);
+  }
+  final int[] out={'0','0','0','0'}, in=tmp.finish();
+  final int is=in.length;
+  if (is > 0) {
+    out[0]=in[0];
+    for (int op=1, ip=0, lastCode=map(in,ip++,mapping); ip < is && op < 4; ) {
+      final int code=map(in,ip++,mapping);
+      if (code != 0) {
+        if (code != '0' && code != lastCode)         out[op++]=code;
+        lastCode=code;
+      }
+    }
+  }
+  return out;
+}

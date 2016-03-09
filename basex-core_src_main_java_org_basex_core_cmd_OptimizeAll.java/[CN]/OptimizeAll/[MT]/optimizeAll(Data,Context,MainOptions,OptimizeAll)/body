@@ -1,0 +1,49 @@
+{
+  if (data.inMemory())   throw new BaseXException(NO_MAINMEM);
+  final DiskData odata=(DiskData)data;
+  final MetaData ometa=odata.meta;
+  final String name=ometa.name;
+  if (context.datas.pins(ometa.name) > 1)   throw new BaseXException(DB_PINNED_X,name);
+  options.set(MainOptions.CHOP,ometa.chop);
+  options.set(MainOptions.TEXTINDEX,ometa.textindex);
+  options.set(MainOptions.ATTRINDEX,ometa.attrindex);
+  options.set(MainOptions.TOKENINDEX,ometa.tokenindex);
+  options.set(MainOptions.FTINDEX,ometa.ftindex);
+  options.set(MainOptions.TEXTINCLUDE,ometa.textinclude);
+  options.set(MainOptions.ATTRINCLUDE,ometa.attrinclude);
+  options.set(MainOptions.TOKENINCLUDE,ometa.tokeninclude);
+  options.set(MainOptions.FTINCLUDE,ometa.ftinclude);
+  options.set(MainOptions.STEMMING,ometa.stemming);
+  options.set(MainOptions.CASESENS,ometa.casesens);
+  options.set(MainOptions.DIACRITICS,ometa.diacritics);
+  options.set(MainOptions.LANGUAGE,ometa.language.toString());
+  options.set(MainOptions.STOPWORDS,ometa.stopwords);
+  options.set(MainOptions.MAXLEN,ometa.maxlen);
+  options.set(MainOptions.MAXCATS,ometa.maxcats);
+  if (cmd != null)   cmd.size=ometa.size;
+  final StaticOptions sopts=context.soptions;
+  final String tname=sopts.randomDbName(name);
+  final DBParser parser=new DBParser(odata,options,cmd);
+  try (final DiskBuilder builder=new DiskBuilder(tname,parser,sopts,options)){
+    final DiskData dt=builder.build();
+    try {
+      dt.meta.createtext=ometa.createtext;
+      dt.meta.createattr=ometa.createattr;
+      dt.meta.createtoken=ometa.createtoken;
+      dt.meta.createft=ometa.createft;
+      dt.meta.filesize=ometa.filesize;
+      dt.meta.dirty=true;
+      CreateIndex.create(dt,cmd);
+      final IOFile bin=data.meta.binaries();
+      if (bin.exists())       bin.rename(dt.meta.binaries());
+      final IOFile upd=odata.meta.updateFile();
+      if (upd.exists())       upd.copyTo(dt.meta.updateFile());
+    }
+  finally {
+      dt.close();
+    }
+  }
+   Close.close(data,context);
+  if (!DropDB.drop(name,sopts))   throw new BaseXException(DB_NOT_DROPPED_X,name);
+  if (!AlterDB.alter(tname,name,sopts))   throw new BaseXException(DB_NOT_RENAMED_X,tname);
+}

@@ -3,24 +3,41 @@
   final char c=curr();
   if (c == '$') {
     final InputInfo ii=info();
-    return resolveVar(varName(),ii);
+    return localVars.resolve(varName(),ii);
   }
   if (c == '(' && next() != '#')   return parenthesized();
-  if (c == '<')   return constructor();
-  if (sc.xquery3()) {
-    final Expr e=functionItem();
-    if (e != null)     return e;
-  }
-  Expr e=functionCall();
+  if (c == '<')   return dirConstructor();
+  if (c == '`')   return stringConstructor();
+  Expr e=functionItem();
+  if (e != null)   return e;
+  e=functionCall();
   if (e != null)   return e;
   e=compConstructor();
   if (e != null)   return e;
-  if (wsConsumeWs(ORDERED,BRACE1,INCOMPLETE) || wsConsumeWs(UNORDERED,BRACE1,INCOMPLETE))   return enclosed(NOENCLEXPR);
-  if (wsConsumeWs(MAPSTR,BRACE1,INCOMPLETE) || curr('{'))   return new LitMap(info(),keyValues());
-  if (c == '.' && !digit(next())) {
+  final int p=pos;
+  if (wsConsumeWs(ORDERED) || wsConsumeWs(UNORDERED)) {
+    if (curr('{'))     return enclosedExpr();
+    pos=p;
+  }
+  if (wsConsumeWs(MAPSTR,CURLY1,INCOMPLETE))   return new CMap(info(),keyValues());
+  if (wsConsumeWs(SQUARE1))   return new CArray(info(),false,values());
+  if (wsConsumeWs(ARRAYSTR,CURLY1,INCOMPLETE)) {
+    wsCheck(CURLY1);
+    final Expr a=expr();
+    wsCheck(CURLY2);
+    return a == null ? new CArray(info(),true) : new CArray(info(),true,a);
+  }
+  final int ip=pos;
+  if (consume(QUESTION)) {
+    if (!wsConsume(COMMA) && !consume(PAREN2))     return new Lookup(info(),sc,keySpecifier());
+    pos=ip;
+  }
+  if (c == '.') {
     if (next() == '.')     return null;
-    consume('.');
-    return new Context(info());
+    if (!digit(next())) {
+      consume();
+      return new ContextValue(info());
+    }
   }
   return literal();
 }
