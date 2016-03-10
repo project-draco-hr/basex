@@ -1,12 +1,12 @@
 {
   final IO io=sc.resolve(path,uri);
-  final byte[] p=token(io.path());
-  final byte[] u=qc.modParsed.get(p);
+  final byte[] pth=token(io.path());
+  final byte[] u=qc.modParsed.get(pth);
   if (u != null) {
     if (!uri.equals(string(u)))     throw WRONGMODULE_X_X_X.get(info,io.name(),uri,u);
     return;
   }
-  qc.modParsed.put(p,token(uri));
+  qc.modParsed.put(pth,token(uri));
   final String qu;
   try {
     qu=string(io.read());
@@ -14,7 +14,7 @@
  catch (  final IOException ex) {
     throw error(WHICHMODFILE_X,io);
   }
-  qc.modStack.push(p);
+  qc.modStack.push(pth);
   final StaticContext sub=new StaticContext(qc);
   final LibraryModule lib=new QueryParser(qu,io.path(),qc,sub).parseLibrary(false);
   final byte[] muri=lib.name.uri();
