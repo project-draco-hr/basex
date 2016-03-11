@@ -3,7 +3,6 @@
   if (value == null)   return;
   final String[] ams=Strings.split(value,' ',2);
   final AuthMethod am=StaticOptions.AUTHMETHOD.get(ams[0]);
-  if (am == null)   throw new BaseXException(WHICHAUTH,value);
   if (am == AuthMethod.BASIC) {
     final String details=ams.length > 1 ? ams[1] : "";
     final String[] cred=Strings.split(org.basex.util.Base64.decode(details),':',2);
@@ -11,9 +10,11 @@
     username=cred[0];
     password=cred[1];
   }
- else {
+ else   if (am == AuthMethod.DIGEST) {
     final EnumMap<Request,String> map=HttpClient.digestHeaders(value);
     username=map.get(Request.USERNAME);
     password=map.get(Request.RESPONSE);
+  }
+ else {
   }
 }

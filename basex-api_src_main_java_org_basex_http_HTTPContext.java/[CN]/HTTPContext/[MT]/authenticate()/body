@@ -7,7 +7,7 @@
     if (auth == AuthMethod.BASIC) {
       if (password == null || !us.matches(password))       throw new LoginException();
     }
- else {
+ else     if (auth == AuthMethod.DIGEST) {
       final EnumMap<Request,String> map=HttpClient.digestHeaders(req.getHeader(AUTHORIZATION));
       final String am=map.get(Request.AUTH_METHOD);
       if (!AuthMethod.DIGEST.toString().equals(am))       throw new LoginException(DIGESTAUTH);
@@ -26,6 +26,8 @@
       }
       rsp.append(':').append(ha2);
       if (!Strings.md5(rsp.toString()).equals(password))       throw new LoginException();
+    }
+ else {
     }
     context.blocker.remove(address);
     return us;
