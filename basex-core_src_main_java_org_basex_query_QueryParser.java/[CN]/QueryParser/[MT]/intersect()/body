@@ -1,16 +1,17 @@
 {
-  final Expr e=instanceoff();
-  if (wsConsumeWs(INTERSECT)) {
-    final ExprList el=new ExprList(e);
-    do     add(el,instanceoff());
- while (wsConsumeWs(INTERSECT));
-    return new InterSect(info(),el.finish());
+  Expr e=instanceoff();
+  boolean lastIs=false;
+  ExprList el=null;
+  while (true) {
+    boolean is=wsConsumeWs(INTERSECT);
+    if (!is && !wsConsumeWs(EXCEPT))     break;
+    if ((is != lastIs) && el != null) {
+      e=intersectExcept(lastIs,el);
+      el=null;
+    }
+    lastIs=is;
+    if (el == null)     el=new ExprList(e);
+    add(el,instanceoff());
   }
-  if (wsConsumeWs(EXCEPT)) {
-    final ExprList el=new ExprList(e);
-    do     add(el,instanceoff());
- while (wsConsumeWs(EXCEPT));
-    return new Except(info(),el.finish());
-  }
-  return e;
+  return el != null ? intersectExcept(lastIs,el) : e;
 }
