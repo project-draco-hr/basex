@@ -7,14 +7,15 @@
   if (option instanceof BooleanOption) {
     final boolean v;
     if (item.type.isStringOrUntyped()) {
-      v=Strings.yes(string(item.string(null)));
-      if (!v && !Strings.no(string(item.string(null))))       throw new BaseXException(Text.OPT_BOOLEAN_X,option.name());
+      final String string=string(item.string(null));
+      v=Strings.yes(string);
+      if (!v && !Strings.no(string))       throw new BaseXException(Text.OPT_BOOLEAN_X_X,option.name(),string);
     }
  else     if (item instanceof Bln) {
       v=((Bln)item).bool(null);
     }
  else {
-      throw new BaseXException(Text.OPT_BOOLEAN_X,option.name());
+      throw new BaseXException(Text.OPT_BOOLEAN_X_X,option.name(),item);
     }
     put(option,v);
   }
@@ -23,7 +24,7 @@
       put(option,(int)((ANum)item).itr(null));
     }
  else {
-      throw new BaseXException(Text.OPT_NUMBER_X,option.name());
+      throw new BaseXException(Text.OPT_NUMBER_X_X,option.name(),item);
     }
   }
  else   if (option instanceof StringOption) {
@@ -31,18 +32,19 @@
       put(option,string(item.string(null)));
     }
  else {
-      throw new BaseXException(Text.OPT_STRING_X,option.name());
+      throw new BaseXException(Text.OPT_STRING_X_X,option.name(),item);
     }
   }
  else   if (option instanceof EnumOption) {
     if (item.type.isStringOrUntyped()) {
       final EnumOption<?> eo=(EnumOption<?>)option;
-      final Object v=eo.get(string(item.string(null)));
-      if (v == null)       throw new BaseXException(allowed(option,(Object[])eo.values()));
+      final String string=string(item.string(null));
+      final Object v=eo.get(string);
+      if (v == null)       throw new BaseXException(allowed(option,string,(Object[])eo.values()));
       put(option,v);
     }
  else {
-      throw new BaseXException(Text.OPT_STRING_X,option.name());
+      throw new BaseXException(Text.OPT_STRING_X_X,option.name(),item);
     }
   }
  else   if (option instanceof OptionsOption) {
@@ -51,16 +53,16 @@
       o.assign((Map)item,error,info);
     }
  else {
-      throw new BaseXException(Text.OPT_MAP_X,option.name());
+      throw new BaseXException(Text.OPT_MAP_X_X,option.name(),item);
     }
     put(option,o);
   }
  else   if (option instanceof MapOption) {
-    if (!(item instanceof Map))     throw new BaseXException(Text.OPT_FUNC_X,option.name());
+    if (!(item instanceof Map))     throw new BaseXException(Text.OPT_FUNC_X_X,option.name(),item);
     put(option,item);
   }
  else   if (option instanceof FuncOption) {
-    if (!(item instanceof FuncItem))     throw new BaseXException(Text.OPT_FUNC_X,option.name());
+    if (!(item instanceof FuncItem))     throw new BaseXException(Text.OPT_FUNC_X_X,option.name(),item);
     put(option,item);
   }
  else {
