@@ -1,4 +1,7 @@
 {
-  final Expr p=path(root,preds);
-  return p == null ? new CachedFilter(info,root,preds) : p;
+  final Expr expr=simplify(root,preds);
+  if (expr != null)   return expr;
+  final Expr pred=preds[0];
+  if (preds.length == 1 && !(pred.has(Flag.CTX) || pred.has(Flag.NDT) || pred.has(Flag.HOF)|| pred.has(Flag.UPD)|| pred.has(Flag.POS)))   return new SimpleFilter(info,root,preds);
+  return new CachedFilter(info,root,preds);
 }
