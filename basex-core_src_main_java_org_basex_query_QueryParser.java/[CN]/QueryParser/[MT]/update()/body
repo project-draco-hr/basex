@@ -1,13 +1,9 @@
 {
-  final Expr e=comparison();
+  Expr e=comparison();
   if (e != null) {
-    if (wsConsumeWs(UPDATE)) {
-      final InputInfo ii=info();
-      final int s=localVars.openScope();
+    while (wsConsumeWs(UPDATE)) {
       qc.updating();
-      final Expr m=check(single(),COPYEXPR);
-      localVars.closeScope(s);
-      return new TransformWith(ii,e,m);
+      e=new TransformWith(info(),e,curr('{') ? enclosedExpr() : check(single(),UPDATEEXPR));
     }
   }
   return e;
