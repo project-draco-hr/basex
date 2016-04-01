@@ -1,11 +1,11 @@
 {
-  final int thread=++threadID;
+  final int thread=++execID;
   while (true) {
     final Command c=command;
     if (c == null)     break;
     c.stop();
     Thread.yield();
-    if (threadID != thread)     return true;
+    if (execID != thread)     return true;
   }
   cursor(CURSORWAIT);
   input.setCursor(CURSORWAIT);
@@ -21,7 +21,7 @@
     ao.setLimit(gopts.get(GUIOptions.MAXTEXT));
     cmd.maxResults(gopts.get(GUIOptions.MAXRESULTS));
     updating=cmd.updating(context);
-    if (edit)     editor.start();
+    if (edit)     editor.pleaseWait();
     if (cmd.newData(context))     notify.init();
     cmd.listen(infoListener);
     String inf=null;
@@ -80,7 +80,7 @@
           if (context.marked != m)           notify.mark(m,null);
         }
       }
-      if (thread == threadID && !stopped) {
+      if (thread == execID && !stopped) {
         status.setText(Util.info(TIME_NEEDED_X,time));
         if (result != null)         setResults(result.size());
         if (nodes == null)         text.setText(ao);
