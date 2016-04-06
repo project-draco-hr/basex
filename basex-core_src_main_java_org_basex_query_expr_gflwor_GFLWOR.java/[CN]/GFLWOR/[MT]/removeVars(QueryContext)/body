@@ -6,7 +6,8 @@
     final Clause clause=iter.next();
     if (clause instanceof Let) {
       final Let lt=(Let)clause;
-      if (removingVar(lt.var,pos + 1,qc) && !lt.has(Flag.NDT) && !lt.has(Flag.UPD)) {
+      if (count(lt.var,pos + 1) == VarUsage.NEVER && !lt.has(Flag.NDT) && !lt.has(Flag.UPD)) {
+        qc.compInfo(QueryText.OPTVAR_X,lt.var);
         lt.var.checkType(lt.expr,lt.info);
         iter.remove();
         changed=true;
@@ -14,11 +15,13 @@
     }
  else     if (clause instanceof For) {
       final For f=(For)clause;
-      if (removingVar(f.score,pos,qc)) {
+      if (f.score != null && count(f.score,pos) == VarUsage.NEVER) {
+        qc.compInfo(QueryText.OPTVAR_X,f.score);
         f.score=null;
         changed=true;
       }
-      if (removingVar(f.pos,pos,qc)) {
+      if (f.pos != null && count(f.pos,pos) == VarUsage.NEVER) {
+        qc.compInfo(QueryText.OPTVAR_X,f.pos);
         f.pos=null;
         changed=true;
       }
