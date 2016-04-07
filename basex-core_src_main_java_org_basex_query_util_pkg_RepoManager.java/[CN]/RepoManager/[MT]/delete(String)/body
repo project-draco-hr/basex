@@ -1,22 +1,17 @@
 {
+  boolean deleted=false;
   final EXPathRepo repo=context.repo;
-  final ArrayList<Pkg> delete=new ArrayList<>();
-  for (  final Pkg pkg : repo.pkgDict().values()) {
-    if (pkg.name().equals(name) || pkg.id().equals(name)) {
-      final String dep=primary(pkg);
-      if (dep != null)       throw BXRE_DEP_X_X.get(info,dep,name);
-      delete.add(pkg);
+  for (  final Pkg pkg : all()) {
+    final String dir=pkg.dir();
+    if (pkg.name().equals(name) || pkg.id().equals(name) || dir.equals(name)) {
+      if (pkg.expath()) {
+        final String dep=primary(pkg);
+        if (dep != null)         throw BXRE_DEP_X_X.get(info,dep,name);
+        repo.delete(pkg);
+      }
+      if (!repo.path(dir).delete())       throw BXRE_DELETE_X.get(info,dir);
+      deleted=true;
     }
   }
-  for (  final Pkg pkg : delete) {
-    repo.delete(pkg);
-    final IOFile dir=repo.path(pkg.dir());
-    if (!dir.delete())     throw BXRE_DELETE_X.get(info,dir);
-  }
-  final IOFile file=find(name);
-  if (file != null) {
-    if (!file.delete())     throw BXRE_DELETE_X.get(info,file);
-    return;
-  }
-  if (delete.isEmpty())   throw BXRE_WHICH_X.get(info,name);
+  if (!deleted)   throw BXRE_WHICH_X.get(info,name);
 }
