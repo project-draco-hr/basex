@@ -1,0 +1,35 @@
+{
+  if (number == 0 && !tb.isEmpty()) {
+  }
+ else   if (number < 20) {
+    tb.add((ordinal ? ORDINALS : WORDS)[(int)number]);
+  }
+ else   if (number < 100) {
+    final int r=(int)(number % 10);
+    if (r == 0) {
+      tb.add((ordinal ? ORDINALS10 : WORDS10)[(int)number / 10]);
+    }
+ else {
+      tb.add(WORDS10[(int)number / 10]).add(' ');
+      tb.add((ordinal ? ORDINALS : WORDS)[r]);
+    }
+  }
+ else {
+    for (int w=WORDS100.length - 1; w >= 0; w--) {
+      final long f=UNITS100[w];
+      if (number < f)       continue;
+      word(tb,number / f,false);
+      tb.add(' ').add(WORDS100[w]);
+      final long r=number % f;
+      if (r == 0) {
+        if (ordinal)         tb.add(ORDSUFFIX[3]);
+      }
+ else {
+        tb.add(' ');
+        if (r < 100)         tb.add(AND).add(' ');
+      }
+      word(tb,r,ordinal);
+      break;
+    }
+  }
+}
