@@ -1,21 +1,11 @@
 {
-  try {
-    final BaseXClient session=new BaseXClient("localhost",1984,"admin","admin");
-    try {
-      final String input="for $i in 1 to 10 return <xml>Text { $i }</xml>";
-      final BaseXClient.Query query=session.query(input);
+  try (final BaseXClient session=new BaseXClient("localhost",1984,"admin","admin")){
+    final String input="for $i in 1 to 10 return <xml>Text { $i }</xml>";
+    try (final BaseXClient.Query query=session.query(input)){
       while (query.more()) {
         System.out.println(query.next());
       }
       System.out.println(query.info());
-      query.close();
     }
- catch (    final IOException ex) {
-      ex.printStackTrace();
-    }
-    session.close();
-  }
- catch (  final IOException ex) {
-    ex.printStackTrace();
-  }
-}
+   }
+ }

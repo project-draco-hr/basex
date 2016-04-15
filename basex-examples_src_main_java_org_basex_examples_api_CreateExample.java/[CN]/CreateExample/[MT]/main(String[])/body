@@ -1,19 +1,9 @@
 {
-  try {
-    final BaseXClient session=new BaseXClient("localhost",1984,"admin","admin");
-    try {
-      final InputStream bais=new ByteArrayInputStream("<xml>Hello World!</xml>".getBytes());
-      session.create("database",bais);
-      System.out.println(session.info());
-      System.out.println(session.execute("xquery doc('database')"));
-      session.execute("drop db database");
-    }
- catch (    final IOException ex) {
-      ex.printStackTrace();
-    }
-    session.close();
+  try (final BaseXClient session=new BaseXClient("localhost",1984,"admin","admin")){
+    final InputStream bais=new ByteArrayInputStream("<xml>Hello World!</xml>".getBytes());
+    session.create("database",bais);
+    System.out.println(session.info());
+    System.out.println(session.execute("xquery doc('database')"));
+    session.execute("drop db database");
   }
- catch (  final IOException ex) {
-    ex.printStackTrace();
-  }
-}
+ }
