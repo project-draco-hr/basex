@@ -1,31 +1,33 @@
 {
-  final byte[] tmp=bl.get();
-  bl.set(txt);
-  uc=Num.length(txt,0);
-  uo=0;
-  pull();
-  final byte[] unpack=pull() ? UNPACK1 : UNPACK2;
-  final int l=Num.get(txt,0);
-  final byte[] res=new byte[l];
-  for (int r=0; r < l; r++) {
-    final int b;
-    if (pull()) {
-      b=pull(3);
+  int pos=(Num.length(text,0) << 3) + 1;
+  final byte[] map=isSet(text,pos++) ? UNPACK1 : UNPACK2;
+  final int size=Num.get(text,0);
+  final byte[] bytes=new byte[size];
+  for (int b=0; b < size; b++) {
+    final int bits;
+    int out=0;
+    if (isSet(text,pos++)) {
+      bits=3;
     }
- else     if (pull()) {
-      b=pull(3) | 0x08;
+ else     if (isSet(text,pos++)) {
+      bits=3;
+      out=0x08;
     }
- else     if (pull()) {
-      b=pull(4) | 0x10;
+ else     if (isSet(text,pos++)) {
+      bits=4;
+      out=0x10;
     }
- else     if (pull()) {
-      b=pull(5) | 0x20;
+ else     if (isSet(text,pos++)) {
+      bits=5;
+      out=0x20;
     }
  else {
-      b=pull(8);
+      bits=8;
     }
-    res[r]=(byte)(b >= 128 ? b : unpack[b]);
+    for (int bit=0; bit < bits; bit++, pos++) {
+      if ((text[pos >>> 3] & 1 << (pos & 7)) != 0)       out|=1 << bit;
+    }
+    bytes[b]=(byte)(out >= 0x80 ? out : map[out]);
   }
-  bl.set(tmp);
-  return res;
+  return bytes;
 }
