@@ -17,18 +17,18 @@
     checked=body;
   }
  else   if (body instanceof FuncItem && type.type instanceof FuncType) {
-    if (!type.occ.check(1))     throw QueryError.typeError(info,body,type,null);
+    if (!type.occ.check(1))     throw QueryError.typeError(body,type,null,info);
     final FuncItem fi=(FuncItem)body;
     checked=fi.coerceTo((FuncType)type.type,qc,info,true);
   }
  else   if (body.isValue()) {
     final Value val=(Value)body;
-    checked=type.instance(val) ? val : type.promote(qc,sc,info,val,false,null);
+    checked=type.instance(val) ? val : type.promote(val,null,false,qc,sc,info);
   }
  else {
     if (argType.type.instanceOf(type.type) && !body.has(Flag.NDT) && !body.has(Flag.UPD)) {
       final Occ occ=argType.occ.intersect(type.occ);
-      if (occ == null)       throw QueryError.typeError(info,body,type,null);
+      if (occ == null)       throw QueryError.typeError(body,type,null,info);
     }
     checked=new TypeCheck(sc,info,body,type,true);
   }
