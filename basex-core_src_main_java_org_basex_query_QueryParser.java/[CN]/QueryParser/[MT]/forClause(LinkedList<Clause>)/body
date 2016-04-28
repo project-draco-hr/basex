@@ -1,22 +1,18 @@
 {
   do {
-    final QNm nm=varName();
-    final SeqType tp=optAsType();
+    final Var var=newVar();
     final boolean emp=wsConsume(ALLOWING);
     if (emp)     wsCheck(EMPTYORD);
-    final QNm p=wsConsumeWs(AT) ? varName() : null;
-    final QNm s=wsConsumeWs(SCORE) ? varName() : null;
-    wsCheck(IN);
-    final Expr e=check(single(),NOVARDECL);
-    final Var var=localVars.add(nm,tp,false);
-    final Var ps=p != null ? localVars.add(p,SeqType.ITR,false) : null;
-    final Var scr=s != null ? localVars.add(s,SeqType.DBL,false) : null;
-    if (p != null) {
-      if (nm.eq(p))       throw error(DUPLVAR_X,var);
-      if (s != null && p.eq(s))       throw error(DUPLVAR_X,ps);
+    final Var at=wsConsumeWs(AT) ? newVar(SeqType.ITR) : null;
+    final Var score=wsConsumeWs(SCORE) ? newVar(SeqType.DBL) : null;
+    if (at != null) {
+      if (var.name.eq(at.name))       throw error(DUPLVAR_X,at);
+      if (score != null && at.name.eq(score.name))       throw error(DUPLVAR_X,score);
     }
-    if (s != null && nm.eq(s))     throw error(DUPLVAR_X,var);
-    cls.add(new For(var,ps,scr,e,emp,info()));
+    if (score != null && var.name.eq(score.name))     throw error(DUPLVAR_X,score);
+    wsCheck(IN);
+    final Expr expr=check(single(),NOVARDECL);
+    cls.add(new For(localVars.add(var),localVars.add(at),localVars.add(score),expr,emp));
   }
  while (wsConsumeWs(COMMA));
 }

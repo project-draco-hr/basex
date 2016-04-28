@@ -10,7 +10,7 @@
       final Var v=e.getKey();
       final Expr c=e.getValue();
       if (c instanceof Value) {
-        final Expr inlined=expr.inline(qc,scope,v,v.checkType((Value)c,qc,true,info));
+        final Expr inlined=expr.inline(qc,scope,v,v.checkType((Value)c,qc,true));
         if (inlined != null)         expr=inlined;
         cls.remove();
       }
@@ -19,7 +19,7 @@
         if (!cl.has(Flag.NDT) && !cl.has(Flag.UPD) && cl.global.size() < 5 && expr.count(v) != VarUsage.MORE_THAN_ONCE && cl.exprSize() < qc.context.options.get(MainOptions.INLINELIMIT)) {
           qc.compInfo(OPTINLINE_X,e);
           for (          final Entry<Var,Expr> e2 : cl.global.entrySet()) {
-            final Var v2=e2.getKey(), v2c=scope.newCopyOf(v2,qc);
+            final Var v2=e2.getKey(), v2c=scope.addCopy(v2,qc);
             if (add == null)             add=new HashMap<>();
             add.put(v2c,e2.getValue());
             e2.setValue(new VarRef(cl.info,v2c));

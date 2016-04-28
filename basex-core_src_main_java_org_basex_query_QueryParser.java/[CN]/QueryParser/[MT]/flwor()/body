@@ -32,7 +32,7 @@
       final Var[] ngrp=new Var[ng.size()];
       for (int i=ng.size(); --i >= 0; ) {
         final VarRef v=ng.get(i);
-        final Var nv=localVars.add(v.var.name,null,false);
+        final Var nv=localVars.add(new Var(v.var.name,null,false,qc,sc,v.var.info));
         if (v.seqType().one())         nv.refineType(SeqType.get(v.seqType().type,Occ.ONE_MORE),qc,info());
         ngrp[i]=nv;
         curr.put(nv.name.id(),nv);
@@ -53,13 +53,13 @@
  while (wsConsume(COMMA));
       final VarRef[] vs=new VarRef[curr.size()];
       int i=0;
-      for (      final Var v : curr.values())       vs[i++]=new VarRef(ob[0].info,v);
+      for (      final Var var : curr.values())       vs[i++]=new VarRef(ob[0].info,var);
       clauses.add(new OrderBy(vs,ob,ob[0].info));
     }
     if (wsConsumeWs(COUNT,DOLLAR,NOCOUNT)) {
-      final Var v=localVars.add(varName(),SeqType.ITR,false);
-      curr.put(v.name.id(),v);
-      clauses.add(new Count(v,info()));
+      final Var var=localVars.add(newVar(SeqType.ITR));
+      curr.put(var.name.id(),var);
+      clauses.add(new Count(var));
     }
   }
  while (size < clauses.size());

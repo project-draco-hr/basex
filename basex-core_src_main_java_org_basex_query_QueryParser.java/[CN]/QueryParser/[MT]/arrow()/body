@@ -3,7 +3,17 @@
   if (e != null) {
     while (wsConsume(ARROW)) {
       skipWs();
-      final Expr ex=curr('(') ? parenthesized() : curr('$') ? localVars.resolve(varName(),info()) : eQName(ARROWSPEC,sc.funcNS);
+      final Expr ex;
+      if (curr('(')) {
+        ex=parenthesized();
+      }
+ else       if (curr('$')) {
+        final InputInfo ii=info();
+        ex=localVars.resolve(varName(),ii);
+      }
+ else {
+        ex=eQName(ARROWSPEC,sc.funcNS);
+      }
       final InputInfo ii=info();
       wsCheck(PAREN1);
       if (ex instanceof QNm) {

@@ -2,12 +2,12 @@
   Var[] args={};
   while (true) {
     skipWs();
-    if (curr() != '$') {
-      if (args.length == 0)       break;
-      check('$');
+    if (curr() != '$' && args.length == 0)     break;
+    final InputInfo ii=info();
+    final Var var=localVars.add(new Var(varName(),optAsType(),true,qc,sc,ii));
+    for (    final Var v : args) {
+      if (v.name.eq(var.name))       throw error(FUNCDUPL_X,var);
     }
-    final Var var=localVars.add(varName(),optAsType(),true);
-    for (    final Var v : args)     if (v.name.eq(var.name))     throw error(FUNCDUPL_X,var);
     args=Array.add(args,var);
     if (!consume(','))     break;
   }

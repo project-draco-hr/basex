@@ -1,16 +1,14 @@
 {
   Spec[] specs=null;
   do {
-    final InputInfo ii=info();
-    final QNm name=varName();
-    final SeqType declType=optAsType();
+    final Var var=newVar();
     final Expr by;
-    if (declType != null || wsConsume(ASSIGN)) {
-      if (declType != null)       wsCheck(ASSIGN);
+    if (var.type != null || wsConsume(ASSIGN)) {
+      if (var.type != null)       wsCheck(ASSIGN);
       by=check(single(),NOVARDECL);
     }
  else {
-      final VarRef vr=localVars.resolveLocal(name,ii);
+      final VarRef vr=localVars.resolveLocal(var.name,var.info);
       boolean dec=false;
       if (vr != null) {
         for (        final Clause f : cl) {
@@ -28,11 +26,11 @@
           }
         }
       }
-      if (!dec)       throw error(GVARNOTDEFINED_X,'$' + string(name.string()));
+      if (!dec)       throw error(GVARNOTDEFINED_X,var);
       by=vr;
     }
     final Collation coll=wsConsumeWs(COLLATION) ? Collation.get(stringLiteral(),qc,sc,info(),FLWORCOLL_X) : sc.collation;
-    final Spec spec=new Spec(ii,localVars.add(name,declType,false),by,coll);
+    final Spec spec=new Spec(var.info,localVars.add(var),by,coll);
     if (specs == null) {
       specs=new Spec[]{spec};
     }

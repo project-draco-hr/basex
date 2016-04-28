@@ -1,11 +1,10 @@
 {
-  final QNm vn=varName();
-  final SeqType tp=optAsType();
-  if (module != null && !eq(vn.uri(),module.uri()))   throw error(MODULENS_X,vn);
+  final Var var=newVar();
+  if (module != null && !eq(var.name.uri(),module.uri()))   throw error(MODULENS_X,var);
   localVars.pushContext(null);
-  final boolean external=wsConsumeWs(EXTERNAL);
+  final boolean ext=wsConsumeWs(EXTERNAL);
   final Expr bind;
-  if (external) {
+  if (ext) {
     bind=wsConsumeWs(ASSIGN) ? check(single(),NOVARDECL) : null;
   }
  else {
@@ -13,6 +12,7 @@
     bind=check(single(),NOVARDECL);
   }
   final VarScope scope=localVars.popContext();
-  final StaticVar var=qc.vars.declare(vn,tp,anns,bind,external,currDoc.toString(),sc,scope,info());
-  vars.put(var.id(),var);
+  final String doc=currDoc.toString();
+  final StaticVar sv=qc.vars.declare(var,anns,bind,ext,doc,sc,scope);
+  vars.put(sv.id(),sv);
 }
