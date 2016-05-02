@@ -1,7 +1,9 @@
 {
   final Context ctx=http.context(false);
   try (final QueryContext qc=qc(ctx)){
-    final RestXqFunction rxf=new RestXqFunction(find(qc,func.function),qc,this);
+    final StaticFunc sf=find(qc,func.function);
+    if (sf == null)     throw HTTPCode.NO_XQUERY.get();
+    final RestXqFunction rxf=new RestXqFunction(sf,qc,this);
     rxf.parse(ctx);
     RestXqResponse.create(rxf,qc,http,error);
   }
