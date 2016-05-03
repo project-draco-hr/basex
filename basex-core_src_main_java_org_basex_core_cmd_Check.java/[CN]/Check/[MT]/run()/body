@@ -1,13 +1,14 @@
 {
   new Close().run(context);
-  final QueryInput qi=new QueryInput(args[0]);
-  qi.db=qi.input.dbname();
+  final String input=args[0];
+  final IO io=IO.get(input);
+  final String dbName=io.dbName();
   final Command cmd;
-  if (open(qi)) {
-    cmd=new Open(qi.db);
+  if (open(io,dbName)) {
+    cmd=new Open(dbName);
   }
  else {
-    cmd=new CreateDB(qi.db,qi.input.exists() ? qi.original : null);
+    cmd=new CreateDB(dbName,io.exists() ? input : null);
   }
   proc(cmd);
   final boolean ok=cmd.run(context);

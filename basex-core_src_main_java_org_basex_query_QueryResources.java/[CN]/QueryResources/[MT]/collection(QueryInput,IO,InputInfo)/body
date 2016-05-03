@@ -1,11 +1,11 @@
 {
-  final Data gd=globalData();
-  if (qc.context.options.get(MainOptions.DEFAULTDB) && gd != null) {
-    final IntList pres=gd.resources.docs(qi.original);
-    return DBNodeSeq.get(pres,gd,true,qi.original.isEmpty());
+  final Data global=globalData();
+  if (global != null && qc.context.options.get(MainOptions.DEFAULTDB)) {
+    final IntList pres=global.resources.docs(qi.original);
+    return DBNodeSeq.get(pres,global,true,qi.original.isEmpty());
   }
-  final String in=baseIO != null ? baseIO.merge(qi.original).path() : null;
-  if (in != null) {
+  if (baseIO != null) {
+    final String in=baseIO.merge(qi.original).path();
     final String[] names={in,qi.original};
     final int cs=colls.size();
     for (int c=0; c < cs; c++) {
@@ -15,13 +15,13 @@
   }
   Data dt=null;
   for (  final Data data : datas) {
-    final String n=data.meta.name;
-    if (Prop.CASE ? n.equals(qi.db) : n.equalsIgnoreCase(qi.db) || IO.get(data.meta.original).eq(qi.input)) {
+    final String db=data.meta.name;
+    if (Prop.CASE ? db.equals(qi.dbName) : db.equalsIgnoreCase(qi.dbName) || IO.get(data.meta.original).eq(qi.input)) {
       dt=data;
       break;
     }
   }
   if (dt == null)   dt=open(qi);
   if (dt == null)   dt=create(qi,false,baseIO,info);
-  return DBNodeSeq.get(dt.resources.docs(qi.path),dt,true,qi.path.isEmpty());
+  return DBNodeSeq.get(dt.resources.docs(qi.dbPath),dt,true,qi.dbPath.isEmpty());
 }
