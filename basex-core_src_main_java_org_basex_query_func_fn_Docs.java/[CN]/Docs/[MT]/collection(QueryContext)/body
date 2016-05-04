@@ -1,7 +1,10 @@
 {
+  QueryInput qi=null;
   final Item it=exprs.length == 0 ? null : exprs[0].atomItem(qc,info);
-  if (it == null)   return qc.resources.collection(info);
-  final byte[] in=toToken(it);
-  if (!Uri.uri(in).isValid())   throw INVCOLL_X.get(info,in);
-  return qc.resources.collection(new QueryInput(string(in)),sc.baseIO(),info);
+  if (it != null) {
+    final byte[] uri=toToken(it);
+    if (!Uri.uri(uri).isValid())     throw INVCOLL_X.get(info,uri);
+    qi=new QueryInput(string(uri),sc);
+  }
+  return qc.resources.collection(qi,info);
 }

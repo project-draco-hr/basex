@@ -1,0 +1,16 @@
+{
+  if (it instanceof ANode) {
+    final IOContent io=new IOContent(it.serialize(sopts).finish());
+    io.name(string(((ANode)it).baseURI()));
+    return io;
+  }
+  if (it.type.isStringOrUntyped()) {
+    IO io=checkPath(toToken(it));
+    if (sopts != null) {
+      io=new IOContent(new DBNode(io).serialize(sopts).finish());
+      io.name(io.path());
+    }
+    return io;
+  }
+  throw STRNOD_X_X.get(info,it.type,it);
+}

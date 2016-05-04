@@ -1,0 +1,11 @@
+{
+  Data data=globalData();
+  if (data != null && qc.context.options.get(MainOptions.DEFAULTDB)) {
+    final int pre=data.resources.doc(qi.original);
+    if (pre != -1)     return new DBNode(data,pre,Data.DOC);
+  }
+  data=data(qi,info,true);
+  final IntList docs=data.resources.docs(qi.dbPath);
+  if (docs.size() == 1)   return new DBNode(data,docs.get(0),Data.DOC);
+  throw (docs.isEmpty() ? BXDB_NODOC_X : BXDB_SINGLE_X).get(info,qi.original);
+}

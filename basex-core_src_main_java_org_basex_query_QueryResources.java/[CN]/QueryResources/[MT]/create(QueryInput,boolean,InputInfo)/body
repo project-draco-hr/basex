@@ -1,0 +1,19 @@
+{
+  final Context context=qc.context;
+  if (!context.user().has(Perm.READ))   throw BXXQ_PERM_X.get(ii,Util.info(Text.PERM_REQUIRED_X,Perm.READ));
+  final IO io=input.io;
+  if (!io.exists())   throw WHICHRES_X.get(ii,input.original);
+  if (single && io.isDir())   throw RESDIR_X.get(ii,input.original);
+  final boolean mem=!context.options.get(MainOptions.FORCECREATE);
+  final MainOptions opts=new MainOptions(context.options,true);
+  final Parser parser=new DirParser(io,opts);
+  final Data data;
+  try {
+    data=CreateDB.create(io.dbName(),parser,context,opts,mem);
+  }
+ catch (  final IOException ex) {
+    throw IOERR_X.get(ii,ex);
+  }
+  input.dbPath="";
+  return addData(data);
+}

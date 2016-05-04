@@ -1,0 +1,21 @@
+{
+  if (qi == null) {
+    if (colls.isEmpty())     throw NODEFCOLL.get(info);
+    return colls.get(0);
+  }
+  Data data=globalData();
+  if (data != null && qc.context.options.get(MainOptions.DEFAULTDB)) {
+    final IntList pres=data.resources.docs(qi.original);
+    return DBNodeSeq.get(pres,data,true,qi.original.isEmpty());
+  }
+  final int cs=colls.size();
+  for (int c=0; c < cs; c++) {
+    final String name=collNames.get(c), path=qi.io.path();
+    if (Prop.CASE ? name.equals(path) : name.equalsIgnoreCase(path)) {
+      return colls.get(c);
+    }
+  }
+  data=data(qi,info,false);
+  final IntList docs=data.resources.docs(qi.dbPath);
+  return DBNodeSeq.get(docs,data,true,qi.dbPath.isEmpty());
+}
