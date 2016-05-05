@@ -1,18 +1,9 @@
 {
-  final IO base=IO.get(uri);
-  String url;
-  if (uri.isEmpty()) {
-    url="";
+  String string="";
+  if (uri != null) {
+    if (uri.isEmpty())     return;
+    string=IO.get(uri) instanceof IOContent ? uri : resolve(uri).url();
+    if (!string.endsWith("/") && (uri.endsWith(".") || uri.endsWith("/")))     string+='/';
   }
- else   if (base instanceof IOContent) {
-    url=uri;
-  }
- else   if (baseURI == Uri.EMPTY) {
-    url=base.url();
-  }
- else {
-    url=baseIO().merge(uri).url();
-  }
-  if (!url.endsWith("/") && (uri.endsWith(".") || uri.endsWith("/")))   url+='/';
-  baseURI=Uri.uri(url);
+  baseURI=Uri.uri(string);
 }
