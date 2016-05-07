@@ -1,12 +1,12 @@
 {
-  String file=url;
   try {
-    if (file.indexOf('%') != -1)     file=URLDecoder.decode(file,Prop.ENCODING);
+    return new IOFile(new URI(url));
   }
- catch (  final Exception ex) {
+ catch (  URISyntaxException ex) {
+    Util.debug(ex);
   }
-  if (file.startsWith(FILEPREF))   file=file.substring(FILEPREF.length());
-  file=normSlashes(file);
-  if (file.length() > 2 && file.charAt(0) == '/' && file.charAt(2) == ':' && Token.letter(file.charAt(1)))   file=file.substring(1);
-  return file;
+  String file=url.replace('\\','/');
+  if (file.startsWith(FILEPREF))   file=url.substring(FILEPREF.length());
+  if (file.matches("^/*[a-zA-Z]:/.*"))   file=file.replace("^/+","");
+  return new IOFile(file);
 }
