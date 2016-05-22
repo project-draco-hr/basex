@@ -1,16 +1,18 @@
-def __init__(self, host, port, user, pw):
+def __init__(self, host, port, user, password, receive_bytes_encoding='utf-8', send_bytes_encoding='utf-8'):
+    'Create and return session with host, port, user name and password'
     self.__info = None
-    self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.__s.connect((host, port))
-    self.__sreader = SocketInputReader(self.__s)
-    self.__event_socket = None
-    self.__event_host = host
-    self.__event_listening_thread = None
-    self.__event_callbacks = {}
-    ts = self.readString()
-    m = hashlib.md5()
-    m.update(hashlib.md5(pw).hexdigest())
-    m.update(ts)
-    self.send(((user + chr(0)) + m.hexdigest()))
-    if (self.__s.recv(1) != chr(0)):
+    self.__swrapper = SocketWrapper(socket.socket(socket.AF_INET, socket.SOCK_STREAM), receive_bytes_encoding=receive_bytes_encoding, send_bytes_encoding=send_bytes_encoding)
+    self.__swrapper.connect((host, port))
+    response = self.recv_c_str().split(':')
+    hfun = hashlib.md5()
+    if (len(response) > 1):
+        code = ('%s:%s:%s' % (user, response[0], password))
+        nonce = response[1]
+    else:
+        code = password
+        nonce = response[0]
+    hfun.update(hashlib.md5(code.encode('us-ascii')).hexdigest().encode('us-ascii'))
+    hfun.update(nonce.encode('us-ascii'))
+    self.send(((user + chr(0)) + hfun.hexdigest()))
+    if (not self.server_response_success()):
         raise IOError('Access Denied.')

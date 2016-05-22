@@ -1,13 +1,12 @@
-import BaseXClient, time
+import BaseXClient
+session = BaseXClient.Session('localhost', 1984, 'admin', 'admin')
 try:
-    session = BaseXClient.Session('localhost', 1984, 'admin', 'admin')
-    try:
-        input = 'for $i in 1 to 10 return <xml>Text { $i }</xml>'
-        query = session.query(input)
-        print query.execute()
-        query.close()
-    except IOError as e:
-        print e
-    session.close()
-except IOError as e:
-    print e
+    input = 'for $i in 1 to 10 return <xml>Text { $i }</xml>'
+    query = session.query(input)
+    for (typecode, item) in query.iter():
+        print ('typecode=%d' % typecode)
+        print ('item=%s' % item)
+    query.close()
+finally:
+    if session:
+        session.close()

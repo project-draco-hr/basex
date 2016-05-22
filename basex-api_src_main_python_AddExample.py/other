@@ -1,6 +1,6 @@
 import BaseXClient
+session = BaseXClient.Session('localhost', 1984, 'admin', 'admin')
 try:
-    session = BaseXClient.Session('localhost', 1984, 'admin', 'admin')
     session.execute('create db database')
     print session.info()
     session.add('world/World.xml', '<x>Hello World!</x>')
@@ -9,6 +9,6 @@ try:
     print session.info()
     print ('\n' + session.execute("xquery collection('database')"))
     session.execute('drop db database')
-    session.close()
-except IOError as e:
-    print e
+finally:
+    if session:
+        session.close()
