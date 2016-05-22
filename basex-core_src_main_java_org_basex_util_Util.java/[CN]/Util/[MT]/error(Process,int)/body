@@ -1,0 +1,17 @@
+{
+  final int wait=200, to=Math.max(timeout / wait,1);
+  for (int c=0; c < to; c++) {
+    try {
+      final int exit=process.exitValue();
+      if (exit == 1)       return Token.string(new IOStream(process.getErrorStream()).read());
+      break;
+    }
+ catch (    final IllegalThreadStateException ex) {
+      Performance.sleep(wait);
+    }
+catch (    final IOException ex) {
+      return ex.getLocalizedMessage();
+    }
+  }
+  return null;
+}

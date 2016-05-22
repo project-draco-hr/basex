@@ -23,9 +23,11 @@
     socket.bind(new InetSocketAddress(addr,port));
     stopFile=stopFile(port);
   }
- catch (  final IOException ex) {
+ catch (  final Exception ex) {
     context.log.writeServer(LogType.ERROR,Util.message(ex));
-    throw ex instanceof BindException ? new IOException(Util.info(SRV_RUNNING_X,port)) : ex;
+    if (ex instanceof BindException)     throw new BaseXException(SRV_RUNNING_X,port);
+    if (ex instanceof IOException)     throw ex;
+    throw new BaseXException(ex.getLocalizedMessage());
   }
   new Thread(this).start();
   do   Thread.yield();
