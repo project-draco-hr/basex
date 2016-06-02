@@ -1,4 +1,11 @@
 {
-  final Array array=toArray(exprs[0],qc);
-  return array.remove(checkPos(array,toLong(exprs[1],qc)));
+  Array array=toArray(exprs[0],qc);
+  LongList list=new LongList();
+  final Iter pos=exprs[1].iter(qc);
+  for (Item it; (it=pos.next()) != null; ) {
+    list.add(checkPos(array,toLong(it),false));
+  }
+  list.sort().distinct();
+  for (int i=list.size() - 1; i >= 0; i--)   array=array.remove(list.get(i));
+  return array;
 }
