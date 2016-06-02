@@ -36,9 +36,10 @@
     }
     if (printKey) {
       if (key == null)       throw error("Element '%' has no key.",type);
+      key=escape(key,escapedKey);
       if (!printedKeys.add(key))       throw error("Duplicate key: %.",key);
       out.print('"');
-      out.print(norm(escape(key,escapedKey)));
+      out.print(norm(key));
       out.print("\":");
     }
  else {
@@ -46,7 +47,9 @@
     }
     if (eq(type,NULL)) {
       out.print(NULL);
-      if (iter.next() != null)       throw error("Element '%' must have no children.",type);
+      for (ANode n; (n=iter.next()) != null; ) {
+        if (n.type != NodeType.COM && n.type != NodeType.PI)         throw error("Element '%' must have no children.",type);
+      }
     }
  else     if (eq(type,BOOLEAN)) {
       final byte[] value=value(iter,type);
