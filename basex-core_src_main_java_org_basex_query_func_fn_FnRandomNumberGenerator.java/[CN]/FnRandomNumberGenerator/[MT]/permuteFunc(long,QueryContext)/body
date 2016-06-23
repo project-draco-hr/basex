@@ -1,21 +1,6 @@
 {
-  return RuntimeExpr.funcItem(new RuntimeExpr(info){
-    @Override public Value value(    final QueryContext qc){
-      final ItemList cache=qc.get(params[0]).cache();
-      final int sz=cache.size();
-      final Item[] items=cache.internal();
-      long s=seed;
-      for (int i=sz; --i >= 1; ) {
-        s=next(s);
-        final int j=(int)((s >>> 16) % (i + 1));
-        if (i != j) {
-          final Item item=items[i];
-          items[i]=items[j];
-          items[j]=item;
-        }
-      }
-      return cache.value();
-    }
-  }
-,1,sc,qctx,info);
+  final Var var=new Var(new QNm("seq"),SeqType.ITEM_ZM,true,qctx,sc,info);
+  final VarRef vr=new VarRef(info,var);
+  final StandardFunc sf=Function._RANDOM_SEEDED_PERMUTATION.get(sc,info,Int.get(seed),vr);
+  return new FuncItem(sc,new AnnList(),null,new Var[]{var},PERMUTE_TYPE,sf,1);
 }
