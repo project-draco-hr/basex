@@ -1,0 +1,29 @@
+{
+  final Object o=new Object();
+synchronized (mutex) {
+    queue.add(o);
+    final int maxReaders=Math.max(sopts.get(StaticOptions.PARALLEL),1);
+    while (true) {
+      if (!writer && o == queue.get(0)) {
+        if (job.updating) {
+          if (readers == 0) {
+            writer=true;
+            break;
+          }
+        }
+ else         if (readers < maxReaders) {
+          ++readers;
+          break;
+        }
+      }
+      job.checkStop();
+      try {
+        mutex.wait();
+      }
+ catch (      final InterruptedException ex) {
+        Util.stack(ex);
+      }
+    }
+    queue.remove(0);
+  }
+}

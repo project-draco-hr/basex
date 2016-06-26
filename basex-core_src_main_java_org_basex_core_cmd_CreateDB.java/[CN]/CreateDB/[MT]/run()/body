@@ -23,13 +23,13 @@
     new Close().run(context);
     final Data data;
     if (options.get(MainOptions.MAINMEM)) {
-      data=proc(new MemBuilder(name,parser)).build();
+      data=job(new MemBuilder(name,parser)).build();
       context.openDB(data);
       context.datas.pin(data);
     }
  else {
       if (context.pinned(name))       return error(DB_PINNED_X,name);
-      proc(new DiskBuilder(name,parser,soptions,options)).build().close();
+      job(new DiskBuilder(name,parser,soptions,options)).build().close();
       final Open open=new Open(name);
       if (!open.run(context))       return error(open.info());
       data=context.data();
@@ -44,7 +44,7 @@
     if (options.get(MainOptions.CREATEONLY))     new Close().run(context);
     return info(parser.info() + DB_CREATED_X_X,name,perf);
   }
- catch (  final ProcException ex) {
+ catch (  final JobException ex) {
     throw ex;
   }
 catch (  final IOException ex) {
