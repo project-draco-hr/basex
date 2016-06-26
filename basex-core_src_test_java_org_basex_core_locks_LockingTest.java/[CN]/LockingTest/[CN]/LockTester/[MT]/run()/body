@@ -1,0 +1,22 @@
+{
+  if (await != null) {
+    try {
+      if (!await.await(WAIT,TimeUnit.MILLISECONDS))       fail("Latch timed out.");
+    }
+ catch (    final InterruptedException e) {
+      throw new RuntimeException("Unexpectedly interrupted.");
+    }
+  }
+  final Command cmd=new Cmd(writing);
+  locks.acquire(readObjects != null ? new StringList().add(readObjects) : null,writeObjects != null ? new StringList().add(writeObjects) : null);
+  if (countDown != null)   countDown.countDown();
+synchronized (this) {
+    try {
+      while (!requestRelease)       wait();
+    }
+ catch (    final InterruptedException e) {
+      throw new RuntimeException("Unexpectedly interrupted.");
+    }
+  }
+  locks.release(cmd);
+}
