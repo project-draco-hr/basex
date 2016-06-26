@@ -1,0 +1,14 @@
+{
+  final String id=query(_JOBS_EVAL.args(VERY_SLOW_QUERY));
+  query(_JOBS_STOP.args(id));
+  while (true) {
+    try {
+      eval(_JOBS_RESULT.args(id));
+      fail("Query was not stopped.");
+    }
+ catch (    final QueryException ex) {
+      if (ex.error() == JOBS_UNKNOWN_X)       break;
+      assertSame(JOBS_RUNNING_X,ex.error());
+    }
+  }
+}
