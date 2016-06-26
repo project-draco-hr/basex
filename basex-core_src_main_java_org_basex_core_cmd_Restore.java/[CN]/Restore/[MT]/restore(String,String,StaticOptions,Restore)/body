@@ -2,6 +2,11 @@
   DropDB.drop(db,sopts);
   final IOFile dbpath=sopts.dbPath();
   final Zip zip=new Zip(new IOFile(dbpath,backup + IO.ZIPSUFFIX));
-  if (cmd != null)   cmd.job(zip);
-  zip.unzip(dbpath);
+  try {
+    if (cmd != null)     cmd.pushJob(zip);
+    zip.unzip(dbpath);
+  }
+  finally {
+    if (cmd != null)     cmd.popJob();
+  }
 }

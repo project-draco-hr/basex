@@ -23,13 +23,23 @@
     new Close().run(context);
     final Data data;
     if (options.get(MainOptions.MAINMEM)) {
-      data=job(new MemBuilder(name,parser)).build();
+      try {
+        data=pushJob(new MemBuilder(name,parser)).build();
+      }
+  finally {
+        popJob();
+      }
       context.openDB(data);
       context.datas.pin(data);
     }
  else {
       if (context.pinned(name))       return error(DB_PINNED_X,name);
-      job(new DiskBuilder(name,parser,soptions,options)).build().close();
+      try {
+        pushJob(new DiskBuilder(name,parser,soptions,options)).build().close();
+      }
+  finally {
+        popJob();
+      }
       final Open open=new Open(name);
       if (!open.run(context))       return error(open.info());
       data=context.data();
@@ -42,7 +52,7 @@
       if (!finishUpdate())       return false;
     }
     if (options.get(MainOptions.CREATEONLY))     new Close().run(context);
-    return info(parser.info() + DB_CREATED_X_X,name,perf);
+    return info(parser.info() + DB_CREATED_X_X,name,job().perf);
   }
  catch (  final JobException ex) {
     throw ex;

@@ -2,9 +2,14 @@
   final String backup=db + '-' + DateTime.format(new Date(),DateTime.DATETIME)+ IO.ZIPSUFFIX;
   final IOFile zf=sopts.dbPath(backup);
   final Zip zip=new Zip(zf);
-  if (cmd != null)   cmd.job(zip);
-  final IOFile dbpath=sopts.dbPath(db);
-  final StringList files=dbpath.descendants();
-  files.delete(DATAUPD + IO.BASEXSUFFIX);
-  zip.zip(dbpath,files);
+  try {
+    if (cmd != null)     cmd.pushJob(zip);
+    final IOFile dbpath=sopts.dbPath(db);
+    final StringList files=dbpath.descendants();
+    files.delete(DATAUPD + IO.BASEXSUFFIX);
+    zip.zip(dbpath,files);
+  }
+  finally {
+    if (cmd != null)     cmd.popJob();
+  }
 }

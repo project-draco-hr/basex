@@ -2,11 +2,12 @@
   try {
     parse();
     qp.register(ctx);
+    final Performance perf=job().perf;
     qp.compile();
     final QueryInfo qi=qp.qc.info;
-    qi.compiling=prf.time();
+    qi.compiling=perf.time();
     final Iter ir=qp.iter();
-    qi.evaluating=prf.time();
+    qi.evaluating=perf.time();
     int c=0;
     final PrintOutput po=PrintOutput.get(encode ? new ServerOutput(out) : out);
     final SerializerOptions sopts=full ? SerializerMode.API.get() : qp.qc.serParams();
@@ -26,7 +27,7 @@
         c++;
       }
     }
-     qi.serializing=prf.time();
+     qi.serializing=perf.time();
     info=qi.toString(qp,po.size(),c,ctx.options.get(MainOptions.QUERYINFO));
   }
  catch (  final QueryException|JobException ex) {
@@ -38,12 +39,13 @@ catch (  final StackOverflowError ex) {
   }
  finally {
     if (qp != null) {
-      qp.close();
       if (parsed) {
+        qp.close();
         qp.unregister(ctx);
         parsed=false;
       }
       qp=null;
+      popJob();
     }
   }
 }

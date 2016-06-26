@@ -5,7 +5,7 @@
   String uri=path;
   Timer to=null;
   if (qc.parent != null)   throw BXXQ_NESTED.get(info);
-  try (final QueryContext qctx=qc.job(new QueryContext(qc))){
+  try (final QueryContext qctx=new QueryContext(qc)){
     if (exprs.length > 2) {
       final Options opts=toOptions(2,Q_OPTIONS,new XQueryOptions(),qc);
       final Perm perm=Perm.get(opts.get(XQueryOptions.PERMISSION).toString());
@@ -60,8 +60,8 @@
       return cache;
     }
  catch (    final JobException ex) {
-      if (qctx.state == State.TIMEOUT)       throw BXXQ_TIMEOUT.get(info);
-      if (qctx.state == State.MEMORY)       throw BXXQ_MEMORY.get(info);
+      if (qctx.state == JobState.TIMEOUT)       throw BXXQ_TIMEOUT.get(info);
+      if (qctx.state == JobState.MEMORY)       throw BXXQ_MEMORY.get(info);
       throw ex;
     }
 catch (    final QueryException ex) {
@@ -71,6 +71,5 @@ catch (    final QueryException ex) {
   finally {
     if (to != null)     to.cancel();
     user.perm(tmp,"");
-    qc.job(null);
   }
 }
