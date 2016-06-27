@@ -1,0 +1,21 @@
+{
+  try {
+    register(context);
+    result.value=copy(qp.iter(),context);
+    result.time=System.currentTimeMillis();
+  }
+ catch (  final JobException ex) {
+    context.jobs.results.remove(job().id());
+  }
+catch (  final QueryException ex) {
+    result.exception=ex;
+  }
+catch (  final Throwable ex) {
+    result.exception=BXXQ_UNEXPECTED_X.get(info,ex);
+  }
+ finally {
+    qp.close();
+    unregister(context);
+    popJob();
+  }
+}

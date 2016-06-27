@@ -1,6 +1,6 @@
 {
-  query("let $query := " + _JOBS_EVAL.args(SLOW_QUERY) + " return ("+ _HOF_UNTIL.args("  function($result) { " + _JOBS_FINISHED.args("$query") + " }, function($curr) { prof:sleep(100) }, ()")+ ","+ _JOBS_RESULT.args("$query")+ ')',"1");
-  String id=query(_JOBS_EVAL.args(SLOW_QUERY));
+  query("let $q := " + _JOBS_EVAL.args(SLOW_QUERY," map{}"," map{'cache':true()}") + " return ("+ _HOF_UNTIL.args(" function($r) { " + _JOBS_FINISHED.args("$q") + " },"+ "function($c) { }, ()")+ ","+ _JOBS_RESULT.args("$q")+ ')',"1");
+  String id=query(_JOBS_EVAL.args(SLOW_QUERY," map{}"," map{'cache':true()}"));
   while (true) {
     try {
       assertEquals("1",eval(_JOBS_RESULT.args(id)));
@@ -10,7 +10,8 @@
       assertSame(JOBS_RUNNING_X,ex.error());
     }
   }
-  id=query(_JOBS_EVAL.args(SLOW_QUERY," map {}"," map { 'cache': false() }"));
+  clean();
+  id=query(_JOBS_EVAL.args(SLOW_QUERY));
   while (true) {
     try {
       eval(_JOBS_RESULT.args(id));
