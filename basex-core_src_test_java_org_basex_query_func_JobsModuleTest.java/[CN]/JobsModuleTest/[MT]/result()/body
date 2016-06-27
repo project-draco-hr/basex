@@ -1,17 +1,6 @@
 {
-  query("let $q := " + _JOBS_EVAL.args(SLOW_QUERY," map{}"," map{'cache':true()}") + " return ("+ _HOF_UNTIL.args(" function($r) { " + _JOBS_FINISHED.args("$q") + " },"+ "function($c) { }, ()")+ ","+ _JOBS_RESULT.args("$q")+ ')',"1");
-  String id=query(_JOBS_EVAL.args(SLOW_QUERY," map{}"," map{'cache':true()}"));
-  while (true) {
-    try {
-      assertEquals("1",eval(_JOBS_RESULT.args(id)));
-      break;
-    }
- catch (    final QueryException ex) {
-      assertSame(JOBS_RUNNING_X,ex.error());
-    }
-  }
-  clean();
-  id=query(_JOBS_EVAL.args(SLOW_QUERY));
+  query("let $q := " + _JOBS_EVAL.args(SLOW_QUERY," map{}"," map{'cache':true()}") + " return ("+ _HOF_UNTIL.args(" function($r) { " + _JOBS_FINISHED.args("$q") + " },"+ "function($c) { Q{java:java.lang.Thread}yield() }, ()")+ ","+ _JOBS_RESULT.args("$q")+ ')',"1");
+  String id=query(_JOBS_EVAL.args(SLOW_QUERY));
   while (true) {
     try {
       eval(_JOBS_RESULT.args(id));
@@ -21,5 +10,18 @@
       if (ex.error() == JOBS_UNKNOWN_X)       break;
       assertSame(JOBS_RUNNING_X,ex.error());
     }
+    Thread.yield();
   }
+  id=query(_JOBS_EVAL.args(SLOW_QUERY," map{}"," map{'cache':true()}"));
+  while (true) {
+    try {
+      assertEquals("1",eval(_JOBS_RESULT.args(id)));
+      break;
+    }
+ catch (    final QueryException ex) {
+      assertSame(JOBS_RUNNING_X,ex.error());
+    }
+    Thread.yield();
+  }
+  clean();
 }
