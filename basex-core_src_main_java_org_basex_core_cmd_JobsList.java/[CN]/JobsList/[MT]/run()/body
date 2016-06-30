@@ -1,0 +1,30 @@
+{
+  final Table table=new Table();
+  table.description=JOBS;
+  table.header.add(uc(ID));
+  table.header.add(TYPE);
+  table.header.add(DURATION);
+  table.header.add(STATE);
+  table.header.add(USER);
+  final Map<String,Job> jobs=context.jobs.jobs;
+  for (  final Job job : jobs.values()) {
+    final TokenList tl=new TokenList(3);
+    final JobContext jc=job.job();
+    tl.add(jc.id());
+    tl.add(jc.type());
+    final JobState js;
+    if (jc.performance != null) {
+      final long ms=(System.nanoTime() - jc.performance.start()) / 1000000;
+      tl.add(new DTDur(ms).string(null));
+      js=job.state;
+    }
+ else {
+      js=JobState.QUEUED;
+    }
+    tl.add(js.toString().toLowerCase(Locale.ENGLISH));
+    tl.add(jc.context.user().name());
+    table.contents.add(tl);
+  }
+  out.println(table.sort().finish());
+  return true;
+}
