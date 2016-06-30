@@ -1,11 +1,12 @@
 {
+  final Context ctx=qp.qc.context;
   try {
     pushJob(qp);
-    register(context);
-    result.value=copy(qp.iter(),context,qp.qc);
+    register(ctx);
+    result.value=copy(qp.iter(),ctx,qp.qc);
   }
  catch (  final JobException ex) {
-    context.jobs.results.remove(job().id());
+    ctx.jobs.results.remove(job().id());
   }
 catch (  final QueryException ex) {
     result.exception=ex;
@@ -15,8 +16,9 @@ catch (  final Throwable ex) {
   }
  finally {
     qp.close();
-    unregister(context);
+    unregister(ctx);
     result.time=System.currentTimeMillis();
+    if (cache)     ctx.jobs.schedule(this);
     popJob();
   }
 }
