@@ -1,0 +1,12 @@
+{
+  final String id=query(_JOBS_SCHEDULE.args(VERY_SLOW_QUERY));
+  try {
+    final String list=query(_JOBS_LIST_DETAILS.args() + "[@id = '" + id+ "']");
+    query(list + "/@user/string()",UserText.ADMIN);
+    query(list + "/@state/string()",JobState.RUNNING.toString().toLowerCase(Locale.ENGLISH));
+    query(list + "/@duration/string() castable as xs:dayTimeDuration","true");
+  }
+  finally {
+    query(_JOBS_STOP.args(id));
+  }
+}
