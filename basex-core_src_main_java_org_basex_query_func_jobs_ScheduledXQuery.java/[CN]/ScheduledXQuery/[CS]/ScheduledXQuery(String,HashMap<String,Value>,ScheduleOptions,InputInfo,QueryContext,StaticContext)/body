@@ -3,33 +3,25 @@
   this.bindings=bindings;
   this.info=info;
   this.cache=opts.get(ScheduleOptions.CACHE);
+  this.job().context=qc.context;
   final String bu=opts.get(XQueryOptions.BASE_URI);
   uri=bu != null ? bu : string(sc.baseURI().string());
-  ctx=qc.context;
-  final JobPool pool=ctx.jobs;
+  final JobPool pool=qc.context.jobs;
   final String id=job().id();
-  if (cache)   pool.results.put(id,result);
   final String del=opts.get(ScheduleOptions.START);
-  long delay=0;
-  if (!del.isEmpty()) {
-    qc.initDateTime();
-    if (Dur.DTD.matcher(del).matches()) {
-      delay=ms(new DTDur(Token.token(del),info));
-    }
- else     if (ADate.TIME.matcher(del).matches()) {
-      delay=ms(new DTDur(new Tim(Token.token(del),info),(ADate)qc.time,info));
-      while (delay <= 0)       delay+=86400;
-    }
- else {
-      delay=ms(new DTDur(new Dtm(Token.token(del),info),(ADate)qc.datm,info));
-    }
-    if (delay < 0)     throw JOBS_RANGE.get(info,del);
-  }
+  final long delay=del.isEmpty() ? 0 : ms(del,qc);
+  if (delay < 0)   throw JOBS_RANGE.get(info,del);
   long interval=0;
   final String inter=opts.get(ScheduleOptions.INTERVAL);
   if (!inter.isEmpty())   interval=ms(new DTDur(Token.token(inter),info));
   if (interval < 1000 && interval != 0)   throw JOBS_RANGE.get(info,inter);
-  pool.scheduleJob(this,delay,interval);
-  do   Performance.sleep(1);
- while (delay == 0 && pool.active.get(id) == null && !result.finished());
+  repeat=interval > 0;
+  final String dur=opts.get(ScheduleOptions.END);
+  final long duration=dur.isEmpty() ? Long.MAX_VALUE : ms(dur,qc);
+  if (duration <= delay)   throw JOBS_RANGE.get(info,dur);
+  if (cache) {
+    if (repeat)     throw JOBS_CONFLICT.get(info);
+    pool.results.put(id,result);
+  }
+  new JobTask(this,pool,delay,interval,duration);
 }

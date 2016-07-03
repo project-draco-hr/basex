@@ -1,7 +1,11 @@
 {
   checkAdmin(qc);
+  final TokenList list=new TokenList();
   final Map<String,Job> active=qc.context.jobs.active;
-  final TokenList list=new TokenList(active.size());
-  for (  final String id : active.keySet())   list.add(id);
-  return StrSeq.get(list);
+  final Set<String> set=active.keySet();
+  for (  final String id : set)   list.add(id);
+  for (  final String id : qc.context.jobs.tasks.keySet()) {
+    if (!set.contains(id))     list.add(id);
+  }
+  return StrSeq.get(sort(list));
 }
