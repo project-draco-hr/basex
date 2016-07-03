@@ -3,21 +3,30 @@
   table.description=JOBS;
   table.header.add(uc(ID));
   table.header.add(TYPE);
-  table.header.add(DURATION);
   table.header.add(STATE);
   table.header.add(USER);
-  final Map<String,Job> active=context.jobs.active;
-  for (  final Job job : active.values()) {
+  table.header.add(DURATION);
+  table.header.add(START);
+  table.header.add(END);
+  final JobPool jobs=context.jobs;
+  for (  final byte[] key : ids(context)) {
+    final String id=string(key);
+    Job job=jobs.active.get(id);
+    JobTask jt=jobs.tasks.get(id);
+    JobResult jr=jobs.results.get(id);
+    if (job == null && jr != null)     job=jr.job;
+    if (job == null && jt != null)     job=jt.job;
+    if (job == null)     continue;
     final JobContext jc=job.job();
+    final long ms=jc.performance != null ? (System.nanoTime() - jc.performance.start()) / 1000000 : jr != null ? jr.time / 1000000 : -1;
     final TokenList tl=new TokenList(5);
-    tl.add(jc.id());
+    tl.add(id);
     tl.add(jc.type());
-    if (jc.performance != null) {
-      final long ms=(System.nanoTime() - jc.performance.start()) / 1000000;
-      tl.add(new DTDur(ms).string(null));
-    }
     tl.add(job.state.toString().toLowerCase(Locale.ENGLISH));
     tl.add(jc.context.user().name());
+    tl.add(ms >= 0 ? DTDur.get(ms).string(null) : EMPTY);
+    tl.add(jt != null ? Dtm.get(jt.start).string(null) : EMPTY);
+    tl.add(jt != null && jt.end != Long.MAX_VALUE ? Dtm.get(jt.end).string(null) : EMPTY);
     table.contents.add(tl);
   }
   out.println(table.sort().finish());

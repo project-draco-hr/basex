@@ -1,21 +1,11 @@
 {
   checkAdmin(qc);
-  final JobPool jobs=qc.context.jobs;
-  final Set<String> set=new HashSet<>();
-  if (exprs.length == 0) {
-    for (    final String id : jobs.active.keySet())     set.add(id);
-    for (    final String id : jobs.tasks.keySet())     set.add(id);
-    for (    final String id : jobs.results.keySet())     set.add(id);
-  }
- else {
-    set.add(Token.string(toToken(exprs[0],qc)));
-  }
-  final TokenList list=new TokenList(set.size());
-  for (  final String id : set)   list.add(id);
-  sort(list);
-  final int ml=qc.context.soptions.get(StaticOptions.LOGMSGMAXLEN);
+  final Context ctx=qc.context;
+  final TokenList ids=exprs.length == 0 ? JobsList.ids(ctx) : new TokenList(1).add(toToken(exprs[0],qc));
+  final JobPool jobs=ctx.jobs;
+  final int ml=ctx.soptions.get(StaticOptions.LOGMSGMAXLEN);
   final ValueBuilder vb=new ValueBuilder();
-  for (  final byte[] key : list) {
+  for (  final byte[] key : ids) {
     final String id=string(key);
     Job job=jobs.active.get(id);
     JobTask jt=jobs.tasks.get(id);
@@ -30,8 +20,11 @@
     elem.add(TYPE,jc.type());
     elem.add(STATE,job.state.toString().toLowerCase(Locale.ENGLISH));
     elem.add(USER,jc.context.user().name());
-    if (ms >= 0)     elem.add(DURATION,new DTDur(ms).string(info));
-    if (jt != null)     elem.add(START,new Dtm(jt.start,info).string(info));
+    if (ms >= 0)     elem.add(DURATION,DTDur.get(ms).string(info));
+    if (jt != null) {
+      elem.add(START,Dtm.get(jt.start).string(info));
+      if (jt.end != Long.MAX_VALUE)       elem.add(END,Dtm.get(jt.end).string(info));
+    }
     elem.add(chop(normalize(token(jc.toString())),ml));
     vb.add(elem);
   }
