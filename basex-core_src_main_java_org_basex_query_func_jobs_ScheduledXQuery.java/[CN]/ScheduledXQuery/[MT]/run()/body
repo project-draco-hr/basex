@@ -1,6 +1,6 @@
 {
-  final Context ctx=qp.qc.context;
   try {
+    qp=parse();
     pushJob(qp);
     register(ctx);
     result.value=copy(qp.iter(),ctx,qp.qc);
@@ -15,10 +15,13 @@ catch (  final Throwable ex) {
     result.exception=BXXQ_UNEXPECTED_X.get(info,ex);
   }
  finally {
-    qp.close();
-    unregister(ctx);
     result.time=System.currentTimeMillis();
-    if (cache)     ctx.jobs.schedule(this);
-    popJob();
+    if (cache)     ctx.jobs.scheduleResult(this);
+    if (qp != null) {
+      qp.close();
+      unregister(ctx);
+      popJob();
+      qp=null;
+    }
   }
 }

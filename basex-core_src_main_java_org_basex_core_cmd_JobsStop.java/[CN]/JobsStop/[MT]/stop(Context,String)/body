@@ -1,6 +1,8 @@
 {
-  final Job job=ctx.jobs.queued.get(id);
+  final TimerTask task=ctx.jobs.tasks.get(id);
+  if (task != null)   task.cancel();
+  final Job job=ctx.jobs.active.get(id);
   if (job != null)   job.stop();
   ctx.jobs.results.remove(id);
-  return job != null;
+  return job != null || task != null;
 }

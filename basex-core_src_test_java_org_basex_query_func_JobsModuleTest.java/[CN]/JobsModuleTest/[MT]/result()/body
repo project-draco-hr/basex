@@ -1,5 +1,5 @@
 {
-  query("let $q := " + _JOBS_SCHEDULE.args(SLOW_QUERY," map{}"," map{'cache':true()}") + " return ("+ _HOF_UNTIL.args(" function($r) { " + _JOBS_FINISHED.args("$q") + " },"+ "function($c) { Q{java:java.lang.Thread}yield() }, ()")+ ","+ _JOBS_RESULT.args("$q")+ ')',"1");
+  query("let $q := " + _JOBS_SCHEDULE.args(SLOW_QUERY,"()"," map{'cache':true()}") + " return ("+ _HOF_UNTIL.args(" function($r) { " + _JOBS_FINISHED.args("$q") + " },"+ "function($c) { prof:sleep(1) }, ()")+ ","+ _JOBS_RESULT.args("$q")+ ')',"1");
   String id=query(_JOBS_SCHEDULE.args(SLOW_QUERY));
   while (true) {
     try {
@@ -10,9 +10,9 @@
       if (ex.error() == JOBS_UNKNOWN_X)       break;
       assertSame(JOBS_RUNNING_X,ex.error());
     }
-    Thread.yield();
+    Performance.sleep(1);
   }
-  id=query(_JOBS_SCHEDULE.args(SLOW_QUERY," map{}"," map{'cache':true()}"));
+  id=query(_JOBS_SCHEDULE.args(SLOW_QUERY,"()"," map{'cache':true()}"));
   while (true) {
     try {
       assertEquals("1",eval(_JOBS_RESULT.args(id)));
@@ -21,9 +21,9 @@
  catch (    final QueryException ex) {
       assertSame(JOBS_RUNNING_X,ex.error());
     }
-    Thread.yield();
+    Performance.sleep(1);
   }
-  id=query(_JOBS_SCHEDULE.args("\"db:open('db')\""," map{}"," map{'cache':true()}"));
-  while (query(_JOBS_FINISHED.args(id)).equals("false"))   Performance.sleep(10);
+  id=query(_JOBS_SCHEDULE.args("\"db:open('db')\"","()"," map{'cache':true()}"));
+  while (query(_JOBS_FINISHED.args(id)).equals("false"))   Performance.sleep(1);
   error(_JOBS_RESULT.args(id),BXDB_OPEN_X);
 }
