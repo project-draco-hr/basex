@@ -1,6 +1,6 @@
 {
-  query("let $q := " + _JOBS_SCHEDULE.args(SLOW_QUERY,"()"," map{'cache':true()}") + " return ("+ _HOF_UNTIL.args(" function($r) { " + _JOBS_FINISHED.args("$q") + " },"+ "function($c) { prof:sleep(1) }, ()")+ ","+ _JOBS_RESULT.args("$q")+ ')',"1");
-  String id=query(_JOBS_SCHEDULE.args(SLOW_QUERY));
+  query("let $q := " + _JOBS_EVAL.args(SLOW_QUERY,"()"," map{'cache':true()}") + " return ("+ _HOF_UNTIL.args(" function($r) { " + _JOBS_FINISHED.args("$q") + " },"+ "function($c) { prof:sleep(1) }, ()")+ ","+ _JOBS_RESULT.args("$q")+ ')',"1");
+  String id=query(_JOBS_EVAL.args(SLOW_QUERY));
   while (true) {
     try {
       eval(_JOBS_RESULT.args(id));
@@ -12,7 +12,7 @@
     }
     Performance.sleep(1);
   }
-  id=query(_JOBS_SCHEDULE.args(SLOW_QUERY,"()"," map{'cache':true()}"));
+  id=query(_JOBS_EVAL.args(SLOW_QUERY,"()"," map{'cache':true()}"));
   while (true) {
     try {
       assertEquals("1",eval(_JOBS_RESULT.args(id)));
@@ -23,7 +23,7 @@
     }
     Performance.sleep(1);
   }
-  id=query(_JOBS_SCHEDULE.args("\"db:open('db')\"","()"," map{'cache':true()}"));
+  id=query(_JOBS_EVAL.args("\"db:open('db')\"","()"," map{'cache':true()}"));
   while (query(_JOBS_FINISHED.args(id)).equals("false"))   Performance.sleep(1);
   error(_JOBS_RESULT.args(id),BXDB_OPEN_X);
 }

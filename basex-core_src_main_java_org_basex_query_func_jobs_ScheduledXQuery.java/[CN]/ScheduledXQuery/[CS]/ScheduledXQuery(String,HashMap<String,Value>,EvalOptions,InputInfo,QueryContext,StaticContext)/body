@@ -2,20 +2,20 @@
   this.query=query;
   this.bindings=bindings;
   this.info=info;
-  this.cache=opts.get(ScheduleOptions.CACHE);
+  this.cache=opts.get(EvalOptions.CACHE);
   this.job().context=qc.context;
   final String bu=opts.get(XQueryOptions.BASE_URI);
   uri=bu != null ? bu : string(sc.baseURI().string());
   final JobPool pool=qc.context.jobs;
   final String id=job().id();
-  final String del=opts.get(ScheduleOptions.START);
+  final String del=opts.get(EvalOptions.START);
   final long delay=del.isEmpty() ? 0 : ms(del,0,qc);
   long interval=0;
-  final String inter=opts.get(ScheduleOptions.INTERVAL);
+  final String inter=opts.get(EvalOptions.INTERVAL);
   if (!inter.isEmpty())   interval=ms(new DTDur(Token.token(inter),info));
   if (interval < 1000 && interval != 0)   throw JOBS_RANGE.get(info,inter);
   repeat=interval > 0;
-  final String dur=opts.get(ScheduleOptions.END);
+  final String dur=opts.get(EvalOptions.END);
   final long duration=dur.isEmpty() ? Long.MAX_VALUE : ms(dur,delay,qc);
   if (cache) {
     if (repeat)     throw JOBS_CONFLICT.get(info);
