@@ -25,44 +25,43 @@
         }
         scl++;
       }
-      exp=scl - pic.min[0];
+      exp=scl - pic.scaling;
       if (exp != 0) {
         final BigDecimal n=BigDecimal.TEN.pow(Math.abs(exp));
         num=(ANum)Calc.MULT.ev(num,Dec.get(exp > 0 ? BigDecimal.ONE.divide(n) : n),ii);
       }
     }
     num=num.round(pic.maxFrac,true).abs();
-    final String s=(num instanceof Dbl || num instanceof Flt ? Dec.get(BigDecimal.valueOf(num.dbl(ii))) : num).toString();
-    final int sep=s.indexOf('.');
+    String s=(num instanceof Dbl || num instanceof Flt ? Dec.get(BigDecimal.valueOf(num.dbl(ii))) : num).toString();
+    if (s.startsWith("0"))     s=s.substring(1);
+    final int fracSep=s.indexOf('.');
     final int sl=s.length();
-    final int il=sep == -1 ? sl : sep;
-    for (int i=il; i < pic.min[0]; ++i)     intgr.add(zero);
-    if (!s.startsWith("0.") || pic.min[0] > 0) {
-      for (int i=0; i < il; i++)       intgr.add(zero + s.charAt(i) - '0');
-    }
-    if (pic.group[0].length == 1 && pic.group[0][0] > 0) {
+    final int il=fracSep != -1 ? fracSep : sl;
+    for (int i=il; i < pic.minInt; ++i)     intgr.add(zero);
+    for (int i=0; i < il; i++)     intgr.add(zero + s.charAt(i) - '0');
+    final int gil=pic.groupInt.size();
+    if (gil == 1 && pic.groupInt.get(0) > 0) {
       for (int p=intgr.size() - (neg ? 2 : 1); p > 0; --p) {
-        if (p % pic.group[0][0] == 0)         intgr.insert(intgr.size() - p,grouping);
+        if (p % pic.groupInt.get(0) == 0)         intgr.insert(intgr.size() - p,grouping);
       }
     }
  else {
-      final int gl=pic.group[0].length;
-      for (int g=0; g < gl; ++g) {
-        final int pos=intgr.size() - pic.group[0][g];
+      for (int g=0; g < gil; g++) {
+        final int pos=intgr.size() - pic.groupInt.get(g);
         if (pos > 0)         intgr.insert(pos,grouping);
       }
     }
-    final int fl=sep == -1 ? 0 : sl - il - 1;
-    if (fl != 0)     for (int i=sep + 1; i < sl; i++)     fract.add(zero + s.charAt(i) - '0');
-    for (int i=fl; i < pic.min[1]; ++i)     fract.add(zero);
+    final int fl=fracSep == -1 ? 0 : sl - il - 1;
+    if (fl != 0)     for (int i=fracSep + 1; i < sl; i++)     fract.add(zero + s.charAt(i) - '0');
+    for (int i=fl; i < pic.minFrac; ++i)     fract.add(zero);
     final int ul=fract.size();
-    for (int p=pic.group[1].length - 1; p >= 0; p--) {
-      final int pos=pic.group[1][p];
+    for (int p=pic.groupFrac.size() - 1; p >= 0; p--) {
+      final int pos=pic.groupFrac.get(p);
       if (pos < ul)       fract.insert(pos,grouping);
     }
   }
   if (neg && pics.length != 2)   res.add(minus);
-  res.add(pic.prefSuf[0].toArray()).add(intgr.finish());
+  res.add(pic.prefix.toArray()).add(intgr.finish());
   if (!fract.isEmpty())   res.add(decimal).add(fract.finish());
   if (pic.minExp != 0) {
     res.add(exponent);
@@ -72,6 +71,6 @@
     for (int i=sl; i < pic.minExp; i++)     res.add(zero);
     for (int i=0; i < sl; i++)     res.add(zero + s.charAt(i) - '0');
   }
-  res.add(pic.prefSuf[1].toArray());
+  res.add(pic.suffix.toArray());
   return new TokenBuilder(res.finish()).finish();
 }

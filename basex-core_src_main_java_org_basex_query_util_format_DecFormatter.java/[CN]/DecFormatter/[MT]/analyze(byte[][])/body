@@ -4,36 +4,42 @@
   for (int p=0; p < picL; p++) {
     final byte[] pt=patterns[p];
     final Picture pic=new Picture();
-    int pos=0;
+    boolean frac=false;
     boolean act=false;
-    int exp=-1;
-    final int[] opt=new int[2];
+    boolean exp=false;
+    int optInt=0, optFrac=0;
     final int pl=pt.length;
     for (int i=0, cl; i < pl; i+=cl) {
       final int ch=ch(pt,i);
       cl=cl(pt,i);
       boolean active=contains(actives,ch);
       if (ch == decimal) {
-        ++pos;
+        frac=true;
         act=false;
       }
  else       if (ch == optional) {
-        opt[pos]++;
+        if (frac)         optFrac++;
+ else         optInt++;
       }
  else       if (ch == exponent) {
         if (act && containsActive(pt,i + cl)) {
-          exp=0;
+          exp=true;
         }
  else {
           active=false;
         }
       }
  else       if (ch == grouping) {
-        if (pos == 0)         pic.group[pos]=Array.add(pic.group[pos],pic.min[pos] + opt[pos]);
+        if (!frac)         pic.groupInt.add(pic.minInt + optInt);
       }
  else       if (contains(digits,ch)) {
-        if (exp == -1)         pic.min[pos]++;
- else         exp++;
+        if (exp) {
+          pic.minExp++;
+        }
+ else {
+          if (frac)           pic.minFrac++;
+ else           pic.minInt++;
+        }
       }
       if (active) {
         act=true;
@@ -41,20 +47,38 @@
  else {
         pic.pc|=ch == percent;
         pic.pm|=ch == permille;
-        pic.prefSuf[pos == 0 && act ? pos + 1 : pos].add(ch);
+        (frac || act ? pic.suffix : pic.prefix).add(ch);
       }
     }
-    final int[] igp=pic.group[0];
-    final int igl=igp.length;
-    for (int g=0; g < igl; ++g)     igp[g]=pic.min[0] + opt[0] - igp[g];
+    final IntList ipgp=pic.groupInt;
+    final int igl=ipgp.size();
+    for (int g=0; g < igl; ++g)     ipgp.set(g,pic.minInt + optInt - ipgp.get(g));
     if (igl > 1) {
       boolean reg=true;
-      final int i=igp[igl - 1];
-      for (int g=igl - 2; g >= 0; --g)       reg&=i * igl == igp[g];
-      if (reg)       pic.group[0]=new int[]{i};
+      final int i=ipgp.get(igl - 1);
+      for (int g=igl - 2; g >= 0; --g)       reg&=i * igl == ipgp.get(g);
+      if (reg) {
+        pic.groupInt.reset();
+        pic.groupInt.add(i);
+      }
     }
-    pic.maxFrac=pic.min[1] + opt[1];
-    pic.minExp=Math.max(0,exp);
+    pic.scaling=pic.minInt;
+    pic.maxFrac=optFrac + pic.minFrac;
+    if (pic.minInt == 0 && pic.maxFrac == 0) {
+      if (exp) {
+        pic.minFrac=1;
+        pic.maxFrac=1;
+      }
+ else {
+        pic.minInt=1;
+      }
+    }
+    if (exp && pic.minInt == 0 && optInt > 0) {
+      pic.minInt=1;
+    }
+    if (pic.minInt == 0 && pic.minFrac == 0) {
+      pic.minFrac=1;
+    }
     pics[p]=pic;
   }
   return pics;
