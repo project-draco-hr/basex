@@ -1,11 +1,16 @@
 {
   for (  final Data data : datas) {
     final String orig=data.meta.original;
-    if (!orig.isEmpty() && IO.get(orig).eq(qi.io))     return data;
+    if (!orig.isEmpty() && IO.get(orig).eq(qi.io)) {
+      qi.dbPath="";
+      return data;
+    }
     final String name=data.meta.name, dbName=qi.dbName;
     if (Prop.CASE ? name.equals(dbName) : name.equalsIgnoreCase(dbName))     return data;
   }
-  final Data data=open(qi);
+  Data data=open(qi);
   if (data != null)   return data;
-  return create(qi,single,info);
+  data=create(qi,single,info);
+  qi.dbPath="";
+  return data;
 }
