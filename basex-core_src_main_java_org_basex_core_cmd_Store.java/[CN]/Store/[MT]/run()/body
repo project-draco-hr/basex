@@ -12,7 +12,7 @@
   if (data.inMemory())   return error(NO_MAINMEM);
   final IOFile file=data.meta.binary(path);
   if (path.isEmpty() || path.endsWith(".") || file == null)   return error(PATH_INVALID_X,create ? path : args[0]);
-  if (lock && !startUpdate())   return false;
+  if (lock && !startUpdate(data))   return false;
   boolean ok=true;
   try {
     store(in,file);
@@ -23,7 +23,7 @@
     ok=error(FILE_NOT_SAVED_X,file);
   }
  finally {
-    if (lock)     ok&=finishUpdate();
+    if (lock)     ok&=finishUpdate(data);
   }
   return ok;
 }

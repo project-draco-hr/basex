@@ -1,14 +1,18 @@
 {
   final Data data=context.data();
+  if (!startUpdate(data))   return false;
+  boolean ok=true;
   try {
     optimizeAll(data,context,options,this);
   }
  catch (  final IOException ex) {
-    return error(Util.message(ex));
+    ok=error(Util.message(ex));
   }
  finally {
     context.closeDB();
+    ok&=finishUpdate(data);
   }
+  if (!ok)   return false;
   final Open open=new Open(data.meta.name);
   return open.run(context) ? info(DB_OPTIMIZED_X,data.meta.name,job().performance) : error(open.info());
 }

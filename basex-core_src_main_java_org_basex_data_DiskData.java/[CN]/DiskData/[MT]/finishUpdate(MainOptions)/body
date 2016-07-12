@@ -1,12 +1,11 @@
 {
+  if (closed)   return;
   final boolean auto=opts.get(MainOptions.AUTOFLUSH);
   if (auto) {
-    final IOFile uf=meta.updateFile();
-    if (!uf.exists())     throw Util.notExpected("%: lock file does not exist.",meta.name);
-    if (!uf.delete())     throw Util.notExpected("%: could not delete lock file.",meta.name);
+    final IOFile upd=meta.updateFile();
+    if (!upd.exists())     throw Util.notExpected("%: lock file does not exist.",meta.name);
+    if (!upd.delete())     throw Util.notExpected("%: could not delete lock file.",meta.name);
   }
-  if (!closed) {
-    flush(auto);
-    if (!table.lock(false))     throw Util.notExpected("Database '%': could not unlock.",meta.name);
-  }
+  flush(auto);
+  if (!table.lock(false))   throw Util.notExpected("Database '%': could not unlock.",meta.name);
 }

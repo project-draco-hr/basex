@@ -3,7 +3,7 @@
   final DiskData odata=(DiskData)data;
   final MetaData ometa=odata.meta;
   final String name=ometa.name;
-  if (context.datas.pins(ometa.name) > 1)   throw new BaseXException(DB_PINNED_X,name);
+  if (context.datas.pins(name) > 1)   throw new BaseXException(DB_PINNED_X,name);
   options.set(MainOptions.TEXTINDEX,ometa.textindex);
   options.set(MainOptions.ATTRINDEX,ometa.attrindex);
   options.set(MainOptions.TOKENINDEX,ometa.tokenindex);
@@ -21,28 +21,29 @@
   options.set(MainOptions.MAXCATS,ometa.maxcats);
   if (cmd != null)   cmd.size=ometa.size;
   final StaticOptions sopts=context.soptions;
-  final String tname=sopts.randomDbName(name);
+  final String tmpName=sopts.randomDbName(name);
   final DBParser parser=new DBParser(odata,options,cmd);
-  try (final DiskBuilder builder=new DiskBuilder(tname,parser,sopts,options)){
-    final DiskData dt=builder.build();
+  try (final DiskBuilder builder=new DiskBuilder(tmpName,parser,sopts,options)){
+    final DiskData ndata=builder.build();
+    final MetaData nmeta=ndata.meta;
     try {
-      dt.meta.createtext=ometa.createtext;
-      dt.meta.createattr=ometa.createattr;
-      dt.meta.createtoken=ometa.createtoken;
-      dt.meta.createft=ometa.createft;
-      dt.meta.filesize=ometa.filesize;
-      dt.meta.dirty=true;
-      CreateIndex.create(dt,cmd);
-      final IOFile bin=data.meta.binaries();
-      if (bin.exists())       bin.rename(dt.meta.binaries());
-      final IOFile upd=odata.meta.updateFile();
-      if (upd.exists())       upd.copyTo(dt.meta.updateFile());
+      nmeta.createtext=ometa.createtext;
+      nmeta.createattr=ometa.createattr;
+      nmeta.createtoken=ometa.createtoken;
+      nmeta.createft=ometa.createft;
+      nmeta.original=ometa.original;
+      nmeta.filesize=ometa.filesize;
+      nmeta.time=ometa.time;
+      nmeta.dirty=true;
+      CreateIndex.create(ndata,cmd);
+      final IOFile bin=ometa.binaries();
+      if (bin.exists())       bin.rename(nmeta.binaries());
     }
   finally {
-      dt.close();
+      ndata.close();
     }
   }
-   Close.close(data,context);
+   Close.close(odata,context);
   if (!DropDB.drop(name,sopts))   throw new BaseXException(DB_NOT_DROPPED_X,name);
-  if (!AlterDB.alter(tname,name,sopts))   throw new BaseXException(DB_NOT_RENAMED_X,tname);
+  if (!AlterDB.alter(tmpName,name,sopts))   throw new BaseXException(DB_NOT_RENAMED_X,tmpName);
 }
