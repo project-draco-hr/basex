@@ -8,18 +8,18 @@
       req.attributes.put(r,string(attr.string()));
     }
     checkRequest(req);
-    final ANode payload=parseHdrs(request.children(),req.headers);
+    final ANode payload=parseHeaders(request.children(),req.headers);
     final String method=req.attribute(Request.METHOD);
     if (Strings.eq(method,TRACE,DELETE) && (payload != null || bodies != null))     throw HC_REQ_X.get(info,"Body not expected for method " + method);
     if (payload != null) {
       final QNm pl=payload.qname();
       if (pl.eq(Q_BODY)) {
         final Item it=bodies != null ? bodies.next() : null;
-        parseBody(payload,it,req.payloadAttrs,req.bodyContent);
+        parseBody(payload,it,req.payloadAtts,req.bodyContent);
         req.isMultipart=false;
       }
  else       if (pl.eq(Q_MULTIPART)) {
-        parseMultipart(payload,bodies,req.payloadAttrs,req.parts);
+        parseMultipart(payload,bodies,req.payloadAtts,req.parts);
         req.isMultipart=true;
       }
  else {

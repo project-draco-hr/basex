@@ -1,35 +1,44 @@
 {
-  String method=atts.get(SerializerOptions.METHOD.name());
-  if (method == null) {
-    final MediaType type=new MediaType(atts.get(SerializerOptions.MEDIA_TYPE.name()));
-    if (type.is(MediaType.APPLICATION_HTML_XML)) {
-      method=SerialMethod.XHTML.toString();
+  final SerializerOptions sopts=new SerializerOptions();
+  sopts.set(SerializerOptions.INDENT,YesNo.NO);
+  String src=null, method=null;
+  for (  final Entry<String,String> entry : atts.entrySet()) {
+    final String key=entry.getKey(), value=entry.getValue();
+    if (key.equals(SRC)) {
+      src=value;
     }
- else     if (type.is(MediaType.TEXT_HTML)) {
-      method=SerialMethod.HTML.toString();
-    }
- else     if (type.isXML()) {
-      method=SerialMethod.XML.toString();
-    }
- else     if (type.isText()) {
-      method=SerialMethod.TEXT.toString();
+ else     if (key.equals(SerializerOptions.METHOD.name())) {
+      method=value.equals(BINARY) ? SerialMethod.BASEX.toString() : value;
     }
  else {
-      method=SerialMethod.XML.toString();
+      sopts.assign(key,value);
+      if (method == null && key.equals(SerializerOptions.MEDIA_TYPE.name())) {
+        final MediaType type=new MediaType(value);
+        if (type.is(MediaType.APPLICATION_HTML_XML)) {
+          method=SerialMethod.XHTML.toString();
+        }
+ else         if (type.is(MediaType.TEXT_HTML)) {
+          method=SerialMethod.HTML.toString();
+        }
+ else         if (type.isXML()) {
+          method=SerialMethod.XML.toString();
+        }
+ else         if (type.isText()) {
+          method=SerialMethod.TEXT.toString();
+        }
+ else {
+          method=SerialMethod.BASEX.toString();
+        }
+      }
     }
   }
-  final String src=atts.get(SRC);
-  if (src == null) {
-    write(payload,atts,method,out);
+  sopts.assign(SerializerOptions.METHOD.name(),method);
+  if (src != null) {
+    out.write(IO.get(src).read());
   }
  else {
-    final IOUrl io=new IOUrl(src);
-    if (Strings.eq(method,BINARY)) {
-      out.write(io.read());
+    try (final Serializer ser=Serializer.get(out,sopts)){
+      for (      final Item it : payload)       ser.serialize(it);
     }
- else {
-      final ItemList buffer=new ItemList().add(Str.get(new TextInput(io).content()));
-      write(buffer,atts,method,out);
-    }
-  }
+   }
 }

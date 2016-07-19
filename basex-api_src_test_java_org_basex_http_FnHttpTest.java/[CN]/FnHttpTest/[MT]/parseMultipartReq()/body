@@ -2,7 +2,7 @@
   final String multiReq="<http:request " + "xmlns:http='http://expath.org/ns/http-client' " + "method='POST' href='" + REST_ROOT + "'>"+ "<http:header name='hdr1' value='hdr1val'/>"+ "<http:header name='hdr2' value='hdr2val'/>"+ "<http:multipart media-type='multipart/mixed' boundary='xxxx'>"+ "<http:header name='p1hdr1' value='p1hdr1val'/>"+ "<http:header name='p1hdr2' value='p1hdr2val'/>"+ "<http:body media-type='text/plain'>"+ "Part1"+ "</http:body>"+ "<http:header name='p2hdr1' value='p2hdr1val'/>"+ "<http:body media-type='text/plain'>"+ "Part2"+ "</http:body>"+ "<http:body media-type='text/plain'>"+ "Part3"+ "</http:body>"+ "</http:multipart>"+ "</http:request>";
   final DBNode dbNode1=new DBNode(new IOContent(multiReq));
   final HttpRequestParser rp=new HttpRequestParser(null);
-  final HttpRequest r=rp.parse(dbNode1.children().next(),null);
+  final HttpRequest r=rp.parse(dbNode1.children().next());
   assertEquals(2,r.attributes.size());
   assertEquals(2,r.headers.size());
   assertTrue(r.isMultipart);
@@ -11,13 +11,13 @@
   Part part=i.next();
   assertEquals(2,part.headers.size());
   assertEquals(1,part.bodyContent.size());
-  assertEquals(1,part.bodyAttrs.size());
+  assertEquals(1,part.bodyAtts.size());
   part=i.next();
   assertEquals(1,part.headers.size());
   assertEquals(1,part.bodyContent.size());
-  assertEquals(1,part.bodyAttrs.size());
+  assertEquals(1,part.bodyAtts.size());
   part=i.next();
   assertEquals(0,part.headers.size());
   assertEquals(1,part.bodyContent.size());
-  assertEquals(1,part.bodyAttrs.size());
+  assertEquals(1,part.bodyAtts.size());
 }

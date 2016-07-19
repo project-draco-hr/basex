@@ -2,12 +2,15 @@
   final TokenBuilder boundTb=new TokenBuilder();
   boundTb.add("--").add(boundary).add(CRLF);
   out.write(boundTb.finish());
+  final HashMap<String,String> bodyAtts=part.bodyAtts;
+  final String mt=bodyAtts.get(SerializerOptions.MEDIA_TYPE.name());
+  if (!part.headers.containsKey(CONTENT_TYPE))   part.headers.put(CONTENT_TYPE,mt);
   for (  final Entry<String,String> header : part.headers.entrySet()) {
     final TokenBuilder hdrTb=new TokenBuilder();
     hdrTb.add(header.getKey()).add(": ").add(header.getValue()).add(CRLF);
     out.write(hdrTb.finish());
   }
   out.write(CRLF);
-  writePayload(part.bodyContent,part.bodyAttrs,out);
+  writePayload(part.bodyContent,bodyAtts,out);
   out.write(CRLF);
 }

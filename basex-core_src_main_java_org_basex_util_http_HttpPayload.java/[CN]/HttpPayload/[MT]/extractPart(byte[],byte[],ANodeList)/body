@@ -1,21 +1,21 @@
 {
   final byte[] line=readLine();
   if (line == null || eq(line,end))   return false;
-  MediaType mt=MediaType.TEXT_PLAIN;
+  MediaType type=MediaType.TEXT_PLAIN;
   for (byte[] l=line; l != null && l.length > 0; ) {
     final int pos=indexOf(l,':');
     if (pos > 0) {
       final byte[] key=substring(l,0,pos);
       final byte[] val=trim(substring(l,pos + 1));
-      if (eq(lc(key),CONTENT_TYPE_LC))       mt=new MediaType(string(val));
+      if (eq(lc(key),CONTENT_TYPE_LC))       type=new MediaType(string(val));
       if (val.length != 0 && parts != null)       parts.add(new FElem(Q_HEADER).add(NAME,key).add(VALUE,val));
     }
     l=readLine();
   }
   if (parts != null) {
-    parts.add(new FElem(Q_BODY).add(SerializerOptions.MEDIA_TYPE.name(),mt.toString()));
+    parts.add(new FElem(Q_BODY).add(SerializerOptions.MEDIA_TYPE.name(),type.toString()));
   }
-  final byte[] pl=extractPart(sep,end,mt.parameters().get(CHARSET));
-  if (payloads != null)   payloads.add(parse(pl,mt));
+  final byte[] payload=extractPart(sep,end,type.parameters().get(CHARSET));
+  if (payloads != null)   payloads.add(parse(payload,type));
   return true;
 }

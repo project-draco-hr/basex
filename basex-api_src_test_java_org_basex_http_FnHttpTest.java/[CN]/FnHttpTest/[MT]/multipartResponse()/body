@@ -17,12 +17,12 @@
   conn.headers=hdrs;
   conn.contentType="multipart/alternative; boundary=\"boundary42\"";
   conn.content=token("--boundary42" + CRLF + "Content-Type: text/plain; charset=us-ascii"+ CRLF+ CRLF+ "...plain text...."+ CRLF+ CRLF+ "--boundary42"+ CRLF+ "Content-Type: text/richtext"+ CRLF+ CRLF+ ".... richtext..."+ CRLF+ "--boundary42"+ CRLF+ "Content-Type: text/x-whatever"+ CRLF+ CRLF+ ".... fanciest formatted version  "+ CRLF+ "..."+ CRLF+ "--boundary42--");
-  final ItemList returned=new HttpResponse(null,ctx.options).getResponse(conn,true,null);
-  final ItemList expected=new ItemList();
+  final Value returned=new HttpResponse(null,ctx.options).getResponse(conn,true,null);
+  final ValueBuilder expected=new ValueBuilder();
   final String response="<http:response " + "xmlns:http='http://expath.org/ns/http-client' " + "status='200' message='OK'>"+ "<http:header name='Subject' value='Formatted text mail'/>"+ "<http:header name='Content-Type' "+ "value='multipart/alternative;boundary=&quot;boundary42&quot;'/>"+ "<http:header name='MIME-version' value='1.0'/>"+ "<http:header name='From' value='Nathaniel Borenstein "+ "&lt;nsb@bellcore.com&gt;'/>"+ "<http:multipart media-type='multipart/alternative' "+ "boundary='boundary42'>"+ "<http:header name='Content-Type' "+ "value='text/plain; charset=us-ascii'/>"+ "<http:body media-type='text/plain; charset=us-ascii'/>"+ "<http:header name='Content-Type' value='text/richtext'/>"+ "<http:body media-type='text/richtext'/>"+ "<http:header name='Content-Type' value='text/x-whatever'/>"+ "<http:body media-type='text/x-whatever'/>"+ "</http:multipart>"+ "</http:response> ";
   expected.add(new DBNode(new IOContent(response)).children().next());
   expected.add(Str.get("...plain text....\n\n"));
   expected.add(Str.get(".... richtext...\n"));
   expected.add(Str.get(".... fanciest formatted version  \n...\n"));
-  compare(expected,returned);
+  compare(expected.value(),returned);
 }
