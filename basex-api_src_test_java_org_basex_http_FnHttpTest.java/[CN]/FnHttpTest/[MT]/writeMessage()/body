@@ -1,27 +1,27 @@
 {
   final HttpRequest req1=new HttpRequest();
-  final FakeHttpConnection conn1=new FakeHttpConnection(new URL("http://www.test.com"));
+  final OutputStream out1=fakeOutput();
   req1.payloadAtts.put(SerializerOptions.MEDIA_TYPE.name(),"text/xml");
   final FElem e1=new FElem("a").add("a");
   req1.payload.add(e1);
   req1.payload.add(Str.get("<b>b</b>"));
-  HttpClient.writePayload(conn1.getOutputStream(),req1);
-  assertEquals("<a>a</a>&lt;b&gt;b&lt;/b&gt;",conn1.out.toString(Strings.UTF8));
+  HttpClient.writePayload(out1,req1);
+  assertEquals("<a>a</a>&lt;b&gt;b&lt;/b&gt;",out1.toString());
   final HttpRequest req2=new HttpRequest();
-  final FakeHttpConnection conn2=new FakeHttpConnection(new URL("http://www.test.com"));
+  final OutputStream out2=fakeOutput();
   req2.payloadAtts.put(SerializerOptions.MEDIA_TYPE.name(),"text/plain");
   final FElem e2=new FElem("a").add("a");
   req2.payload.add(e2);
   req2.payload.add(Str.get("<b>b</b>"));
-  HttpClient.writePayload(conn2.getOutputStream(),req2);
-  assertEquals("a<b>b</b>",conn2.out.toString());
+  HttpClient.writePayload(out2,req2);
+  assertEquals("a<b>b</b>",out2.toString());
   final HttpRequest req3=new HttpRequest();
-  final FakeHttpConnection conn3=new FakeHttpConnection(new URL("http://www.test.com"));
+  final OutputStream out3=fakeOutput();
   req3.payloadAtts.put(SerializerOptions.MEDIA_TYPE.name(),"text/xml");
   req3.payloadAtts.put("method","text");
   final FElem e3=new FElem("a").add("a");
   req3.payload.add(e3);
   req3.payload.add(Str.get("<b>b</b>"));
-  HttpClient.writePayload(conn3.getOutputStream(),req3);
-  assertEquals("a<b>b</b>",conn3.out.toString());
+  HttpClient.writePayload(out3,req3);
+  assertEquals("a<b>b</b>",out3.toString());
 }

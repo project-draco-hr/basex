@@ -2,14 +2,14 @@
   final HttpRequest req1=new HttpRequest();
   req1.payloadAtts.put("method",SerialMethod.BASEX.toString());
   req1.payload.add(new Hex(token("test")));
-  final FakeHttpConnection conn1=new FakeHttpConnection(new URL("http://www.test.com"));
-  HttpClient.writePayload(conn1.getOutputStream(),req1);
-  assertEquals(conn1.out.toString(Strings.UTF8),"test");
+  final OutputStream out1=fakeOutput();
+  HttpClient.writePayload(out1,req1);
+  assertEquals("test",out1.toString());
   final HttpRequest req2=new HttpRequest();
   req2.payloadAtts.put("method",SerialMethod.BASEX.toString());
   final FElem e3=new FElem("a").add("test");
   req2.payload.add(e3);
-  final FakeHttpConnection conn2=new FakeHttpConnection(new URL("http://www.test.com"));
-  HttpClient.writePayload(conn2.getOutputStream(),req2);
-  assertEquals("<a>test</a>",conn2.out.toString());
+  final OutputStream out2=fakeOutput();
+  HttpClient.writePayload(out2,req2);
+  assertEquals("<a>test</a>",out2.toString());
 }
