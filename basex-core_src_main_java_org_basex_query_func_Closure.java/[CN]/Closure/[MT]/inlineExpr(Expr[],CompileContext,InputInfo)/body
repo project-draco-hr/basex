@@ -1,0 +1,15 @@
+{
+  if (expr.has(Flag.CTX))   return null;
+  cc.info(OPTINLINE_X,this);
+  final LinkedList<Clause> cls=exprs.length == 0 && global.isEmpty() ? null : new LinkedList<Clause>();
+  final IntObjMap<Var> vs=new IntObjMap<>();
+  final int al=args.length;
+  for (int a=0; a < al; a++) {
+    cls.add(new Let(cc.copy(args[a],vs),exprs[a],false).optimize(cc));
+  }
+  for (  final Entry<Var,Expr> e : global.entrySet()) {
+    cls.add(new Let(cc.copy(e.getKey(),vs),e.getValue(),false).optimize(cc));
+  }
+  final Expr cpy=expr.copy(cc,vs), rt=type == null ? cpy : new TypeCheck(scope.sc,ii,cpy,type,true).optimize(cc);
+  return cls == null ? rt : new GFLWOR(ii,cls,rt).optimize(cc);
+}

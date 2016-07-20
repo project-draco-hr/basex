@@ -1,0 +1,45 @@
+{
+  final Expr c=super.optimize(cc);
+  if (c != this)   return c;
+  final int es=exprs.length;
+  final ExprList list=new ExprList(es);
+  for (int i=0; i < es; i++) {
+    Expr e=exprs[i];
+    if (e instanceof CmpG) {
+      while (i + 1 < es && exprs[i + 1] instanceof CmpG) {
+        final Expr tmp=((CmpG)e).union((CmpG)exprs[i + 1],cc);
+        if (tmp != null) {
+          e=tmp;
+          i++;
+        }
+ else {
+          break;
+        }
+      }
+    }
+    if (e == Bln.TRUE)     return optPre(Bln.TRUE,cc);
+    if (e != Bln.FALSE)     list.add(e);
+  }
+  if (list.isEmpty())   return optPre(Bln.FALSE,cc);
+  if (es != list.size()) {
+    cc.info(OPTREWRITE_X,this);
+    exprs=list.finish();
+  }
+  compFlatten(cc);
+  boolean not=true;
+  for (  final Expr expr : exprs) {
+    if (!expr.isFunction(Function.NOT)) {
+      not=false;
+      break;
+    }
+  }
+  if (not) {
+    cc.info(OPTREWRITE_X,this);
+    final int el=exprs.length;
+    final Expr[] inner=new Expr[el];
+    for (int e=0; e < el; e++)     inner[e]=((Arr)exprs[e]).exprs[0];
+    final Expr ex=new And(info,inner).optimize(cc);
+    return Function.NOT.get(cc.sc(),info,ex).optimize(cc);
+  }
+  return exprs.length == 1 ? compBln(exprs[0],info,cc.sc()) : this;
+}

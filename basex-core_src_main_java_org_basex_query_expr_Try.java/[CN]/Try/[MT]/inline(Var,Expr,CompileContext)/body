@@ -1,0 +1,23 @@
+{
+  boolean change=false;
+  try {
+    final Expr sub=expr.inline(var,ex,cc);
+    if (sub != null) {
+      if (sub.isValue())       return optPre(sub,cc);
+      expr=sub;
+      change=true;
+    }
+  }
+ catch (  final QueryException qe) {
+    if (!qe.isCatchable())     throw qe;
+    for (    final Catch c : catches) {
+      if (c.matches(qe)) {
+        final Catch nw=c.inline(var,ex,cc);
+        return optPre((nw == null ? c : nw).asExpr(qe,cc),cc);
+      }
+    }
+    throw qe;
+  }
+  for (  final Catch c : catches)   change|=c.inline(var,ex,cc) != null;
+  return change ? this : null;
+}

@@ -1,0 +1,22 @@
+{
+  if (compiled)   return this;
+  compiled=true;
+  checkUpdating();
+  for (  final Entry<Var,Expr> e : global.entrySet()) {
+    final Expr bound=e.getValue().compile(cc);
+    e.setValue(bound);
+    e.getKey().refineType(bound.seqType(),cc);
+  }
+  scope.prepareCompile(cc);
+  try {
+    expr=expr.compile(cc);
+  }
+ catch (  final QueryException qe) {
+    expr=FnError.get(qe,type != null ? type : expr.seqType(),cc.sc());
+  }
+ finally {
+    scope.finishCompile(this,cc);
+  }
+  expr.markTailCalls(cc);
+  return optimize(cc);
+}

@@ -1,0 +1,28 @@
+{
+  boolean changed=false;
+  while (iter.hasNext()) {
+    final Clause clause=iter.next();
+    try {
+      final Clause cl=clause.inline(var,ex,cc);
+      if (cl != null) {
+        changed=true;
+        iter.set(cl);
+      }
+    }
+ catch (    final QueryException qe) {
+      iter.remove();
+      return clauseError(qe,iter,cc);
+    }
+  }
+  try {
+    final Expr rt=ret.inline(var,ex,cc);
+    if (rt != null) {
+      changed=true;
+      ret=rt;
+    }
+  }
+ catch (  final QueryException qe) {
+    return clauseError(qe,iter,cc);
+  }
+  return changed;
+}

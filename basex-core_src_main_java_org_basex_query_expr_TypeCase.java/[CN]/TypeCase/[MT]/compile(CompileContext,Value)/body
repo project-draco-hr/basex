@@ -1,0 +1,14 @@
+{
+  final Value val=var != null && v != null ? var.checkType(v,cc.qc,true) : null;
+  try {
+    super.compile(cc);
+    if (val != null) {
+      final Expr inlined=expr.inline(var,val,cc);
+      if (inlined != null)       expr=inlined;
+    }
+  }
+ catch (  final QueryException ex) {
+    expr=FnError.get(ex,expr.seqType(),cc.sc());
+  }
+  return optimize(cc);
+}

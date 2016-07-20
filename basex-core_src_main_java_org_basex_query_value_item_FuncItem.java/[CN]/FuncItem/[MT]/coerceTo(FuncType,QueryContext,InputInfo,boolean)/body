@@ -3,22 +3,24 @@
   if (pl != ft.argTypes.length)   throw QueryError.typeError(this,ft.seqType(),null,ii);
   final FuncType tp=funcType();
   if (tp.instanceOf(ft))   return this;
-  final VarScope vsc=new VarScope(sc);
+  final VarScope scp=new VarScope(sc);
   final Var[] vars=new Var[pl];
   final Expr[] refs=new Expr[pl];
   for (int p=pl; p-- > 0; ) {
-    vars[p]=vsc.addNew(params[p].name,ft.argTypes[p],true,qc,ii);
+    vars[p]=scp.addNew(params[p].name,ft.argTypes[p],true,qc,ii);
     refs[p]=new VarRef(ii,vars[p]);
   }
   final Expr e=new DynFuncCall(ii,sc,this,refs);
-  final Expr optimized=opt ? e.optimize(qc,vsc) : e, checked;
+  final CompileContext cc=new CompileContext(qc);
+  cc.pushScope(scp);
+  final Expr optimized=opt ? e.optimize(cc) : e, checked;
   if (ft.type == null || tp.type != null && tp.type.instanceOf(ft.type)) {
     checked=optimized;
   }
  else {
     final TypeCheck tc=new TypeCheck(sc,ii,optimized,ft.type,true);
-    checked=opt ? tc.optimize(qc,vsc) : tc;
+    checked=opt ? tc.optimize(cc) : tc;
   }
   checked.markTailCalls(null);
-  return new FuncItem(sc,anns,name,vars,ft,checked,vsc.stackSize());
+  return new FuncItem(sc,anns,name,vars,ft,checked,scp.stackSize());
 }

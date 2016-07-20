@@ -1,0 +1,51 @@
+{
+  for (int p=0; p < preds.length; p++) {
+    Expr pred=preds[p].optimizeEbv(cc);
+    preds[p]=pred;
+    if (pred instanceof CmpG || pred instanceof CmpV) {
+      final Cmp cmp=(Cmp)pred;
+      final Expr e1=cmp.exprs[0], e2=cmp.exprs[1];
+      if (e1.isFunction(Function.POSITION)) {
+        final SeqType st2=e2.seqType();
+        if (e2.isFunction(Function.LAST) || st2.one() && st2.type.isNumber()) {
+          if (cmp instanceof CmpG && ((CmpG)cmp).op == OpG.EQ || cmp instanceof CmpV && ((CmpV)cmp).op == OpV.EQ) {
+            cc.info(OPTREWRITE_X,pred);
+            preds[p]=e2;
+          }
+        }
+      }
+    }
+ else     if (pred instanceof And) {
+      if (!pred.has(Flag.POS)) {
+        cc.info(OPTPRED_X,pred);
+        final Expr[] and=((Arr)pred).exprs;
+        final int m=and.length - 1;
+        final ExprList el=new ExprList(preds.length + m);
+        for (        final Expr e : Arrays.asList(preds).subList(0,p))         el.add(e);
+        for (        final Expr a : and) {
+          el.add(Function.BOOLEAN.get(cc.sc(),info,a).optimizeEbv(cc));
+        }
+        for (        final Expr e : Arrays.asList(preds).subList(p + 1,preds.length))         el.add(e);
+        preds=el.finish();
+      }
+    }
+ else     if (pred instanceof ANum) {
+      final ANum it=(ANum)pred;
+      final long i=it.itr();
+      if (i != it.dbl())       return optPre(cc);
+      pred=Pos.get(i,info);
+      if (!(pred instanceof Pos))       return optPre(cc);
+      preds[p]=pred;
+    }
+ else     if (pred.isValue()) {
+      if (pred.ebv(cc.qc,info).bool(info)) {
+        cc.info(OPTREMOVE_X_X,this,pred);
+        preds=Array.delete(preds,p--);
+      }
+ else {
+        return optPre(cc);
+      }
+    }
+  }
+  return this;
+}

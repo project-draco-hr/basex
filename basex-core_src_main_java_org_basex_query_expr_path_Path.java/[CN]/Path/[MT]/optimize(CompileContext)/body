@@ -1,0 +1,26 @@
+{
+  final Value v=initial(cc);
+  if (v != null && v.isEmpty() || emptyPath(v))   return optPre(cc);
+  for (  final Expr step : steps)   if (step.isEmpty())   return optPre(cc);
+  Expr e=mergeSteps(cc);
+  if (e != this)   return e.optimize(cc);
+  if (v != null) {
+    e=index(cc,v);
+    if (e != this)     return e.optimize(cc);
+    e=children(cc,v);
+    if (e != this)     return e.optimize(cc);
+  }
+  final Path path=get(info,root,steps);
+  final int sl=path.steps.length;
+  final Expr lastExpr=path.steps[sl - 1];
+  path.size=path.size(cc);
+  path.seqType=SeqType.get(lastExpr.seqType().type,path.size);
+  if (path.root == null && sl == 1 && lastExpr instanceof Step) {
+    final Step lastStep=(Step)lastExpr;
+    if (lastStep.axis == ATTR && lastStep.test.unique) {
+      lastStep.seqType=lastStep.seqType.withOcc(Occ.ZERO_ONE);
+      path.seqType=lastStep.seqType;
+    }
+  }
+  return path;
+}

@@ -1,0 +1,17 @@
+{
+  try {
+    super.compile(cc);
+    if (expr.isValue())     return optPre(expr,cc);
+  }
+ catch (  final QueryException ex) {
+    if (!ex.isCatchable())     throw ex;
+    for (    final Catch c : catches) {
+      if (c.matches(ex)) {
+        return optPre(c.compile(cc).asExpr(ex,cc),cc);
+      }
+    }
+    throw ex;
+  }
+  for (  final Catch c : catches)   c.compile(cc);
+  return optimize(cc);
+}

@@ -1,0 +1,37 @@
+{
+  cc.removeScope();
+  final BitSet declared=new BitSet();
+  final BitSet used=new BitSet();
+  expr.visit(new ASTVisitor(){
+    @Override public boolean declared(    final Var var){
+      declared.set(var.id);
+      return true;
+    }
+    @Override public boolean used(    final VarRef ref){
+      used.set(ref.var.id);
+      return true;
+    }
+  }
+);
+  final Iterator<Var> iter=vars.iterator();
+  while (iter.hasNext()) {
+    final Var v=iter.next();
+    if (!declared.get(v.id)) {
+      v.slot=-1;
+      iter.remove();
+    }
+  }
+  if (expr instanceof Closure) {
+    final Iterator<Entry<Var,Expr>> cls=((Closure)expr).globalBindings();
+    while (cls.hasNext()) {
+      final Entry<Var,Expr> e=cls.next();
+      final Var v=e.getKey();
+      if (!used.get(v.id)) {
+        cls.remove();
+        v.slot=-1;
+        vars.remove(v);
+      }
+    }
+  }
+  for (int i=vars.size(); --i >= 0; )   vars.get(i).slot=i;
+}

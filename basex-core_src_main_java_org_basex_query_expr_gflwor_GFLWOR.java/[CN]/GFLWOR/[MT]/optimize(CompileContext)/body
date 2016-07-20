@@ -1,0 +1,105 @@
+{
+  final ListIterator<Clause> iter=clauses.listIterator();
+  while (iter.hasNext()) {
+    final Clause clause=iter.next();
+    if (clause instanceof Where) {
+      final Where wh=(Where)clause;
+      if (wh.expr instanceof And) {
+        iter.remove();
+        for (        final Expr e : ((Arr)wh.expr).exprs)         iter.add(new Where(e,wh.info));
+      }
+    }
+  }
+  boolean changed;
+  do {
+    changed=forToLet(cc);
+    changed|=slideLetsOut(cc);
+    changed|=inlineLets(cc);
+    changed|=removeVars(cc);
+    changed|=cleanDeadVars();
+    changed|=unnestFLWR(cc);
+    changed|=optimizeWhere(cc);
+    changed|=optimizePos(cc);
+    if (clauses.isEmpty()) {
+      cc.info(QueryText.OPTFLWOR,this);
+      return ret;
+    }
+    if (clauses.getLast() instanceof For && ret instanceof VarRef) {
+      final For last=(For)clauses.getLast();
+      if (!last.var.checksType() && last.var.is(((VarRef)ret).var)) {
+        clauses.removeLast();
+        ret=last.expr;
+        changed=true;
+      }
+    }
+    if (!clauses.isEmpty() && clauses.getFirst() instanceof For) {
+      final For fst=(For)clauses.getFirst();
+      if (!fst.empty) {
+        if (fst.expr instanceof GFLWOR) {
+          cc.info(QueryText.OPTFLAT_X_X,description(),fst.var);
+          final GFLWOR sub=(GFLWOR)fst.expr;
+          clauses.set(0,new For(fst.var,null,fst.score,sub.ret,false));
+          if (fst.pos != null)           clauses.add(1,new Count(fst.pos));
+          clauses.addAll(0,sub.clauses);
+          changed=true;
+        }
+ else         if (clauses.size() > 1 && clauses.get(1) instanceof Count) {
+          final Count cnt=(Count)clauses.get(1);
+          if (fst.pos != null) {
+            final VarRef vr=new VarRef(cnt.info,fst.pos);
+            final Let lt=new Let(cnt.var,vr.optimize(cc),false);
+            clauses.set(1,lt.optimize(cc));
+          }
+ else {
+            final For fr=new For(fst.var,cnt.var,fst.score,fst.expr,false);
+            clauses.set(0,fr.optimize(cc));
+            clauses.remove(1);
+          }
+          changed=true;
+        }
+      }
+    }
+    if (!clauses.isEmpty()) {
+      if (ret instanceof GFLWOR) {
+        final GFLWOR sub=(GFLWOR)ret;
+        if (sub.isFLW()) {
+          final Clause c=sub.clauses.getFirst();
+          final ExprInfo var=c instanceof ForLet ? ((ForLet)c).var : c;
+          cc.info(QueryText.OPTFLAT_X_X,description(),var);
+          clauses.addAll(sub.clauses);
+          ret=sub.ret;
+          changed=true;
+        }
+      }
+      final TypeCheck tc=ret instanceof TypeCheck ? (TypeCheck)ret : null;
+      if (ret instanceof GFLWOR || tc != null && tc.expr instanceof GFLWOR) {
+        final GFLWOR sub=(GFLWOR)(tc == null ? ret : tc.expr);
+        final Clause c=sub.clauses.getFirst();
+        if (c instanceof Let) {
+          cc.info(QueryText.OPTFLAT_X_X,description(),((Let)c).var);
+          final LinkedList<Clause> cls=sub.clauses;
+          do {
+            clauses.add(cls.removeFirst());
+          }
+ while (!cls.isEmpty() && cls.getFirst() instanceof Let);
+          if (tc != null)           tc.expr=sub.optimize(cc);
+          ret=ret.optimize(cc);
+          changed=true;
+        }
+      }
+    }
+  }
+ while (changed);
+  mergeWheres();
+  size=calcSize();
+  if (size == 0 && !has(Flag.NDT) && !has(Flag.UPD)) {
+    cc.info(QueryText.OPTREWRITE_X,this);
+    return Empty.SEQ;
+  }
+  seqType=SeqType.get(ret.seqType().type,size);
+  if (clauses.getFirst() instanceof Where) {
+    final Where wh=(Where)clauses.removeFirst();
+    return new If(info,wh.expr,clauses.isEmpty() ? ret : this,Empty.SEQ);
+  }
+  return this;
+}

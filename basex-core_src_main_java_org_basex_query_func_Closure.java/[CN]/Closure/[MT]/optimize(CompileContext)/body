@@ -1,0 +1,44 @@
+{
+  final SeqType r=expr.seqType(), rt=type == null || r.instanceOf(type) ? r : type;
+  seqType=FuncType.get(anns,rt,args).seqType();
+  size=1;
+  scope.prepareCompile(cc);
+  try {
+    final Iterator<Entry<Var,Expr>> cls=global.entrySet().iterator();
+    Map<Var,Expr> add=null;
+    final int limit=cc.qc.context.options.get(MainOptions.INLINELIMIT);
+    while (cls.hasNext()) {
+      final Entry<Var,Expr> e=cls.next();
+      final Var v=e.getKey();
+      final Expr c=e.getValue();
+      if (c instanceof Value) {
+        final Expr inlined=expr.inline(v,v.checkType((Value)c,cc.qc,true),cc);
+        if (inlined != null)         expr=inlined;
+        cls.remove();
+      }
+ else       if (c instanceof Closure) {
+        final Closure cl=(Closure)c;
+        if (!cl.has(Flag.NDT) && !cl.has(Flag.UPD) && cl.global.size() < 5 && expr.count(v) != VarUsage.MORE_THAN_ONCE && cl.exprSize() < limit) {
+          cc.info(OPTINLINE_X,e);
+          for (          final Entry<Var,Expr> e2 : cl.global.entrySet()) {
+            final Var v2=cc.copy(e2.getKey(),null);
+            if (add == null)             add=new HashMap<>();
+            add.put(v2,e2.getValue());
+            e2.setValue(new VarRef(cl.info,v2));
+          }
+          final Expr inlined=expr.inline(v,cl,cc);
+          if (inlined != null)           expr=inlined;
+          cls.remove();
+        }
+      }
+    }
+    if (add != null)     global.putAll(add);
+  }
+ catch (  final QueryException qe) {
+    expr=FnError.get(qe,type != null ? type : expr.seqType(),cc.sc());
+  }
+ finally {
+    scope.finishCompile(this,cc);
+  }
+  return global.isEmpty() ? preEval(cc) : this;
+}

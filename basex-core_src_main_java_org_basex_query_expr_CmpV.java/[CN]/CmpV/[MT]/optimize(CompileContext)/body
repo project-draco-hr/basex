@@ -1,0 +1,32 @@
+{
+  if (swap()) {
+    cc.info(OPTSWAP_X,this);
+    op=op.swap();
+  }
+  final Expr e1=exprs[0], e2=exprs[1];
+  final SeqType st1=e1.seqType(), st2=e2.seqType();
+  seqType=SeqType.get(AtomType.BLN,st1.one() && !st1.mayBeArray() && st2.one()&& !st2.mayBeArray() ? Occ.ONE : Occ.ZERO_ONE);
+  Expr e=this;
+  if (oneIsEmpty()) {
+    e=optPre(cc);
+  }
+ else   if (allAreValues()) {
+    e=preEval(cc);
+  }
+ else   if (e1.isFunction(Function.COUNT)) {
+    e=compCount(op,cc);
+    if (e != this)     cc.info(e instanceof Bln ? OPTPRE_X : OPTREWRITE_X,this);
+  }
+ else   if (e1.isFunction(Function.STRING_LENGTH)) {
+    e=compStringLength(op,cc);
+    if (e != this)     cc.info(e instanceof Bln ? OPTPRE_X : OPTREWRITE_X,this);
+  }
+ else   if (e1.isFunction(Function.POSITION)) {
+    e=Pos.get(op,e2,e,info);
+    if (e != this)     cc.info(OPTREWRITE_X,this);
+  }
+ else   if (st1.eq(SeqType.BLN) && (op == OpV.EQ && e2 == Bln.FALSE || op == OpV.NE && e2 == Bln.TRUE)) {
+    e=Function.NOT.get(cc.sc(),info,e1);
+  }
+  return e;
+}

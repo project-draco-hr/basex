@@ -1,0 +1,20 @@
+{
+  if (compiled)   return;
+  compiled=true;
+  if (check) {
+    final StaticFunc sf=cc.qc.funcs.get(name,args.length,info,true);
+    anns=sf.anns;
+    seqType=sf.funcType().seqType();
+  }
+  scope.prepareCompile(cc);
+  try {
+    expr=expr.compile(cc);
+    expr.markTailCalls(null);
+  }
+ catch (  final QueryException e) {
+    expr=FnError.get(e,seqType,scope.sc);
+  }
+ finally {
+    scope.finishCompile(this,cc);
+  }
+}

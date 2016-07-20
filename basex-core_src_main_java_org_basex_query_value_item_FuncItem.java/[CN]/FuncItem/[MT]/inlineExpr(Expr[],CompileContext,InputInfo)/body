@@ -1,0 +1,22 @@
+{
+  if (!StaticFunc.inline(cc,anns,expr) || expr.has(Flag.CTX))   return null;
+  cc.info(OPTINLINE_X,this);
+  final LinkedList<Clause> cls=exprs.length == 0 ? null : new LinkedList<Clause>();
+  final IntObjMap<Var> vs=new IntObjMap<>();
+  final int pl=params.length;
+  for (int p=0; p < pl; p++) {
+    cls.add(new Let(cc.copy(params[p],vs),exprs[p],false).optimize(cc));
+  }
+  final Expr rt=expr.copy(cc,vs);
+  rt.accept(new ASTVisitor(){
+    @Override public boolean inlineFunc(    final Scope sub){
+      return sub.visit(this);
+    }
+    @Override public boolean dynFuncCall(    final DynFuncCall call){
+      call.markInlined(FuncItem.this);
+      return true;
+    }
+  }
+);
+  return cls == null ? rt : new GFLWOR(ii,cls,rt).optimize(cc);
+}

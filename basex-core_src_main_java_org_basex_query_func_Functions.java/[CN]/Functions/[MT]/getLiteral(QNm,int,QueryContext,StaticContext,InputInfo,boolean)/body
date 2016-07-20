@@ -6,7 +6,7 @@
     final Expr e=new Cast(sc,info,new VarRef(info,args[0]),type.seqType());
     final AnnList anns=new AnnList();
     final FuncType ft=FuncType.get(anns,e.seqType(),args);
-    return closureOrFItem(anns,name,args,ft,e,scp,sc,info,runtime,false);
+    return closureOrFItem(anns,name,args,ft,e,scp,info,runtime,false);
   }
   final Function fn=get().getBuiltIn(name,arity,info);
   if (fn != null) {
@@ -26,7 +26,7 @@
       anns.add(new Ann(info,Annotation.UPDATING));
       qc.updating();
     }
-    return sf.has(Flag.CTX) || sf.has(Flag.POS) ? new FuncLit(anns,name,args,sf,ft,scp,sc,info) : closureOrFItem(anns,name,args,fn.type(arity,anns),sf,scp,sc,info,runtime,upd);
+    return sf.has(Flag.CTX) || sf.has(Flag.POS) ? new FuncLit(anns,name,args,sf,ft,scp,info) : closureOrFItem(anns,name,args,fn.type(arity,anns),sf,scp,info,runtime,upd);
   }
   final StaticFunc sf=qc.funcs.get(name,arity,info,false);
   if (sf != null) {
@@ -40,7 +40,7 @@
     }
     final boolean upd=sf.updating;
     final TypedFunc tf=qc.funcs.getFuncRef(sf.name,calls,sc,info);
-    final Expr f=closureOrFItem(tf.anns,sf.name,args,ft,tf.fun,scp,sc,info,runtime,upd);
+    final Expr f=closureOrFItem(tf.anns,sf.name,args,ft,tf.fun,scp,info,runtime,upd);
     if (upd)     qc.updating();
     return f;
   }
@@ -54,5 +54,5 @@
     args[v]=new VarRef(info,vs[v]);
   }
   final Expr jf=JavaFunction.get(name,args,qc,sc,info);
-  return jf == null ? null : new FuncLit(new AnnList(),name,vs,jf,jt,scp,sc,info);
+  return jf == null ? null : new FuncLit(new AnnList(),name,vs,jf,jt,scp,info);
 }

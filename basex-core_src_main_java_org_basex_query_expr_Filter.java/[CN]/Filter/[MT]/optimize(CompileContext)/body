@@ -1,0 +1,61 @@
+{
+  if (root.isEmpty())   return optPre(cc);
+  final Value cv=cc.qc.value;
+  try {
+    cc.qc.value=Path.initial(cc,root);
+    final Expr e=super.optimize(cc);
+    if (e != this)     return e;
+  }
+  finally {
+    cc.qc.value=cv;
+  }
+  seqType(root.seqType(),root.size());
+  if (size == 0)   return optPre(cc);
+  final Expr ex=simplify(root,preds);
+  if (ex != null)   return ex.optimize(cc);
+  if (root instanceof ContextValue || root instanceof Value && root.data() != null) {
+    final Path ip=Path.get(info,root,Step.get(info,SELF,Test.NOD,preds));
+    final Expr ie=ip.index(cc,Path.initial(cc,root));
+    if (ie != ip)     return ie;
+  }
+  if (!super.has(Flag.POS))   return copyType(new IterFilter(info,root,preds));
+  Expr e=root;
+  boolean opt=false;
+  for (  final Expr pred : preds) {
+    final Pos pos=pred instanceof Pos ? (Pos)pred : null;
+    final boolean last=pred.isFunction(Function.LAST);
+    if (last) {
+      if (e.isValue()) {
+        e=FnSubsequence.eval((Value)e,e.size(),1);
+      }
+ else {
+        e=Function._UTIL_LAST_FROM.get(cc.sc(),info,e);
+      }
+      opt=true;
+    }
+ else     if (pos != null) {
+      if (e.isValue()) {
+        e=FnSubsequence.eval((Value)e,pos.min,pos.max - pos.min + 1);
+      }
+ else       if (pos.min == pos.max) {
+        e=Function._UTIL_ITEM_AT.get(cc.sc(),info,e,Int.get(pos.min));
+      }
+ else {
+        e=Function._UTIL_ITEM_RANGE.get(cc.sc(),info,e,Int.get(pos.min),Int.get(pos.max));
+      }
+      opt=true;
+    }
+ else     if (num(pred)) {
+      e=Function._UTIL_ITEM_AT.get(cc.sc(),info,e,pred);
+      opt=true;
+    }
+ else {
+      e=e instanceof Filter ? ((Filter)e).addPred(pred) : get(info,e,pred);
+    }
+  }
+  if (opt) {
+    cc.info(QueryText.OPTREWRITE_X,this);
+    return e.optimize(cc);
+  }
+  return get(info,root,preds);
+}

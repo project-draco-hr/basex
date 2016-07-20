@@ -1,0 +1,43 @@
+{
+  cond=cond.optimizeEbv(cc);
+  if (cond.isValue())   return optPre(exprs[branch(cc.qc)],cc);
+  if (exprs[0].sameAs(exprs[1]))   return optPre(exprs[0],cc);
+  if (cond.isFunction(Function.NOT)) {
+    cc.info(OPTREWRITE_X,this);
+    cond=((Arr)cond).exprs[0];
+    final Expr tmp=exprs[0];
+    exprs[0]=exprs[1];
+    exprs[1]=tmp;
+  }
+  if (exprs[0].seqType().eq(SeqType.BLN) && exprs[1].seqType().eq(SeqType.BLN)) {
+    final Expr a=cond, b=exprs[0], c=exprs[1];
+    if (b == Bln.TRUE) {
+      if (c == Bln.FALSE) {
+        cc.info(OPTPRE_X,this);
+        return compBln(a,info,cc.sc());
+      }
+      cc.info(OPTREWRITE_X,this);
+      return new Or(info,a,c).optimize(cc);
+    }
+    if (c == Bln.TRUE) {
+      if (b == Bln.FALSE) {
+        cc.info(OPTPRE_X,this);
+        return Function.NOT.get(cc.sc(),info,a).optimize(cc);
+      }
+      cc.info(OPTREWRITE_X,this);
+      final Expr notA=Function.NOT.get(cc.sc(),info,a).optimize(cc);
+      return new Or(info,notA,b).optimize(cc);
+    }
+    if (b == Bln.FALSE) {
+      cc.info(OPTREWRITE_X,this);
+      final Expr notA=Function.NOT.get(cc.sc(),info,a).optimize(cc);
+      return new And(info,notA,c).optimize(cc);
+    }
+    if (c == Bln.FALSE) {
+      cc.info(OPTREWRITE_X,this);
+      return new And(info,a,b).optimize(cc);
+    }
+  }
+  seqType=exprs[0].seqType().union(exprs[1].seqType());
+  return this;
+}

@@ -1,0 +1,18 @@
+{
+  if (empty || !(vars.length == 1 && ex.uses(var) && ex.removable(var)))   return false;
+  final Value cv=cc.qc.value;
+  Expr pred=ex;
+  try {
+    cc.qc.value=null;
+    final ContextValue c=new ContextValue(info);
+    c.seqType=expr.seqType().type.seqType();
+    final Expr r=ex.inline(var,c,cc);
+    if (r != null)     pred=r;
+  }
+  finally {
+    cc.qc.value=cv;
+  }
+  if (pred.seqType().mayBeNumber())   pred=Function.BOOLEAN.get(cc.sc(),info,pred);
+  addPredicate(pred);
+  return true;
+}

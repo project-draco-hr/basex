@@ -1,0 +1,15 @@
+{
+  final int sl=steps.length;
+  if (steps[sl - 1] instanceof Step) {
+    final Step step=(Step)steps[sl - 1];
+    if (step.preds.length == 1 && step.seqType().type instanceof NodeType && !step.preds[0].seqType().mayBeNumber()) {
+      final Expr s=step.merge(this,cc);
+      if (s != step) {
+        cc.info(OPTREWRITE_X,this);
+        step.preds=new Expr[0];
+        return s;
+      }
+    }
+  }
+  return super.optimizeEbv(cc);
+}

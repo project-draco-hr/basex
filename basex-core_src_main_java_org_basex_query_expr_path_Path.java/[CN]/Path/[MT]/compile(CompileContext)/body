@@ -1,0 +1,27 @@
+{
+  if (root != null)   root=root.compile(cc);
+  if (steps.length == 0)   return root == null ? new ContextValue(info) : root;
+  final Value init=cc.qc.value, cv=initial(cc);
+  cc.qc.value=cv;
+  final boolean doc=cv != null && cv.type == NodeType.DOC;
+  try {
+    final int sl=steps.length;
+    for (int s=0; s < sl; s++) {
+      final Expr step=steps[s];
+      final boolean as=step instanceof Step;
+      if (as && s == 0 && doc)       cv.type=NodeType.NOD;
+      try {
+        steps[s]=step.compile(cc);
+      }
+ catch (      final QueryException ex) {
+        steps[s]=FnError.get(ex,seqType,cc.sc());
+      }
+      if (!as)       cc.qc.value=null;
+    }
+  }
+  finally {
+    if (doc)     cv.type=NodeType.DOC;
+    cc.qc.value=init;
+  }
+  return optimize(cc);
+}

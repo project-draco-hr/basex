@@ -1,0 +1,28 @@
+{
+  final Expr f=body();
+  final Type tp=f.seqType().type;
+  final int nargs=exprs.length - 1;
+  if (tp instanceof FuncType) {
+    final FuncType ft=(FuncType)tp;
+    if (ft.argTypes != null && ft.argTypes.length != nargs)     throw INVARITY_X_X_X_X.get(info,nargs,nargs == 1 ? "" : "s",ft.argTypes.length,f.toErrorString());
+    if (ft.type != null) {
+      SeqType rt=ft.type;
+      if (tp instanceof MapType && !rt.mayBeZero())       rt=rt.withOcc(rt.one() ? Occ.ZERO_ONE : Occ.ZERO_MORE);
+      seqType=rt;
+    }
+  }
+  if ((f instanceof Map || f instanceof org.basex.query.value.array.Array) && allAreValues())   return optPre(value(cc.qc),cc);
+  if (f instanceof XQFunctionExpr) {
+    final XQFunctionExpr fe=(XQFunctionExpr)f;
+    if (!(f instanceof FuncItem && comesFrom((FuncItem)f))) {
+      checkUpdating(fe);
+      final Expr[] args=Arrays.copyOf(exprs,nargs);
+      final Expr in=fe.inlineExpr(args,cc,info);
+      if (in != null)       return in;
+    }
+  }
+ else   if (f instanceof Item) {
+    throw INVFUNCITEM_X_X.get(info,((Item)f).type,f);
+  }
+  return this;
+}

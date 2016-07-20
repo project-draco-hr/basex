@@ -1,0 +1,25 @@
+{
+  if (expr == null)   throw VAREMPTY_X.get(info,name());
+  if (dontEnter)   throw CIRCVAR_X.get(info,name());
+  if (!compiled) {
+    dontEnter=true;
+    scope.prepareCompile(cc);
+    try {
+      expr=expr.compile(cc);
+    }
+ catch (    final QueryException qe) {
+      compiled=true;
+      if (lazy) {
+        expr=FnError.get(qe,expr.seqType(),sc);
+        return;
+      }
+      throw qe.notCatchable();
+    }
+ finally {
+      scope.finishCompile(this,cc);
+      dontEnter=false;
+    }
+    compiled=true;
+    if (!lazy || expr.isValue())     bind(value(cc.qc));
+  }
+}

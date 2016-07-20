@@ -1,0 +1,30 @@
+{
+  if (preds.length != 1 || !(root.seqType().type instanceof NodeType))   return this;
+  final Expr pred=preds[0];
+  if (pred instanceof ContextValue)   return root;
+  if (!pred.seqType().mayBeNumber()) {
+    if (pred instanceof Path)     return Path.get(info,root,pred).optimize(cc);
+    if (pred instanceof CmpG) {
+      final CmpG cmp=(CmpG)pred;
+      final Expr expr1=cmp.exprs[0], expr2=cmp.exprs[1];
+      if (!expr2.has(Flag.CTX)) {
+        Expr path=null;
+        if (expr1 instanceof ContextValue)         path=root;
+        if (expr1 instanceof Path)         path=Path.get(info,root,expr1).optimize(cc);
+        if (path != null)         return new CmpG(path,expr2,cmp.op,cmp.coll,cmp.sc,cmp.info);
+      }
+    }
+    if (pred instanceof FTContains) {
+      final FTContains cmp=(FTContains)pred;
+      final FTExpr ftexpr=cmp.ftexpr;
+      if (!ftexpr.has(Flag.CTX)) {
+        final Expr expr=cmp.expr;
+        Expr path=null;
+        if (expr instanceof ContextValue)         path=root;
+        if (expr instanceof Path)         path=Path.get(info,root,expr).optimize(cc);
+        if (path != null)         return new FTContains(path,ftexpr,cmp.info);
+      }
+    }
+  }
+  return this;
+}

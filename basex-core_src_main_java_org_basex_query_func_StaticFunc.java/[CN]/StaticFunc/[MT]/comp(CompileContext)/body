@@ -1,0 +1,27 @@
+{
+  if (compiled || expr == null)   return;
+  compiling=compiled=true;
+  final Value cv=cc.qc.value;
+  cc.qc.value=null;
+  scope.prepareCompile(cc);
+  try {
+    expr=expr.compile(cc);
+    if (type != null) {
+      if ((type.type == AtomType.BLN || type.type == AtomType.FLT || type.type == AtomType.DBL || type.type == AtomType.QNM || type.type == AtomType.URI) && type.eq(expr.seqType())) {
+        cc.info(OPTTYPE_X,type);
+      }
+ else {
+        expr=new TypeCheck(sc,info,expr,type,true).optimize(cc);
+      }
+    }
+  }
+ catch (  final QueryException qe) {
+    expr=FnError.get(qe,expr.seqType(),sc);
+  }
+ finally {
+    scope.finishCompile(this,cc);
+    cc.qc.value=cv;
+  }
+  expr.markTailCalls(cc);
+  compiling=false;
+}

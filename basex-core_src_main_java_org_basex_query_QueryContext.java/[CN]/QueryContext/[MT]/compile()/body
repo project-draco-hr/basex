@@ -1,21 +1,23 @@
 {
   if (compiled)   return;
+  final CompileContext cc=new CompileContext(this);
   try {
     final StringList opts=tempOpts;
     final int os=opts.size();
     for (int o=0; o < os; o+=2) {
+      final String key=opts.get(o), val=opts.get(o + 1);
       try {
-        context.options.assign(opts.get(o).toUpperCase(Locale.ENGLISH),opts.get(o + 1));
+        context.options.assign(key.toUpperCase(Locale.ENGLISH),val);
       }
  catch (      final BaseXException ex) {
-        throw BASX_VALUE_X_X.get(null,opts.get(o),opts.get(o + 1));
+        throw BASX_VALUE_X_X.get(null,key,val);
       }
     }
     maxCalls=context.options.get(MainOptions.TAILCALLS);
     vars.bindExternal(this,bindings);
     if (ctxItem != null) {
       try {
-        ctxItem.compile(this);
+        ctxItem.comp(cc);
         value=ctxItem.cache(this).value();
       }
  catch (      final QueryException ex) {
@@ -32,7 +34,14 @@
     if (value != null && root.sc.contextType != null) {
       value=root.sc.contextType.promote(value,null,true,this,root.sc,null);
     }
-    analyze();
+    try {
+      if (root != null)       QueryCompiler.compile(cc,root);
+ else       funcs.compile(cc);
+    }
+ catch (    final StackOverflowError ex) {
+      Util.debug(ex);
+      throw BASX_STACKOVERFLOW.get(null,ex);
+    }
     info.runtime=true;
   }
   finally {

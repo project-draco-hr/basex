@@ -1,0 +1,44 @@
+{
+  boolean changed=false, thisRound;
+  do {
+    thisRound=false;
+    final ListIterator<Clause> iter=clauses.listIterator();
+    while (iter.hasNext()) {
+      final Clause clause=iter.next();
+      final boolean isFor=clause instanceof For, isLet=clause instanceof Let;
+      if (isFor) {
+        final For fr=(For)clause;
+        if (!fr.empty && fr.pos == null && fr.expr instanceof GFLWOR) {
+          final GFLWOR fl=(GFLWOR)fr.expr;
+          if (fl.isFLW()) {
+            cc.info(QueryText.OPTFLAT_X_X,description(),fr.var);
+            iter.remove();
+            for (            final Clause cls : fl.clauses)             iter.add(cls);
+            fr.expr=fl.ret;
+            iter.add(fr);
+            thisRound=changed=true;
+          }
+        }
+      }
+      if (!thisRound && (isFor || isLet)) {
+        final Expr e=isFor ? ((For)clause).expr : ((Let)clause).expr;
+        if (e instanceof GFLWOR) {
+          final GFLWOR fl=(GFLWOR)e;
+          final LinkedList<Clause> cls=fl.clauses;
+          if (cls.getFirst() instanceof Let) {
+            iter.remove();
+            do             iter.add(cls.removeFirst());
+ while (!cls.isEmpty() && cls.getFirst() instanceof Let);
+            final Expr rest=fl.clauses.isEmpty() ? fl.ret : fl.optimize(cc);
+            if (isFor)             ((For)clause).expr=rest;
+ else             ((Let)clause).expr=rest;
+            iter.add(clause);
+            thisRound=changed=true;
+          }
+        }
+      }
+    }
+  }
+ while (thisRound);
+  return changed;
+}

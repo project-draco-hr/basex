@@ -1,0 +1,32 @@
+{
+  boolean changed=false;
+  for (int c=0; c < clauses.size(); c++) {
+    final Clause clause=clauses.get(c);
+    if (!(clause instanceof For))     continue;
+    final For pos=(For)clause;
+    if (pos.pos == null)     continue;
+    for (int i=c + 1; i < clauses.size(); i++) {
+      final Clause cl=clauses.get(i);
+      if (!(cl instanceof Where)) {
+        if (!(cl instanceof For || cl instanceof Let) || cl.has(Flag.NDT) || cl.has(Flag.UPD))         break;
+        continue;
+      }
+      final Where w=(Where)cl;
+      if (!(w.expr instanceof CmpR))       continue;
+      final CmpR cmp=(CmpR)w.expr;
+      if (!(cmp.expr instanceof VarRef))       continue;
+      clauses.remove(i);
+      if (count(pos.pos,c) == VarUsage.NEVER) {
+        pos.addPredicate(Pos.get(cmp));
+        pos.expr=pos.expr.optimize(cc);
+        cc.info(QueryText.OPTPRED_X,cmp);
+        changed=true;
+      }
+ else {
+        clauses.add(i,cl);
+      }
+      break;
+    }
+  }
+  return changed;
+}

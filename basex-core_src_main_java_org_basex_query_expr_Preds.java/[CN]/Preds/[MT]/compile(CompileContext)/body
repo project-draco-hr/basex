@@ -1,0 +1,19 @@
+{
+  final Value init=cc.qc.value;
+  if (init != null && init.isEmpty())   cc.qc.value=null;
+  try {
+    final int pl=preds.length;
+    for (int p=0; p < pl; ++p) {
+      try {
+        preds[p]=preds[p].compile(cc);
+      }
+ catch (      final QueryException ex) {
+        preds[p]=FnError.get(ex,seqType,cc.sc());
+      }
+    }
+  }
+  finally {
+    cc.qc.value=init;
+  }
+  return optimize(cc);
+}
