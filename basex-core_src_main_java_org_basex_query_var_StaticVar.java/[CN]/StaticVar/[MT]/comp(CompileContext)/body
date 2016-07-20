@@ -3,20 +3,20 @@
   if (dontEnter)   throw CIRCVAR_X.get(info,name());
   if (!compiled) {
     dontEnter=true;
-    scope.prepareCompile(cc);
+    cc.pushScope(vs);
     try {
       expr=expr.compile(cc);
     }
  catch (    final QueryException qe) {
       compiled=true;
       if (lazy) {
-        expr=FnError.get(qe,expr.seqType(),sc);
+        expr=cc.error(qe,expr);
         return;
       }
       throw qe.notCatchable();
     }
  finally {
-      scope.finishCompile(this,cc);
+      cc.removeScope(this);
       dontEnter=false;
     }
     compiled=true;

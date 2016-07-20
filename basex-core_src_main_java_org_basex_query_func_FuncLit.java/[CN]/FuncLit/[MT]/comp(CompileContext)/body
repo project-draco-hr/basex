@@ -6,15 +6,15 @@
     anns=sf.anns;
     seqType=sf.funcType().seqType();
   }
-  scope.prepareCompile(cc);
+  cc.pushScope(vs);
   try {
     expr=expr.compile(cc);
     expr.markTailCalls(null);
   }
  catch (  final QueryException e) {
-    expr=FnError.get(e,seqType,scope.sc);
+    expr=cc.error(e,this);
   }
  finally {
-    scope.finishCompile(this,cc);
+    cc.removeScope(this);
   }
 }

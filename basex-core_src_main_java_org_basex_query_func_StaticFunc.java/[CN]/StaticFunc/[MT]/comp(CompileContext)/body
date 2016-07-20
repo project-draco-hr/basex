@@ -3,7 +3,7 @@
   compiling=compiled=true;
   final Value cv=cc.qc.value;
   cc.qc.value=null;
-  scope.prepareCompile(cc);
+  cc.pushScope(vs);
   try {
     expr=expr.compile(cc);
     if (type != null) {
@@ -16,10 +16,10 @@
     }
   }
  catch (  final QueryException qe) {
-    expr=FnError.get(qe,expr.seqType(),sc);
+    expr=cc.error(qe,expr);
   }
  finally {
-    scope.finishCompile(this,cc);
+    cc.removeScope(this);
     cc.qc.value=cv;
   }
   expr.markTailCalls(cc);

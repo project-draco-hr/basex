@@ -2,7 +2,7 @@
   final SeqType r=expr.seqType(), rt=type == null || r.instanceOf(type) ? r : type;
   seqType=FuncType.get(anns,rt,args).seqType();
   size=1;
-  scope.prepareCompile(cc);
+  cc.pushScope(vs);
   try {
     final Iterator<Entry<Var,Expr>> cls=global.entrySet().iterator();
     Map<Var,Expr> add=null;
@@ -35,10 +35,10 @@
     if (add != null)     global.putAll(add);
   }
  catch (  final QueryException qe) {
-    expr=FnError.get(qe,type != null ? type : expr.seqType(),cc.sc());
+    expr=cc.error(qe,expr);
   }
  finally {
-    scope.finishCompile(this,cc);
+    cc.removeScope(this);
   }
   return global.isEmpty() ? preEval(cc) : this;
 }
