@@ -1,24 +1,19 @@
 {
-  try {
-    if (!init(context))     return error(error);
-    final StringBuilder sb=new StringBuilder();
-    for (    final Command c : list) {
-      if (c.openDB && context.data() == null)       return error(NO_DB_OPENED);
-      try {
-        final boolean ok=pushJob(c).run(context,out);
-        sb.append(c.info());
-        if (!ok) {
-          exception=c.exception();
-          return error(sb.toString());
-        }
-      }
-  finally {
-        popJob();
+  if (!init(context))   return error(error);
+  final StringBuilder sb=new StringBuilder();
+  for (  final Command cmd : commands) {
+    if (cmd.openDB && context.data() == null)     return error(NO_DB_OPENED);
+    try {
+      final boolean ok=pushJob(cmd).run(context,out);
+      sb.append(cmd.info());
+      if (!ok) {
+        exception=cmd.exception();
+        return error(sb.toString());
       }
     }
-    return info(sb.toString().replaceAll("\r?\n?$",""));
-  }
   finally {
-    finish(context);
+      popJob();
+    }
   }
+  return info(sb.toString().replaceAll("\r?\n?$",""));
 }

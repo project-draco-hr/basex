@@ -12,8 +12,7 @@
     final Item state=states.itemAt(s);
     final String inname=text("*:query/@name",state);
     final IOFile query=new IOFile(queries + pth + inname+ IO.XQSUFFIX);
-    context.options.set(MainOptions.QUERYPATH,query.path());
-    final String in=read(query);
+    final String in=query.string();
     String er=null;
     Value value=null;
     final Value cont=nodes("*:contextItem",state);
@@ -24,7 +23,7 @@
       curr=DBNodeSeq.get(d.resources.docs(),d,true,true);
     }
     context.options.set(MainOptions.QUERYINFO,compile);
-    try (final QueryProcessor qp=new QueryProcessor(in,context)){
+    try (final QueryProcessor qp=new QueryProcessor(in,query.path(),context)){
       if (curr != null)       qp.context(curr);
       context.options.set(MainOptions.QUERYINFO,false);
       final ArrayOutput ao=new ArrayOutput();
@@ -47,6 +46,7 @@
         }
        }
  catch (      final Exception ex) {
+        Util.debug(ex);
         if (!(ex instanceof QueryException || ex instanceof IOException)) {
           Util.errln("\n*** " + outname + " ***");
           Util.errln(in + '\n');
@@ -66,7 +66,7 @@
       for (      final Item item : expOut) {
         final String resFile=string(item.string(null));
         final IOFile exp=new IOFile(expected + pth + resFile);
-        result.add(read(exp).replaceAll("\r\n|\r|\n",Prop.NL));
+        result.add(exp.string().replaceAll("\r\n|\r|\n",Prop.NL));
       }
       final Value cmpFiles=nodes("*:output-file/@compare",state);
       boolean xml=false, frag=false, ignore=false;

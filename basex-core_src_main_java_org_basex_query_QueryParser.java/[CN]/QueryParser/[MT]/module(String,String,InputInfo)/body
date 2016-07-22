@@ -16,16 +16,16 @@
     throw error(WHICHMODFILE_X,io);
   }
   qc.modStack.push(tPath);
-  final StaticContext sub=new StaticContext(qc);
-  final LibraryModule lib=new QueryParser(qu,io.path(),qc,sub).parseLibrary(false);
+  final StaticContext sctx=new StaticContext(qc);
+  final LibraryModule lib=new QueryParser(qu,io.path(),qc,sctx).parseLibrary(false);
   final byte[] muri=lib.name.uri();
   if (!uri.equals(string(muri)))   throw WRONGMODULE_X_X_X.get(info,io.name(),uri,muri);
-  if (sub.contextType != null) {
+  if (sctx.contextType != null) {
     if (sc.contextType == null) {
-      sc.contextType=sub.contextType;
+      sc.contextType=sctx.contextType;
     }
- else     if (!sub.contextType.eq(sc.contextType)) {
-      throw error(CITYPES_X_X,sub.contextType,sc.contextType);
+ else     if (!sctx.contextType.eq(sc.contextType)) {
+      throw error(CITYPES_X_X,sctx.contextType,sc.contextType);
     }
   }
   qc.modStack.pop();

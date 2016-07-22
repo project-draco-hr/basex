@@ -9,14 +9,14 @@
       if (edit.opened())       edit.save();
     }
   }
-  IOFile file=editor.file();
   editor.last=in;
+  IOFile file=editor.file();
   final boolean xquery=file.hasSuffix(IO.XQSUFFIXES) || !file.path().contains(".");
   if (editor.script && run) {
     gui.execute(true,new Execute(string(in)));
   }
  else   if (xquery || run) {
-    String input=in.length == 0 ? "()" : string(in);
+    String input=string(in);
     boolean lib=QueryProcessor.isLibrary(input);
     final boolean exec=action == Action.EXECUTE || gui.gopts.get(GUIOptions.EXECRT);
     if (exec && lib) {
@@ -27,9 +27,8 @@
         lib=false;
       }
     }
-    gui.context.options.set(MainOptions.QUERYPATH,file.path());
     if (!lib && exec) {
-      gui.execute(true,new XQuery(input));
+      gui.execute(true,new XQuery(input).baseURI(file.path()));
       execFile=file;
     }
  else     if (action == Action.TEST) {
@@ -37,7 +36,7 @@
       execFile=file;
     }
  else {
-      parse(input,lib);
+      parse(input,file,lib);
     }
   }
  else   if (file.hasSuffix(IO.JSONSUFFIX)) {
@@ -55,7 +54,7 @@
     final ArrayInput ai=new ArrayInput(in);
     try {
       if (startsWith(in,'<') || !editor.script)       new XmlParser().parse(ai);
-      if (editor.script)       new CommandParser(string(in),gui.context).parse();
+      if (editor.script)       CommandParser.get(string(in),gui.context).parse();
       info(null);
     }
  catch (    final Exception ex) {

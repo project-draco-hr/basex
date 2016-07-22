@@ -8,7 +8,9 @@
   final String input=file.string();
   if (file.hasSuffix(IO.BXSSUFFIX)) {
     try {
-      for (      final Command cmd : new CommandParser(input,context).parse())       session.add(cmd);
+      for (      final Command cmd : CommandParser.get(input,context).parse()) {
+        session.add(cmd.baseURI(file.path()));
+      }
     }
  catch (    final QueryException ex) {
       throw new IOException(ex);
@@ -17,5 +19,5 @@
  else {
     session.add(new XQuery(input));
   }
-  return new RESTRun(session,vars,val,file.path());
+  return new RESTRun(session,vars,val);
 }
