@@ -16,10 +16,11 @@
     throw error(WHICHMODFILE_X,io);
   }
   qc.modStack.push(tPath);
-  final StaticContext sctx=new StaticContext(qc);
-  final LibraryModule lib=new QueryParser(qu,io.path(),qc,sctx).parseLibrary(false);
+  final QueryParser qp=new QueryParser(qu,io.path(),qc,null);
+  final LibraryModule lib=qp.parseLibrary(false);
   final byte[] muri=lib.name.uri();
   if (!uri.equals(string(muri)))   throw WRONGMODULE_X_X_X.get(info,io.name(),uri,muri);
+  final StaticContext sctx=qp.sc;
   if (sctx.contextType != null) {
     if (sc.contextType == null) {
       sc.contextType=sctx.contextType;
