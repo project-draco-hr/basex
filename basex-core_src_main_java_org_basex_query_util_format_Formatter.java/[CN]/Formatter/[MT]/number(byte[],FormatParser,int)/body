@@ -1,0 +1,57 @@
+{
+  final int zero=zeroes(first);
+  final int[] mod=new TokenParser(fp.primary).toArray();
+  final int modSize=mod.length;
+  int modStart=0;
+  while (modStart < modSize && mod[modStart] == '#')   modStart++;
+  int sepPos=-1, sepChar=-1, digitPos=0;
+  boolean regSep=false;
+  for (int mp=modSize - 1; mp >= modStart; --mp) {
+    final int ch=mod[mp];
+    if (ch >= zero && ch <= zero + 9) {
+      digitPos=mp;
+      continue;
+    }
+    if (ch == '#')     continue;
+    if (sepPos == -1) {
+      sepPos=modSize - mp;
+      sepChar=ch;
+      regSep=true;
+    }
+ else     if (regSep) {
+      regSep=(modSize - mp) % sepPos == 0 && ch == sepChar;
+    }
+  }
+  if (!regSep)   sepPos=Integer.MAX_VALUE;
+  final IntList reverse=new IntList();
+  int inPos=num.length - 1, modPos=modSize - 1;
+  int min=fp.min, max=fp.max;
+  while ((--min >= 0 || inPos >= 0 || modPos >= modStart) && --max >= 0) {
+    final boolean sep=reverse.size() % sepPos == sepPos - 1;
+    int ch;
+    if (modPos >= modStart) {
+      ch=mod[modPos--];
+      if (inPos >= 0) {
+        if (ch == '#' && sep)         reverse.add(sepChar);
+        if (ch == '#' || ch >= zero && ch <= zero + 9)         ch=num[inPos--] - '0' + zero;
+      }
+ else {
+        if (ch == '#')         break;
+        if (ch >= zero && ch <= zero + 9)         ch=zero;
+        if (regSep && modPos + 1 < digitPos)         break;
+      }
+    }
+ else     if (inPos >= 0) {
+      if (sep)       reverse.add(sepChar);
+      ch=num[inPos--] - '0' + zero;
+    }
+ else {
+      ch=zero;
+    }
+    reverse.add(ch);
+  }
+  while (min-- >= 0)   reverse.add(zero);
+  final TokenBuilder result=new TokenBuilder();
+  for (int rs=reverse.size() - 1; rs >= 0; --rs)   result.add(reverse.get(rs));
+  return result.finish();
+}

@@ -94,7 +94,6 @@ err=dat;
 break;
 case 'f':
 frac=date.sec().remainder(BigDecimal.ONE);
-num=frac.movePointRight(3).intValue();
 err=dat;
 break;
 case 'Z':
@@ -153,9 +152,9 @@ fp.primary=ONE;
 tb.add(formatInt(num,fp));
 }
 }
- else {
-if (frac != null && frac.compareTo(BigDecimal.ZERO) != 0) {
-String s=frac.toString().replace("0.","");
+ else if (frac != null) {
+String s=frac.toString().replace("0.","").replaceAll("0+$","");
+if (frac.compareTo(BigDecimal.ZERO) != 0) {
 final int sl=s.length();
 if (fp.min > sl) {
 s=frac(frac,fp.min);
@@ -167,8 +166,10 @@ s=frac(frac,fp.max);
 final int fl=fp.primary.length;
 if (fl != 1 && fl != sl) s=frac(frac,fl);
 }
-num=Strings.toLong(s);
 }
+tb.add(number(token(s),fp,fp.first));
+}
+ else {
 tb.add(formatInt(num,fp));
 }
 }
