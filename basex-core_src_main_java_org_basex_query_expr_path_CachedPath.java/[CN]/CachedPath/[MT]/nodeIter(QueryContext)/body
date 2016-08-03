@@ -1,25 +1,24 @@
 {
-  final long cp=qc.pos, cs=qc.size;
-  final Value cv=qc.value, r=root != null ? qc.value(root) : cv;
+  final QueryFocus qf=qc.focus;
+  final Value r=root != null ? qc.value(root) : qf.value;
+  qc.focus=focus;
   final ANodeList list=new ANodeList().check();
   try {
     if (r != null) {
       final Iter ir=qc.iter(r);
       for (Item it; (it=ir.next()) != null; ) {
         if (root != null && !(it instanceof ANode))         throw PATHNODE_X_X_X.get(info,steps[0],it.type,it);
-        qc.value=it;
+        focus.value=it;
         iter(0,list,qc);
       }
     }
  else {
-      qc.value=null;
+      focus.value=null;
       iter(0,list,qc);
     }
   }
   finally {
-    qc.value=cv;
-    qc.size=cs;
-    qc.pos=cp;
+    qc.focus=qf;
   }
   return list.iter();
 }

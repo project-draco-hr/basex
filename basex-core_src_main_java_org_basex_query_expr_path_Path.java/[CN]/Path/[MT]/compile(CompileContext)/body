@@ -1,8 +1,9 @@
 {
   if (root != null)   root=root.compile(cc);
   if (steps.length == 0)   return root == null ? new ContextValue(info) : root;
-  final Value init=cc.qc.value, cv=initial(cc);
-  cc.qc.value=cv;
+  final QueryFocus focus=cc.qc.focus;
+  final Value init=focus.value, cv=initial(cc);
+  focus.value=cv;
   final boolean doc=cv != null && cv.type == NodeType.DOC;
   try {
     final int sl=steps.length;
@@ -16,12 +17,12 @@
  catch (      final QueryException ex) {
         steps[s]=cc.error(ex,this);
       }
-      if (!as)       cc.qc.value=null;
+      if (!as)       focus.value=null;
     }
   }
   finally {
     if (doc)     cv.type=NodeType.DOC;
-    cc.qc.value=init;
+    focus.value=init;
   }
   return optimize(cc);
 }

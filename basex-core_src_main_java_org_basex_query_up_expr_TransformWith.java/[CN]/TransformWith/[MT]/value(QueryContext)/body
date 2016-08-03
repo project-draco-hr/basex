@@ -1,13 +1,14 @@
 {
   final Updates upd=qc.updates();
-  final Value cv=qc.value;
+  final QueryFocus qf=qc.focus;
+  final Value cv=qf.value;
   final ValueBuilder vb=new ValueBuilder();
   try {
     final Iter ir=qc.iter(exprs[0]);
     for (Item it; (it=ir.next()) != null; ) {
       if (!(it instanceof ANode))       throw UPSOURCE_X.get(info,it);
       it=((ANode)it).dbNodeCopy(qc.context.options);
-      qc.value=it;
+      qf.value=it;
       final Updates updates=new Updates(true);
       qc.updates=updates;
       updates.addData(it.data());
@@ -20,7 +21,7 @@
   }
   finally {
     qc.updates=upd;
-    qc.value=cv;
+    qf.value=cv;
   }
   return vb.value();
 }

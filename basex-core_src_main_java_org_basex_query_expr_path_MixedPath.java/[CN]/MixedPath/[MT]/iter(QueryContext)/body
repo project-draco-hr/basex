@@ -19,25 +19,25 @@
     iter=rt.iter();
     sz=rt.size();
   }
-  final Value cv=qc.value;
-  final long cp=qc.pos, cs=qc.size;
+  final QueryFocus qf=qc.focus;
+  qc.focus=focus;
   try {
     final int sl=steps.length;
     for (int s=0; s < sl; s++) {
-      qc.size=sz;
-      qc.pos=1;
+      focus.size=sz;
+      focus.pos=1;
       final ANodeList nodes=new ANodeList().check();
       final ItemList items=new ItemList();
       final Expr step=steps[s];
       for (Item it; (it=iter.next()) != null; ) {
         if (!(it instanceof ANode))         throw PATHNODE_X_X_X.get(info,step,it.type,it);
-        qc.value=it;
+        focus.value=it;
         final Iter ir=qc.iter(step);
         for (Item i; (i=ir.next()) != null; ) {
           if (i instanceof ANode)           nodes.add((ANode)i);
  else           items.add(i);
         }
-        qc.pos++;
+        focus.pos++;
       }
       if (items.isEmpty()) {
         iter=nodes.iter();
@@ -52,8 +52,6 @@
     return iter;
   }
   finally {
-    qc.value=cv;
-    qc.size=cs;
-    qc.pos=cp;
+    qc.focus=qf;
   }
 }

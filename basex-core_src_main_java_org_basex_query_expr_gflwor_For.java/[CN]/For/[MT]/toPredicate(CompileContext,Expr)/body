@@ -1,16 +1,17 @@
 {
   if (empty || !(vars.length == 1 && ex.uses(var) && ex.removable(var)))   return false;
-  final Value cv=cc.qc.value;
+  final QueryFocus focus=cc.qc.focus;
+  final Value v=focus.value;
   Expr pred=ex;
   try {
-    cc.qc.value=null;
-    final ContextValue c=new ContextValue(info);
-    c.seqType=expr.seqType().type.seqType();
-    final Expr r=ex.inline(var,c,cc);
+    focus.value=null;
+    final ContextValue cv=new ContextValue(info);
+    cv.seqType=expr.seqType().type.seqType();
+    final Expr r=ex.inline(var,cv,cc);
     if (r != null)     pred=r;
   }
   finally {
-    cc.qc.value=cv;
+    focus.value=v;
   }
   if (pred.seqType().mayBeNumber())   pred=cc.function(Function.BOOLEAN,info,pred);
   addPredicate(pred);
