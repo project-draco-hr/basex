@@ -19,15 +19,20 @@
     String input=string(in);
     boolean lib=QueryProcessor.isLibrary(input);
     final boolean exec=action == Action.EXECUTE || gui.gopts.get(GUIOptions.EXECRT);
-    if (exec && lib) {
-      final EditorArea ea=execEditor();
-      if (ea != null) {
-        file=ea.file();
-        input=string(ea.getText());
-        lib=false;
+    if (exec) {
+      if (lib) {
+        final EditorArea ea=execEditor();
+        if (ea != null) {
+          file=ea.file();
+          input=string(ea.getText());
+          lib=false;
+        }
       }
     }
-    if (!lib && exec) {
+ else     if (input.isEmpty()) {
+      input="()";
+    }
+    if (exec && !lib) {
       gui.execute(true,new XQuery(input).baseURI(file.path()));
       execFile=file;
     }
