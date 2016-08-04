@@ -16,19 +16,24 @@
     gui.execute(true,new Execute(string(in)));
   }
  else   if (xquery || run) {
-    String input=in.length == 0 ? "()" : string(in);
+    String input=string(in);
     boolean lib=QueryProcessor.isLibrary(input);
     final boolean exec=action == Action.EXECUTE || gui.gopts.get(GUIOptions.EXECRT);
-    if (exec && lib) {
-      final EditorArea ea=execEditor();
-      if (ea != null) {
-        file=ea.file();
-        input=string(ea.getText());
-        lib=false;
+    if (exec) {
+      if (lib) {
+        final EditorArea ea=execEditor();
+        if (ea != null) {
+          file=ea.file();
+          input=string(ea.getText());
+          lib=false;
+        }
       }
     }
+ else     if (input.isEmpty()) {
+      input="()";
+    }
     gui.context.options.set(MainOptions.QUERYPATH,file.path());
-    if (!lib && exec) {
+    if (exec && !lib) {
       gui.execute(true,new XQuery(input));
       execFile=file;
     }
