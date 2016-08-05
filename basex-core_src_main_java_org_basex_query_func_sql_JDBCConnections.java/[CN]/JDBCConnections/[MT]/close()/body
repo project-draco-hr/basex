@@ -1,14 +1,9 @@
 {
-  final int is=conns.size();
-  for (int i=0; i < is; i++) {
-    final int key=conns.key(i);
-    final Object obj=conns.get(key);
-    if (obj == null)     continue;
+  for (  final AutoCloseable ac : conns.values()) {
     try {
-      if (obj instanceof Connection)       ((Connection)obj).close();
- else       ((Statement)obj).close();
+      if (ac != null)       ac.close();
     }
- catch (    final SQLException ex) {
+ catch (    final Exception ex) {
       Util.debug(ex);
     }
   }

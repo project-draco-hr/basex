@@ -4,10 +4,13 @@
   final BasicNodeIter it=target.ancestor();
   for (ANode p; (p=it.next()) != null; )   anc=p;
   final int ancID=anc.id;
-  MemData data=fragmentIDs.get(ancID);
-  if (data == null) {
-    data=(MemData)anc.dbNodeCopy(qc.context.options).data();
-    fragmentIDs.put(ancID,data);
+  MemData data;
+synchronized (fragmentIDs) {
+    data=fragmentIDs.get(ancID);
+    if (data == null) {
+      data=(MemData)anc.dbNodeCopy(qc.context.options).data();
+      fragmentIDs.put(ancID,data);
+    }
   }
   final int pre=preSteps(anc,target.id);
   return new DBNode(data,pre);
