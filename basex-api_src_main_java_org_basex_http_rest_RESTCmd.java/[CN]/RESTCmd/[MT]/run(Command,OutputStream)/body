@@ -1,8 +1,12 @@
 {
   try {
     final boolean ok=pushJob(cmd).run(context,os);
-    error(cmd.info());
-    if (!ok)     throw HTTPCode.BAD_REQUEST_X.get(cmd.info());
+    final String info=cmd.info();
+    error(info);
+    if (!ok) {
+      if (cmd instanceof Open)       code=HTTPCode.NOT_FOUND_X;
+      throw HTTPCode.BAD_REQUEST_X.get(info);
+    }
   }
   finally {
     popJob();

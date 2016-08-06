@@ -3,9 +3,7 @@
   final HTTPContext http=session.http;
   final String db=http.db();
   if (db.isEmpty())   throw HTTPCode.NO_PATH.get();
-  session.add(new Open(db));
   final String path=http.dbpath();
-  if (path.isEmpty())   session.add(new DropDB(db));
- else   session.add(new Delete(path));
-  return new RESTExec(session);
+  session.add(path.isEmpty() ? new DropDB(db) : new Delete(path));
+  return new RESTExec(session,false);
 }

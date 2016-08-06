@@ -1,13 +1,13 @@
 {
   final RESTSession session=new RESTSession(http,http.context(true));
-  final RESTCmd cmd=code(session);
+  final String db=http.db(), path=http.dbpath();
+  if (!db.isEmpty())   session.add(new Open(db,path));
+  final RESTCmd cmd=command(session);
   try {
     cmd.execute(session.context);
   }
  catch (  final BaseXException ex) {
-    final String msg=Open.dbnf(http.db());
-    if (ex.getMessage().equals(msg))     throw HTTPCode.NOT_FOUND_X.get(msg);
-    throw ex;
+    if (cmd.code == null)     throw ex;
   }
   final HTTPCode code=cmd.code;
   if (code != null)   throw code.get(cmd.info());
