@@ -1,21 +1,20 @@
 {
   data=ii.ic.data;
   final MetaData md=data.meta;
-  final FTOpt fto=ftt.opt;
-  if (occ != null || fto.cs != null && md.casesens == (fto.cs == FTCase.INSENSITIVE) || fto.isSet(DC) && md.diacritics != fto.is(DC) || fto.isSet(ST) && md.stemming != fto.is(ST) || fto.ln != null && !fto.ln.equals(md.language))   return false;
-  fto.copy(md);
+  if (occ != null || ftOpt.cs != null && md.casesens == (ftOpt.cs == FTCase.INSENSITIVE) || ftOpt.isSet(DC) && md.diacritics != ftOpt.is(DC) || ftOpt.isSet(ST) && md.stemming != ftOpt.is(ST) || ftOpt.ln != null && !ftOpt.ln.equals(md.language))   return false;
+  ftOpt.assign(md);
   if (tokens == null) {
     ii.costs=Math.max(2,data.meta.size / 30);
     return true;
   }
-  final FTLexer ft=new FTLexer(fto);
+  final FTLexer ft=new FTLexer(ftOpt);
   ii.costs=0;
   for (  byte[] t : tokens) {
     ft.init(t);
     while (ft.hasNext()) {
       final byte[] tok=ft.nextToken();
-      if (fto.sw != null && fto.sw.contains(tok))       continue;
-      if (fto.is(WC)) {
+      if (ftOpt.sw != null && ftOpt.sw.contains(tok))       continue;
+      if (ftOpt.is(WC)) {
         t=ft.get();
         if (t[0] == '.')         return false;
         int d=0;

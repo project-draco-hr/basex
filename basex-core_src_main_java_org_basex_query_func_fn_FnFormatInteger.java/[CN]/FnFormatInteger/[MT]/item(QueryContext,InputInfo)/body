@@ -4,8 +4,13 @@
   final Item it=exprs[0].atomItem(qc,info);
   if (it == null)   return Str.ZERO;
   final long num=toLong(it);
+  IntFormat format;
 synchronized (formats) {
-    if (!formats.contains(pic))     formats.put(pic,new IntFormat(pic,info));
+    format=formats.get(pic);
+    if (format == null) {
+      format=new IntFormat(pic,info);
+      formats.put(pic,format);
+    }
   }
-  return Str.get(Formatter.get(lng).formatInt(num,formats.get(pic)));
+  return Str.get(Formatter.get(lng).formatInt(num,format));
 }

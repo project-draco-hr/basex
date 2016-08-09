@@ -1,0 +1,25 @@
+{
+  ftt.first=true;
+  final FTLexer lexer=qc.ftLexer.copy(ftOpt);
+  int num=0;
+  if (simple) {
+    for (    final byte[] t : tokens) {
+      final FTTokens qtok=ftt.cache(t);
+      num=Math.max(num,contains(qtok,lexer,ftt) * qtok.length());
+    }
+    return num;
+  }
+  final boolean all=mode == FTMode.ALL || mode == FTMode.ALL_WORDS;
+  int oc=0;
+  for (  final byte[] w : unique(tokens(qc))) {
+    final FTTokens qtok=ftt.cache(w);
+    final int o=contains(qtok,lexer,ftt);
+    if (all && o == 0)     return 0;
+    num=Math.max(num,o * qtok.length());
+    oc+=o;
+  }
+  final long mn=occ != null ? toLong(occ[0],qc) : 1;
+  final long mx=occ != null ? toLong(occ[1],qc) : Long.MAX_VALUE;
+  if (mn == 0 && oc == 0)   ftt.matches=FTNot.not(ftt.matches);
+  return oc >= mn && oc <= mx ? Math.max(1,num) : 0;
+}

@@ -4,9 +4,9 @@
     int len;
     @Override public FTNode next() throws QueryException {
       if (ftiter == null) {
-        final FTLexer lexer=new FTLexer(ftt.opt);
-        lexer.lserror(qc.context.options.get(MainOptions.LSERROR));
-        int t=0;
+        final FTTokenizer ftt=FTWords.this.get(qc);
+        final FTLexer lexer=new FTLexer(ftOpt).lserror(qc.context.options.get(MainOptions.LSERROR));
+        int count=0;
         for (        final byte[] k : unique(tokens != null ? tokens : tokens(qc))) {
           lexer.init(k);
           if (!lexer.hasNext())           return null;
@@ -14,12 +14,12 @@
           FTIndexIterator ii=null;
           do {
             final byte[] tok=lexer.nextToken();
-            t+=tok.length;
-            if (ftt.opt.sw != null && ftt.opt.sw.contains(tok)) {
+            count+=tok.length;
+            if (ftOpt.sw != null && ftOpt.sw.contains(tok)) {
               ++d;
             }
  else {
-              final FTIndexIterator ir=lexer.get().length > data.meta.maxlen ? scan(lexer) : (FTIndexIterator)data.iter(lexer);
+              final FTIndexIterator ir=lexer.get().length > data.meta.maxlen ? scan(lexer,ftt) : (FTIndexIterator)data.iter(lexer);
               ir.pos(++qc.ftPos);
               if (ii == null) {
                 ii=ir;
@@ -33,17 +33,17 @@
  while (lexer.hasNext());
           if (ii != null) {
             if (ftiter == null) {
-              len=t;
+              len=count;
               ftiter=ii;
             }
  else             if (mode == FTMode.ALL || mode == FTMode.ALL_WORDS) {
               if (ii.size() == 0)               return null;
-              len+=t;
+              len+=count;
               ftiter=FTIndexIterator.intersect(ftiter,ii,0);
             }
  else {
               if (ii.size() == 0)               continue;
-              len=Math.max(t,len);
+              len=Math.max(count,len);
               ftiter=FTIndexIterator.union(ftiter,ii);
             }
           }
