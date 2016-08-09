@@ -1,28 +1,30 @@
 {
-switch (state) {
+  final PathCache cache=caches.get();
+switch (cache.state) {
 case INIT:
-    state=!hasFreeVars() && !has(Flag.NDT) && !has(Flag.UPD) ? Caching.ENABLED : Caching.DISABLED;
+    cache.state=!hasFreeVars() && !has(Flag.NDT) && !has(Flag.UPD) ? State.ENABLED : State.DISABLED;
   return iter(qc);
 case ENABLED:
-cvalue=qc.value instanceof DBNode ? ((DBNode)qc.value).finish() : qc.value;
-state=Caching.READY;
+cache.initial=qc.value instanceof DBNode ? ((DBNode)qc.value).finish() : qc.value;
+cache.state=State.READY;
 break;
 case READY:
-if (sameContext(qc)) {
-cached=nodeIter(qc).value();
-state=Caching.CACHED;
+if (cache.sameContext(qc.value,root)) {
+cache.result=nodeIter(qc).value();
+cache.state=State.CACHED;
 }
  else {
-state=Caching.DISABLED;
+cache.state=State.DISABLED;
 }
 break;
 case CACHED:
-if (!sameContext(qc)) {
-cached=null;
-state=Caching.DISABLED;
+if (!cache.sameContext(qc.value,root)) {
+cache.result=null;
+cache.state=State.DISABLED;
 }
 break;
 case DISABLED:
 }
-return cached == null ? nodeIter(qc) : cached.iter();
+final Value result=cache.result;
+return result == null ? nodeIter(qc) : result.iter();
 }
