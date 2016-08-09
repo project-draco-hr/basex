@@ -1,8 +1,13 @@
 {
   final Data data=root.data();
   if (data == null || !(idref ? data.meta.tokenindex : data.meta.attrindex))   return false;
-  if (!indexed.containsKey(data)) {
-    indexed.put(data,new IndexNames(IndexType.ATTRIBUTE,data).containsIds(idref));
+  Boolean index;
+synchronized (indexed) {
+    index=indexed.get(data);
+    if (index == null) {
+      index=new IndexNames(IndexType.ATTRIBUTE,data).containsIds(idref);
+      indexed.put(data,index);
+    }
   }
-  return indexed.get(data);
+  return index;
 }
