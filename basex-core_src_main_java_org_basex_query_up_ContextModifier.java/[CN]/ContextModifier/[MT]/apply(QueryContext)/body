@@ -1,11 +1,12 @@
 {
+  final Context ctx=qc.context;
   for (  final UserUpdates up : userUpdates.values())   up.apply();
-  if (!userUpdates.isEmpty())   qc.context.users.write();
+  if (!userUpdates.isEmpty())   ctx.users.write(ctx);
   for (  final NameUpdates up : nameUpdates.values())   up.apply(true);
   final Set<Data> datas=new HashSet<>();
   try {
     for (    final Data data : dbUpdates.keySet()) {
-      data.startUpdate(qc.context.options);
+      data.startUpdate(ctx.options);
       datas.add(data);
     }
     for (    final DataUpdates up : dbUpdates.values()) {
@@ -17,7 +18,7 @@
   }
  finally {
     for (    final Data data : datas) {
-      data.finishUpdate(qc.context.options);
+      data.finishUpdate(ctx.options);
     }
   }
   for (  final NameUpdates up : nameUpdates.values())   up.apply(false);
