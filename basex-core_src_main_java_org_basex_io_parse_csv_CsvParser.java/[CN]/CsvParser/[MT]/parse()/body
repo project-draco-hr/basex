@@ -1,33 +1,32 @@
 {
   final TokenBuilder entry=new TokenBuilder();
+  boolean quoted=false;
   data=!header;
   int ch=input.read();
   while (ch != -1) {
     if (quoted) {
-      if (backslashes) {
-        if (ch == '\\') {
-          ch=bs();
-          if (ch == -1)           break;
-        }
- else         if (ch == '"') {
+      if (ch == '"') {
+        ch=input.read();
+        if (ch != '"') {
           quoted=false;
-          ch=input.read();
           continue;
         }
+        if (backslashes)         add(entry,'"');
       }
- else {
-        if (ch == '"') {
-          ch=input.read();
-          if (ch != '"') {
-            quoted=false;
-            continue;
-          }
-        }
+ else       if (ch == '\\' && backslashes) {
+        ch=bs();
       }
       add(entry,ch);
     }
- else     if (quotes && ch == '"') {
-      quoted=true;
+ else     if (ch == '"') {
+      if (quotes && entry.isEmpty()) {
+        quoted=true;
+      }
+ else {
+        ch=input.read();
+        if (ch != '"' || backslashes)         add(entry,'"');
+        continue;
+      }
     }
  else     if (ch == separator) {
       record(entry,true);
@@ -39,10 +38,7 @@
       data=true;
     }
  else {
-      if (backslashes) {
-        if (ch == '\\')         ch=bs();
-        if (ch == -1)         break;
-      }
+      if (ch == '\\' && backslashes)       ch=bs();
       add(entry,ch);
     }
     ch=input.read();
