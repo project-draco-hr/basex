@@ -2,29 +2,33 @@
   checkCreate(qc);
   final String url=string(toToken(exprs[0],qc));
   final JDBCConnections jdbc=jdbc(qc);
+  final Connection conn;
   try {
     if (exprs.length > 2) {
       final String user=string(toToken(exprs[1],qc));
       final String pass=string(toToken(exprs[2],qc));
       if (exprs.length == 4) {
-        final Options opts=toOptions(3,new Options(),qc);
-        boolean ac=true;
-        final HashMap<String,String> options=opts.free();
-        final String commit=options.get(AUTO_COMM);
-        if (commit != null) {
-          ac=Strings.yes(commit);
-          options.remove(AUTO_COMM);
+        final HashMap<String,String> options=toOptions(3,new Options(),qc).free();
+        final Properties props=new Properties();
+        for (        final Entry<String,String> entry : options.entrySet()) {
+          final String key=entry.getKey(), value=entry.getValue();
+          if (!key.equals(AUTOCOMMIT))           props.setProperty(key,value);
         }
-        final Properties props=connProps(options);
         props.setProperty(USER,user);
         props.setProperty(PASS,pass);
-        final Connection conn=getConnection(url,props);
-        conn.setAutoCommit(ac);
-        return Int.get(jdbc.add(conn));
+        conn=DriverManager.getConnection(url,props);
+        if (options.containsKey(AUTOCOMMIT)) {
+          conn.setAutoCommit(Strings.yes(options.get(AUTOCOMMIT)));
+        }
       }
-      return Int.get(jdbc.add(getConnection(url,user,pass)));
+ else {
+        conn=DriverManager.getConnection(url,user,pass);
+      }
     }
-    return Int.get(jdbc.add(getConnection(url)));
+ else {
+      conn=DriverManager.getConnection(url);
+    }
+    return Int.get(jdbc.add(conn));
   }
  catch (  final SQLException ex) {
     throw BXSQ_ERROR_X.get(info,ex);
