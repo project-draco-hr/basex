@@ -1,8 +1,11 @@
 {
-  final int id=id(name.id());
-  if (id == 0)   return null;
-  final Function fl=funcs[id];
-  if (!eq(fl.uri(),name.uri()))   return null;
-  if (arity >= fl.minMax[0] && arity <= fl.minMax[1])   return fl;
-  throw FUNCARGNUM_X_X_X.get(info,fl,arity,arity == 1 ? "" : "s");
+  final Function fn=getBuiltIn(name);
+  if (fn == null)   return null;
+  final int min=fn.minMax[0], max=fn.minMax[1];
+  if (arity >= min && arity <= max)   return fn;
+  final IntList arities=new IntList();
+  if (max != Integer.MAX_VALUE) {
+    for (int m=min; m <= max; m++)     arities.add(m);
+  }
+  throw wrongArity(fn,arity,arities,info);
 }
