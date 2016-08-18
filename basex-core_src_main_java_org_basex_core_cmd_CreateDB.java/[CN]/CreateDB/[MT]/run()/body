@@ -34,8 +34,9 @@
     }
  else {
       if (context.pinned(name))       return error(DB_PINNED_X,name);
+      final DiskBuilder builder=pushJob(new DiskBuilder(name,parser,soptions,options));
       try {
-        pushJob(new DiskBuilder(name,parser,soptions,options)).build().close();
+        builder.build().close();
       }
   finally {
         popJob();
@@ -58,12 +59,10 @@
     throw ex;
   }
 catch (  final IOException ex) {
-    abort();
     return error(Util.message(ex));
   }
 catch (  final Exception ex) {
     Util.stack(ex);
-    abort();
     return error(NOT_PARSED_X,parser.source);
   }
 }
