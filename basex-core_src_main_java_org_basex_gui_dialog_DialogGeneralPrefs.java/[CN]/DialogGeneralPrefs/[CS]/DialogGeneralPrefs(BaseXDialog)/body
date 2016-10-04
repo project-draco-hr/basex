@@ -25,20 +25,29 @@
 );
   mousefocus=new BaseXCheckBox(RT_FOCUS,GUIOptions.MOUSEFOCUS,gopts,d);
   simplefd=new BaseXCheckBox(SIMPLE_FILE_CHOOSER,GUIOptions.SIMPLEFD,gopts,d);
-  final int val=hitsForSlider();
-  limit=new BaseXSlider(0,HITS.length - 1,val,d);
-  limit.addActionListener(new ActionListener(){
+  int val=sliderIndex(gui.gopts.get(GUIOptions.MAXRESULTS),MAXRESULTS);
+  maxResults=new BaseXSlider(0,MAXRESULTS.length - 1,val,d);
+  maxResults.addActionListener(new ActionListener(){
     @Override public void actionPerformed(    final ActionEvent e){
-      action(limit);
+      action(maxResults);
     }
   }
 );
-  label=new BaseXLabel(" ");
+  labelResults=new BaseXLabel(" ");
+  val=sliderIndex(gui.gopts.get(GUIOptions.MAXTEXT),MAXTEXT);
+  maxText=new BaseXSlider(0,MAXTEXT.length - 1,val,d);
+  maxText.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    final ActionEvent e){
+      action(maxText);
+    }
+  }
+);
+  labelText=new BaseXLabel(" ");
   lang=new BaseXCombo(d,LANGS[0]);
   lang.setSelectedItem(opts.get(StaticOptions.LANG));
   creds=new BaseXLabel(" ");
   add(new BaseXLabel(DATABASE_PATH + COL,true,true));
-  BaseXBack p=new BaseXBack(new TableLayout(1,2,8,0));
+  BaseXBack p=new BaseXBack(new TableLayout(1,2,8,0)), pp, ppp;
   p.add(dbPath);
   p.add(dbButton);
   add(p);
@@ -47,14 +56,24 @@
   p.add(repoPath);
   p.add(repoButton);
   add(p);
-  add(new BaseXLabel(GUI_INTERACTIONS + COL,true,true).border(8,0,8,0));
-  p=new BaseXBack(new TableLayout(2,2,40,0));
-  p.add(mousefocus);
-  p.add(new BaseXLabel(MAX_NO_OF_HITS + COL));
-  p.add(simplefd);
-  final BaseXBack pp=new BaseXBack(new TableLayout(1,2,12,0)).border(0);
-  pp.add(limit);
-  pp.add(label);
+  p=new BaseXBack(new TableLayout(2,2,24,0)).border(0);
+  p.add(new BaseXLabel(GUI_INTERACTIONS + COL,true,true).border(8,0,8,0));
+  p.add(new BaseXLabel(LIMITS + COL,true,true).border(8,0,8,0));
+  pp=new BaseXBack(new TableLayout(2,1,0,0)).border(0);
+  pp.add(mousefocus);
+  pp.add(simplefd);
+  p.add(pp);
+  pp=new BaseXBack(new TableLayout(4,1,0,0)).border(0);
+  ppp=new BaseXBack(new TableLayout(1,2,12,0)).border(0);
+  ppp.add(maxResults);
+  ppp.add(labelResults);
+  pp.add(new BaseXLabel(MAX_NO_OF_HITS + COL));
+  pp.add(ppp);
+  ppp=new BaseXBack(new TableLayout(1,2,12,0)).border(0);
+  ppp.add(maxText);
+  ppp.add(labelText);
+  pp.add(new BaseXLabel(SIZE_TEXT_RESULTS + COL));
+  pp.add(ppp);
   p.add(pp);
   add(p);
   add(new BaseXLabel(LANGUAGE_RESTART + COL,true,true).border(8,0,8,0));
