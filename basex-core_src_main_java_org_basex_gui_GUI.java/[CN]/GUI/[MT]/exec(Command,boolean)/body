@@ -1,27 +1,27 @@
 {
-  final int thread=++execID;
+  final int thread=++commandID;
   while (true) {
     final Command c=command;
     if (c == null)     break;
     c.stop();
     Thread.yield();
-    if (execID != thread)     return true;
+    if (commandID != thread)     return true;
   }
   cursor(CURSORWAIT);
   input.setCursor(CURSORWAIT);
   stop.setEnabled(true);
+  if (edit)   editor.pleaseWait(thread);
+  final Data data=context.data();
+  if (gopts.get(GUIOptions.FILTERRT) && data != null && !context.root())   context.invalidate();
+  final DBNodes current=context.current();
+  command=cmd;
+  final ArrayOutput ao=new ArrayOutput();
+  ao.setLimit(gopts.get(GUIOptions.MAXTEXT));
+  cmd.maxResults(gopts.get(GUIOptions.MAXRESULTS));
+  final Performance perf=new Performance();
   boolean ok=true;
   try {
-    final Performance perf=new Performance();
-    final Data data=context.data();
-    if (gopts.get(GUIOptions.FILTERRT) && data != null && !context.root())     context.invalidate();
-    final DBNodes current=context.current();
-    command=cmd;
-    final ArrayOutput ao=new ArrayOutput();
-    ao.setLimit(gopts.get(GUIOptions.MAXTEXT));
-    cmd.maxResults(gopts.get(GUIOptions.MAXRESULTS));
     updating=cmd.updating(context);
-    if (edit)     editor.pleaseWait();
     if (cmd.newData(context))     notify.init();
     cmd.job().listener=infoListener;
     String inf=null;
@@ -39,8 +39,7 @@
  finally {
       updating=false;
     }
-    final String time=perf.getTime();
-    info.setInfo(inf,cmd,time,ok,true);
+    final String time=info.setInfo(inf,cmd,perf.getTime(),ok,true);
     final boolean stopped=inf.endsWith(INTERRUPTED);
     if (edit)     editor.info(cause,stopped,true);
     final Value result=cmd.result();
@@ -80,8 +79,8 @@
           if (context.marked != m)           notify.mark(m,null);
         }
       }
-      if (thread == execID && !stopped) {
-        status.setText(Util.info(TIME_NEEDED_X,time));
+      if (thread == commandID && !stopped) {
+        status.setText(TIME_REQUIRED + COLS + time);
         if (result != null)         setResults(result.size());
         if (nodes == null)         text.setText(ao);
         if (!updated)         text.cache(ao,cmd,result);

@@ -1,5 +1,5 @@
 {
-  final Performance p=new Performance();
+  final Performance perf=new Performance();
   String error;
   if (exception != null) {
     error=Util.message(exception);
@@ -16,24 +16,24 @@
           popJob();
         }
         qp(query,context);
-        parse(p);
+        parse(perf);
         if (r == 0)         plan(false);
         qp.compile();
-        info.compiling+=p.time();
+        info.compiling+=perf.time();
         if (r == 0)         plan(true);
         if (!run)         continue;
         final PrintOutput po=r == 0 && serial ? out : new NullOutput();
         try (final Serializer ser=qp.getSerializer(po)){
           if (maxResults >= 0) {
             result=qp.cache(maxResults);
-            info.evaluating+=p.time();
+            info.evaluating+=perf.time();
             result.serialize(ser);
             hits=result.size();
           }
  else {
             hits=0;
             final Iter ir=qp.iter();
-            info.evaluating+=p.time();
+            info.evaluating+=perf.time();
             for (Item it; (it=ir.next()) != null; ) {
               ser.serialize(it);
               ++hits;
@@ -42,7 +42,7 @@
           }
         }
          qp.close();
-        info.serializing+=p.time();
+        info.serializing+=perf.time();
       }
       if (soptions.get(StaticOptions.GLOBALLOCK) && qp.updating) {
         info.readLocked=null;
