@@ -1,11 +1,13 @@
 {
-  out.writeNum(type.ordinal() | 0x10);
-  if (type == StatsType.INTEGER || type == StatsType.DOUBLE) {
+  StatsType t=type;
+  if ((t == StatsType.NONE || t == StatsType.STRING) && values != null && !values.isEmpty())   t=StatsType.CATEGORY;
+  out.writeNum(t.ordinal() | 0x10);
+  if (t == StatsType.INTEGER || t == StatsType.DOUBLE) {
     out.writeDouble(min);
     out.writeDouble(max);
   }
- else   if (type == StatsType.CATEGORY) {
-    cats.write(out);
+ else   if (t == StatsType.CATEGORY) {
+    values.write(out);
   }
   out.writeNum(count);
   out.writeBool(leaf);

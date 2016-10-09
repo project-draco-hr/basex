@@ -6,9 +6,14 @@
   out.writeDouble(1);
   boolean leaf=stats.isLeaf();
   for (  final PathNode child : children) {
-    leaf&=child.kind == Data.TEXT || child.kind == Data.ATTR;
+    if (child.kind == Data.TEXT) {
+      if (empty != 0)       child.stats.add(Token.EMPTY,meta);
+    }
+ else     if (child.kind != Data.ATTR) {
+      leaf=false;
+    }
   }
   stats.setLeaf(leaf);
   stats.write(out);
-  for (  final PathNode child : children)   child.write(out);
+  for (  final PathNode child : children)   child.write(out,meta);
 }

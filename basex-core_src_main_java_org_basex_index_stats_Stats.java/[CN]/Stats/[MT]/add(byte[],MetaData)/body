@@ -1,42 +1,39 @@
 {
-  final int vl=value.length;
-  if (vl == 0 || type == StatsType.TEXT || ws(value))   return;
   StatsType t=type;
-  if (t == StatsType.NONE)   t=StatsType.INTEGER;
-  if (cats != null && cats.size() <= meta.maxcats) {
-    if (value.length > meta.maxlen) {
-      t=StatsType.TEXT;
-      cats=null;
+  final int vl=value.length;
+  if (vl > 0) {
+    if (t == StatsType.NONE) {
+      t=StatsType.INTEGER;
     }
+    if (t == StatsType.INTEGER) {
+      final long d=toLong(value);
+      if (d == Long.MIN_VALUE) {
+        t=StatsType.DOUBLE;
+      }
  else {
-      cats.put(value,Math.max(1,cats.get(value) + 1));
+        if (min > d)         min=d;
+        if (max < d)         max=d;
+      }
     }
-  }
-  if (t == StatsType.INTEGER) {
-    final long d=toLong(value);
-    if (d == Long.MIN_VALUE) {
-      t=StatsType.DOUBLE;
-    }
+    if (t == StatsType.DOUBLE) {
+      final double d=toDouble(value);
+      if (Double.isNaN(d)) {
+        t=StatsType.STRING;
+      }
  else {
-      if (min > d)       min=d;
-      if (max < d)       max=d;
-    }
-  }
-  if (t == StatsType.DOUBLE) {
-    final double d=toDouble(value);
-    if (Double.isNaN(d)) {
-      t=cats.size() <= meta.maxcats ? StatsType.CATEGORY : StatsType.TEXT;
-    }
- else {
-      if (min > d)       min=d;
-      if (max < d)       max=d;
-    }
-  }
- else   if (t == StatsType.CATEGORY) {
-    if (cats.size() > meta.maxcats) {
-      t=StatsType.TEXT;
-      cats=null;
+        if (min > d)         min=d;
+        if (max < d)         max=d;
+      }
     }
   }
   type=t;
+  if (values != null) {
+    if (vl > meta.maxlen || vl > 0 && ws(value)) {
+      values=null;
+    }
+ else {
+      values.put(value,Math.max(1,values.get(value) + 1));
+      if (values.size() > meta.maxcats)       values=null;
+    }
+  }
 }

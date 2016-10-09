@@ -1,6 +1,6 @@
 {
-  int nameId=elemNames.index(name,null,true);
-  path.put(nameId,Data.ELEM,level);
+  int nameId=elemNames.index(name);
+  path.index(nameId,Data.ELEM,level);
   final int pre=meta.size;
   elemStack.set(level,nameId);
   parStack.set(level,pre);
@@ -12,15 +12,14 @@
   if (uriId == 0 && pref.length != 0 && !eq(pref,XML))   throw new BuildException(WHICHNS,parser.detailedInfo(),prefix(name));
   addElem(dis,nameId,Math.min(IO.MAXATTS,as + 1),uriId,!nsp.isEmpty());
   for (int a=0; a < as; ++a) {
-    final byte[] an=atts.name(a), av=atts.value(a);
-    final byte[] ap=prefix(an);
-    nameId=attrNames.index(an,av,true);
+    final byte[] an=atts.name(a), av=atts.value(a), ap=prefix(an);
+    nameId=attrNames.index(an,av);
     uriId=nspaces.uriIdForPrefix(ap,false);
     if (uriId == 0 && ap.length != 0 && !eq(ap,XML))     throw new BuildException(WHICHNS,parser.detailedInfo(),an);
-    path.put(nameId,Data.ATTR,level + 1,av,meta);
+    path.index(nameId,Data.ATTR,level + 1,av,meta);
     addAttr(nameId,av,Math.min(IO.MAXATTS,a + 1),uriId);
   }
-  if (level > 1)   elemNames.stat(elemStack.get(level - 1)).setLeaf(false);
+  if (level > 1)   elemNames.stats(elemStack.get(level - 1)).setLeaf(false);
   limit(elemNames.size(),0x8000,LIMITELEMS);
   limit(attrNames.size(),0x8000,LIMITATTS);
   limit(nspaces.size(),0x100,LIMITNS);
