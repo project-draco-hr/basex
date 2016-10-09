@@ -1,19 +1,12 @@
 {
-  final int k=in.readNum();
-  type=StatsType.values()[k & 0xF];
-  if (type == StatsType.INTEGER || type == StatsType.DOUBLE) {
+  final int t=in.readNum() & 0xF;
+  type=(byte)t;
+  if (isInteger(t) || isDouble(t)) {
     min=in.readDouble();
     max=in.readDouble();
   }
- else   if (type == StatsType.CATEGORY) {
-    if (k > 0xF) {
-      values=new TokenIntMap(in);
-    }
- else {
-      values=new TokenIntMap();
-      final int cl=in.readNum();
-      for (int i=0; i < cl; ++i)       values.add(in.readToken());
-    }
+  if (isCategory(t)) {
+    values=new TokenIntMap(in);
   }
   count=in.readNum();
   leaf=in.readBool();

@@ -6,15 +6,13 @@
   if (drawX) {
     if (plotChanged) {
       if (plotData.pres.length > 0)       axis.calcCaption(pWidth);
-      final StatsType type=plotData.xAxis.type;
-      xLog.setEnabled((type == StatsType.DOUBLE || type == StatsType.INTEGER) && Math.abs(axis.min - axis.max) >= 1);
+      xLog.setEnabled(StatsType.isNumeric(plotData.xAxis.type) && Math.abs(axis.min - axis.max) >= 1);
     }
   }
  else {
     if (plotChanged) {
       if (plotData.pres.length > 0)       axis.calcCaption(pHeight);
-      final StatsType type=plotData.yAxis.type;
-      yLog.setEnabled((type == StatsType.DOUBLE || type == StatsType.INTEGER) && Math.abs(axis.min - axis.max) >= 1);
+      yLog.setEnabled(StatsType.isNumeric(plotData.yAxis.type) && Math.abs(axis.min - axis.max) >= 1);
     }
   }
   if (plotData.pres.length < 1) {
@@ -22,12 +20,11 @@
     drawCaptionAndGrid(g,drawX,"",1);
     return;
   }
-  final StatsType type=axis.type;
   final int nrCaptions=axis.nrCaptions;
   final double step=axis.actlCaptionStep;
   final double capRange=1.0d / (nrCaptions - 1);
   g.setFont(font);
-  if (type == StatsType.STRING) {
+  if (StatsType.isString(axis.type)) {
     final int nrCats=axis.nrCats;
     final double[] coSorted=Arrays.copyOf(axis.co,axis.co.length);
     drawCaptionAndGrid(g,drawX,nrCats > 1 ? string(axis.firstCat) : "",0);

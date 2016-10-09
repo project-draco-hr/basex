@@ -1,27 +1,22 @@
 {
   final StringBuilder sb=new StringBuilder(count + "x");
-  String typ="", ext="";
-switch (type) {
-case CATEGORY:
-    typ="distinct values";
-  ext="(" + values.size() + ")";
-break;
-case DOUBLE:
-typ="doubles";
-ext="[" + min + ", "+ max+ "]";
-break;
-case INTEGER:
-typ="integers";
-ext="[" + (int)min + ", "+ (int)max+ "]";
-break;
-case STRING:
-typ="strings";
-break;
-default :
-break;
-}
-if (!typ.isEmpty()) sb.append(", ").append(typ);
-if (!ext.isEmpty()) sb.append(' ').append(ext);
-if (leaf) sb.append(", leaf");
-return sb.toString();
+  if (!isNone(type)) {
+    sb.append(", ");
+    final int size=values != null ? values.size() : 0;
+    if (size > 1)     sb.append(size + " distinct ");
+    sb.append(StatsType.toString(type));
+    if (size != 1)     sb.append("s");
+    if (isNumeric(type)) {
+      sb.append(" [");
+      final int mn=(int)min, mx=(int)max;
+      if (mn == min)       sb.append(mn);
+ else       sb.append(min);
+      sb.append(", ");
+      if (mx == max)       sb.append(mx);
+ else       sb.append(max);
+      sb.append(']');
+    }
+  }
+  if (leaf)   sb.append(", leaf");
+  return sb.toString();
 }

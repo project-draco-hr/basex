@@ -1,12 +1,18 @@
 {
-  StatsType t=type;
-  if ((t == StatsType.NONE || t == StatsType.STRING) && values != null && !values.isEmpty())   t=StatsType.CATEGORY;
-  out.writeNum(t.ordinal() | 0x10);
-  if (t == StatsType.INTEGER || t == StatsType.DOUBLE) {
+  if (values != null) {
+    if (values.isEmpty()) {
+      values=null;
+    }
+ else     if (!isCategory(type)) {
+      type=type == INTEGER ? INTEGER_CATEGORY : type == DOUBLE ? DOUBLE_CATEGORY : STRING_CATEGORY;
+    }
+  }
+  out.writeNum(type | 0x10);
+  if (isNumeric(type)) {
     out.writeDouble(min);
     out.writeDouble(max);
   }
- else   if (t == StatsType.CATEGORY) {
+  if (isCategory(type)) {
     values.write(out);
   }
   out.writeNum(count);
